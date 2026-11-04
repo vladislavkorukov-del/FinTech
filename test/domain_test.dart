@@ -44,6 +44,163 @@ void main() {
     status: status,
   );
 
+  group('Goal ledger transfers', () {
+    const goal = Goal(
+      id: 'trip',
+      name: 'Отпуск',
+      targetMinor: 500000,
+      savedMinor: 500,
+    );
+    const dollarGoal = Goal(
+      id: 'usd-trip',
+      name: 'USD отпуск',
+      currency: 'USD',
+      targetMinor: 100000,
+    );
+    final ledger = data.copyWith(goals: [goal, dollarGoal]);
+    FinanceEntry contribution({String status = 'posted', int amount = 10000}) =>
+        FinanceEntry(
+          id: 'goal-transfer',
+          kind: EntryKind.transfer,
+          amountMinor: amount,
+          currency: 'RUB',
+          accountId: 'bank',
+          toGoalId: 'trip',
+          date: start,
+          status: status,
+        );
+
+    test(
+      'posted contribution debits account, credits goal and preserves wealth',
+      () {
+        final row = contribution();
+        FinanceEngine.validateEntry(row, ledger);
+        expect(FinanceEngine.balance(bank, [row]), 90000);
+        expect(FinanceEngine.goalSaved(goal, [row]), 10500);
+        expect(
+          FinanceEngine.goalContributions(goal, [row]).single.id,
+          'goal-transfer',
+        );
+        expect(
+          FinanceEngine.totalBalance(data.accounts, [row], 'RUB', [goal]),
+          110000,
+        );
+        expect(
+          FinanceEngine.totalBalance(data.accounts, [], 'RUB', [goal]),
+          110000,
+        );
+        expect(FinanceEngine.totals([row], start, end, 'RUB'), (
+          income: 0,
+          expense: 0,
+          net: 0,
+        ));
+        expect(
+          FinanceEngine.budgetSpent(
+            const Budget(id: 'all', name: 'Все', limitMinor: 100000),
+            [row],
+            start,
+            end,
+          ),
+          0,
+        );
+      },
+    );
+
+    test(
+      'editing, deleting and undoing a transfer derives both sides afresh',
+      () {
+        final original = contribution();
+        final edited = original.copyWith(amountMinor: 25000);
+        expect(FinanceEngine.balance(bank, [edited]), 75000);
+        expect(FinanceEngine.goalSaved(goal, [edited]), 25500);
+        expect(FinanceEngine.balance(bank, []), 100000);
+        expect(FinanceEngine.goalSaved(goal, []), 500);
+        expect(FinanceEngine.balance(bank, [original]), 90000);
+        expect(FinanceEngine.goalSaved(goal, [original]), 10500);
+      },
+    );
+
+    test(
+      'pending/cancelled and transfers to other goals do not credit this goal',
+      () {
+        final rows = [
+          contribution(status: 'pending'),
+          contribution(status: 'cancelled'),
+          contribution().copyWith(toGoalId: 'usd-trip', destinationMinor: 100),
+        ];
+        expect(FinanceEngine.goalSaved(goal, rows), 500);
+        expect(FinanceEngine.goalContributions(goal, rows), isEmpty);
+        expect(FinanceEngine.goalSaved(dollarGoal, rows), 100);
+      },
+    );
+
+    test(
+      'FX goals require explicit positive destination amount, never implicit conversion',
+      () {
+        final fx = contribution().copyWith(
+          toGoalId: 'usd-trip',
+          destinationMinor: 110,
+        );
+        FinanceEngine.validateEntry(fx, ledger);
+        expect(FinanceEngine.goalSaved(dollarGoal, [fx]), 110);
+        expect(
+          FinanceEngine.totalBalance(data.accounts, [fx], 'USD', [dollarGoal]),
+          110,
+        );
+        expect(
+          () => FinanceEngine.validateEntry(
+            fx.copyWith(destinationMinor: null),
+            ledger,
+          ),
+          throwsFormatException,
+        );
+        expect(
+          () => FinanceEngine.validateEntry(
+            fx.copyWith(destinationMinor: 0),
+            ledger,
+          ),
+          throwsFormatException,
+        );
+        expect(
+          () => FinanceEngine.validateEntry(
+            contribution().copyWith(destinationMinor: 999),
+            ledger,
+          ),
+          throwsFormatException,
+        );
+      },
+    );
+
+    test('missing, duplicated and non-transfer destinations are rejected', () {
+      for (final invalid in [
+        contribution().copyWith(toGoalId: null),
+        contribution().copyWith(toGoalId: 'absent'),
+        contribution().copyWith(toAccountId: 'cash'),
+        contribution().copyWith(kind: EntryKind.expense, categoryId: 'food'),
+        contribution().copyWith(kind: EntryKind.income, categoryId: 'salary'),
+      ]) {
+        expect(
+          () => FinanceEngine.validateEntry(invalid, ledger),
+          throwsFormatException,
+        );
+      }
+    });
+
+    test('goal totals are range checked and legacy JSON remains clearable', () {
+      expect(
+        () => FinanceEngine.goalSaved(
+          goal.copyWith(savedMinor: FinanceEngine.maxMinor),
+          [contribution(amount: 1)],
+        ),
+        throwsFormatException,
+      );
+      final old = contribution().toJson()..remove('toGoalId');
+      expect(FinanceEntry.fromJson(old).toGoalId, isNull);
+      expect(FinanceEntry.fromJson(contribution().toJson()).toGoalId, 'trip');
+      expect(contribution().copyWith(toGoalId: null).toGoalId, isNull);
+    });
+  });
+
   group('Aggregate bounds', () {
     test('an overflowing account total is rejected instead of wrapping', () {
       final rows = List.generate(

@@ -9,9 +9,17 @@ import '../widgets/entry_tile.dart';
 import 'entry_editor.dart';
 
 class TransactionsScreen extends StatefulWidget {
-  const TransactionsScreen({super.key, this.categoryId, this.initialRange});
-  final String? categoryId;
+  const TransactionsScreen({
+    super.key,
+    this.categoryId,
+    this.initialRange,
+    this.accountId,
+    this.goalId,
+    this.initialKind,
+  });
+  final String? categoryId, accountId, goalId;
   final DateTimeRange? initialRange;
+  final EntryKind? initialKind;
   @override
   State<TransactionsScreen> createState() => _TransactionsScreenState();
 }
@@ -27,6 +35,8 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
   void initState() {
     super.initState();
     _category = widget.categoryId;
+    _account = widget.accountId;
+    _kind = widget.initialKind;
     _range = widget.initialRange;
   }
 
@@ -268,7 +278,8 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
 
     final min = safeParse(_min.text), max = safeParse(_max.text);
     final entries = c.data.entries.where((e) {
-      return (_kind == null || e.kind == _kind) &&
+      return (widget.goalId == null || e.toGoalId == widget.goalId) &&
+          (_kind == null || e.kind == _kind) &&
           (_category == null || e.categoryId == _category) &&
           (_account == null ||
               e.accountId == _account ||
@@ -292,11 +303,18 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                 ...e.tags,
                 c.category(e.categoryId)?.name ?? '',
                 c.account(e.accountId)?.name ?? '',
+                c.destinationName(e),
               ].join(' ').toLowerCase().contains(query));
     }).toList()..sort((a, b) => b.date.compareTo(a.date));
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Операции'),
+        title: Text(
+          widget.goalId == null
+              ? 'Операции'
+              : 'Мечта: ${c.goal(widget.goalId)?.name ?? 'Накопления'}',
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
         actions: [
           IconButton(
             tooltip: 'Добавить операцию',

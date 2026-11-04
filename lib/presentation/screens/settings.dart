@@ -9,6 +9,7 @@ import 'package:share_plus/share_plus.dart';
 
 import '../../services/security_service.dart';
 import '../controller.dart';
+import '../theme/app_theme.dart';
 import '../widgets/common.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -266,14 +267,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                       const SizedBox(height: 14),
                       _setting<String>(
-                        'Акцент',
-                        p.accent,
-                        const {
-                          'lime': 'Lime',
-                          'gold': 'Champagne',
-                          'lavender': 'Лаванда',
-                          'blue': 'Небесный',
-                        },
+                        'Визуальный стиль',
+                        AppTheme.presetNames.containsKey(p.accent)
+                            ? p.accent
+                            : 'lime',
+                        AppTheme.presetNames,
                         (v) => _run(
                           () => c.preferences(
                             c.data.preferences.copyWith(accent: v),

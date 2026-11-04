@@ -18,6 +18,7 @@ Future<void> showEntryEditor(
   BuildContext context, {
   FinanceEntry? entry,
   EntryKind kind = EntryKind.expense,
+  String? goalId,
 }) async {
   final c = FinanceScope.of(context);
   if (c.data.accounts.where((a) => !a.archived).isEmpty) {
@@ -39,16 +40,17 @@ Future<void> showEntryEditor(
       context,
       MaterialPageRoute<void>(
         fullscreenDialog: true,
-        builder: (_) => EntryEditor(entry: entry, kind: kind),
+        builder: (_) => EntryEditor(entry: entry, kind: kind, goalId: goalId),
       ),
     );
   }
 }
 
 class EntryEditor extends StatefulWidget {
-  const EntryEditor({super.key, this.entry, required this.kind});
+  const EntryEditor({super.key, this.entry, required this.kind, this.goalId});
   final FinanceEntry? entry;
   final EntryKind kind;
+  final String? goalId;
   @override
   State<EntryEditor> createState() => _EntryEditorState();
 }
@@ -57,7 +59,8 @@ class _EntryEditorState extends State<EntryEditor> {
   final _form = GlobalKey<FormState>();
   late final TextEditingController _amount, _destination, _payee, _note, _tags;
   late EntryKind _kind;
-  String? _account, _to, _category, _subcategory, _attachment;
+  String? _account, _to, _goal, _category, _subcategory, _attachment;
+  bool _goalDestination = false;
   String _member = 'me', _status = 'posted', _recurrence = 'none';
   late DateTime _date;
   double? _lat, _lon;
@@ -81,6 +84,8 @@ class _EntryEditorState extends State<EntryEditor> {
     _date = e?.date.toLocal() ?? DateTime.now();
     _account = e?.accountId;
     _to = e?.toAccountId;
+    _goal = e?.toGoalId ?? widget.goalId;
+    _goalDestination = _goal != null;
     _category = e?.categoryId;
     _subcategory = e?.subcategory;
     _attachment = e?.attachmentPath;
@@ -188,7 +193,9 @@ class _EntryEditorState extends State<EntryEditor> {
     setState(() => _busy = true);
     try {
       final a = c.account(_account!)!;
-      final to = c.account(_to ?? '');
+      final targetCurrency = _goalDestination
+          ? c.goal(_goal)?.currency
+          : c.account(_to ?? '')?.currency;
       final value = FinanceEngine.parseMinor(_amount.text);
       final entry = FinanceEntry(
         id: widget.entry?.id ?? c.id(),
@@ -196,9 +203,14 @@ class _EntryEditorState extends State<EntryEditor> {
         amountMinor: value,
         currency: a.currency,
         accountId: a.id,
-        toAccountId: _kind == EntryKind.transfer ? _to : null,
+        toAccountId: _kind == EntryKind.transfer && !_goalDestination
+            ? _to
+            : null,
+        toGoalId: _kind == EntryKind.transfer && _goalDestination
+            ? _goal
+            : null,
         destinationMinor: _kind == EntryKind.transfer
-            ? (to?.currency == a.currency
+            ? (targetCurrency == a.currency
                   ? value
                   : FinanceEngine.parseMinor(_destination.text))
             : null,
@@ -239,6 +251,15 @@ class _EntryEditorState extends State<EntryEditor> {
             frequency: _recurrence,
             nextDate: _date,
             automatic: true,
+            paymentType:
+                c
+                        .category(entry.categoryId)
+                        ?.name
+                        .toLowerCase()
+                        .contains('подпис') ==
+                    true
+                ? 'subscription'
+                : 'mandatory',
           );
           rules.add(
             rule.copyWith(nextDate: FinanceEngine.nextOccurrence(rule)),
@@ -271,6 +292,9 @@ class _EntryEditorState extends State<EntryEditor> {
         .where((a) => !a.archived || a.id == _account || a.id == _to)
         .toList();
     final a = c.account(_account ?? '');
+    final targetCurrency = _goalDestination
+        ? c.goal(_goal)?.currency
+        : c.account(_to ?? '')?.currency;
     final categories = c.data.categories.where((c) => c.kind == _kind).toList()
       ..sort((a, b) => a.order.compareTo(b.order));
     final sub = c.category(_category)?.subcategories ?? [];
@@ -394,25 +418,106 @@ class _EntryEditorState extends State<EntryEditor> {
                 }),
               ),
               if (_kind == EntryKind.transfer) ...[
-                const SizedBox(height: 16),
-                DropdownButtonFormField<String>(
-                  initialValue: _to,
-                  decoration: const InputDecoration(labelText: 'На счёт'),
-                  items: active
-                      .where((a) => a.id != _account)
-                      .map(
-                        (a) => DropdownMenuItem(
-                          value: a.id,
-                          child: Text('${a.name} · ${a.currency}'),
-                        ),
-                      )
-                      .toList(),
-                  onChanged: (v) => setState(() => _to = v),
-                  validator: (v) =>
-                      v == null ? 'Выберите счёт получателя' : null,
+                const SizedBox(height: 18),
+                SegmentedButton<bool>(
+                  segments: const [
+                    ButtonSegment(
+                      value: false,
+                      label: Text('На счёт'),
+                      icon: Icon(Icons.wallet_outlined),
+                    ),
+                    ButtonSegment(
+                      value: true,
+                      label: Text('В мечту'),
+                      icon: Icon(Icons.auto_awesome_outlined),
+                    ),
+                  ],
+                  selected: {_goalDestination},
+                  onSelectionChanged: (v) => setState(() {
+                    _goalDestination = v.first;
+                    _destination.clear();
+                  }),
                 ),
-                if (c.account(_to ?? '') != null &&
-                    c.account(_to!)!.currency != a?.currency) ...[
+                const SizedBox(height: 16),
+                if (_goalDestination) ...[
+                  if (c.data.goals.isEmpty)
+                    SurfaceCard(
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute<void>(
+                          builder: (_) => const GoalsScreen(),
+                        ),
+                      ),
+                      child: const Row(
+                        children: [
+                          Icon(Icons.add_rounded),
+                          SizedBox(width: 12),
+                          Expanded(child: Text('Создать первую мечту')),
+                        ],
+                      ),
+                    ),
+                  DropdownButtonFormField<String>(
+                    key: ValueKey('goal-$_goal'),
+                    initialValue: c.goal(_goal) != null ? _goal : null,
+                    isExpanded: true,
+                    decoration: const InputDecoration(
+                      labelText: 'Мечта',
+                      prefixIcon: Icon(Icons.auto_awesome_outlined),
+                    ),
+                    items: c.data.goals
+                        .map(
+                          (g) => DropdownMenuItem(
+                            value: g.id,
+                            child: Text(
+                              '${g.name} · ${g.currency}',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: (v) => setState(() {
+                      _goal = v;
+                      _destination.clear();
+                    }),
+                    validator: (v) => v == null ? 'Выберите мечту' : null,
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    'Деньги будут переведены со счёта в резерв мечты. Это перевод между вашими средствами, а не расход.',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: scheme.onSurfaceVariant,
+                    ),
+                  ),
+                ] else
+                  DropdownButtonFormField<String>(
+                    key: ValueKey('account-$_to'),
+                    initialValue: _to,
+                    isExpanded: true,
+                    decoration: const InputDecoration(labelText: 'На счёт'),
+                    items: active
+                        .where((target) => target.id != _account)
+                        .map(
+                          (target) => DropdownMenuItem(
+                            value: target.id,
+                            child: Text(
+                              '${target.name} · ${target.currency}',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: (v) => setState(() {
+                      _to = v;
+                      _destination.clear();
+                    }),
+                    validator: (v) =>
+                        v == null ? 'Выберите счёт получателя' : null,
+                  ),
+                if (targetCurrency != null &&
+                    targetCurrency != a?.currency) ...[
                   const SizedBox(height: 16),
                   TextFormField(
                     controller: _destination,
@@ -420,8 +525,7 @@ class _EntryEditorState extends State<EntryEditor> {
                       decimal: true,
                     ),
                     decoration: InputDecoration(
-                      labelText:
-                          'Сумма зачисления · ${c.account(_to!)!.currency}',
+                      labelText: 'Сумма зачисления · $targetCurrency',
                     ),
                     validator: (s) {
                       try {
@@ -435,7 +539,7 @@ class _EntryEditorState extends State<EntryEditor> {
                   ),
                   const SizedBox(height: 8),
                   const Text(
-                    'Обе суммы сохраняются в валюте соответствующего счёта. Перевод не влияет на доходы и расходы.',
+                    'Укажите фактическую сумму зачисления в валюте получателя.',
                   ),
                 ],
               ] else ...[

@@ -28,10 +28,18 @@ class FinanceController extends ChangeNotifier {
       data.accounts.where((a) => a.id == id).firstOrNull;
   Category? category(String? id) =>
       data.categories.where((a) => a.id == id).firstOrNull;
+  Goal? goal(String? id) => data.goals.where((g) => g.id == id).firstOrNull;
+  String destinationName(FinanceEntry entry) => entry.toGoalId != null
+      ? 'Мечта: ${goal(entry.toGoalId)?.name ?? 'Цель'}'
+      : account(entry.toAccountId ?? '')?.name ?? 'Счёт';
   bool get hidden => data.preferences.hideAmounts;
   String get currency => data.preferences.baseCurrency;
-  int get balance =>
-      FinanceEngine.totalBalance(data.accounts, data.entries, currency);
+  int get balance => FinanceEngine.totalBalance(
+    data.accounts,
+    data.entries,
+    currency,
+    data.goals,
+  );
   Future<void> mutate(FinanceData Function(FinanceData) transform) {
     final result = _tail.then((_) async {
       final next = transform(data);
@@ -96,6 +104,14 @@ class FinanceController extends ChangeNotifier {
     (d) =>
         d.copyWith(goals: [...d.goals.where((a) => a.id != value.id), value]),
   );
+  Future<void> deleteGoal(String id) => mutate((d) {
+    if (d.entries.any((e) => e.toGoalId == id)) {
+      throw const FormatException(
+        'В мечте есть переводы. Сначала измените или удалите связанные операции, чтобы сохранить корректный баланс.',
+      );
+    }
+    return d.copyWith(goals: d.goals.where((g) => g.id != id).toList());
+  });
   Future<void> saveRecurring(RecurringRule value) => mutate(
     (d) => d.copyWith(
       recurring: [...d.recurring.where((a) => a.id != value.id), value],

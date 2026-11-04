@@ -324,10 +324,21 @@ class _HomeShellState extends State<HomeShell> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
-                  icon,
-                  color: active ? scheme.primary : scheme.onSurfaceVariant,
-                  size: 23,
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 160),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: active ? scheme.primary : Colors.transparent,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    icon,
+                    color: active ? scheme.onPrimary : scheme.onSurfaceVariant,
+                    size: 23,
+                  ),
                 ),
                 const SizedBox(height: 5),
                 Text(
@@ -336,7 +347,7 @@ class _HomeShellState extends State<HomeShell> {
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: active ? FontWeight.w600 : FontWeight.w400,
-                    color: active ? scheme.primary : scheme.onSurfaceVariant,
+                    color: active ? scheme.onSurface : scheme.onSurfaceVariant,
                   ),
                 ),
               ],

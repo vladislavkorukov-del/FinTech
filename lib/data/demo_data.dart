@@ -76,7 +76,7 @@ FinanceData createDemoData(DateTime now) {
       lastFour: '4821',
       openingMinor: 6850000,
       color: 0xffc9f36f,
-      icon: 1,
+      icon: 18,
     ),
     const Account(
       id: 'cash',
@@ -84,7 +84,7 @@ FinanceData createDemoData(DateTime now) {
       type: 'cash',
       openingMinor: 1450000,
       color: 0xffddb994,
-      icon: 2,
+      icon: 26,
     ),
     const Account(
       id: 'savings',
@@ -92,7 +92,7 @@ FinanceData createDemoData(DateTime now) {
       type: 'savings',
       openingMinor: 22000000,
       color: 0xff9fb3f0,
-      icon: 3,
+      icon: 27,
     ),
   ];
   final entries = <FinanceEntry>[];
@@ -222,6 +222,7 @@ FinanceData createDemoData(DateTime now) {
     recurring: [
       RecurringRule(
         id: 'internet',
+        paymentType: 'mandatory',
         name: 'Интернет',
         accountId: 'card',
         categoryId: 'expense-5',
@@ -230,11 +231,21 @@ FinanceData createDemoData(DateTime now) {
       ),
       RecurringRule(
         id: 'subscription',
+        paymentType: 'subscription',
         name: 'Музыка',
         accountId: 'card',
         categoryId: 'expense-9',
         amountMinor: 39900,
         nextDate: DateTime(now.year, now.month, now.day + 5, 10),
+      ),
+      RecurringRule(
+        id: 'mortgage',
+        name: 'Платёж по кредиту',
+        accountId: 'card',
+        categoryId: 'expense-18',
+        paymentType: 'mandatory',
+        amountMinor: 1450000,
+        nextDate: DateTime(now.year, now.month, now.day + 8, 10),
       ),
     ],
     members: const [

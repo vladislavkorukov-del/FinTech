@@ -1,6 +1,8 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'common.dart';
 
 class DonutChart extends StatelessWidget {
   const DonutChart({
@@ -207,4 +209,113 @@ class _Trend extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _Trend old) => true;
+}
+
+/// Daily, lazily rendered columns preserve exact amounts instead of grouping
+/// several days into one unlabeled bucket on long periods.
+class DailyExpenseChart extends StatelessWidget {
+  const DailyExpenseChart({
+    super.key,
+    required this.start,
+    required this.days,
+    required this.amountsMinor,
+    required this.currency,
+    required this.hidden,
+    this.onDayTap,
+  });
+  final DateTime start;
+  final int days;
+  final Map<int, int> amountsMinor;
+  final String currency;
+  final bool hidden;
+  final ValueChanged<DateTime>? onDayTap;
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final maxMinor = amountsMinor.values.fold<int>(1, math.max);
+    final scale = MediaQuery.textScalerOf(context).scale(1);
+    return SizedBox(
+      height: 190 + math.max(0, scale - 1) * 26,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: days,
+        itemBuilder: (context, index) {
+          final date = DateTime(start.year, start.month, start.day + index);
+          final amount = amountsMinor[index] ?? 0;
+          final barHeight = amount == 0
+              ? 2.0
+              : math.max(4.0, amount / maxMinor * 108);
+          final label = money(amount, currency, hidden);
+          return SizedBox(
+            width: 86,
+            child: Semantics(
+              button: onDayTap != null,
+              label: '${displayDate(date)}, расход $label',
+              child: Tooltip(
+                message: '${displayDate(date)} · $label',
+                child: InkWell(
+                  key: ValueKey('daily-bar-$index'),
+                  onTap: onDayTap == null ? null : () => onDayTap!(date),
+                  borderRadius: BorderRadius.circular(14),
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(7, 2, 7, 6),
+                    child: Column(
+                      children: [
+                        Expanded(
+                          child: Stack(
+                            alignment: Alignment.bottomCenter,
+                            children: [
+                              Positioned(
+                                bottom: 0,
+                                left: 18,
+                                right: 18,
+                                child: Container(
+                                  height: barHeight,
+                                  decoration: BoxDecoration(
+                                    color: amount == 0
+                                        ? scheme.outlineVariant
+                                        : scheme.primary,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                              ),
+                              Positioned(
+                                bottom: barHeight + 8,
+                                left: 0,
+                                right: 0,
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Text(
+                                    label,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      color: scheme.onSurface,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          DateFormat('dd MMM', 'ru').format(date),
+                          maxLines: 1,
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: scheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
 }

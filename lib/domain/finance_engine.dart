@@ -21,16 +21,48 @@ abstract final class FinanceEngine {
   static int totalBalance(
     List<Account> accounts,
     List<FinanceEntry> entries,
-    String currency,
-  ) {
+    String currency, [
+    List<Goal> goals = const [],
+  ]) {
     var result = BigInt.zero;
     for (final account in accounts.where(
       (a) => a.currency == currency && !a.excluded && !a.archived,
     )) {
       result += BigInt.from(balance(account, entries));
     }
+    for (final goal in goals.where((g) => g.currency == currency)) {
+      for (final contribution in goalContributions(goal, entries)) {
+        result += BigInt.from(
+          contribution.destinationMinor ?? contribution.amountMinor,
+        );
+      }
+    }
     return _checked(result);
   }
+
+  /// Goal.savedMinor remains a legacy/manual opening allocation. Only actual
+  /// ledger contributions count toward the aggregate wallet balance.
+  static int goalSaved(Goal goal, List<FinanceEntry> entries) {
+    var result = BigInt.from(goal.savedMinor);
+    for (final contribution in goalContributions(goal, entries)) {
+      result += BigInt.from(
+        contribution.destinationMinor ?? contribution.amountMinor,
+      );
+    }
+    return _checked(result);
+  }
+
+  static List<FinanceEntry> goalContributions(
+    Goal goal,
+    List<FinanceEntry> entries,
+  ) => entries
+      .where(
+        (entry) =>
+            entry.kind == EntryKind.transfer &&
+            entry.status == 'posted' &&
+            entry.toGoalId == goal.id,
+      )
+      .toList();
 
   static bool _inPeriod(FinanceEntry entry, DateTime start, DateTime end) =>
       entry.status == 'posted' &&
@@ -165,14 +197,28 @@ abstract final class FinanceEngine {
       if (entry.toAccountId == source.id) {
         throw const FormatException('Выберите разные счета для перевода');
       }
-      final destinations = data.accounts.where(
-        (a) => a.id == entry.toAccountId,
-      );
-      if (destinations.isEmpty) {
-        throw const FormatException('Счёт зачисления не найден');
+      if ((entry.toAccountId == null) == (entry.toGoalId == null)) {
+        throw const FormatException(
+          'Выберите только один счёт или цель зачисления',
+        );
       }
-      final destination = destinations.first;
-      if (source.currency != destination.currency &&
+      late String destinationCurrency;
+      if (entry.toGoalId != null) {
+        final goals = data.goals.where((g) => g.id == entry.toGoalId);
+        if (goals.isEmpty) {
+          throw const FormatException('Цель накопления не найдена');
+        }
+        destinationCurrency = goals.first.currency;
+      } else {
+        final destinations = data.accounts.where(
+          (a) => a.id == entry.toAccountId,
+        );
+        if (destinations.isEmpty) {
+          throw const FormatException('Счёт зачисления не найден');
+        }
+        destinationCurrency = destinations.first.currency;
+      }
+      if (source.currency != destinationCurrency &&
           entry.destinationMinor == null) {
         throw const FormatException(
           'Укажите сумму зачисления в валюте получателя',
@@ -183,7 +229,7 @@ abstract final class FinanceEngine {
               entry.destinationMinor! > maxMinor)) {
         throw const FormatException('Некорректная сумма зачисления');
       }
-      if (source.currency == destination.currency &&
+      if (source.currency == destinationCurrency &&
           entry.destinationMinor != null &&
           entry.destinationMinor != entry.amountMinor) {
         throw const FormatException(
@@ -196,7 +242,9 @@ abstract final class FinanceEngine {
         );
       }
     } else {
-      if (entry.toAccountId != null || entry.destinationMinor != null) {
+      if (entry.toAccountId != null ||
+          entry.toGoalId != null ||
+          entry.destinationMinor != null) {
         throw const FormatException(
           'Счёт зачисления допустим только для перевода',
         );

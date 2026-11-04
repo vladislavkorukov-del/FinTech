@@ -29,7 +29,7 @@ class EntryTile extends StatelessWidget {
         style: Theme.of(context).textTheme.titleMedium,
       ),
       subtitle: Text(
-        '${transfer ? '${c.account(entry.accountId)?.name} → ${c.account(entry.toAccountId ?? '')?.name}' : cat?.name ?? ''} · ${DateFormat('d MMM', 'ru').format(entry.date)}${entry.status == 'posted'
+        '${transfer ? '${c.account(entry.accountId)?.name} → ${c.destinationName(entry)}' : cat?.name ?? ''} · ${DateFormat('d MMM', 'ru').format(entry.date)}${entry.status == 'posted'
             ? ''
             : entry.status == 'pending'
             ? ' · ожидает'
@@ -56,7 +56,7 @@ class EntryTile extends StatelessWidget {
           textAlign: TextAlign.right,
           style: TextStyle(
             fontWeight: FontWeight.w600,
-            color: income ? const Color(0xFF82B994) : null,
+            color: income ? Theme.of(context).colorScheme.onSurface : null,
           ),
         ),
       ),

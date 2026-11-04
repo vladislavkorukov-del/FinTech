@@ -195,4 +195,84 @@ void main() {
       );
     },
   );
+  test(
+    'dream milestone uses posted goal transfers and deduplicates edits and undo',
+    () async {
+      final service = NotificationService(now: () => now);
+      const goal = Goal(
+        id: 'trip',
+        name: 'Море',
+        targetMinor: 10000,
+        savedMinor: 2000,
+      );
+      FinanceEntry transfer(
+        String id,
+        int amount, {
+        String status = 'posted',
+        String? goalId = 'trip',
+      }) => FinanceEntry(
+        id: id,
+        kind: EntryKind.transfer,
+        amountMinor: amount,
+        currency: 'RUB',
+        accountId: 'card',
+        toAccountId: goalId == null ? 'reserve' : null,
+        toGoalId: goalId,
+        date: now,
+        status: status,
+      );
+      final waiting = FinanceData(
+        goals: const [goal],
+        entries: [
+          transfer('pending', 8000, status: 'pending'),
+          transfer('cancelled', 8000, status: 'cancelled'),
+          transfer('other', 8000, goalId: null),
+        ],
+      );
+      await service.sync(waiting);
+      expect(
+        calls.where(
+          (c) =>
+              c.method == 'show' &&
+              (c.arguments as Map)['title'] == 'Цель достигнута!',
+        ),
+        isEmpty,
+      );
+
+      final reached = waiting.copyWith(entries: [transfer('fund', 8000)]);
+      await service.sync(reached);
+      // A refresh, an amount edit, and an undo/re-add keep the same milestone.
+      await service.sync(reached);
+      await service.sync(reached.copyWith(entries: [transfer('fund', 9000)]));
+      await service.sync(reached.copyWith(entries: []));
+      await service.sync(reached);
+      final celebrations = calls
+          .where(
+            (c) =>
+                c.method == 'show' &&
+                (c.arguments as Map)['title'] == 'Цель достигнута!',
+          )
+          .toList();
+      expect(celebrations, hasLength(1));
+
+      await service.sync(
+        reached.copyWith(
+          goals: [goal.copyWith(targetMinor: 15000)],
+          entries: [transfer('fund', 13000)],
+        ),
+      );
+      final nextMilestone = calls
+          .where(
+            (c) =>
+                c.method == 'show' &&
+                (c.arguments as Map)['title'] == 'Цель достигнута!',
+          )
+          .toList();
+      expect(nextMilestone, hasLength(2));
+      expect(
+        (nextMilestone.last.arguments as Map)['id'],
+        isNot((celebrations.single.arguments as Map)['id']),
+      );
+    },
+  );
 }

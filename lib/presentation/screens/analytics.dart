@@ -76,40 +76,37 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
       end.day,
     ).difference(DateTime.utc(start.year, start.month, start.day)).inDays;
     final buckets = days.clamp(1, 31).toInt();
-    final daily = List.generate(buckets, (i) {
-      final a = DateTime(
-        start.year,
-        start.month,
-        start.day + (days * i / buckets).floor(),
-      );
-      final b = DateTime(
-        start.year,
-        start.month,
-        start.day + (days * (i + 1) / buckets).floor(),
-      );
-      return FinanceEngine.totals(c.data.entries, a, b, currency).expense / 100;
-    });
+    final daily = <int, int>{};
+    for (final e in c.data.entries) {
+      if (e.kind != EntryKind.expense ||
+          e.status != 'posted' ||
+          e.currency != currency ||
+          e.date.isBefore(start) ||
+          !e.date.isBefore(end)) {
+        continue;
+      }
+      final local = e.date.toLocal();
+      final index = DateTime.utc(
+        local.year,
+        local.month,
+        local.day,
+      ).difference(DateTime.utc(start.year, start.month, start.day)).inDays;
+      if (index >= 0 && index < days) {
+        daily[index] = (daily[index] ?? 0) + e.amountMinor;
+      }
+    }
     final balance = List.generate(buckets, (i) {
       final date = DateTime(
         start.year,
         start.month,
         start.day + (days * (i + 1) / buckets).floor(),
       );
-      return c.data.accounts
-              .where(
-                (a) => a.currency == currency && !a.excluded && !a.archived,
-              )
-              .fold<int>(
-                0,
-                (sum, a) =>
-                    sum +
-                    FinanceEngine.balance(
-                      a,
-                      c.data.entries
-                          .where((e) => e.date.isBefore(date))
-                          .toList(),
-                    ),
-              ) /
+      return FinanceEngine.totalBalance(
+            c.data.accounts,
+            c.data.entries.where((e) => e.date.isBefore(date)).toList(),
+            currency,
+            c.data.goals,
+          ) /
           100;
     });
     final monthly = List.generate(6, (i) {
@@ -214,9 +211,11 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                     values: cats.map((e) => e.value).toList(),
                     colors: cats
                         .map(
-                          (e) => Color(
-                            c.category(e.key)?.color ?? categoryColors.first,
-                          ),
+                          (e) => Color.lerp(
+                            scheme.primary,
+                            scheme.onSurface,
+                            .12 * cats.indexOf(e).clamp(0, 5),
+                          )!,
                         )
                         .toList(),
                     onSelect: (i) => open(cats[i].key),
@@ -264,9 +263,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                       child: LinearProgressIndicator(
                         value: total == 0 ? 0 : item.value / total,
                         minHeight: 3,
-                        color: Color(
-                          c.category(item.key)?.color ?? categoryColors.first,
-                        ),
+                        color: scheme.primary,
                         backgroundColor: scheme.outlineVariant.withValues(
                           alpha: .15,
                         ),
@@ -294,14 +291,14 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                       child: _Stat(
                         'Доходы',
                         money(totals.income, currency, c.hidden),
-                        const Color(0xFF8DBF9D),
+                        scheme.onSurface,
                       ),
                     ),
                     Expanded(
                       child: _Stat(
                         'Расходы',
                         money(totals.expense, currency, c.hidden),
-                        const Color(0xFFD6B58E),
+                        scheme.onSurfaceVariant,
                       ),
                     ),
                   ],
@@ -322,19 +319,28 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  days > 31
-                      ? 'Сгруппировано в $buckets интервалов'
-                      : 'Расходы по дням',
+                  'Сумма над каждым днём · листайте по горизонтали',
                   style: TextStyle(
                     fontSize: 12,
                     color: scheme.onSurfaceVariant,
                   ),
                 ),
                 const SizedBox(height: 20),
-                TrendChart(
-                  values: daily,
-                  color: const Color(0xFFD6B58E),
-                  bars: true,
+                DailyExpenseChart(
+                  start: start,
+                  days: days,
+                  amountsMinor: daily,
+                  currency: currency,
+                  hidden: c.hidden,
+                  onDayTap: (date) => Navigator.push(
+                    context,
+                    MaterialPageRoute<void>(
+                      builder: (_) => TransactionsScreen(
+                        initialRange: DateTimeRange(start: date, end: date),
+                        initialKind: EntryKind.expense,
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -412,12 +418,15 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                           Text(g.name),
                           const SizedBox(height: 10),
                           LinearProgressIndicator(
-                            value: (g.savedMinor / g.targetMinor).clamp(0, 1),
-                            color: Color(g.color),
+                            value:
+                                (FinanceEngine.goalSaved(g, c.data.entries) /
+                                        g.targetMinor)
+                                    .clamp(0, 1),
+                            color: scheme.primary,
                           ),
                           const SizedBox(height: 10),
                           Text(
-                            '${money(g.savedMinor, g.currency, c.hidden)} из ${money(g.targetMinor, g.currency, c.hidden)}',
+                            '${money(FinanceEngine.goalSaved(g, c.data.entries), g.currency, c.hidden)} из ${money(g.targetMinor, g.currency, c.hidden)}',
                             style: const TextStyle(fontSize: 12),
                           ),
                         ],
@@ -455,11 +464,12 @@ class _Comparison extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final total = income + expense;
+    final scheme = Theme.of(context).colorScheme;
     return Column(
       children: [
         LinearProgressIndicator(
           value: total == 0 ? 0 : income / total,
-          color: const Color(0xFF8DBF9D),
+          color: scheme.primary,
           backgroundColor: Theme.of(
             context,
           ).colorScheme.outlineVariant.withValues(alpha: .12),
@@ -469,7 +479,7 @@ class _Comparison extends StatelessWidget {
         const SizedBox(height: 5),
         LinearProgressIndicator(
           value: total == 0 ? 0 : expense / total,
-          color: const Color(0xFFD6B58E),
+          color: scheme.onSurfaceVariant,
           backgroundColor: Theme.of(
             context,
           ).colorScheme.outlineVariant.withValues(alpha: .12),

@@ -1,43 +1,5 @@
 part of 'management.dart';
 
-const _iconNames = [
-  'Продукты корзина магазин',
-  'Кафе ресторан еда',
-  'Транспорт автобус',
-  'Автомобиль машина',
-  'Жильё дом',
-  'Коммунальные электричество',
-  'Здоровье сердце',
-  'Аптека лекарства',
-  'Развлечения кино',
-  'Подписки',
-  'Покупки сумка',
-  'Одежда',
-  'Подарки',
-  'Путешествия самолёт',
-  'Образование школа',
-  'Дети',
-  'Животные',
-  'Налоги чек',
-  'Кредит карта',
-  'Прочее',
-  'Зарплата работа',
-  'Подработка ноутбук',
-  'Бизнес магазин',
-  'Проценты',
-  'Инвестиции',
-  'Возвраты',
-  'Кошелёк наличные',
-  'Накопления',
-  'Банк счёт',
-  'Отпуск пляж',
-  'Техника',
-  'Безопасность подушка',
-  'Игры',
-  'Спорт',
-  'Кофе',
-  'Музыка',
-];
 Future<(int, int)?> showIconPicker(
   BuildContext context, {
   required int icon,
@@ -57,129 +19,223 @@ class _IconPicker extends StatefulWidget {
 }
 
 class _IconPickerState extends State<_IconPicker> {
-  late int icon = widget.icon;
+  late int icon = widget.icon.abs() % iconChoices.length;
   late int color = widget.color;
+  final search = TextEditingController();
   String query = '';
-  String group = 'Все';
+  String group = 'all';
+
+  @override
+  void dispose() {
+    search.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final matches = List.generate(iconChoices.length, (i) => i)
-        .where(
-          (i) =>
-              _iconNames[i].toLowerCase().contains(query.toLowerCase()) &&
-              (group == 'Все' ||
-                  (group == 'Финансы'
-                      ? i >= 17 && i <= 28
-                      : group == 'Повседневное'
-                      ? i < 13
-                      : i >= 13 && i != 17 && !(i >= 18 && i <= 28))),
-        )
-        .toList();
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final matches = searchFinanceIcons(query, group: group);
+    final keyboard = MediaQuery.viewInsetsOf(context).bottom;
+    final available = MediaQuery.sizeOf(context).height - keyboard;
     return Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
+      padding: EdgeInsets.only(bottom: keyboard),
       child: SizedBox(
-        height: math.max(
-          160.0,
-          (MediaQuery.sizeOf(context).height -
-                  MediaQuery.viewInsetsOf(context).bottom) *
-              .82,
-        ),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(
-                child: ListView(
-                  children: [
-                    Row(
-                      children: [
-                        CategoryBadge(
-                          icon: categoryIcon(icon),
-                          color: Color(color),
-                          size: 56,
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Text(
-                            'Выберите иконку',
-                            style: Theme.of(context).textTheme.titleLarge,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                    TextField(
-                      decoration: const InputDecoration(
-                        prefixIcon: Icon(Icons.search),
-                        hintText: 'Поиск: кафе, дом, отпуск…',
-                      ),
-                      onChanged: (v) => setState(() => query = v),
-                    ),
-                    const SizedBox(height: 12),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 6,
-                      children: ['Все', 'Финансы', 'Повседневное', 'Досуг']
-                          .map(
-                            (v) => ChoiceChip(
-                              label: Text(v),
-                              selected: group == v,
-                              onSelected: (_) => setState(() => group = v),
+        height: math.max(120.0, available * .88),
+        child: SafeArea(
+          top: false,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(
+                  child: CustomScrollView(
+                    key: const ValueKey('icon-picker-scroll'),
+                    keyboardDismissBehavior:
+                        ScrollViewKeyboardDismissBehavior.onDrag,
+                    slivers: [
+                      SliverToBoxAdapter(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Row(
+                              children: [
+                                CategoryBadge(
+                                  icon: categoryIcon(icon),
+                                  color: Color(color),
+                                  size: 52,
+                                ),
+                                const SizedBox(width: 14),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Выберите иконку',
+                                        style: theme.textTheme.titleLarge,
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        iconCatalog[icon].label,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: theme.textTheme.bodySmall
+                                            ?.copyWith(
+                                              color: scheme.onSurfaceVariant,
+                                            ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                IconButton(
+                                  tooltip: 'Закрыть',
+                                  onPressed: () => Navigator.pop(context),
+                                  icon: const Icon(Icons.close_rounded),
+                                ),
+                              ],
                             ),
-                          )
-                          .toList(),
-                    ),
-                    const SizedBox(height: 12),
-                    _colors(color, (v) => setState(() => color = v)),
-                    const SizedBox(height: 14),
-                    if (matches.isEmpty)
-                      const Padding(
-                        padding: EdgeInsets.all(24),
-                        child: Text('Ничего не найдено'),
-                      ),
-                    GridView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      gridDelegate:
-                          const SliverGridDelegateWithMaxCrossAxisExtent(
-                            maxCrossAxisExtent: 65,
-                            mainAxisSpacing: 10,
-                            crossAxisSpacing: 10,
-                          ),
-                      itemCount: matches.length,
-                      itemBuilder: (_, n) {
-                        final i = matches[n];
-                        return Semantics(
-                          label: _iconNames[i],
-                          selected: icon == i,
-                          button: true,
-                          child: InkWell(
-                            onTap: () => setState(() => icon = i),
-                            borderRadius: BorderRadius.circular(16),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: icon == i
-                                    ? Color(color).withValues(alpha: .25)
-                                    : Theme.of(context).colorScheme.onSurface
-                                          .withValues(alpha: .04),
-                                borderRadius: BorderRadius.circular(16),
+                            const SizedBox(height: 16),
+                            TextField(
+                              key: const ValueKey('icon-search'),
+                              controller: search,
+                              textInputAction: TextInputAction.search,
+                              decoration: InputDecoration(
+                                prefixIcon: const Icon(Icons.search_rounded),
+                                hintText: 'Такси, стоматолог, отпуск…',
+                                suffixIcon: query.isEmpty
+                                    ? null
+                                    : IconButton(
+                                        tooltip: 'Очистить поиск',
+                                        onPressed: () {
+                                          search.clear();
+                                          setState(() => query = '');
+                                        },
+                                        icon: const Icon(Icons.close_rounded),
+                                      ),
                               ),
-                              child: Icon(iconChoices[i], color: Color(color)),
+                              onChanged: (value) =>
+                                  setState(() => query = value),
+                            ),
+                            const SizedBox(height: 12),
+                            SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: Row(
+                                children: [
+                                  for (final item in {
+                                    'all': 'Все',
+                                    ...iconGroups,
+                                  }.entries)
+                                    Padding(
+                                      padding: const EdgeInsets.only(right: 8),
+                                      child: ChoiceChip(
+                                        label: Text(item.value),
+                                        selected: group == item.key,
+                                        onSelected: (_) =>
+                                            setState(() => group = item.key),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'Цвет иконки',
+                              style: theme.textTheme.labelLarge,
+                            ),
+                            const SizedBox(height: 10),
+                            _colors(
+                              color,
+                              (value) => setState(() => color = value),
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              '${matches.length} иконок · ${iconChoices.length} в коллекции',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: scheme.onSurfaceVariant,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                          ],
+                        ),
+                      ),
+                      if (matches.isEmpty)
+                        const SliverToBoxAdapter(
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(vertical: 28),
+                            child: Text(
+                              'Ничего не найдено. Попробуйте другое слово или группу.',
+                              textAlign: TextAlign.center,
                             ),
                           ),
-                        );
-                      },
-                    ),
-                  ],
+                        )
+                      else
+                        SliverPadding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          sliver: SliverGrid.builder(
+                            key: const ValueKey('icon-picker-grid'),
+                            gridDelegate:
+                                const SliverGridDelegateWithMaxCrossAxisExtent(
+                                  maxCrossAxisExtent: 72,
+                                  mainAxisSpacing: 8,
+                                  crossAxisSpacing: 8,
+                                ),
+                            itemCount: matches.length,
+                            itemBuilder: (_, position) {
+                              final entry = matches[position];
+                              final selected = icon == entry.index;
+                              return Semantics(
+                                label:
+                                    '${entry.label}, ${entry.name.replaceAll('_', ' ')}',
+                                selected: selected,
+                                button: true,
+                                child: Tooltip(
+                                  message: entry.label,
+                                  child: InkWell(
+                                    key: ValueKey(
+                                      'catalog-icon-${entry.index}',
+                                    ),
+                                    onTap: () =>
+                                        setState(() => icon = entry.index),
+                                    borderRadius: BorderRadius.circular(16),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color: selected
+                                            ? Color(
+                                                color,
+                                              ).withValues(alpha: .18)
+                                            : scheme.surfaceContainerHigh,
+                                        borderRadius: BorderRadius.circular(16),
+                                        border: Border.all(
+                                          color: selected
+                                              ? Color(color)
+                                              : scheme.outlineVariant,
+                                          width: selected ? 2 : .5,
+                                        ),
+                                      ),
+                                      child: Icon(
+                                        entry.icon,
+                                        color: Color(color),
+                                        size: 26,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(height: 12),
-              FilledButton(
-                onPressed: () => Navigator.pop(context, (icon, color)),
-                child: const Text('Выбрать'),
-              ),
-            ],
+                const SizedBox(height: 12),
+                FilledButton(
+                  onPressed: () => Navigator.pop(context, (icon, color)),
+                  child: const Text('Выбрать'),
+                ),
+              ],
+            ),
           ),
         ),
       ),

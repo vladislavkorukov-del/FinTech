@@ -164,6 +164,7 @@ class FinanceEntry {
   final String currency;
   final String accountId;
   final String? toAccountId;
+  final String? toGoalId;
   final String? categoryId;
   final String? subcategory;
   final String? attachmentPath;
@@ -185,6 +186,7 @@ class FinanceEntry {
     required this.currency,
     required this.accountId,
     this.toAccountId,
+    this.toGoalId,
     this.categoryId,
     this.subcategory,
     this.attachmentPath,
@@ -207,6 +209,7 @@ class FinanceEntry {
     String? currency,
     String? accountId,
     Object? toAccountId = _absent,
+    Object? toGoalId = _absent,
     Object? categoryId = _absent,
     Object? subcategory = _absent,
     Object? attachmentPath = _absent,
@@ -229,6 +232,9 @@ class FinanceEntry {
     toAccountId: identical(toAccountId, _absent)
         ? this.toAccountId
         : toAccountId as String?,
+    toGoalId: identical(toGoalId, _absent)
+        ? this.toGoalId
+        : toGoalId as String?,
     categoryId: identical(categoryId, _absent)
         ? this.categoryId
         : categoryId as String?,
@@ -263,6 +269,7 @@ class FinanceEntry {
     'currency': currency,
     'accountId': accountId,
     'toAccountId': toAccountId,
+    'toGoalId': toGoalId,
     'categoryId': categoryId,
     'subcategory': subcategory,
     'attachmentPath': attachmentPath,
@@ -285,6 +292,7 @@ class FinanceEntry {
     currency: json['currency'] as String,
     accountId: json['accountId'] as String,
     toAccountId: json['toAccountId'] as String?,
+    toGoalId: json['toGoalId'] as String?,
     categoryId: json['categoryId'] as String?,
     subcategory: json['subcategory'] as String?,
     attachmentPath: json['attachmentPath'] as String?,
@@ -427,6 +435,7 @@ class RecurringRule {
   final int amountMinor;
   final int interval;
   final String frequency;
+  final String paymentType;
   final DateTime nextDate;
 
   /// Intended day of month, retained when February clamps the next date.
@@ -444,6 +453,7 @@ class RecurringRule {
     required this.amountMinor,
     this.interval = 1,
     this.frequency = 'monthly',
+    this.paymentType = 'mandatory',
     required this.nextDate,
     int? anchorDay,
     this.automatic = false,
@@ -460,6 +470,7 @@ class RecurringRule {
     int? amountMinor,
     int? interval,
     String? frequency,
+    String? paymentType,
     DateTime? nextDate,
     int? anchorDay,
     bool? automatic,
@@ -476,6 +487,7 @@ class RecurringRule {
     amountMinor: amountMinor ?? this.amountMinor,
     interval: interval ?? this.interval,
     frequency: frequency ?? this.frequency,
+    paymentType: paymentType ?? this.paymentType,
     nextDate: nextDate ?? this.nextDate,
     anchorDay: anchorDay ?? this.anchorDay,
     automatic: automatic ?? this.automatic,
@@ -492,11 +504,26 @@ class RecurringRule {
     'amountMinor': amountMinor,
     'interval': interval,
     'frequency': frequency,
+    'paymentType': paymentType,
     'nextDate': nextDate.toIso8601String(),
     'anchorDay': anchorDay,
     'automatic': automatic,
     'enabled': enabled,
   };
+
+  /// Conservative migration of the old unclassified regular-payment list.
+  /// Utilities, loans and all unrecognized names remain mandatory payments.
+  static String classifyLegacyPaymentType(
+    String name, [
+    String categoryName = '',
+  ]) {
+    final text = '$name $categoryName'.toLowerCase();
+    return RegExp(
+          r'подпис|netflix|spotify|музык|youtube|яндекс плюс|yandex plus|icloud|subscription',
+        ).hasMatch(text)
+        ? 'subscription'
+        : 'mandatory';
+  }
 
   factory RecurringRule.fromJson(Map<String, dynamic> json) => RecurringRule(
     id: json['id'] as String,
@@ -510,6 +537,9 @@ class RecurringRule {
     amountMinor: json['amountMinor'] as int,
     interval: json['interval'] as int? ?? 1,
     frequency: json['frequency'] as String? ?? 'monthly',
+    paymentType:
+        json['paymentType'] as String? ??
+        classifyLegacyPaymentType(json['name'] as String),
     nextDate: DateTime.parse(json['nextDate'] as String),
     anchorDay: json['anchorDay'] as int?,
     automatic: json['automatic'] as bool? ?? false,

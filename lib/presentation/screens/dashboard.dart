@@ -4,12 +4,13 @@ import 'package:intl/intl.dart';
 import '../../domain/finance_engine.dart';
 import '../../domain/models.dart';
 import '../controller.dart';
-import '../theme/app_theme.dart';
 import '../widgets/common.dart';
 import '../widgets/charts.dart';
 import '../widgets/entry_tile.dart';
 import 'management.dart';
 import 'entry_editor.dart';
+import 'transactions.dart';
+import 'settings.dart';
 
 class Dashboard extends StatelessWidget {
   const Dashboard({
@@ -18,44 +19,52 @@ class Dashboard extends StatelessWidget {
     required this.onAnalytics,
   });
   final VoidCallback onTransactions, onAnalytics;
+  void _open(BuildContext context, Widget page) =>
+      Navigator.push(context, MaterialPageRoute<void>(builder: (_) => page));
   @override
   Widget build(BuildContext context) {
     final c = FinanceScope.of(context);
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    final accent = AppTheme.accent(c.data.preferences.accent);
     final totals = FinanceEngine.totals(
       c.data.entries,
       c.periodStart,
       c.periodEnd,
       c.currency,
     );
-    final prevStart = DateTime(
-      c.periodStart.year,
-      c.periodStart.month - 1,
-      c.periodStart.day,
-    );
-    final prev = FinanceEngine.totals(
+    final previous = FinanceEngine.totals(
       c.data.entries,
-      prevStart,
+      DateTime(c.periodStart.year, c.periodStart.month - 1, c.periodStart.day),
       c.periodStart,
       c.currency,
     );
-    final change = prev.expense == 0
+    final difference = previous.expense == 0
         ? null
-        : (totals.expense - prev.expense) / prev.expense * 100;
+        : (totals.expense - previous.expense) / previous.expense * 100;
     final recent = [...c.data.entries]
       ..sort((a, b) => b.date.compareTo(a.date));
-    final cats = FinanceEngine.categoryTotals(
+    final categories = FinanceEngine.categoryTotals(
       c.data.entries,
       c.periodStart,
       c.periodEnd,
       c.currency,
       EntryKind.expense,
     ).entries.toList()..sort((a, b) => b.value.compareTo(a.value));
-    final accounts = c.data.accounts.where((a) => !a.archived).toList();
+    final active = c.data.accounts.where((a) => !a.archived).toList();
+    final archived = c.data.accounts.where((a) => a.archived).toList();
+    final range = DateTimeRange(
+      start: c.periodStart,
+      end: DateTime(c.periodEnd.year, c.periodEnd.month, c.periodEnd.day - 1),
+    );
+    void operations(EntryKind kind) => _open(
+      context,
+      TransactionsScreen(initialKind: kind, initialRange: range),
+    );
+    void category(String id) =>
+        _open(context, TransactionsScreen(categoryId: id, initialRange: range));
     return ListView(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 28),
+      key: const PageStorageKey('dashboard'),
+      padding: const EdgeInsets.fromLTRB(20, 18, 20, 30),
       children: [
         Row(
           children: [
@@ -63,20 +72,25 @@ class Dashboard extends StatelessWidget {
               width: 42,
               height: 42,
               decoration: BoxDecoration(
-                color: scheme.surface,
+                color: const Color(0xFF070807),
                 borderRadius: BorderRadius.circular(15),
               ),
-              child: Icon(Icons.blur_on_rounded, color: scheme.primary),
+              child: const Icon(
+                Icons.blur_on_rounded,
+                color: Color(0xFFC5E768),
+              ),
             ),
             const SizedBox(width: 12),
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('FINORA', style: theme.textTheme.labelSmall),
-                  Text('Мои финансы', style: theme.textTheme.headlineSmall),
-                ],
+              child: Text(
+                'FINORA',
+                style: theme.textTheme.labelSmall?.copyWith(letterSpacing: 2),
               ),
+            ),
+            IconButton(
+              tooltip: 'Настройки',
+              onPressed: () => _open(context, const SettingsScreen()),
+              icon: const Icon(Icons.tune_rounded),
             ),
             IconButton(
               tooltip: c.hidden ? 'Показать суммы' : 'Скрыть суммы',
@@ -86,9 +100,7 @@ class Dashboard extends StatelessWidget {
                     c.data.preferences.copyWith(hideAmounts: !c.hidden),
                   );
                 } catch (e) {
-                  if (context.mounted) {
-                    showError(context, e);
-                  }
+                  if (context.mounted) showError(context, e);
                 }
               },
               icon: Icon(
@@ -99,88 +111,119 @@ class Dashboard extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 24),
-        Container(
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(28),
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                accent,
-                Color.lerp(accent, const Color(0xFFE4D9B8), .6)!,
-              ],
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: accent.withValues(alpha: .1),
-                blurRadius: 30,
-                offset: const Offset(0, 10),
+        const SizedBox(height: 18),
+        Text('Мои финансы', style: theme.textTheme.headlineLarge),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                'Всё важное. В одном месте.',
+                style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 13),
               ),
-            ],
-          ),
-          child: DefaultTextStyle(
-            style: const TextStyle(color: Color(0xFF182011)),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+            ),
+            TextButton(
+              onPressed: () => _open(context, const MembersScreen()),
+              child: const Text('Моя семья'),
+            ),
+          ],
+        ),
+        const SizedBox(height: 14),
+        Material(
+          color: const Color(0xFF070807),
+          borderRadius: BorderRadius.circular(28),
+          child: InkWell(
+            onTap: () => _open(context, const AccountsScreen()),
+            borderRadius: BorderRadius.circular(28),
+            child: Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(28),
+                gradient: const LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [Color(0xFF070807), Color(0xFF1F2321)],
+                ),
+              ),
+              child: DefaultTextStyle.merge(
+                style: const TextStyle(color: Color(0xFFFCFEFA)),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Expanded(
-                      child: Text(
-                        'ОБЩИЙ БАЛАНС',
-                        style: TextStyle(
-                          fontSize: 11,
-                          letterSpacing: 1.4,
-                          fontWeight: FontWeight.w600,
+                    Row(
+                      children: [
+                        const Expanded(
+                          child: Text(
+                            'ОБЩИЙ БАЛАНС',
+                            style: TextStyle(
+                              fontSize: 11,
+                              letterSpacing: 1.5,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFFACAEA9),
+                            ),
+                          ),
                         ),
-                      ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFC5E768),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            c.currency,
+                            style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFF070807),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                    Text(
-                      c.currency,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                FittedBox(
-                  fit: BoxFit.scaleDown,
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    money(c.balance, c.currency, c.hidden),
-                    style: const TextStyle(
-                      fontSize: 42,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: -1.5,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  children: [
-                    const Icon(Icons.north_east_rounded, size: 17),
-                    const SizedBox(width: 6),
-                    Expanded(
+                    const SizedBox(height: 24),
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
                       child: Text(
-                        'Разница за месяц: ${totals.net >= 0 ? '+' : ''}${money(totals.net, c.currency, c.hidden)}',
+                        money(c.balance, c.currency, c.hidden),
                         style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
+                          fontSize: 42,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: -1.6,
                         ),
                       ),
                     ),
+                    const SizedBox(height: 20),
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.north_east_rounded,
+                          color: Color(0xFFC5E768),
+                          size: 17,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'За месяц ${totals.net >= 0 ? '+' : ''}${money(totals.net, c.currency, c.hidden)}',
+                            style: const TextStyle(
+                              fontSize: 13,
+                              color: Color(0xFFC5E768),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    const Text(
+                      'Счета и средства, переведённые в мечты',
+                      style: TextStyle(fontSize: 10, color: Color(0xFFACAEA9)),
+                    ),
                   ],
                 ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Активные счета в выбранной валюте',
-                  style: TextStyle(fontSize: 10, color: Color(0xFF455234)),
-                ),
-              ],
+              ),
             ),
           ),
         ),
@@ -188,32 +231,32 @@ class Dashboard extends StatelessWidget {
         Row(
           children: [
             Expanded(
-              child: _Metric(
-                'Доходы',
-                totals.income,
-                c.currency,
-                c.hidden,
-                Icons.south_west_rounded,
-                const Color(0xFF8DBF9D),
+              child: _SummaryTile(
+                title: 'Доходы',
+                amount: totals.income,
+                currency: c.currency,
+                hidden: c.hidden,
+                icon: Icons.south_west_rounded,
+                onTap: () => operations(EntryKind.income),
               ),
             ),
             const SizedBox(width: 12),
             Expanded(
-              child: _Metric(
-                'Расходы',
-                totals.expense,
-                c.currency,
-                c.hidden,
-                Icons.north_east_rounded,
-                const Color(0xFFD6B58E),
+              child: _SummaryTile(
+                title: 'Расходы',
+                amount: totals.expense,
+                currency: c.currency,
+                hidden: c.hidden,
+                icon: Icons.north_east_rounded,
+                onTap: () => operations(EntryKind.expense),
               ),
             ),
           ],
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 18),
         Row(
           children: [
-            for (final item in [
+            for (final action in [
               (EntryKind.expense, 'Расход', Icons.remove_rounded),
               (EntryKind.income, 'Доход', Icons.add_rounded),
               (EntryKind.transfer, 'Перевод', Icons.swap_horiz_rounded),
@@ -221,25 +264,37 @@ class Dashboard extends StatelessWidget {
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 4),
-                  child: OutlinedButton(
-                    onPressed: () => showEntryEditor(context, kind: item.$1),
-                    style: OutlinedButton.styleFrom(
+                  child: FilledButton.tonal(
+                    onPressed: () => showEntryEditor(context, kind: action.$1),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: action.$1 == EntryKind.expense
+                          ? scheme.primary
+                          : scheme.surface,
+                      foregroundColor: action.$1 == EntryKind.expense
+                          ? scheme.onPrimary
+                          : scheme.onSurface,
                       padding: const EdgeInsets.symmetric(
-                        vertical: 16,
-                        horizontal: 4,
-                      ),
-                      side: BorderSide(
-                        color: scheme.outlineVariant.withValues(alpha: .4),
+                        horizontal: 3,
+                        vertical: 17,
                       ),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(18),
+                        borderRadius: BorderRadius.circular(20),
+                        side: BorderSide(
+                          color: scheme.outlineVariant.withValues(alpha: .5),
+                        ),
                       ),
                     ),
                     child: Column(
                       children: [
-                        Icon(item.$3, size: 22),
-                        const SizedBox(height: 6),
-                        Text(item.$2, style: const TextStyle(fontSize: 12)),
+                        Icon(action.$3, size: 23),
+                        const SizedBox(height: 7),
+                        Text(
+                          action.$2,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -260,9 +315,9 @@ class Dashboard extends StatelessWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Демопрофиль · данные для знакомства',
+                    'Демонстрационный семейный профиль',
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 11,
                       color: scheme.onSurfaceVariant,
                     ),
                   ),
@@ -271,207 +326,92 @@ class Dashboard extends StatelessWidget {
             ),
           ),
         SectionTitle(
-          'Обзор месяца',
-          action: DateFormat('LLLL', 'ru').format(DateTime.now()),
+          'Все счета',
+          action: '+ Счёт',
+          onTap: () => showAccountEditor(context),
         ),
-        SurfaceCard(
-          onTap: onAnalytics,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      'Куда уходят деньги',
-                      style: theme.textTheme.titleMedium,
-                    ),
-                  ),
-                  Icon(
-                    Icons.arrow_outward_rounded,
-                    size: 18,
-                    color: scheme.onSurfaceVariant,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 14),
-              LayoutBuilder(
-                builder: (ctx, constraints) => Row(
-                  children: [
-                    SizedBox(
-                      width: constraints.maxWidth * .43,
-                      child: DonutChart(
-                        values: cats.map((e) => e.value).toList(),
-                        colors: cats
-                            .map(
-                              (e) => Color(
-                                c.category(e.key)?.color ??
-                                    categoryColors.first,
-                              ),
-                            )
-                            .toList(),
-                        center: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              '${cats.length}',
-                              style: theme.textTheme.headlineSmall,
-                            ),
-                            const Text(
-                              'категорий',
-                              style: TextStyle(fontSize: 9),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 18),
-                    Expanded(
-                      child: Column(
-                        children: [
-                          for (final e in cats.take(3))
-                            Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 6),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    width: 7,
-                                    height: 7,
-                                    decoration: BoxDecoration(
-                                      color: Color(
-                                        c.category(e.key)?.color ??
-                                            categoryColors.first,
-                                      ),
-                                      shape: BoxShape.circle,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 7),
-                                  Expanded(
-                                    child: Text(
-                                      c.category(e.key)?.name ?? 'Прочее',
-                                      style: const TextStyle(fontSize: 12),
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                  Text(
-                                    '${totals.expense == 0 ? 0 : (e.value / totals.expense * 100).round()}%',
-                                    style: const TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              if (change != null) ...[
-                const SizedBox(height: 12),
-                Text(
-                  'На ${change.abs().round()}% ${change <= 0 ? 'меньше' : 'больше'}, чем в прошлом месяце',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: change <= 0
-                        ? const Color(0xFF8DBF9D)
-                        : scheme.onSurfaceVariant,
-                  ),
-                ),
-              ] else
-                const Padding(
-                  padding: EdgeInsets.only(top: 8),
-                  child: Text(
-                    'Добавьте операции за прошлый месяц для сравнения',
-                    style: TextStyle(fontSize: 12),
-                  ),
-                ),
-            ],
-          ),
-        ),
-        SectionTitle(
-          'Мои счета',
-          action: 'Все счета',
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute<void>(builder: (_) => const AccountsScreen()),
-          ),
-        ),
-        if (accounts.isEmpty)
-          const EmptyState(
-            'Добавьте первый счёт',
-            'Банковская карта, наличные или накопления.',
-          )
-        else
-          SizedBox(
-            height: 150,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              itemCount: accounts.length,
-              separatorBuilder: (_, i) => const SizedBox(width: 12),
-              itemBuilder: (ctx, i) {
-                final a = accounts[i];
-                return SizedBox(
-                  width: 232,
-                  child: SurfaceCard(
-                    color: Color.lerp(scheme.surface, Color(a.color), .1),
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute<void>(
-                        builder: (_) => const AccountsScreen(),
-                      ),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            CategoryBadge(
-                              icon: categoryIcon(a.icon),
-                              color: Color(a.color),
-                              size: 32,
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: Text(
-                                a.name,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: theme.textTheme.titleMedium,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const Spacer(),
-                        Text(
-                          money(
-                            FinanceEngine.balance(a, c.data.entries),
-                            a.currency,
-                            c.hidden,
-                          ),
-                          style: theme.textTheme.titleLarge,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          a.lastFour.isEmpty
-                              ? a.currency
-                              : '•••• ${a.lastFour}',
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: scheme.onSurfaceVariant,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
+        if (active.isEmpty)
+          SurfaceCard(
+            onTap: () => showAccountEditor(context),
+            child: const EmptyState(
+              'Добавьте первый счёт',
+              'Карты, наличные, вклады — все деньги будут здесь.',
+              icon: Icons.add_card_outlined,
             ),
           ),
+        for (final account in active)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: _AccountRow(account: account),
+          ),
+        if (archived.isNotEmpty)
+          SurfaceCard(
+            padding: EdgeInsets.zero,
+            child: ExpansionTile(
+              key: const PageStorageKey('dashboard-archived-accounts'),
+              shape: const Border(),
+              collapsedShape: const Border(),
+              title: Text(
+                'Архивные счета · ${archived.length}',
+                style: theme.textTheme.titleMedium,
+              ),
+              childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+              children: archived
+                  .map(
+                    (a) => Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: _AccountRow(account: a),
+                    ),
+                  )
+                  .toList(),
+            ),
+          ),
+        SectionTitle(
+          'Обзор месяца',
+          action: DateFormat('LLLL', 'ru').format(DateTime.now()),
+          onTap: () => _open(context, const CalendarScreen()),
+        ),
+        _ExpenseOverview(
+          categories: categories,
+          total: totals.expense,
+          difference: difference,
+          onAnalytics: onAnalytics,
+          onCategory: category,
+        ),
+        SectionTitle(
+          'Мечты и накопления',
+          action: 'Все мечты',
+          onTap: () => _open(context, const GoalsScreen()),
+        ),
+        if (c.data.goals.isEmpty)
+          SurfaceCard(
+            onTap: () => _open(context, const GoalsScreen()),
+            child: const Row(
+              children: [
+                Icon(Icons.auto_awesome_outlined),
+                SizedBox(width: 14),
+                Expanded(
+                  child: Text('Создайте мечту и переводите на неё деньги'),
+                ),
+              ],
+            ),
+          )
+        else
+          for (final goal in c.data.goals)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: _DreamRow(goal: goal),
+            ),
+        const _PaymentSection(
+          paymentType: 'subscription',
+          title: 'Подписки',
+          icon: Icons.subscriptions_outlined,
+        ),
+        const _PaymentSection(
+          paymentType: 'mandatory',
+          title: 'Обязательные платежи',
+          icon: Icons.receipt_long_outlined,
+        ),
         SectionTitle(
           'Последние операции',
           action: 'Все',
@@ -482,7 +422,7 @@ class Dashboard extends StatelessWidget {
           child: recent.isEmpty
               ? const EmptyState(
                   'История начинается здесь',
-                  'Добавьте доход или расход кнопкой +.',
+                  'Добавьте первую операцию кнопкой +.',
                 )
               : Column(
                   children: recent.take(5).map((e) => EntryTile(e)).toList(),
@@ -491,210 +431,378 @@ class Dashboard extends StatelessWidget {
         SectionTitle(
           'Бюджет под контролем',
           action: 'Настроить',
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute<void>(builder: (_) => const BudgetsScreen()),
-          ),
+          onTap: () => _open(context, const BudgetsScreen()),
         ),
         if (c.data.budgets.isEmpty)
           SurfaceCard(
-            child: Text(
-              'Установите месячный лимит и следите за расходами.',
-              style: TextStyle(color: scheme.onSurfaceVariant),
+            onTap: () => _open(context, const BudgetsScreen()),
+            child: const Text(
+              'Установите месячный лимит и планируйте расходы.',
             ),
           )
         else
-          ...c.data.budgets.take(2).map((b) {
-            final spent = FinanceEngine.budgetSpent(
-              b,
-              c.data.entries,
-              c.periodStart,
-              c.periodEnd,
-            );
-            final ratio = b.limitMinor == 0 ? 0.0 : spent / b.limitMinor;
-            return Padding(
+          for (final budget in c.data.budgets.take(2))
+            Padding(
               padding: const EdgeInsets.only(bottom: 10),
               child: SurfaceCard(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
+                onTap: () => _open(context, const BudgetsScreen()),
+                child: Builder(
+                  builder: (context) {
+                    final spent = FinanceEngine.budgetSpent(
+                      budget,
+                      c.data.entries,
+                      c.periodStart,
+                      c.periodEnd,
+                    );
+                    final ratio = spent / budget.limitMinor;
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                          child: Text(
-                            b.name,
-                            style: theme.textTheme.titleMedium,
+                        Text(budget.name, style: theme.textTheme.titleMedium),
+                        const SizedBox(height: 12),
+                        LinearProgressIndicator(
+                          value: ratio.clamp(0, 1),
+                          minHeight: 7,
+                          borderRadius: BorderRadius.circular(8),
+                          color: ratio >= 1 ? scheme.error : scheme.primary,
+                          backgroundColor: scheme.outlineVariant.withValues(
+                            alpha: .35,
                           ),
                         ),
+                        const SizedBox(height: 10),
                         Text(
-                          '${(ratio * 100).round()}%',
+                          '${money(spent, budget.currency, c.hidden)} из ${money(budget.limitMinor, budget.currency, c.hidden)} · ${(ratio * 100).round()}%',
                           style: TextStyle(
-                            color: ratio >= .9 ? scheme.error : scheme.primary,
+                            fontSize: 12,
+                            color: scheme.onSurfaceVariant,
                           ),
                         ),
                       ],
-                    ),
-                    const SizedBox(height: 16),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: LinearProgressIndicator(
-                        value: ratio.clamp(0, 1),
-                        minHeight: 7,
-                        color: ratio >= .9 ? scheme.error : scheme.primary,
-                        backgroundColor: scheme.primary.withValues(alpha: .1),
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      '${money(spent, b.currency, c.hidden)} из ${money(b.limitMinor, b.currency, c.hidden)}',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: scheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          }),
-        SectionTitle(
-          'Ближе к мечте',
-          action: 'Все цели',
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute<void>(builder: (_) => const GoalsScreen()),
-          ),
-        ),
-        if (c.data.goals.isEmpty)
-          const SurfaceCard(
-            child: Text(
-              'Создайте цель — отпуск, подушку безопасности или большую покупку.',
-            ),
-          )
-        else
-          ...c.data.goals
-              .take(2)
-              .map(
-                (g) => Padding(
-                  padding: const EdgeInsets.only(bottom: 10),
-                  child: SurfaceCard(
-                    child: Row(
-                      children: [
-                        CategoryBadge(
-                          icon: categoryIcon(g.icon),
-                          color: Color(g.color),
-                          size: 48,
-                        ),
-                        const SizedBox(width: 14),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(g.name, style: theme.textTheme.titleMedium),
-                              const SizedBox(height: 6),
-                              Text(
-                                '${money(g.savedMinor, g.currency, c.hidden)} · ${g.targetMinor == 0 ? 0 : (g.savedMinor / g.targetMinor * 100).round()}% накоплено',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: scheme.onSurfaceVariant,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Icon(
-                          Icons.chevron_right_rounded,
-                          color: scheme.onSurfaceVariant,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-        SectionTitle(
-          'По расписанию',
-          action: 'Все',
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute<void>(builder: (_) => const RecurringScreen()),
-          ),
-        ),
-        ...([...c.data.recurring.where((r) => r.enabled)]
-              ..sort((a, b) => a.nextDate.compareTo(b.nextDate)))
-            .take(3)
-            .map(
-              (r) => Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-                child: SurfaceCard(
-                  child: Row(
-                    children: [
-                      CategoryBadge(
-                        category: c.category(r.categoryId),
-                        icon: Icons.event_repeat_outlined,
-                      ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(r.name, style: theme.textTheme.titleMedium),
-                            Text(
-                              DateFormat('d MMMM', 'ru').format(r.nextDate),
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: scheme.onSurfaceVariant,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Text(
-                        money(r.amountMinor, r.currency, c.hidden),
-                        style: const TextStyle(fontWeight: FontWeight.w600),
-                      ),
-                    ],
-                  ),
+                    );
+                  },
                 ),
               ),
             ),
-        const SizedBox(height: 18),
+        const SizedBox(height: 24),
         Text(
           'Уверенность начинается с ясности.',
           textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant),
+          style: TextStyle(fontSize: 11, color: scheme.onSurfaceVariant),
         ),
       ],
     );
   }
 }
 
-class _Metric extends StatelessWidget {
-  const _Metric(
-    this.label,
-    this.amount,
-    this.currency,
-    this.hidden,
-    this.icon,
-    this.color,
-  );
-  final String label, currency;
+class _AccountRow extends StatelessWidget {
+  const _AccountRow({required this.account});
+  final Account account;
+  @override
+  Widget build(BuildContext context) {
+    final c = FinanceScope.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    return SurfaceCard(
+      padding: const EdgeInsets.fromLTRB(16, 18, 8, 18),
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute<void>(
+          builder: (_) => TransactionsScreen(accountId: account.id),
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 42,
+            height: 42,
+            decoration: BoxDecoration(
+              color: const Color(0xFF1F2321),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Icon(
+              categoryIcon(account.icon),
+              color: const Color(0xFFC5E768),
+              size: 21,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  account.name,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(height: 5),
+                Text(
+                  [
+                        if (account.bank.isNotEmpty) account.bank,
+                        if (account.lastFour.isNotEmpty)
+                          '•• ${account.lastFour}',
+                        if (account.excluded) 'Вне общего баланса',
+                      ].join(' · ').isEmpty
+                      ? account.currency
+                      : [
+                          if (account.bank.isNotEmpty) account.bank,
+                          if (account.lastFour.isNotEmpty)
+                            '•• ${account.lastFour}',
+                          if (account.excluded) 'Вне общего баланса',
+                        ].join(' · '),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: scheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: MediaQuery.sizeOf(context).width * .29,
+            ),
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                money(
+                  FinanceEngine.balance(account, c.data.entries),
+                  account.currency,
+                  c.hidden,
+                ),
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: -.5,
+                ),
+              ),
+            ),
+          ),
+          IconButton(
+            tooltip: 'Настроить счёт ${account.name}',
+            visualDensity: VisualDensity.compact,
+            onPressed: () => showAccountEditor(context, account: account),
+            icon: Icon(
+              Icons.more_horiz_rounded,
+              color: scheme.onSurfaceVariant,
+              size: 21,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DreamRow extends StatelessWidget {
+  const _DreamRow({required this.goal});
+  final Goal goal;
+  @override
+  Widget build(BuildContext context) {
+    final c = FinanceScope.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    final saved = FinanceEngine.goalSaved(goal, c.data.entries);
+    final percent = (saved / goal.targetMinor * 100).round();
+    return SurfaceCard(
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute<void>(
+          builder: (_) => TransactionsScreen(goalId: goal.id),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              CategoryBadge(
+                icon: categoryIcon(goal.icon),
+                color: scheme.onSurface,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  goal.name,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+              ),
+              IconButton(
+                tooltip: 'Пополнить мечту ${goal.name}',
+                onPressed: () => showEntryEditor(
+                  context,
+                  kind: EntryKind.transfer,
+                  goalId: goal.id,
+                ),
+                icon: const Icon(Icons.add_circle_outline_rounded),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          LinearProgressIndicator(
+            value: (saved / goal.targetMinor).clamp(0, 1),
+            minHeight: 6,
+            borderRadius: BorderRadius.circular(8),
+            color: scheme.primary,
+            backgroundColor: scheme.outlineVariant.withValues(alpha: .3),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            '${money(saved, goal.currency, c.hidden)} · $percent% накоплено',
+            style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PaymentSection extends StatelessWidget {
+  const _PaymentSection({
+    required this.paymentType,
+    required this.title,
+    required this.icon,
+  });
+  final String paymentType, title;
+  final IconData icon;
+  @override
+  Widget build(BuildContext context) {
+    final c = FinanceScope.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    final rules =
+        c.data.recurring
+            .where(
+              (r) =>
+                  r.enabled &&
+                  r.kind == EntryKind.expense &&
+                  r.paymentType == paymentType,
+            )
+            .toList()
+          ..sort((a, b) => a.nextDate.compareTo(b.nextDate));
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SectionTitle(
+          title,
+          action: 'Все',
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute<void>(
+              builder: (_) => RecurringScreen(initialPaymentType: paymentType),
+            ),
+          ),
+        ),
+        SurfaceCard(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Column(
+            children: [
+              if (rules.isEmpty)
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: Icon(icon),
+                  title: Text(
+                    paymentType == 'subscription'
+                        ? 'Добавить подписку'
+                        : 'Добавить обязательный платёж',
+                  ),
+                  subtitle: Text(
+                    paymentType == 'subscription'
+                        ? 'Сервисы, музыка, связь'
+                        : 'Кредит, ипотека, аренда',
+                  ),
+                  trailing: const Icon(Icons.add_rounded),
+                  onTap: () =>
+                      showRecurringEditor(context, paymentType: paymentType),
+                )
+              else
+                for (final r in rules.take(3))
+                  ListTile(
+                    contentPadding: const EdgeInsets.symmetric(vertical: 4),
+                    leading: CategoryBadge(icon: icon, color: scheme.onSurface),
+                    title: Text(
+                      r.name,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    subtitle: Text(
+                      '${DateFormat('d MMM', 'ru').format(r.nextDate)} · ${r.automatic ? 'автозапись' : 'напоминание'}',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: scheme.onSurfaceVariant,
+                      ),
+                    ),
+                    trailing: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxWidth: MediaQuery.sizeOf(context).width * .3,
+                      ),
+                      child: Text(
+                        money(r.amountMinor, r.currency, c.hidden),
+                        maxLines: 2,
+                        textAlign: TextAlign.end,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    onTap: () => showRecurringEditor(context, rule: r),
+                  ),
+              if (rules.isNotEmpty)
+                TextButton.icon(
+                  onPressed: () =>
+                      showRecurringEditor(context, paymentType: paymentType),
+                  icon: const Icon(Icons.add_rounded, size: 17),
+                  label: Text(
+                    paymentType == 'subscription'
+                        ? 'Добавить подписку'
+                        : 'Добавить платёж',
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _SummaryTile extends StatelessWidget {
+  const _SummaryTile({
+    required this.title,
+    required this.amount,
+    required this.currency,
+    required this.hidden,
+    required this.icon,
+    required this.onTap,
+  });
+  final String title, currency;
   final int amount;
   final bool hidden;
   final IconData icon;
-  final Color color;
+  final VoidCallback onTap;
   @override
   Widget build(BuildContext context) => SurfaceCard(
+    onTap: onTap,
     padding: const EdgeInsets.all(16),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
-            Icon(icon, size: 18, color: color),
+            Icon(
+              icon,
+              size: 18,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
             const SizedBox(width: 7),
             Flexible(
               child: Text(
-                label,
+                title,
                 style: TextStyle(
                   fontSize: 12,
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -714,4 +822,126 @@ class _Metric extends StatelessWidget {
       ],
     ),
   );
+}
+
+class _ExpenseOverview extends StatelessWidget {
+  const _ExpenseOverview({
+    required this.categories,
+    required this.total,
+    required this.difference,
+    required this.onAnalytics,
+    required this.onCategory,
+  });
+  final List<MapEntry<String, int>> categories;
+  final int total;
+  final double? difference;
+  final VoidCallback onAnalytics;
+  final ValueChanged<String> onCategory;
+  Color shade(int i) => Color.lerp(
+    const Color(0xFFC5E768),
+    const Color(0xFF434840),
+    i / categories.length.clamp(1, 100),
+  )!;
+  @override
+  Widget build(BuildContext context) {
+    final c = FinanceScope.of(context);
+    final theme = Theme.of(context);
+    return SurfaceCard(
+      onTap: onAnalytics,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'Куда уходят деньги',
+                  style: theme.textTheme.titleMedium,
+                ),
+              ),
+              const Icon(Icons.arrow_outward_rounded, size: 18),
+            ],
+          ),
+          const SizedBox(height: 18),
+          LayoutBuilder(
+            builder: (context, constraints) => Row(
+              children: [
+                SizedBox(
+                  width: constraints.maxWidth * .43,
+                  child: DonutChart(
+                    values: categories.map((e) => e.value).toList(),
+                    colors: List.generate(categories.length, shade),
+                    onSelect: (i) => onCategory(categories[i].key),
+                    center: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          '${categories.length}',
+                          style: theme.textTheme.headlineSmall,
+                        ),
+                        const Text('категорий', style: TextStyle(fontSize: 10)),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    children: [
+                      for (final item in categories.take(3))
+                        InkWell(
+                          onTap: () => onCategory(item.key),
+                          borderRadius: BorderRadius.circular(10),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 9),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 6,
+                                  height: 6,
+                                  decoration: BoxDecoration(
+                                    color: shade(categories.indexOf(item)),
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                                const SizedBox(width: 7),
+                                Expanded(
+                                  child: Text(
+                                    c.category(item.key)?.name ?? 'Прочее',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(fontSize: 11),
+                                  ),
+                                ),
+                                Text(
+                                  '${total == 0 ? 0 : (item.value / total * 100).round()}%',
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 14),
+          Text(
+            difference == null
+                ? 'Добавьте прошлый месяц для сравнения'
+                : 'На ${difference!.abs().round()}% ${difference! <= 0 ? 'меньше' : 'больше'}, чем в прошлом месяце',
+            style: TextStyle(
+              fontSize: 12,
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }

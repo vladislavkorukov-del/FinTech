@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../domain/models.dart';
+import '../theme/icon_catalog.dart';
+export '../theme/icon_catalog.dart';
 
 abstract final class FinanceFormat {
   static String numberPattern = 'space_comma';
@@ -49,44 +51,6 @@ const currencies = [
   'KZT',
   'CHF',
 ];
-const iconChoices = <IconData>[
-  Icons.shopping_basket_outlined,
-  Icons.restaurant_outlined,
-  Icons.directions_bus_outlined,
-  Icons.directions_car_outlined,
-  Icons.home_outlined,
-  Icons.bolt_outlined,
-  Icons.favorite_border_rounded,
-  Icons.medication_outlined,
-  Icons.movie_outlined,
-  Icons.subscriptions_outlined,
-  Icons.shopping_bag_outlined,
-  Icons.checkroom_outlined,
-  Icons.card_giftcard_outlined,
-  Icons.flight_outlined,
-  Icons.school_outlined,
-  Icons.child_care_outlined,
-  Icons.pets_outlined,
-  Icons.receipt_long_outlined,
-  Icons.credit_card_outlined,
-  Icons.more_horiz_rounded,
-  Icons.work_outline_rounded,
-  Icons.laptop_outlined,
-  Icons.storefront_outlined,
-  Icons.percent_rounded,
-  Icons.trending_up_rounded,
-  Icons.undo_rounded,
-  Icons.wallet_outlined,
-  Icons.savings_outlined,
-  Icons.account_balance_outlined,
-  Icons.beach_access_outlined,
-  Icons.devices_outlined,
-  Icons.shield_outlined,
-  Icons.sports_esports_outlined,
-  Icons.fitness_center_outlined,
-  Icons.coffee_outlined,
-  Icons.music_note_outlined,
-];
 const categoryColors = [
   0xFFA8C889,
   0xFFD5B995,
@@ -97,8 +61,6 @@ const categoryColors = [
   0xFFE0C77B,
   0xFFCC9DAF,
 ];
-IconData categoryIcon(int index) =>
-    iconChoices[index.abs() % iconChoices.length];
 
 class SurfaceCard extends StatelessWidget {
   const SurfaceCard({
@@ -148,7 +110,20 @@ class SectionTitle extends StatelessWidget {
         Expanded(
           child: Text(title, style: Theme.of(context).textTheme.titleLarge),
         ),
-        if (action != null) TextButton(onPressed: onTap, child: Text(action!)),
+        if (action != null)
+          if (onTap != null)
+            TextButton(onPressed: onTap, child: Text(action!))
+          else
+            Flexible(
+              child: Text(
+                action!,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ),
       ],
     ),
   );
@@ -168,7 +143,9 @@ class CategoryBadge extends StatelessWidget {
   final double size;
   @override
   Widget build(BuildContext context) {
-    final c = color ?? Color(category?.color ?? 0xFF94B8D4);
+    final scheme = Theme.of(context).colorScheme;
+    final c =
+        color ?? (category == null ? scheme.onSurface : Color(category!.color));
     return Container(
       width: size,
       height: size,

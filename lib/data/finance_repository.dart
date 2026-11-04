@@ -17,7 +17,7 @@ class FinanceRepository {
   final DatabaseFactory _factory;
   final String _path;
   final DateTime Function() _clock;
-  static const schemaVersion = 1;
+  static const schemaVersion = 2;
   static const maxBackupBytes = 50 * 1024 * 1024;
 
   static Future<FinanceRepository> open({
@@ -39,6 +39,31 @@ class FinanceRepository {
         onCreate: (db, _) async {
           for (final sql in _schema) {
             await db.execute(sql);
+          }
+        },
+        onUpgrade: (db, oldVersion, newVersion) async {
+          if (oldVersion < 2) {
+            await db.execute(
+              'ALTER TABLE entries ADD COLUMN toGoalId TEXT REFERENCES goals(id)',
+            );
+            await db.execute(
+              "ALTER TABLE recurring ADD COLUMN paymentType TEXT NOT NULL DEFAULT 'mandatory'",
+            );
+            await db.execute('CREATE INDEX entries_goal ON entries(toGoalId)');
+            for (final row in await db.rawQuery(
+              'SELECT r.id, r.name, c.name AS categoryName FROM recurring r LEFT JOIN categories c ON c.id = r.categoryId',
+            )) {
+              final classification = RecurringRule.classifyLegacyPaymentType(
+                row['name'] as String,
+                row['categoryName'] as String? ?? '',
+              );
+              await db.update(
+                'recurring',
+                {'paymentType': classification},
+                where: 'id = ?',
+                whereArgs: [row['id']],
+              );
+            }
           }
         },
       ),
@@ -101,7 +126,13 @@ class FinanceRepository {
         entries: entries,
         recurring: rules,
         budgets: old.budgets.where((b) => !budgetIds.contains(b.id)).toList(),
-        goals: old.goals.where((g) => !goalIds.contains(g.id)).toList(),
+        goals: [
+          for (final g in old.goals)
+            if (!goalIds.contains(g.id))
+              g
+            else if (entries.any((e) => e.toGoalId == g.id))
+              g.copyWith(savedMinor: 0),
+        ],
         demo: false,
       ),
     );
@@ -209,7 +240,7 @@ class FinanceRepository {
     try {
       final envelope = jsonDecode(content);
       if (envelope is! Map<String, dynamic> ||
-          envelope['schemaVersion'] != schemaVersion ||
+          ![1, schemaVersion].contains(envelope['schemaVersion']) ||
           envelope['data'] is! Map<String, dynamic>) {
         throw const FormatException('Неподдерживаемый формат резервной копии');
       }
@@ -229,6 +260,17 @@ class FinanceRepository {
       }
       if (map['preferences'] is! Map || map['demo'] is! bool) {
         throw const FormatException('Отсутствуют настройки резервной копии');
+      }
+      final categoryNames = {
+        for (final c in map['categories'] as List) (c as Map)['id']: c['name'],
+      };
+      for (final row in map['recurring'] as List) {
+        if (row is Map && row['paymentType'] == null) {
+          row['paymentType'] = RecurringRule.classifyLegacyPaymentType(
+            row['name'] as String,
+            categoryNames[row['categoryId']] as String? ?? '',
+          );
+        }
       }
       final raw = FinanceData.fromJson(map);
       // Ignore every supplied path, including absolute paths, traversal paths,
@@ -251,6 +293,7 @@ class FinanceRepository {
     final data = await load();
     final accounts = {for (final a in data.accounts) a.id: a.name};
     final categories = {for (final c in data.categories) c.id: c.name};
+    final goals = {for (final g in data.goals) g.id: g.name};
     String cell(Object? value) {
       var text = value?.toString() ?? '';
       // Spreadsheet programs must treat arbitrary payee/note/tag values as text.
@@ -268,6 +311,7 @@ class FinanceRepository {
         'currency',
         'account',
         'destination_account',
+        'destination_goal',
         'destination_minor',
         'category',
         'subcategory',
@@ -286,6 +330,7 @@ class FinanceRepository {
           e.currency,
           accounts[e.accountId],
           accounts[e.toAccountId],
+          goals[e.toGoalId],
           e.destinationMinor,
           categories[e.categoryId],
           e.subcategory,
@@ -376,7 +421,7 @@ class FinanceRepository {
         options: OpenDatabaseOptions(readOnly: true, singleInstance: false),
       );
       final version = await backup.getVersion();
-      if (version != schemaVersion) {
+      if (![1, schemaVersion].contains(version)) {
         throw const FormatException('Неподдерживаемая версия базы');
       }
       final check = await backup.rawQuery('PRAGMA integrity_check');
@@ -505,8 +550,11 @@ class FinanceRepository {
         );
       }
     }
-    for (final code in data.accounts.map((a) => a.currency).toSet()) {
-      FinanceEngine.totalBalance(data.accounts, data.entries, code);
+    for (final code in {
+      ...data.accounts.map((a) => a.currency),
+      ...data.goals.map((g) => g.currency),
+    }) {
+      FinanceEngine.totalBalance(data.accounts, data.entries, code, data.goals);
       FinanceEngine.totals(
         data.entries,
         DateTime.utc(1899),
@@ -528,6 +576,7 @@ class FinanceRepository {
       currency(g.currency);
       amount(g.targetMinor, positive: true);
       amount(g.savedMinor);
+      amount(FinanceEngine.goalSaved(g, data.entries));
       if (g.deadline != null) {
         date(g.deadline!);
       }
@@ -537,6 +586,9 @@ class FinanceRepository {
       currency(r.currency);
       amount(r.amountMinor, positive: true);
       date(r.nextDate);
+      if (!['subscription', 'mandatory'].contains(r.paymentType)) {
+        throw const FormatException('Некорректный тип регулярного платежа');
+      }
       if (r.kind == EntryKind.transfer ||
           accountMap[r.accountId]?.currency != r.currency ||
           categoryMap[r.categoryId]?.kind != r.kind) {
@@ -552,7 +604,17 @@ class FinanceRepository {
     final prefs = data.preferences;
     currency(prefs.baseCurrency);
     if (!['light', 'dark', 'system'].contains(prefs.theme) ||
-        !['lime', 'gold', 'lavender', 'blue'].contains(prefs.accent) ||
+        ![
+          'lime',
+          'electric',
+          'sage',
+          'graphite',
+          'paper',
+          'midnight',
+          'gold',
+          'lavender',
+          'blue',
+        ].contains(prefs.accent) ||
         !['space_comma', 'comma_dot'].contains(prefs.numberFormat) ||
         ![
           'dd.MM.yyyy',
@@ -629,7 +691,19 @@ class FinanceRepository {
       )).map((r) => Goal.fromJson(Map<String, dynamic>.from(r))).toList(),
       recurring: (await db.query('recurring'))
           .map(
-            (r) => RecurringRule.fromJson(decoded(r, ['automatic', 'enabled'])),
+            (r) => RecurringRule.fromJson({
+              ...decoded(r, ['automatic', 'enabled']),
+              'paymentType':
+                  r['paymentType'] ??
+                  RecurringRule.classifyLegacyPaymentType(
+                    r['name'] as String,
+                    categories
+                            .where((c) => c.id == r['categoryId'])
+                            .firstOrNull
+                            ?.name ??
+                        '',
+                  ),
+            }),
           )
           .toList(),
       members: (await db.query(
@@ -695,6 +769,9 @@ class FinanceRepository {
         });
       }
     }
+    for (final g in data.goals) {
+      await db.insert('goals', g.toJson());
+    }
     final tagIds = <String, int>{};
     for (final e in data.entries) {
       final row = e.toJson()
@@ -721,9 +798,6 @@ class FinanceRepository {
     for (final b in data.budgets) {
       await db.insert('budgets', b.toJson());
     }
-    for (final g in data.goals) {
-      await db.insert('goals', g.toJson());
-    }
     for (final r in data.recurring) {
       await db.insert('recurring', scalar(r.toJson()));
     }
@@ -741,16 +815,17 @@ class FinanceRepository {
     'CREATE TABLE accounts(id TEXT PRIMARY KEY, name TEXT NOT NULL, type TEXT NOT NULL, currency TEXT NOT NULL REFERENCES currencies(code), bank TEXT NOT NULL, lastFour TEXT NOT NULL, openingMinor INTEGER NOT NULL, creditLimitMinor INTEGER NOT NULL, excluded INTEGER NOT NULL, archived INTEGER NOT NULL, color INTEGER NOT NULL, icon INTEGER NOT NULL)',
     'CREATE TABLE categories(id TEXT PRIMARY KEY, name TEXT NOT NULL, kind TEXT NOT NULL, color INTEGER NOT NULL, background INTEGER NOT NULL, icon INTEGER NOT NULL, "order" INTEGER NOT NULL)',
     'CREATE TABLE subcategories(categoryId TEXT NOT NULL REFERENCES categories(id), name TEXT NOT NULL, position INTEGER NOT NULL, PRIMARY KEY(categoryId,name))',
-    'CREATE TABLE entries(id TEXT PRIMARY KEY, kind TEXT NOT NULL, amountMinor INTEGER NOT NULL CHECK(amountMinor > 0), currency TEXT NOT NULL REFERENCES currencies(code), accountId TEXT NOT NULL REFERENCES accounts(id), toAccountId TEXT REFERENCES accounts(id), categoryId TEXT REFERENCES categories(id), subcategory TEXT, destinationMinor INTEGER, date TEXT NOT NULL, note TEXT NOT NULL, payee TEXT NOT NULL, status TEXT NOT NULL, recurrence TEXT NOT NULL, memberId TEXT NOT NULL REFERENCES members(id), latitude REAL, longitude REAL)',
+    'CREATE TABLE entries(id TEXT PRIMARY KEY, kind TEXT NOT NULL, amountMinor INTEGER NOT NULL CHECK(amountMinor > 0), currency TEXT NOT NULL REFERENCES currencies(code), accountId TEXT NOT NULL REFERENCES accounts(id), toAccountId TEXT REFERENCES accounts(id), toGoalId TEXT REFERENCES goals(id), categoryId TEXT REFERENCES categories(id), subcategory TEXT, destinationMinor INTEGER, date TEXT NOT NULL, note TEXT NOT NULL, payee TEXT NOT NULL, status TEXT NOT NULL, recurrence TEXT NOT NULL, memberId TEXT NOT NULL REFERENCES members(id), latitude REAL, longitude REAL)',
     'CREATE INDEX entries_date ON entries(date)',
     'CREATE INDEX entries_account ON entries(accountId)',
     'CREATE INDEX entries_category ON entries(categoryId)',
+    'CREATE INDEX entries_goal ON entries(toGoalId)',
     'CREATE TABLE tags(id INTEGER PRIMARY KEY, name TEXT NOT NULL UNIQUE)',
     'CREATE TABLE entry_tags(entryId TEXT NOT NULL REFERENCES entries(id), tagId INTEGER NOT NULL REFERENCES tags(id), position INTEGER NOT NULL, PRIMARY KEY(entryId,tagId))',
     'CREATE TABLE attachments(entryId TEXT PRIMARY KEY REFERENCES entries(id), path TEXT NOT NULL)',
     'CREATE TABLE budgets(id TEXT PRIMARY KEY, name TEXT NOT NULL, currency TEXT NOT NULL REFERENCES currencies(code), categoryId TEXT REFERENCES categories(id), limitMinor INTEGER NOT NULL CHECK(limitMinor > 0))',
     'CREATE TABLE goals(id TEXT PRIMARY KEY, name TEXT NOT NULL, currency TEXT NOT NULL REFERENCES currencies(code), targetMinor INTEGER NOT NULL CHECK(targetMinor > 0), savedMinor INTEGER NOT NULL CHECK(savedMinor >= 0), color INTEGER NOT NULL, icon INTEGER NOT NULL, deadline TEXT)',
-    'CREATE TABLE recurring(id TEXT PRIMARY KEY, name TEXT NOT NULL, accountId TEXT NOT NULL REFERENCES accounts(id), currency TEXT NOT NULL REFERENCES currencies(code), categoryId TEXT REFERENCES categories(id), kind TEXT NOT NULL, amountMinor INTEGER NOT NULL CHECK(amountMinor > 0), interval INTEGER NOT NULL, anchorDay INTEGER NOT NULL, frequency TEXT NOT NULL, nextDate TEXT NOT NULL, automatic INTEGER NOT NULL, enabled INTEGER NOT NULL)',
+    'CREATE TABLE recurring(id TEXT PRIMARY KEY, name TEXT NOT NULL, accountId TEXT NOT NULL REFERENCES accounts(id), currency TEXT NOT NULL REFERENCES currencies(code), categoryId TEXT REFERENCES categories(id), kind TEXT NOT NULL, amountMinor INTEGER NOT NULL CHECK(amountMinor > 0), interval INTEGER NOT NULL, anchorDay INTEGER NOT NULL, frequency TEXT NOT NULL, nextDate TEXT NOT NULL, automatic INTEGER NOT NULL, enabled INTEGER NOT NULL, paymentType TEXT NOT NULL DEFAULT \'mandatory\')',
     'CREATE TABLE settings(key TEXT PRIMARY KEY, value TEXT NOT NULL)',
   ];
 }

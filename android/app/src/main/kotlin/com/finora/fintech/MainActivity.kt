@@ -9,8 +9,8 @@ import java.util.TimeZone
 class MainActivity : FlutterFragmentActivity() {
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
-        // Finance data must not appear in screenshots or the recents thumbnail.
-        window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        // Screenshots are explicitly allowed by the user. The app PIN still guards entry.
+        window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "finora/device")
             .setMethodCallHandler { call, result ->
                 when (call.method) {

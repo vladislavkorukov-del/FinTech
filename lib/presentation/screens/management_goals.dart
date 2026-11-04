@@ -7,7 +7,7 @@ class GoalsScreen extends StatelessWidget {
     final c = FinanceScope.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Накопления'),
+        title: const Text('Копим на мечты'),
         actions: [
           IconButton(
             tooltip: 'Создать цель',
@@ -25,7 +25,7 @@ class GoalsScreen extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           const Text(
-            'Цели отражают ваш прогресс. Балансы счетов меняются только при добавлении операций.',
+            'Откладывайте на важное переводом со своего счёта. Деньги остаются вашими, а мечта становится ближе.',
           ),
           const SizedBox(height: 20),
           if (c.data.goals.isEmpty)
@@ -55,9 +55,9 @@ class GoalCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = FinanceScope.of(context);
-    final ratio = goal.targetMinor > 0
-        ? goal.savedMinor / goal.targetMinor
-        : 0.0;
+    final saved = FinanceEngine.goalSaved(goal, c.data.entries);
+    final contributed = saved - goal.savedMinor;
+    final ratio = goal.targetMinor > 0 ? saved / goal.targetMinor : 0.0;
     return SurfaceCard(
       onTap: onTap,
       child: Column(
@@ -84,7 +84,7 @@ class GoalCard extends StatelessWidget {
           Text('${(ratio * 100).round()}% накоплено'),
           const SizedBox(height: 8),
           Text(
-            money(goal.savedMinor, goal.currency, c.hidden),
+            money(saved, goal.currency, c.hidden),
             style: Theme.of(context).textTheme.headlineSmall,
           ),
           Text('из ${money(goal.targetMinor, goal.currency, c.hidden)}'),
@@ -106,6 +106,27 @@ class GoalCard extends StatelessWidget {
                 style: Theme.of(context).textTheme.bodySmall,
               ),
             ),
+          if (contributed > 0)
+            Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: Text(
+                'Переводами отложено ${money(contributed, goal.currency, c.hidden)}',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ),
+          const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.tonalIcon(
+              onPressed: () => showEntryEditor(
+                context,
+                kind: EntryKind.transfer,
+                goalId: goal.id,
+              ),
+              icon: const Icon(Icons.add_rounded),
+              label: const Text('Пополнить мечту'),
+            ),
+          ),
           if (ratio >= 1)
             const Padding(
               padding: EdgeInsets.only(top: 12),
@@ -123,26 +144,37 @@ Future<void> _goalEditor(BuildContext context, {Goal? goal}) async {
   final target = _text(goal == null ? '' : _amount(goal.targetMinor));
   final saved = _text(_amount(goal?.savedMinor ?? 0));
   var currency = goal?.currency ?? c.currency;
+  final hasLinkedTransfers =
+      goal != null && c.data.entries.any((e) => e.toGoalId == goal.id);
   var deadline = goal?.deadline;
   var color = goal?.color ?? categoryColors[1];
   var icon = goal?.icon ?? 29;
   await _edit(
     context,
-    title: goal == null ? 'Новая цель' : 'Цель накоплений',
+    title: goal == null ? 'Новая мечта' : 'Настроить мечту',
     controllers: [name, target, saved],
     fields: (set) => [
       _field(name, 'Название', maxLength: 80),
       _field(target, 'Хочу накопить', amount: true),
-      _field(saved, 'Уже накоплено', amount: true),
+      _field(saved, 'Начальный резерв', amount: true),
       const Padding(
         padding: EdgeInsets.only(bottom: 14),
         child: Text(
-          'Обновляйте прогресс вручную. Эта сумма не списывается со счёта.',
+          'Только сумма, отложенная до начала учёта. Она не создаёт деньги и не меняет баланс счетов. Новые пополнения добавляйте переводом — они учитываются отдельно.',
         ),
       ),
-      _select('Валюта', currency, {
-        for (final v in currencies) v: v,
-      }, (v) => set(() => currency = v)),
+      _select(
+        'Валюта',
+        currency,
+        {for (final v in currencies) v: v},
+        (v) => set(() => currency = v),
+        enabled: !hasLinkedTransfers,
+      ),
+      if (hasLinkedTransfers)
+        const Padding(
+          padding: EdgeInsets.only(bottom: 14),
+          child: Text('Валюта закреплена: с мечтой уже связаны переводы.'),
+        ),
       ListTile(
         contentPadding: EdgeInsets.zero,
         title: Text(deadline == null ? 'Установить срок' : _date(deadline!, c)),
@@ -204,12 +236,6 @@ Future<void> _goalEditor(BuildContext context, {Goal? goal}) async {
         ),
       );
     },
-    delete: goal == null
-        ? null
-        : () => c.mutate(
-            (d) => d.copyWith(
-              goals: d.goals.where((a) => a.id != goal.id).toList(),
-            ),
-          ),
+    delete: goal == null ? null : () => c.deleteGoal(goal.id),
   );
 }

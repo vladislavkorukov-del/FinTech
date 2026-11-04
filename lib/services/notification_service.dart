@@ -179,7 +179,10 @@ class NotificationService {
       }
     }
     for (final goal in data.goals) {
-      if (goal.targetMinor > 0 && goal.savedMinor >= goal.targetMinor) {
+      if (goal.targetMinor > 0 &&
+          FinanceEngine.goalSaved(goal, data.entries) >= goal.targetMinor) {
+        // One celebration per goal/target, including after transfer edits or
+        // an undo/re-add. A genuinely changed target receives its own milestone.
         await showOnce(
           'goal:${goal.id}:${goal.targetMinor}',
           'Цель достигнута!',
