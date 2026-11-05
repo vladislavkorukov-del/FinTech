@@ -4,6 +4,7 @@ import 'package:uuid/uuid.dart';
 import '../data/finance_repository.dart';
 import '../domain/models.dart';
 import '../domain/finance_engine.dart';
+import '../domain/scan_import.dart';
 import '../services/notification_service.dart';
 
 const notificationSyncWarning =
@@ -189,6 +190,30 @@ class FinanceController extends ChangeNotifier {
       recurring: [...d.recurring.where((a) => a.id != value.id), value],
     ),
   );
+  Future<void> importScanned(
+    List<ScanImportItem> items, {
+    String? attachmentPath,
+  }) => mutate((data) {
+    final entries = ScanImport.entries(
+      items,
+      data,
+      newId: id,
+      attachmentPath: attachmentPath,
+    );
+    var preferences = data.preferences;
+    final chronological = [...entries]
+      ..sort((a, b) => a.date.compareTo(b.date));
+    for (final entry in chronological) {
+      preferences = rememberCategory(
+        data.copyWith(preferences: preferences),
+        entry,
+      );
+    }
+    return data.copyWith(
+      entries: [...data.entries, ...entries],
+      preferences: preferences,
+    );
+  });
   Future<void> _replace(Future<void> Function() action) {
     final result = _tail.then((_) async {
       await action();

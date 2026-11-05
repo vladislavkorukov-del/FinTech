@@ -10,13 +10,15 @@ import 'package:intl/intl.dart';
 
 import '../../domain/models.dart';
 import '../../domain/finance_engine.dart';
-import '../../domain/receipt_parser.dart';
+import '../../domain/bank_statement_parser.dart';
+import '../../domain/scan_document.dart';
 import '../../services/receipt_image_store.dart';
 import '../../services/receipt_ocr_service.dart';
 import '../controller.dart';
 import '../widgets/common.dart';
 import '../widgets/amount_pad.dart';
 import 'management.dart';
+import 'scan_import_screen.dart';
 
 Future<void> showEntryEditor(
   BuildContext context, {
@@ -95,6 +97,7 @@ class _EntryEditorState extends State<EntryEditor> {
   bool _scanning = false, _scanApplied = false, _needsKindChoice = false;
   int _scanEpoch = 0;
   String? _scanCurrency;
+  String _scanText = '';
   List<String> _scanWarnings = [];
   @override
   void initState() {
@@ -206,7 +209,9 @@ class _EntryEditorState extends State<EntryEditor> {
                   ),
                   ListTile(
                     leading: const Icon(Icons.photo_camera_outlined),
-                    title: const Text('Сфотографировать чек'),
+                    title: const Text(
+                      'Сфотографировать чек или список операций',
+                    ),
                     onTap: () => Navigator.pop(context, ImageSource.camera),
                   ),
                 ],
@@ -235,12 +240,39 @@ class _EntryEditorState extends State<EntryEditor> {
         );
       }
       final c = _controller!;
-      final draft = ReceiptParser.parse(
+      final document = BankStatementParser.parse(
         result.text,
+        lines: result.lines,
         categories: c.data.categories,
         history: c.data.entries,
+        defaultCurrency: c.account(_account ?? '')?.currency ?? c.currency,
       );
-      final warnings = [...draft.warnings];
+      if (document.isStatement && document.drafts.isNotEmpty) {
+        setState(() => _scanning = false);
+        final saved = await Navigator.push<bool>(
+          context,
+          MaterialPageRoute(
+            builder: (_) => ScanImportScreen(
+              document: ScanDocument(
+                drafts: document.drafts,
+                isStatement: true,
+                warnings: [
+                  ...document.warnings,
+                  if (result.confidence < .60)
+                    'Качество распознавания невысокое. Проверьте все поля.',
+                ],
+              ),
+              imagePath: path!,
+              initialAccountId: _account,
+            ),
+          ),
+        );
+        adopted = saved == true;
+        if (saved == true && mounted) Navigator.pop(context);
+        return;
+      }
+      final draft = document.drafts.single;
+      final warnings = [...document.warnings, ...draft.warnings];
       if (result.confidence < .60) {
         warnings.add('Качество распознавания невысокое. Проверьте все поля.');
       }
@@ -293,6 +325,7 @@ class _EntryEditorState extends State<EntryEditor> {
         _note.text = draft.comment;
         _attachment = path;
         _scanApplied = true;
+        _scanText = result.text;
         _scanWarnings = warnings;
       });
       adopted = true;
@@ -624,6 +657,11 @@ class _EntryEditorState extends State<EntryEditor> {
                             ),
                           ),
                         ),
+                      ExpansionTile(
+                        title: const Text('Распознанный текст'),
+                        tilePadding: EdgeInsets.zero,
+                        children: [SelectableText(_scanText)],
+                      ),
                       if (_needsKindChoice)
                         const Padding(
                           padding: EdgeInsets.only(top: 8),

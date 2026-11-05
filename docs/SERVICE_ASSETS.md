@@ -1,6 +1,6 @@
 # Subscription service artwork
 
-The offline catalog contains **246 subscription/recurring-service entries** in 13 groups. All current entries have authentic bundled artwork: 216 Simple Icons marks, 21 original official website/app assets, and 9 original Wikimedia Commons assets. Existing v1.2 service IDs and lookup APIs remain compatible. No artwork is drawn, traced or edited in this repository; artwork is never fetched at app runtime. Uploaded custom artwork takes precedence over the catalog.
+The offline catalog contains **246 subscription/recurring-service entries** in 13 groups. All current entries have authentic bundled artwork: 216 Simple Icons marks, 21 original official website/app assets, and 9 original Wikimedia Commons assets. Existing v1.2 service IDs and lookup APIs remain compatible. No mark is invented or traced; all original source files remain byte-identical. Artwork is never fetched at app runtime. Uploaded custom artwork takes precedence while readable; missing/corrupt uploads now fall back to the actual catalog brand instead of a generic glyph.
 
 ## Sources and rights
 
@@ -8,15 +8,45 @@ Simple Icons artwork is pinned to commit [`4bfa9da744e2c06928047314ce30dc5c8d1ad
 
 Official website/app artwork is **proprietary**, not asserted to be openly licensed. The source URL establishes provenance, not redistribution permission. These exact public assets identify the service; copyright and trademark remain with each owner. Review any applicable brand terms before distribution. Do not relabel these files as CC0. The Google One image comes from the Google LLC official app listing; ChatGPT is the official 180px site icon; Microsoft 365 uses the current Microsoft 365 Copilot icon referenced by its official landing page. Russian service artwork comes from official service pages/CDNs; Амедиатека uses the exact official partner wordmark served by KION.
 
-Wikimedia Commons originals are kept as a separate source class (`sourceType: wikimedia-commons`). The source pages declare public-domain status (primarily simple text/shape marks); uploader-provided rights, credits and artist metadata are retained without asserting trademark permission. Eight are exact original Commons file bytes; WB uses the exact downloaded Commons server PNG rendition of its current 2023 SVG, because native SVG CSS would lose the original pink color. Its original SVG URL and SHA-256 are also recorded. There is no local redrawing, rendering or SVG editing. These are not hand-made lookalikes or Simple Icons files. Provider marks identify СберПрайм, Ozon Premium, МТС Premium, Т-Банк Pro, WB Джем and VK Combo; they are **parent-brand artwork, not logos uniquely designed for those subscriptions**. Билайн, Т2 and RUTUBE use their provider/service brand artwork.
+Wikimedia Commons originals are kept as a separate source class (`sourceType: wikimedia-commons`). The source pages declare public-domain status (primarily simple text/shape marks); uploader-provided rights, credits and artist metadata are retained without asserting trademark permission. Eight are exact original Commons file bytes; WB uses the exact downloaded Commons server PNG rendition of its current 2023 SVG, because native SVG CSS would lose the original pink color. Its original SVG URL and SHA-256 are also recorded. There is no local redrawing or SVG editing of the original files. Version1.5 supplies separately recorded PNG display derivatives, described below. These are not hand-made lookalikes or Simple Icons files. Provider marks identify СберПрайм, Ozon Premium, МТС Premium, Т-Банк Pro, WB Джем and VK Combo; they are **parent-brand artwork, not logos uniquely designed for those subscriptions**. Билайн, Т2 and RUTUBE use their provider/service brand artwork.
 
-Catalog and render metadata are defined in `lib/domain/service_catalog.dart`; full URLs, original byte sizes, SHA-256 hashes, source/license notes and original dimensions (where inspected) are in `assets/services/manifest.json`. `preserveColors` prevents recoloring official multicolor artwork; `background` and fractional `inset` describe the surrounding badge only and do not alter the original file. A provider mark may identify a named provider plan (for example NVIDIA → GeForce NOW, Ubisoft → Ubisoft+, EA → EA Play, GitHub → GitHub Pro). These are documented associations, not newly invented plan-specific logos.
+Catalog and render metadata are defined in `lib/domain/service_catalog.dart`; `assetPath` retains the original file, and `renderAssetPath` selects the reliable bundled PNG display copy. Every one of the246 existing service IDs has such a copy. The display derivative hashes are in `assets/services/raster/manifest.json`; full URLs, original byte sizes, SHA-256 hashes, source/license notes and original dimensions (where inspected) are in `assets/services/manifest.json`. `preserveColors` prevents recoloring official multicolor artwork; `background` and fractional `inset` describe the surrounding badge only and do not alter the original file. A provider mark may identify a named provider plan (for example NVIDIA → GeForce NOW, Ubisoft → Ubisoft+, EA → EA Play, GitHub → GitHub Pro). These are documented associations, not newly invented plan-specific logos.
 
 The catalog deliberately covers services with paid subscription/recurring plans. Some developer/cloud providers bill by monthly usage rather than a fixed subscription. It does not enumerate unrelated product/clothing/automotive brands. Service availability, pricing and brand identity can change; metadata is a selection aid, not a billing integration.
 
 ## Source constraints
 
-Яндекс Плюс uses the original gradient vector wordmark «Плюс», discovered in the official public page stylesheet, for crisp rendering at any density. The unmodified standalone 48px bitmap is not shipped. Литрес and Амедиатека also use authentic wordmarks rather than fabricated square monograms. Яндекс Диск/Почта SVGs include original filter effects; native SVG renderers may simplify those effects while retaining the original paths and colors.
+Яндекс Плюс uses the original gradient vector wordmark «Плюс», discovered in the official public page stylesheet, for crisp rendering at any density. The unmodified standalone 48px bitmap is not shipped. Литрес and Амедиатека also use authentic wordmarks rather than fabricated square monograms. Яндекс Диск/Почта SVGs include original filter effects. The new display copies use Inkscape to resolve source gradients, CSS and filter effects on the build host; Android never needs to parse these SVGs.
+
+## Reliable display copies (1.5)
+
+All **246/246** catalog entries have local PNG display copies. The235 SVGs are
+rendered proportionally with the standard Inkscape1.4 renderer into transparent
+384×384 RGBA canvases with a2px gutter; colors/paths/gradients come from the
+pinned originals. The11 PNG originals are copied byte-for-byte, including their
+original aspect ratios. This is standard asset rasterization, not replacement
+brand artwork. Original SVGs/PNGs and their provenance are retained unchanged.
+
+`ServiceBadge` uses Flutter's normal `AssetImage`/`ResizeImage` decoding for every
+built-in service, avoiding runtime SVG-to-picture rendering, SVG feature/backend
+differences and the custom pending-picture cache in Android scroll lists. PNGs
+are decoded for display density with high-quality downsampling and antialiased
+clipping; monochrome brands retain their configured brand tint, multicolor
+artwork remains unfiltered. A missing or unreadable custom upload switches both
+the image and the surrounding plate/inset back to the matching catalog brand.
+Unknown user-named services still have the existing neutral icon/upload option.
+
+`tool/render_service_assets.py --render` recreates the display set offline from
+pinned sources, using Inkscape1.4 and Pillow. It records source SHA-256, output
+SHA-256, dimensions, renderer and transformation for every ID. `--verify` checks
+complete coverage, source hashes, output hashes and valid visible PNG data.
+Runtime source rendering is no longer required for the built-in catalog.
+
+Fresh regression evidence: missing and corrupt uploaded images both displayed a
+generic glyph before this change; both now recover the correct catalog brand.
+The full actual ServiceBadge test checks246×2 themes for decoded artwork visible
+against its own plate, plus rapid replacement under cache eviction. Native phone
+GPU behavior is not claimed from software-renderer tests.
 
 ## Reproducible verification
 
@@ -25,7 +55,8 @@ Run from the repository root:
 ```sh
 python3 tool/fetch_service_assets.py --verify
 python3 tool/fetch_service_assets.py --fetch
-flutter test test/service_catalog_v13_test.dart
+python3 tool/render_service_assets.py --verify
+flutter test test/service_catalog_v13_test.dart test/service_icons_v15_test.dart
 ```
 
 `--verify` is local only: it checks each SHA-256 digest, HTTPS provenance, allowed asset path/type and bounded image dimensions. `--fetch` is an explicit developer operation that restores only exact digest-matching originals; changed upstream bytes fail rather than silently replacing artwork. Both SVG and PNG/WebP provenance are supported. The app has no network dependency for these assets. Neither command transforms artwork.

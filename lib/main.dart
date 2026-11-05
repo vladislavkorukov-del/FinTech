@@ -277,7 +277,9 @@ class _HomeShellState extends State<HomeShell> {
                 ListTile(
                   leading: const Icon(Icons.document_scanner_outlined),
                   title: const Text('Чек или скриншот'),
-                  subtitle: const Text('Распознать сумму и категорию'),
+                  subtitle: const Text(
+                    'Одна операция или список с категориями',
+                  ),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () => Navigator.pop(ctx, 'scan'),
                 ),

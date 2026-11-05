@@ -1,4 +1,5 @@
 import 'package:flutter/services.dart';
+import '../domain/scan_document.dart';
 
 /// Text only: OCR never creates, saves or uploads financial operations.
 class ReceiptOcrResult {
@@ -6,8 +7,13 @@ class ReceiptOcrResult {
 
   /// Mean word confidence from Tesseract, normalized to 0..1 (not a guarantee).
   final double confidence;
+  final List<RecognizedLine> lines;
 
-  const ReceiptOcrResult({required this.text, required this.confidence});
+  const ReceiptOcrResult({
+    required this.text,
+    required this.confidence,
+    this.lines = const [],
+  });
 }
 
 class ReceiptOcrException implements Exception {
@@ -75,7 +81,46 @@ class ReceiptOcrService {
           text.length > 100000) {
         throw _invalidResponse;
       }
-      return ReceiptOcrResult(text: text, confidence: confidence);
+      final rawLines = response['lines'];
+      if (rawLines != null && (rawLines is! List || rawLines.length > 3000)) {
+        throw _invalidResponse;
+      }
+      final lines = <RecognizedLine>[];
+      var totalCharacters = 0;
+      for (final item in (rawLines as List? ?? const [])) {
+        if (item is! Map || item['text'] is! String) throw _invalidResponse;
+        final values = <double>[];
+        for (final field in ['left', 'top', 'right', 'bottom', 'confidence']) {
+          final value = item[field];
+          if (value is! num || !value.isFinite || value < 0 || value > 1) {
+            throw _invalidResponse;
+          }
+          values.add(value.toDouble());
+        }
+        final lineText = item['text'] as String;
+        totalCharacters += lineText.length;
+        if (lineText.length > 8192 ||
+            totalCharacters > 100000 ||
+            values[0] > values[2] ||
+            values[1] > values[3]) {
+          throw _invalidResponse;
+        }
+        lines.add(
+          RecognizedLine(
+            text: lineText,
+            left: values[0],
+            top: values[1],
+            right: values[2],
+            bottom: values[3],
+            confidence: values[4],
+          ),
+        );
+      }
+      return ReceiptOcrResult(
+        text: text,
+        confidence: confidence,
+        lines: List.unmodifiable(lines),
+      );
     } on PlatformException catch (error) {
       if (request.cancelled) throw _cancelled;
       throw ReceiptOcrException(error.code, _message(error.code));

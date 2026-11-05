@@ -14,6 +14,11 @@ class SubscriptionService {
   final String id, name, group;
   final List<String> aliases;
   final String? assetPath;
+
+  /// Local display copy. Source artwork/provenance remains in [assetPath].
+  /// PNG decoding avoids runtime SVG backend and asynchronous picture caches.
+  String? get renderAssetPath =>
+      assetPath == null ? null : 'assets/services/raster/$id.png';
   final int color;
   final bool preserveColors;
   final int background;

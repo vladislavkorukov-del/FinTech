@@ -198,10 +198,14 @@ void main() {
           ),
         );
         final image = tester.widget<Image>(find.byType(Image));
-        expect(image.image, isA<ServiceSvgImage>());
-        final provider = image.image as ServiceSvgImage;
+        expect(image.image, isA<ResizeImage>());
+        final provider = image.image as ResizeImage;
         expect(
-          provider.pixels,
+          (provider.imageProvider as AssetImage).assetName,
+          'assets/services/raster/spotify.png',
+        );
+        expect(
+          provider.width,
           greaterThanOrEqualTo((44.5 * .64 * dpr * 2).ceil()),
         );
         expect(image.filterQuality, FilterQuality.high);
@@ -219,7 +223,7 @@ void main() {
         await tester.pumpAndSettle();
         expect(
           tester.widget<RawImage>(find.byType(RawImage)).image!.width,
-          provider.pixels,
+          provider.width,
         );
         expect(tester.takeException(), isNull);
       }

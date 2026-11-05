@@ -26,7 +26,7 @@ class ServiceSelection {
 
 /// Real, bundled service marks; unidentified services use a neutral glyph.
 /// Brand colors remain the source artwork's colors on a neutral contrast plate.
-class ServiceBadge extends StatelessWidget {
+class ServiceBadge extends StatefulWidget {
   const ServiceBadge({
     super.key,
     this.serviceId,
@@ -38,12 +38,37 @@ class ServiceBadge extends StatelessWidget {
   final double size;
 
   @override
+  State<ServiceBadge> createState() => _ServiceBadgeState();
+}
+
+class _ServiceBadgeState extends State<ServiceBadge> {
+  String? _failedCustomPath;
+
+  void _customFailed(String path) {
+    // Image.errorBuilder runs during build. Rebuild the entire plate on the
+    // next frame so its colors and inset also revert to the correct brand.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted &&
+          widget.customIconPath == path &&
+          _failedCustomPath != path) {
+        setState(() => _failedCustomPath = path);
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final serviceId = widget.serviceId;
+    final customIconPath = widget.customIconPath;
+    final name = widget.name;
+    final size = widget.size;
     final service =
         ServiceCatalog.byId(serviceId) ?? ServiceCatalog.byName(name);
     final scheme = Theme.of(context).colorScheme;
-    final uploaded = customIconPath?.isNotEmpty ?? false;
-    final asset = service?.assetPath;
+    final uploaded =
+        (customIconPath?.isNotEmpty ?? false) &&
+        customIconPath != _failedCustomPath;
+    final asset = service?.renderAssetPath;
     final fallback = Icon(
       Icons.subscriptions_outlined,
       color: scheme.onSurfaceVariant,
@@ -63,12 +88,6 @@ class ServiceBadge extends StatelessWidget {
           )
         : asset == null
         ? null
-        : asset.toLowerCase().endsWith('.svg')
-        ? ServiceSvgImage(
-            asset,
-            pixels: pixels,
-            bundle: DefaultAssetBundle.of(context),
-          )
         : ResizeImage(
             AssetImage(asset),
             width: pixels,
@@ -108,7 +127,10 @@ class ServiceBadge extends StatelessWidget {
                     : null,
                 colorBlendMode: BlendMode.srcIn,
                 excludeFromSemantics: true,
-                errorBuilder: (_, _, _) => fallback,
+                errorBuilder: (_, _, _) {
+                  if (uploaded) _customFailed(customIconPath!);
+                  return fallback;
+                },
               )
             : fallback,
       ),

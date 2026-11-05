@@ -12,10 +12,7 @@ abstract final class ReceiptParser {
     DateTime? now,
   }) {
     final warnings = <String>[];
-    final source = text
-        .replaceAll(RegExp('[\u00a0\u202f\t]'), ' ')
-        .replaceAll('−', '-')
-        .replaceAll('–', '-');
+    final source = normalizeText(text);
     final lines = source
         .split(RegExp(r'[\r\n]+'))
         .map((s) => s.trim())
@@ -39,7 +36,8 @@ abstract final class ReceiptParser {
       final masked = _maskMetadata(line);
       final prefix = i > 0 ? lines[i - 1].toLowerCase() : '';
       for (final match in _number.allMatches(masked)) {
-        final value = _minor(match.group(0)!);
+        final candidate = parseOcrAmount(match.group(0)!);
+        final value = candidate?.minor;
         if (value == null || value == 0) continue;
         final before = masked.substring(0, match.start).toLowerCase();
         final after = masked.substring(match.end).toLowerCase();
@@ -58,7 +56,7 @@ abstract final class ReceiptParser {
           match.start > 8 ? match.start - 8 : 0,
           match.end + 12 < masked.length ? match.end + 12 : masked.length,
         );
-        final currency = _currency(nearby);
+        var currency = _currency(nearby);
         var score = anchor.score;
         var residue = '$before$after';
         for (final pattern in _currencyPatterns.values) {
@@ -79,6 +77,28 @@ abstract final class ReceiptParser {
             continue;
           }
           score = previousAnchor.score;
+          if (currency == null) {
+            for (final adjacent in [
+              if (i > 0) lines[i - 1],
+              if (i + 1 < lines.length) lines[i + 1],
+            ]) {
+              if (_onlyCurrency(adjacent)) currency = _currency(adjacent);
+            }
+          }
+          // Mobile bank screens often show the sum as a large, unlabelled
+          // value. A signed value or a unique decimal in a purchase context is
+          // useful even when OCR drops the currency glyph. Metadata above has
+          // already excluded balances, cashback, card numbers and commissions.
+          if (score == 0 && RegExp(r'^\s*[+-]').hasMatch(match.group(0)!)) {
+            score = 65;
+          }
+          if (score == 0 &&
+              RegExp(
+                r'покупка|оплата|списан|зачислен|поступлен|purchase|payment',
+              ).hasMatch(lower) &&
+              RegExp(r'[.,]\s*\d{1,2}\s*$').hasMatch(match.group(0)!)) {
+            score = 55;
+          }
         }
         if (score == 0 && currency != null) score = 60;
         if (score == 0) continue;
@@ -98,6 +118,7 @@ abstract final class ReceiptParser {
                 : match.group(0)!.trimLeft().startsWith('+')
                 ? 1
                 : 0,
+            candidate!.hadCurrencyArtifact,
           ),
         );
       }
@@ -122,6 +143,11 @@ abstract final class ReceiptParser {
     }
     if (amount == null && warnings.isEmpty) {
       warnings.add('Не удалось уверенно определить итоговую сумму.');
+    }
+    if (amount?.hadCurrencyArtifact == true) {
+      warnings.add(
+        'После суммы распознан лишний символ. Проверьте сумму и валюту.',
+      );
     }
     final currencies = _allCurrencies(source);
     final currency =
@@ -163,6 +189,56 @@ abstract final class ReceiptParser {
           '',
       warnings: List.unmodifiable(warnings),
     );
+  }
+
+  /// Shared normalization keeps screenshot/statement money parsing consistent.
+  static String normalizeText(String text) => text
+      .replaceAll(RegExp('[\u00a0\u202f\u2009\t]'), ' ')
+      .replaceAll(RegExp('[−–—﹣－]'), '-');
+
+  static int? parseAmount(String text) => _minor(normalizeText(text));
+
+  /// Tesseract can render a detached ruble glyph as a trailing `2` after an
+  /// already complete two-digit fraction. Keep the complete monetary token,
+  /// never append that glyph as cents or a thousands group. Callers must show
+  /// the artifact warning before saving the suggestion.
+  static ({int minor, bool hadCurrencyArtifact})? parseOcrAmount(String text) {
+    final strict = parseAmount(text);
+    if (strict != null) return (minor: strict, hadCurrencyArtifact: false);
+    final artifact = RegExp(
+      r'^([+-]?\s*\d[\d .,\x27’]*[.,]\s*\d{2})\s+2$',
+    ).firstMatch(normalizeText(text).trim());
+    if (artifact == null) return null;
+    final value = parseAmount(artifact[1]!);
+    return value == null ? null : (minor: value, hadCurrencyArtifact: true);
+  }
+
+  static String? detectCurrency(String text) => _currency(normalizeText(text));
+  static DateTime? parseDate(String text, {DateTime? now}) =>
+      _date(normalizeText(text), now ?? DateTime.now());
+  static String? suggestCategory({
+    String? payee,
+    required String text,
+    required EntryKind? kind,
+    required List<Category> categories,
+    List<FinanceEntry> history = const [],
+  }) => _category(
+    payee,
+    text.toLowerCase().replaceAll('ё', 'е'),
+    kind,
+    categories,
+    history,
+  );
+
+  static bool _onlyCurrency(String text) {
+    var residue = text.trim();
+    if (RegExp(r'^[рp]\.?$', caseSensitive: false).hasMatch(residue)) {
+      return true;
+    }
+    for (final pattern in _currencyPatterns.values) {
+      residue = residue.replaceAll(pattern, '');
+    }
+    return residue.trim().isEmpty;
   }
 
   static final _number = RegExp(r'[+-]?\s*\d(?:[\d .,\x27’]*\d)?');
@@ -223,6 +299,10 @@ abstract final class ReceiptParser {
 
   static int? _minor(String value) {
     var raw = value.trim();
+    raw = raw.replaceAllMapped(
+      RegExp(r'([.,])\s+(\d{1,2})$'),
+      (m) => '${m[1]}${m[2]}',
+    );
     var sign = '';
     if (raw.startsWith('+') || raw.startsWith('-')) {
       sign = raw[0];
@@ -255,7 +335,7 @@ abstract final class ReceiptParser {
 
   static final _currencyPatterns = <String, RegExp>{
     'RUB': RegExp(
-      r'₽|\brub\b|\brur\b|руб(?:ль|ля|лей)?(?:\.|(?=$|[^а-я]))',
+      r'₽|\brub\b|\brur\b|руб(?:ль|ля|лей)?(?:\.|(?=$|[^а-я]))|(?<=\d)\s*[рp](?=$|[\s.])',
       caseSensitive: false,
     ),
     'USD': RegExp(r'\$|\busd\b|доллар', caseSensitive: false),
@@ -273,6 +353,9 @@ abstract final class ReceiptParser {
       if (item.value.hasMatch(text)) item.key,
   };
   static String? _currency(String text) {
+    if (RegExp(r'^[рp]\.?$', caseSensitive: false).hasMatch(text.trim())) {
+      return 'RUB';
+    }
     final codes = _allCurrencies(text);
     return codes.length == 1 ? codes.single : null;
   }
@@ -524,9 +607,16 @@ abstract final class ReceiptParser {
 }
 
 class _Amount {
-  const _Amount(this.minor, this.currency, this.score, this.sign);
+  const _Amount(
+    this.minor,
+    this.currency,
+    this.score,
+    this.sign,
+    this.hadCurrencyArtifact,
+  );
   final int minor;
   final String? currency;
   final int score;
   final int sign;
+  final bool hadCurrencyArtifact;
 }

@@ -497,4 +497,59 @@ void main() {
     expect(draft.amountMinor, 125000);
     expect(draft.currency, 'RUB');
   });
+  test(
+    'screenshot signed amount fills when ruble glyph was omitted by OCR',
+    () {
+      final draft = parse('Т-Банк\nПокупка\nВкусВилл\n−1 250,50\n05.11.2026');
+      expect(draft.amountMinor, 125050);
+      expect(draft.kind, EntryKind.expense);
+      expect(draft.categoryId, 'food');
+      expect(draft.currency, isNull);
+    },
+  );
+  test('separate currency line and spaced cents retain bank amount', () {
+    final draft = parse(
+      'Покупка\nМагазин: SPAR\n1 250, 50\n₽\nБаланс\n99 000 ₽',
+    );
+    expect(draft.amountMinor, 125050);
+    expect(draft.currency, 'RUB');
+  });
+  test(
+    'ruble symbol read as Cyrillic or Latin P is recognized beside money',
+    () {
+      for (final symbol in ['Р', 'р.', 'P', 'p']) {
+        final draft = parse(
+          'Покупка\nМагазин: Магнит\n−329,90 $symbol\n05.11.2026',
+        );
+        expect(draft.amountMinor, 32990, reason: symbol);
+        expect(draft.currency, 'RUB', reason: symbol);
+      }
+    },
+  );
+  test(
+    'unsigned unique bank amount is usable without accepting balance-only screenshots',
+    () {
+      expect(
+        parse('Покупка\nМагазин: ВкусВилл\n1250,50\n05.11.2026').amountMinor,
+        125050,
+      );
+      expect(parse('Баланс карты\n99 000,00\n05.11.2026').amountMinor, isNull);
+      expect(
+        parse(
+          'Покупка\nМагазин: SPAR\nБаланс\n99 000,00\nКэшбэк\n50,00',
+        ).amountMinor,
+        isNull,
+      );
+    },
+  );
+  test(
+    'detached ruble glyph read as 2 stays outside the two decimal places and warns',
+    () {
+      final d = parse('Зарплата\nСумма операции\n+89 000,00 2\n05.11.2026');
+      expect(d.amountMinor, 8900000);
+      expect(d.kind, EntryKind.income);
+      expect(d.warnings.any((w) => w.contains('лишний символ')), isTrue);
+      expect(ReceiptParser.parseAmount('89 000,00 2'), isNull);
+    },
+  );
 }

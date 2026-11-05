@@ -9,7 +9,6 @@ import 'package:finora/presentation/controller.dart';
 import 'package:finora/presentation/screens/management.dart';
 import 'package:finora/presentation/theme/app_theme.dart';
 import 'package:finora/presentation/widgets/service_badge.dart';
-import 'package:finora/presentation/widgets/service_logo_image.dart';
 import 'package:finora/services/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -270,7 +269,12 @@ void main() {
         findsOneWidget,
       );
       expect(
-        find.byWidgetPredicate((w) => w is Image && w.image is ServiceSvgImage),
+        find.byWidgetPredicate(
+          (w) =>
+              w is Image &&
+              w.image is ResizeImage &&
+              (w.image as ResizeImage).imageProvider is AssetImage,
+        ),
         findsWidgets,
       );
       await tester.tap(find.byKey(const ValueKey('service-option-spotify')));
@@ -507,7 +511,12 @@ void main() {
         ),
       );
       expect(
-        find.byWidgetPredicate((w) => w is Image && w.image is ServiceSvgImage),
+        find.byWidgetPredicate(
+          (w) =>
+              w is Image &&
+              w.image is ResizeImage &&
+              (w.image as ResizeImage).imageProvider is AssetImage,
+        ),
         findsOneWidget,
       );
       expect(find.byType(Image), findsNWidgets(2));

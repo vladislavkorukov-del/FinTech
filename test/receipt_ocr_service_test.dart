@@ -56,6 +56,58 @@ void main() {
   );
 
   test(
+    'native visual lines survive codec and reject malformed geometry',
+    () async {
+      final valid = <String, Object>{
+        'text': '-244,80 ₽',
+        'left': .6,
+        'top': .3,
+        'right': .95,
+        'bottom': .34,
+        'confidence': .92,
+      };
+      Object? lines = [valid];
+      messenger.setMockMethodCallHandler(
+        channel,
+        (_) async => {
+          'text': 'Пятёрочка -244,80 ₽',
+          'confidence': .9,
+          'lines': lines,
+        },
+      );
+      final result = await service.recognize('/private/page.png');
+      expect(result.lines.single.text, '-244,80 ₽');
+      expect(result.lines.single.left, .6);
+      expect(result.lines.single.confidence, .92);
+      for (final invalid in [
+        'not-lines',
+        [
+          {'text': 'bad'},
+        ],
+        [
+          {...valid, 'left': -1},
+        ],
+        [
+          {...valid, 'bottom': double.nan},
+        ],
+        [
+          {...valid, 'top': .9},
+        ],
+        [
+          {...valid, 'confidence': 50},
+        ],
+        List.filled(3001, valid),
+      ]) {
+        lines = invalid;
+        await expectLater(
+          service.recognize('/private/page.png'),
+          throwsA(errorCode('OCR_INVALID_RESPONSE')),
+        );
+      }
+    },
+  );
+
+  test(
     'rejects remote, content URI, relative and nul paths without invoking native code',
     () async {
       var calls = 0;

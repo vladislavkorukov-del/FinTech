@@ -7,6 +7,7 @@ import 'package:finora/domain/models.dart';
 import 'package:finora/main.dart';
 import 'package:finora/presentation/controller.dart';
 import 'package:finora/presentation/screens/entry_editor.dart';
+import 'package:finora/presentation/screens/scan_import_screen.dart';
 import 'package:finora/services/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -314,6 +315,134 @@ void main() {
       expect(find.byType(EntryEditor), findsOneWidget);
       expect(controller.data.entries, isEmpty);
       expect(tester.takeException(), isNull);
+    },
+  );
+
+  Future<void> openBatch(WidgetTester tester) async {
+    await mount(tester);
+    showEntryEditor(
+      tester.element(find.byType(HomeShell)),
+      scanImagePath: source,
+    );
+    await flush(
+      tester,
+      () =>
+          find.byKey(const ValueKey('scan-batch-review')).evaluate().isNotEmpty,
+    );
+  }
+
+  Future<void> batchReveal(
+    WidgetTester tester,
+    Finder item, {
+    bool up = false,
+  }) async {
+    await tester.scrollUntilVisible(
+      item,
+      up ? -200 : 200,
+      scrollable: find
+          .descendant(
+            of: find.byType(ScanImportScreen),
+            matching: find.byType(Scrollable),
+          )
+          .first,
+    );
+    await tester.ensureVisible(item);
+    await tester.pumpAndSettle();
+  }
+
+  const bankPage =
+      'История операций\n5 ноября 2026\nПятёрочка -244,80 ₽\nПродукты\nЗарплата +89 000 ₽';
+  testWidgets(
+    'bank page fills multiple categorized drafts, commits once and flags repeats on reimport',
+    (tester) async {
+      text = bankPage;
+      await openBatch(tester);
+      expect(find.text('Распознано: 2'), findsOneWidget);
+      expect(controller.data.entries, isEmpty);
+      await batchReveal(tester, find.byKey(const ValueKey('save-scan-batch')));
+      await tester.tap(find.byKey(const ValueKey('save-scan-batch')));
+      await flush(tester, () => controller.data.entries.length == 2);
+      expect(controller.data.entries.map((e) => e.amountMinor).toSet(), {
+        24480,
+        8900000,
+      });
+      expect(controller.data.entries.map((e) => e.categoryId).toSet(), {
+        'food',
+        'salary',
+      });
+      expect(
+        FinanceEngine.balance(
+          controller.data.accounts.first,
+          controller.data.entries,
+        ),
+        9875520,
+      );
+      expect((await tester.runAsync(repo.load))!.entries, hasLength(2));
+      await openBatch(tester);
+      await batchReveal(tester, find.byKey(const ValueKey('save-scan-batch')));
+      expect(
+        tester
+            .widget<FilledButton>(find.byKey(const ValueKey('save-scan-batch')))
+            .onPressed,
+        isNull,
+      );
+      expect(controller.data.entries, hasLength(2));
+      expect(tester.takeException(), isNull);
+    },
+  );
+  testWidgets(
+    'bank draft row is editable and unchecked rows do not enter ledger',
+    (tester) async {
+      text = bankPage;
+      await openBatch(tester);
+      await tester.tap(find.byKey(const ValueKey('scan-edit-0')));
+      await tester.pumpAndSettle();
+      await tester.enterText(
+        find.byKey(const ValueKey('scan-row-amount')),
+        '200.00',
+      );
+      final apply = find.byKey(const ValueKey('apply-scan-row'));
+      await tester.scrollUntilVisible(
+        apply,
+        220,
+        scrollable: find.byType(Scrollable).last,
+      );
+      await tester.tap(apply);
+      await tester.pumpAndSettle();
+      expect(controller.data.entries, isEmpty);
+      await batchReveal(tester, find.byKey(const ValueKey('scan-select-1')));
+      await tester.tap(find.byKey(const ValueKey('scan-select-1')));
+      await tester.pump();
+      await batchReveal(tester, find.byKey(const ValueKey('save-scan-batch')));
+      await tester.tap(find.byKey(const ValueKey('save-scan-batch')));
+      await flush(tester, () => controller.data.entries.length == 1);
+      expect(controller.data.entries.single.amountMinor, 20000);
+      expect(controller.data.entries.single.kind, EntryKind.expense);
+      expect(tester.takeException(), isNull);
+    },
+  );
+  testWidgets(
+    'invalid bank row prevents partial save and batch review supports landscape large text',
+    (tester) async {
+      text = '$bankPage\nНЕИЗВЕСТНЫЙ МАГАЗИН -500 ₽';
+      await openBatch(tester);
+      tester.platformDispatcher.textScaleFactorTestValue = 1.5;
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      for (final size in [const Size(320, 640), const Size(640, 360)]) {
+        tester.view.physicalSize = size;
+        await tester.pumpAndSettle();
+        expect(tester.takeException(), isNull);
+        await batchReveal(
+          tester,
+          find.byKey(const ValueKey('save-scan-batch')),
+        );
+        expect(tester.takeException(), isNull);
+      }
+      await tester.tap(find.byKey(const ValueKey('save-scan-batch')));
+      await tester.pumpAndSettle();
+      expect(controller.data.entries, isEmpty);
+      expect(find.textContaining('Операция 3:'), findsOneWidget);
+      expect((await tester.runAsync(repo.load))!.entries, isEmpty);
     },
   );
 }
