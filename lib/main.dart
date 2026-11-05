@@ -1,12 +1,16 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart'
+    show LicenseRegistry, LicenseEntryWithLineBreaks;
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 import 'data/finance_repository.dart';
 import 'services/notification_service.dart';
 import 'services/security_service.dart';
+import 'services/receipt_share_service.dart';
 import 'presentation/controller.dart';
 import 'presentation/theme/app_theme.dart';
 import 'presentation/screens/dashboard.dart';
@@ -21,6 +25,19 @@ import 'domain/models.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('ru');
+  LicenseRegistry.addLicense(() async* {
+    final text = await rootBundle.loadString(
+      'assets/ocr/THIRD_PARTY_NOTICES.txt',
+    );
+    yield LicenseEntryWithLineBreaks(const [
+      'Tesseract4Android',
+      'Tesseract',
+      'Leptonica',
+      'libjpeg',
+      'libpng',
+      'tessdata_fast',
+    ], text);
+  });
   runApp(const Bootstrap());
 }
 
@@ -166,61 +183,113 @@ class HomeShell extends StatefulWidget {
 
 class _HomeShellState extends State<HomeShell> {
   int _tab = 0;
+  final _receiptShares = ReceiptShareService();
+  StreamSubscription<void>? _shareSubscription;
+  bool _openingShare = false, _shareNeedsDrain = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _shareSubscription = _receiptShares.imageAvailable.listen((_) {
+      _shareNeedsDrain = true;
+      unawaited(_takeSharedImage());
+    });
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => unawaited(_takeSharedImage()),
+    );
+  }
+
+  Future<void> _takeSharedImage() async {
+    if (!mounted || _openingShare) return;
+    _openingShare = true;
+    _shareNeedsDrain = false;
+    try {
+      final path = await _receiptShares.takePendingImage();
+      if (path != null && mounted) {
+        await showEntryEditor(context, scanImagePath: path);
+      }
+    } catch (error) {
+      if (mounted) showError(context, error);
+    } finally {
+      _openingShare = false;
+      if (mounted && _shareNeedsDrain) unawaited(_takeSharedImage());
+    }
+  }
+
+  @override
+  void dispose() {
+    final subscription = _shareSubscription;
+    if (subscription != null) unawaited(subscription.cancel());
+    unawaited(_receiptShares.dispose());
+    super.dispose();
+  }
+
   Future<void> _add() async {
-    final kind = await showModalBottomSheet<EntryKind>(
+    final kind = await showModalBottomSheet<Object>(
       context: context,
       builder: (ctx) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Новая операция',
-                style: Theme.of(ctx).textTheme.headlineSmall,
-              ),
-              const SizedBox(height: 16),
-              for (final item in [
-                (
-                  EntryKind.expense,
-                  'Расход',
-                  'Покупка или платёж',
-                  Icons.north_east_rounded,
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Новая операция',
+                  style: Theme.of(ctx).textTheme.headlineSmall,
                 ),
-                (
-                  EntryKind.income,
-                  'Доход',
-                  'Поступление на счёт',
-                  Icons.south_west_rounded,
-                ),
-                (
-                  EntryKind.transfer,
-                  'Перевод',
-                  'Между своими счетами',
-                  Icons.swap_horiz_rounded,
-                ),
-              ])
+                const SizedBox(height: 16),
+                for (final item in [
+                  (
+                    EntryKind.expense,
+                    'Расход',
+                    'Покупка или платёж',
+                    Icons.north_east_rounded,
+                  ),
+                  (
+                    EntryKind.income,
+                    'Доход',
+                    'Поступление на счёт',
+                    Icons.south_west_rounded,
+                  ),
+                  (
+                    EntryKind.transfer,
+                    'Перевод',
+                    'Между своими счетами',
+                    Icons.swap_horiz_rounded,
+                  ),
+                ])
+                  ListTile(
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 4,
+                      vertical: 6,
+                    ),
+                    leading: CategoryBadge(
+                      icon: item.$4,
+                      color: Theme.of(ctx).colorScheme.primary,
+                    ),
+                    title: Text(item.$2),
+                    subtitle: Text(item.$3),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => Navigator.pop(ctx, item.$1),
+                  ),
                 ListTile(
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 4,
-                    vertical: 6,
-                  ),
-                  leading: CategoryBadge(
-                    icon: item.$4,
-                    color: Theme.of(ctx).colorScheme.primary,
-                  ),
-                  title: Text(item.$2),
-                  subtitle: Text(item.$3),
+                  leading: const Icon(Icons.document_scanner_outlined),
+                  title: const Text('Чек или скриншот'),
+                  subtitle: const Text('Распознать сумму и категорию'),
                   trailing: const Icon(Icons.chevron_right),
-                  onTap: () => Navigator.pop(ctx, item.$1),
+                  onTap: () => Navigator.pop(ctx, 'scan'),
                 ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
     );
-    if (kind != null && mounted) {
+    if (kind == 'scan' && mounted) {
+      await showEntryEditor(context, startScan: true);
+    } else if (kind is EntryKind && mounted) {
       await showEntryEditor(context, kind: kind);
     }
   }
@@ -626,7 +695,10 @@ class _SecurityGateState extends State<SecurityGate>
         children: [
           ExcludeFocus(
             excluding: _locked,
-            child: Offstage(offstage: _locked, child: widget.child),
+            child: Offstage(
+              offstage: _locked,
+              child: TickerMode(enabled: !_locked, child: widget.child),
+            ),
           ),
           if (_locked) Positioned.fill(child: lockScreen),
         ],

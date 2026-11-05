@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -9,6 +10,9 @@ import 'package:intl/intl.dart';
 
 import '../../domain/models.dart';
 import '../../domain/finance_engine.dart';
+import '../../domain/receipt_parser.dart';
+import '../../services/receipt_image_store.dart';
+import '../../services/receipt_ocr_service.dart';
 import '../controller.dart';
 import '../widgets/common.dart';
 import '../widgets/amount_pad.dart';
@@ -19,6 +23,8 @@ Future<void> showEntryEditor(
   FinanceEntry? entry,
   EntryKind kind = EntryKind.expense,
   String? goalId,
+  bool startScan = false,
+  String? scanImagePath,
 }) async {
   final c = FinanceScope.of(context);
   final editingHistory =
@@ -35,24 +41,39 @@ Future<void> showEntryEditor(
         MaterialPageRoute<void>(builder: (_) => const AccountsScreen()),
       );
     }
-    return;
+    if (c.data.accounts.where((a) => !a.archived).isEmpty) return;
   }
   if (context.mounted) {
     await Navigator.push(
       context,
       MaterialPageRoute<void>(
         fullscreenDialog: true,
-        builder: (_) => EntryEditor(entry: entry, kind: kind, goalId: goalId),
+        builder: (_) => EntryEditor(
+          entry: entry,
+          kind: kind,
+          goalId: goalId,
+          startScan: startScan,
+          scanImagePath: scanImagePath,
+        ),
       ),
     );
   }
 }
 
 class EntryEditor extends StatefulWidget {
-  const EntryEditor({super.key, this.entry, required this.kind, this.goalId});
+  const EntryEditor({
+    super.key,
+    this.entry,
+    required this.kind,
+    this.goalId,
+    this.startScan = false,
+    this.scanImagePath,
+  });
   final FinanceEntry? entry;
   final EntryKind kind;
   final String? goalId;
+  final bool startScan;
+  final String? scanImagePath;
   @override
   State<EntryEditor> createState() => _EntryEditorState();
 }
@@ -67,6 +88,14 @@ class _EntryEditorState extends State<EntryEditor> {
   late DateTime _date;
   double? _lat, _lon;
   bool _advanced = false, _busy = false, _customPad = true;
+  final _ocr = ReceiptOcrService();
+  final _images = ReceiptImageStore();
+  FinanceController? _controller;
+  final _ownedScans = <String>{};
+  bool _scanning = false, _scanApplied = false, _needsKindChoice = false;
+  int _scanEpoch = 0;
+  String? _scanCurrency;
+  List<String> _scanWarnings = [];
   @override
   void initState() {
     super.initState();
@@ -96,12 +125,18 @@ class _EntryEditorState extends State<EntryEditor> {
     _member = e?.memberId ?? 'me';
     _status = e?.status ?? 'posted';
     _recurrence = e?.recurrence ?? 'none';
+    if (widget.startScan || widget.scanImagePath != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) unawaited(_scan(initialPath: widget.scanImagePath));
+      });
+    }
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     final c = FinanceScope.of(context);
+    _controller = c;
     if (!c.data.members.any((m) => m.id == _member) &&
         c.data.members.isNotEmpty) {
       _member = c.data.members.first.id;
@@ -122,10 +157,158 @@ class _EntryEditorState extends State<EntryEditor> {
 
   @override
   void dispose() {
+    _scanEpoch++;
+    unawaited(_ocr.cancel().catchError((Object _) {}));
+    final controller = _controller;
+    if (controller != null) {
+      for (final path in _ownedScans) {
+        unawaited(
+          _images
+              .discardIfUnused(path, controller.data)
+              .catchError((Object _) {}),
+        );
+      }
+    }
     for (final c in [_amount, _destination, _payee, _note, _tags]) {
       c.dispose();
     }
     super.dispose();
+  }
+
+  Future<void> _cancelScan() async {
+    _scanEpoch++;
+    try {
+      await _ocr.cancel();
+    } catch (error) {
+      if (mounted) showError(context, error);
+    }
+    if (mounted) setState(() => _scanning = false);
+  }
+
+  Future<void> _scan({String? initialPath}) async {
+    if (_scanning || _busy) return;
+    ImageSource? source;
+    if (initialPath == null) {
+      source = await showModalBottomSheet<ImageSource>(
+        context: context,
+        useSafeArea: true,
+        builder: (context) => SafeArea(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ListTile(
+                    leading: const Icon(Icons.photo_library_outlined),
+                    title: const Text('Скриншот или фото из галереи'),
+                    onTap: () => Navigator.pop(context, ImageSource.gallery),
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.photo_camera_outlined),
+                    title: const Text('Сфотографировать чек'),
+                    onTap: () => Navigator.pop(context, ImageSource.camera),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+      if (source == null || !mounted) return;
+    }
+    final epoch = ++_scanEpoch;
+    String? path;
+    var adopted = false;
+    setState(() => _scanning = true);
+    try {
+      path = initialPath == null
+          ? await _images.pick(source!)
+          : await _images.copy(XFile(initialPath));
+      if (path == null || !mounted || epoch != _scanEpoch) return;
+      _ownedScans.add(path);
+      final result = await _ocr.recognize(path);
+      if (!mounted || epoch != _scanEpoch) return;
+      if (result.text.trim().isEmpty) {
+        throw const FormatException(
+          'На изображении не найден текст. Попробуйте более чёткий снимок.',
+        );
+      }
+      final c = _controller!;
+      final draft = ReceiptParser.parse(
+        result.text,
+        categories: c.data.categories,
+        history: c.data.entries,
+      );
+      final warnings = [...draft.warnings];
+      if (result.confidence < .60) {
+        warnings.add('Качество распознавания невысокое. Проверьте все поля.');
+      }
+      final kind = draft.kind ?? _kind;
+      final accounts = c.data.accounts
+          .where(
+            (a) =>
+                !a.archived &&
+                (draft.currency == null || a.currency == draft.currency),
+          )
+          .toList();
+      final current = c.account(_account ?? '');
+      final same =
+          draft.date == null || draft.amountMinor == null || draft.payee == null
+          ? false
+          : c.data.entries.any(
+              (e) =>
+                  e.kind == draft.kind &&
+                  e.amountMinor == draft.amountMinor &&
+                  e.currency == draft.currency &&
+                  DateUtils.isSameDay(e.date, draft.date) &&
+                  e.payee.trim().toLowerCase() ==
+                      draft.payee!.trim().toLowerCase(),
+            );
+      if (same) {
+        warnings.add(
+          'Похожая операция уже есть. Проверьте, не добавляете ли вы её повторно.',
+        );
+      }
+      setState(() {
+        _kind = kind;
+        _needsKindChoice = draft.kind == null;
+        _scanCurrency = draft.currency;
+        if (accounts.isNotEmpty &&
+            (current == null ||
+                (draft.currency != null &&
+                    current.currency != draft.currency))) {
+          _account = accounts.first.id;
+        }
+        _amount.text = draft.amountMinor == null
+            ? ''
+            : decimalMinor(draft.amountMinor!);
+        _payee.text = draft.payee ?? '';
+        _category = draft.categoryId;
+        _subcategory = null;
+        _to = null;
+        _goal = null;
+        _goalDestination = false;
+        _date = draft.date ?? DateTime.now();
+        _note.text = draft.comment;
+        _attachment = path;
+        _scanApplied = true;
+        _scanWarnings = warnings;
+      });
+      adopted = true;
+    } catch (error) {
+      if (mounted &&
+          epoch == _scanEpoch &&
+          !(error is ReceiptOcrException && error.cancelled)) {
+        showError(context, error);
+      }
+    } finally {
+      if (initialPath != null) await _images.discardConsumedShare(initialPath);
+      if (!adopted && path != null && _controller != null) {
+        await _images.discardIfUnused(path, _controller!.data);
+      }
+      if (mounted && epoch == _scanEpoch) setState(() => _scanning = false);
+    }
   }
 
   Future<void> _receipt() async {
@@ -192,6 +375,23 @@ class _EntryEditorState extends State<EntryEditor> {
       return;
     }
     final c = FinanceScope.of(context);
+    if (_needsKindChoice) {
+      showError(
+        context,
+        const FormatException('Выберите тип распознанной операции.'),
+      );
+      return;
+    }
+    if (_scanCurrency != null &&
+        c.account(_account ?? '')?.currency != _scanCurrency) {
+      showError(
+        context,
+        FormatException(
+          'На изображении $_scanCurrency. Выберите счёт в этой валюте или исправьте распознанную валюту.',
+        ),
+      );
+      return;
+    }
     setState(() => _busy = true);
     try {
       final a = c.account(_account!)!;
@@ -307,6 +507,48 @@ class _EntryEditorState extends State<EntryEditor> {
   Widget build(BuildContext context) {
     final c = FinanceScope.of(context);
     final scheme = Theme.of(context).colorScheme;
+    if (_scanning) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Распознавание'),
+          leading: CloseButton(
+            onPressed: () async {
+              await _cancelScan();
+              if (context.mounted) Navigator.pop(context);
+            },
+          ),
+        ),
+        body: Center(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(28),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const CircularProgressIndicator(),
+                  const SizedBox(height: 24),
+                  const Text(
+                    'Читаем чек или скриншот',
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Изображение обрабатывается на устройстве.',
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 20),
+                  TextButton(
+                    key: const ValueKey('cancel-receipt-scan'),
+                    onPressed: _cancelScan,
+                    child: const Text('Отмена'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
     final original = c.data.entries
         .where((e) => e.id == widget.entry?.id)
         .firstOrNull;
@@ -352,6 +594,81 @@ class _EntryEditorState extends State<EntryEditor> {
           child: ListView(
             padding: const EdgeInsets.fromLTRB(20, 4, 20, 32),
             children: [
+              if (widget.entry == null) ...[
+                OutlinedButton.icon(
+                  key: const ValueKey('scan-receipt'),
+                  onPressed: _busy ? null : () => _scan(),
+                  icon: const Icon(Icons.document_scanner_outlined),
+                  label: const Text('Распознать чек или скриншот'),
+                ),
+                const SizedBox(height: 16),
+              ],
+              if (_scanApplied) ...[
+                SurfaceCard(
+                  padding: const EdgeInsets.all(14),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Проверьте распознанные данные перед сохранением.',
+                        key: ValueKey('scan-review'),
+                      ),
+                      for (final warning in _scanWarnings)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 7),
+                          child: Text(
+                            warning,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: scheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ),
+                      if (_needsKindChoice)
+                        const Padding(
+                          padding: EdgeInsets.only(top: 8),
+                          child: Text('Выберите тип операции ниже.'),
+                        ),
+                      if (_scanCurrency != null &&
+                          a?.currency != _scanCurrency) ...[
+                        const SizedBox(height: 10),
+                        Text(
+                          'Валюта на изображении: $_scanCurrency. Валюта счёта: ${a?.currency ?? "не выбран"}.',
+                        ),
+                        TextButton(
+                          onPressed: () => setState(() => _scanCurrency = null),
+                          child: Text(
+                            'Исправить валюту на ${a?.currency ?? c.currency}',
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () async {
+                            await Navigator.push(
+                              context,
+                              MaterialPageRoute<void>(
+                                builder: (_) => const AccountsScreen(),
+                              ),
+                            );
+                            if (!mounted) return;
+                            final found = c.data.accounts
+                                .where(
+                                  (a) =>
+                                      !a.archived &&
+                                      a.currency == _scanCurrency,
+                                )
+                                .firstOrNull;
+                            if (found != null) {
+                              setState(() => _account = found.id);
+                            }
+                          },
+                          child: const Text('Открыть счета'),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
               SegmentedButton<EntryKind>(
                 segments: const [
                   ButtonSegment(
@@ -364,8 +681,11 @@ class _EntryEditorState extends State<EntryEditor> {
                     label: Text('Перевод'),
                   ),
                 ],
-                selected: {_kind},
+                emptySelectionAllowed: _needsKindChoice,
+                selected: _needsKindChoice ? {} : {_kind},
                 onSelectionChanged: (s) => setState(() {
+                  if (s.isEmpty) return;
+                  _needsKindChoice = false;
                   _kind = s.first;
                   _category = null;
                   _subcategory = null;
@@ -430,6 +750,7 @@ class _EntryEditorState extends State<EntryEditor> {
               ),
               const SizedBox(height: 20),
               DropdownButtonFormField<String>(
+                key: ValueKey('source-account-$_account'),
                 initialValue: _account,
                 isExpanded: true,
                 decoration: InputDecoration(

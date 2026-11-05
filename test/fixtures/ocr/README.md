@@ -1,0 +1,1 @@
+Synthetic Russian OCR fixtures drawn with DejaVu Sans for engine testing. These are generated test inputs, not screenshots from a real bank, shop, account or person. Model files are bundled under assets/ocr.

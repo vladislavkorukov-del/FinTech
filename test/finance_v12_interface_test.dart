@@ -300,7 +300,16 @@ void main() {
       await entry(tester, EntryKind.income);
       await tester.tap(find.text('Зарплата'));
       final saveButton = find.text('Сохранить операцию');
-      await tester.ensureVisible(saveButton);
+      await tester.scrollUntilVisible(
+        saveButton,
+        200,
+        scrollable: find
+            .descendant(
+              of: find.byType(EntryEditor),
+              matching: find.byType(Scrollable),
+            )
+            .first,
+      );
       await tester.pumpAndSettle();
       await tester.tap(saveButton);
       await tester.pumpAndSettle();

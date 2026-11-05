@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:ui' as ui;
 
 import 'package:crypto/crypto.dart';
 import 'package:finora/presentation/theme/app_theme.dart';
@@ -13,9 +14,67 @@ void main() {
       '1520aa31c87f3b5ee37aeed64432be9c8ca4c17bd3fd547329916906799e2388';
 
   test(
+    'header cutout has transparent corners and no opaque background plate',
+    () async {
+      final bytes = await rootBundle.load(FinanceBrand.asset);
+      final codec = await ui.instantiateImageCodec(bytes.buffer.asUint8List());
+      final frame = await codec.getNextFrame();
+      final rgba = (await frame.image.toByteData(
+        format: ui.ImageByteFormat.rawRgba,
+      ))!;
+      final pixels = rgba.buffer.asUint8List();
+      final width = frame.image.width;
+      final height = frame.image.height;
+      expect(pixels[3], 0);
+      expect(pixels[(width - 1) * 4 + 3], 0);
+      expect(pixels[(height - 1) * width * 4 + 3], 0);
+      var clear = 0;
+      var visible = 0;
+      for (var i = 3; i < pixels.length; i += 4) {
+        if (pixels[i] == 0) clear++;
+        if (pixels[i] > 200) visible++;
+      }
+      expect(clear / (width * height), greaterThan(.7));
+      expect(visible / (width * height), greaterThan(.1));
+      frame.image.dispose();
+      codec.dispose();
+    },
+  );
+
+  testWidgets('header animates and honors reduced motion and hidden routes', (
+    tester,
+  ) async {
+    Widget app({bool reduce = false, bool enabled = true}) => MaterialApp(
+      home: MediaQuery(
+        data: MediaQueryData(disableAnimations: reduce),
+        child: TickerMode(
+          enabled: enabled,
+          child: const SizedBox(width: 54, height: 54, child: FinanceBrand()),
+        ),
+      ),
+    );
+    double offset() => tester
+        .widget<Transform>(find.byKey(const ValueKey('finance-logo-motion')))
+        .transform
+        .storage[13];
+    await tester.pumpWidget(app());
+    await tester.pump(const Duration(milliseconds: 550));
+    expect(offset().abs(), greaterThan(1));
+    await tester.pumpWidget(app(reduce: true));
+    expect(offset(), 0);
+    await tester.pump(const Duration(seconds: 7));
+    expect(offset(), 0);
+    await tester.pumpWidget(app(enabled: false));
+    await tester.pump(const Duration(milliseconds: 550));
+    expect(offset(), 0);
+    await tester.pumpWidget(const SizedBox.shrink());
+    expect(tester.takeException(), isNull);
+  });
+
+  test(
     'Flutter and Android use the exact approved PNG from the supplied ZIP',
     () async {
-      final bundled = await rootBundle.load(FinanceBrand.asset);
+      final bundled = await rootBundle.load(FinanceBrand.originalAsset);
       expect(
         sha256.convert(bundled.buffer.asUint8List()).toString(),
         approvedDigest,

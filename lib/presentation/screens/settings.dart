@@ -534,10 +534,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 const Padding(
                   padding: EdgeInsets.symmetric(vertical: 16),
                   child: Text(
-                    'Finance · 1.3.0',
+                    'Finance · 1.4.0',
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 12),
                   ),
+                ),
+                TextButton.icon(
+                  onPressed: () => showLicensePage(
+                    context: context,
+                    applicationName: 'Finance',
+                    applicationVersion: '1.4.0',
+                  ),
+                  icon: const Icon(Icons.article_outlined, size: 18),
+                  label: const Text('Лицензии'),
                 ),
                 if (c.data.demo) ...[
                   const SectionTitle('Демонстрационный профиль'),
