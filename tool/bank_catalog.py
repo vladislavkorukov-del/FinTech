@@ -47,7 +47,10 @@ SOURCE_URL = 'https://www.cbr.ru/s/newbik'
 SIZE = 384
 GUTTER = 2
 MAX_BYTES = 2 * 1024 * 1024
-UA = {'User-Agent': 'Finance-bank-catalog/1.6 (developer build tool)'}
+UA = {'User-Agent': 'Finance-bank-catalog/1.6 (https://github.com/vladislavkorukov-del/FinTech)'}
+# Some bank sites refuse non-browser clients; their public icons are fetched
+# with an ordinary mobile browser identification.
+BROWSER_UA = {'User-Agent': 'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Chrome/124 Mobile Safari/537.36'}
 
 # Brand names people actually use, plus former names/abbreviations for search.
 # Keys are Bank of Russia registration numbers; names are verified against the
@@ -106,8 +109,34 @@ BRANDS = {
 }
 
 # Original files of the current marks, chosen per bank after visual review.
-# Each needs Commons provenance; files are kept byte-for-byte unchanged.
-LOGOS = {}
+# Each records its source (the bank's own website, or Wikimedia Commons with
+# license metadata) and SHA-256; files are kept byte-for-byte unchanged.
+# Commons candidates were rate-limited (HTTP 429) for this build host; banks
+# whose official sites fail TLS verification are not fetched (no TLS bypass).
+LOGOS = {
+    '354': {'sourceType': 'official-website', 'url': 'https://www.gazprombank.ru/_next/d55dda96b60568876d54429fe31cd2e1/_next/public/favicons/default/dark-favicon/favicon-32x32.svg', 'page': 'https://www.gazprombank.ru/',
+            'sha256': '9362f737d73b3fdb47736cda818d6155ec798db997b5256c91bcbca33e2a1943', 'why': 'Official site icon of Gazprombank (current blue sphere mark).'},
+    '3292': {'sourceType': 'official-website', 'url': 'https://www.raiffeisen.ru/fav/icon.svg', 'page': 'https://www.raiffeisen.ru/',
+            'sha256': 'd10befdbba057b662cb7f004d9e8d38c6c839abc1d9430e72a6179f29f1b4c27', 'why': 'Official site icon of Raiffeisenbank (yellow/black gable mark).'},
+    '1': {'sourceType': 'official-website', 'url': 'https://www.unicreditbank.ru/etc/designs/cee2020-pws-ru/img/logos/apple-touch-icon.png', 'page': 'https://www.unicreditbank.ru/',
+            'sha256': '83268539d5125a07613cae8262c0a54db31f8d28761bc2ca5d7939f00786c122', 'why': 'Official apple-touch-icon of UniCredit Bank Russia (red disc mark).'},
+    '3510-К': {'sourceType': 'official-website', 'url': 'https://static.yoomoney.ru/files-front/resources/head/wallet/apple-touch-icon.png', 'page': 'https://yoomoney.ru/',
+            'sha256': '728487cc0ec5bd61d0890f18f9fe50ca7d8223bf8e4ee24705d4b715de839754', 'why': 'Official apple-touch-icon of YooMoney (violet «ЮO» mark).'},
+    '3542': {'sourceType': 'official-website', 'url': 'https://finance.ozon.ru/apple-touch-icon.png', 'page': 'https://finance.ozon.ru/',
+            'sha256': '26b686c65be73ba97d6b615a9511a773c254025f8195b93f8a1c9fd6a4408235', 'why': 'Official apple-touch-icon of Ozon Bank (finance.ozon.ru).'},
+    '1810': {'sourceType': 'official-website', 'url': 'https://www.atb.su/favicon.svg', 'page': 'https://www.atb.su/',
+            'sha256': 'adb3ecab889ea17c88b9c4de23390be1a89815b7ea50cc0950967de370f093f2', 'why': 'Official site icon of Asian-Pacific Bank (ATB).'},
+    '2225': {'sourceType': 'official-website', 'url': 'https://www.centrinvest.ru/favicon.svg', 'page': 'https://www.centrinvest.ru/',
+            'sha256': '9f65216470f595a8d18ea02cb8403c7b57223c361626ec1ba611f927bcb1b969', 'why': 'Official site icon of Center-invest bank.'},
+    '2799': {'sourceType': 'official-website', 'url': 'https://cdn-lpbr01.finam.ru/lpbr-static/favicon_e58c47cd78.svg', 'page': 'https://www.finambank.ru/',
+            'sha256': '1a52a2aaf178ce7fa5ea44255d9b8222295891fe42c7c1ab3451385feb581405', 'why': 'Icon served by the official Bank Finam site (finambank.ru → finam.ru); Finam group mark, parent brand.'},
+    '3223': {'sourceType': 'official-website', 'url': 'https://svoi.ru/icons/icon-512x512.png?v=53d8383916a19f9ee0e71ff783b1a8e3', 'page': 'https://svoi.ru/',
+            'sha256': '95eaa55ae553ae240713b15dcc8377f85e2b910a8bbcaf5860827f3634a91e5f', 'why': 'Official apple-touch-icon of Svoi Bank.'},
+    '3311': {'sourceType': 'official-website', 'url': 'https://www.crediteurope.ru/bitrix/templates/custom/favicon.svg', 'page': 'https://www.crediteurope.ru/',
+            'sha256': 'b791536f8df8f799e0425117bb7fb903a8beea54fa45662c1fab9749ffb4bbae', 'why': 'Official site icon of Credit Europe Bank (Russia).'},
+    '3538': {'sourceType': 'official-website', 'url': 'https://131.ru/favicon.svg', 'page': 'https://131.ru/',
+            'sha256': 'e175cabd0c555785df84b311a5a45d9478d42eeefb0711d8ba8f76cb8db908a6', 'why': 'Official site icon of Bank 131.'},
+}
 
 
 HELPERS = r"""
@@ -396,11 +425,11 @@ def commons(title):
     raise SystemExit('Commons rate limit')
 
 
-def download(url):
+def download(url, headers=UA):
     for attempt in range(8):
         try:
             time.sleep(3)
-            with urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=60) as r:
+            with urllib.request.urlopen(urllib.request.Request(url, headers=headers), timeout=60) as r:
                 if urllib.parse.urlparse(r.url).scheme != 'https':
                     raise ValueError('Artwork redirected outside HTTPS')
                 return r.read(MAX_BYTES + 1)
@@ -408,6 +437,10 @@ def download(url):
             if error.code != 429:
                 raise
             time.sleep(30 * (attempt + 1))
+        except (urllib.error.URLError, ConnectionError):
+            if attempt == 7:
+                raise
+            time.sleep(5)
     raise SystemExit('Download rate limit')
 
 
@@ -415,28 +448,43 @@ def fetch_logos():
     ASSETS.mkdir(parents=True, exist_ok=True)
     items = []
     for reg, spec in LOGOS.items():
-        info = commons(spec['title'])
-        content = download(info['url'])
-        if hashlib.sha1(content).hexdigest() != info['sha1']:
-            raise SystemExit(f'Commons SHA-1 mismatch: {reg}')
-        suffix = Path(urllib.parse.urlparse(info['url']).path).suffix.lower()
-        path = ASSETS / f'{id_for(reg)}{suffix}'
+        record = {'regNumber': reg, 'id': id_for(reg), 'brand': BRANDS[reg][0],
+                  'background': spec.get('background', '#FFFFFF'), 'inset': spec.get('inset', 0.1),
+                  'selection': spec['why'], 'sourceType': spec.get('sourceType', 'wikimedia-commons')}
+        if record['sourceType'] == 'official-website':
+            content = download(spec['url'], BROWSER_UA)
+            if digest(content) != spec['sha256']:
+                raise SystemExit(f'Official artwork changed since review: {reg}; review it again')
+            kind = 'svg' if b'<svg' in content[:400] else 'png'
+            path = ASSETS / f'{id_for(reg)}.{kind}'
+            record.update({
+                'source': spec['page'], 'downloadUrl': spec['url'],
+                'mime': 'image/svg+xml' if kind == 'svg' else 'image/png',
+                'license': {'LicenseShortName': 'Proprietary (official bank website asset)'},
+                'rights': 'Exact file served by the bank\'s official website; copyright and trademark '
+                          'belong to the bank. Used only to identify the bank; no endorsement implied.',
+            })
+        else:
+            info = commons(spec['title'])
+            content = download(info['url'])
+            if hashlib.sha1(content).hexdigest() != info['sha1']:
+                raise SystemExit(f'Commons SHA-1 mismatch: {reg}')
+            suffix = Path(urllib.parse.urlparse(info['url']).path).suffix.lower()
+            path = ASSETS / f'{id_for(reg)}{suffix}'
+            meta = {k: v.get('value') for k, v in info.get('extmetadata', {}).items() if k in (
+                'ImageDescription', 'Credit', 'Artist', 'LicenseShortName', 'UsageTerms',
+                'AttributionRequired', 'Copyrighted', 'LicenseUrl', 'DateTimeOriginal')}
+            record.update({
+                'source': info['descriptionurl'], 'downloadUrl': info['url'], 'mime': info['mime'],
+                'commonsSha1': info['sha1'], 'commonsTimestamp': info['timestamp'], 'license': meta,
+                'rights': 'Original file bytes from Wikimedia Commons with the license stated there. '
+                          'Trademark rights remain with the bank; no endorsement is implied.',
+            })
         validate_artwork(path.name, content)
         path.write_bytes(content)
-        meta = {k: v.get('value') for k, v in info.get('extmetadata', {}).items() if k in (
-            'ImageDescription', 'Credit', 'Artist', 'LicenseShortName', 'UsageTerms',
-            'AttributionRequired', 'Copyrighted', 'LicenseUrl', 'DateTimeOriginal')}
-        items.append({
-            'regNumber': reg, 'id': id_for(reg), 'brand': BRANDS[reg][0],
-            'assetPath': str(path.relative_to(ROOT)), 'sourceType': 'wikimedia-commons',
-            'source': info['descriptionurl'], 'downloadUrl': info['url'], 'mime': info['mime'],
-            'bytes': len(content), 'width': info.get('width'), 'height': info.get('height'),
-            'sha256': digest(content), 'commonsSha1': info['sha1'], 'commonsTimestamp': info['timestamp'],
-            'license': meta, 'background': spec.get('background', '#FFFFFF'), 'inset': spec.get('inset', 0.1),
-            'selection': spec['why'],
-            'rights': 'Original file bytes from Wikimedia Commons with the license stated there. '
-                      'Trademark rights remain with the bank; no endorsement is implied.',
-        })
+        record.update({'assetPath': str(path.relative_to(ROOT)), 'bytes': len(content),
+                       'sha256': digest(content)})
+        items.append(record)
     MANIFEST.write_text(json.dumps({'items': items}, ensure_ascii=False, indent=1) + '\n')
     print(f'Fetched {len(items)} original bank logos')
 
@@ -481,8 +529,10 @@ def render():
                 operation = 'Inkscape SVG page rendered proportionally with transparent gutter; original colors unchanged'
             else:
                 image = Image.open(io.BytesIO(raw)).convert('RGBA')
-                image.thumbnail((SIZE - 2 * GUTTER, SIZE - 2 * GUTTER), Image.Resampling.LANCZOS)
-                operation = 'Original PNG proportionally downscaled (Lanczos) into transparent canvas; colors unchanged'
+                scale = (SIZE - 2 * GUTTER) / max(image.size)
+                image = image.resize((max(1, round(image.width * scale)), max(1, round(image.height * scale))),
+                                     Image.Resampling.LANCZOS)
+                operation = 'Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged'
             square = Image.new('RGBA', (SIZE, SIZE))
             square.alpha_composite(image, ((SIZE - image.width) // 2, (SIZE - image.height) // 2))
             out = io.BytesIO()
@@ -516,7 +566,8 @@ def verify():
     assert set(rendered) == {x['id'] for x in manifest['items']}, 'logo/PNG sets differ'
     for item in manifest['items']:
         assert item['regNumber'] in regs, f'logo for unknown bank {item["regNumber"]}'
-        assert item['downloadUrl'].startswith('https://upload.wikimedia.org/'), item['id']
+        assert item['downloadUrl'].startswith('https://'), item['id']
+        assert item['sourceType'] in ('official-website', 'wikimedia-commons'), item['id']
         assert item.get('license', {}).get('LicenseShortName'), f'missing license {item["id"]}'
         raw = (ROOT / item['assetPath']).read_bytes()
         validate_artwork(item['assetPath'], raw)

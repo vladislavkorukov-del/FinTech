@@ -219,3 +219,58 @@ three of its seven cases failed (right column, damaged label, missing total
 silently taking a price); all pass now together with the previous parser,
 statement, scan-import and editor tests. The fixtures are synthetic text and
 coordinates, not photographs of real receipts.
+
+## Total-first receipt recognition in 1.6.1
+
+Host measurements on synthetic till-receipt photos (shadow gradient,
+rotation up to 3–4°, blur, noise, JPEG; bundled `rus+eng` models, Tesseract
+5) showed that 1.6.0 found the total on only **5 of 60** images: the bold
+`ИТОГ` row often lay in a shadow and was not read at all, and when read, OCR
+damaged the label or the digits. 1.6.1 searches for the total on purpose:
+
+**Native (Android, `ReceiptOcrEngine.kt`)**
+
+1. *Illumination flattening* before OCR: each pixel is divided by a smooth
+   estimate of the paper brightness (block maxima, 3×3 smoothing, bilinear
+   interpolation). Shadows and faded thermal paper become white; text keeps
+   its contrast. Row by row, no extra full-size buffer; skipped on low memory.
+2. *Focused total pass*: if the text looks like a receipt, every row that is
+   a (possibly damaged) `ИТОГ/ИТОГО/ВСЕГО/К ОПЛАТЕ` label — Latin look-alikes,
+   one wrong letter — defines a band from one line above to two lines below.
+   The band is enlarged to ≈64 px line height, flattened again and read as
+   one block (`PSM_SINGLE_BLOCK`). If no label was read, the lower part of
+   the receipt is re-read. The rows are returned as optional `focus`; the
+   main `text`/`lines` are unchanged, so bank lists can never gain duplicate
+   operations from it. Errors other than cancellation drop only `focus`.
+
+**Parser (`lib/domain/receipt_total.dart`)** — the amount is always a number
+printed on the receipt, chosen by evidence, never computed:
+
+- label on the same row or on one of the next two rows (main and focus pass);
+- cashless payment row (`БЕЗНАЛИЧНЫМИ`, `ЭЛЕКТРОННЫМИ`, `ОПЛАТА КАРТОЙ`) — it
+  is the charged amount;
+- VAT: a single VAT row (`НДС 22/20/10 %`) or an unlabelled VAT value equal to
+  `total × rate / (100 + rate)`; the VAT value itself is never the total;
+- the same value read twice; the sum of printed item amounts (confirmation
+  only).
+
+Cash tendered, change, discounts and bonuses never win. Without a readable
+label a value needs a confirmation and is offered with a «проверьте» warning.
+If two readings differ in one digit, the confirmed one is used; with no
+confirmation the amount stays empty. Different labelled totals give empty.
+
+| Set (host emulation, each image read once) | 1.6.0 | 1.6.1 parser, 1.5 image processing | 1.6.1 parser + native passes |
+|---|---|---|---|
+| Set 1: 60 photos, bold `ИТОГ`, VAT 20 % | 5 correct, 0 wrong | 42 correct, 0 wrong | **59 correct, 0 wrong**, 1 empty |
+| Set 2: 40 photos, harsher, smaller; `ИТОГО`, `К ОПЛАТЕ`, comma decimals, no `=`, VAT 22/20/10 %, card/electronic payment | 3 correct, **3 wrong** | 15 correct, 1 wrong | **32 correct, 0 wrong**, 8 empty |
+
+Empty means the total row was unreadable or contradicted (e.g. a misread
+digit disagreeing with the VAT row): the person enters the amount, nothing
+wrong is pre-filled. The images are synthetic; real receipts (crumpled paper,
+other fonts, glare) will differ.
+
+Evidence: `test/fixtures/ocr/v16-receipts.json` (actual Tesseract output,
+including the hard cases) and `test/receipt_ocr_v16_fixture_test.dart`. The
+native steps were emulated on the host with the same algorithm (Python +
+Tesseract CLI); the Kotlin code compiles and is packaged, but was **not run on
+a phone**, and real paper receipts were not available.

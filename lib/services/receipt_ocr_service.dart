@@ -9,10 +9,15 @@ class ReceiptOcrResult {
   final double confidence;
   final List<RecognizedLine> lines;
 
+  /// Rows of a second, enlarged pass over the receipt's «ИТОГ» band
+  /// (optional; empty for older native builds and non-receipt images).
+  final List<String> focusRows;
+
   const ReceiptOcrResult({
     required this.text,
     required this.confidence,
     this.lines = const [],
+    this.focusRows = const [],
   });
 }
 
@@ -116,10 +121,20 @@ class ReceiptOcrService {
           ),
         );
       }
+      final rawFocus = response['focus'];
+      if (rawFocus != null &&
+          (rawFocus is! List ||
+              rawFocus.length > 40 ||
+              rawFocus.any((row) => row is! String || row.length > 512))) {
+        throw _invalidResponse;
+      }
       return ReceiptOcrResult(
         text: text,
         confidence: confidence,
         lines: List.unmodifiable(lines),
+        focusRows: List.unmodifiable(
+          (rawFocus as List? ?? const []).cast<String>(),
+        ),
       );
     } on PlatformException catch (error) {
       if (request.cancelled) throw _cancelled;

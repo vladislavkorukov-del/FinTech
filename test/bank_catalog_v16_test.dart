@@ -3,6 +3,11 @@ import 'dart:io';
 
 import 'package:finora/domain/bank_catalog.dart';
 import 'package:finora/domain/service_catalog.dart';
+import 'dart:ui' as ui;
+
+import 'package:finora/presentation/widgets/service_badge.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// Finance 1.6: credit organizations from the official Bank of Russia BIC
@@ -102,7 +107,13 @@ void main() {
     for (final bank in withLogo) {
       final record = records[bank.regNumber]!;
       expect(record['assetPath'], bank.logoAsset);
-      expect(record['source'], startsWith('https://commons.wikimedia.org/'));
+      expect(record['source'], startsWith('https://'));
+      expect(record['downloadUrl'], startsWith('https://'));
+      expect(
+        record['sourceType'],
+        isIn(['official-website', 'wikimedia-commons']),
+      );
+      expect(record['sha256'], matches(RegExp(r'^[0-9a-f]{64}$')));
       expect((record['license'] as Map)['LicenseShortName'], isNotEmpty);
       expect(File(bank.logoAsset!).existsSync(), isTrue);
       expect(File(bank.rasterAsset!).existsSync(), isTrue, reason: bank.name);
@@ -110,6 +121,38 @@ void main() {
     // No mark is invented: every other organization has no logo asset.
     for (final bank in BankCatalog.entries.where((b) => b.logoAsset == null)) {
       expect(records.containsKey(bank.regNumber), isFalse);
+    }
+  });
+
+  testWidgets('every bundled bank logo decodes and is shown, not a glyph', (
+    tester,
+  ) async {
+    final withLogo = BankCatalog.entries.where((b) => b.logoAsset != null);
+    expect(withLogo, isNotEmpty);
+    for (final bank in withLogo) {
+      await tester.runAsync(() async {
+        final bytes = await rootBundle.load(bank.rasterAsset!);
+        final codec = await ui.instantiateImageCodec(
+          bytes.buffer.asUint8List(),
+        );
+        final frame = await codec.getNextFrame();
+        expect(frame.image.width, 384, reason: bank.name);
+        final rgba = (await frame.image.toByteData())!.buffer.asUint8List();
+        var visible = 0;
+        for (var i = 3; i < rgba.length; i += 4) {
+          if (rgba[i] > 128) visible++;
+        }
+        expect(visible, greaterThan(384 * 384 * .03), reason: bank.name);
+        frame.image.dispose();
+        codec.dispose();
+      });
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(body: ServiceBadge(serviceId: bank.id)),
+        ),
+      );
+      expect(find.byType(Image), findsOneWidget, reason: bank.name);
+      expect(find.byIcon(Icons.account_balance_outlined), findsNothing);
     }
   });
 }

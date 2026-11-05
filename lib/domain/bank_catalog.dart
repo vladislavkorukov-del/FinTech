@@ -35,8 +35,10 @@ class RussianBank {
   final int background;
   final double inset;
 
-  String get id => 'bank_${regNumber.toLowerCase().replaceAll('к', 'k').replaceAll('ц', 'c').replaceAll(RegExp('[^0-9a-z]'), '')}';
-  String? get rasterAsset => logoAsset == null ? null : 'assets/banks/raster/$id.png';
+  String get id =>
+      'bank_${regNumber.toLowerCase().replaceAll('к', 'k').replaceAll('ц', 'c').replaceAll(RegExp('[^0-9a-z]'), '')}';
+  String? get rasterAsset =>
+      logoAsset == null ? null : 'assets/banks/raster/$id.png';
 
   SubscriptionService toService() => SubscriptionService(
     id: id,
@@ -78,6 +80,9 @@ abstract final class BankCatalog {
       name: "Газпромбанк",
       city: "Москва",
       aliases: ["ГПБ", "Банк ГПБ", "Gazprombank"],
+      logoAsset: "assets/banks/bank_354.svg",
+      background: 0xFFFFFFFF,
+      inset: 0.1,
     ),
     RussianBank(
       regNumber: "1326",
@@ -93,7 +98,14 @@ abstract final class BankCatalog {
       officialName: "АО \"ТБанк\"",
       name: "Т-Банк",
       city: "Москва",
-      aliases: ["ТБанк", "Т Банк", "Тинькофф", "Тинькофф Банк", "T-Bank", "Tinkoff"],
+      aliases: [
+        "ТБанк",
+        "Т Банк",
+        "Тинькофф",
+        "Тинькофф Банк",
+        "T-Bank",
+        "Tinkoff",
+      ],
     ),
     RussianBank(
       regNumber: "3349",
@@ -118,6 +130,9 @@ abstract final class BankCatalog {
       name: "Райффайзенбанк",
       city: "Москва",
       aliases: ["Райффайзен", "Raiffeisen", "Raiffeisenbank"],
+      logoAsset: "assets/banks/bank_3292.svg",
+      background: 0xFFFFFFFF,
+      inset: 0.1,
     ),
     RussianBank(
       regNumber: "3251",
@@ -133,7 +148,12 @@ abstract final class BankCatalog {
       officialName: "ПАО \"МОСКОВСКИЙ КРЕДИТНЫЙ БАНК\"",
       name: "МКБ",
       city: "Москва",
-      aliases: ["Московский кредитный банк", "MKB", "Credit Bank of Moscow", "Московский Кредитный Банк"],
+      aliases: [
+        "Московский кредитный банк",
+        "MKB",
+        "Credit Bank of Moscow",
+        "Московский Кредитный Банк",
+      ],
     ),
     RussianBank(
       regNumber: "2312",
@@ -174,6 +194,9 @@ abstract final class BankCatalog {
       name: "Озон Банк",
       city: "Москва",
       aliases: ["Ozon Банк", "Ozon Bank", "Озон", "ОЗОН Банк"],
+      logoAsset: "assets/banks/bank_3542.png",
+      background: 0xFFFFFFFF,
+      inset: 0.1,
     ),
     RussianBank(
       regNumber: "841",
@@ -198,6 +221,9 @@ abstract final class BankCatalog {
       name: "АТБ",
       city: "Москва",
       aliases: ["Азиатско-Тихоокеанский Банк", "ATB"],
+      logoAsset: "assets/banks/bank_1810.svg",
+      background: 0xFFFFFFFF,
+      inset: 0.1,
     ),
     RussianBank(
       regNumber: "2590",
@@ -270,6 +296,9 @@ abstract final class BankCatalog {
       name: "Центр-инвест",
       city: "Ростов-на-Дону",
       aliases: ["Центр инвест", "Center-invest", "Центр-Инвест"],
+      logoAsset: "assets/banks/bank_2225.svg",
+      background: 0xFFFFFFFF,
+      inset: 0.1,
     ),
     RussianBank(
       regNumber: "429",
@@ -287,6 +316,9 @@ abstract final class BankCatalog {
       city: "Москва",
       aliases: ["Юмани", "YooMoney", "Яндекс Деньги", "ЮMoney НКО", "ЮМани"],
       nonBank: true,
+      logoAsset: "assets/banks/bank_3510k.png",
+      background: 0xFFFFFFFF,
+      inset: 0.1,
     ),
     RussianBank(
       regNumber: "2275",
@@ -319,6 +351,9 @@ abstract final class BankCatalog {
       name: "ЮниКредит Банк",
       city: "Москва",
       aliases: ["ЮниКредит", "UniCredit"],
+      logoAsset: "assets/banks/bank_1.png",
+      background: 0xFFFFFFFF,
+      inset: 0.1,
     ),
     RussianBank(
       regNumber: "2998",
@@ -351,6 +386,9 @@ abstract final class BankCatalog {
       name: "Банк Финам",
       city: "Москва",
       aliases: ["Финам", "Finam", "Банк ФИНАМ"],
+      logoAsset: "assets/banks/bank_2799.svg",
+      background: 0xFFFFFFFF,
+      inset: 0.1,
     ),
     RussianBank(
       regNumber: "2546",
@@ -375,6 +413,9 @@ abstract final class BankCatalog {
       name: "Свой Банк",
       city: "Москва",
       aliases: ["Свой", "Svoi Bank"],
+      logoAsset: "assets/banks/bank_3223.png",
+      background: 0xFFFFFFFF,
+      inset: 0.1,
     ),
     RussianBank(
       regNumber: "2879",
@@ -391,6 +432,9 @@ abstract final class BankCatalog {
       name: "Кредит Европа Банк",
       city: "Москва",
       aliases: ["Credit Europe Bank", "Кредит Европа Банк (Россия)"],
+      logoAsset: "assets/banks/bank_3311.svg",
+      background: 0xFFFFFFFF,
+      inset: 0.1,
     ),
     RussianBank(
       regNumber: "2440",
@@ -431,6 +475,9 @@ abstract final class BankCatalog {
       name: "Банк 131",
       city: "Казань",
       aliases: ["131", "Bank 131"],
+      logoAsset: "assets/banks/bank_3538.svg",
+      background: 0xFFFFFFFF,
+      inset: 0.1,
     ),
     RussianBank(
       regNumber: "1751",

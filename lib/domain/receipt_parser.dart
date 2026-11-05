@@ -1,5 +1,6 @@
 import 'finance_engine.dart';
 import 'models.dart';
+import 'receipt_total.dart';
 import 'scan_draft.dart';
 
 /// Conservative, deterministic extraction from OCR, not a bank integration.
@@ -10,6 +11,7 @@ abstract final class ReceiptParser {
     required List<Category> categories,
     List<FinanceEntry> history = const [],
     DateTime? now,
+    List<String> focusRows = const [],
   }) {
     final warnings = <String>[];
     final source = normalizeText(text);
@@ -50,6 +52,8 @@ abstract final class ReceiptParser {
           continue;
         }
         if (after.trimLeft().startsWith('%')) continue;
+        // `5908,` — OCR cut the kopecks off a receipt amount; not a value.
+        if (fiscal && RegExp(r'^[.,](?!\s?\d)').hasMatch(after)) continue;
         final anchor = _anchor(before);
         final excluded = _last(_excluded, before);
         if (excluded > anchor.index ||
@@ -128,9 +132,17 @@ abstract final class ReceiptParser {
       }
     }
     _Amount? amount;
-    if (fiscal) {
+    final total = fiscal
+        ? ReceiptTotal.find(lines, focusRows: focusRows)
+        : null;
+    if (total != null) {
+      candidates
+        ..clear()
+        ..add(_Amount(total.minor, null, 1000, 0, false));
+      if (total.warning != null) warnings.add(total.warning!);
+    } else if (fiscal) {
       final explicit = candidates.where((c) => c.score >= _totalScore).toList();
-      if (explicit.isEmpty && candidates.isNotEmpty) {
+      if (explicit.isEmpty) {
         warnings.add(
           'Итог чека не найден. Введите сумму вручную — цены товаров, НДС и оплата не суммируются.',
         );
@@ -245,9 +257,13 @@ abstract final class ReceiptParser {
     final lower = normalizeText(text).toLowerCase().replaceAll('ё', 'е');
     if (_fiscalMarker.hasMatch(lower)) return true;
     final items = _itemRow.allMatches(lower).length;
-    final total = RegExp(
-      r'(?<![а-яa-z])итого?(?![а-яa-z])|grand\s+total|subtotal',
-    ).hasMatch(lower);
+    final total =
+        RegExp(
+          r'(?<![а-яa-z])итого?(?![а-яa-z])|grand\s+total|subtotal',
+        ).hasMatch(lower) ||
+        normalizeText(
+          text,
+        ).split(RegExp(r'[\r\n]+')).any((row) => ReceiptTotal.isTotalRow(row));
     final tender = RegExp(
       r'безналичн|наличными|электронными|сдача|внесено|получено\s+от\s+покуп',
     ).hasMatch(lower);

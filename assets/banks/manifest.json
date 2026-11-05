@@ -1,1 +1,213 @@
-{"items": []}
+{
+ "items": [
+  {
+   "regNumber": "354",
+   "id": "bank_354",
+   "brand": "Газпромбанк",
+   "background": "#FFFFFF",
+   "inset": 0.1,
+   "selection": "Official site icon of Gazprombank (current blue sphere mark).",
+   "sourceType": "official-website",
+   "source": "https://www.gazprombank.ru/",
+   "downloadUrl": "https://www.gazprombank.ru/_next/d55dda96b60568876d54429fe31cd2e1/_next/public/favicons/default/dark-favicon/favicon-32x32.svg",
+   "mime": "image/svg+xml",
+   "license": {
+    "LicenseShortName": "Proprietary (official bank website asset)"
+   },
+   "rights": "Exact file served by the bank's official website; copyright and trademark belong to the bank. Used only to identify the bank; no endorsement implied.",
+   "assetPath": "assets/banks/bank_354.svg",
+   "bytes": 2707,
+   "sha256": "9362f737d73b3fdb47736cda818d6155ec798db997b5256c91bcbca33e2a1943"
+  },
+  {
+   "regNumber": "3292",
+   "id": "bank_3292",
+   "brand": "Райффайзенбанк",
+   "background": "#FFFFFF",
+   "inset": 0.1,
+   "selection": "Official site icon of Raiffeisenbank (yellow/black gable mark).",
+   "sourceType": "official-website",
+   "source": "https://www.raiffeisen.ru/",
+   "downloadUrl": "https://www.raiffeisen.ru/fav/icon.svg",
+   "mime": "image/svg+xml",
+   "license": {
+    "LicenseShortName": "Proprietary (official bank website asset)"
+   },
+   "rights": "Exact file served by the bank's official website; copyright and trademark belong to the bank. Used only to identify the bank; no endorsement implied.",
+   "assetPath": "assets/banks/bank_3292.svg",
+   "bytes": 862,
+   "sha256": "d10befdbba057b662cb7f004d9e8d38c6c839abc1d9430e72a6179f29f1b4c27"
+  },
+  {
+   "regNumber": "1",
+   "id": "bank_1",
+   "brand": "ЮниКредит Банк",
+   "background": "#FFFFFF",
+   "inset": 0.1,
+   "selection": "Official apple-touch-icon of UniCredit Bank Russia (red disc mark).",
+   "sourceType": "official-website",
+   "source": "https://www.unicreditbank.ru/",
+   "downloadUrl": "https://www.unicreditbank.ru/etc/designs/cee2020-pws-ru/img/logos/apple-touch-icon.png",
+   "mime": "image/png",
+   "license": {
+    "LicenseShortName": "Proprietary (official bank website asset)"
+   },
+   "rights": "Exact file served by the bank's official website; copyright and trademark belong to the bank. Used only to identify the bank; no endorsement implied.",
+   "assetPath": "assets/banks/bank_1.png",
+   "bytes": 6487,
+   "sha256": "83268539d5125a07613cae8262c0a54db31f8d28761bc2ca5d7939f00786c122"
+  },
+  {
+   "regNumber": "3510-К",
+   "id": "bank_3510k",
+   "brand": "ЮMoney",
+   "background": "#FFFFFF",
+   "inset": 0.1,
+   "selection": "Official apple-touch-icon of YooMoney (violet «ЮO» mark).",
+   "sourceType": "official-website",
+   "source": "https://yoomoney.ru/",
+   "downloadUrl": "https://static.yoomoney.ru/files-front/resources/head/wallet/apple-touch-icon.png",
+   "mime": "image/png",
+   "license": {
+    "LicenseShortName": "Proprietary (official bank website asset)"
+   },
+   "rights": "Exact file served by the bank's official website; copyright and trademark belong to the bank. Used only to identify the bank; no endorsement implied.",
+   "assetPath": "assets/banks/bank_3510k.png",
+   "bytes": 2462,
+   "sha256": "728487cc0ec5bd61d0890f18f9fe50ca7d8223bf8e4ee24705d4b715de839754"
+  },
+  {
+   "regNumber": "3542",
+   "id": "bank_3542",
+   "brand": "Озон Банк",
+   "background": "#FFFFFF",
+   "inset": 0.1,
+   "selection": "Official apple-touch-icon of Ozon Bank (finance.ozon.ru).",
+   "sourceType": "official-website",
+   "source": "https://finance.ozon.ru/",
+   "downloadUrl": "https://finance.ozon.ru/apple-touch-icon.png",
+   "mime": "image/png",
+   "license": {
+    "LicenseShortName": "Proprietary (official bank website asset)"
+   },
+   "rights": "Exact file served by the bank's official website; copyright and trademark belong to the bank. Used only to identify the bank; no endorsement implied.",
+   "assetPath": "assets/banks/bank_3542.png",
+   "bytes": 4312,
+   "sha256": "26b686c65be73ba97d6b615a9511a773c254025f8195b93f8a1c9fd6a4408235"
+  },
+  {
+   "regNumber": "1810",
+   "id": "bank_1810",
+   "brand": "АТБ",
+   "background": "#FFFFFF",
+   "inset": 0.1,
+   "selection": "Official site icon of Asian-Pacific Bank (ATB).",
+   "sourceType": "official-website",
+   "source": "https://www.atb.su/",
+   "downloadUrl": "https://www.atb.su/favicon.svg",
+   "mime": "image/svg+xml",
+   "license": {
+    "LicenseShortName": "Proprietary (official bank website asset)"
+   },
+   "rights": "Exact file served by the bank's official website; copyright and trademark belong to the bank. Used only to identify the bank; no endorsement implied.",
+   "assetPath": "assets/banks/bank_1810.svg",
+   "bytes": 2039,
+   "sha256": "adb3ecab889ea17c88b9c4de23390be1a89815b7ea50cc0950967de370f093f2"
+  },
+  {
+   "regNumber": "2225",
+   "id": "bank_2225",
+   "brand": "Центр-инвест",
+   "background": "#FFFFFF",
+   "inset": 0.1,
+   "selection": "Official site icon of Center-invest bank.",
+   "sourceType": "official-website",
+   "source": "https://www.centrinvest.ru/",
+   "downloadUrl": "https://www.centrinvest.ru/favicon.svg",
+   "mime": "image/svg+xml",
+   "license": {
+    "LicenseShortName": "Proprietary (official bank website asset)"
+   },
+   "rights": "Exact file served by the bank's official website; copyright and trademark belong to the bank. Used only to identify the bank; no endorsement implied.",
+   "assetPath": "assets/banks/bank_2225.svg",
+   "bytes": 3670,
+   "sha256": "9f65216470f595a8d18ea02cb8403c7b57223c361626ec1ba611f927bcb1b969"
+  },
+  {
+   "regNumber": "2799",
+   "id": "bank_2799",
+   "brand": "Банк Финам",
+   "background": "#FFFFFF",
+   "inset": 0.1,
+   "selection": "Icon served by the official Bank Finam site (finambank.ru → finam.ru); Finam group mark, parent brand.",
+   "sourceType": "official-website",
+   "source": "https://www.finambank.ru/",
+   "downloadUrl": "https://cdn-lpbr01.finam.ru/lpbr-static/favicon_e58c47cd78.svg",
+   "mime": "image/svg+xml",
+   "license": {
+    "LicenseShortName": "Proprietary (official bank website asset)"
+   },
+   "rights": "Exact file served by the bank's official website; copyright and trademark belong to the bank. Used only to identify the bank; no endorsement implied.",
+   "assetPath": "assets/banks/bank_2799.svg",
+   "bytes": 1463,
+   "sha256": "1a52a2aaf178ce7fa5ea44255d9b8222295891fe42c7c1ab3451385feb581405"
+  },
+  {
+   "regNumber": "3223",
+   "id": "bank_3223",
+   "brand": "Свой Банк",
+   "background": "#FFFFFF",
+   "inset": 0.1,
+   "selection": "Official apple-touch-icon of Svoi Bank.",
+   "sourceType": "official-website",
+   "source": "https://svoi.ru/",
+   "downloadUrl": "https://svoi.ru/icons/icon-512x512.png?v=53d8383916a19f9ee0e71ff783b1a8e3",
+   "mime": "image/png",
+   "license": {
+    "LicenseShortName": "Proprietary (official bank website asset)"
+   },
+   "rights": "Exact file served by the bank's official website; copyright and trademark belong to the bank. Used only to identify the bank; no endorsement implied.",
+   "assetPath": "assets/banks/bank_3223.png",
+   "bytes": 6500,
+   "sha256": "95eaa55ae553ae240713b15dcc8377f85e2b910a8bbcaf5860827f3634a91e5f"
+  },
+  {
+   "regNumber": "3311",
+   "id": "bank_3311",
+   "brand": "Кредит Европа Банк",
+   "background": "#FFFFFF",
+   "inset": 0.1,
+   "selection": "Official site icon of Credit Europe Bank (Russia).",
+   "sourceType": "official-website",
+   "source": "https://www.crediteurope.ru/",
+   "downloadUrl": "https://www.crediteurope.ru/bitrix/templates/custom/favicon.svg",
+   "mime": "image/svg+xml",
+   "license": {
+    "LicenseShortName": "Proprietary (official bank website asset)"
+   },
+   "rights": "Exact file served by the bank's official website; copyright and trademark belong to the bank. Used only to identify the bank; no endorsement implied.",
+   "assetPath": "assets/banks/bank_3311.svg",
+   "bytes": 680,
+   "sha256": "b791536f8df8f799e0425117bb7fb903a8beea54fa45662c1fab9749ffb4bbae"
+  },
+  {
+   "regNumber": "3538",
+   "id": "bank_3538",
+   "brand": "Банк 131",
+   "background": "#FFFFFF",
+   "inset": 0.1,
+   "selection": "Official site icon of Bank 131.",
+   "sourceType": "official-website",
+   "source": "https://131.ru/",
+   "downloadUrl": "https://131.ru/favicon.svg",
+   "mime": "image/svg+xml",
+   "license": {
+    "LicenseShortName": "Proprietary (official bank website asset)"
+   },
+   "rights": "Exact file served by the bank's official website; copyright and trademark belong to the bank. Used only to identify the bank; no endorsement implied.",
+   "assetPath": "assets/banks/bank_3538.svg",
+   "bytes": 471,
+   "sha256": "e175cabd0c555785df84b311a5a45d9478d42eeefb0711d8ba8f76cb8db908a6"
+  }
+ ]
+}

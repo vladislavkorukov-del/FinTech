@@ -308,4 +308,37 @@ void main() {
       await expectation;
     },
   );
+
+  test('optional focused total rows are decoded and bounded', () async {
+    const path = '/data/user/0/com.finora.fintech/app_flutter/receipts/a.jpg';
+    messenger.setMockMethodCallHandler(channel, (_) async {
+      return {
+        'text': 'ЧЕК',
+        'confidence': 0.8,
+        'focus': ['ИТОГ =1250.00', 'БЕЗНАЛИЧНЫМИ =1250.00'],
+      };
+    });
+    expect((await service.recognize(path)).focusRows, [
+      'ИТОГ =1250.00',
+      'БЕЗНАЛИЧНЫМИ =1250.00',
+    ]);
+    messenger.setMockMethodCallHandler(channel, (_) async {
+      return {'text': 'ЧЕК', 'confidence': 0.8};
+    });
+    expect((await service.recognize(path)).focusRows, isEmpty);
+    for (final bad in [
+      'ИТОГ',
+      [1],
+      List.filled(41, 'x'),
+      ['x' * 513],
+    ]) {
+      messenger.setMockMethodCallHandler(channel, (_) async {
+        return {'text': 'ЧЕК', 'confidence': 0.8, 'focus': bad};
+      });
+      await expectLater(
+        service.recognize(path),
+        throwsA(errorCode('OCR_INVALID_RESPONSE')),
+      );
+    }
+  });
 }

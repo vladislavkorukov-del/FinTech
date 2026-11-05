@@ -243,6 +243,7 @@ class _EntryEditorState extends State<EntryEditor> {
       final document = BankStatementParser.parse(
         result.text,
         lines: result.lines,
+        focusRows: result.focusRows,
         categories: c.data.categories,
         history: c.data.entries,
         defaultCurrency: c.account(_account ?? '')?.currency ?? c.currency,

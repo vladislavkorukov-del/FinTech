@@ -41,6 +41,15 @@ internal class ReceiptOcrEngine(private val context: Context) {
             "кассов|товарн|фискальн|(?<![а-я])ндс(?![а-я])|grand\\s+total|subtotal",
             RegexOption.IGNORE_CASE,
         )
+        // Broader receipt evidence for the focused total pass (not for the
+        // sparse retry decision above, which keeps its 1.5 behavior).
+        private val RECEIPT_LIKE = Regex(
+            "кассов|товарн|фискальн|(?<![а-я])ндс(?![а-я])|кассир|безнал|наличн|итог|к\\s*оплате|grand\\s+total|subtotal",
+            RegexOption.IGNORE_CASE,
+        )
+        private const val MAX_FOCUS_BANDS = 3
+        private const val MAX_FOCUS_ROWS = 40
+        private const val MAX_FOCUS_PIXELS = 4_000_000L
         private val MODELS = mapOf(
             "rus" to "e16e5e036cce1d9ec2b00063cf8b54472625b9e14d893a169e2b0dedeb4df225",
             "eng" to "7d4322bd2a7749724879683fc3912cb542f19906c83bcc1a52132556427170b2",
@@ -79,7 +88,17 @@ internal class ReceiptOcrEngine(private val context: Context) {
                 val sparse = recognizePass(engine, bitmap, TessBaseAPI.PageSegMode.PSM_SPARSE_TEXT, cancelled)
                 choosePass(first, sparse)
             } else first
-            return mapOf("text" to chosen.text, "confidence" to chosen.confidence, "lines" to chosen.lines)
+            // Second, enlarged pass over the receipt's total band. It adds
+            // evidence only; the main text/lines stay exactly as recognized.
+            val focus = if (RECEIPT_LIKE.containsMatchIn(chosen.text)) {
+                focusTotal(engine, bitmap, chosen, cancelled)
+            } else emptyList()
+            return mapOf(
+                "text" to chosen.text,
+                "confidence" to chosen.confidence,
+                "lines" to chosen.lines,
+                "focus" to focus,
+            )
         } finally {
             try {
                 engine?.recycle()
@@ -145,6 +164,179 @@ internal class ReceiptOcrEngine(private val context: Context) {
         return Pass(text, engine.meanConfidence().coerceIn(0, 100) / 100.0, lines)
     }
 
+    /** Re-reads the band around a (possibly OCR-damaged) «ИТОГ» row at a
+     * larger scale with flattened lighting; if no total row was read, the
+     * lower part of the receipt. Failures (other than cancellation) keep the
+     * main result and return no focus rows. */
+    private fun focusTotal(
+        engine: TessBaseAPI,
+        bitmap: Bitmap,
+        chosen: Pass,
+        cancelled: AtomicBoolean,
+    ): List<String> {
+        val rows = mutableListOf<String>()
+        try {
+            val bands = mutableListOf<Triple<Int, Int, Double>>()
+            for (line in chosen.lines) {
+                if (bands.size >= MAX_FOCUS_BANDS) break
+                if (!totalLike(line["text"] as String)) continue
+                val top = (line["top"] as Double) * bitmap.height
+                val bottom = (line["bottom"] as Double) * bitmap.height
+                val height = max(4.0, bottom - top)
+                bands.add(Triple(
+                    max(0, (top - height).roundToInt()),
+                    min(bitmap.height, (bottom + 2.2 * height).roundToInt()),
+                    height,
+                ))
+            }
+            if (bands.isEmpty()) bands.add(Triple((bitmap.height * .45).roundToInt(), bitmap.height, 0.0))
+            for ((y0, y1, height) in bands) {
+                checkCancellation(cancelled)
+                if (y1 - y0 < 8) continue
+                val wanted = if (height > 0) (64.0 / height).coerceIn(1.0, 3.0) else 1.5
+                val area = bitmap.width.toLong() * (y1 - y0)
+                val scale = min(wanted, sqrt(MAX_FOCUS_PIXELS.toDouble() / area)).coerceAtLeast(.5)
+                val crop = Bitmap.createBitmap(bitmap, 0, y0, bitmap.width, y1 - y0)
+                var scaled = crop
+                try {
+                    scaled = Bitmap.createScaledBitmap(
+                        crop,
+                        max(1, (crop.width * scale).roundToInt()),
+                        max(1, (crop.height * scale).roundToInt()),
+                        true,
+                    )
+                } finally {
+                    if (scaled !== crop && crop !== bitmap) crop.recycle()
+                }
+                if (!scaled.isMutable) {
+                    val copy = scaled.copy(Bitmap.Config.ARGB_8888, true)
+                    if (scaled !== bitmap) scaled.recycle()
+                    scaled = copy
+                }
+                try {
+                    flattenIllumination(scaled)
+                    engine.setPageSegMode(TessBaseAPI.PageSegMode.PSM_SINGLE_BLOCK)
+                    engine.setImage(scaled)
+                    val text = engine.getUTF8Text() ?: ""
+                    checkCancellation(cancelled)
+                    for (row in text.lines()) {
+                        val value = row.trim()
+                        if (value.isEmpty()) continue
+                        if (rows.size >= MAX_FOCUS_ROWS) return rows
+                        rows.add(value.take(512))
+                    }
+                } finally {
+                    if (scaled !== bitmap) scaled.recycle()
+                }
+            }
+        } catch (failure: ReceiptOcrFailure) {
+            if (failure.code == "OCR_CANCELLED") throw failure
+            return emptyList()
+        } catch (_: Exception) {
+            return emptyList()
+        } catch (_: OutOfMemoryError) {
+            return emptyList()
+        }
+        return rows
+    }
+
+    /** OCR-tolerant total label: Latin look-alikes, one wrong letter. */
+    private fun totalLike(text: String): Boolean {
+        val words = text.split(Regex("\\s+"))
+            .filter { word -> word.any { it.isLetter() } }
+            .take(3)
+            .map(::cyrillicLetters)
+            .filter { it.isNotEmpty() }
+        if (words.isEmpty()) return false
+        val first = words[0]
+        if (listOf("ИТОГ", "ИТОГО", "ВСЕГО").any { distance(first, it) <= 1 }) return true
+        if (words.joinToString("").contains("КОПЛАТЕ")) return true
+        return words.size > 1 && distance(words[0] + words[1], "ИТОГ") <= 1
+    }
+
+    private fun cyrillicLetters(word: String): String {
+        val map = mapOf(
+            'A' to 'А', 'B' to 'В', 'C' to 'С', 'E' to 'Е', 'H' to 'Н', 'K' to 'К', 'M' to 'М',
+            'O' to 'О', 'P' to 'Р', 'T' to 'Т', 'X' to 'Х', 'Y' to 'У', 'N' to 'И', 'U' to 'И', 'W' to 'И',
+            'R' to 'Г', 'F' to 'Г', '0' to 'О', 'Ё' to 'Е', 'Й' to 'И',
+        )
+        val out = StringBuilder()
+        for (ch in word.uppercase()) {
+            val mapped = map[ch] ?: ch
+            if (mapped in 'А'..'Я') out.append(mapped)
+        }
+        return out.toString()
+    }
+
+    private fun distance(a: String, b: String): Int {
+        var previous = IntArray(b.length + 1) { it }
+        for (i in a.indices) {
+            val current = IntArray(b.length + 1)
+            current[0] = i + 1
+            for (j in b.indices) {
+                current[j + 1] = minOf(
+                    current[j] + 1,
+                    previous[j + 1] + 1,
+                    previous[j] + if (a[i] == b[j]) 0 else 1,
+                )
+            }
+            previous = current
+        }
+        return previous[b.length]
+    }
+
+    /** Divides each pixel by a smooth estimate of the paper brightness
+     * (3×3-smoothed maxima of blocks), removing shadows and fading on
+     * receipt photos. Works row by row on a grayscale bitmap in place. */
+    private fun flattenIllumination(bitmap: Bitmap) {
+        val width = bitmap.width
+        val height = bitmap.height
+        if (width < 16 || height < 16) return
+        val block = max(8, min(width, height) / 40)
+        val columns = (width + block - 1) / block
+        val rowsCount = (height + block - 1) / block
+        val maxima = FloatArray(columns * rowsCount)
+        val row = IntArray(width)
+        for (y in 0 until height) {
+            bitmap.getPixels(row, 0, width, 0, y, width, 1)
+            val by = y / block
+            for (x in 0 until width) {
+                val value = (row[x] and 0xFF).toFloat()
+                val index = by * columns + x / block
+                if (value > maxima[index]) maxima[index] = value
+            }
+        }
+        val smooth = FloatArray(maxima.size)
+        for (by in 0 until rowsCount) for (bx in 0 until columns) {
+            var sum = 0f
+            for (dy in -1..1) for (dx in -1..1) {
+                val yy = (by + dy).coerceIn(0, rowsCount - 1)
+                val xx = (bx + dx).coerceIn(0, columns - 1)
+                sum += maxima[yy * columns + xx]
+            }
+            smooth[by * columns + bx] = max(1f, sum / 9f)
+        }
+        for (y in 0 until height) {
+            bitmap.getPixels(row, 0, width, 0, y, width, 1)
+            val fy = ((y + .5f) / block - .5f).coerceIn(0f, (rowsCount - 1).toFloat())
+            val y0 = fy.toInt()
+            val y1 = min(rowsCount - 1, y0 + 1)
+            val ty = fy - y0
+            for (x in 0 until width) {
+                val fx = ((x + .5f) / block - .5f).coerceIn(0f, (columns - 1).toFloat())
+                val x0 = fx.toInt()
+                val x1 = min(columns - 1, x0 + 1)
+                val tx = fx - x0
+                val top = smooth[y0 * columns + x0] * (1 - tx) + smooth[y0 * columns + x1] * tx
+                val bottom = smooth[y1 * columns + x0] * (1 - tx) + smooth[y1 * columns + x1] * tx
+                val background = top * (1 - ty) + bottom * ty
+                val value = ((row[x] and 0xFF) * 255f / background).roundToInt().coerceIn(0, 255)
+                row[x] = (0xFF shl 24) or (value shl 16) or (value shl 8) or value
+            }
+            bitmap.setPixels(row, 0, width, 0, y, width, 1)
+        }
+    }
+
     private fun choosePass(first: Pass, sparse: Pass): Pass {
         if (sparse.usefulCharacters == 0) return first
         if (first.usefulCharacters == 0) return sparse
@@ -196,6 +388,12 @@ internal class ReceiptOcrEngine(private val context: Context) {
             val canvas = Canvas(target)
             canvas.drawColor(android.graphics.Color.WHITE)
             canvas.drawBitmap(source, null, android.graphics.Rect(0, 0, width, height), paint)
+            // Shadows and faded thermal paper hide totals; flattening keeps
+            // flat screenshots unchanged in practice. Optional on low memory.
+            try {
+                flattenIllumination(target)
+            } catch (_: OutOfMemoryError) {
+            }
             return target
         } catch (error: Throwable) {
             target.recycle()

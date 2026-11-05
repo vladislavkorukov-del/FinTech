@@ -14,6 +14,7 @@ abstract final class BankStatementParser {
     List<FinanceEntry> history = const [],
     DateTime? now,
     String? defaultCurrency,
+    List<String> focusRows = const [],
   }) {
     final clock = now ?? DateTime.now();
     final source = ReceiptParser.normalizeText(text);
@@ -46,6 +47,7 @@ abstract final class BankStatementParser {
         categories: categories,
         history: history,
         now: clock,
+        focusRows: focusRows,
       );
       if (!identical(parseText, text)) {
         if (draft.amountMinor == null) {
@@ -54,6 +56,7 @@ abstract final class BankStatementParser {
             categories: categories,
             history: history,
             now: clock,
+            focusRows: focusRows,
           );
           if (plain.amountMinor != null) draft = plain;
         }

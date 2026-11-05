@@ -1,7 +1,140 @@
 {
  "renderer": "Inkscape 1.2.2 (b0a8486541, 2022-12-01)",
- "sourceManifestSha256": "bcedc7da27dca581475b9342c5e857428e8fac347fbab59c5a048fdb1b3e8f0d",
+ "sourceManifestSha256": "45445a3721f89e425d698984536990ade4861e04ed3edd4b2616f24baef07b3a",
  "canvas": 384,
  "gutter": 2,
- "items": []
+ "items": [
+  {
+   "id": "bank_354",
+   "regNumber": "354",
+   "assetPath": "assets/banks/raster/bank_354.png",
+   "sourceAssetPath": "assets/banks/bank_354.svg",
+   "sourceSha256": "9362f737d73b3fdb47736cda818d6155ec798db997b5256c91bcbca33e2a1943",
+   "sha256": "6d1c6fc855721903031defa769a921510c7278f763abdac29e44e0833892054d",
+   "bytes": 17356,
+   "width": 384,
+   "height": 384,
+   "operation": "Inkscape SVG page rendered proportionally with transparent gutter; original colors unchanged"
+  },
+  {
+   "id": "bank_3292",
+   "regNumber": "3292",
+   "assetPath": "assets/banks/raster/bank_3292.png",
+   "sourceAssetPath": "assets/banks/bank_3292.svg",
+   "sourceSha256": "d10befdbba057b662cb7f004d9e8d38c6c839abc1d9430e72a6179f29f1b4c27",
+   "sha256": "f0446f0ed88da342070c860f55d0ab714863a286104ac13889a0c471cd11dfbc",
+   "bytes": 9096,
+   "width": 384,
+   "height": 384,
+   "operation": "Inkscape SVG page rendered proportionally with transparent gutter; original colors unchanged"
+  },
+  {
+   "id": "bank_1",
+   "regNumber": "1",
+   "assetPath": "assets/banks/raster/bank_1.png",
+   "sourceAssetPath": "assets/banks/bank_1.png",
+   "sourceSha256": "83268539d5125a07613cae8262c0a54db31f8d28761bc2ca5d7939f00786c122",
+   "sha256": "d7fe7c814f9d966ad8442cbf1653fafb7fa0dd5330e1a440dad02a525bb4558d",
+   "bytes": 28607,
+   "width": 384,
+   "height": 384,
+   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged"
+  },
+  {
+   "id": "bank_3510k",
+   "regNumber": "3510-К",
+   "assetPath": "assets/banks/raster/bank_3510k.png",
+   "sourceAssetPath": "assets/banks/bank_3510k.png",
+   "sourceSha256": "728487cc0ec5bd61d0890f18f9fe50ca7d8223bf8e4ee24705d4b715de839754",
+   "sha256": "d06a9e343d88c6a373d4bfc101dd03ee607a679dde5375a48aa125872e51a15c",
+   "bytes": 18262,
+   "width": 384,
+   "height": 384,
+   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged"
+  },
+  {
+   "id": "bank_3542",
+   "regNumber": "3542",
+   "assetPath": "assets/banks/raster/bank_3542.png",
+   "sourceAssetPath": "assets/banks/bank_3542.png",
+   "sourceSha256": "26b686c65be73ba97d6b615a9511a773c254025f8195b93f8a1c9fd6a4408235",
+   "sha256": "692df2d1a8f5596b900019f8b2a3d38700b77d00ee99d674938468bc50321d47",
+   "bytes": 35201,
+   "width": 384,
+   "height": 384,
+   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged"
+  },
+  {
+   "id": "bank_1810",
+   "regNumber": "1810",
+   "assetPath": "assets/banks/raster/bank_1810.png",
+   "sourceAssetPath": "assets/banks/bank_1810.svg",
+   "sourceSha256": "adb3ecab889ea17c88b9c4de23390be1a89815b7ea50cc0950967de370f093f2",
+   "sha256": "61c81d8b9bc3c7640a0d98a59100ffa235320da8400c1da38a6e42566d1c8046",
+   "bytes": 9241,
+   "width": 384,
+   "height": 384,
+   "operation": "Inkscape SVG page rendered proportionally with transparent gutter; original colors unchanged"
+  },
+  {
+   "id": "bank_2225",
+   "regNumber": "2225",
+   "assetPath": "assets/banks/raster/bank_2225.png",
+   "sourceAssetPath": "assets/banks/bank_2225.svg",
+   "sourceSha256": "9f65216470f595a8d18ea02cb8403c7b57223c361626ec1ba611f927bcb1b969",
+   "sha256": "c2daae19cea23d12898337ba7e3e06c513afea5304a5b2d701fc25ff41024a39",
+   "bytes": 24506,
+   "width": 384,
+   "height": 384,
+   "operation": "Inkscape SVG page rendered proportionally with transparent gutter; original colors unchanged"
+  },
+  {
+   "id": "bank_2799",
+   "regNumber": "2799",
+   "assetPath": "assets/banks/raster/bank_2799.png",
+   "sourceAssetPath": "assets/banks/bank_2799.svg",
+   "sourceSha256": "1a52a2aaf178ce7fa5ea44255d9b8222295891fe42c7c1ab3451385feb581405",
+   "sha256": "2b2ea9f6205b8efadb5567d18d47b9e42281b652120d088554b53dbd3841267c",
+   "bytes": 17453,
+   "width": 384,
+   "height": 384,
+   "operation": "Inkscape SVG page rendered proportionally with transparent gutter; original colors unchanged"
+  },
+  {
+   "id": "bank_3223",
+   "regNumber": "3223",
+   "assetPath": "assets/banks/raster/bank_3223.png",
+   "sourceAssetPath": "assets/banks/bank_3223.png",
+   "sourceSha256": "95eaa55ae553ae240713b15dcc8377f85e2b910a8bbcaf5860827f3634a91e5f",
+   "sha256": "8bef3b40986e73bbb68017224b40a7deefe2b124ef12eb51f749a7ec1eb3505c",
+   "bytes": 10828,
+   "width": 384,
+   "height": 384,
+   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged"
+  },
+  {
+   "id": "bank_3311",
+   "regNumber": "3311",
+   "assetPath": "assets/banks/raster/bank_3311.png",
+   "sourceAssetPath": "assets/banks/bank_3311.svg",
+   "sourceSha256": "b791536f8df8f799e0425117bb7fb903a8beea54fa45662c1fab9749ffb4bbae",
+   "sha256": "658afc3e7b6e5560e8fb1661b1e0286ce8f6b974e2a519aec383fc05dd054e7e",
+   "bytes": 15823,
+   "width": 384,
+   "height": 384,
+   "operation": "Inkscape SVG page rendered proportionally with transparent gutter; original colors unchanged"
+  },
+  {
+   "id": "bank_3538",
+   "regNumber": "3538",
+   "assetPath": "assets/banks/raster/bank_3538.png",
+   "sourceAssetPath": "assets/banks/bank_3538.svg",
+   "sourceSha256": "e175cabd0c555785df84b311a5a45d9478d42eeefb0711d8ba8f76cb8db908a6",
+   "sha256": "f03c3aaed201c8b3dc978b764be17e3c9a5ec9de7608937d634da85392befa88",
+   "bytes": 5154,
+   "width": 384,
+   "height": 384,
+   "operation": "Inkscape SVG page rendered proportionally with transparent gutter; original colors unchanged"
+  }
+ ]
 }
