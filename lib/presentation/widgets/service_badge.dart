@@ -4,7 +4,6 @@ import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
@@ -12,6 +11,7 @@ import 'package:uuid/uuid.dart';
 
 import '../../domain/service_catalog.dart';
 import 'common.dart';
+import 'service_logo_image.dart';
 
 class ServiceSelection {
   const ServiceSelection({
@@ -49,10 +49,33 @@ class ServiceBadge extends StatelessWidget {
       color: scheme.onSurfaceVariant,
       size: size * .48,
     );
-    final pixels = (size * MediaQuery.devicePixelRatioOf(context)).ceil().clamp(
-      1,
-      1024,
+    final inset = uploaded ? .06 : (service?.inset ?? .18).clamp(0.0, .4);
+    final pixels = serviceLogoDecodeSize(
+      size * (1 - 2 * inset),
+      MediaQuery.devicePixelRatioOf(context),
     );
+    final ImageProvider? image = uploaded
+        ? ResizeImage(
+            FileImage(File(customIconPath!)),
+            width: pixels,
+            height: pixels,
+            policy: ResizeImagePolicy.fit,
+          )
+        : asset == null
+        ? null
+        : asset.toLowerCase().endsWith('.svg')
+        ? ServiceSvgImage(
+            asset,
+            pixels: pixels,
+            bundle: DefaultAssetBundle.of(context),
+          )
+        : ResizeImage(
+            AssetImage(asset),
+            width: pixels,
+            height: pixels,
+            policy: ResizeImagePolicy.fit,
+          );
+    final radius = BorderRadius.circular(size * .30);
     return Semantics(
       label: name ?? service?.name ?? 'Сервис',
       image: true,
@@ -60,36 +83,32 @@ class ServiceBadge extends StatelessWidget {
         key: ValueKey('service-badge-${service?.id ?? 'custom'}'),
         width: size,
         height: size,
-        padding: EdgeInsets.all(size * .18),
+        padding: EdgeInsets.all(size * inset),
+        clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
-          // Black brand marks such as Notion need a light plate in both themes.
           color: !uploaded && asset != null
-              ? Colors.white
+              ? Color(service!.background)
               : scheme.surfaceContainerHighest,
-          borderRadius: BorderRadius.circular(size * .32),
+          borderRadius: radius,
+        ),
+        foregroundDecoration: BoxDecoration(
+          borderRadius: radius,
           border: Border.all(
             color: scheme.outlineVariant.withValues(alpha: .2),
           ),
         ),
-        child: uploaded
-            ? ClipRRect(
-                borderRadius: BorderRadius.circular(size * .15),
-                child: Image.file(
-                  File(customIconPath!),
-                  fit: BoxFit.contain,
-                  cacheWidth: pixels,
-                  cacheHeight: pixels,
-                  errorBuilder: (_, _, _) => fallback,
-                ),
-              )
-            : asset != null
-            ? SvgPicture.asset(
-                asset,
-                colorFilter: ColorFilter.mode(
-                  Color(service!.color),
-                  BlendMode.srcIn,
-                ),
-                semanticsLabel: service.name,
+        child: image != null
+            ? Image(
+                image: image,
+                fit: BoxFit.contain,
+                isAntiAlias: true,
+                filterQuality: FilterQuality.high,
+                color: !uploaded && service?.preserveColors == false
+                    ? Color(service!.color)
+                    : null,
+                colorBlendMode: BlendMode.srcIn,
+                excludeFromSemantics: true,
+                errorBuilder: (_, _, _) => fallback,
               )
             : fallback,
       ),
@@ -224,6 +243,11 @@ class _ServicePickerState extends State<_ServicePicker> {
                             onChanged: (v) => setState(() => query = v),
                           ),
                           const SizedBox(height: 12),
+                          Text(
+                            '${results.length} сервисов',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                          const SizedBox(height: 8),
                           SingleChildScrollView(
                             scrollDirection: Axis.horizontal,
                             child: Row(

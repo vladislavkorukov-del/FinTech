@@ -9,11 +9,11 @@ import 'package:finora/presentation/controller.dart';
 import 'package:finora/presentation/screens/management.dart';
 import 'package:finora/presentation/theme/app_theme.dart';
 import 'package:finora/presentation/widgets/service_badge.dart';
+import 'package:finora/presentation/widgets/service_logo_image.dart';
 import 'package:finora/services/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -183,7 +183,7 @@ void main() {
         containsAll(['youtube_premium', 'youtube_music']),
       );
       expect(ServiceCatalog.search('СЕРФШАРК').single.id, 'surfshark');
-      expect(ServiceCatalog.byId('okko')!.assetPath, isNull);
+      expect(ServiceCatalog.byId('okko')!.assetPath, isNotNull);
       expect(ServiceCatalog.byName('NETFLIX')!.id, 'netflix');
       expect(ServiceCatalog.byName('Спотифай')!.id, 'spotify');
       expect(ServiceCatalog.byName('Netflix Family'), isNull);
@@ -208,8 +208,15 @@ void main() {
           row['sha256'],
           reason: row['id'] as String,
         );
-        expect(utf8.decode(bytes), startsWith('<svg'));
-        expect(row['svgUrl'], contains(manifest['sourceCommit']));
+        if ((row['assetPath'] as String).endsWith('.svg')) {
+          expect(utf8.decode(bytes), contains('<svg'));
+        } else {
+          expect(bytes.length, greaterThan(100));
+        }
+        expect(row['downloadUrl'] ?? row['svgUrl'], startsWith('https://'));
+        if (row['svgUrl'] != null) {
+          expect(row['svgUrl'], contains(manifest['sourceCommit']));
+        }
         logos++;
       }
       expect(logos, greaterThanOrEqualTo(40));
@@ -262,7 +269,10 @@ void main() {
         find.byKey(const ValueKey('service-option-spotify')),
         findsOneWidget,
       );
-      expect(find.byType(SvgPicture), findsWidgets);
+      expect(
+        find.byWidgetPredicate((w) => w is Image && w.image is ServiceSvgImage),
+        findsWidgets,
+      );
       await tester.tap(find.byKey(const ValueKey('service-option-spotify')));
       await tester.pumpAndSettle();
       expect(
@@ -496,8 +506,11 @@ void main() {
           ),
         ),
       );
-      expect(find.byType(SvgPicture), findsOneWidget);
-      expect(find.byType(Image), findsOneWidget);
+      expect(
+        find.byWidgetPredicate((w) => w is Image && w.image is ServiceSvgImage),
+        findsOneWidget,
+      );
+      expect(find.byType(Image), findsNWidgets(2));
       expect(find.byIcon(Icons.subscriptions_outlined), findsOneWidget);
       expect(tester.takeException(), isNull);
     },
@@ -552,7 +565,7 @@ void main() {
   );
 
   testWidgets(
-    'service picker fits a small screen with large text and neutral missing-logo fallback',
+    'service picker fits a small screen with large text and genuine Okko artwork',
     (tester) async {
       await mount(
         tester,
@@ -577,8 +590,8 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(find.byKey(const ValueKey('service-option-okko')), findsOneWidget);
-      expect(find.byType(SvgPicture), findsNothing);
-      expect(find.byIcon(Icons.subscriptions_outlined), findsOneWidget);
+      expect(find.byType(Image), findsOneWidget);
+      expect(find.byIcon(Icons.subscriptions_outlined), findsNothing);
       expect(tester.takeException(), isNull);
     },
   );

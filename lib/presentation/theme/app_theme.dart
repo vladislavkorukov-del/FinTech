@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'reference_palettes.dart';
+
 /// Shared dimensions keep dense finance views calm and consistent.
 abstract final class Space {
   static const double xs = 6, sm = 12, md = 20, lg = 28, xl = 36;
@@ -99,10 +101,20 @@ abstract final class AppTheme {
     'graphite': 'Graphite · строгий',
     'paper': 'Paper · мягкий',
     'midnight': 'Midnight · глубокий',
+    'harbor': 'Harbor · морской',
+    'forest': 'Forest · природный',
+    'velvet': 'Lavender · мягкий',
+    'aurora': 'Aurora · вечерний',
+    'royal': 'Royal / Nitro · контрастный',
   };
 
   static Color accent(String value) => switch (value) {
     'coffee' => coffeeHighlight,
+    'harbor' => referencePalettes['harbor']!.accent,
+    'forest' => referencePalettes['forest']!.accent,
+    'velvet' => referencePalettes['velvet']!.accent,
+    'aurora' => referencePalettes['aurora']!.accent,
+    'royal' => referencePalettes['royal']!.accent,
     'electric' => electric,
     'sage' => sage,
     'graphite' => const Color(0xFFBFC9B4),
@@ -115,6 +127,10 @@ abstract final class AppTheme {
   static ThemeData build(Brightness brightness, String selected) {
     if (selected == 'coffee') {
       return _coffee(brightness);
+    }
+    final reference = referencePalettes[selected];
+    if (reference != null) {
+      return _reference(brightness, reference);
     }
     final dark = brightness == Brightness.dark;
     final seed = accent(selected);
@@ -332,6 +348,411 @@ abstract final class AppTheme {
         ),
       ),
     );
+  }
+
+  /// One component mapping serves all five references. Coffee and the earlier
+  /// presets retain their own mappings so existing preferences do not change.
+  static ThemeData _reference(Brightness brightness, ReferencePalette palette) {
+    final dark = brightness == Brightness.dark;
+    final inherited = build(brightness, 'lime');
+    final base = dark
+        ? palette.base
+        : Color.lerp(palette.ink, Colors.white, .84)!;
+    final card = dark
+        ? palette.card
+        : Color.lerp(palette.ink, Colors.white, .95)!;
+    final panel = dark
+        ? palette.panel
+        : Color.lerp(palette.panel, Colors.white, .88)!;
+    final ink = dark ? palette.ink : palette.base;
+    final inputFill = dark ? Color.lerp(panel, card, .6)! : panel;
+    final surfaces = [base, card];
+    final mutedInk = _readable(Color.lerp(ink, card, .26)!, surfaces);
+    final actionInk = _readable(palette.accent, surfaces);
+    final accentInk = _onFill(palette.accent, palette);
+    final buttonInk = _onFill(palette.panel, palette);
+    final line = Color.lerp(
+      palette.panel,
+      dark ? palette.ink : palette.base,
+      .25,
+    )!;
+    final subtleLine = dark
+        ? palette.panel
+        : Color.lerp(palette.panel, Colors.white, .68)!;
+    final inverse = dark ? palette.ink : palette.card;
+    final inverseInk = _onFill(inverse, palette);
+    final colors = FinanceColors(
+      income: _readable(palette.accent, surfaces),
+      expense: _readable(palette.signal, surfaces),
+      iconBackground: panel,
+      iconForeground: _onFill(panel, palette),
+      brandBackground: card,
+      brandForeground: ink,
+    );
+    final scheme = inherited.colorScheme.copyWith(
+      primary: actionInk,
+      onPrimary: _onFill(actionInk, palette),
+      primaryContainer: panel,
+      onPrimaryContainer: colors.iconForeground,
+      secondary: palette.panel,
+      onSecondary: buttonInk,
+      secondaryContainer: panel,
+      onSecondaryContainer: ink,
+      tertiary: palette.signal,
+      onTertiary: _onFill(palette.signal, palette),
+      tertiaryContainer: dark
+          ? Color.lerp(palette.signal, card, .72)!
+          : Color.lerp(palette.signal, Colors.white, .9)!,
+      onTertiaryContainer: ink,
+      surface: card,
+      onSurface: ink,
+      onSurfaceVariant: mutedInk,
+      surfaceContainerLowest: base,
+      surfaceContainerLow: card,
+      surfaceContainer: card,
+      surfaceContainerHigh: panel,
+      surfaceContainerHighest: dark
+          ? Color.lerp(palette.panel, palette.signal, .22)!
+          : Color.lerp(palette.panel, Colors.white, .8)!,
+      outline: line,
+      outlineVariant: subtleLine,
+      surfaceTint: Colors.transparent,
+      inverseSurface: inverse,
+      onInverseSurface: inverseInk,
+      inversePrimary: _readable(palette.accent, [inverse]),
+      error: dark ? const Color(0xFFFFB4AB) : const Color(0xFF9C3331),
+      onError: dark ? const Color(0xFF5F1411) : Colors.white,
+      errorContainer: dark ? const Color(0xFF5F1411) : const Color(0xFFFFDAD6),
+      onErrorContainer: dark
+          ? const Color(0xFFFFDAD6)
+          : const Color(0xFF5F1411),
+    );
+    final shape = RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(18),
+    );
+    Color selectedInk(Set<WidgetState> states) =>
+        states.contains(WidgetState.selected) ? accentInk : ink;
+    Color selectedFill(Set<WidgetState> states) =>
+        states.contains(WidgetState.selected) ? palette.accent : card;
+    Color dayInk(Set<WidgetState> states) =>
+        states.contains(WidgetState.disabled)
+        ? mutedInk.withValues(alpha: .4)
+        : selectedInk(states);
+    Color dayFill(Set<WidgetState> states) =>
+        states.contains(WidgetState.selected)
+        ? palette.accent
+        : Colors.transparent;
+    return inherited.copyWith(
+      colorScheme: scheme,
+      canvasColor: card,
+      cardColor: card,
+      dividerColor: subtleLine,
+      primaryColor: palette.accent,
+      focusColor: palette.accent.withValues(alpha: .16),
+      hoverColor: palette.accent.withValues(alpha: .06),
+      highlightColor: palette.accent.withValues(alpha: .12),
+      splashColor: palette.accent.withValues(alpha: .12),
+      scaffoldBackgroundColor: base,
+      extensions: [colors],
+      textTheme: inherited.textTheme.apply(bodyColor: ink, displayColor: ink),
+      appBarTheme: inherited.appBarTheme.copyWith(foregroundColor: ink),
+      iconTheme: IconThemeData(color: colors.iconForeground),
+      dividerTheme: inherited.dividerTheme.copyWith(color: subtleLine),
+      cardTheme: CardThemeData(
+        color: card,
+        surfaceTintColor: Colors.transparent,
+      ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: card,
+        surfaceTintColor: Colors.transparent,
+        titleTextStyle: inherited.textTheme.headlineSmall?.copyWith(color: ink),
+        contentTextStyle: inherited.textTheme.bodyMedium?.copyWith(
+          color: mutedInk,
+        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      ),
+      bottomSheetTheme: inherited.bottomSheetTheme.copyWith(
+        backgroundColor: card,
+        dragHandleColor: line,
+      ),
+      tooltipTheme: TooltipThemeData(
+        decoration: BoxDecoration(
+          color: inverse,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        textStyle: TextStyle(color: inverseInk),
+      ),
+      menuTheme: MenuThemeData(
+        style: MenuStyle(
+          backgroundColor: WidgetStatePropertyAll(card),
+          surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
+        ),
+      ),
+      dropdownMenuTheme: DropdownMenuThemeData(
+        textStyle: TextStyle(color: ink),
+        menuStyle: MenuStyle(
+          backgroundColor: WidgetStatePropertyAll(card),
+          surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
+        ),
+      ),
+      drawerTheme: DrawerThemeData(
+        backgroundColor: card,
+        surfaceTintColor: Colors.transparent,
+      ),
+      bottomAppBarTheme: BottomAppBarThemeData(
+        color: card,
+        surfaceTintColor: Colors.transparent,
+      ),
+      listTileTheme: ListTileThemeData(
+        textColor: ink,
+        iconColor: _readable(palette.accent, surfaces),
+        selectedColor: actionInk,
+        selectedTileColor: Color.alphaBlend(
+          palette.accent.withValues(alpha: .12),
+          card,
+        ),
+      ),
+      tabBarTheme: TabBarThemeData(
+        labelColor: actionInk,
+        unselectedLabelColor: mutedInk,
+        indicatorColor: actionInk,
+        dividerColor: subtleLine,
+      ),
+      searchBarTheme: SearchBarThemeData(
+        backgroundColor: WidgetStatePropertyAll(card),
+        textStyle: WidgetStatePropertyAll(TextStyle(color: ink)),
+        hintStyle: WidgetStatePropertyAll(TextStyle(color: mutedInk)),
+      ),
+      searchViewTheme: SearchViewThemeData(
+        backgroundColor: card,
+        headerTextStyle: TextStyle(color: ink),
+        headerHintStyle: TextStyle(color: mutedInk),
+      ),
+      popupMenuTheme: PopupMenuThemeData(
+        color: card,
+        surfaceTintColor: Colors.transparent,
+        textStyle: TextStyle(color: ink),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      ),
+      inputDecorationTheme: inherited.inputDecorationTheme.copyWith(
+        fillColor: inputFill,
+        labelStyle: TextStyle(color: _readable(mutedInk, [inputFill])),
+        hintStyle: TextStyle(color: _readable(mutedInk, [inputFill])),
+        prefixIconColor: colors.iconForeground,
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: subtleLine),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: actionInk, width: 1.5),
+        ),
+      ),
+      textSelectionTheme: TextSelectionThemeData(
+        cursorColor: actionInk,
+        selectionColor: palette.accent.withValues(alpha: .25),
+        selectionHandleColor: actionInk,
+      ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          backgroundColor: palette.panel,
+          foregroundColor: buttonInk,
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 17),
+          shape: shape,
+        ),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: palette.panel,
+          foregroundColor: buttonInk,
+          surfaceTintColor: Colors.transparent,
+          shape: shape,
+        ),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(foregroundColor: actionInk),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: ink,
+          side: BorderSide(color: subtleLine),
+          shape: shape,
+        ),
+      ),
+      iconButtonTheme: IconButtonThemeData(
+        style: IconButton.styleFrom(
+          foregroundColor: _readable(palette.accent, surfaces),
+        ),
+      ),
+      chipTheme: inherited.chipTheme.copyWith(
+        backgroundColor: card,
+        selectedColor: palette.accent,
+        secondarySelectedColor: palette.accent,
+        side: BorderSide(color: subtleLine),
+        labelStyle: WidgetStateTextStyle.resolveWith(
+          (states) => TextStyle(color: selectedInk(states)),
+        ),
+        secondaryLabelStyle: TextStyle(color: accentInk),
+        checkmarkColor: accentInk,
+      ),
+      segmentedButtonTheme: SegmentedButtonThemeData(
+        style: ButtonStyle(
+          foregroundColor: WidgetStateProperty.resolveWith(selectedInk),
+          backgroundColor: WidgetStateProperty.resolveWith(selectedFill),
+          side: WidgetStatePropertyAll(BorderSide(color: subtleLine)),
+        ),
+      ),
+      switchTheme: SwitchThemeData(
+        thumbColor: WidgetStateProperty.resolveWith(
+          (states) =>
+              states.contains(WidgetState.selected) ? accentInk : mutedInk,
+        ),
+        trackColor: WidgetStateProperty.resolveWith(
+          (states) =>
+              states.contains(WidgetState.selected) ? palette.accent : panel,
+        ),
+      ),
+      checkboxTheme: CheckboxThemeData(
+        fillColor: WidgetStateProperty.resolveWith(
+          (states) =>
+              states.contains(WidgetState.selected) ? palette.accent : null,
+        ),
+        checkColor: WidgetStatePropertyAll(accentInk),
+        side: BorderSide(color: line),
+      ),
+      radioTheme: RadioThemeData(
+        fillColor: WidgetStateProperty.resolveWith(
+          (states) =>
+              states.contains(WidgetState.selected) ? actionInk : mutedInk,
+        ),
+      ),
+      sliderTheme: SliderThemeData(
+        activeTrackColor: actionInk,
+        thumbColor: actionInk,
+        inactiveTrackColor: subtleLine,
+        overlayColor: palette.accent.withValues(alpha: .12),
+        valueIndicatorColor: palette.panel,
+        valueIndicatorTextStyle: TextStyle(color: buttonInk),
+      ),
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: card,
+        indicatorColor: palette.accent,
+        iconTheme: WidgetStateProperty.resolveWith(
+          (states) => IconThemeData(color: selectedInk(states)),
+        ),
+        labelTextStyle: WidgetStateProperty.resolveWith(
+          (states) => TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w500,
+            color: states.contains(WidgetState.selected) ? actionInk : mutedInk,
+          ),
+        ),
+      ),
+      navigationRailTheme: NavigationRailThemeData(
+        backgroundColor: card,
+        indicatorColor: palette.accent,
+        selectedIconTheme: IconThemeData(color: accentInk),
+        unselectedIconTheme: IconThemeData(color: mutedInk),
+        selectedLabelTextStyle: TextStyle(color: actionInk),
+        unselectedLabelTextStyle: TextStyle(color: mutedInk),
+      ),
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
+        backgroundColor: card,
+        selectedItemColor: actionInk,
+        unselectedItemColor: mutedInk,
+      ),
+      progressIndicatorTheme: ProgressIndicatorThemeData(
+        color: actionInk,
+        linearTrackColor: subtleLine,
+      ),
+      snackBarTheme: inherited.snackBarTheme.copyWith(
+        backgroundColor: inverse,
+        contentTextStyle: TextStyle(color: inverseInk),
+        actionTextColor: _readable(palette.accent, [inverse]),
+      ),
+      datePickerTheme: DatePickerThemeData(
+        backgroundColor: card,
+        surfaceTintColor: Colors.transparent,
+        headerBackgroundColor: card,
+        headerForegroundColor: ink,
+        weekdayStyle: TextStyle(color: mutedInk),
+        dayForegroundColor: WidgetStateProperty.resolveWith(dayInk),
+        dayBackgroundColor: WidgetStateProperty.resolveWith(dayFill),
+        todayForegroundColor: WidgetStateProperty.resolveWith(selectedInk),
+        todayBackgroundColor: WidgetStateProperty.resolveWith(dayFill),
+        todayBorder: BorderSide(color: actionInk),
+        yearForegroundColor: WidgetStateProperty.resolveWith(dayInk),
+        yearBackgroundColor: WidgetStateProperty.resolveWith(dayFill),
+        rangePickerBackgroundColor: card,
+        rangePickerSurfaceTintColor: Colors.transparent,
+        rangePickerHeaderBackgroundColor: card,
+        rangePickerHeaderForegroundColor: ink,
+        rangeSelectionBackgroundColor: palette.accent.withValues(alpha: .16),
+        dividerColor: subtleLine,
+      ),
+      timePickerTheme: TimePickerThemeData(
+        backgroundColor: card,
+        dialBackgroundColor: panel,
+        dialHandColor: palette.accent,
+        dialTextColor: WidgetStateColor.resolveWith(
+          (states) => states.contains(WidgetState.selected)
+              ? accentInk
+              : colors.iconForeground,
+        ),
+        hourMinuteColor: WidgetStateColor.resolveWith(
+          (states) =>
+              states.contains(WidgetState.selected) ? palette.accent : panel,
+        ),
+        hourMinuteTextColor: WidgetStateColor.resolveWith(
+          (states) => states.contains(WidgetState.selected)
+              ? accentInk
+              : colors.iconForeground,
+        ),
+        dayPeriodColor: WidgetStateColor.resolveWith(selectedFill),
+        dayPeriodTextColor: WidgetStateColor.resolveWith(selectedInk),
+        entryModeIconColor: actionInk,
+        helpTextStyle: TextStyle(color: mutedInk),
+      ),
+      floatingActionButtonTheme: FloatingActionButtonThemeData(
+        backgroundColor: palette.panel,
+        foregroundColor: buttonInk,
+      ),
+    );
+  }
+
+  static double _contrast(Color foreground, Color background) {
+    final a = foreground.computeLuminance(), b = background.computeLuminance();
+    return a > b ? (a + .05) / (b + .05) : (b + .05) / (a + .05);
+  }
+
+  static Color _onFill(Color fill, ReferencePalette palette) {
+    final candidate =
+        _contrast(palette.base, fill) >= _contrast(palette.ink, fill)
+        ? palette.base
+        : palette.ink;
+    if (_contrast(candidate, fill) >= 4.5) return candidate;
+    return _contrast(Colors.black, fill) >= _contrast(Colors.white, fill)
+        ? Colors.black
+        : Colors.white;
+  }
+
+  /// Preserve hue whenever possible; move only text toward white/black until
+  /// it reaches AA on all surfaces where the same semantic amount is displayed.
+  static Color _readable(Color original, List<Color> backgrounds) {
+    bool passes(Color value) =>
+        backgrounds.every((bg) => _contrast(value, bg) >= 4.5);
+    if (passes(original)) return original;
+    double worst(Color value) => backgrounds
+        .map((bg) => _contrast(value, bg))
+        .reduce((a, b) => a < b ? a : b);
+    final target = worst(Colors.white) > worst(Colors.black)
+        ? Colors.white
+        : Colors.black;
+    for (var step = 1; step <= 100; step++) {
+      final value = Color.lerp(original, target, step / 100)!;
+      if (passes(value)) return value;
+    }
+    return target;
   }
 
   static ThemeData _coffee(Brightness brightness) {

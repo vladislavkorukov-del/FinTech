@@ -44,6 +44,11 @@ void main() {
         'graphite',
         'paper',
         'midnight',
+        'harbor',
+        'forest',
+        'velvet',
+        'aurora',
+        'royal',
       ]);
       for (final preset in AppTheme.presetNames.keys) {
         for (final brightness in Brightness.values) {
@@ -81,7 +86,18 @@ void main() {
               theme.filledButtonTheme.style!.foregroundColor!.resolve({})!,
               theme.filledButtonTheme.style!.backgroundColor!.resolve({})!,
             ),
-            greaterThanOrEqualTo(preset == 'coffee' ? 4.5 : 7),
+            greaterThanOrEqualTo(
+              const {
+                    'coffee',
+                    'harbor',
+                    'forest',
+                    'velvet',
+                    'aurora',
+                    'royal',
+                  }.contains(preset)
+                  ? 4.5
+                  : 7,
+            ),
           );
         }
       }

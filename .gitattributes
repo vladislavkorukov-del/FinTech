@@ -1,0 +1,2 @@
+# Preserve vendor artwork byte-for-byte, including original CRLF and EOF layout.
+assets/services/*.svg -text whitespace=cr-at-eol,-blank-at-eof

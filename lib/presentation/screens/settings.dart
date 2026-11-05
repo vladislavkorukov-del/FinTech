@@ -534,7 +534,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 const Padding(
                   padding: EdgeInsets.symmetric(vertical: 16),
                   child: Text(
-                    'Finance · 1.2.0',
+                    'Finance · 1.3.0',
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 12),
                   ),

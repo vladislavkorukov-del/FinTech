@@ -70,13 +70,28 @@
         "яндекс+",
         "yandex+"
       ],
-      "assetPath": null,
-      "color": null,
+      "assetPath": "assets/services/yandex_plus.svg",
+      "color": "000000",
       "simpleIconsTitle": null,
-      "source": null,
-      "license": null,
+      "source": "https://plus.yandex.ru/",
+      "license": {
+        "type": "Proprietary trademark; no open redistribution license asserted"
+      },
       "svgUrl": null,
-      "sha256": null
+      "sha256": "b95bc707a1a8a64b5ff8325d63d5bcafd9641a601dda25590132f6cba1d18885",
+      "preserveColors": true,
+      "background": "#FFFFFF",
+      "inset": 0.06,
+      "sourceUrl": "https://plus.yandex.ru/",
+      "downloadUrl": "https://yastatic.net/s3/plus-home-service/releases/v148.1/_next/static/media/plus_ru.c5d8c7ff.svg?dpl=Home-148-1",
+      "bytes": 3449,
+      "mime": "image/svg+xml",
+      "licenseNotes": "Exact unmodified official service asset; identification only. Brand trademark/copyright retained by owner.",
+      "renderNotes": "Original vector wordmark Плюс, not round symbol. Gradient paths only; suitable at arbitrary pixel density.",
+      "dimensions": null,
+      "svgViewBox": "0 0 54 20",
+      "discoveryUrl": "https://yastatic.net/s3/plus-home-service/releases/v148.1/_next/static/css/e0c7c3bbcd60d2d9.css?dpl=Home-148-1",
+      "sourceNotes": "Official public branded not-found HTML references static CSS whose .plogo_plus_ru class references this wordmark. Canonical service https://plus.yandex.ru/."
     },
     {
       "id": "kinopoisk",
@@ -183,31 +198,53 @@
         "гугл облако",
         "google one"
       ],
-      "assetPath": null,
-      "color": null,
+      "assetPath": "assets/services/google_one.png",
+      "color": "000000",
       "simpleIconsTitle": null,
-      "source": null,
-      "license": null,
+      "source": "https://play.google.com/store/apps/details?id=com.google.android.apps.subscriptions.red&hl=en",
+      "license": {
+        "type": "Proprietary trademark; no open redistribution license asserted"
+      },
       "svgUrl": null,
-      "sha256": null
+      "sha256": "25f73d199b55bde3a7d57278379840ec9617f113c22c6e2019f9102985b21eec",
+      "preserveColors": true,
+      "background": "#FFFFFF",
+      "inset": 0,
+      "sourceUrl": "https://play.google.com/store/apps/details?id=com.google.android.apps.subscriptions.red&hl=en",
+      "downloadUrl": "https://play-lh.googleusercontent.com/pnaxOl9i4YnkYKGMYkH17y_hA_FJOZRahlRGHQaaEGuLwPme68AfPShN2na5dEGOsem3hEzFvWXMz62WPVx8=w480-h960",
+      "bytes": 9672,
+      "mime": "image/png",
+      "licenseNotes": "Original unmodified artwork used for service identification. Public availability is not an open license; brand owner retains copyright and trademark rights.",
+      "renderNotes": "Original artwork, not recolored, redrawn or vector-edited."
     },
     {
       "id": "chatgpt",
       "name": "ChatGPT",
-      "group": "productivity",
+      "group": "ai",
       "aliases": [
         "чатгпт",
         "чат гпт",
         "openai",
         "чат джипити"
       ],
-      "assetPath": null,
-      "color": null,
+      "assetPath": "assets/services/chatgpt.png",
+      "color": "000000",
       "simpleIconsTitle": null,
-      "source": null,
-      "license": null,
+      "source": "https://chatgpt.com",
+      "license": {
+        "type": "Proprietary trademark; no open redistribution license asserted"
+      },
       "svgUrl": null,
-      "sha256": null
+      "sha256": "c450a1e3c375bf5c6d1db10327b59a58f5bd6e4990ffdbf6f292e3d161c668de",
+      "preserveColors": true,
+      "background": "#FFFFFF",
+      "inset": 0.08,
+      "sourceUrl": "https://chatgpt.com",
+      "downloadUrl": "https://chatgpt.com/cdn/assets/favicon-180x180.9e0103ce69.png",
+      "bytes": 5152,
+      "mime": "image/png",
+      "licenseNotes": "Original unmodified artwork used for service identification. Public availability is not an open license; brand owner retains copyright and trademark rights.",
+      "renderNotes": "Original artwork, not recolored, redrawn or vector-edited."
     },
     {
       "id": "okko",
@@ -217,13 +254,29 @@
         "окко",
         "окко кино"
       ],
-      "assetPath": null,
-      "color": null,
+      "assetPath": "assets/services/okko.png",
+      "color": "000000",
       "simpleIconsTitle": null,
-      "source": null,
-      "license": null,
+      "source": "https://about.okko.tv/",
+      "license": {
+        "type": "Proprietary trademark; no open redistribution license asserted"
+      },
       "svgUrl": null,
-      "sha256": null
+      "sha256": "78dbc9911cfee633e4856d0f2aca4118500142d0712e07954b55d8bd3fe41c84",
+      "preserveColors": true,
+      "background": "#FFFFFF",
+      "inset": 0.08,
+      "sourceUrl": "https://about.okko.tv/",
+      "downloadUrl": "https://static.tildacdn.com/tild3538-3830-4061-a438-663164356362/2.png",
+      "bytes": 12890,
+      "mime": "image/png",
+      "licenseNotes": "Exact unmodified official service asset; identification only. Brand trademark/copyright retained by owner.",
+      "renderNotes": "Original bytes, no modifications.",
+      "dimensions": [
+        120,
+        120
+      ],
+      "svgViewBox": null
     },
     {
       "id": "ivi",
@@ -233,13 +286,26 @@
         "ivi",
         "иви"
       ],
-      "assetPath": null,
-      "color": null,
+      "assetPath": "assets/services/ivi.png",
+      "color": "000000",
       "simpleIconsTitle": null,
-      "source": null,
-      "license": null,
+      "source": "https://www.ivi.ru/",
+      "license": {
+        "type": "Proprietary trademark; no open redistribution license asserted"
+      },
       "svgUrl": null,
-      "sha256": null
+      "sha256": "fc8934c73c128e59bfa69966cb8304357d91b2cdce30c36ac4b56bc3a5f33174",
+      "preserveColors": true,
+      "background": "#FFFFFF",
+      "inset": 0,
+      "sourceUrl": "https://www.ivi.ru/",
+      "downloadUrl": "https://s3.dfs.ivi.ru/849c829d658baaeff512d766b0db3cce/dist/release_26.11.01_a0125992/storm/images/apple/192x192-precomposed_int.png",
+      "bytes": 9380,
+      "mime": "image/png",
+      "licenseNotes": "Original unmodified artwork used for service identification. Public availability is not an open license; brand owner retains copyright and trademark rights.",
+      "renderNotes": "Official 192px PNG from Ivi website icon links; selected instead of CSS-styled SVG for native rendering compatibility.",
+      "dimensions": null,
+      "svgViewBox": "0 0 120 120"
     },
     {
       "id": "wink",
@@ -249,13 +315,26 @@
         "винк",
         "ростелеком"
       ],
-      "assetPath": null,
-      "color": null,
+      "assetPath": "assets/services/wink.svg",
+      "color": "000000",
       "simpleIconsTitle": null,
-      "source": null,
-      "license": null,
+      "source": "https://wink.ru/",
+      "license": {
+        "type": "Proprietary trademark; no open redistribution license asserted"
+      },
       "svgUrl": null,
-      "sha256": null
+      "sha256": "a6dba7ef196b0060c8e5d4bd222fa8e77c022aeb1dc83d1dc385ebe7985b5fbd",
+      "preserveColors": true,
+      "background": "#FFFFFF",
+      "inset": 0.08,
+      "sourceUrl": "https://wink.ru/",
+      "downloadUrl": "https://block.wink.ru/icon.svg",
+      "bytes": 240,
+      "mime": "image/svg+xml",
+      "licenseNotes": "Exact unmodified asset referenced by official brand website, for service identification. Brand owner retains trademark/copyright rights. Public availability is not an open license.",
+      "renderNotes": "Original byte stream; not recolored or redrawn. SVG filter/mask present: False SVG elements needing renderer review: none",
+      "dimensions": null,
+      "svgViewBox": "0 0 196 196"
     },
     {
       "id": "start",
@@ -265,13 +344,29 @@
         "старт",
         "start"
       ],
-      "assetPath": null,
-      "color": null,
+      "assetPath": "assets/services/start.png",
+      "color": "000000",
       "simpleIconsTitle": null,
-      "source": null,
-      "license": null,
+      "source": "https://start.ru/",
+      "license": {
+        "type": "Proprietary trademark; no open redistribution license asserted"
+      },
       "svgUrl": null,
-      "sha256": null
+      "sha256": "d48569f7b7d1172451591707e03c4f5a763c025ce573cdbca6c290b881feba70",
+      "preserveColors": true,
+      "background": "#FFFFFF",
+      "inset": 0.08,
+      "sourceUrl": "https://start.ru/",
+      "downloadUrl": "https://start.ru/static/images/favicon/apple-touch-icon.png",
+      "bytes": 3387,
+      "mime": "image/png",
+      "licenseNotes": "Exact unmodified official service asset; identification only. Brand trademark/copyright retained by owner.",
+      "renderNotes": "Original bytes, no modifications.",
+      "dimensions": [
+        180,
+        180
+      ],
+      "svgViewBox": null
     },
     {
       "id": "kion",
@@ -281,13 +376,29 @@
         "кион",
         "мтс кино"
       ],
-      "assetPath": null,
-      "color": null,
+      "assetPath": "assets/services/kion.png",
+      "color": "000000",
       "simpleIconsTitle": null,
-      "source": null,
-      "license": null,
+      "source": "https://kion.ru/",
+      "license": {
+        "type": "Proprietary trademark; no open redistribution license asserted"
+      },
       "svgUrl": null,
-      "sha256": null
+      "sha256": "d32064f8011772cf078f2bad6562089d3337595f9f50ee64470e49f236b25b0b",
+      "preserveColors": true,
+      "background": "#FFFFFF",
+      "inset": 0.08,
+      "sourceUrl": "https://kion.ru/",
+      "downloadUrl": "https://static.kion.ru/kds/assets/icons/web/favicons/apple-touch-icon.png",
+      "bytes": 30319,
+      "mime": "image/png",
+      "licenseNotes": "Exact unmodified asset referenced by official brand website, for service identification. Brand owner retains trademark/copyright rights. Public availability is not an open license.",
+      "renderNotes": "Original byte stream; not recolored or redrawn.",
+      "dimensions": [
+        180,
+        180
+      ],
+      "svgViewBox": null
     },
     {
       "id": "microsoft365",
@@ -300,13 +411,24 @@
         "microsoft365",
         "ms365"
       ],
-      "assetPath": null,
-      "color": null,
+      "assetPath": "assets/services/microsoft365.png",
+      "color": "000000",
       "simpleIconsTitle": null,
-      "source": null,
-      "license": null,
+      "source": "https://www.microsoft365.com/",
+      "license": {
+        "type": "Proprietary trademark; no open redistribution license asserted"
+      },
       "svgUrl": null,
-      "sha256": null
+      "sha256": "bb851de58650d963f08b2de5b8258cbcd856e5421f44071536903538fe1b3dce",
+      "preserveColors": true,
+      "background": "#FFFFFF",
+      "inset": 0.08,
+      "sourceUrl": "https://www.microsoft365.com/",
+      "downloadUrl": "https://res.cdn.office.net/officehub/images/content/images/unauth-mcm/new-hero-copilot-d29d67197c.png",
+      "bytes": 26088,
+      "mime": "image/png",
+      "licenseNotes": "Original unmodified artwork used for service identification. Public availability is not an open license; brand owner retains copyright and trademark rights.",
+      "renderNotes": "Current Microsoft 365 Copilot app icon referenced by official Microsoft 365 landing page hero. Represents the current product branding, not an invented Office logo."
     },
     {
       "id": "dropbox",
@@ -480,7 +602,7 @@
     {
       "id": "github_copilot",
       "name": "GitHub Copilot",
-      "group": "productivity",
+      "group": "ai",
       "aliases": [
         "гитхаб",
         "копилот",
@@ -500,7 +622,7 @@
     {
       "id": "figma",
       "name": "Figma",
-      "group": "productivity",
+      "group": "design",
       "aliases": [
         "фигма",
         "дизайн"
@@ -518,7 +640,7 @@
     {
       "id": "duolingo",
       "name": "Duolingo",
-      "group": "other",
+      "group": "education",
       "aliases": [
         "дуолинго",
         "языки"
@@ -645,7 +767,7 @@
     {
       "id": "audible",
       "name": "Audible",
-      "group": "other",
+      "group": "reading",
       "aliases": [
         "одибл",
         "аудиокниги",
@@ -866,7 +988,7 @@
     {
       "id": "webflow",
       "name": "Webflow",
-      "group": "productivity",
+      "group": "design",
       "aliases": [
         "вебфлоу",
         "сайты"
@@ -1135,6 +1257,3751 @@
       },
       "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/backblaze.svg",
       "sha256": "6d14c7226eafd00abf0b9eb633fd106dbfad2eae7d69faf48562a3676d71c734"
+    },
+    {
+      "id": "claude",
+      "name": "Claude Pro",
+      "group": "ai",
+      "aliases": [
+        "клод",
+        "claude"
+      ],
+      "assetPath": "assets/services/claude.svg",
+      "color": "D97757",
+      "simpleIconsTitle": "Claude",
+      "source": "https://claude.ai",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/claude.svg",
+      "sha256": "2d6fda79eb18ddccca35b799eeb3cece0dfabc22520ce3b10abd25668df9fa93",
+      "bytes": 1921,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "gemini",
+      "name": "Google Gemini",
+      "group": "ai",
+      "aliases": [
+        "джемини",
+        "гемини",
+        "gemini advanced"
+      ],
+      "assetPath": "assets/services/googlegemini.svg",
+      "color": "8E75B2",
+      "simpleIconsTitle": "Google Gemini",
+      "source": "https://gemini.google.com",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/googlegemini.svg",
+      "sha256": "a6228d8846040401e941a39ed17459785e8324dbb7b870ce84233c9b3e9863a0",
+      "bytes": 401,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "mistral_ai",
+      "name": "Mistral AI",
+      "group": "ai",
+      "aliases": [
+        "мистраль"
+      ],
+      "assetPath": "assets/services/mistralai.svg",
+      "color": "FA520F",
+      "simpleIconsTitle": "Mistral AI",
+      "source": "https://chat.mistral.ai",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/mistralai.svg",
+      "sha256": "88f00cf2e82e4d36bb4fdd0e913df200c6e7d6162ec627cc58cfdd6a4eb17d18",
+      "bytes": 290,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "deepseek",
+      "name": "DeepSeek",
+      "group": "ai",
+      "aliases": [
+        "дипсик"
+      ],
+      "assetPath": "assets/services/deepseek.svg",
+      "color": "5786FE",
+      "simpleIconsTitle": "DeepSeek",
+      "source": "https://www.deepseek.com",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/deepseek.svg",
+      "sha256": "7a55a0a7391d116eba7d32807d6838478f9209f6034612941e74fbb14934e2ef",
+      "bytes": 2086,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "hugging_face",
+      "name": "Hugging Face",
+      "group": "ai",
+      "aliases": [
+        "хаггинг фейс"
+      ],
+      "assetPath": "assets/services/huggingface.svg",
+      "color": "FFD21E",
+      "simpleIconsTitle": "Hugging Face",
+      "source": "https://huggingface.co/brand",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/huggingface.svg",
+      "sha256": "aa81744034eecf4ac6b3fb7108dd71223965c7af3c534932391314563b150109",
+      "bytes": 3027,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "replicate",
+      "name": "Replicate",
+      "group": "ai",
+      "aliases": [
+        "репликейт"
+      ],
+      "assetPath": "assets/services/replicate.svg",
+      "color": "000000",
+      "simpleIconsTitle": "Replicate",
+      "source": "https://replicate.com",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/replicate.svg",
+      "sha256": "e59687194f210fc30319202cc66185e83a0bd8962c0d60ab4257bb10b07050d8",
+      "bytes": 215,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "elevenlabs",
+      "name": "ElevenLabs",
+      "group": "ai",
+      "aliases": [
+        "элевенлабс"
+      ],
+      "assetPath": "assets/services/elevenlabs.svg",
+      "color": "000000",
+      "simpleIconsTitle": "ElevenLabs",
+      "source": "https://elevenlabs.io/brand",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/elevenlabs.svg",
+      "sha256": "e7bf01c62c849c3bd59eb117b7479cc8cc47daf941a3cdaaafc4791610fb2a40",
+      "bytes": 158,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "suno",
+      "name": "Suno",
+      "group": "ai",
+      "aliases": [
+        "суно"
+      ],
+      "assetPath": "assets/services/suno.svg",
+      "color": "000000",
+      "simpleIconsTitle": "Suno",
+      "source": "https://suno.com",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/suno.svg",
+      "sha256": "5f1a3ba56ceb857802fb6c70a0351096180aeee407eb567f82dfdf62f197fee8",
+      "bytes": 216,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "poe",
+      "name": "Poe",
+      "group": "ai",
+      "aliases": [
+        "поу"
+      ],
+      "assetPath": "assets/services/poe.svg",
+      "color": "5D5CDE",
+      "simpleIconsTitle": "Poe",
+      "source": "https://poe.com",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/poe.svg",
+      "sha256": "c4b31c084d85000d40ae5c181cffbe5834e1a2e1429816b913308813e8cf613a",
+      "bytes": 2352,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "cursor",
+      "name": "Cursor",
+      "group": "ai",
+      "aliases": [
+        "курсор"
+      ],
+      "assetPath": "assets/services/cursor.svg",
+      "color": "000000",
+      "simpleIconsTitle": "Cursor",
+      "source": "https://cursor.com/brand",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/cursor.svg",
+      "sha256": "71572a9be192cc069ec22b48d785e61d754eeed7edb7d082d615f6d5620f70ec",
+      "bytes": 454,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "windsurf",
+      "name": "Windsurf",
+      "group": "ai",
+      "aliases": [
+        "виндсерф"
+      ],
+      "assetPath": "assets/services/windsurf.svg",
+      "color": "0B100F",
+      "simpleIconsTitle": "Windsurf",
+      "source": "https://windsurf.com/brand",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/windsurf.svg",
+      "sha256": "6a084cb5c1a82bbf3eeda54e3bf450bf8d4a9368d80b815db22116b6b00a2aae",
+      "bytes": 813,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "replit",
+      "name": "Replit",
+      "group": "ai",
+      "aliases": [
+        "реплит"
+      ],
+      "assetPath": "assets/services/replit.svg",
+      "color": "F26207",
+      "simpleIconsTitle": "Replit",
+      "source": "https://repl.it",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/replit.svg",
+      "sha256": "5bb9de88db402d97c33c72704e05072e2cde77df56e2e12ebe79bd00f7dca6f4",
+      "bytes": 326,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "gitpod",
+      "name": "Gitpod",
+      "group": "ai",
+      "aliases": [
+        "гитпод"
+      ],
+      "assetPath": "assets/services/gitpod.svg",
+      "color": "FFAE33",
+      "simpleIconsTitle": "Gitpod",
+      "source": "https://www.gitpod.io",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/gitpod.svg",
+      "sha256": "e335000b399469acfdb6e76f52f17167d56c2e0c6050984b5bd44aaca0f6bbcd",
+      "bytes": 587,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "pandora",
+      "name": "Pandora",
+      "group": "music",
+      "aliases": [
+        "пандора"
+      ],
+      "assetPath": "assets/services/pandora.svg",
+      "color": "224099",
+      "simpleIconsTitle": "Pandora",
+      "source": "https://www.pandoraforbrands.com",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/pandora.svg",
+      "sha256": "e41b7f4c02a46676971ede09cc827a8909e194b41f2c79f25b048f98dda38cae",
+      "bytes": 238,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "distrokid",
+      "name": "Distrokid",
+      "group": "music",
+      "aliases": [
+        "дистрокид"
+      ],
+      "assetPath": "assets/services/distrokid.svg",
+      "color": "231F20",
+      "simpleIconsTitle": "Distrokid",
+      "source": "https://distrokid.com/logo",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/distrokid.svg",
+      "sha256": "bb0bf3bac0fceb03f66fe02540892195217a9302d967f875ed6cb1c3fcaf2c58",
+      "bytes": 1497,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "bandlab",
+      "name": "BandLab Membership",
+      "group": "music",
+      "aliases": [
+        "бэндлаб",
+        "bandlab"
+      ],
+      "assetPath": "assets/services/bandlab.svg",
+      "color": "F12C18",
+      "simpleIconsTitle": "BandLab",
+      "source": "https://www.bandlab.com",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/bandlab.svg",
+      "sha256": "308a6cf1c7ee1622533406bb708d9f17e7765810e68c7f395f189aa20c3d2036",
+      "bytes": 616,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "box",
+      "name": "Box",
+      "group": "cloud",
+      "aliases": [
+        "бокс"
+      ],
+      "assetPath": "assets/services/box.svg",
+      "color": "0061D5",
+      "simpleIconsTitle": "Box",
+      "source": "https://www.box.com/en-gb/about-us/press",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/box.svg",
+      "sha256": "c9ca7b6ad192cd1dcc82669eef3330037ba0f8b798cfe6fe7e98f40f998ed708",
+      "bytes": 1035,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "nextcloud",
+      "name": "Nextcloud Hosting",
+      "group": "cloud",
+      "aliases": [
+        "некстклауд",
+        "nextcloud"
+      ],
+      "assetPath": "assets/services/nextcloud.svg",
+      "color": "0082C9",
+      "simpleIconsTitle": "Nextcloud",
+      "source": "https://nextcloud.com/press/",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/nextcloud.svg",
+      "sha256": "523a9295f2e3a8be7904e9e914ad030a4ae13597421f9ee81122be705b2e60be",
+      "bytes": 858,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "filen",
+      "name": "Filen",
+      "group": "cloud",
+      "aliases": [
+        "файлен"
+      ],
+      "assetPath": "assets/services/filen.svg",
+      "color": "000000",
+      "simpleIconsTitle": "Filen",
+      "source": "https://github.com/FilenCloudDienste/filen-drive-legacy/issues/166#issue-2139393162",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/filen.svg",
+      "sha256": "88aee8e9f4541ce09ded3dd2234f57537835bfcc10fd682baed0c2f405e1dc1b",
+      "bytes": 1007,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "tresorit",
+      "name": "Tresorit",
+      "group": "cloud",
+      "aliases": [
+        "трезорит"
+      ],
+      "assetPath": "assets/services/tresorit.svg",
+      "color": "00A9E2",
+      "simpleIconsTitle": "Tresorit",
+      "source": "https://tresorit.com/press",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/tresorit.svg",
+      "sha256": "d019db69368bc2bdb7e28a751c1583f4dd5f9451655776c1027f3c197ecc5f49",
+      "bytes": 259,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "digitalocean",
+      "name": "DigitalOcean",
+      "group": "cloud",
+      "aliases": [
+        "диджитал оушен"
+      ],
+      "assetPath": "assets/services/digitalocean.svg",
+      "color": "0080FF",
+      "simpleIconsTitle": "DigitalOcean",
+      "source": "https://www.digitalocean.com/press/",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/digitalocean.svg",
+      "sha256": "21c374a43a70f8a833ea6c84c904e64f5a20586714b1e0a16b34cb1d9cf29998",
+      "bytes": 431,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "akamai",
+      "name": "Akamai",
+      "group": "cloud",
+      "aliases": [],
+      "assetPath": "assets/services/akamai.svg",
+      "color": "0096D6",
+      "simpleIconsTitle": "Akamai",
+      "source": "https://www.akamai.com",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/akamai.svg",
+      "sha256": "6ad08dc2620f4a6bafae34cd3c8787ddf01c1cda5f0d940a53ae1800b820382c",
+      "bytes": 829,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "hetzner",
+      "name": "Hetzner",
+      "group": "cloud",
+      "aliases": [
+        "хетцнер"
+      ],
+      "assetPath": "assets/services/hetzner.svg",
+      "color": "D50C2D",
+      "simpleIconsTitle": "Hetzner",
+      "source": "https://www.hetzner.com",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/hetzner.svg",
+      "sha256": "df276671b4076812a5a4b46f4113b0c38f56109f6bd368d1a6f09915b67961b4",
+      "bytes": 410,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "ovh",
+      "name": "OVH",
+      "group": "cloud",
+      "aliases": [],
+      "assetPath": "assets/services/ovh.svg",
+      "color": "123F6D",
+      "simpleIconsTitle": "OVH",
+      "source": "https://www.ovh.com/ca/en/newsroom/",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/ovh.svg",
+      "sha256": "6edb906775201860a3d306b93c652943b207d8f968af05a5e38efc12f87ef4ed",
+      "bytes": 364,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "scaleway",
+      "name": "Scaleway",
+      "group": "cloud",
+      "aliases": [],
+      "assetPath": "assets/services/scaleway.svg",
+      "color": "4F0599",
+      "simpleIconsTitle": "Scaleway",
+      "source": "https://ultraviolet.scaleway.com",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/scaleway.svg",
+      "sha256": "4fc81081bd54878b20e05c9344f34d9e77df4a8f37844f4e29a7cfe99eaeea76",
+      "bytes": 723,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "vultr",
+      "name": "Vultr",
+      "group": "cloud",
+      "aliases": [],
+      "assetPath": "assets/services/vultr.svg",
+      "color": "007BFC",
+      "simpleIconsTitle": "Vultr",
+      "source": "https://www.vultr.com/company/brand-assets",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/vultr.svg",
+      "sha256": "eabba9b156f25d9bc9c1379d05c5b5e9433b88e38146beaa16769c2089b6065a",
+      "bytes": 493,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "upcloud",
+      "name": "UpCloud",
+      "group": "cloud",
+      "aliases": [],
+      "assetPath": "assets/services/upcloud.svg",
+      "color": "7B00FF",
+      "simpleIconsTitle": "UpCloud",
+      "source": "https://upcloud.com/brand-assets/",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/upcloud.svg",
+      "sha256": "2b19f0da1f1f6d57b2dc3e73da0a39950a8471033cbbb00004997f90e00ce4e9",
+      "bytes": 522,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "render",
+      "name": "Render",
+      "group": "cloud",
+      "aliases": [],
+      "assetPath": "assets/services/render.svg",
+      "color": "000000",
+      "simpleIconsTitle": "Render",
+      "source": "https://render.com",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/render.svg",
+      "sha256": "bd1597c44b4417a0f22f4ae6df79f935b4afd850f7a6a6717090b6f46f28e6d6",
+      "bytes": 381,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "railway",
+      "name": "Railway",
+      "group": "cloud",
+      "aliases": [],
+      "assetPath": "assets/services/railway.svg",
+      "color": "0B0D0E",
+      "simpleIconsTitle": "Railway",
+      "source": "https://railway.app",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/railway.svg",
+      "sha256": "1e386a6d03360dd84cd858bc69b3ac9452afc212846a197f7a890898439a7f1d",
+      "bytes": 773,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "fly_io",
+      "name": "Fly.io",
+      "group": "cloud",
+      "aliases": [],
+      "assetPath": "assets/services/flydotio.svg",
+      "color": "24175B",
+      "simpleIconsTitle": "Fly.io",
+      "source": "https://fly.io/docs/about/brand",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/flydotio.svg",
+      "sha256": "8497d184fd8ad4cb6a9faf1961f95b60905d529088099d4c3467b1fed2bdc55f",
+      "bytes": 828,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "vercel",
+      "name": "Vercel",
+      "group": "cloud",
+      "aliases": [
+        "версель"
+      ],
+      "assetPath": "assets/services/vercel.svg",
+      "color": "000000",
+      "simpleIconsTitle": "Vercel",
+      "source": "https://vercel.com/geist/brands",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/vercel.svg",
+      "sha256": "57f1e4135486c566e9878fddd259f7f6bf8ec43f31e7e6e38a36d9e814a1c0e0",
+      "bytes": 132,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "netlify",
+      "name": "Netlify",
+      "group": "cloud",
+      "aliases": [
+        "нетлифай"
+      ],
+      "assetPath": "assets/services/netlify.svg",
+      "color": "00C7B7",
+      "simpleIconsTitle": "Netlify",
+      "source": "https://www.netlify.com/press/",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/netlify.svg",
+      "sha256": "adbe4ef3579ca1ef95e1903ff8599a5a55e5c6531fab3f7edaf2b4adee0f4ef9",
+      "bytes": 656,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "cloudflare",
+      "name": "Cloudflare",
+      "group": "cloud",
+      "aliases": [
+        "клаудфлэр"
+      ],
+      "assetPath": "assets/services/cloudflare.svg",
+      "color": "F38020",
+      "simpleIconsTitle": "Cloudflare",
+      "source": "https://www.cloudflare.com/logo/",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/cloudflare.svg",
+      "sha256": "408096d99907fd99e0863cb5d73f77a72537c6a85fd8d5e2704178a83a891f08",
+      "bytes": 1178,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "pythonanywhere",
+      "name": "PythonAnywhere",
+      "group": "cloud",
+      "aliases": [],
+      "assetPath": "assets/services/pythonanywhere.svg",
+      "color": "1D9FD7",
+      "simpleIconsTitle": "PythonAnywhere",
+      "source": "https://www.pythonanywhere.com",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/pythonanywhere.svg",
+      "sha256": "dd053cb6b4897dde95a59eddf7d83d8577c8b8cef1f057f54fa3dbec3aabbbcb",
+      "bytes": 4899,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "hostinger",
+      "name": "Hostinger",
+      "group": "cloud",
+      "aliases": [
+        "хостингер"
+      ],
+      "assetPath": "assets/services/hostinger.svg",
+      "color": "673DE6",
+      "simpleIconsTitle": "Hostinger",
+      "source": "https://www.hostinger.com/newsroom",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/hostinger.svg",
+      "sha256": "59eae501e770f8e6618132721ac92942b1b01ec3f67b629189c30ba9a64e9b98",
+      "bytes": 351,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "namecheap",
+      "name": "Namecheap",
+      "group": "cloud",
+      "aliases": [],
+      "assetPath": "assets/services/namecheap.svg",
+      "color": "DE3723",
+      "simpleIconsTitle": "Namecheap",
+      "source": "https://www.namecheap.com",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/namecheap.svg",
+      "sha256": "627da072fe9ba357e5fd89eb829cb60448ba476ba3ad320d123495fc5ca9a5dc",
+      "bytes": 689,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "godaddy",
+      "name": "GoDaddy",
+      "group": "cloud",
+      "aliases": [],
+      "assetPath": "assets/services/godaddy.svg",
+      "color": "1BDBDB",
+      "simpleIconsTitle": "GoDaddy",
+      "source": "https://aboutus.godaddy.net/newsroom/media-resources/",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/godaddy.svg",
+      "sha256": "63ecd455036d0811984b32c459b90dc82cbefa426701ffcf5a3217abd81a4735",
+      "bytes": 1149,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "ionos",
+      "name": "Ionos",
+      "group": "cloud",
+      "aliases": [],
+      "assetPath": "assets/services/ionos.svg",
+      "color": "003D8F",
+      "simpleIconsTitle": "Ionos",
+      "source": "https://www.ionos.de",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/ionos.svg",
+      "sha256": "8ce73d1c1af4a747d6b7a892062a90fcaccbb00a7415e4d10da0e68056c7ba33",
+      "bytes": 1799,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "cloudways",
+      "name": "Cloudways",
+      "group": "cloud",
+      "aliases": [],
+      "assetPath": "assets/services/cloudways.svg",
+      "color": "2C39BD",
+      "simpleIconsTitle": "Cloudways",
+      "source": "https://www.cloudways.com/en/media-kit.php",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/cloudways.svg",
+      "sha256": "9dee5326b0a80fdc6a2fc420dcb459ef311fa71ded556413593d05ae77f03e60",
+      "bytes": 1372,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "kinsta",
+      "name": "Kinsta",
+      "group": "cloud",
+      "aliases": [],
+      "assetPath": "assets/services/kinsta.svg",
+      "color": "5333ED",
+      "simpleIconsTitle": "Kinsta",
+      "source": "https://kinsta.com/press",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/kinsta.svg",
+      "sha256": "109f83678aa073c18a57c3ef7a4f4ca9da24de94180d2065c0006dff5fa7c392",
+      "bytes": 3574,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "wp_engine",
+      "name": "WP Engine",
+      "group": "cloud",
+      "aliases": [],
+      "assetPath": "assets/services/wpengine.svg",
+      "color": "0ECAD4",
+      "simpleIconsTitle": "WP Engine",
+      "source": "https://wpengine.com/brand-assets",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/wpengine.svg",
+      "sha256": "f83d9ccd213c8154cfce5aba44fb5e78e4528b0fabdf3d1935eac319c76402ca",
+      "bytes": 542,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "supabase",
+      "name": "Supabase",
+      "group": "cloud",
+      "aliases": [
+        "супабейс"
+      ],
+      "assetPath": "assets/services/supabase.svg",
+      "color": "3FCF8E",
+      "simpleIconsTitle": "Supabase",
+      "source": "https://github.com/supabase/supabase/blob/4031a7549f5d46da7bc79c01d56be4177dc7c114/packages/common/assets/images/supabase-logo-wordmark--light.svg",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/supabase.svg",
+      "sha256": "61bf16d93be418f723ae1e137e57afdad4f185352fbc6dea9482af1e0a89ccf7",
+      "bytes": 303,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "firebase",
+      "name": "Firebase Blaze",
+      "group": "cloud",
+      "aliases": [
+        "файрбейс",
+        "firebase"
+      ],
+      "assetPath": "assets/services/firebase.svg",
+      "color": "DD2C00",
+      "simpleIconsTitle": "Firebase",
+      "source": "https://firebase.google.com/brand-guidelines",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/firebase.svg",
+      "sha256": "3f46d84a41479d7789cc36b82c2b6852e6bbbfd30ebee5b7a3aef7d49758295a",
+      "bytes": 1927,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "mongodb_atlas",
+      "name": "MongoDB Atlas",
+      "group": "cloud",
+      "aliases": [
+        "монгодб",
+        "mongodb"
+      ],
+      "assetPath": "assets/services/mongodb.svg",
+      "color": "47A248",
+      "simpleIconsTitle": "MongoDB",
+      "source": "https://www.mongodb.com/pressroom",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/mongodb.svg",
+      "sha256": "6698757ee85997e8167b2eacaff8395d6987954185488f2e90b88ef387fec6c7",
+      "bytes": 527,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "planetscale",
+      "name": "PlanetScale",
+      "group": "cloud",
+      "aliases": [],
+      "assetPath": "assets/services/planetscale.svg",
+      "color": "000000",
+      "simpleIconsTitle": "PlanetScale",
+      "source": "https://planetscale.com",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/planetscale.svg",
+      "sha256": "ab0f55fdb46c4495ee5528752bf23333479bf200d4af2347215849155ee2c6b8",
+      "bytes": 329,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "neon",
+      "name": "Neon",
+      "group": "cloud",
+      "aliases": [
+        "неон"
+      ],
+      "assetPath": "assets/services/neon.svg",
+      "color": "34D59A",
+      "simpleIconsTitle": "Neon",
+      "source": "https://neon.com/brand",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/neon.svg",
+      "sha256": "5750d31d5f07d3e5bcf7db3d7202111f863d39cb2f78aeeec0987a427819387e",
+      "bytes": 193,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "upstash",
+      "name": "Upstash",
+      "group": "cloud",
+      "aliases": [],
+      "assetPath": "assets/services/upstash.svg",
+      "color": "00E9A3",
+      "simpleIconsTitle": "Upstash",
+      "source": "https://upstash.com",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/upstash.svg",
+      "sha256": "a4a5e46e5be6ad38140cd3ad59dec2022ccbe6aba6d9ffaf67ee6d376c179f1e",
+      "bytes": 814,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "turso",
+      "name": "Turso",
+      "group": "cloud",
+      "aliases": [],
+      "assetPath": "assets/services/turso.svg",
+      "color": "4FF8D2",
+      "simpleIconsTitle": "Turso",
+      "source": "https://turso.tech",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/turso.svg",
+      "sha256": "1944fde231d3137dcf5a5601ad0078087b375e8b90ce81158b1ef120867b2b2f",
+      "bytes": 922,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "convex",
+      "name": "Convex",
+      "group": "cloud",
+      "aliases": [],
+      "assetPath": "assets/services/convex.svg",
+      "color": "EE342F",
+      "simpleIconsTitle": "Convex",
+      "source": "https://www.convex.dev/brand",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/convex.svg",
+      "sha256": "9eded25fb3646b6115b1d7ab24a37e0d49387a81962c25c3875cc7b6885e6395",
+      "bytes": 643,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "appwrite",
+      "name": "Appwrite",
+      "group": "cloud",
+      "aliases": [],
+      "assetPath": "assets/services/appwrite.svg",
+      "color": "FD366E",
+      "simpleIconsTitle": "Appwrite",
+      "source": "https://appwrite.io/assets",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/appwrite.svg",
+      "sha256": "8345942aa27704b9c77804606f4d6fcada26d1e80c94dfd6740ce032a9e97c43",
+      "bytes": 494,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "geforce_now",
+      "name": "GeForce NOW",
+      "group": "games",
+      "aliases": [
+        "джифорс нау",
+        "нвидиа",
+        "nvidia"
+      ],
+      "assetPath": "assets/services/nvidia.svg",
+      "color": "76B900",
+      "simpleIconsTitle": "NVIDIA",
+      "source": "https://www.nvidia.com/en-us",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/nvidia.svg",
+      "sha256": "b0e4cfc12712c840d4d630c9a717200fbd09aeeadbd3faeac13bda2e2ed050b0",
+      "bytes": 881,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "ubisoft_plus",
+      "name": "Ubisoft+",
+      "group": "games",
+      "aliases": [
+        "юбисофт плюс",
+        "ubisoft plus"
+      ],
+      "assetPath": "assets/services/ubisoft.svg",
+      "color": "000000",
+      "simpleIconsTitle": "Ubisoft",
+      "source": "https://www.ubisoft.com/en-US/company/overview.aspx",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/ubisoft.svg",
+      "sha256": "acc82ae60c2615201906e42f6bdbaa4d78379c43b07a3c74f98a6c630ff1e0b8",
+      "bytes": 1022,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "humble_choice",
+      "name": "Humble Choice",
+      "group": "games",
+      "aliases": [
+        "хамбл чойс",
+        "humble bundle"
+      ],
+      "assetPath": "assets/services/humblebundle.svg",
+      "color": "CC2929",
+      "simpleIconsTitle": "Humble Bundle",
+      "source": "https://support.humblebundle.com/hc/en-us/articles/202742060-Bundle-Logos",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/humblebundle.svg",
+      "sha256": "554748b96afad82b7f3de5997dfaca7f4cc68e2949c20193cf0e23ea802f972e",
+      "bytes": 590,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "shadow",
+      "name": "Shadow",
+      "group": "games",
+      "aliases": [],
+      "assetPath": "assets/services/shadow.svg",
+      "color": "0A0C0D",
+      "simpleIconsTitle": "Shadow",
+      "source": "https://shadow.tech",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/shadow.svg",
+      "sha256": "bbf6681da4344668bda54244a17453dbeb442ab3fbbbc36f5c1e3faf81523f50",
+      "bytes": 386,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "roblox_premium",
+      "name": "Roblox Premium",
+      "group": "games",
+      "aliases": [
+        "роблокс"
+      ],
+      "assetPath": "assets/services/roblox.svg",
+      "color": "000000",
+      "simpleIconsTitle": "Roblox",
+      "source": "https://www.roblox.com",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/roblox.svg",
+      "sha256": "9245b2f23fde91a5ef34f36aea32c1bf08a1a1254c08b86e7f060a4f72986234",
+      "bytes": 204,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "ea_play",
+      "name": "EA Play",
+      "group": "games",
+      "aliases": [
+        "еа плей",
+        "electronic arts"
+      ],
+      "assetPath": "assets/services/ea.svg",
+      "color": "000000",
+      "simpleIconsTitle": "EA",
+      "source": "https://www.ea.com",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/ea.svg",
+      "sha256": "b44e7f78dcb26868c4f55bd06519b195055eccdb9937b053dc0b4da14301e77a",
+      "bytes": 309,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "private_internet_access",
+      "name": "Private Internet Access",
+      "group": "security",
+      "aliases": [
+        "пиа",
+        "pia vpn"
+      ],
+      "assetPath": "assets/services/privateinternetaccess.svg",
+      "color": "1E811F",
+      "simpleIconsTitle": "Private Internet Access",
+      "source": "https://www.privateinternetaccess.com",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/privateinternetaccess.svg",
+      "sha256": "ae07774b80018d88cd022540724bc2367edfdbb79055def0cd942a5805a42cb5",
+      "bytes": 1354,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "adguard",
+      "name": "AdGuard",
+      "group": "security",
+      "aliases": [
+        "адгард"
+      ],
+      "assetPath": "assets/services/adguard.svg",
+      "color": "68BC71",
+      "simpleIconsTitle": "AdGuard",
+      "source": "https://adguard.com/en/media-materials.html",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/adguard.svg",
+      "sha256": "f84e09836ad10d2df83b4e3c8e4d7d7a6904d314fa50f95deaa4ad56328f29ce",
+      "bytes": 370,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "norton",
+      "name": "Norton",
+      "group": "security",
+      "aliases": [
+        "нортон"
+      ],
+      "assetPath": "assets/services/norton.svg",
+      "color": "FFE01A",
+      "simpleIconsTitle": "Norton",
+      "source": "https://us.norton.com",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/norton.svg",
+      "sha256": "15a246f4573cd4fc8fe10bcd7ef9d1aceafd12897062a9859274884c4e207e21",
+      "bytes": 570,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "mcafee",
+      "name": "McAfee",
+      "group": "security",
+      "aliases": [
+        "макафи"
+      ],
+      "assetPath": "assets/services/mcafee.svg",
+      "color": "C01818",
+      "simpleIconsTitle": "McAfee",
+      "source": "https://www.mcafee.com/enterprise/en-us/about/newsroom/product-images.html",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/mcafee.svg",
+      "sha256": "3b846379c62abe0cde7bb19657e036cab59fc8c318c9955ee5717dde5aa85dcd",
+      "bytes": 238,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "kaspersky",
+      "name": "Kaspersky",
+      "group": "security",
+      "aliases": [
+        "касперский"
+      ],
+      "assetPath": "assets/services/kaspersky.svg",
+      "color": "006D5C",
+      "simpleIconsTitle": "Kaspersky",
+      "source": "https://www.kaspersky.com",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/kaspersky.svg",
+      "sha256": "edf5e5c9b8f8940ef3689750ad81359f080f8eb742df2a10a6806f3d5a745d0d",
+      "bytes": 2010,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "avira",
+      "name": "Avira",
+      "group": "security",
+      "aliases": [
+        "авира"
+      ],
+      "assetPath": "assets/services/avira.svg",
+      "color": "E02027",
+      "simpleIconsTitle": "Avira",
+      "source": "https://www.avira.com/en/media-library",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/avira.svg",
+      "sha256": "95c29ea657ddebd4a5d90428a11d6bfe277636d7a347ca7137cb799ad06cc6f2",
+      "bytes": 627,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "avast",
+      "name": "Avast",
+      "group": "security",
+      "aliases": [
+        "аваст"
+      ],
+      "assetPath": "assets/services/avast.svg",
+      "color": "FF7800",
+      "simpleIconsTitle": "Avast",
+      "source": "https://press.avast.com/media-materials#logos-and-brand-guidelines",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/avast.svg",
+      "sha256": "71eddad858b255223a196ef07c4b5744e74f95d21ca2b7413ff915aa0d2c9173",
+      "bytes": 715,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "malwarebytes",
+      "name": "Malwarebytes",
+      "group": "security",
+      "aliases": [
+        "малварбайтс"
+      ],
+      "assetPath": "assets/services/malwarebytes.svg",
+      "color": "0D3ECC",
+      "simpleIconsTitle": "Malwarebytes",
+      "source": "https://www.malwarebytes.com",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/malwarebytes.svg",
+      "sha256": "15e31892dd33b2a53fb1e2c9a003012a8976352f64dfe494e045e7113f534457",
+      "bytes": 894,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "trend_micro",
+      "name": "Trend Micro",
+      "group": "security",
+      "aliases": [],
+      "assetPath": "assets/services/trendmicro.svg",
+      "color": "D71921",
+      "simpleIconsTitle": "Trend Micro",
+      "source": "https://www.trendmicro.com",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/trendmicro.svg",
+      "sha256": "38e6ce7b6f011d1ecb37c3eb24c0668fabd0a27fef3e549317e0e42fe7ccd4d0",
+      "bytes": 856,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "keeper",
+      "name": "Keeper",
+      "group": "security",
+      "aliases": [
+        "кипер"
+      ],
+      "assetPath": "assets/services/keeper.svg",
+      "color": "FFC700",
+      "simpleIconsTitle": "Keeper",
+      "source": "https://docs.keeper.io/en/sso-connect-cloud/graphic-assets",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/keeper.svg",
+      "sha256": "693b269d0c3802f1e8b18102cdd97fedcf3075c43684dcee3ed2296719d880b6",
+      "bytes": 601,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "enpass",
+      "name": "Enpass",
+      "group": "security",
+      "aliases": [
+        "энпасс"
+      ],
+      "assetPath": "assets/services/enpass.svg",
+      "color": "0D47A1",
+      "simpleIconsTitle": "Enpass",
+      "source": "https://www.enpass.io/press/",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/enpass.svg",
+      "sha256": "49730c2844c1580393359a7594e810201a8d4823575e0e628d3333ae9e45270c",
+      "bytes": 1027,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "passbolt",
+      "name": "Passbolt Pro",
+      "group": "security",
+      "aliases": [
+        "пассболт",
+        "passbolt"
+      ],
+      "assetPath": "assets/services/passbolt.svg",
+      "color": "D40101",
+      "simpleIconsTitle": "Passbolt",
+      "source": "https://www.passbolt.com/credits/press-kit",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/passbolt.svg",
+      "sha256": "727e4532d15c5e6e58ee9eab92492eb318ff8d61aa4bc6b239485714861ae2eb",
+      "bytes": 648,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "coursera",
+      "name": "Coursera",
+      "group": "education",
+      "aliases": [
+        "курсера"
+      ],
+      "assetPath": "assets/services/coursera.svg",
+      "color": "0056D2",
+      "simpleIconsTitle": "Coursera",
+      "source": "https://about.coursera.org/press",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/coursera.svg",
+      "sha256": "18771614094903a590de01de89d01fbfcc250fb2c94a409bbc7aba648c9123f8",
+      "bytes": 676,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "udemy",
+      "name": "Udemy",
+      "group": "education",
+      "aliases": [
+        "юдеми"
+      ],
+      "assetPath": "assets/services/udemy.svg",
+      "color": "A435F0",
+      "simpleIconsTitle": "Udemy",
+      "source": "https://udemy.com",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/udemy.svg",
+      "sha256": "6047d9b27eb081530d9b75edf7ce3d621a65ce144803757d55ba8ffa90aa198d",
+      "bytes": 377,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "skillshare",
+      "name": "Skillshare",
+      "group": "education",
+      "aliases": [
+        "скилшер"
+      ],
+      "assetPath": "assets/services/skillshare.svg",
+      "color": "00FF84",
+      "simpleIconsTitle": "Skillshare",
+      "source": "https://www.skillshare.com",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/skillshare.svg",
+      "sha256": "8507c55be4fc9c4cea395863f839ed26548317f9302dfbd749af151cfae0b028",
+      "bytes": 2083,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "pluralsight",
+      "name": "Pluralsight",
+      "group": "education",
+      "aliases": [
+        "плюралсайт"
+      ],
+      "assetPath": "assets/services/pluralsight.svg",
+      "color": "F15B2A",
+      "simpleIconsTitle": "Pluralsight",
+      "source": "https://www.pluralsight.com/newsroom/brand-assets",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/pluralsight.svg",
+      "sha256": "a1fee37d93d93fc50410dc05ae671a2479b598a13354368294104676c1d815a8",
+      "bytes": 493,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "codecademy",
+      "name": "Codecademy",
+      "group": "education",
+      "aliases": [
+        "кодекадеми"
+      ],
+      "assetPath": "assets/services/codecademy.svg",
+      "color": "1F4056",
+      "simpleIconsTitle": "Codecademy",
+      "source": "https://www.codecademy.com",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/codecademy.svg",
+      "sha256": "10b1f9a143e79bbbe929c65a0db2de175d99ddf8785fa92552e948ad037b2fac",
+      "bytes": 1090,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "datacamp",
+      "name": "DataCamp",
+      "group": "education",
+      "aliases": [
+        "датакамп"
+      ],
+      "assetPath": "assets/services/datacamp.svg",
+      "color": "03EF62",
+      "simpleIconsTitle": "DataCamp",
+      "source": "https://www.datacamp.com",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/datacamp.svg",
+      "sha256": "e25b0c00fdbef52ae88f5bd561590c01c05fa3cce5daf6b0ab9bc59253f8517c",
+      "bytes": 421,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "chess_com",
+      "name": "Chess.com",
+      "group": "education",
+      "aliases": [
+        "чесс ком"
+      ],
+      "assetPath": "assets/services/chessdotcom.svg",
+      "color": "81B64C",
+      "simpleIconsTitle": "Chess.com",
+      "source": "https://www.chess.com/article/view/chess-com-brand-resources",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/chessdotcom.svg",
+      "sha256": "70d6a30ef6f86684156e5ccd6edadfe1714a58285487f1d17aef68464b471912",
+      "bytes": 651,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "kobo_plus",
+      "name": "Kobo Plus",
+      "group": "reading",
+      "aliases": [
+        "кобо плюс",
+        "rakuten kobo"
+      ],
+      "assetPath": "assets/services/rakutenkobo.svg",
+      "color": "BF0000",
+      "simpleIconsTitle": "Rakuten Kobo",
+      "source": "https://www.kobo.com",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/rakutenkobo.svg",
+      "sha256": "852289b42c34787e59b350860f4a6262aa62b293694c2334c72f23a3c691e55d",
+      "bytes": 2228,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "o_reilly",
+      "name": "O'Reilly",
+      "group": "reading",
+      "aliases": [],
+      "assetPath": "assets/services/oreilly.svg",
+      "color": "D3002D",
+      "simpleIconsTitle": "O'Reilly",
+      "source": "https://www.oreilly.com/about/logos/",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/oreilly.svg",
+      "sha256": "70f65286c29e4bf38427fea5e467842ea8ce7918274fde767d2002c23141da8a",
+      "bytes": 1321,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "medium",
+      "name": "Medium",
+      "group": "reading",
+      "aliases": [
+        "медиум"
+      ],
+      "assetPath": "assets/services/medium.svg",
+      "color": "000000",
+      "simpleIconsTitle": "Medium",
+      "source": "https://medium.design/logos-and-brand-guidelines-f1a01a733592",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/medium.svg",
+      "sha256": "411fbe8f2b7d631db8ac0a18b0e248639413fb8c263a71ed8bc9934049b6a7d1",
+      "bytes": 979,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "new_york_times",
+      "name": "New York Times",
+      "group": "reading",
+      "aliases": [],
+      "assetPath": "assets/services/newyorktimes.svg",
+      "color": "000000",
+      "simpleIconsTitle": "New York Times",
+      "source": "https://www.nytimes.com",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/newyorktimes.svg",
+      "sha256": "170f25a8a0214f90a4a90a1ed1f6240af50e9266169810bde8bedf18d553149b",
+      "bytes": 1140,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "the_guardian",
+      "name": "The Guardian",
+      "group": "reading",
+      "aliases": [],
+      "assetPath": "assets/services/theguardian.svg",
+      "color": "052962",
+      "simpleIconsTitle": "The Guardian",
+      "source": "https://www.theguardian.com/international",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/theguardian.svg",
+      "sha256": "a825c263da5a085c4d8a1960a85071a23ab73d847a9d2a7b132ef268c39b1e00",
+      "bytes": 2962,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "the_washington_post",
+      "name": "The Washington Post",
+      "group": "reading",
+      "aliases": [],
+      "assetPath": "assets/services/thewashingtonpost.svg",
+      "color": "231F20",
+      "simpleIconsTitle": "The Washington Post",
+      "source": "https://www.washingtonpost.com/brand-studio/archive/",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/thewashingtonpost.svg",
+      "sha256": "19e3d80c84c6149599b9c1166d5313eabf5f71826b0d1519c933e8fe49515058",
+      "bytes": 1046,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "substack",
+      "name": "Substack",
+      "group": "reading",
+      "aliases": [
+        "сабстек"
+      ],
+      "assetPath": "assets/services/substack.svg",
+      "color": "FF6719",
+      "simpleIconsTitle": "Substack",
+      "source": "https://on.substack.com",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/substack.svg",
+      "sha256": "2ccf1b8fcdda9a8073e5bcfbb57c1a99e114eba05a8d274ba7b2ed05d19b302a",
+      "bytes": 223,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "ghost_pro",
+      "name": "Ghost(Pro)",
+      "group": "reading",
+      "aliases": [
+        "гост",
+        "ghost"
+      ],
+      "assetPath": "assets/services/ghost.svg",
+      "color": "15171A",
+      "simpleIconsTitle": "Ghost",
+      "source": "https://github.com/TryGhost/Admin/blob/e3e1fa3353767c3729b1658ad42cc35f883470c5/public/assets/icons/icon.svg",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/ghost.svg",
+      "sha256": "be65c50c473f30df3f4da1defbfbb402bdbde934fbac0e90dae35f889175af1a",
+      "bytes": 473,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "verizon",
+      "name": "Verizon",
+      "group": "telecom",
+      "aliases": [
+        "верайзон"
+      ],
+      "assetPath": "assets/services/verizon.svg",
+      "color": "CD040B",
+      "simpleIconsTitle": "Verizon",
+      "source": "https://www.verizondigitalmedia.com/about/logo-usage/",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/verizon.svg",
+      "sha256": "75ba3377920bb28e0ea8616ba4b22b3ca6ad75f8a6787e82ed0c866876a95444",
+      "bytes": 168,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "vodafone",
+      "name": "Vodafone",
+      "group": "telecom",
+      "aliases": [
+        "водафон"
+      ],
+      "assetPath": "assets/services/vodafone.svg",
+      "color": "E60000",
+      "simpleIconsTitle": "Vodafone",
+      "source": "https://web.vodafone.com.eg",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/vodafone.svg",
+      "sha256": "34f76381fbc56f72a21eec2f838650b206a1e8a8e669859e932b103f126ae2da",
+      "bytes": 454,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "o2",
+      "name": "O2",
+      "group": "telecom",
+      "aliases": [
+        "о2"
+      ],
+      "assetPath": "assets/services/o2.svg",
+      "color": "0050FF",
+      "simpleIconsTitle": "O2",
+      "source": "https://www.telefonica.de/presse/fotos/logos.html",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/o2.svg",
+      "sha256": "ff1ba1fbcc8b0ad7a04b8130afcbcd9cb659f27c9fe854e978f357f5739e6d04",
+      "bytes": 588,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "telenor",
+      "name": "Telenor",
+      "group": "telecom",
+      "aliases": [
+        "теленор"
+      ],
+      "assetPath": "assets/services/telenor.svg",
+      "color": "00C8FF",
+      "simpleIconsTitle": "Telenor",
+      "source": "https://www.telenor.no",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/telenor.svg",
+      "sha256": "db9988395c89e5e50b0dc949fdf7dc627d3edb56bdf00ef63a36b56a1022a7ed",
+      "bytes": 1029,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "orange",
+      "name": "Orange",
+      "group": "telecom",
+      "aliases": [
+        "оранж"
+      ],
+      "assetPath": "assets/services/orange.svg",
+      "color": "FF7900",
+      "simpleIconsTitle": "Orange",
+      "source": "https://brand.orange.com",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/orange.svg",
+      "sha256": "dad997a480567b26e7e9ce3f67492445a42632ba7c335ec05bdae33dfb0fa87c",
+      "bytes": 163,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "telekom",
+      "name": "Deutsche Telekom",
+      "group": "telecom",
+      "aliases": [
+        "дойче телеком",
+        "t mobile",
+        "t-mobile"
+      ],
+      "assetPath": "assets/services/deutschetelekom.svg",
+      "color": "E20074",
+      "simpleIconsTitle": "Deutsche Telekom",
+      "source": "https://tmap.t-mobile.com/portals/pro74u7a/EXTBrandPortal",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/deutschetelekom.svg",
+      "sha256": "02b09a7d3fee5623e033d87590a448a5c6d4bd65573d176a60db26648670884e",
+      "bytes": 393,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "airtable",
+      "name": "Airtable",
+      "group": "productivity",
+      "aliases": [
+        "эйртейбл"
+      ],
+      "assetPath": "assets/services/airtable.svg",
+      "color": "18BFFF",
+      "simpleIconsTitle": "Airtable",
+      "source": "https://airtable.com/newsroom",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/airtable.svg",
+      "sha256": "5d65b71d7c21151d54ef18acdcbac914c264f7139e3e8160a0895979fe31e391",
+      "bytes": 652,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "basecamp",
+      "name": "Basecamp",
+      "group": "productivity",
+      "aliases": [
+        "бейскемп"
+      ],
+      "assetPath": "assets/services/basecamp.svg",
+      "color": "1D2D35",
+      "simpleIconsTitle": "Basecamp",
+      "source": "https://basecamp.com/about/press",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/basecamp.svg",
+      "sha256": "e74bfc5d0bbd91c8194728537dae8878d0df6b50623ff10b5e6942084adf7def",
+      "bytes": 944,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "trello",
+      "name": "Trello",
+      "group": "productivity",
+      "aliases": [
+        "трелло"
+      ],
+      "assetPath": "assets/services/trello.svg",
+      "color": "0052CC",
+      "simpleIconsTitle": "Trello",
+      "source": "https://atlassian.design/resources/logo-library",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/trello.svg",
+      "sha256": "d1069cc5fc0174978356b5deb34c732dda5812875ea79d90d4a834169db55f04",
+      "bytes": 469,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "miro",
+      "name": "Miro",
+      "group": "productivity",
+      "aliases": [
+        "миро"
+      ],
+      "assetPath": "assets/services/miro.svg",
+      "color": "050038",
+      "simpleIconsTitle": "Miro",
+      "source": "https://miro.com",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/miro.svg",
+      "sha256": "1fd0ef517dbef098f56d2c67d7cb6d9850df2d69357848500be0c610b41e237e",
+      "bytes": 259,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "mural",
+      "name": "Mural",
+      "group": "productivity",
+      "aliases": [
+        "мьюрал"
+      ],
+      "assetPath": "assets/services/mural.svg",
+      "color": "FF4B4B",
+      "simpleIconsTitle": "Mural",
+      "source": "https://www.mural.co/brand-assets",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/mural.svg",
+      "sha256": "a5e68707891af19a331cf4628301b46e36bf56c3669ee4c8b465966645a76992",
+      "bytes": 566,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "coda",
+      "name": "Coda",
+      "group": "productivity",
+      "aliases": [
+        "кода"
+      ],
+      "assetPath": "assets/services/coda.svg",
+      "color": "F46A54",
+      "simpleIconsTitle": "Coda",
+      "source": "https://coda.io",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/coda.svg",
+      "sha256": "67e6c20be6309287b431d71ff85778b578b66b3561d63bcf23e7563705e86d17",
+      "bytes": 566,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "calendly",
+      "name": "Calendly",
+      "group": "productivity",
+      "aliases": [
+        "календли"
+      ],
+      "assetPath": "assets/services/calendly.svg",
+      "color": "006BFF",
+      "simpleIconsTitle": "Calendly",
+      "source": "https://calendly.com/newsroom",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/calendly.svg",
+      "sha256": "c0a33894137a1da91ca8dfee17c0d91cbb8ba70ddaa74a8eabc474d258e52cba",
+      "bytes": 1890,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "cal_com",
+      "name": "Cal.com",
+      "group": "productivity",
+      "aliases": [],
+      "assetPath": "assets/services/caldotcom.svg",
+      "color": "292929",
+      "simpleIconsTitle": "Cal.com",
+      "source": "https://design.cal.com/assets/logos",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/caldotcom.svg",
+      "sha256": "430d9f0fd446bba997084865a7acd8febdffb68e21526ee46e7eb1c6b0edf37b",
+      "bytes": 1515,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "ticktick",
+      "name": "TickTick",
+      "group": "productivity",
+      "aliases": [
+        "тиктик"
+      ],
+      "assetPath": "assets/services/ticktick.svg",
+      "color": "4772FA",
+      "simpleIconsTitle": "TickTick",
+      "source": "https://ticktick.com",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/ticktick.svg",
+      "sha256": "2c5e136be3f009e4ad66481c8cd85e04fe0775015af13bc27a7944db6ca3af8f",
+      "bytes": 366,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "things",
+      "name": "Things",
+      "group": "productivity",
+      "aliases": [
+        "сингс"
+      ],
+      "assetPath": "assets/services/things.svg",
+      "color": "2473E7",
+      "simpleIconsTitle": "Things",
+      "source": "https://culturedcode.com/things/",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/things.svg",
+      "sha256": "d40254b8e0c3901b92e07032e23b5485e685ed3d429eea8ffd1e1d7ba2b0a87a",
+      "bytes": 2180,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "grammarly",
+      "name": "Grammarly",
+      "group": "productivity",
+      "aliases": [
+        "граммарли"
+      ],
+      "assetPath": "assets/services/grammarly.svg",
+      "color": "027E6F",
+      "simpleIconsTitle": "Grammarly",
+      "source": "https://www.grammarly.com/media-assets",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/grammarly.svg",
+      "sha256": "6ddcf298c1664c345a2bb723fe1b73d6294fb949b2f06c4df598a583d96153f7",
+      "bytes": 616,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "deepl",
+      "name": "DeepL",
+      "group": "productivity",
+      "aliases": [
+        "дипл"
+      ],
+      "assetPath": "assets/services/deepl.svg",
+      "color": "0F2B46",
+      "simpleIconsTitle": "DeepL",
+      "source": "https://www.deepl.com/press.html",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/deepl.svg",
+      "sha256": "e4d4aae5d6b2e48aae119bf1b787b4adbd1f4583c5ae729cce2016499f414493",
+      "bytes": 1019,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "languagetool",
+      "name": "LanguageTool",
+      "group": "productivity",
+      "aliases": [
+        "лангвидж тул"
+      ],
+      "assetPath": "assets/services/languagetool.svg",
+      "color": "45A1FC",
+      "simpleIconsTitle": "LanguageTool",
+      "source": "https://languagetool.org",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/languagetool.svg",
+      "sha256": "2692711121826b13c870e8f9d43b642418ffc084dd875a9833b55d0372e47809",
+      "bytes": 1416,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "hubspot",
+      "name": "HubSpot",
+      "group": "productivity",
+      "aliases": [
+        "хабспот"
+      ],
+      "assetPath": "assets/services/hubspot.svg",
+      "color": "FF7A59",
+      "simpleIconsTitle": "HubSpot",
+      "source": "https://www.hubspot.com/style-guide",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/hubspot.svg",
+      "sha256": "f96cfb6bba27c8e70a03e782f07d4d649e9f39d2fb8bea7136b370ab2c3f04a9",
+      "bytes": 663,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "zendesk",
+      "name": "Zendesk",
+      "group": "productivity",
+      "aliases": [
+        "зендеск"
+      ],
+      "assetPath": "assets/services/zendesk.svg",
+      "color": "03363D",
+      "simpleIconsTitle": "Zendesk",
+      "source": "https://brandland.zendesk.com",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/zendesk.svg",
+      "sha256": "0770c2be1029e226eb77ac653722f4a05763a580178eb1e8c2853d6d0811d416",
+      "bytes": 324,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "intercom",
+      "name": "Intercom",
+      "group": "productivity",
+      "aliases": [
+        "интерком"
+      ],
+      "assetPath": "assets/services/intercom.svg",
+      "color": "6AFDEF",
+      "simpleIconsTitle": "Intercom",
+      "source": "https://www.intercom.com/press",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/intercom.svg",
+      "sha256": "5500c77b2e27022c06ef7457ff395e2c41398a3fb03b41b02e337af3e3ecdb54",
+      "bytes": 983,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "help_scout",
+      "name": "Help Scout",
+      "group": "productivity",
+      "aliases": [],
+      "assetPath": "assets/services/helpscout.svg",
+      "color": "1292EE",
+      "simpleIconsTitle": "Help Scout",
+      "source": "https://www.helpscout.com",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/helpscout.svg",
+      "sha256": "3b5db48ecd4c8daed904eaef1b0e90a63a80fd6141b7061600d6b4f7370aacf2",
+      "bytes": 522,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "chatwoot",
+      "name": "Chatwoot",
+      "group": "productivity",
+      "aliases": [],
+      "assetPath": "assets/services/chatwoot.svg",
+      "color": "1F93FF",
+      "simpleIconsTitle": "Chatwoot",
+      "source": "https://www.chatwoot.com",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/chatwoot.svg",
+      "sha256": "9326254d464accce3c64cf94562af684b7023bb97586b73ac705866694c5f273",
+      "bytes": 284,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "sketch",
+      "name": "Sketch",
+      "group": "design",
+      "aliases": [
+        "скетч"
+      ],
+      "assetPath": "assets/services/sketch.svg",
+      "color": "F7B500",
+      "simpleIconsTitle": "Sketch",
+      "source": "https://www.sketch.com/about-us/#press",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/sketch.svg",
+      "sha256": "8657fd9aef98e8f55a23a4f102f25541ae333c77a6356d7982cfa58655ecc0fa",
+      "bytes": 404,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "framer",
+      "name": "Framer",
+      "group": "design",
+      "aliases": [
+        "фреймер"
+      ],
+      "assetPath": "assets/services/framer.svg",
+      "color": "0055FF",
+      "simpleIconsTitle": "Framer",
+      "source": "https://framer.com",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/framer.svg",
+      "sha256": "c6c80c9ba890e199e94d35340fb4cf2d5790f339d9846800d68283e3e58e6031",
+      "bytes": 146,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "penpot",
+      "name": "Penpot Cloud",
+      "group": "design",
+      "aliases": [
+        "пенпот",
+        "penpot"
+      ],
+      "assetPath": "assets/services/penpot.svg",
+      "color": "000000",
+      "simpleIconsTitle": "Penpot",
+      "source": "https://penpot.app",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/penpot.svg",
+      "sha256": "998698a23e10890baadeea5e86cb5c6d0e0767f944d0fdaca8f3053c063f2ae2",
+      "bytes": 761,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "pixlr",
+      "name": "Pixlr",
+      "group": "design",
+      "aliases": [
+        "пикслр"
+      ],
+      "assetPath": "assets/services/pixlr.svg",
+      "color": "3EBBDF",
+      "simpleIconsTitle": "Pixlr",
+      "source": "https://pixlr.com",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/pixlr.svg",
+      "sha256": "cd3ee6a48fd7ba456ba2c02fa0ab57ac535f151f60a49bcc7b42c6dafb6e1990",
+      "bytes": 1095,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "photopea",
+      "name": "Photopea Premium",
+      "group": "design",
+      "aliases": [
+        "фотопеа",
+        "photopea"
+      ],
+      "assetPath": "assets/services/photopea.svg",
+      "color": "18A497",
+      "simpleIconsTitle": "Photopea",
+      "source": "https://github.com/photopea/photopea/blob/d5c532e8ad8ece246e2ea8646aac7df768407c64/logo.svg",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/photopea.svg",
+      "sha256": "5c26fb16def3fe1836efb351de59663b61400733d3a4dac718926a9320e8fb8b",
+      "bytes": 644,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "picsart",
+      "name": "Picsart",
+      "group": "design",
+      "aliases": [
+        "пиксарт"
+      ],
+      "assetPath": "assets/services/picsart.svg",
+      "color": "C209C1",
+      "simpleIconsTitle": "Picsart",
+      "source": "https://picsart.com",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/picsart.svg",
+      "sha256": "d9910c699e15ac30a08f295b4472747d87a29f1120f7318fcb68ef8860e5fc7a",
+      "bytes": 641,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "vsco",
+      "name": "VSCO",
+      "group": "design",
+      "aliases": [
+        "вско"
+      ],
+      "assetPath": "assets/services/vsco.svg",
+      "color": "000000",
+      "simpleIconsTitle": "VSCO",
+      "source": "https://vsco.co",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/vsco.svg",
+      "sha256": "acef7b96774645dbd013991d3557014bf0fb6354c390f60b30adcf9407f34e85",
+      "bytes": 4254,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "veed",
+      "name": "VEED",
+      "group": "design",
+      "aliases": [
+        "вид"
+      ],
+      "assetPath": "assets/services/veed.svg",
+      "color": "B6FF60",
+      "simpleIconsTitle": "VEED",
+      "source": "https://www.veed.io",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/veed.svg",
+      "sha256": "1aa246c63f5deffb70b374ee619774dbc1b7e5255eb4803bcfbf471648df840e",
+      "bytes": 417,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "loom",
+      "name": "Loom",
+      "group": "design",
+      "aliases": [
+        "лум"
+      ],
+      "assetPath": "assets/services/loom.svg",
+      "color": "625DF5",
+      "simpleIconsTitle": "Loom",
+      "source": "https://www.loom.com/press",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/loom.svg",
+      "sha256": "4d5d8bd139facfa88c12d600a5069a8babfeb82eeed9589a7e8d7e367ef048f7",
+      "bytes": 525,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "hootsuite",
+      "name": "Hootsuite",
+      "group": "design",
+      "aliases": [],
+      "assetPath": "assets/services/hootsuite.svg",
+      "color": "FF4C46",
+      "simpleIconsTitle": "Hootsuite",
+      "source": "https://hootsuite.widencollective.com/portals/bafpk5oo/bafpk5oo/MediaKitAssets/c/b9e3a7bb-aca7-48d7-90ed-cff5898aafd0",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/hootsuite.svg",
+      "sha256": "08def74b6522dc3ecc7ea76e901143b1d6c806f10128005706d94005aa2a2573",
+      "bytes": 1436,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "buffer",
+      "name": "Buffer",
+      "group": "design",
+      "aliases": [],
+      "assetPath": "assets/services/buffer.svg",
+      "color": "231F20",
+      "simpleIconsTitle": "Buffer",
+      "source": "https://buffer.com",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/buffer.svg",
+      "sha256": "e9a9bc613840afb4d8c29bb2f1987c37436c7b7bffcc5c3dc84f4e6b04190ed5",
+      "bytes": 297,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "envato",
+      "name": "Envato",
+      "group": "design",
+      "aliases": [
+        "энвато"
+      ],
+      "assetPath": "assets/services/envato.svg",
+      "color": "87E64B",
+      "simpleIconsTitle": "Envato",
+      "source": "https://envato.com",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/envato.svg",
+      "sha256": "4bfcbac3d06225dee32809c4eab52b067c8114b898dc745815f4fe2dcad174a6",
+      "bytes": 778,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "freepik",
+      "name": "Freepik",
+      "group": "design",
+      "aliases": [
+        "фрипик"
+      ],
+      "assetPath": "assets/services/freepik.svg",
+      "color": "1273EB",
+      "simpleIconsTitle": "Freepik",
+      "source": "https://commons.wikimedia.org/wiki/File:Freepik.svg",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/freepik.svg",
+      "sha256": "08e1e514faf9dd4f0998c45a0c106e3a78f793990d0ae66ce16d0a9e95707828",
+      "bytes": 1574,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "icons8",
+      "name": "Icons8",
+      "group": "design",
+      "aliases": [],
+      "assetPath": "assets/services/icons8.svg",
+      "color": "1FB141",
+      "simpleIconsTitle": "Icons8",
+      "source": "https://icons8.com",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/icons8.svg",
+      "sha256": "c89e4a683c0fade1ea8dfdbc215db522f023eabc6a210b3f2d4e0c38f1dda988",
+      "bytes": 262,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "iconfinder",
+      "name": "Iconfinder",
+      "group": "design",
+      "aliases": [],
+      "assetPath": "assets/services/iconfinder.svg",
+      "color": "1A1B1F",
+      "simpleIconsTitle": "Iconfinder",
+      "source": "https://www.iconfinder.com/p/about",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/iconfinder.svg",
+      "sha256": "1fbd7e497a1788cc1ce0064e9f455ed8514865ce6ef8247ee4a4adc74d3048f4",
+      "bytes": 1245,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "squarespace",
+      "name": "Squarespace",
+      "group": "design",
+      "aliases": [],
+      "assetPath": "assets/services/squarespace.svg",
+      "color": "000000",
+      "simpleIconsTitle": "Squarespace",
+      "source": "https://www.squarespace.com/logo-guidelines",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/squarespace.svg",
+      "sha256": "180f06fc3906938d3051e1c4509f2decddb3aa85dc20a4c5dde11a05ab5e50dc",
+      "bytes": 1007,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "wix",
+      "name": "Wix",
+      "group": "design",
+      "aliases": [
+        "викс"
+      ],
+      "assetPath": "assets/services/wix.svg",
+      "color": "0C6EFC",
+      "simpleIconsTitle": "Wix",
+      "source": "https://www.wix.com/about/design-assets",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/wix.svg",
+      "sha256": "42e69ee9be7b1d51191160e7e68c98839121a90ce8ec9fc01d03580f8d9d96bd",
+      "bytes": 793,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "wordpress_com",
+      "name": "WordPress.com",
+      "group": "design",
+      "aliases": [
+        "вордпресс",
+        "wordpress"
+      ],
+      "assetPath": "assets/services/wordpress.svg",
+      "color": "21759B",
+      "simpleIconsTitle": "WordPress",
+      "source": "https://wordpress.org/about/logos",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/wordpress.svg",
+      "sha256": "8877151b8978c3c961d16659ba28603a4015872e79fbbb770d09b68b0da8a4ff",
+      "bytes": 1059,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "github_pro",
+      "name": "GitHub Pro",
+      "group": "development",
+      "aliases": [
+        "гитхаб про",
+        "github"
+      ],
+      "assetPath": "assets/services/github.svg",
+      "color": "181717",
+      "simpleIconsTitle": "GitHub",
+      "source": "https://github.com/logos",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/github.svg",
+      "sha256": "3bf8cceead820aec50d4ee825a3fd02c5a1cd6665cc9cf4cbf3d9c8861a204bb",
+      "bytes": 822,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "gitlab",
+      "name": "GitLab Premium",
+      "group": "development",
+      "aliases": [
+        "гитлаб",
+        "gitlab"
+      ],
+      "assetPath": "assets/services/gitlab.svg",
+      "color": "FC6D26",
+      "simpleIconsTitle": "GitLab",
+      "source": "https://about.gitlab.com/press/press-kit/",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/gitlab.svg",
+      "sha256": "c7c39058bd1b6f9f40334383bd5136bb8c5ba5e6a24200f2d1f18365e2526e28",
+      "bytes": 573,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "bitbucket",
+      "name": "Bitbucket",
+      "group": "development",
+      "aliases": [],
+      "assetPath": "assets/services/bitbucket.svg",
+      "color": "0052CC",
+      "simpleIconsTitle": "Bitbucket",
+      "source": "https://atlassian.design/resources/logo-library",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/bitbucket.svg",
+      "sha256": "887f3bbce5d63f56958fb3dbe3c1b850314ef71a1f21dd5f2099637f01e4b241",
+      "bytes": 284,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "jetbrains",
+      "name": "JetBrains All Products Pack",
+      "group": "development",
+      "aliases": [
+        "джетбрейнс",
+        "jetbrains"
+      ],
+      "assetPath": "assets/services/jetbrains.svg",
+      "color": "000000",
+      "simpleIconsTitle": "JetBrains",
+      "source": "https://www.jetbrains.com/company/brand/logos/",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/jetbrains.svg",
+      "sha256": "7086a4a78912dc77e73a951cc1b047b049701406574b9d8eedf3b17d307621fb",
+      "bytes": 688,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "docker_pro",
+      "name": "Docker Pro",
+      "group": "development",
+      "aliases": [
+        "докер",
+        "docker"
+      ],
+      "assetPath": "assets/services/docker.svg",
+      "color": "2496ED",
+      "simpleIconsTitle": "Docker",
+      "source": "https://www.docker.com/company/newsroom/media-resources",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/docker.svg",
+      "sha256": "65571291c261ef869c31540a38f3ca0f0ee3bb73f179c172211c8860f19a6359",
+      "bytes": 1765,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "postman",
+      "name": "Postman",
+      "group": "development",
+      "aliases": [
+        "постман"
+      ],
+      "assetPath": "assets/services/postman.svg",
+      "color": "FF6C37",
+      "simpleIconsTitle": "Postman",
+      "source": "https://www.getpostman.com/resources/media-assets/",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/postman.svg",
+      "sha256": "ffa713180d8a0dc42d69fb219fda548293b25438288b6abc5ccb4e381463778f",
+      "bytes": 1368,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "insomnia",
+      "name": "Insomnia",
+      "group": "development",
+      "aliases": [],
+      "assetPath": "assets/services/insomnia.svg",
+      "color": "4000BF",
+      "simpleIconsTitle": "Insomnia",
+      "source": "https://insomnia.rest",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/insomnia.svg",
+      "sha256": "19ea7e9188a6e95ecb084499a9f57190105993fec0f686a26c1a04e6becb58bc",
+      "bytes": 620,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "httpie",
+      "name": "HTTPie",
+      "group": "development",
+      "aliases": [],
+      "assetPath": "assets/services/httpie.svg",
+      "color": "73DC8C",
+      "simpleIconsTitle": "HTTPie",
+      "source": "https://github.com/httpie/httpie/blob/d262181bede5241a6b692c3245a77e2eb02bc262/docs/httpie-logo.svg",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/httpie.svg",
+      "sha256": "d92d4ae78dbdfdd4147286c8891b00d8f399034056b7c140b6e3d85e4e0e2ca4",
+      "bytes": 446,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "gitkraken",
+      "name": "GitKraken",
+      "group": "development",
+      "aliases": [
+        "гиткракен"
+      ],
+      "assetPath": "assets/services/gitkraken.svg",
+      "color": "179287",
+      "simpleIconsTitle": "GitKraken",
+      "source": "https://www.gitkraken.com",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/gitkraken.svg",
+      "sha256": "d6cd52dc2cec1aac6d15dbb32bead6aaebb424842e444b95a51f562c60c8444b",
+      "bytes": 1423,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "codesandbox",
+      "name": "CodeSandbox",
+      "group": "development",
+      "aliases": [],
+      "assetPath": "assets/services/codesandbox.svg",
+      "color": "151515",
+      "simpleIconsTitle": "CodeSandbox",
+      "source": "https://codesandbox.io/CodeSandbox-Press-Kit.zip",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/codesandbox.svg",
+      "sha256": "a34ee761ffb6305b37793831b0b6f760e5793a69cacee25edce139a1aea13232",
+      "bytes": 164,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "stackblitz",
+      "name": "StackBlitz",
+      "group": "development",
+      "aliases": [],
+      "assetPath": "assets/services/stackblitz.svg",
+      "color": "1269D3",
+      "simpleIconsTitle": "StackBlitz",
+      "source": "https://stackblitz.com",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/stackblitz.svg",
+      "sha256": "8b5ba5865d185e04d3505b7606dcc68b2c7d86a2832015213a6b4f6eeb0a5e7b",
+      "bytes": 184,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "sauce_labs",
+      "name": "Sauce Labs",
+      "group": "development",
+      "aliases": [],
+      "assetPath": "assets/services/saucelabs.svg",
+      "color": "3DDC91",
+      "simpleIconsTitle": "Sauce Labs",
+      "source": "https://saucelabs.com",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/saucelabs.svg",
+      "sha256": "76d9951f988fc994d05d8d7c9fa08ceaec9e94210bd1fae852f2478513e5c602",
+      "bytes": 530,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "sentry",
+      "name": "Sentry",
+      "group": "development",
+      "aliases": [
+        "сентри"
+      ],
+      "assetPath": "assets/services/sentry.svg",
+      "color": "362D59",
+      "simpleIconsTitle": "Sentry",
+      "source": "https://sentry.io/branding/",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/sentry.svg",
+      "sha256": "8ba32902ffbac503784607374f57df5e3cbcf57a99d0adff03e735575500adc6",
+      "bytes": 686,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "datadog",
+      "name": "Datadog",
+      "group": "development",
+      "aliases": [
+        "датадог"
+      ],
+      "assetPath": "assets/services/datadog.svg",
+      "color": "632CA6",
+      "simpleIconsTitle": "Datadog",
+      "source": "https://www.datadoghq.com/about/resources",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/datadog.svg",
+      "sha256": "2dae0a9ddf090ec01626d9d0f73b1740a70ad280de92e2c27136bc81151fd1ff",
+      "bytes": 2998,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "new_relic",
+      "name": "New Relic",
+      "group": "development",
+      "aliases": [],
+      "assetPath": "assets/services/newrelic.svg",
+      "color": "1CE783",
+      "simpleIconsTitle": "New Relic",
+      "source": "https://newrelic.com/about/media-assets",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/newrelic.svg",
+      "sha256": "4fbf9fa18cc17767df797bd6f8e4f60f87d6df407f15fa816ccdfa6bb6cb04ec",
+      "bytes": 289,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "better_stack",
+      "name": "Better Stack",
+      "group": "development",
+      "aliases": [],
+      "assetPath": "assets/services/betterstack.svg",
+      "color": "000000",
+      "simpleIconsTitle": "Better Stack",
+      "source": "https://betterstack.com",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/betterstack.svg",
+      "sha256": "641d8d3b8c1bfa3a775f41c2da1f9f47b36358256b05b584653bf070099c302c",
+      "bytes": 760,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "appsignal",
+      "name": "AppSignal",
+      "group": "development",
+      "aliases": [],
+      "assetPath": "assets/services/appsignal.svg",
+      "color": "21375A",
+      "simpleIconsTitle": "AppSignal",
+      "source": "https://appsignal.com",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/appsignal.svg",
+      "sha256": "5f30e3a2b4302801a284b7f4a1df7c710151d027b7f019413289543c00cbc48f",
+      "bytes": 1033,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "rollbar",
+      "name": "Rollbar",
+      "group": "development",
+      "aliases": [],
+      "assetPath": "assets/services/rollbar.svg",
+      "color": "3569F3",
+      "simpleIconsTitle": "Rollbar",
+      "source": "https://rollbar.com/about",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/rollbar.svg",
+      "sha256": "90a4f64c37ec7f70ce8a76f3ec5b89a70869628ae9a7ed97670b15f493801350",
+      "bytes": 857,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "sonar",
+      "name": "Sonar",
+      "group": "development",
+      "aliases": [],
+      "assetPath": "assets/services/sonar.svg",
+      "color": "FD3456",
+      "simpleIconsTitle": "Sonar",
+      "source": "https://www.sonarsource.com",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/sonar.svg",
+      "sha256": "fd9518927a208832fdedc7965dfc1d02a592ea3b1e2235942faf83a9780b12d7",
+      "bytes": 1848,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "codacy",
+      "name": "Codacy",
+      "group": "development",
+      "aliases": [],
+      "assetPath": "assets/services/codacy.svg",
+      "color": "222F29",
+      "simpleIconsTitle": "Codacy",
+      "source": "https://www.codacy.com/blog/",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/codacy.svg",
+      "sha256": "f716fc0bddff9bb976d9ab617aaf98ffa0ee6bd7c5852f09c7611e3d9ed9c904",
+      "bytes": 973,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "code_climate",
+      "name": "Code Climate",
+      "group": "development",
+      "aliases": [],
+      "assetPath": "assets/services/codeclimate.svg",
+      "color": "000000",
+      "simpleIconsTitle": "Code Climate",
+      "source": "https://codeclimate.com/github/codeclimate/python-test-reporter/badges/",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/codeclimate.svg",
+      "sha256": "d35894ddce4152a6bc29c256f8d7fee020b0efcbe462e0a50588ad3f67c3420b",
+      "bytes": 257,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "circleci",
+      "name": "CircleCI",
+      "group": "development",
+      "aliases": [],
+      "assetPath": "assets/services/circleci.svg",
+      "color": "343434",
+      "simpleIconsTitle": "CircleCI",
+      "source": "https://circleci.com/press",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/circleci.svg",
+      "sha256": "870bee0dae492b875ef775483bcc806de8785f393e71350b3de69196708a10fa",
+      "bytes": 638,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "buildkite",
+      "name": "Buildkite",
+      "group": "development",
+      "aliases": [],
+      "assetPath": "assets/services/buildkite.svg",
+      "color": "14CC80",
+      "simpleIconsTitle": "Buildkite",
+      "source": "https://buildkite.com/brand-assets",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/buildkite.svg",
+      "sha256": "32d45e2a770e5198bd0b12da30a43c3f560a54dd182a970fb32949e91f807a3f",
+      "bytes": 478,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "teamcity",
+      "name": "TeamCity",
+      "group": "development",
+      "aliases": [],
+      "assetPath": "assets/services/teamcity.svg",
+      "color": "000000",
+      "simpleIconsTitle": "TeamCity",
+      "source": "https://www.jetbrains.com/company/brand/logos",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/teamcity.svg",
+      "sha256": "0a397c8f3d0e04319dcb12744c5456fde74921c95d92496b91510c9aab3fec4c",
+      "bytes": 557,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "bitrise",
+      "name": "Bitrise",
+      "group": "development",
+      "aliases": [],
+      "assetPath": "assets/services/bitrise.svg",
+      "color": "683D87",
+      "simpleIconsTitle": "Bitrise",
+      "source": "https://www.bitrise.io/presskit",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/bitrise.svg",
+      "sha256": "e75a32a282b3cfa460121aebc5bcefc0ccba09f71ac4795b3a37cb297082f6eb",
+      "bytes": 1558,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "expo",
+      "name": "Expo",
+      "group": "development",
+      "aliases": [
+        "экспо"
+      ],
+      "assetPath": "assets/services/expo.svg",
+      "color": "1C2024",
+      "simpleIconsTitle": "Expo",
+      "source": "https://expo.dev/brand/",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/expo.svg",
+      "sha256": "fe31b54a038878735a20ff497c6b250221707047785a324c4f7ef83228f40c6a",
+      "bytes": 451,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "codemagic",
+      "name": "Codemagic",
+      "group": "development",
+      "aliases": [],
+      "assetPath": "assets/services/codemagic.svg",
+      "color": "F45E3F",
+      "simpleIconsTitle": "Codemagic",
+      "source": "https://codemagic.io",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/codemagic.svg",
+      "sha256": "7bb29087f0587f3a4d71c73ec2c5c2edf239cac2c803de6afc4b004cac9956b1",
+      "bytes": 984,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "contentful",
+      "name": "Contentful",
+      "group": "development",
+      "aliases": [],
+      "assetPath": "assets/services/contentful.svg",
+      "color": "2478CC",
+      "simpleIconsTitle": "Contentful",
+      "source": "https://press.contentful.com/media_kits",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/contentful.svg",
+      "sha256": "37d1f9836c010f260186b59b004edad87660f0f8fde0161085a83aa8e18c37dd",
+      "bytes": 1915,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "sanity",
+      "name": "Sanity",
+      "group": "development",
+      "aliases": [],
+      "assetPath": "assets/services/sanity.svg",
+      "color": "0D0E12",
+      "simpleIconsTitle": "Sanity",
+      "source": "https://github.com/sanity-io/logos/blob/e298a1ac2757c83910fe08b496a115bc9aef06bd/src/sanityMonogram.tsx",
+      "license": {
+        "type": "MIT"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/sanity.svg",
+      "sha256": "7c94e59b8458db8de5c47df1ce498b3df2d681cadb46c282a60c476e1985196f",
+      "bytes": 592,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "strapi_cloud",
+      "name": "Strapi Cloud",
+      "group": "development",
+      "aliases": [
+        "страпи",
+        "strapi"
+      ],
+      "assetPath": "assets/services/strapi.svg",
+      "color": "4945FF",
+      "simpleIconsTitle": "Strapi",
+      "source": "https://handbook.strapi.io/strapi-brand-book-2022/strapi-logo",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/strapi.svg",
+      "sha256": "7ace74e62d71799f2f9fe8b2f9398a3365cc52448792bc9361f03407b266b22f",
+      "bytes": 613,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "prismic",
+      "name": "Prismic",
+      "group": "development",
+      "aliases": [],
+      "assetPath": "assets/services/prismic.svg",
+      "color": "5163BA",
+      "simpleIconsTitle": "Prismic",
+      "source": "https://prismic.io",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/prismic.svg",
+      "sha256": "3980cda256d0146adf19ba0e154bc865f99db504107e8a53587bf20117a56d40",
+      "bytes": 2297,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "storyblok",
+      "name": "Storyblok",
+      "group": "development",
+      "aliases": [],
+      "assetPath": "assets/services/storyblok.svg",
+      "color": "09B3AF",
+      "simpleIconsTitle": "Storyblok",
+      "source": "https://www.storyblok.com/press",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/storyblok.svg",
+      "sha256": "f8178a597d497d2b7c6a32b7f56f079304575e91fdec7d5d042255f998e0ec72",
+      "bytes": 882,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "directus_cloud",
+      "name": "Directus Cloud",
+      "group": "development",
+      "aliases": [
+        "директус",
+        "directus"
+      ],
+      "assetPath": "assets/services/directus.svg",
+      "color": "263238",
+      "simpleIconsTitle": "Directus",
+      "source": "https://directus.io",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/directus.svg",
+      "sha256": "29bf6496a1f716a16fefaa99d62c63be4ed32d150a65abf9b10014c108b4d844",
+      "bytes": 1144,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "mailchimp",
+      "name": "MailChimp",
+      "group": "other",
+      "aliases": [
+        "мейлчимп"
+      ],
+      "assetPath": "assets/services/mailchimp.svg",
+      "color": "FFE01B",
+      "simpleIconsTitle": "MailChimp",
+      "source": "https://mailchimp.com/about/brand-assets",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/mailchimp.svg",
+      "sha256": "3288e4d611c54587c228c8082c877b101c2dfcb1be30aa8696ac2b8bfd757047",
+      "bytes": 4178,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "kit",
+      "name": "Kit",
+      "group": "other",
+      "aliases": [],
+      "assetPath": "assets/services/kit.svg",
+      "color": "000000",
+      "simpleIconsTitle": "Kit",
+      "source": "https://kit.co",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/kit.svg",
+      "sha256": "c301c00d1de52ff95014a7670555fdd91861460fb961d9aa025d7a632a40e92a",
+      "bytes": 724,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "brevo",
+      "name": "Brevo",
+      "group": "other",
+      "aliases": [
+        "брево"
+      ],
+      "assetPath": "assets/services/brevo.svg",
+      "color": "0B996E",
+      "simpleIconsTitle": "Brevo",
+      "source": "https://www.brevo.com",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/brevo.svg",
+      "sha256": "0a90b5a6ed0ca8af580e24b2dee298d297b1c7923d805c2ccf5dfe6c757cc914",
+      "bytes": 605,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "campaign_monitor",
+      "name": "Campaign Monitor",
+      "group": "other",
+      "aliases": [],
+      "assetPath": "assets/services/campaignmonitor.svg",
+      "color": "111324",
+      "simpleIconsTitle": "Campaign Monitor",
+      "source": "https://www.campaignmonitor.com/company/brand/",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/campaignmonitor.svg",
+      "sha256": "391407e09b4e990a457f1b78e83b96c10b64451582159274b0bdc9f5b29ba926",
+      "bytes": 364,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "att",
+      "name": "AT&T",
+      "group": "telecom",
+      "aliases": [
+        "эйтиэндти"
+      ],
+      "assetPath": "assets/services/atandt.svg",
+      "color": "009FDB",
+      "simpleIconsTitle": "AT&T",
+      "source": "https://www.att.com",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/atandt.svg",
+      "sha256": "50c6ff01370f61d22de20f8c168b85413cfe52def9a53ed4bee32ebc9abe2413",
+      "bytes": 1440,
+      "mime": "image/svg+xml"
+    },
+    {
+      "id": "premier",
+      "name": "PREMIER",
+      "group": "video",
+      "aliases": [
+        "премьер",
+        "premier one"
+      ],
+      "assetPath": "assets/services/premier.png",
+      "preserveColors": true,
+      "background": "#FFFFFF",
+      "inset": 0.08,
+      "color": "000000",
+      "simpleIconsTitle": null,
+      "source": "https://premier.one/",
+      "sourceUrl": "https://premier.one/",
+      "downloadUrl": "https://premier.one/favicon-192x192-v3.png",
+      "svgUrl": null,
+      "sha256": "142f4fe488da573820fd6b649ac8e91ada6d5f78faf6bfd6c38e1533aabf5513",
+      "bytes": 1472,
+      "mime": "image/png",
+      "license": {
+        "type": "Proprietary trademark; no open redistribution license asserted"
+      },
+      "licenseNotes": "Exact unmodified asset referenced by official brand website, for service identification. Brand owner retains trademark/copyright rights. Public availability is not an open license.",
+      "renderNotes": "Original byte stream; not recolored or redrawn.",
+      "dimensions": [
+        192,
+        192
+      ],
+      "svgViewBox": null
+    },
+    {
+      "id": "bookmate",
+      "name": "Яндекс Книги",
+      "group": "reading",
+      "aliases": [
+        "букмейт",
+        "bookmate",
+        "yandex books",
+        "яндекс книги"
+      ],
+      "assetPath": "assets/services/bookmate.svg",
+      "preserveColors": true,
+      "background": "#FFFFFF",
+      "inset": 0.08,
+      "color": "000000",
+      "simpleIconsTitle": null,
+      "source": "https://bookmate.ru/",
+      "sourceUrl": "https://bookmate.ru/",
+      "downloadUrl": "https://books.yandex.ru/favicon.svg?v=2",
+      "svgUrl": null,
+      "sha256": "f8d0bfd6a00c25a43d54a06bc1dc4e8d18b3cea11cf02e6fa0b9411470cfa780",
+      "bytes": 2918,
+      "mime": "image/svg+xml",
+      "license": {
+        "type": "Proprietary trademark; no open redistribution license asserted"
+      },
+      "licenseNotes": "Exact unmodified asset referenced by official brand website, for service identification. Brand owner retains trademark/copyright rights. Public availability is not an open license.",
+      "renderNotes": "Original byte stream; not recolored or redrawn. SVG filter/mask present: False SVG elements needing renderer review: none",
+      "dimensions": null,
+      "svgViewBox": "0 0 90 90"
+    },
+    {
+      "id": "mail_cloud",
+      "name": "Облако Mail",
+      "group": "cloud",
+      "aliases": [
+        "mail cloud",
+        "cloud mail ru",
+        "облако майл",
+        "мейл облако"
+      ],
+      "assetPath": "assets/services/mail_cloud.svg",
+      "preserveColors": true,
+      "background": "#FFFFFF",
+      "inset": 0.08,
+      "color": "000000",
+      "simpleIconsTitle": null,
+      "source": "https://cloud.mail.ru/",
+      "sourceUrl": "https://cloud.mail.ru/",
+      "downloadUrl": "https://cloud.imgsmail.ru/cloud.mail.ru/hashes/img/54cbc3d30f0b1da1d208.svg",
+      "svgUrl": null,
+      "sha256": "71706ae50083d481d84e172308b858abba2979b2f90dff08d6d2ee0da0ffb333",
+      "bytes": 804,
+      "mime": "image/svg+xml",
+      "license": {
+        "type": "Proprietary trademark; no open redistribution license asserted"
+      },
+      "licenseNotes": "Exact unmodified asset referenced by official brand website, for service identification. Brand owner retains trademark/copyright rights. Public availability is not an open license.",
+      "renderNotes": "Original byte stream; not recolored or redrawn. SVG filter/mask present: False SVG elements needing renderer review: none",
+      "dimensions": null,
+      "svgViewBox": null
+    },
+    {
+      "id": "yandex_music",
+      "name": "Яндекс Музыка",
+      "group": "music",
+      "aliases": [
+        "yandex music",
+        "яндекс музыка"
+      ],
+      "assetPath": "assets/services/yandex_music.svg",
+      "preserveColors": true,
+      "background": "#FFFFFF",
+      "inset": 0.08,
+      "color": "000000",
+      "simpleIconsTitle": null,
+      "source": "https://music.yandex.ru/",
+      "sourceUrl": "https://music.yandex.ru/",
+      "downloadUrl": "https://yastatic-net.ru/s3/music-frontend-static/music/v4.1724.1/favicon.svg",
+      "svgUrl": null,
+      "sha256": "3ff52ee37df6ed442512a23ec8bdf25855dcc8010d432ff8e60ac61d54b87411",
+      "bytes": 614,
+      "mime": "image/svg+xml",
+      "license": {
+        "type": "Proprietary trademark; no open redistribution license asserted"
+      },
+      "licenseNotes": "Exact unmodified asset referenced by official brand website, for service identification. Brand owner retains trademark/copyright rights. Public availability is not an open license.",
+      "renderNotes": "Original byte stream; not recolored or redrawn. SVG filter/mask present: False SVG elements needing renderer review: none",
+      "dimensions": null,
+      "svgViewBox": "0 0 144 144"
+    },
+    {
+      "id": "x5_paket",
+      "name": "Пакет X5",
+      "group": "other",
+      "aliases": [
+        "x5 пакет",
+        "x5 paket",
+        "пакет пятерочка"
+      ],
+      "assetPath": "assets/services/x5_paket.svg",
+      "preserveColors": true,
+      "background": "#FFFFFF",
+      "inset": 0.08,
+      "color": "000000",
+      "simpleIconsTitle": null,
+      "source": "https://paket.x5.ru/",
+      "sourceUrl": "https://paket.x5.ru/",
+      "downloadUrl": "https://x5paket.ru/images/icon.svg",
+      "svgUrl": null,
+      "sha256": "a9c1c3ed6c3d6b00666f73e33f69b3b20b6dd2d1a44c946eda93a76629074dc0",
+      "bytes": 866,
+      "mime": "image/svg+xml",
+      "license": {
+        "type": "Proprietary trademark; no open redistribution license asserted"
+      },
+      "licenseNotes": "Exact unmodified asset referenced by official brand website, for service identification. Brand owner retains trademark/copyright rights. Public availability is not an open license.",
+      "renderNotes": "Original byte stream; not recolored or redrawn. SVG filter/mask present: False SVG elements needing renderer review: none",
+      "dimensions": null,
+      "svgViewBox": null
+    },
+    {
+      "id": "litnet",
+      "name": "Литнет",
+      "group": "reading",
+      "aliases": [
+        "litnet"
+      ],
+      "assetPath": "assets/services/litnet.png",
+      "preserveColors": true,
+      "background": "#FFFFFF",
+      "inset": 0.08,
+      "color": "000000",
+      "simpleIconsTitle": null,
+      "source": "https://litnet.com/",
+      "sourceUrl": "https://litnet.com/",
+      "downloadUrl": "https://litnet.com/common/img/pwa/ios/256.png",
+      "svgUrl": null,
+      "sha256": "4e1fea90e7fac07e724c9b57caf42990c12e5af45762b69e5e4fdbb99b6492c0",
+      "bytes": 5850,
+      "mime": "image/png",
+      "license": {
+        "type": "Proprietary trademark; no open redistribution license asserted"
+      },
+      "licenseNotes": "Exact unmodified asset referenced by official brand website, for service identification. Brand owner retains trademark/copyright rights. Public availability is not an open license.",
+      "renderNotes": "Original byte stream; not recolored or redrawn.",
+      "dimensions": [
+        256,
+        256
+      ],
+      "svgViewBox": null
+    },
+    {
+      "id": "megafon",
+      "name": "МегаФон",
+      "group": "telecom",
+      "aliases": [
+        "megafon",
+        "мегафон"
+      ],
+      "assetPath": "assets/services/megafon.png",
+      "preserveColors": true,
+      "background": "#FFFFFF",
+      "inset": 0.08,
+      "color": "000000",
+      "simpleIconsTitle": null,
+      "source": "https://moscow.megafon.ru/",
+      "sourceUrl": "https://moscow.megafon.ru/",
+      "downloadUrl": "https://moscow.megafon.ru/public/favicons/apple-touch-icon-180x180.png",
+      "svgUrl": null,
+      "sha256": "e632e419e5051193b321d0a2d935c3c69707664e792eb3ff9c346f698ac20cf5",
+      "bytes": 4170,
+      "mime": "image/png",
+      "license": {
+        "type": "Proprietary trademark; no open redistribution license asserted"
+      },
+      "licenseNotes": "Exact unmodified official service asset; identification only. Brand trademark/copyright retained by owner.",
+      "renderNotes": "Original bytes, no modifications.",
+      "dimensions": [
+        180,
+        180
+      ],
+      "svgViewBox": null
+    },
+    {
+      "id": "amediateka",
+      "name": "Амедиатека",
+      "group": "video",
+      "aliases": [
+        "amediateka",
+        "амедиа"
+      ],
+      "assetPath": "assets/services/amediateka.svg",
+      "preserveColors": true,
+      "background": "#161616",
+      "inset": 0.08,
+      "color": "000000",
+      "simpleIconsTitle": null,
+      "source": "https://kion.ru/",
+      "sourceUrl": "https://kion.ru/",
+      "downloadUrl": "https://static.kion.ru/kds/component/big_chips/amediateka_logo.svg",
+      "svgUrl": null,
+      "sha256": "b048ce30a0922d59a5b097a981a8024c3ae7cfd42daf91754c8c86a870552d83",
+      "bytes": 1510,
+      "mime": "image/svg+xml",
+      "license": {
+        "type": "Proprietary trademark; no open redistribution license asserted"
+      },
+      "licenseNotes": "Exact unmodified official service asset; identification only. Brand trademark/copyright retained by owner. Hosted by official KION as named partner brand; not sourced from a third-party icon library.",
+      "renderNotes": "Original bytes, no modifications. Filters/masks: False SVG elements needing renderer review: none",
+      "dimensions": null,
+      "svgViewBox": "0 0 107 16"
+    },
+    {
+      "id": "litres",
+      "name": "Литрес",
+      "group": "reading",
+      "aliases": [
+        "litres",
+        "литрес"
+      ],
+      "assetPath": "assets/services/litres.svg",
+      "preserveColors": true,
+      "background": "#FFFFFF",
+      "inset": 0.08,
+      "color": "000000",
+      "simpleIconsTitle": null,
+      "source": "https://www.litres.ru/",
+      "sourceUrl": "https://www.litres.ru/",
+      "downloadUrl": "https://cdn2.litres.ru/static/litres/logo/logo_ru.svg",
+      "svgUrl": null,
+      "sha256": "6cc90e3d4d97b8831bb0ab9f91acf7a664a712d18d9cc190bc28f8fc71c8885c",
+      "bytes": 4881,
+      "mime": "image/svg+xml",
+      "license": {
+        "type": "Proprietary trademark; no open redistribution license asserted"
+      },
+      "licenseNotes": "Exact unmodified official service asset; identification only. Brand trademark/copyright retained by owner.",
+      "renderNotes": "Original bytes, no modifications. Filters/masks: False SVG elements needing renderer review: none",
+      "dimensions": null,
+      "svgViewBox": "0 0 173 28"
+    },
+    {
+      "id": "yandex_disk",
+      "name": "Яндекс Диск",
+      "group": "cloud",
+      "aliases": [
+        "yandex disk",
+        "яндекс диск"
+      ],
+      "assetPath": "assets/services/yandex_disk.svg",
+      "preserveColors": true,
+      "background": "#FFFFFF",
+      "inset": 0.08,
+      "color": "000000",
+      "simpleIconsTitle": null,
+      "source": "https://360.yandex.ru/disk/",
+      "sourceUrl": "https://360.yandex.ru/disk/",
+      "downloadUrl": "https://avatars.mds.yandex.net/get-bunker/50064/fe31efb1fee947c1314c285e1f43f3194dfd71fd/orig",
+      "svgUrl": null,
+      "sha256": "6a1bd3edf85d8cd376182adb0d3d3f3669b1f0bc3a8811166b4f6410b510b52b",
+      "bytes": 3001,
+      "mime": "image/svg+xml",
+      "license": {
+        "type": "Proprietary trademark; no open redistribution license asserted"
+      },
+      "licenseNotes": "Exact unmodified official service asset; identification only. Brand trademark/copyright retained by owner.",
+      "renderNotes": "Original bytes, no modifications. Filters/masks: True SVG elements needing renderer review: filter, mask",
+      "dimensions": null,
+      "svgViewBox": "0 0 18 18"
+    },
+    {
+      "id": "yandex_360",
+      "name": "Яндекс 360",
+      "group": "productivity",
+      "aliases": [
+        "yandex 360",
+        "яндекс 360"
+      ],
+      "assetPath": "assets/services/yandex_360.svg",
+      "preserveColors": true,
+      "background": "#FFFFFF",
+      "inset": 0.08,
+      "color": "000000",
+      "simpleIconsTitle": null,
+      "source": "https://360.yandex.ru/disk/",
+      "sourceUrl": "https://360.yandex.ru/disk/",
+      "downloadUrl": "https://avatars.mds.yandex.net/get-bunker/128809/7b830b9426933b1ea0d3a73db40f5749256d9351/orig",
+      "svgUrl": null,
+      "sha256": "bf66db0196bb5f73ddda4ced9eeace00d6f22495cbe01fb9161ae9e15b13b0ec",
+      "bytes": 1426,
+      "mime": "image/svg+xml",
+      "license": {
+        "type": "Proprietary trademark; no open redistribution license asserted"
+      },
+      "licenseNotes": "Exact unmodified official service asset; identification only. Brand trademark/copyright retained by owner.",
+      "renderNotes": "Original bytes, no modifications. Filters/masks: False SVG elements needing renderer review: none",
+      "dimensions": null,
+      "svgViewBox": "0 0 18 18"
+    },
+    {
+      "id": "yandex_mail",
+      "name": "Яндекс Почта Про",
+      "group": "productivity",
+      "aliases": [
+        "yandex mail",
+        "яндекс почта"
+      ],
+      "assetPath": "assets/services/yandex_mail.svg",
+      "preserveColors": true,
+      "background": "#FFFFFF",
+      "inset": 0.08,
+      "color": "000000",
+      "simpleIconsTitle": null,
+      "source": "https://360.yandex.ru/disk/",
+      "sourceUrl": "https://360.yandex.ru/disk/",
+      "downloadUrl": "https://avatars.mds.yandex.net/get-bunker/50064/1873575459199e397062fb8cbaf94165d6756df0/orig",
+      "svgUrl": null,
+      "sha256": "fe7f1e91746cfad659313d5f159478d2a81453b90747b456f03b71ec76eab06f",
+      "bytes": 1712,
+      "mime": "image/svg+xml",
+      "license": {
+        "type": "Proprietary trademark; no open redistribution license asserted"
+      },
+      "licenseNotes": "Exact unmodified official service asset; identification only. Brand trademark/copyright retained by owner.",
+      "renderNotes": "Original bytes, no modifications. Filters/masks: True SVG elements needing renderer review: filter",
+      "dimensions": null,
+      "svgViewBox": "0 0 18 19"
+    },
+    {
+      "id": "sberprime",
+      "name": "СберПрайм",
+      "group": "other",
+      "aliases": [
+        "sberprime",
+        "sber prime",
+        "сбер прайм",
+        "сбербанк",
+        "сбер"
+      ],
+      "assetPath": "assets/services/sberprime.svg",
+      "color": "000000",
+      "simpleIconsTitle": null,
+      "source": "https://commons.wikimedia.org/wiki/File:Sberbank_Logo_2020.svg",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Sberbank_Logo_2020.svg",
+      "downloadUrl": "https://upload.wikimedia.org/wikipedia/commons/9/9b/Sberbank_Logo_2020.svg",
+      "svgUrl": null,
+      "sha256": "501968785ee67e79fadb585a4dacd7dcd898b75a96e0e13da9873ef5eb92633f",
+      "bytes": 9918,
+      "mime": "image/svg+xml",
+      "license": {
+        "ImageDescription": "Sberbank logo since 2020",
+        "Credit": "Own work using: <a rel=\"nofollow\" class=\"external free\" href=\"https://www.sber.ru/bank\">https://www.sber.ru/bank</a>",
+        "Artist": "Sberbank",
+        "LicenseShortName": "Public domain",
+        "UsageTerms": "Public domain",
+        "AttributionRequired": "false",
+        "Copyrighted": "False"
+      },
+      "licenseNotes": "Exact original file bytes from Wikimedia Commons. Public-domain status is declared by Commons uploader; trademark rights still apply. Parent-brand logo identifies provider, not a product-specific subscription logo. Commons credits this as own work using sber.ru/bank; it is a Commons PD-textlogo reproduction of the actual Sberbank brand, not official-hosted original bytes.",
+      "sourceType": "wikimedia-commons",
+      "preserveColors": true,
+      "background": "#FFFFFF",
+      "inset": 0.08,
+      "brand": "Сбер",
+      "providerBrand": true,
+      "parentBrand": true,
+      "sourceNotes": "Exact original file bytes from Wikimedia Commons. Public-domain status is declared by Commons uploader; trademark rights still apply. Parent-brand logo identifies provider, not a product-specific subscription logo. Commons credits this as own work using sber.ru/bank; it is a Commons PD-textlogo reproduction of the actual Sberbank brand, not official-hosted original bytes.",
+      "svgViewBox": "0 0 302 50",
+      "renderNotes": "Exact original source file; provider brand artwork, not an invented subscription-specific mark."
+    },
+    {
+      "id": "mts_premium",
+      "name": "МТС Premium",
+      "group": "other",
+      "aliases": [
+        "mts premium",
+        "мтс премиум",
+        "мтс"
+      ],
+      "assetPath": "assets/services/mts_premium.svg",
+      "color": "000000",
+      "simpleIconsTitle": null,
+      "source": "https://commons.wikimedia.org/wiki/File:Logo_%D0%9C%D0%A2%D0%A1_(2023).svg",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Logo_%D0%9C%D0%A2%D0%A1_(2023).svg",
+      "downloadUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d7/Logo_%D0%9C%D0%A2%D0%A1_%282023%29.svg",
+      "svgUrl": null,
+      "sha256": "5984b184b2a1aa63097f3bf528831750a5ce7649fe23d795f306cd2582aa5648",
+      "bytes": 1868,
+      "mime": "image/svg+xml",
+      "license": {
+        "ImageDescription": "<bdi lang=\"en\">The logo of <bdi lang=\"\"><a href=\"https://www.wikidata.org/wiki/Q4273643\" class=\"extiw\" title=\"d:Q4273643\">МТС</a></bdi></bdi>.",
+        "Credit": "<a rel=\"nofollow\" class=\"external free\" href=\"http://www.mts.ru/\">http://www.mts.ru/</a>",
+        "Artist": "Unknown author<span style=\"display: none;\">Unknown author</span>",
+        "LicenseShortName": "Public domain",
+        "UsageTerms": "Public domain",
+        "AttributionRequired": "false",
+        "Copyrighted": "False"
+      },
+      "licenseNotes": "Exact original file bytes from Wikimedia Commons. Public-domain status is declared by Commons uploader; trademark rights still apply. Parent-brand logo identifies provider, not a product-specific subscription logo.",
+      "sourceType": "wikimedia-commons",
+      "preserveColors": true,
+      "background": "#FFFFFF",
+      "inset": 0.08,
+      "brand": "МТС",
+      "providerBrand": true,
+      "parentBrand": true,
+      "sourceNotes": "Exact original file bytes from Wikimedia Commons. Public-domain status is declared by Commons uploader; trademark rights still apply. Parent-brand logo identifies provider, not a product-specific subscription logo.",
+      "svgViewBox": "0 0 44 44",
+      "renderNotes": "Exact original source file; provider brand artwork, not an invented subscription-specific mark."
+    },
+    {
+      "id": "beeline",
+      "name": "Билайн",
+      "group": "telecom",
+      "aliases": [
+        "beeline",
+        "билайн",
+        "билайн связь"
+      ],
+      "assetPath": "assets/services/beeline.svg",
+      "color": "000000",
+      "simpleIconsTitle": null,
+      "source": "https://commons.wikimedia.org/wiki/File:Beeline_Russia_logo_2021_symbol.svg",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Beeline_Russia_logo_2021_symbol.svg",
+      "downloadUrl": "https://upload.wikimedia.org/wikipedia/commons/e/ed/Beeline_Russia_logo_2021_symbol.svg",
+      "svgUrl": null,
+      "sha256": "117b79888a0d69fcbd5f072bbcfdc8284de4dc857804cd6f28624ec02d92e309",
+      "bytes": 3370,
+      "mime": "image/svg+xml",
+      "license": {
+        "ImageDescription": "Symbol-only logo of <a href=\"https://www.wikidata.org/wiki/Q402880\" class=\"extiw\" title=\"d:Q402880\">beeline</a>, the telecommunications brand used in Russia by <a href=\"https://www.wikidata.org/wiki/Q1562664\" class=\"extiw\" title=\"d:Q1562664\">VimpelCom</a>. A yellow sphere with curved dark bands and subtle radial lightening toward its edge. Base fills <code>#FFC800</code> and <code>#1B242C</code>, with a translucent white radial gradient. No wordmark or slogan; transparent background.",
+        "Credit": "SVG from the <a rel=\"nofollow\" class=\"external text\" href=\"https://smvno.beeline.ru/\">official beeline Smart MVNO website</a>: <a rel=\"nofollow\" class=\"external text\" href=\"https://smvno.beeline.ru/images/beeline%20ball.svg\">original SVG</a>. This version has optimized SVG code and added SVG/RDF metadata.",
+        "Artist": "2021 brand identity: Contrapunto.<sup id=\"cite_ref-rebrand2021_1-2\" class=\"reference\"><a href=\"#cite_note-rebrand2021-1\"><span class=\"cite-bracket\">[</span>1<span class=\"cite-bracket\">]</span></a></sup> The individual designer and original SVG producer of this particular symbol-only variant have not been identified.",
+        "LicenseShortName": "Public domain",
+        "UsageTerms": "Public domain",
+        "AttributionRequired": "false",
+        "Copyrighted": "False"
+      },
+      "licenseNotes": "Exact original file bytes from Wikimedia Commons. Public-domain status is declared by Commons uploader; trademark rights still apply. Parent-brand logo identifies provider, not a product-specific subscription logo. Commons credits original smvno.beeline.ru/images/beeline%20ball.svg; its uploaded version has optimized code and metadata, unchanged mark. Direct official original returned503 and was not retried.",
+      "sourceType": "wikimedia-commons",
+      "preserveColors": true,
+      "background": "#FFFFFF",
+      "inset": 0.08,
+      "brand": "Билайн",
+      "providerBrand": true,
+      "parentBrand": false,
+      "sourceNotes": "Exact original file bytes from Wikimedia Commons. Public-domain status is declared by Commons uploader; trademark rights still apply. Parent-brand logo identifies provider, not a product-specific subscription logo. Commons credits original smvno.beeline.ru/images/beeline%20ball.svg; its uploaded version has optimized code and metadata, unchanged mark. Direct official original returned503 and was not retried.",
+      "svgViewBox": "0 0 44 44",
+      "renderNotes": "Exact original source file; provider brand artwork, not an invented subscription-specific mark."
+    },
+    {
+      "id": "t2",
+      "name": "Т2",
+      "group": "telecom",
+      "aliases": [
+        "t2",
+        "tele2",
+        "теле2",
+        "теле 2"
+      ],
+      "assetPath": "assets/services/t2.svg",
+      "color": "000000",
+      "simpleIconsTitle": null,
+      "source": "https://commons.wikimedia.org/wiki/File:T2_(Tele2)_logo_2024.svg",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:T2_(Tele2)_logo_2024.svg",
+      "downloadUrl": "https://upload.wikimedia.org/wikipedia/commons/6/61/T2_%28Tele2%29_logo_2024.svg",
+      "svgUrl": null,
+      "sha256": "d2f6d31ed4ac25cd24cffd1e418bf0b98fdfa1fb1480d5a9024ce77c2e4b63ab",
+      "bytes": 4295,
+      "mime": "image/svg+xml",
+      "license": {
+        "ImageDescription": "Updated logo of the mobile operator t2 (Tele2)",
+        "Credit": "<a rel=\"nofollow\" class=\"external text\" href=\"https://t2.ru/\">t2.ru</a>",
+        "Artist": "T2 (Tele2)",
+        "LicenseShortName": "Public domain",
+        "UsageTerms": "Public domain",
+        "AttributionRequired": "false",
+        "Copyrighted": "False"
+      },
+      "licenseNotes": "Exact original file bytes from Wikimedia Commons. Public-domain status is declared by Commons uploader; trademark rights still apply. Parent-brand logo identifies provider, not a product-specific subscription logo.",
+      "sourceType": "wikimedia-commons",
+      "preserveColors": true,
+      "background": "#000000",
+      "inset": 0.08,
+      "brand": "Т2",
+      "providerBrand": true,
+      "parentBrand": false,
+      "sourceNotes": "Exact original file bytes from Wikimedia Commons. Public-domain status is declared by Commons uploader; trademark rights still apply. Parent-brand logo identifies provider, not a product-specific subscription logo.",
+      "svgViewBox": null,
+      "renderNotes": "Exact original source file; provider brand artwork, not an invented subscription-specific mark."
+    },
+    {
+      "id": "tbank_pro",
+      "name": "Т-Банк Pro",
+      "group": "other",
+      "aliases": [
+        "t bank pro",
+        "tbank pro",
+        "тинькофф про",
+        "т банк про",
+        "т-банк про"
+      ],
+      "assetPath": "assets/services/tbank_pro.svg",
+      "color": "000000",
+      "simpleIconsTitle": null,
+      "source": "https://commons.wikimedia.org/wiki/File:T-Bank_group_logo.svg",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:T-Bank_group_logo.svg",
+      "downloadUrl": "https://upload.wikimedia.org/wikipedia/commons/4/4e/T-Bank_group_logo.svg",
+      "svgUrl": null,
+      "sha256": "b19f8d69f3f3c6852615e2089d231a16e3702c67d4d5d51baab720ec0798097c",
+      "bytes": 642,
+      "mime": "image/svg+xml",
+      "license": {
+        "ImageDescription": "Логотип группы Т-Банка",
+        "Credit": "<a rel=\"nofollow\" class=\"external free\" href=\"https://www.tbank.ru/\">https://www.tbank.ru/</a>",
+        "Artist": "Т-Банк",
+        "LicenseShortName": "Public domain",
+        "UsageTerms": "Public domain",
+        "AttributionRequired": "false",
+        "Copyrighted": "False"
+      },
+      "licenseNotes": "Exact original file bytes from Wikimedia Commons. Public-domain status is declared by Commons uploader; trademark rights still apply. Parent-brand logo identifies provider, not a product-specific subscription logo. Copyright public-domain claims do not remove trademark rights.",
+      "sourceType": "wikimedia-commons",
+      "preserveColors": true,
+      "background": "#FFFFFF",
+      "inset": 0.08,
+      "brand": "Т-Банк",
+      "providerBrand": true,
+      "parentBrand": true,
+      "sourceNotes": "Exact original file bytes from Wikimedia Commons. Public-domain status is declared by Commons uploader; trademark rights still apply. Parent-brand logo identifies provider, not a product-specific subscription logo.",
+      "svgViewBox": "0 0 29 34",
+      "renderNotes": "Original provider artwork, not a subscription-specific mark; no file editing. ",
+      "dimensions": null
+    },
+    {
+      "id": "wb_jam",
+      "name": "WB Джем",
+      "group": "other",
+      "aliases": [
+        "wb jam",
+        "wb джем",
+        "wildberries",
+        "вайлдберриз",
+        "джем wildberries"
+      ],
+      "assetPath": "assets/services/wb_jam.png",
+      "color": "000000",
+      "simpleIconsTitle": null,
+      "source": "https://commons.wikimedia.org/wiki/File:Wildberries_2023_Pink.svg",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Wildberries_2023_Pink.svg",
+      "downloadUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/41/Wildberries_2023_Pink.svg/960px-Wildberries_2023_Pink.svg.png?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "svgUrl": null,
+      "sha256": "b2dde4b46da60edcbf02514befee69835315cf372d7dd5da7a9d06f06de1d480",
+      "bytes": 24209,
+      "mime": "image/png",
+      "license": {
+        "ImageDescription": "LLC «Вайлдберриз» <a rel=\"nofollow\" class=\"external text\" href=\"https://www.wildberries.ru/\">wildberries.ru</a>",
+        "Credit": "<a rel=\"nofollow\" class=\"external text\" href=\"https://www.wildberries.ru/\">wildberries.ru</a>",
+        "Artist": "ООО «Вайлдберриз», Letterhead Studio, Юрий Гордон (дизайнер)",
+        "LicenseShortName": "Public domain",
+        "UsageTerms": "Public domain",
+        "AttributionRequired": "false",
+        "Copyrighted": "False"
+      },
+      "licenseNotes": "Exact PNG rendition served by Wikimedia Commons for the licensed current 2023 SVG. No logo alteration or local redraw; Commons renderer generates the PNG. Use this over older decorative PNG. Copyright license/public-domain claims do not remove trademark rights. Used solely for service/provider identification.",
+      "sourceType": "wikimedia-commons",
+      "preserveColors": true,
+      "background": "#FFFFFF",
+      "inset": 0.08,
+      "brand": "Wildberries",
+      "providerBrand": true,
+      "parentBrand": true,
+      "sourceNotes": "Exact PNG rendition served by Wikimedia Commons for the licensed current 2023 SVG. No logo alteration or local redraw; Commons renderer generates the PNG. Use this over older decorative PNG.",
+      "svgViewBox": "0 0 500 75.1",
+      "renderNotes": "Current 2023 parent-brand wordmark. Exact Commons server PNG rendition avoids unsupported native SVG CSS. No local rendering, tracing or source editing.",
+      "dimensions": [
+        960,
+        145
+      ],
+      "originalSvgDownloadUrl": "https://upload.wikimedia.org/wikipedia/commons/4/41/Wildberries_2023_Pink.svg",
+      "originalSvgSha256": "c9fe72efdae3b7612e20884aa87e129eef92d75cff779f176da6de42784de380"
+    },
+    {
+      "id": "rutube",
+      "name": "RUTUBE",
+      "group": "video",
+      "aliases": [
+        "рутуб",
+        "ру туб",
+        "rutube"
+      ],
+      "assetPath": "assets/services/rutube.svg",
+      "color": "000000",
+      "simpleIconsTitle": null,
+      "source": "https://commons.wikimedia.org/wiki/File:Rutube_icon.svg",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Rutube_icon.svg",
+      "downloadUrl": "https://upload.wikimedia.org/wikipedia/commons/0/0e/Rutube_icon.svg",
+      "svgUrl": null,
+      "sha256": "74387533f6ba388f64799d79ac390e6d7d429c12127b9ac35564a2e44c4d394c",
+      "bytes": 1143,
+      "mime": "image/svg+xml",
+      "license": {
+        "ImageDescription": "Favicon of <a href=\"https://en.wikipedia.org/wiki/Rutube\" class=\"extiw\" title=\"w:Rutube\">Rutube</a>",
+        "Credit": "<a rel=\"nofollow\" class=\"external free\" href=\"https://rutube.ru/\">https://rutube.ru/</a>",
+        "Artist": "Rutube",
+        "LicenseShortName": "Public domain",
+        "UsageTerms": "Public domain",
+        "AttributionRequired": "false",
+        "Copyrighted": "False"
+      },
+      "licenseNotes": "Exact original file bytes from Wikimedia Commons. Public-domain status is declared by Commons uploader; trademark rights still apply. Parent-brand logo identifies provider, not a product-specific subscription logo.",
+      "sourceType": "wikimedia-commons",
+      "preserveColors": true,
+      "background": "#FFFFFF",
+      "inset": 0.08,
+      "brand": "RUTUBE",
+      "providerBrand": true,
+      "parentBrand": false,
+      "sourceNotes": "Exact original file bytes from Wikimedia Commons. Public-domain status is declared by Commons uploader; trademark rights still apply. Parent-brand logo identifies provider, not a product-specific subscription logo.",
+      "svgViewBox": "0 0 132 132",
+      "renderNotes": "Exact original source file; provider brand artwork, not an invented subscription-specific mark."
+    },
+    {
+      "id": "vk_combo",
+      "name": "VK Combo",
+      "group": "other",
+      "aliases": [
+        "вк комбо",
+        "vk combo",
+        "combo vk",
+        "комбо вк"
+      ],
+      "assetPath": "assets/services/vk_combo.svg",
+      "color": "000000",
+      "simpleIconsTitle": null,
+      "source": "https://commons.wikimedia.org/wiki/File:VK_Compact_Logo_(2021-present).svg",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:VK_Compact_Logo_(2021-present).svg",
+      "downloadUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f3/VK_Compact_Logo_%282021-present%29.svg",
+      "svgUrl": null,
+      "sha256": "2c16bcf8dd56d83e5e23fbe0690e3d6a3ef9f84a828b3530495f907187c1f1db",
+      "bytes": 847,
+      "mime": "image/svg+xml",
+      "license": {
+        "ImageDescription": "Logo of social networking service <a href=\"https://en.wikipedia.org/wiki/VK_(service)\" class=\"extiw\" title=\"w:VK (service)\">VKontakte</a> used since 2021.",
+        "Credit": "<a rel=\"nofollow\" class=\"external free\" href=\"https://vk.com/brand\">https://vk.com/brand</a>",
+        "Artist": "<a href=\"https://ru.wikipedia.org/wiki/VK_(%D0%BA%D0%BE%D0%BC%D0%BF%D0%B0%D0%BD%D0%B8%D1%8F)\" class=\"extiw\" title=\"ru:VK (компания)\">VK</a>",
+        "LicenseShortName": "Public domain",
+        "UsageTerms": "Public domain",
+        "AttributionRequired": "false",
+        "Copyrighted": "False"
+      },
+      "licenseNotes": "Exact original file bytes from Wikimedia Commons. Public-domain status is declared by Commons uploader; trademark rights still apply. Parent-brand logo identifies provider, not a product-specific subscription logo.",
+      "sourceType": "wikimedia-commons",
+      "preserveColors": true,
+      "background": "#FFFFFF",
+      "inset": 0.08,
+      "brand": "VK",
+      "providerBrand": true,
+      "parentBrand": true,
+      "sourceNotes": "Exact original file bytes from Wikimedia Commons. Public-domain status is declared by Commons uploader; trademark rights still apply. Parent-brand logo identifies provider, not a product-specific subscription logo.",
+      "svgViewBox": "0 0 48 48",
+      "renderNotes": "Exact original source file; provider brand artwork, not an invented subscription-specific mark."
+    },
+    {
+      "id": "ozon_premium",
+      "name": "Ozon Premium",
+      "group": "other",
+      "aliases": [
+        "озон премиум",
+        "ozon premium",
+        "озон"
+      ],
+      "assetPath": "assets/services/ozon_premium.svg",
+      "color": "000000",
+      "simpleIconsTitle": null,
+      "source": "https://commons.wikimedia.org/wiki/File:Ozon_logo_clear.svg",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Ozon_logo_clear.svg",
+      "downloadUrl": "https://upload.wikimedia.org/wikipedia/commons/3/39/Ozon_logo_clear.svg",
+      "svgUrl": null,
+      "sha256": "7beaa1f61e4b0cac2c222540ddb43be6ca74f5897fcab7430a797a209e49b5da",
+      "bytes": 1032,
+      "mime": "image/svg+xml",
+      "license": {
+        "ImageDescription": "The logo of the Russian e-commerce company Ozon.",
+        "Credit": "<a rel=\"nofollow\" class=\"external free\" href=\"https://static.tildacdn.com/tild3438-3737-4138-b830-393232666130/logo-logo-ozon-blue.svg\">https://static.tildacdn.com/tild3438-3737-4138-b830-393232666130/logo-logo-ozon-blue.svg</a>",
+        "Artist": "Ozon",
+        "LicenseShortName": "Public domain",
+        "UsageTerms": "Public domain",
+        "AttributionRequired": "false",
+        "Copyrighted": "False"
+      },
+      "licenseNotes": "Exact original file bytes from Wikimedia Commons. Public-domain status is declared by Commons uploader; trademark rights still apply. Parent-brand logo identifies provider, not a product-specific subscription logo. Copyright public-domain claims do not remove trademark rights.",
+      "sourceType": "wikimedia-commons",
+      "preserveColors": true,
+      "background": "#FFFFFF",
+      "inset": 0.08,
+      "brand": "Ozon",
+      "providerBrand": true,
+      "parentBrand": true,
+      "sourceNotes": "Exact original file bytes from Wikimedia Commons. Public-domain status is declared by Commons uploader; trademark rights still apply. Parent-brand logo identifies provider, not a product-specific subscription logo.",
+      "svgViewBox": null,
+      "dimensions": null,
+      "renderNotes": "Original provider artwork, not a subscription-specific mark; no file editing. "
     }
   ]
 }
