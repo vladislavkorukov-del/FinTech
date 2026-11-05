@@ -1,4 +1,6 @@
 // Offline subscription metadata. Original artwork provenance: docs/SERVICE_ASSETS.md.
+import 'bank_catalog.dart';
+
 class SubscriptionService {
   const SubscriptionService({
     required this.id,
@@ -10,15 +12,17 @@ class SubscriptionService {
     this.preserveColors = false,
     this.background = 0xFFFFFFFF,
     this.inset = .18,
+    this.rasterPath,
   });
   final String id, name, group;
   final List<String> aliases;
   final String? assetPath;
+  final String? rasterPath;
 
   /// Local display copy. Source artwork/provenance remains in [assetPath].
   /// PNG decoding avoids runtime SVG backend and asynchronous picture caches.
   String? get renderAssetPath =>
-      assetPath == null ? null : 'assets/services/raster/$id.png';
+      assetPath == null ? null : rasterPath ?? 'assets/services/raster/$id.png';
   final int color;
   final bool preserveColors;
   final int background;
@@ -40,6 +44,21 @@ abstract final class ServiceCatalog {
     'security': 'Безопасность',
     'games': 'Игры',
     'other': 'Другие',
+    'banks': 'Банки и кредитные организации',
+  };
+
+  /// Credit organizations from the Bank of Russia register (see
+  /// [BankCatalog]). Kept apart from [entries] so the subscription catalog and
+  /// its artwork manifest stay unchanged; lookup and search cover both.
+  static final List<SubscriptionService> banks = List.unmodifiable(
+    BankCatalog.entries.map((b) => b.toService()),
+  );
+  static final List<SubscriptionService> all = List.unmodifiable([
+    ...entries,
+    ...banks,
+  ]);
+  static final Map<String, SubscriptionService> _byId = {
+    for (final service in all) service.id: service,
   };
   static const entries = <SubscriptionService>[
     SubscriptionService(
@@ -2104,12 +2123,7 @@ abstract final class ServiceCatalog {
       inset: .08,
     ),
   ];
-  static SubscriptionService? byId(String? id) {
-    for (final service in entries) {
-      if (service.id == id) return service;
-    }
-    return null;
-  }
+  static SubscriptionService? byId(String? id) => _byId[id];
 
   // Search keywords such as "music" are useful discovery terms, never proof
   // that an existing custom subscription belongs to a particular brand.
@@ -2160,16 +2174,25 @@ abstract final class ServiceCatalog {
       .replaceAll('ё', 'е')
       .replaceAll(RegExp(r'\s+'), ' ')
       .trim();
+
+  /// Punctuation-insensitive form, so «Т-Банк», "Т Банк" and «ДОМ.РФ»
+  /// match however a person types them.
+  static String _loose(String value) =>
+      _normalize(value.replaceAll(RegExp(r'[«»"“”„()\-–—.,/]'), ' '));
+
   static List<SubscriptionService> search(String query, {String? group}) {
     final terms = _normalize(
       query,
     ).split(" ").where((s) => s.isNotEmpty).toList();
-    return entries.where((service) {
+    final looseTerms = _loose(
+      query,
+    ).split(" ").where((s) => s.isNotEmpty).toList();
+    return all.where((service) {
       if (group != null && service.group != group) return false;
-      final haystack = _normalize(
-        [service.name, service.id, ...service.aliases].join(" "),
-      );
-      return terms.every(haystack.contains);
+      final words = [service.name, service.id, ...service.aliases].join(" ");
+      final haystack = _normalize(words);
+      return terms.every(haystack.contains) ||
+          (looseTerms.isNotEmpty && looseTerms.every(_loose(words).contains));
     }).toList();
   }
 }

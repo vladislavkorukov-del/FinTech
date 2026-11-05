@@ -190,3 +190,32 @@ explicitly if host Tesseract is absent. These host fixtures do not establish
 accuracy or lifecycle behavior of the Android binary on a physical phone.
 
 Full release verification and remaining device checks: [VALIDATION.md](VALIDATION.md).
+
+## Receipt total in 1.6
+
+A shop/till receipt is always **one** draft. Its amount is the explicit
+total only: `ИТОГ`, `ИТОГО`, `К ОПЛАТЕ`, `ВСЕГО`, `СУММА ПО ЧЕКУ`, `TOTAL`,
+including a value on the next line or in a separate right column.
+
+- Receipt evidence survives a partly lost header: fiscal fields (ФН/ФД/ФП,
+  ККТ, кассир, смена, признак расчёта, nalog.ru), two or more `qty × price`
+  rows, or a total together with item/tender lines. A total without signed
+  bank rows also keeps the image out of the bulk-import path. Such text never
+  becomes a list of operations; bank history pages with signed rows still do.
+- Item prices, VAT, `ВНЕСЕНО`/`НАЛИЧНЫМИ`/`СДАЧА` and payment-method lines
+  (`БЕЗНАЛИЧНЫМИ`, `ОПЛАТА КАРТОЙ`) are never the amount of a receipt and
+  are never added up. Without an explicit total, or with two different totals,
+  the amount stays empty with a warning for the person to enter.
+- OCR-damaged labels are repaired only when damaged: `И Т О Г`, `ИT0Г`,
+  `ИТOГО`, `К 0ПЛАТЕ`, `КОПЛАТЕ`; `≡` before a sum is read as `=`; a space
+  before the decimal separator (`188 ,90`) is accepted.
+- When native line coordinates exist, receipt text is parsed in visual rows,
+  so `ИТОГ` meets the value printed far to the right even if Tesseract read
+  the label column first. The text-only result is used only if the visual
+  rows give no total; the draft keeps the original OCR text.
+
+Regression evidence: `test/receipt_total_v16_test.dart`. Before the change,
+three of its seven cases failed (right column, damaged label, missing total
+silently taking a price); all pass now together with the previous parser,
+statement, scan-import and editor tests. The fixtures are synthetic text and
+coordinates, not photographs of real receipts.

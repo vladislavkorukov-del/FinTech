@@ -92,7 +92,7 @@ void main() {
   );
 
   testWidgets(
-    'approved logo decodes and stays at screen center in both themes',
+    'approved logo decodes centered on the launch screen; header has no F',
     (tester) async {
       for (final brightness in Brightness.values) {
         for (final width in [320.0, 412.0]) {
@@ -102,10 +102,12 @@ void main() {
             MaterialApp(
               theme: AppTheme.build(brightness, 'coffee'),
               home: const Scaffold(
-                body: SafeArea(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 18),
-                    child: FinanceHeader(),
+                body: Center(
+                  child: SizedBox(
+                    key: ValueKey('launch-brand'),
+                    width: 64,
+                    height: 64,
+                    child: FinanceBrand(),
                   ),
                 ),
               ),
@@ -126,14 +128,8 @@ void main() {
           expect(image.image!.width, 1254);
           expect(image.image!.height, 1254);
           expect(
-            tester
-                .getCenter(find.byKey(const ValueKey('finance-brand-center')))
-                .dx,
+            tester.getCenter(find.byKey(const ValueKey('launch-brand'))).dx,
             closeTo(width / 2, .01),
-          );
-          expect(
-            tester.getSize(find.byKey(const ValueKey('finance-brand-center'))),
-            const Size(54, 54),
           );
           expect(tester.takeException(), isNull);
         }
@@ -142,4 +138,15 @@ void main() {
       tester.view.resetDevicePixelRatio();
     },
   );
+  test('header source no longer embeds the F brand mark', () async {
+    final source = await File(
+      'lib/presentation/widgets/finance_header.dart',
+    ).readAsString();
+    final header = source.substring(
+      source.indexOf('class FinanceHeader extends'),
+    );
+    expect(header, isNot(contains('FinanceBrand(')));
+    expect(header, contains('c.balance'));
+    expect(header, contains('c.currency'));
+  });
 }

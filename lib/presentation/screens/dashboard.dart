@@ -11,6 +11,7 @@ import 'entry_editor.dart';
 import 'transactions.dart';
 import '../widgets/finance_header.dart';
 import '../widgets/finance_quick_actions.dart';
+import '../widgets/bank_picker.dart';
 import '../widgets/category_orbit_chart.dart';
 import '../widgets/service_badge.dart';
 
@@ -64,46 +65,36 @@ class Dashboard extends StatelessWidget {
     );
     return ListView(
       key: const PageStorageKey('dashboard'),
-      padding: const EdgeInsets.fromLTRB(18, 4, 18, 24),
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 20),
       children: [
         const FinanceHeader(),
-        const SizedBox(height: 12),
-        const FinanceQuickActions(),
-        const SizedBox(height: 14),
-        SurfaceCard(
-          key: const ValueKey('dashboard-balance'),
-          padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 16),
-          onTap: () => _open(context, const AccountsScreen()),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  'Общий баланс',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: scheme.onSurfaceVariant,
-                  ),
-                ),
+        const SizedBox(height: 10),
+        Row(
+          key: const ValueKey('dashboard-month-summary'),
+          children: [
+            Expanded(
+              child: _SummaryTile(
+                title: 'Доходы',
+                amount: totals.income,
+                currency: c.currency,
+                icon: Icons.south_west_rounded,
+                onTap: () => operations(EntryKind.income),
               ),
-              const SizedBox(width: 12),
-              Flexible(
-                flex: 2,
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Text(
-                    money(c.balance, c.currency),
-                    style: TextStyle(
-                      fontSize: 25,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: -.6,
-                      color: scheme.onSurface,
-                    ),
-                  ),
-                ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: _SummaryTile(
+                title: 'Расходы',
+                amount: totals.expense,
+                currency: c.currency,
+                icon: Icons.north_east_rounded,
+                onTap: () => operations(EntryKind.expense),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
+        const SizedBox(height: 8),
+        const FinanceQuickActions(),
         SectionTitle(
           'Все счета',
           action: '+ Счёт',
@@ -120,7 +111,7 @@ class Dashboard extends StatelessWidget {
           ),
         for (final account in active)
           Padding(
-            padding: const EdgeInsets.only(bottom: 8),
+            padding: const EdgeInsets.only(bottom: 6),
             child: _AccountRow(account: account),
           ),
         if (archived.isNotEmpty)
@@ -138,37 +129,13 @@ class Dashboard extends StatelessWidget {
               children: archived
                   .map(
                     (a) => Padding(
-                      padding: const EdgeInsets.only(top: 8),
+                      padding: const EdgeInsets.only(top: 6),
                       child: _AccountRow(account: a),
                     ),
                   )
                   .toList(),
             ),
           ),
-        const SizedBox(height: 10),
-        Row(
-          children: [
-            Expanded(
-              child: _SummaryTile(
-                title: 'Доходы',
-                amount: totals.income,
-                currency: c.currency,
-                icon: Icons.south_west_rounded,
-                onTap: () => operations(EntryKind.income),
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: _SummaryTile(
-                title: 'Расходы',
-                amount: totals.expense,
-                currency: c.currency,
-                icon: Icons.north_east_rounded,
-                onTap: () => operations(EntryKind.expense),
-              ),
-            ),
-          ],
-        ),
         SectionTitle(
           'Обзор месяца',
           action: DateFormat('LLLL', 'ru').format(DateTime.now()),
@@ -201,7 +168,7 @@ class Dashboard extends StatelessWidget {
         else
           for (final goal in c.data.goals)
             Padding(
-              padding: const EdgeInsets.only(bottom: 8),
+              padding: const EdgeInsets.only(bottom: 6),
               child: _DreamRow(goal: goal),
             ),
         const _PaymentSection(
@@ -246,8 +213,12 @@ class Dashboard extends StatelessWidget {
         else
           for (final budget in c.data.budgets.take(2))
             Padding(
-              padding: const EdgeInsets.only(bottom: 8),
+              padding: const EdgeInsets.only(bottom: 6),
               child: SurfaceCard(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
                 onTap: () => _open(context, const BudgetsScreen()),
                 child: Builder(
                   builder: (context) {
@@ -297,7 +268,7 @@ class _AccountRow extends StatelessWidget {
     final c = FinanceScope.of(context);
     final scheme = Theme.of(context).colorScheme;
     return SurfaceCard(
-      padding: const EdgeInsets.fromLTRB(16, 18, 8, 18),
+      padding: const EdgeInsets.fromLTRB(14, 11, 4, 11),
       onTap: () => Navigator.push(
         context,
         MaterialPageRoute<void>(
@@ -306,19 +277,20 @@ class _AccountRow extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Container(
-            width: 42,
-            height: 42,
-            decoration: BoxDecoration(
-              color: FinanceColors.of(context).iconBackground,
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: Icon(
-              categoryIcon(account.icon),
-              color: FinanceColors.of(context).iconForeground,
-              size: 21,
-            ),
-          ),
+          bankLogoFor(account.bank, size: 38) ??
+              Container(
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  color: FinanceColors.of(context).iconBackground,
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Icon(
+                  categoryIcon(account.icon),
+                  color: FinanceColors.of(context).iconForeground,
+                  size: 21,
+                ),
+              ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -330,7 +302,7 @@ class _AccountRow extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
-                const SizedBox(height: 5),
+                const SizedBox(height: 3),
                 Text(
                   [
                         if (account.bank.isNotEmpty) account.bank,
@@ -401,6 +373,7 @@ class _DreamRow extends StatelessWidget {
     final saved = FinanceEngine.goalSaved(goal, c.data.entries);
     final percent = (saved / goal.targetMinor * 100).round();
     return SurfaceCard(
+      padding: const EdgeInsets.fromLTRB(14, 10, 6, 12),
       onTap: () => Navigator.push(
         context,
         MaterialPageRoute<void>(
@@ -436,7 +409,7 @@ class _DreamRow extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
           LinearProgressIndicator(
             value: (saved / goal.targetMinor).clamp(0, 1),
             minHeight: 6,
@@ -444,7 +417,7 @@ class _DreamRow extends StatelessWidget {
             color: scheme.primary,
             backgroundColor: scheme.outlineVariant.withValues(alpha: .3),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 8),
           Text(
             '${money(saved, goal.currency)} · $percent% накоплено',
             style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant),
@@ -491,7 +464,7 @@ class _PaymentSection extends StatelessWidget {
           ),
         ),
         SurfaceCard(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
           child: Column(
             children: [
               if (rules.isEmpty)
@@ -515,7 +488,7 @@ class _PaymentSection extends StatelessWidget {
               else
                 for (final r in rules.take(3))
                   ListTile(
-                    contentPadding: const EdgeInsets.symmetric(vertical: 4),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 2),
                     leading: ServiceBadge(
                       serviceId: r.serviceId,
                       customIconPath: r.customIconPath,
@@ -584,7 +557,7 @@ class _SummaryTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) => SurfaceCard(
     onTap: onTap,
-    padding: const EdgeInsets.all(16),
+    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -592,7 +565,7 @@ class _SummaryTile extends StatelessWidget {
           children: [
             Icon(
               icon,
-              size: 18,
+              size: 17,
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
             const SizedBox(width: 7),
@@ -607,7 +580,7 @@ class _SummaryTile extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 6),
         FittedBox(
           fit: BoxFit.scaleDown,
           child: Text(
@@ -637,7 +610,7 @@ class _ExpenseOverview extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = FinanceScope.of(context);
     return SurfaceCard(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(12),
       child: Column(
         children: [
           Row(

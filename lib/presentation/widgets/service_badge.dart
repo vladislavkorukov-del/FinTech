@@ -9,6 +9,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:uuid/uuid.dart';
 
+import '../../domain/bank_catalog.dart';
 import '../../domain/service_catalog.dart';
 import 'common.dart';
 import 'service_logo_image.dart';
@@ -69,8 +70,11 @@ class _ServiceBadgeState extends State<ServiceBadge> {
         (customIconPath?.isNotEmpty ?? false) &&
         customIconPath != _failedCustomPath;
     final asset = service?.renderAssetPath;
+    // Banks without a bundled original mark get a neutral, unbranded glyph.
     final fallback = Icon(
-      Icons.subscriptions_outlined,
+      service?.group == 'banks'
+          ? Icons.account_balance_outlined
+          : Icons.subscriptions_outlined,
       color: scheme.onSurfaceVariant,
       size: size * .48,
     );
@@ -266,7 +270,9 @@ class _ServicePickerState extends State<_ServicePicker> {
                           ),
                           const SizedBox(height: 12),
                           Text(
-                            '${results.length} сервисов',
+                            group == 'banks'
+                                ? '${results.length} банков и НКО из реестра Банка России'
+                                : '${results.length} в каталоге',
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                           const SizedBox(height: 8),
@@ -344,7 +350,13 @@ class _ServicePickerState extends State<_ServicePicker> {
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        subtitle: Text(ServiceCatalog.groups[item.group]!),
+                        subtitle: Text(
+                          item.group == 'banks'
+                              ? _bankSubtitle(item.id)
+                              : ServiceCatalog.groups[item.group]!,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                         trailing: const Icon(Icons.chevron_right_rounded),
                         onTap: () => Navigator.pop(
                           context,
@@ -476,4 +488,11 @@ class _CustomServiceEditorState extends State<_CustomServiceEditor> {
       ),
     ),
   );
+}
+
+String _bankSubtitle(String id) {
+  final bank = BankCatalog.byId(id);
+  return bank == null
+      ? ServiceCatalog.groups['banks']!
+      : '${bank.nonBank ? 'НКО' : 'Банк'} · рег. № ${bank.regNumber}';
 }

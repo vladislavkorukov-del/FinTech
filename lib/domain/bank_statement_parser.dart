@@ -19,23 +19,49 @@ abstract final class BankStatementParser {
     final source = ReceiptParser.normalizeText(text);
     final visual = _visualRows(source, lines);
     final heading = _historyHeading.hasMatch(source.toLowerCase());
+    final signedRows = visual
+        .where((r) => _amounts(r.text).any((a) => a.signed != 0))
+        .length;
+    final total = RegExp(
+      r'(?<![а-я])итого?(?![а-я])|grand\s+total|subtotal',
+      caseSensitive: false,
+    ).hasMatch(source);
+    // A shop receipt stays one operation even when OCR lost its header:
+    // fiscal fields, quantity × price rows, tender lines or a total without
+    // signed bank-history rows all keep it out of the bulk-import path.
     final receipt =
         _receiptMarker.hasMatch(source.toLowerCase()) ||
-        (!heading &&
-            RegExp(
-              r'(?<![а-я])итого?(?![а-я])|grand\s+total|subtotal',
-              caseSensitive: false,
-            ).hasMatch(source));
-    ScanDocument single() => ScanDocument(
-      drafts: [
-        ReceiptParser.parse(
-          text,
-          categories: categories,
-          history: history,
-          now: clock,
-        ),
-      ],
-    );
+        ReceiptParser.isReceiptText(source) ||
+        (total && (!heading || signedRows == 0));
+    ScanDocument single() {
+      String parseText = text;
+      // Columns of a receipt are joined by their visual row, so a total
+      // printed in a separate right column still meets its «ИТОГ» label.
+      if (lines.isNotEmpty) {
+        final joined = visual.map((r) => r.text).join('\n');
+        if (joined.trim().isNotEmpty) parseText = joined;
+      }
+      var draft = ReceiptParser.parse(
+        parseText,
+        categories: categories,
+        history: history,
+        now: clock,
+      );
+      if (!identical(parseText, text)) {
+        if (draft.amountMinor == null) {
+          final plain = ReceiptParser.parse(
+            text,
+            categories: categories,
+            history: history,
+            now: clock,
+          );
+          if (plain.amountMinor != null) draft = plain;
+        }
+        draft = draft.copyWith(rawText: text);
+      }
+      return ScanDocument(drafts: [draft]);
+    }
+
     if (receipt) return single();
     final monetaryRows = visual
         .where((r) => !_ignored(r.text) && _amounts(r.text).isNotEmpty)

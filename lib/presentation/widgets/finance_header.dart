@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import '../controller.dart';
 import '../screens/management.dart';
 import '../screens/settings.dart';
 import '../theme/app_theme.dart';
+import 'common.dart' show money;
 
 class FinanceBrand extends StatefulWidget {
   const FinanceBrand({super.key, this.animated = true});
@@ -89,50 +91,90 @@ class _FinanceBrandState extends State<FinanceBrand>
   );
 }
 
+/// Top bar of the dashboard: settings, the total balance in the selected
+/// currency (from [FinanceController.balance]) and the family profile.
+/// The app mark is kept for the launch screen; the header no longer repeats it.
 class FinanceHeader extends StatelessWidget {
-  const FinanceHeader({super.key, this.brand});
-  final Widget? brand;
+  const FinanceHeader({super.key});
   @override
   Widget build(BuildContext context) {
     final colors = FinanceColors.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    final c = FinanceScope.of(context);
     void open(Widget page) =>
         Navigator.push(context, MaterialPageRoute<void>(builder: (_) => page));
-    return SizedBox(
-      height: 58,
-      child: Stack(
-        alignment: Alignment.center,
+    final buttonStyle = IconButton.styleFrom(
+      backgroundColor: colors.iconBackground,
+      foregroundColor: colors.iconForeground,
+      minimumSize: const Size(48, 48),
+    );
+    return ConstrainedBox(
+      constraints: const BoxConstraints(minHeight: 56),
+      child: Row(
         children: [
-          Center(
-            child: SizedBox(
-              key: const ValueKey('finance-brand-center'),
-              width: 54,
-              height: 54,
-              child: brand ?? const FinanceBrand(),
+          IconButton.filledTonal(
+            tooltip: 'Настройки',
+            onPressed: () => open(const SettingsScreen()),
+            style: buttonStyle,
+            icon: const Icon(Icons.tune_rounded, size: 21),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Semantics(
+              button: true,
+              label: 'Общий баланс ${money(c.balance, c.currency)}',
+              excludeSemantics: true,
+              child: InkWell(
+                key: const ValueKey('header-balance'),
+                borderRadius: BorderRadius.circular(16),
+                onTap: () => open(const AccountsScreen()),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 4,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          'Общий баланс · ${c.currency}',
+                          maxLines: 1,
+                          style: TextStyle(
+                            fontSize: 11,
+                            letterSpacing: .2,
+                            color: scheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 1),
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          money(c.balance, c.currency),
+                          key: const ValueKey('header-balance-amount'),
+                          maxLines: 1,
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: -.5,
+                            color: scheme.onSurface,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
           ),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: IconButton.filledTonal(
-              tooltip: 'Настройки',
-              onPressed: () => open(const SettingsScreen()),
-              style: IconButton.styleFrom(
-                backgroundColor: colors.iconBackground,
-                foregroundColor: colors.iconForeground,
-              ),
-              icon: const Icon(Icons.tune_rounded, size: 21),
-            ),
-          ),
-          Align(
-            alignment: Alignment.centerRight,
-            child: IconButton.filledTonal(
-              tooltip: 'Моя семья',
-              onPressed: () => open(const MembersScreen()),
-              style: IconButton.styleFrom(
-                backgroundColor: colors.iconBackground,
-                foregroundColor: colors.iconForeground,
-              ),
-              icon: const Icon(Icons.family_restroom_outlined, size: 22),
-            ),
+          const SizedBox(width: 8),
+          IconButton.filledTonal(
+            tooltip: 'Моя семья',
+            onPressed: () => open(const MembersScreen()),
+            style: buttonStyle,
+            icon: const Icon(Icons.family_restroom_outlined, size: 22),
           ),
         ],
       ),

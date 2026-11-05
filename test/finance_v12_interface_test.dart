@@ -1,9 +1,11 @@
 import 'dart:io';
 import 'package:finora/data/finance_repository.dart';
+import 'package:finora/domain/bank_catalog.dart';
 import 'package:finora/domain/models.dart';
 import 'package:finora/presentation/controller.dart';
 import 'package:finora/presentation/theme/app_theme.dart';
 import 'package:finora/presentation/screens/dashboard.dart';
+import 'package:finora/presentation/screens/management.dart';
 import 'package:finora/presentation/screens/analytics.dart';
 import 'package:finora/presentation/screens/entry_editor.dart';
 import 'package:finora/presentation/widgets/finance_header.dart';
@@ -11,6 +13,7 @@ import 'package:finora/presentation/widgets/category_orbit_chart.dart';
 import 'package:finora/presentation/widgets/half_year_chart.dart';
 import 'package:finora/presentation/widgets/common.dart';
 import 'package:finora/presentation/widgets/amount_pad.dart';
+import 'package:finora/presentation/widgets/service_badge.dart';
 import 'package:finora/services/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -152,76 +155,182 @@ void main() {
   }
 
   testWidgets(
-    'header logo layout is at absolute center and family action works',
+    'header shows centered total balance and currency instead of the F logo',
     (tester) async {
       for (final width in [320.0, 412.0]) {
-        await mount(
-          tester,
-          const Scaffold(
-            body: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 18),
-              child: FinanceHeader(brand: SizedBox()),
+        for (final scale in [1.0, 1.6]) {
+          await mount(
+            tester,
+            const Scaffold(
+              body: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 18),
+                child: FinanceHeader(),
+              ),
             ),
-          ),
-          size: Size(width, 700),
-        );
-        expect(
-          tester
-              .getCenter(find.byKey(const ValueKey('finance-brand-center')))
-              .dx,
-          closeTo(width / 2, .01),
-        );
-        expect(find.byIcon(Icons.visibility_outlined), findsNothing);
+            size: Size(width, 700),
+            scale: scale,
+          );
+          final balance = find.byKey(const ValueKey('header-balance'));
+          expect(tester.getCenter(balance).dx, closeTo(width / 2, .01));
+          expect(
+            find.text(money(controller.balance, controller.currency)),
+            findsOneWidget,
+          );
+          expect(
+            find.text('Общий баланс · ${controller.currency}'),
+            findsOneWidget,
+          );
+          expect(find.byType(FinanceBrand), findsNothing);
+          expect(find.byType(Image), findsNothing);
+          expect(find.byIcon(Icons.visibility_outlined), findsNothing);
+          expect(tester.takeException(), isNull);
+        }
       }
       await tester.tap(find.byTooltip('Моя семья'));
       await tester.pumpAndSettle();
       expect(find.text('Семейный профиль'), findsOneWidget);
       expect(find.text('Я'), findsOneWidget);
-    },
-  );
-  testWidgets(
-    'dashboard order and equal usable action sizes at320px large text',
-    (tester) async {
-      await mount(
-        tester,
-        Scaffold(
-          body: Dashboard(onTransactions: () {}, onAnalytics: () {}),
-        ),
-        size: const Size(320, 740),
-        scale: 1.4,
-      );
-      final actions = find.byKey(const ValueKey('dashboard-actions'));
-      final balance = find.byKey(const ValueKey('dashboard-balance'));
-      expect(
-        tester.getTopLeft(actions).dy,
-        lessThan(tester.getTopLeft(balance).dy),
-      );
-      expect(
-        tester.getTopLeft(balance).dy,
-        lessThan(tester.getTopLeft(find.text('Все счета')).dy),
-      );
-      final keys = [
-        'quick-action-income',
-        'quick-action-expense',
-        'quick-action-transfer',
-      ];
-      final sizes = keys
-          .map((k) => tester.getSize(find.byKey(ValueKey(k))))
-          .toList();
-      expect(sizes[0].width, closeTo(sizes[1].width, .01));
-      expect(sizes[1].width, closeTo(sizes[2].width, .01));
-      for (final size in sizes) {
-        expect(size.height, greaterThanOrEqualTo(48));
-      }
-      expect(find.text('Мои финансы'), findsNothing);
-      expect(find.text('Всё важное. В одном месте.'), findsNothing);
-      expect(find.byTooltip('Скрыть суммы'), findsNothing);
-      expect(tester.takeException(), isNull);
-      await tester.tap(find.byKey(const ValueKey('quick-action-transfer')));
+      tester.state<NavigatorState>(find.byType(Navigator).first).pop();
       await tester.pumpAndSettle();
-      expect(find.byType(EntryEditor), findsOneWidget);
+      await tester.tap(find.byTooltip('Настройки'));
+      await tester.pumpAndSettle();
+      expect(find.text('Внешний вид'), findsWidgets);
+      tester.state<NavigatorState>(find.byType(Navigator).first).pop();
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('header-balance')));
+      await tester.pumpAndSettle();
+      expect(find.byType(AccountsScreen), findsOneWidget);
     },
   );
+  for (final (size, scale) in [
+    (const Size(320, 740), 1.4),
+    (const Size(412, 900), 1.0),
+    (const Size(740, 360), 1.0),
+  ]) {
+    testWidgets(
+      'dashboard order, no duplicate balance and equal actions at ${size.width}x${size.height} text $scale',
+      (tester) async {
+        await mount(
+          tester,
+          Scaffold(
+            body: Dashboard(onTransactions: () {}, onAnalytics: () {}),
+          ),
+          size: size,
+          scale: scale,
+        );
+        double top(Finder f) => tester.getTopLeft(f).dy;
+        final header = find.byKey(const ValueKey('header-balance'));
+        final summary = find.byKey(const ValueKey('dashboard-month-summary'));
+        final actions = find.byKey(const ValueKey('dashboard-actions'));
+        expect(find.byKey(const ValueKey('dashboard-balance')), findsNothing);
+        expect(find.text('Общий баланс'), findsNothing);
+        // The total is shown once, in the header; account rows keep their
+        // own balances.
+        expect(
+          find.descendant(
+            of: header,
+            matching: find.text(money(controller.balance, controller.currency)),
+          ),
+          findsOneWidget,
+        );
+        expect(find.textContaining('Общий баланс'), findsOneWidget);
+        expect(top(header), lessThan(top(summary)));
+        expect(top(summary), lessThan(top(actions)));
+        // Actions sit directly below the month income/expense cards.
+        expect(
+          top(actions) - tester.getBottomLeft(summary).dy,
+          inInclusiveRange(0, 12),
+        );
+        await tester.scrollUntilVisible(
+          find.text('Все счета'),
+          200,
+          scrollable: find.byType(Scrollable).first,
+        );
+        expect(top(actions), lessThan(top(find.text('Все счета'))));
+        final keys = [
+          'quick-action-income',
+          'quick-action-expense',
+          'quick-action-transfer',
+        ];
+        await tester.scrollUntilVisible(
+          actions,
+          -200,
+          scrollable: find.byType(Scrollable).first,
+        );
+        final sizes = keys
+            .map((k) => tester.getSize(find.byKey(ValueKey(k))))
+            .toList();
+        expect(sizes[0].width, closeTo(sizes[1].width, .01));
+        expect(sizes[1].width, closeTo(sizes[2].width, .01));
+        for (final size in sizes) {
+          expect(size.height, greaterThanOrEqualTo(48));
+        }
+        expect(find.text('Мои финансы'), findsNothing);
+        expect(find.text('Всё важное. В одном месте.'), findsNothing);
+        expect(find.byTooltip('Скрыть суммы'), findsNothing);
+        expect(tester.takeException(), isNull);
+        for (final (key, kind) in [
+          ('quick-action-income', EntryKind.income),
+          ('quick-action-expense', EntryKind.expense),
+          ('quick-action-transfer', EntryKind.transfer),
+        ]) {
+          await tester.tap(find.byKey(ValueKey(key)));
+          await tester.pumpAndSettle();
+          final editor = tester.widget<EntryEditor>(find.byType(EntryEditor));
+          expect(editor.kind, kind);
+          await tester.tap(find.byType(CloseButton));
+          await tester.pumpAndSettle();
+        }
+      },
+    );
+  }
+  testWidgets('account bank is picked from the Bank of Russia register', (
+    tester,
+  ) async {
+    await mount(
+      tester,
+      const Scaffold(body: SizedBox()),
+      size: const Size(320, 700),
+      scale: 1.3,
+    );
+    final context = tester.element(find.byType(Scaffold).first);
+    showAccountEditor(context);
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.byKey(const ValueKey('pick-bank')));
+    await tester.tap(find.byKey(const ValueKey('pick-bank')));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const ValueKey('bank-search')),
+      'тинькофф',
+    );
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('bank-option-bank_2673')), findsOneWidget);
+    expect(find.textContaining('рег. № 2673'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('bank-option-bank_2673')));
+    await tester.pumpAndSettle();
+    final field = tester.widget<EditableText>(
+      find.descendant(
+        of: find.byKey(const ValueKey('account-bank')),
+        matching: find.byType(EditableText),
+      ),
+    );
+    expect(field.controller.text, 'Т-Банк');
+    expect(tester.takeException(), isNull);
+  });
+  testWidgets('bank without a bundled original mark shows a neutral glyph', (
+    tester,
+  ) async {
+    final bank = BankCatalog.entries.firstWhere((b) => b.logoAsset == null);
+    await mount(
+      tester,
+      Scaffold(
+        body: Center(child: ServiceBadge(serviceId: bank.id)),
+      ),
+    );
+    expect(find.byIcon(Icons.account_balance_outlined), findsOneWidget);
+    expect(find.byIcon(Icons.subscriptions_outlined), findsNothing);
+    expect(find.byType(Image), findsNothing);
+  });
   testWidgets(
     'last categories only learn committed new entries, independently and persist',
     (tester) async {

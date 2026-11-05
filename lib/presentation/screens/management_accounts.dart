@@ -35,73 +35,76 @@ class AccountsScreen extends StatelessWidget {
     );
   }
 
-  Widget _accountCard(
-    BuildContext context,
-    FinanceController c,
-    Account a,
-  ) => Padding(
-    padding: const EdgeInsets.only(bottom: 14),
-    child: SurfaceCard(
-      onTap: () => showAccountEditor(context, account: a),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+  Widget _accountCard(BuildContext context, FinanceController c, Account a) =>
+      Padding(
+        padding: const EdgeInsets.only(bottom: 14),
+        child: SurfaceCard(
+          onTap: () => showAccountEditor(context, account: a),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CategoryBadge(icon: categoryIcon(a.icon), color: Color(a.color)),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      a.name,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    Text(
-                      [
-                        a.bank,
-                        if (a.lastFour.isNotEmpty) '•• ${a.lastFour}',
-                        if (a.archived) 'Архив',
-                      ].where((e) => e.isNotEmpty).join(' · '),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+              Row(
+                children: [
+                  bankLogoFor(a.bank) ??
+                      CategoryBadge(
+                        icon: categoryIcon(a.icon),
+                        color: Color(a.color),
                       ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          a.name,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        Text(
+                          [
+                            a.bank,
+                            if (a.lastFour.isNotEmpty) '•• ${a.lastFour}',
+                            if (a.archived) 'Архив',
+                          ].where((e) => e.isNotEmpty).join(' · '),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
+                  const Icon(Icons.north_east_rounded, size: 19),
+                ],
+              ),
+              const SizedBox(height: 24),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  money(FinanceEngine.balance(a, c.data.entries), a.currency),
+                  style: Theme.of(context).textTheme.headlineLarge,
                 ),
               ),
-              const Icon(Icons.north_east_rounded, size: 19),
+              if (a.excluded)
+                const Padding(
+                  padding: EdgeInsets.only(top: 8),
+                  child: Text('Не включён в общий баланс'),
+                ),
+              if (a.creditLimitMinor > 0)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Text(
+                    'Кредитный лимит ${money(a.creditLimitMinor, a.currency)}',
+                  ),
+                ),
             ],
           ),
-          const SizedBox(height: 24),
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Text(
-              money(FinanceEngine.balance(a, c.data.entries), a.currency),
-              style: Theme.of(context).textTheme.headlineLarge,
-            ),
-          ),
-          if (a.excluded)
-            const Padding(
-              padding: EdgeInsets.only(top: 8),
-              child: Text('Не включён в общий баланс'),
-            ),
-          if (a.creditLimitMinor > 0)
-            Padding(
-              padding: const EdgeInsets.only(top: 8),
-              child: Text(
-                'Кредитный лимит ${money(a.creditLimitMinor, a.currency)}',
-              ),
-            ),
-        ],
-      ),
-    ),
-  );
+        ),
+      );
 }
 
 Future<void> showAccountEditor(BuildContext context, {Account? account}) async {
@@ -158,7 +161,7 @@ Future<void> showAccountEditor(BuildContext context, {Account? account}) async {
         ),
       _field(opening, 'Начальный баланс', amount: true),
       _field(limit, 'Кредитный лимит', amount: true),
-      _optional(bank, 'Банк', maxLength: 80),
+      _BankField(controller: bank),
       Padding(
         padding: const EdgeInsets.only(bottom: 14),
         child: TextFormField(
@@ -234,5 +237,43 @@ Future<void> showAccountEditor(BuildContext context, {Account? account}) async {
       );
     },
     delete: a == null ? null : () => c.deleteAccount(a.id),
+  );
+}
+
+/// Free-text bank name with an optional pick from the Bank of Russia register.
+/// Picking only fills the name; nothing about the account is fetched online.
+class _BankField extends StatelessWidget {
+  const _BankField({required this.controller});
+  final TextEditingController controller;
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(bottom: 14),
+    child: ValueListenableBuilder<TextEditingValue>(
+      valueListenable: controller,
+      builder: (context, value, _) {
+        final logo = bankLogoFor(value.text, size: 28);
+        return TextFormField(
+          key: const ValueKey('account-bank'),
+          controller: controller,
+          maxLength: 80,
+          decoration: InputDecoration(
+            labelText: 'Банк',
+            counterText: '',
+            prefixIcon: logo == null
+                ? null
+                : Padding(padding: const EdgeInsets.all(10), child: logo),
+            suffixIcon: IconButton(
+              key: const ValueKey('pick-bank'),
+              tooltip: 'Выбрать банк из реестра',
+              icon: const Icon(Icons.account_balance_outlined),
+              onPressed: () async {
+                final picked = await showBankPicker(context);
+                if (picked != null) controller.text = picked.name;
+              },
+            ),
+          ),
+        );
+      },
+    ),
   );
 }

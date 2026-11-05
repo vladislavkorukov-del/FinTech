@@ -27,10 +27,7 @@ class FinanceQuickActions extends StatelessWidget {
               onPressed: () => showEntryEditor(context, kind: actions[i].$1),
               style: FilledButton.styleFrom(
                 minimumSize: const Size(0, 48),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 6,
-                  vertical: 12,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
                 backgroundColor: colors.iconBackground,
                 foregroundColor: colors.iconForeground,
                 shape: RoundedRectangleBorder(

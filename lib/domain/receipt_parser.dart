@@ -30,6 +30,10 @@ abstract final class ReceiptParser {
     final receipt = RegExp(
       r'кассовый\s*чек|товарный\s*чек|фискальн|(?:^|[^а-я])ндс(?=$|[^а-я])|grand\s+total|subtotal|(?:^|[^а-я])итого?(?=$|[^а-я])|к\s+оплате',
     ).hasMatch(lower);
+    // Fiscal/till receipts list many prices, VAT, tender and change. Only an
+    // explicit total may become the operation amount there; otherwise the
+    // amount is left empty for review instead of picking or adding up items.
+    final fiscal = isReceiptText(source);
     final candidates = <_Amount>[];
     for (var i = 0; i < lines.length; i++) {
       final line = lines[i];
@@ -63,7 +67,7 @@ abstract final class ReceiptParser {
           residue = residue.replaceAll(pattern, '');
         }
         final amountOnly = residue
-            .replaceAll(RegExp(r'[\s:：=()\[\]]'), '')
+            .replaceAll(RegExp(r'[\s:：=()\[\]*]'), '')
             .isEmpty;
         if (score == 0 && amountOnly) {
           final previous = _maskMetadata(prefix);
@@ -124,6 +128,17 @@ abstract final class ReceiptParser {
       }
     }
     _Amount? amount;
+    if (fiscal) {
+      final explicit = candidates.where((c) => c.score >= _totalScore).toList();
+      if (explicit.isEmpty && candidates.isNotEmpty) {
+        warnings.add(
+          'Итог чека не найден. Введите сумму вручную — цены товаров, НДС и оплата не суммируются.',
+        );
+      }
+      candidates
+        ..clear()
+        ..addAll(explicit);
+    }
     if (candidates.isNotEmpty) {
       candidates.sort((a, b) => b.score.compareTo(a.score));
       final strongest = candidates
@@ -192,9 +207,60 @@ abstract final class ReceiptParser {
   }
 
   /// Shared normalization keeps screenshot/statement money parsing consistent.
+  /// OCR often splits or mixes Latin/Cyrillic letters in total labels
+  /// (`И Т О Г`, `ИTОГ`, `ИТ0Г`, `К0ПЛАТЕ`). Only such damaged labels are
+  /// rewritten; ordinary text keeps its original spelling.
   static String normalizeText(String text) => text
       .replaceAll(RegExp('[\u00a0\u202f\u2009\t]'), ' ')
-      .replaceAll(RegExp('[−–—﹣－]'), '-');
+      .replaceAll(RegExp('[−–—﹣－]'), '-')
+      .replaceAll('≡', '=')
+      .replaceAllMapped(_damagedTotal, (m) {
+        final value = m.group(0)!;
+        if (RegExp(r'^[а-яё]+$', caseSensitive: false).hasMatch(value)) {
+          return value;
+        }
+        return RegExp(r'[оo]$', caseSensitive: false).hasMatch(value)
+            ? 'ИТОГО'
+            : 'ИТОГ';
+      })
+      .replaceAllMapped(_damagedDue, (m) {
+        final value = m.group(0)!;
+        return RegExp(r'^к оплате$', caseSensitive: false).hasMatch(value)
+            ? value
+            : 'К ОПЛАТЕ';
+      });
+
+  static final _damagedTotal = RegExp(
+    r'(?<![а-яёa-z0-9])и ?[тt] ?[оo0] ?г(?:[оo])?(?![а-яёa-z])',
+    caseSensitive: false,
+  );
+  static final _damagedDue = RegExp(
+    r'(?<![а-яёa-z])[кk] ?[оo0] ?п ?л ?[аa] ?[тt] ?[еe](?![а-яёa-z])',
+    caseSensitive: false,
+  );
+
+  /// Shop/till receipt evidence that survives a partly lost header: fiscal
+  /// fields, a total label, payment-method lines or quantity × price rows.
+  static bool isReceiptText(String text) {
+    final lower = normalizeText(text).toLowerCase().replaceAll('ё', 'е');
+    if (_fiscalMarker.hasMatch(lower)) return true;
+    final items = _itemRow.allMatches(lower).length;
+    final total = RegExp(
+      r'(?<![а-яa-z])итого?(?![а-яa-z])|grand\s+total|subtotal',
+    ).hasMatch(lower);
+    final tender = RegExp(
+      r'безналичн|наличными|электронными|сдача|внесено|получено\s+от\s+покуп',
+    ).hasMatch(lower);
+    return items >= 2 || (total && (items > 0 || tender));
+  }
+
+  static const _totalScore = 120;
+  static final _fiscalMarker = RegExp(
+    r'кассовый\s*чек|товарный\s*чек|фискальн|(?<![а-яa-z])(?:ккт|рн\s*ккт|зн\s*ккт|фн|фд|фпд?)(?![а-яa-z])\s*[:№#]?\s*\d|кассир|смена\s*[№#]?\s*\d|полный\s+расч[её]т|признак\s+(?:способа|предмета)\s+расч|(?<![а-яa-z])сно(?![а-яa-z])|nalog\.(?:ru|gov)|сайт\s+фнс',
+  );
+  static final _itemRow = RegExp(
+    r'\d+(?:[.,]\d{1,3})?\s*(?:шт\.?|кг|г|л)?\s*[xх×*]\s*\d+(?:[.,]\d{1,2})?',
+  );
 
   static int? parseAmount(String text) => _minor(normalizeText(text));
 
@@ -272,7 +338,9 @@ abstract final class ReceiptParser {
     for (final (pattern, score) in [
       (RegExp(r'к\s+оплате|grand\s+total|amount\s+due'), 140),
       (
-        RegExp(r'(?<![а-яa-z])итого?(?![а-яa-z])|(?<![a-z])total(?![a-z])'),
+        RegExp(
+          r'(?<![а-яa-z])итого?(?![а-яa-z])|(?<![a-z])total(?![a-z])|(?<![а-яa-z])всего(?![а-яa-z])|сумма\s+(?:по\s+)?чек[ау]?',
+        ),
         130,
       ),
       (
@@ -300,8 +368,8 @@ abstract final class ReceiptParser {
   static int? _minor(String value) {
     var raw = value.trim();
     raw = raw.replaceAllMapped(
-      RegExp(r'([.,])\s+(\d{1,2})$'),
-      (m) => '${m[1]}${m[2]}',
+      RegExp(r'\s*([.,])\s+(\d{1,2})$|\s+([.,])(\d{1,2})$'),
+      (m) => '${m[1] ?? m[3]}${m[2] ?? m[4]}',
     );
     var sign = '';
     if (raw.startsWith('+') || raw.startsWith('-')) {

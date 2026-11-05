@@ -103,7 +103,7 @@ class SectionTitle extends StatelessWidget {
   final VoidCallback? onTap;
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(top: 26, bottom: 14),
+    padding: const EdgeInsets.only(top: 18, bottom: 8),
     child: Row(
       children: [
         Expanded(
