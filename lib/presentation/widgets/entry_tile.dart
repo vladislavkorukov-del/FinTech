@@ -5,6 +5,8 @@ import '../../domain/models.dart';
 import '../controller.dart';
 import '../screens/entry_editor.dart';
 import 'common.dart';
+import 'service_badge.dart';
+import '../../domain/service_catalog.dart';
 
 class EntryTile extends StatelessWidget {
   const EntryTile(this.entry, {super.key, this.swipe = true});
@@ -18,10 +20,20 @@ class EntryTile extends StatelessWidget {
     final income = entry.kind == EntryKind.income;
     final tile = ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 5),
-      leading: CategoryBadge(
-        category: cat,
-        icon: transfer ? Icons.swap_horiz_rounded : null,
-      ),
+      leading:
+          !transfer &&
+              (entry.serviceId != null ||
+                  entry.serviceIconPath != null ||
+                  ServiceCatalog.byName(entry.payee) != null)
+          ? ServiceBadge(
+              serviceId: entry.serviceId,
+              customIconPath: entry.serviceIconPath,
+              name: entry.payee,
+            )
+          : CategoryBadge(
+              category: cat,
+              icon: transfer ? Icons.swap_horiz_rounded : null,
+            ),
       title: Text(
         entry.payee.isEmpty ? (cat?.name ?? 'Перевод') : entry.payee,
         maxLines: 1,
@@ -50,13 +62,15 @@ class EntryTile extends StatelessWidget {
               ? '+'
               : transfer
               ? ''
-              : '−'}${money(entry.amountMinor, entry.currency, c.hidden)}',
+              : '−'}${money(entry.amountMinor, entry.currency)}',
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
           textAlign: TextAlign.right,
           style: TextStyle(
             fontWeight: FontWeight.w600,
-            color: income ? Theme.of(context).colorScheme.onSurface : null,
+            color: entry.kind == EntryKind.expense
+                ? FinanceColors.of(context).expense
+                : Theme.of(context).colorScheme.onSurface,
           ),
         ),
       ),

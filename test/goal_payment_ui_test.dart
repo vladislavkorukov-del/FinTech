@@ -360,7 +360,7 @@ void main() {
       await tester.tap(find.byTooltip('Добавить регулярный доход'));
       await tester.pumpAndSettle();
       expect(find.text('Вид платежа'), findsNothing);
-      expect(find.textContaining('не относятся к подпискам'), findsOneWidget);
+      expect(find.byKey(const ValueKey('service-picker')), findsNothing);
       await tester.enterText(
         find.byType(TextFormField).at(0),
         'Проценты по вкладу',

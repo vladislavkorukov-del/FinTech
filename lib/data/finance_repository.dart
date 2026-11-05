@@ -17,7 +17,7 @@ class FinanceRepository {
   final DatabaseFactory _factory;
   final String _path;
   final DateTime Function() _clock;
-  static const schemaVersion = 2;
+  static const schemaVersion = 3;
   static const maxBackupBytes = 50 * 1024 * 1024;
 
   static Future<FinanceRepository> open({
@@ -65,6 +65,37 @@ class FinanceRepository {
               );
             }
           }
+          if (oldVersion < 3) {
+            for (final sql in [
+              'ALTER TABLE categories ADD COLUMN archived INTEGER NOT NULL DEFAULT 0',
+              'ALTER TABLE entries ADD COLUMN serviceId TEXT',
+              'ALTER TABLE entries ADD COLUMN serviceIconPath TEXT',
+              'ALTER TABLE recurring ADD COLUMN serviceId TEXT',
+              'ALTER TABLE recurring ADD COLUMN customIconPath TEXT',
+              'ALTER TABLE recurring ADD COLUMN reminderEnabled INTEGER NOT NULL DEFAULT 0',
+              'ALTER TABLE recurring ADD COLUMN reminderDaysBefore INTEGER NOT NULL DEFAULT 1',
+              'ALTER TABLE recurring ADD COLUMN reminderHour INTEGER NOT NULL DEFAULT 10',
+              'ALTER TABLE recurring ADD COLUMN reminderMinute INTEGER NOT NULL DEFAULT 0',
+            ]) {
+              await db.execute(sql);
+            }
+            final rows = await db.query(
+              'settings',
+              where: 'key = ?',
+              whereArgs: ['preferences'],
+            );
+            if (rows.isNotEmpty) {
+              final preferences = Map<String, dynamic>.from(
+                jsonDecode(rows.first['value'] as String) as Map,
+              )..remove('hideAmounts');
+              await db.update(
+                'settings',
+                {'value': jsonEncode(preferences)},
+                where: 'key = ?',
+                whereArgs: ['preferences'],
+              );
+            }
+          }
         },
       ),
     );
@@ -87,8 +118,9 @@ class FinanceRepository {
   Future<FinanceData> load() => _read(_db);
 
   Future<void> save(FinanceData data) async {
-    validateData(data);
-    await _db.transaction((txn) => _write(txn, data));
+    final normalized = normalizeCategoryPreferences(data);
+    validateData(normalized);
+    await _db.transaction((txn) => _write(txn, normalized));
   }
 
   Future<void> close() => _db.close();
@@ -140,39 +172,60 @@ class FinanceRepository {
 
   Future<String> exportJson() async {
     final data = await load();
-    final attachments = <String, String>{};
     var totalBytes = 0;
-    for (final entry in data.entries) {
-      if (entry.attachmentPath == null) {
-        continue;
-      }
-      final file = File(entry.attachmentPath!);
+    Future<String> encodeMedia(String path) async {
+      final file = File(path);
       if (!await file.exists()) {
-        throw FormatException(
-          'Чек для операции ${entry.id} недоступен. Удалите ссылку на чек перед экспортом.',
+        throw const FormatException(
+          'Файл чека или логотипа недоступен. Удалите ссылку перед экспортом.',
         );
       }
       final length = await file.length();
-      totalBytes += length;
-      if (length > 10 * 1024 * 1024 || totalBytes > 30 * 1024 * 1024) {
+      if (length > 10 * 1024 * 1024 || totalBytes + length > 30 * 1024 * 1024) {
         throw const FormatException(
-          'Чеки превышают лимит резервной копии (10 МБ на файл, 30 МБ всего)',
+          'Медиа превышают лимит: 10 МБ на файл, 30 МБ всего',
         );
       }
-      attachments[entry.id] = base64Encode(await file.readAsBytes());
+      final bytes = await file.readAsBytes();
+      totalBytes += bytes.length;
+      if (bytes.isEmpty ||
+          bytes.length > 10 * 1024 * 1024 ||
+          totalBytes > 30 * 1024 * 1024) {
+        throw const FormatException(
+          'Медиа превышают лимит: 10 МБ на файл, 30 МБ всего',
+        );
+      }
+      return base64Encode(bytes);
     }
-    // Device-local paths are never part of a portable backup. The media map is
-    // keyed by entry ID; imported archives cannot choose filesystem filenames.
-    final portable = data.copyWith(
-      entries: [
-        for (final entry in data.entries) entry.copyWith(attachmentPath: null),
-      ],
-    );
+
+    final attachments = <String, String>{};
+    final serviceIcons = <String, String>{};
+    for (final entry in data.entries) {
+      if (entry.attachmentPath != null) {
+        attachments[entry.id] = await encodeMedia(entry.attachmentPath!);
+      }
+      if (entry.serviceIconPath != null) {
+        serviceIcons['entry:${entry.id}'] = await encodeMedia(
+          entry.serviceIconPath!,
+        );
+      }
+    }
+    for (final rule in data.recurring) {
+      if (rule.customIconPath != null) {
+        serviceIcons['recurring:${rule.id}'] = await encodeMedia(
+          rule.customIconPath!,
+        );
+      }
+    }
+    // Device-local paths never leave the device. IDs select records, never names
+    // for imported files; each filename is generated in a private staging root.
+    final portable = _stripMediaPaths(data);
     final result = const JsonEncoder.withIndent('  ').convert({
       'schemaVersion': schemaVersion,
       'exportedAt': _clock().toUtc().toIso8601String(),
       'data': portable.toJson(),
       'attachments': attachments,
+      'serviceIcons': serviceIcons,
     });
     if (utf8.encode(result).length > maxBackupBytes) {
       throw const FormatException('Резервная копия превышает 50 МБ');
@@ -183,54 +236,114 @@ class FinanceRepository {
   Future<void> importJson(String content) async {
     var data = decodeBackup(content);
     final envelope = jsonDecode(content) as Map<String, dynamic>;
-    final incoming = envelope['attachments'];
-    if (incoming != null && incoming is! Map<String, dynamic>) {
-      throw const FormatException('Повреждённый раздел чеков');
-    }
-    final media = incoming as Map<String, dynamic>? ?? {};
-    final entryIds = data.entries.map((e) => e.id).toSet();
-    final decoded = <String, List<int>>{};
     var totalBytes = 0;
-    for (final item in media.entries) {
-      if (!entryIds.contains(item.key) || item.value is! String) {
-        throw const FormatException('Чек относится к неизвестной операции');
+    Map<String, List<int>> decodeMedia(Object? raw, Set<String> allowed) {
+      if (raw != null && raw is! Map<String, dynamic>) {
+        throw const FormatException('Повреждённый раздел медиа');
       }
-      final bytes = base64Decode(item.value as String);
-      totalBytes += bytes.length;
-      if (bytes.isEmpty ||
-          bytes.length > 10 * 1024 * 1024 ||
-          totalBytes > 30 * 1024 * 1024) {
-        throw const FormatException('Некорректный размер чека');
-      }
-      decoded[item.key] = bytes;
-    }
-    Directory? staged;
-    try {
-      if (decoded.isNotEmpty) {
-        final root = Directory(p.join(p.dirname(_path), 'receipts'));
-        await root.create(recursive: true);
-        staged = await root.createTemp('import-');
-        final paths = <String, String>{};
-        var index = 0;
-        for (final item in decoded.entries) {
-          final file = File(p.join(staged.path, 'receipt-${index++}.bin'));
-          await file.writeAsBytes(item.value, flush: true);
-          paths[item.key] = file.path;
+      final result = <String, List<int>>{};
+      for (final item in (raw as Map<String, dynamic>? ?? {}).entries) {
+        if (!allowed.contains(item.key) || item.value is! String) {
+          throw const FormatException('Медиа относятся к неизвестной записи');
         }
-        data = data.copyWith(
-          entries: [
-            for (final entry in data.entries)
-              entry.copyWith(attachmentPath: paths[entry.id]),
-          ],
-        );
+        final bytes = base64Decode(item.value as String);
+        totalBytes += bytes.length;
+        if (bytes.isEmpty ||
+            bytes.length > 10 * 1024 * 1024 ||
+            totalBytes > 30 * 1024 * 1024) {
+          throw const FormatException('Некорректный размер медиа');
+        }
+        result[item.key] = bytes;
       }
+      return result;
+    }
+
+    final receipts = decodeMedia(
+      envelope['attachments'],
+      data.entries.map((e) => e.id).toSet(),
+    );
+    final icons = decodeMedia(envelope['serviceIcons'], {
+      ...data.entries.map((e) => 'entry:${e.id}'),
+      ...data.recurring.map((r) => 'recurring:${r.id}'),
+    });
+    final staged = <Directory>[];
+    Future<Map<String, String>> stage(
+      Map<String, List<int>> bytes,
+      String folder,
+    ) async {
+      if (bytes.isEmpty) {
+        return {};
+      }
+      final root = Directory(p.join(p.dirname(_path), folder));
+      await root.create(recursive: true);
+      final directory = await root.createTemp('import-');
+      staged.add(directory);
+      final result = <String, String>{};
+      var index = 0;
+      for (final item in bytes.entries) {
+        final file = File(p.join(directory.path, 'media-${index++}.bin'));
+        await file.writeAsBytes(item.value, flush: true);
+        result[item.key] = file.path;
+      }
+      return result;
+    }
+
+    try {
+      final receiptPaths = await stage(receipts, 'receipts');
+      final iconPaths = await stage(icons, 'service_icons');
+      data = data.copyWith(
+        entries: [
+          for (final entry in data.entries)
+            entry.copyWith(
+              attachmentPath: receiptPaths[entry.id],
+              serviceIconPath: iconPaths['entry:${entry.id}'],
+            ),
+        ],
+        recurring: [
+          for (final rule in data.recurring)
+            rule.copyWith(customIconPath: iconPaths['recurring:${rule.id}']),
+        ],
+      );
       await save(data);
     } on Object {
-      if (staged != null && await staged.exists()) {
-        await staged.delete(recursive: true);
+      for (final directory in staged) {
+        if (await directory.exists()) {
+          await directory.delete(recursive: true);
+        }
       }
       rethrow;
     }
+  }
+
+  static FinanceData _stripMediaPaths(FinanceData data) => data.copyWith(
+    entries: [
+      for (final entry in data.entries)
+        entry.copyWith(attachmentPath: null, serviceIconPath: null),
+    ],
+    recurring: [
+      for (final rule in data.recurring) rule.copyWith(customIconPath: null),
+    ],
+  );
+
+  /// Stale quick-entry choices never invalidate financial history. Called by
+  /// controllers before publication and by every persistence/import boundary.
+  static FinanceData normalizeCategoryPreferences(FinanceData data) {
+    bool valid(String? id, EntryKind kind) =>
+        id != null &&
+        data.categories.any((c) => c.id == id && c.kind == kind && !c.archived);
+    final preferences = data.preferences;
+    return data.copyWith(
+      preferences: preferences.copyWith(
+        lastExpenseCategoryId:
+            valid(preferences.lastExpenseCategoryId, EntryKind.expense)
+            ? preferences.lastExpenseCategoryId
+            : null,
+        lastIncomeCategoryId:
+            valid(preferences.lastIncomeCategoryId, EntryKind.income)
+            ? preferences.lastIncomeCategoryId
+            : null,
+      ),
+    );
   }
 
   static FinanceData decodeBackup(String content) {
@@ -240,7 +353,7 @@ class FinanceRepository {
     try {
       final envelope = jsonDecode(content);
       if (envelope is! Map<String, dynamic> ||
-          ![1, schemaVersion].contains(envelope['schemaVersion']) ||
+          ![1, 2, schemaVersion].contains(envelope['schemaVersion']) ||
           envelope['data'] is! Map<String, dynamic>) {
         throw const FormatException('Неподдерживаемый формат резервной копии');
       }
@@ -275,11 +388,7 @@ class FinanceRepository {
       final raw = FinanceData.fromJson(map);
       // Ignore every supplied path, including absolute paths, traversal paths,
       // symlinks and URLs. Only separately decoded embedded files are restored.
-      final result = raw.copyWith(
-        entries: [
-          for (final entry in raw.entries) entry.copyWith(attachmentPath: null),
-        ],
-      );
+      final result = normalizeCategoryPreferences(_stripMediaPaths(raw));
       validateData(result);
       return result;
     } on FormatException {
@@ -421,7 +530,7 @@ class FinanceRepository {
         options: OpenDatabaseOptions(readOnly: true, singleInstance: false),
       );
       final version = await backup.getVersion();
-      if (![1, schemaVersion].contains(version)) {
+      if (![1, 2, schemaVersion].contains(version)) {
         throw const FormatException('Неподдерживаемая версия базы');
       }
       final check = await backup.rawQuery('PRAGMA integrity_check');
@@ -429,30 +538,51 @@ class FinanceRepository {
         throw const FormatException('Повреждённая база данных');
       }
       data = await _read(backup);
-      // A foreign SQLite file is untrusted input too. Retain receipt references
-      // only when they resolve inside this installation's private media root.
-      final root = Directory(p.join(p.dirname(_path), 'receipts'));
-      final safe = <FinanceEntry>[];
-      final resolvedRoot = await root.exists()
-          ? await root.resolveSymbolicLinks()
-          : null;
-      for (final entry in data.entries) {
-        String? retained;
-        final path = entry.attachmentPath;
-        if (path != null && resolvedRoot != null) {
-          try {
-            final file = File(path);
-            final resolved = await file.resolveSymbolicLinks();
-            if (p.isWithin(resolvedRoot, resolved) && await file.exists()) {
-              retained = resolved;
-            }
-          } on FileSystemException {
-            /* Missing external media is not restored. */
-          }
+      // Raw snapshots can contain foreign paths too. Keep only existing bytes
+      // under this installation's private, canonicalized media directories.
+      Future<String?> retain(String? path, String folder) async {
+        if (path == null) {
+          return null;
         }
-        safe.add(entry.copyWith(attachmentPath: retained));
+        try {
+          final root = Directory(p.join(p.dirname(_path), folder));
+          if (!await root.exists()) {
+            return null;
+          }
+          final canonicalRoot = await root.resolveSymbolicLinks();
+          final file = File(path);
+          final canonicalFile = await file.resolveSymbolicLinks();
+          return p.isWithin(canonicalRoot, canonicalFile) && await file.exists()
+              ? canonicalFile
+              : null;
+        } on FileSystemException {
+          return null;
+        }
       }
-      data = data.copyWith(entries: safe);
+
+      final entries = <FinanceEntry>[];
+      for (final entry in data.entries) {
+        entries.add(
+          entry.copyWith(
+            attachmentPath: await retain(entry.attachmentPath, 'receipts'),
+            serviceIconPath: await retain(
+              entry.serviceIconPath,
+              'service_icons',
+            ),
+          ),
+        );
+      }
+      final rules = <RecurringRule>[];
+      for (final rule in data.recurring) {
+        rules.add(
+          rule.copyWith(
+            customIconPath: await retain(rule.customIconPath, 'service_icons'),
+          ),
+        );
+      }
+      data = normalizeCategoryPreferences(
+        data.copyWith(entries: entries, recurring: rules),
+      );
       validateData(data);
     } on FormatException {
       rethrow;
@@ -471,6 +601,13 @@ class FinanceRepository {
         if (value.trim().isEmpty || value.length > 200 || !seen.add(value)) {
           throw const FormatException('Пустой или повторяющийся идентификатор');
         }
+      }
+    }
+
+    void service(String? value) {
+      if (value != null &&
+          !RegExp(r'^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,79}$').hasMatch(value)) {
+        throw const FormatException('Некорректный идентификатор сервиса');
       }
     }
 
@@ -537,6 +674,7 @@ class FinanceRepository {
     }
     for (final e in data.entries) {
       FinanceEngine.validateEntry(e, data);
+      service(e.serviceId);
       if (!memberIds.contains(e.memberId)) {
         throw const FormatException('Участник операции не найден');
       }
@@ -586,6 +724,14 @@ class FinanceRepository {
       currency(r.currency);
       amount(r.amountMinor, positive: true);
       date(r.nextDate);
+      service(r.serviceId);
+      if (![0, 1, 3, 7].contains(r.reminderDaysBefore) ||
+          r.reminderHour < 0 ||
+          r.reminderHour > 23 ||
+          r.reminderMinute < 0 ||
+          r.reminderMinute > 59) {
+        throw const FormatException('Некорректное время напоминания');
+      }
       if (!['subscription', 'mandatory'].contains(r.paymentType)) {
         throw const FormatException('Некорректный тип регулярного платежа');
       }
@@ -605,6 +751,7 @@ class FinanceRepository {
     currency(prefs.baseCurrency);
     if (!['light', 'dark', 'system'].contains(prefs.theme) ||
         ![
+          'coffee',
           'lime',
           'electric',
           'sage',
@@ -660,7 +807,7 @@ class FinanceRepository {
     final categories = (await db.query('categories', orderBy: '"order"'))
         .map(
           (r) => Category.fromJson({
-            ...r,
+            ...decoded(r, ['archived']),
             'subcategories': subcategories
                 .where((s) => s['categoryId'] == r['id'])
                 .map((s) => s['name'])
@@ -668,51 +815,53 @@ class FinanceRepository {
           }),
         )
         .toList();
-    return FinanceData(
-      accounts: accounts,
-      categories: categories,
-      entries: (await db.query('entries', orderBy: 'date DESC, id'))
-          .map(
-            (r) => FinanceEntry.fromJson({
-              ...r,
-              'tags': tags
-                  .where((t) => t['entryId'] == r['id'])
-                  .map((t) => t['name'])
-                  .toList(),
-              'attachmentPath': attachmentPaths[r['id']],
-            }),
-          )
-          .toList(),
-      budgets: (await db.query(
-        'budgets',
-      )).map((r) => Budget.fromJson(Map<String, dynamic>.from(r))).toList(),
-      goals: (await db.query(
-        'goals',
-      )).map((r) => Goal.fromJson(Map<String, dynamic>.from(r))).toList(),
-      recurring: (await db.query('recurring'))
-          .map(
-            (r) => RecurringRule.fromJson({
-              ...decoded(r, ['automatic', 'enabled']),
-              'paymentType':
-                  r['paymentType'] ??
-                  RecurringRule.classifyLegacyPaymentType(
-                    r['name'] as String,
-                    categories
-                            .where((c) => c.id == r['categoryId'])
-                            .firstOrNull
-                            ?.name ??
-                        '',
-                  ),
-            }),
-          )
-          .toList(),
-      members: (await db.query(
-        'members',
-      )).map((r) => Member.fromJson(Map<String, dynamic>.from(r))).toList(),
-      preferences: AppPreferences.fromJson(
-        jsonDecode(settings['preferences'] ?? '{}') as Map<String, dynamic>,
+    return normalizeCategoryPreferences(
+      FinanceData(
+        accounts: accounts,
+        categories: categories,
+        entries: (await db.query('entries', orderBy: 'date DESC, id'))
+            .map(
+              (r) => FinanceEntry.fromJson({
+                ...r,
+                'tags': tags
+                    .where((t) => t['entryId'] == r['id'])
+                    .map((t) => t['name'])
+                    .toList(),
+                'attachmentPath': attachmentPaths[r['id']],
+              }),
+            )
+            .toList(),
+        budgets: (await db.query(
+          'budgets',
+        )).map((r) => Budget.fromJson(Map<String, dynamic>.from(r))).toList(),
+        goals: (await db.query(
+          'goals',
+        )).map((r) => Goal.fromJson(Map<String, dynamic>.from(r))).toList(),
+        recurring: (await db.query('recurring'))
+            .map(
+              (r) => RecurringRule.fromJson({
+                ...decoded(r, ['automatic', 'enabled', 'reminderEnabled']),
+                'paymentType':
+                    r['paymentType'] ??
+                    RecurringRule.classifyLegacyPaymentType(
+                      r['name'] as String,
+                      categories
+                              .where((c) => c.id == r['categoryId'])
+                              .firstOrNull
+                              ?.name ??
+                          '',
+                    ),
+              }),
+            )
+            .toList(),
+        members: (await db.query(
+          'members',
+        )).map((r) => Member.fromJson(Map<String, dynamic>.from(r))).toList(),
+        preferences: AppPreferences.fromJson(
+          jsonDecode(settings['preferences'] ?? '{}') as Map<String, dynamic>,
+        ),
+        demo: settings['demo'] == 'true',
       ),
-      demo: settings['demo'] == 'true',
     );
   }
 
@@ -760,7 +909,7 @@ class FinanceRepository {
     }
     for (final c in data.categories) {
       final row = c.toJson()..remove('subcategories');
-      await db.insert('categories', row);
+      await db.insert('categories', scalar(row));
       for (var i = 0; i < c.subcategories.length; i++) {
         await db.insert('subcategories', {
           'categoryId': c.id,
@@ -813,9 +962,9 @@ class FinanceRepository {
     'CREATE TABLE currencies(code TEXT PRIMARY KEY, minorDigits INTEGER NOT NULL)',
     'CREATE TABLE members(id TEXT PRIMARY KEY, name TEXT NOT NULL)',
     'CREATE TABLE accounts(id TEXT PRIMARY KEY, name TEXT NOT NULL, type TEXT NOT NULL, currency TEXT NOT NULL REFERENCES currencies(code), bank TEXT NOT NULL, lastFour TEXT NOT NULL, openingMinor INTEGER NOT NULL, creditLimitMinor INTEGER NOT NULL, excluded INTEGER NOT NULL, archived INTEGER NOT NULL, color INTEGER NOT NULL, icon INTEGER NOT NULL)',
-    'CREATE TABLE categories(id TEXT PRIMARY KEY, name TEXT NOT NULL, kind TEXT NOT NULL, color INTEGER NOT NULL, background INTEGER NOT NULL, icon INTEGER NOT NULL, "order" INTEGER NOT NULL)',
+    'CREATE TABLE categories(id TEXT PRIMARY KEY, name TEXT NOT NULL, kind TEXT NOT NULL, color INTEGER NOT NULL, background INTEGER NOT NULL, icon INTEGER NOT NULL, "order" INTEGER NOT NULL, archived INTEGER NOT NULL DEFAULT 0)',
     'CREATE TABLE subcategories(categoryId TEXT NOT NULL REFERENCES categories(id), name TEXT NOT NULL, position INTEGER NOT NULL, PRIMARY KEY(categoryId,name))',
-    'CREATE TABLE entries(id TEXT PRIMARY KEY, kind TEXT NOT NULL, amountMinor INTEGER NOT NULL CHECK(amountMinor > 0), currency TEXT NOT NULL REFERENCES currencies(code), accountId TEXT NOT NULL REFERENCES accounts(id), toAccountId TEXT REFERENCES accounts(id), toGoalId TEXT REFERENCES goals(id), categoryId TEXT REFERENCES categories(id), subcategory TEXT, destinationMinor INTEGER, date TEXT NOT NULL, note TEXT NOT NULL, payee TEXT NOT NULL, status TEXT NOT NULL, recurrence TEXT NOT NULL, memberId TEXT NOT NULL REFERENCES members(id), latitude REAL, longitude REAL)',
+    'CREATE TABLE entries(id TEXT PRIMARY KEY, kind TEXT NOT NULL, amountMinor INTEGER NOT NULL CHECK(amountMinor > 0), currency TEXT NOT NULL REFERENCES currencies(code), accountId TEXT NOT NULL REFERENCES accounts(id), toAccountId TEXT REFERENCES accounts(id), toGoalId TEXT REFERENCES goals(id), categoryId TEXT REFERENCES categories(id), subcategory TEXT, destinationMinor INTEGER, date TEXT NOT NULL, note TEXT NOT NULL, payee TEXT NOT NULL, status TEXT NOT NULL, recurrence TEXT NOT NULL, memberId TEXT NOT NULL REFERENCES members(id), serviceId TEXT, serviceIconPath TEXT, latitude REAL, longitude REAL)',
     'CREATE INDEX entries_date ON entries(date)',
     'CREATE INDEX entries_account ON entries(accountId)',
     'CREATE INDEX entries_category ON entries(categoryId)',
@@ -825,7 +974,7 @@ class FinanceRepository {
     'CREATE TABLE attachments(entryId TEXT PRIMARY KEY REFERENCES entries(id), path TEXT NOT NULL)',
     'CREATE TABLE budgets(id TEXT PRIMARY KEY, name TEXT NOT NULL, currency TEXT NOT NULL REFERENCES currencies(code), categoryId TEXT REFERENCES categories(id), limitMinor INTEGER NOT NULL CHECK(limitMinor > 0))',
     'CREATE TABLE goals(id TEXT PRIMARY KEY, name TEXT NOT NULL, currency TEXT NOT NULL REFERENCES currencies(code), targetMinor INTEGER NOT NULL CHECK(targetMinor > 0), savedMinor INTEGER NOT NULL CHECK(savedMinor >= 0), color INTEGER NOT NULL, icon INTEGER NOT NULL, deadline TEXT)',
-    'CREATE TABLE recurring(id TEXT PRIMARY KEY, name TEXT NOT NULL, accountId TEXT NOT NULL REFERENCES accounts(id), currency TEXT NOT NULL REFERENCES currencies(code), categoryId TEXT REFERENCES categories(id), kind TEXT NOT NULL, amountMinor INTEGER NOT NULL CHECK(amountMinor > 0), interval INTEGER NOT NULL, anchorDay INTEGER NOT NULL, frequency TEXT NOT NULL, nextDate TEXT NOT NULL, automatic INTEGER NOT NULL, enabled INTEGER NOT NULL, paymentType TEXT NOT NULL DEFAULT \'mandatory\')',
+    'CREATE TABLE recurring(id TEXT PRIMARY KEY, name TEXT NOT NULL, accountId TEXT NOT NULL REFERENCES accounts(id), currency TEXT NOT NULL REFERENCES currencies(code), categoryId TEXT REFERENCES categories(id), kind TEXT NOT NULL, amountMinor INTEGER NOT NULL CHECK(amountMinor > 0), interval INTEGER NOT NULL, anchorDay INTEGER NOT NULL, frequency TEXT NOT NULL, nextDate TEXT NOT NULL, automatic INTEGER NOT NULL, enabled INTEGER NOT NULL, paymentType TEXT NOT NULL DEFAULT \'mandatory\', serviceId TEXT, customIconPath TEXT, reminderEnabled INTEGER NOT NULL DEFAULT 0, reminderDaysBefore INTEGER NOT NULL DEFAULT 1, reminderHour INTEGER NOT NULL DEFAULT 10, reminderMinute INTEGER NOT NULL DEFAULT 0)',
     'CREATE TABLE settings(key TEXT PRIMARY KEY, value TEXT NOT NULL)',
   ];
 }

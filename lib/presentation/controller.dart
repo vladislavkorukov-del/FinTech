@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
@@ -8,12 +6,73 @@ import '../domain/models.dart';
 import '../domain/finance_engine.dart';
 import '../services/notification_service.dart';
 
+const notificationSyncWarning =
+    'Данные сохранены, но не удалось обновить уведомления. '
+    'Повторите обновление в настройках уведомлений.';
+
+/// Scheduling is independent of the already committed financial data. Explicit
+/// notification actions can await this result without retrying their data write.
+class NotificationSyncResult {
+  const NotificationSyncResult.success() : error = null;
+  const NotificationSyncResult.failure(this.error);
+  final Object? error;
+  bool get succeeded => error == null;
+}
+
 class FinanceController extends ChangeNotifier {
   FinanceController(this.repository, this.notifications, this.data);
   final FinanceRepository repository;
   final NotificationService notifications;
   FinanceData data;
   Future<void> _tail = Future.value();
+  Future<NotificationSyncResult> _lastNotificationSync = Future.value(
+    const NotificationSyncResult.success(),
+  );
+  NotificationSyncResult? _notificationSyncResult;
+  bool _notificationSyncPending = false;
+  bool _disposed = false;
+  int _notificationRevision = 0;
+
+  bool get notificationSyncPending => _notificationSyncPending;
+  NotificationSyncResult? get notificationSyncResult => _notificationSyncResult;
+
+  /// Await the sync already scheduled by mutate/replace; never schedules twice.
+  Future<NotificationSyncResult> waitForNotificationSync() =>
+      _lastNotificationSync;
+
+  /// Retry only the native notification plan, with no second financial write.
+  Future<NotificationSyncResult> retryNotificationSync() {
+    _queueNotificationSync(data);
+    notifyListeners();
+    return _lastNotificationSync;
+  }
+
+  void _queueNotificationSync(FinanceData snapshot) {
+    final revision = ++_notificationRevision;
+    _notificationSyncPending = true;
+    _lastNotificationSync =
+        Future<void>.sync(() => notifications.sync(snapshot))
+            .then<NotificationSyncResult>(
+              (_) => const NotificationSyncResult.success(),
+              onError: (Object error, StackTrace _) =>
+                  NotificationSyncResult.failure(error),
+            )
+            .then((result) {
+              if (!_disposed && revision == _notificationRevision) {
+                _notificationSyncPending = false;
+                _notificationSyncResult = result;
+                notifyListeners();
+              }
+              return result;
+            });
+  }
+
+  @override
+  void dispose() {
+    _disposed = true;
+    super.dispose();
+  }
+
   String id() => const Uuid().v4();
   DateTime get periodStart {
     final now = DateTime.now();
@@ -32,7 +91,6 @@ class FinanceController extends ChangeNotifier {
   String destinationName(FinanceEntry entry) => entry.toGoalId != null
       ? 'Мечта: ${goal(entry.toGoalId)?.name ?? 'Цель'}'
       : account(entry.toAccountId ?? '')?.name ?? 'Счёт';
-  bool get hidden => data.preferences.hideAmounts;
   String get currency => data.preferences.baseCurrency;
   int get balance => FinanceEngine.totalBalance(
     data.accounts,
@@ -42,12 +100,15 @@ class FinanceController extends ChangeNotifier {
   );
   Future<void> mutate(FinanceData Function(FinanceData) transform) {
     final result = _tail.then((_) async {
-      final next = transform(data);
+      final next = FinanceRepository.normalizeCategoryPreferences(
+        transform(data),
+      );
       await repository.save(next);
       data = next;
+      // Commit first. Ordinary ledger actions stay nonblocking, while explicit
+      // reminder editors can wait for this same result and surface failures.
+      _queueNotificationSync(data);
       notifyListeners();
-      // Notifications must never roll back an already committed financial operation.
-      unawaited(notifications.sync(data).catchError((Object _) {}));
     });
     _tail = result.catchError((Object _) {});
     return result;
@@ -84,17 +145,28 @@ class FinanceController extends ChangeNotifier {
     ),
   );
   Future<void> deleteCategory(String id) => mutate((d) {
-    if (d.entries.any((e) => e.categoryId == id) ||
+    final linked =
+        d.entries.any((e) => e.categoryId == id) ||
         d.budgets.any((b) => b.categoryId == id) ||
-        d.recurring.any((r) => r.categoryId == id)) {
-      throw const FormatException(
-        'Категория используется. Сначала перенесите её операции и связанные бюджеты.',
-      );
-    }
+        d.recurring.any((r) => r.categoryId == id);
     return d.copyWith(
-      categories: d.categories.where((a) => a.id != id).toList(),
+      categories: [
+        for (final c in d.categories)
+          if (c.id != id) c else if (linked) c.copyWith(archived: true),
+      ],
     );
   });
+  AppPreferences rememberCategory(FinanceData before, FinanceEntry entry) {
+    if (before.entries.any((e) => e.id == entry.id) ||
+        entry.categoryId == null ||
+        entry.kind == EntryKind.transfer) {
+      return before.preferences;
+    }
+    return entry.kind == EntryKind.expense
+        ? before.preferences.copyWith(lastExpenseCategoryId: entry.categoryId)
+        : before.preferences.copyWith(lastIncomeCategoryId: entry.categoryId);
+  }
+
   Future<void> saveBudget(Budget value) => mutate(
     (d) => d.copyWith(
       budgets: [...d.budgets.where((a) => a.id != value.id), value],
@@ -121,8 +193,8 @@ class FinanceController extends ChangeNotifier {
     final result = _tail.then((_) async {
       await action();
       data = await repository.load();
+      _queueNotificationSync(data);
       notifyListeners();
-      unawaited(notifications.sync(data).catchError((Object _) {}));
     });
     _tail = result.catchError((Object _) {});
     return result;
@@ -154,6 +226,8 @@ class FinanceController extends ChangeNotifier {
           date: r.nextDate,
           payee: r.name,
           recurrence: r.frequency,
+          serviceId: r.serviceId,
+          serviceIconPath: r.customIconPath,
           memberId: d.members.any((m) => m.id == 'me')
               ? 'me'
               : d.members.first.id,

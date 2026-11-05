@@ -81,6 +81,7 @@ void main() {
           180,
           scrollable: find.byType(Scrollable).first,
         );
+        await tester.pumpAndSettle();
         expect(find.text('Счёт номер $i'), findsOneWidget);
         expect(tester.takeException(), isNull);
       }
@@ -148,6 +149,11 @@ void main() {
         ),
         findsNothing,
       );
+      await tester.scrollUntilVisible(
+        find.text('Доходы'),
+        250,
+        scrollable: find.byType(Scrollable).first,
+      );
       await tester.tap(find.text('Доходы'));
       await tester.pumpAndSettle();
       final page = tester.widget<TransactionsScreen>(
@@ -173,7 +179,6 @@ void main() {
               days: 3,
               amountsMinor: const {0: 12345, 2: 70000},
               currency: 'RUB',
-              hidden: false,
               onDayTap: (d) => selected = d,
             ),
           ),
@@ -189,7 +194,7 @@ void main() {
       expect(tester.takeException(), isNull);
     },
   );
-  testWidgets('daily labels respect hidden sums and large text at 320px', (
+  testWidgets('daily labels stay visible with large text at 320px', (
     tester,
   ) async {
     tester.view.physicalSize = const Size(320, 640);
@@ -206,15 +211,14 @@ void main() {
               days: 31,
               amountsMinor: const {0: 12345},
               currency: 'RUB',
-              hidden: true,
             ),
           ),
         ),
       ),
     );
     await tester.pumpAndSettle();
-    expect(find.text(money(12345)), findsNothing);
-    expect(find.text('••••••'), findsWidgets);
+    expect(find.text(money(12345)), findsOneWidget);
+    expect(find.text('••••••'), findsNothing);
     expect(tester.takeException(), isNull);
   });
 }

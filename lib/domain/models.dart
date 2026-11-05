@@ -100,6 +100,7 @@ class Category {
   final int background;
   final int icon;
   final int order;
+  final bool archived;
   final List<String> subcategories;
 
   const Category({
@@ -110,6 +111,7 @@ class Category {
     this.background = 0xff273326,
     this.icon = 0,
     this.order = 0,
+    this.archived = false,
     this.subcategories = const [],
   });
 
@@ -121,6 +123,7 @@ class Category {
     int? background,
     int? icon,
     int? order,
+    bool? archived,
     List<String>? subcategories,
   }) => Category(
     id: id ?? this.id,
@@ -130,6 +133,7 @@ class Category {
     background: background ?? this.background,
     icon: icon ?? this.icon,
     order: order ?? this.order,
+    archived: archived ?? this.archived,
     subcategories: subcategories ?? this.subcategories,
   );
 
@@ -141,6 +145,7 @@ class Category {
     'background': background,
     'icon': icon,
     'order': order,
+    'archived': archived,
     'subcategories': subcategories,
   };
 
@@ -152,6 +157,7 @@ class Category {
     background: json['background'] as int? ?? 0xff273326,
     icon: json['icon'] as int? ?? 0,
     order: json['order'] as int? ?? 0,
+    archived: json['archived'] as bool? ?? false,
     subcategories: (json['subcategories'] as List<dynamic>? ?? const [])
         .cast<String>(),
   );
@@ -168,6 +174,8 @@ class FinanceEntry {
   final String? categoryId;
   final String? subcategory;
   final String? attachmentPath;
+  final String? serviceId;
+  final String? serviceIconPath;
   final int? destinationMinor;
   final DateTime date;
   final String note;
@@ -190,6 +198,8 @@ class FinanceEntry {
     this.categoryId,
     this.subcategory,
     this.attachmentPath,
+    this.serviceId,
+    this.serviceIconPath,
     this.destinationMinor,
     required this.date,
     this.note = '',
@@ -213,6 +223,8 @@ class FinanceEntry {
     Object? categoryId = _absent,
     Object? subcategory = _absent,
     Object? attachmentPath = _absent,
+    Object? serviceId = _absent,
+    Object? serviceIconPath = _absent,
     Object? destinationMinor = _absent,
     DateTime? date,
     String? note,
@@ -225,6 +237,12 @@ class FinanceEntry {
     Object? longitude = _absent,
   }) => FinanceEntry(
     id: id ?? this.id,
+    serviceIconPath: identical(serviceIconPath, _absent)
+        ? this.serviceIconPath
+        : serviceIconPath as String?,
+    serviceId: identical(serviceId, _absent)
+        ? this.serviceId
+        : serviceId as String?,
     kind: kind ?? this.kind,
     amountMinor: amountMinor ?? this.amountMinor,
     currency: currency ?? this.currency,
@@ -273,6 +291,8 @@ class FinanceEntry {
     'categoryId': categoryId,
     'subcategory': subcategory,
     'attachmentPath': attachmentPath,
+    'serviceId': serviceId,
+    'serviceIconPath': serviceIconPath,
     'destinationMinor': destinationMinor,
     'date': date.toIso8601String(),
     'note': note,
@@ -296,6 +316,8 @@ class FinanceEntry {
     categoryId: json['categoryId'] as String?,
     subcategory: json['subcategory'] as String?,
     attachmentPath: json['attachmentPath'] as String?,
+    serviceId: json['serviceId'] as String?,
+    serviceIconPath: json['serviceIconPath'] as String?,
     destinationMinor: json['destinationMinor'] as int?,
     date: DateTime.parse(json['date'] as String),
     note: json['note'] as String? ?? '',
@@ -431,6 +453,8 @@ class RecurringRule {
   final String accountId;
   final String currency;
   final String? categoryId;
+  final String? serviceId;
+  final String? customIconPath;
   final EntryKind kind;
   final int amountMinor;
   final int interval;
@@ -441,6 +465,10 @@ class RecurringRule {
   /// Intended day of month, retained when February clamps the next date.
   final int anchorDay;
   final bool automatic;
+  final bool reminderEnabled;
+  final int reminderDaysBefore;
+  final int reminderHour;
+  final int reminderMinute;
   final bool enabled;
 
   RecurringRule({
@@ -449,6 +477,8 @@ class RecurringRule {
     required this.accountId,
     this.currency = 'RUB',
     this.categoryId,
+    this.serviceId,
+    this.customIconPath,
     this.kind = EntryKind.expense,
     required this.amountMinor,
     this.interval = 1,
@@ -457,6 +487,10 @@ class RecurringRule {
     required this.nextDate,
     int? anchorDay,
     this.automatic = false,
+    this.reminderEnabled = false,
+    this.reminderDaysBefore = 1,
+    this.reminderHour = 10,
+    this.reminderMinute = 0,
     this.enabled = true,
   }) : anchorDay = anchorDay ?? nextDate.day;
 
@@ -466,6 +500,8 @@ class RecurringRule {
     String? accountId,
     String? currency,
     Object? categoryId = _absent,
+    Object? serviceId = _absent,
+    Object? customIconPath = _absent,
     EntryKind? kind,
     int? amountMinor,
     int? interval,
@@ -474,9 +510,19 @@ class RecurringRule {
     DateTime? nextDate,
     int? anchorDay,
     bool? automatic,
+    bool? reminderEnabled,
+    int? reminderDaysBefore,
+    int? reminderHour,
+    int? reminderMinute,
     bool? enabled,
   }) => RecurringRule(
     id: id ?? this.id,
+    customIconPath: identical(customIconPath, _absent)
+        ? this.customIconPath
+        : customIconPath as String?,
+    serviceId: identical(serviceId, _absent)
+        ? this.serviceId
+        : serviceId as String?,
     name: name ?? this.name,
     accountId: accountId ?? this.accountId,
     currency: currency ?? this.currency,
@@ -491,6 +537,10 @@ class RecurringRule {
     nextDate: nextDate ?? this.nextDate,
     anchorDay: anchorDay ?? this.anchorDay,
     automatic: automatic ?? this.automatic,
+    reminderEnabled: reminderEnabled ?? this.reminderEnabled,
+    reminderDaysBefore: reminderDaysBefore ?? this.reminderDaysBefore,
+    reminderHour: reminderHour ?? this.reminderHour,
+    reminderMinute: reminderMinute ?? this.reminderMinute,
     enabled: enabled ?? this.enabled,
   );
 
@@ -500,6 +550,8 @@ class RecurringRule {
     'accountId': accountId,
     'currency': currency,
     'categoryId': categoryId,
+    'serviceId': serviceId,
+    'customIconPath': customIconPath,
     'kind': kind.name,
     'amountMinor': amountMinor,
     'interval': interval,
@@ -508,6 +560,10 @@ class RecurringRule {
     'nextDate': nextDate.toIso8601String(),
     'anchorDay': anchorDay,
     'automatic': automatic,
+    'reminderEnabled': reminderEnabled,
+    'reminderDaysBefore': reminderDaysBefore,
+    'reminderHour': reminderHour,
+    'reminderMinute': reminderMinute,
     'enabled': enabled,
   };
 
@@ -531,6 +587,8 @@ class RecurringRule {
     accountId: json['accountId'] as String,
     currency: json['currency'] as String? ?? 'RUB',
     categoryId: json['categoryId'] as String?,
+    serviceId: json['serviceId'] as String?,
+    customIconPath: json['customIconPath'] as String?,
     kind: EntryKind.values.byName(
       json['kind'] as String? ?? EntryKind.expense.name,
     ),
@@ -543,6 +601,10 @@ class RecurringRule {
     nextDate: DateTime.parse(json['nextDate'] as String),
     anchorDay: json['anchorDay'] as int?,
     automatic: json['automatic'] as bool? ?? false,
+    reminderEnabled: json['reminderEnabled'] as bool? ?? false,
+    reminderDaysBefore: json['reminderDaysBefore'] as int? ?? 1,
+    reminderHour: json['reminderHour'] as int? ?? 10,
+    reminderMinute: json['reminderMinute'] as int? ?? 0,
     enabled: json['enabled'] as bool? ?? true,
   );
 }
@@ -571,20 +633,22 @@ class AppPreferences {
   final int weekStart;
   final int monthStart;
   final int lockMinutes;
-  final bool hideAmounts;
+  final String? lastExpenseCategoryId;
+  final String? lastIncomeCategoryId;
   final bool notifications;
 
   const AppPreferences({
-    this.theme = 'system',
-    this.accent = 'lime',
+    this.theme = 'dark',
+    this.accent = 'coffee',
     this.baseCurrency = 'RUB',
     this.numberFormat = 'space_comma',
     this.dateFormat = 'dd.MM.yyyy',
     this.weekStart = 1,
     this.monthStart = 1,
     this.lockMinutes = 5,
-    this.hideAmounts = false,
-    this.notifications = true,
+    this.lastExpenseCategoryId,
+    this.lastIncomeCategoryId,
+    this.notifications = false,
   });
 
   AppPreferences copyWith({
@@ -596,7 +660,8 @@ class AppPreferences {
     int? weekStart,
     int? monthStart,
     int? lockMinutes,
-    bool? hideAmounts,
+    Object? lastExpenseCategoryId = _absent,
+    Object? lastIncomeCategoryId = _absent,
     bool? notifications,
   }) => AppPreferences(
     theme: theme ?? this.theme,
@@ -607,7 +672,12 @@ class AppPreferences {
     weekStart: weekStart ?? this.weekStart,
     monthStart: monthStart ?? this.monthStart,
     lockMinutes: lockMinutes ?? this.lockMinutes,
-    hideAmounts: hideAmounts ?? this.hideAmounts,
+    lastExpenseCategoryId: identical(lastExpenseCategoryId, _absent)
+        ? this.lastExpenseCategoryId
+        : lastExpenseCategoryId as String?,
+    lastIncomeCategoryId: identical(lastIncomeCategoryId, _absent)
+        ? this.lastIncomeCategoryId
+        : lastIncomeCategoryId as String?,
     notifications: notifications ?? this.notifications,
   );
 
@@ -620,21 +690,23 @@ class AppPreferences {
     'weekStart': weekStart,
     'monthStart': monthStart,
     'lockMinutes': lockMinutes,
-    'hideAmounts': hideAmounts,
+    'lastExpenseCategoryId': lastExpenseCategoryId,
+    'lastIncomeCategoryId': lastIncomeCategoryId,
     'notifications': notifications,
   };
 
   factory AppPreferences.fromJson(Map<String, dynamic> json) => AppPreferences(
-    theme: json['theme'] as String? ?? 'system',
-    accent: json['accent'] as String? ?? 'lime',
+    theme: json['theme'] as String? ?? 'dark',
+    accent: json['accent'] as String? ?? 'coffee',
     baseCurrency: json['baseCurrency'] as String? ?? 'RUB',
     numberFormat: json['numberFormat'] as String? ?? 'space_comma',
     dateFormat: json['dateFormat'] as String? ?? 'dd.MM.yyyy',
     weekStart: json['weekStart'] as int? ?? 1,
     monthStart: json['monthStart'] as int? ?? 1,
     lockMinutes: json['lockMinutes'] as int? ?? 5,
-    hideAmounts: json['hideAmounts'] as bool? ?? false,
-    notifications: json['notifications'] as bool? ?? true,
+    lastExpenseCategoryId: json['lastExpenseCategoryId'] as String?,
+    lastIncomeCategoryId: json['lastIncomeCategoryId'] as String?,
+    notifications: json['notifications'] as bool? ?? false,
   );
 }
 

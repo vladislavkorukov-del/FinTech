@@ -8,6 +8,13 @@ const frequencyNames = {
   'custom': 'Свой интервал в днях',
 };
 
+const _reminderLeadNames = <int, String>{
+  0: 'В день платежа',
+  1: 'За 1 день',
+  3: 'За 3 дня',
+  7: 'За 7 дней',
+};
+
 const paymentTypeNames = {
   'subscription': 'Подписка',
   'mandatory': 'Обязательный платёж',
@@ -81,14 +88,6 @@ class _RecurringScreenState extends State<RecurringScreen> {
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
-          Text(
-            filter == 'subscription'
-                ? 'Сервисы, которыми вы пользуетесь. Следите за продлениями и отменяйте лишнее вовремя.'
-                : filter == 'mandatory'
-                ? 'Аренда, ипотека, коммунальные услуги и кредиты. Планируйте важное заранее.'
-                : 'Подписки, обязательные платежи и доходы — отдельно, чтобы ничего не упустить.',
-          ),
-          const SizedBox(height: 16),
           Wrap(
             spacing: 8,
             runSpacing: 8,
@@ -115,15 +114,15 @@ class _RecurringScreenState extends State<RecurringScreen> {
               filter == 'subscription'
                   ? 'Подписок пока нет'
                   : filter == 'mandatory'
-                  ? 'Важное под контролем'
+                  ? 'Нет обязательных платежей'
                   : filter == 'income'
                   ? 'Запланируйте доход'
-                  : 'Всё под контролем',
+                  : 'Нет регулярных операций',
               filter == 'subscription'
                   ? 'Добавьте сервис, выберите сумму и дату следующего продления.'
                   : filter == 'income'
                   ? 'Добавьте зарплату, проценты или другой регулярный доход.'
-                  : 'Добавьте реальный платёж, его сумму и дату. Операции создаются при запуске приложения.',
+                  : 'Добавьте платёж, сумму и дату.',
             ),
           if ((filter == 'all' || filter == 'subscription') &&
               subscriptions.isNotEmpty) ...[
@@ -159,12 +158,20 @@ class _RecurringScreenState extends State<RecurringScreen> {
         children: [
           Row(
             children: [
-              CategoryBadge(
-                category: c.category(r.categoryId),
-                icon: r.kind == EntryKind.income
-                    ? Icons.south_west_rounded
-                    : null,
-              ),
+              if (r.paymentType == 'subscription' &&
+                  r.kind == EntryKind.expense)
+                ServiceBadge(
+                  serviceId: r.serviceId,
+                  customIconPath: r.customIconPath,
+                  name: r.name,
+                )
+              else
+                CategoryBadge(
+                  category: c.category(r.categoryId),
+                  icon: r.kind == EntryKind.income
+                      ? Icons.south_west_rounded
+                      : null,
+                ),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -188,14 +195,27 @@ class _RecurringScreenState extends State<RecurringScreen> {
           ),
           const SizedBox(height: 14),
           Text(
-            money(r.amountMinor, r.currency, c.hidden),
+            money(r.amountMinor, r.currency),
             style: Theme.of(context).textTheme.titleLarge,
           ),
           const SizedBox(height: 5),
           Text(
             r.enabled
-                ? (r.automatic ? 'Автоматически при запуске' : 'Напоминание')
+                ? (r.automatic
+                      ? 'Автоматическая операция при запуске'
+                      : 'Вручную')
                 : 'Приостановлен',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+          const SizedBox(height: 5),
+          Text(
+            !r.enabled
+                ? 'Напоминание приостановлено'
+                : r.reminderEnabled
+                ? c.data.preferences.notifications
+                      ? 'Напоминание: ${_reminderLeadNames[r.reminderDaysBefore] ?? 'в день платежа'}, ${r.reminderHour.toString().padLeft(2, '0')}:${r.reminderMinute.toString().padLeft(2, '0')}'
+                      : 'Напоминание отключено в настройках'
+                : 'Без напоминания',
             style: Theme.of(context).textTheme.bodySmall,
           ),
         ],
@@ -219,15 +239,29 @@ Future<void> showRecurringEditor(
   final name = _text(rule?.name ?? '');
   final amount = _text(rule == null ? '' : _amount(rule.amountMinor));
   final interval = _text('${rule?.interval ?? 1}');
+  var serviceId = rule?.serviceId;
+  var customIconPath = rule?.customIconPath;
+  var reminderEnabled = rule?.reminderEnabled ?? false;
+  var reminderDaysBefore = rule?.reminderDaysBefore ?? 1;
+  var reminderTime = TimeOfDay(
+    hour: rule?.reminderHour ?? 10,
+    minute: rule?.reminderMinute ?? 0,
+  );
+  var requestingPermission = false;
   var kind = rule?.kind ?? initialKind;
   var selectedPaymentType =
       rule?.paymentType ??
       (paymentType == 'subscription' ? 'subscription' : 'mandatory');
-  if (kind == EntryKind.income) selectedPaymentType = 'mandatory';
+  if (kind == EntryKind.income) {
+    selectedPaymentType = 'mandatory';
+  }
   var account = rule?.accountId ?? accounts.first.id;
   var category =
       rule?.categoryId ??
-      c.data.categories.where((a) => a.kind == kind).firstOrNull?.id ??
+      c.data.categories
+          .where((a) => a.kind == kind && !a.archived)
+          .firstOrNull
+          ?.id ??
       '';
   var frequency = rule?.frequency ?? 'monthly';
   var next = rule?.nextDate ?? DateTime.now().add(const Duration(days: 1));
@@ -243,6 +277,71 @@ Future<void> showRecurringEditor(
         : 'Регулярная операция',
     controllers: [name, amount, interval],
     fields: (set) => [
+      if (kind == EntryKind.expense)
+        Builder(
+          builder: (serviceContext) => Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              ListTile(
+                key: const ValueKey('choose-subscription-service'),
+                contentPadding: EdgeInsets.zero,
+                leading: ServiceBadge(
+                  serviceId: serviceId,
+                  customIconPath: customIconPath,
+                  name: name.text,
+                ),
+                title: Text(
+                  ServiceCatalog.byId(serviceId)?.name ??
+                      (customIconPath != null
+                          ? 'Своя иконка'
+                          : 'Выбрать сервис'),
+                ),
+                trailing: const Icon(Icons.chevron_right_rounded),
+                onTap: () async {
+                  final choice = await showServicePicker(serviceContext);
+                  if (choice != null && serviceContext.mounted) {
+                    set(() {
+                      serviceId = choice.serviceId;
+                      customIconPath = choice.customIconPath;
+                      name.text = choice.name;
+                    });
+                  }
+                },
+              ),
+              Wrap(
+                spacing: 8,
+                children: [
+                  TextButton.icon(
+                    key: const ValueKey('upload-recurring-icon'),
+                    icon: const Icon(Icons.photo_library_outlined),
+                    label: const Text('Своя иконка'),
+                    onPressed: () async {
+                      try {
+                        final path = await pickServiceIcon();
+                        if (path != null && serviceContext.mounted) {
+                          set(() => customIconPath = path);
+                        }
+                      } catch (e) {
+                        if (serviceContext.mounted) {
+                          showError(serviceContext, e);
+                        }
+                      }
+                    },
+                  ),
+                  if (serviceId != null || customIconPath != null)
+                    TextButton(
+                      onPressed: () => set(() {
+                        serviceId = null;
+                        customIconPath = null;
+                      }),
+                      child: const Text('Убрать иконку'),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 8),
+            ],
+          ),
+        ),
       _field(name, 'Название', maxLength: 80),
       _select(
         'Тип',
@@ -250,9 +349,14 @@ Future<void> showRecurringEditor(
         const {EntryKind.expense: 'Расход', EntryKind.income: 'Доход'},
         (v) => set(() {
           kind = v;
-          if (kind == EntryKind.income) selectedPaymentType = 'mandatory';
+          if (kind == EntryKind.income) {
+            selectedPaymentType = 'mandatory';
+          }
           category =
-              c.data.categories.where((a) => a.kind == kind).firstOrNull?.id ??
+              c.data.categories
+                  .where((a) => a.kind == kind && !a.archived)
+                  .firstOrNull
+                  ?.id ??
               '';
         }),
       ),
@@ -263,16 +367,6 @@ Future<void> showRecurringEditor(
           paymentTypeNames,
           (v) => set(() => selectedPaymentType = v),
         ),
-      Padding(
-        padding: const EdgeInsets.only(bottom: 14),
-        child: Text(
-          kind == EntryKind.income
-              ? 'Зарплата, проценты и другие доходы не относятся к подпискам.'
-              : selectedPaymentType == 'subscription'
-              ? 'Музыка, кино, облако и другие сервисы. Выберите реальную дату продления.'
-              : 'Аренда, ипотека, кредиты и коммунальные услуги.',
-        ),
-      ),
       _field(amount, 'Сумма', amount: true),
       _select('Счёт', account, {
         for (final a in c.data.accounts.where(
@@ -281,10 +375,14 @@ Future<void> showRecurringEditor(
           a.id: '${a.name} · ${a.currency}',
       }, (v) => set(() => account = v)),
       _select('Категория', category, {
-        if (!c.data.categories.any((a) => a.kind == kind))
+        if (!c.data.categories.any(
+          (a) => a.kind == kind && (!a.archived || a.id == rule?.categoryId),
+        ))
           '': 'Сначала создайте категорию',
-        for (final a in c.data.categories.where((a) => a.kind == kind))
-          a.id: a.name,
+        for (final a in c.data.categories.where(
+          (a) => a.kind == kind && (!a.archived || a.id == rule?.categoryId),
+        ))
+          a.id: a.archived ? '${a.name} · Архив' : a.name,
       }, (v) => set(() => category = v)),
       _select(
         'Повтор',
@@ -318,7 +416,113 @@ Future<void> showRecurringEditor(
           }
         },
       ),
+      Builder(
+        builder: (reminderContext) {
+          final current = FinanceScope.of(reminderContext);
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SwitchListTile.adaptive(
+                key: const ValueKey('recurring-reminder-switch'),
+                contentPadding: EdgeInsets.zero,
+                title: const Text('Напоминание о платеже'),
+                subtitle: const Text('Уведомление на этом устройстве'),
+                value: reminderEnabled,
+                onChanged: requestingPermission
+                    ? null
+                    : (value) async {
+                        if (!value) {
+                          set(() => reminderEnabled = false);
+                          return;
+                        }
+                        set(() => requestingPermission = true);
+                        try {
+                          final allowed = await c.notifications
+                              .requestPermission();
+                          if (!reminderContext.mounted) {
+                            return;
+                          }
+                          if (!allowed) {
+                            showError(
+                              reminderContext,
+                              const FormatException(
+                                'Разрешите уведомления Finance в настройках Android.',
+                              ),
+                            );
+                            return;
+                          }
+                          set(() => reminderEnabled = true);
+                        } catch (e) {
+                          if (reminderContext.mounted) {
+                            showError(reminderContext, e);
+                          }
+                        } finally {
+                          if (reminderContext.mounted) {
+                            set(() => requestingPermission = false);
+                          }
+                        }
+                      },
+              ),
+              if (reminderEnabled) ...[
+                KeyedSubtree(
+                  key: const ValueKey('recurring-reminder-lead'),
+                  child: _select(
+                    'Когда напомнить',
+                    reminderDaysBefore,
+                    _reminderLeadNames,
+                    (value) => set(() => reminderDaysBefore = value),
+                  ),
+                ),
+                ListTile(
+                  key: const ValueKey('recurring-reminder-time'),
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.schedule_rounded),
+                  title: const Text('Время напоминания'),
+                  trailing: Text(reminderTime.format(reminderContext)),
+                  onTap: () async {
+                    final selected = await showTimePicker(
+                      context: reminderContext,
+                      initialTime: reminderTime,
+                      initialEntryMode: TimePickerEntryMode.input,
+                      builder: (context, child) => MediaQuery(
+                        data: MediaQuery.of(
+                          context,
+                        ).copyWith(alwaysUse24HourFormat: true),
+                        child: child!,
+                      ),
+                    );
+                    if (selected != null && reminderContext.mounted) {
+                      set(() => reminderTime = selected);
+                    }
+                  },
+                ),
+                if (!current.data.preferences.notifications) ...[
+                  const Text('Уведомления отключены в настройках приложения.'),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: TextButton(
+                      onPressed: () async {
+                        await Navigator.push(
+                          reminderContext,
+                          MaterialPageRoute<void>(
+                            builder: (_) => const SettingsScreen(),
+                          ),
+                        );
+                        if (reminderContext.mounted) {
+                          set(() {});
+                        }
+                      },
+                      child: const Text('Настройки уведомлений'),
+                    ),
+                  ),
+                ],
+              ],
+            ],
+          );
+        },
+      ),
       SwitchListTile.adaptive(
+        key: const ValueKey('recurring-automatic-switch'),
         contentPadding: EdgeInsets.zero,
         title: const Text('Автоматически создавать операцию'),
         subtitle: const Text('При следующем запуске в день платежа или позже.'),
@@ -347,12 +551,18 @@ Future<void> showRecurringEditor(
         RecurringRule(
           id: rule?.id ?? c.id(),
           name: name.text.trim(),
+          serviceId: kind == EntryKind.expense ? serviceId : null,
+          customIconPath: kind == EntryKind.expense ? customIconPath : null,
+          reminderEnabled: reminderEnabled,
+          reminderDaysBefore: reminderDaysBefore,
+          reminderHour: reminderTime.hour,
+          reminderMinute: reminderTime.minute,
           accountId: account,
           currency: c.account(account)!.currency,
           categoryId: category.isEmpty ? null : category,
           kind: kind,
           paymentType: kind == EntryKind.income
-              ? 'mandatory'
+              ? rule?.paymentType ?? 'mandatory'
               : selectedPaymentType,
           amountMinor: m,
           interval: n,
@@ -363,13 +573,28 @@ Future<void> showRecurringEditor(
           enabled: enabled,
         ),
       );
+      final result = await c.waitForNotificationSync();
+      if (!result.succeeded && context.mounted) {
+        showError(context, const FormatException(notificationSyncWarning));
+      }
+      // Returning closes the shared editor after the committed save, including
+      // when scheduling failed. A retry must not create a second financial rule.
     },
     delete: rule == null
         ? null
-        : () => c.mutate(
-            (d) => d.copyWith(
-              recurring: d.recurring.where((r) => r.id != rule.id).toList(),
-            ),
-          ),
+        : () async {
+            await c.mutate(
+              (d) => d.copyWith(
+                recurring: d.recurring.where((r) => r.id != rule.id).toList(),
+              ),
+            );
+            final result = await c.waitForNotificationSync();
+            if (!result.succeeded && context.mounted) {
+              showError(
+                context,
+                const FormatException(notificationSyncWarning),
+              );
+            }
+          },
   );
 }

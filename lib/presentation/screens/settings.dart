@@ -174,10 +174,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
     await SharePlus.instance.share(
       ShareParams(
         files: [XFile(path)],
-        subject: 'Резервная копия Finora',
+        subject: 'Резервная копия Finance',
         text: type == 'csv'
-            ? 'Операции Finora'
-            : 'Резервная копия Finora. Храните файл в безопасном месте.',
+            ? 'Операции Finance'
+            : 'Резервная копия Finance. Храните файл в безопасном месте.',
       ),
     );
   }
@@ -278,16 +278,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                         ),
                       ),
-                      SwitchListTile.adaptive(
-                        contentPadding: EdgeInsets.zero,
-                        title: const Text('Скрывать суммы'),
-                        value: p.hideAmounts,
-                        onChanged: (v) => _run(
-                          () => c.preferences(
-                            c.data.preferences.copyWith(hideAmounts: v),
-                          ),
-                        ),
-                      ),
                     ],
                   ),
                 ),
@@ -380,14 +370,63 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 .requestPermission();
                             if (!allowed) {
                               throw const FormatException(
-                                'Разрешите уведомления для Finora в настройках Android.',
+                                'Разрешите уведомления для Finance в настройках Android.',
                               );
                             }
                           }
                           await c.preferences(
                             c.data.preferences.copyWith(notifications: value),
                           );
+                          final result = await c.waitForNotificationSync();
+                          if (!result.succeeded && context.mounted) {
+                            showError(
+                              context,
+                              const FormatException(notificationSyncWarning),
+                            );
+                          }
                         }),
+                      ),
+                      if (c.notificationSyncPending) ...[
+                        const SizedBox(height: 8),
+                        const Text('Обновляем уведомления…'),
+                      ],
+                      if (c.notificationSyncResult?.succeeded == false) ...[
+                        const SizedBox(height: 8),
+                        const Text(
+                          notificationSyncWarning,
+                          key: ValueKey('notification-sync-warning'),
+                        ),
+                      ],
+                      TextButton.icon(
+                        key: const ValueKey('notification-sync-retry'),
+                        onPressed: busy || c.notificationSyncPending
+                            ? null
+                            : () => _run(() async {
+                                final result = await c.retryNotificationSync();
+                                if (!context.mounted) return;
+                                if (!result.succeeded) {
+                                  showError(
+                                    context,
+                                    const FormatException(
+                                      notificationSyncWarning,
+                                    ),
+                                  );
+                                } else {
+                                  ScaffoldMessenger.of(context)
+                                    ..hideCurrentSnackBar()
+                                    ..showSnackBar(
+                                      const SnackBar(
+                                        content: Text('Уведомления обновлены.'),
+                                      ),
+                                    );
+                                }
+                              }),
+                        icon: const Icon(Icons.refresh_rounded),
+                        label: Text(
+                          c.notificationSyncResult?.succeeded == false
+                              ? 'Повторить обновление уведомлений'
+                              : 'Обновить уведомления',
+                        ),
                       ),
                       const Text(
                         'Android может задерживать уведомления для экономии батареи. Автоматические финансовые операции создаются при запуске приложения.',
@@ -492,6 +531,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ],
                   ),
                 ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                  child: Text(
+                    'Finance · 1.2.0',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 12),
+                  ),
+                ),
                 if (c.data.demo) ...[
                   const SectionTitle('Демонстрационный профиль'),
                   SurfaceCard(
@@ -528,18 +575,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                   ),
                 ],
-                const SizedBox(height: 28),
-                Center(
-                  child: Text(
-                    'FINORA  /  1.0.0\nЛичные финансы. В вашем ритме.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      fontSize: 12,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 28),
               ],
             ),
           ),

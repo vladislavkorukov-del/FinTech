@@ -21,11 +21,6 @@ class AccountsScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
-          Text(
-            'Все деньги — на своих местах',
-            style: Theme.of(context).textTheme.bodyLarge,
-          ),
-          const SizedBox(height: 20),
           if (active.isEmpty)
             const EmptyState(
               'Добавьте первый счёт',
@@ -87,11 +82,7 @@ class AccountsScreen extends StatelessWidget {
           FittedBox(
             fit: BoxFit.scaleDown,
             child: Text(
-              money(
-                FinanceEngine.balance(a, c.data.entries),
-                a.currency,
-                c.hidden,
-              ),
+              money(FinanceEngine.balance(a, c.data.entries), a.currency),
               style: Theme.of(context).textTheme.headlineLarge,
             ),
           ),
@@ -104,7 +95,7 @@ class AccountsScreen extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(top: 8),
               child: Text(
-                'Кредитный лимит ${money(a.creditLimitMinor, a.currency, c.hidden)}',
+                'Кредитный лимит ${money(a.creditLimitMinor, a.currency)}',
               ),
             ),
         ],

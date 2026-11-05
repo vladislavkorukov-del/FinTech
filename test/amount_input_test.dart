@@ -11,7 +11,7 @@ void main() {
     expect(decimalMinor(9007199254740991), '90071992547409.91');
     expect(money(9007199254740991, 'USD'), '90,071,992,547,409.91 \$');
     expect(money(-123456, 'USD'), '−1,234.56 \$');
-    expect(money(100, 'RUB', true), '••••••');
+    expect(money(100, 'RUB'), '1 ₽');
     expect(
       FinanceEngine.parseMinor(decimalMinor(9007199254740991)),
       9007199254740991,

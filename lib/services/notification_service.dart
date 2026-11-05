@@ -58,16 +58,23 @@ class NotificationService {
     } on tz.LocationNotFoundException {
       // Android also permits manually selected fixed-offset zones, such as
       // GMT+05:45, which do not have an IANA database entry or DST transitions.
-      if (!RegExp(r'^(?:GMT|UTC)[+-]\d{1,2}:\d{2}$').hasMatch(zone)) {
+      final fixed = RegExp(
+        r'^(?:GMT|UTC)([+-])(\d{1,2}):(\d{2})$',
+      ).firstMatch(zone);
+      if (fixed == null) {
         rethrow;
       }
+      final hours = int.parse(fixed.group(2)!);
+      final minutes = int.parse(fixed.group(3)!);
+      if (hours > 18 || minutes > 59 || (hours == 18 && minutes != 0)) {
+        rethrow;
+      }
+      final offset =
+          Duration(hours: hours, minutes: minutes).inMilliseconds *
+          (fixed.group(1) == '-' ? -1 : 1);
       tz.setLocalLocation(
         tz.Location(zone, const [], const [], [
-          tz.TimeZone(
-            DateTime.now().timeZoneOffset.inMilliseconds,
-            isDst: false,
-            abbreviation: zone,
-          ),
+          tz.TimeZone(offset, isDst: false, abbreviation: zone),
         ]),
       );
     }
@@ -117,7 +124,30 @@ class NotificationService {
       await _plugin.cancelAll();
       return;
     }
+    final permission = await _plugin
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >()
+        ?.areNotificationsEnabled();
+    if (permission != true) {
+      // Permission requests belong to an explicit user gesture. A denied
+      // permission never consumes milestone deduplication or creates new alarms.
+      await _plugin.cancelAll();
+      return;
+    }
     final now = tz.TZDateTime.from(_now(), tz.local);
+    final allocated = <int>{};
+    final identities = <String, int>{};
+    int identifier(String key) => identities.putIfAbsent(key, () {
+      var id = _id(key);
+      while (!allocated.add(id)) {
+        id = (id + 1) & 0x7fffffff;
+      }
+      return id;
+    });
+    // Android OEMs may enforce a 500-alarm limit. Leave headroom for the OS and
+    // reserve three slots for weekly/monthly reports and inactivity reminders.
+    final planned = _planRecurring(data.recurring, data.entries, now);
     final raw = await _storage.read(key: 'finora.notification.seen');
     final seen = raw == null
         ? <String>{}
@@ -127,38 +157,32 @@ class NotificationService {
       if (!seen.add(key)) {
         return;
       }
-      await _plugin.show(_id(key), title, body, _details);
+      await _plugin.show(identifier(key), title, body, _details);
     }
 
-    for (final rule in data.recurring.where((rule) => rule.enabled)) {
-      final occurrence = _firstFutureOccurrence(rule, now);
-      final due = tz.TZDateTime.from(occurrence, tz.local);
-      var reminder = tz.TZDateTime(
-        tz.local,
-        due.year,
-        due.month,
-        due.day - 1,
-        10,
+    for (final reminder in planned) {
+      await _schedule(
+        identifier(reminder.key),
+        reminder.rule.paymentType == 'subscription'
+            ? 'Скоро оплата подписки'
+            : 'Скоро обязательный платёж',
+        '${reminder.rule.name} · ${_formatAmount(reminder.rule.amountMinor)} ${reminder.rule.currency}\n'
+        'Оплата ${_formatDate(reminder.due)}',
+        reminder.date,
       );
-      if (!reminder.isAfter(now) && due.isAfter(now)) {
-        reminder = now.add(const Duration(seconds: 3));
-      }
-      if (reminder.isAfter(now)) {
-        await _schedule(
-          'recurring:${rule.id}',
-          'Скоро регулярная операция',
-          '${rule.name}. Проверьте календарь платежей в Finora.',
-          reminder,
-        );
-      }
     }
 
     final startDay = data.preferences.monthStart.clamp(1, 28).toInt();
-    final start = DateTime(now.year, now.month, startDay);
+    final start = tz.TZDateTime(tz.local, now.year, now.month, startDay);
     final monthStart = now.isBefore(start)
-        ? DateTime(now.year, now.month - 1, startDay)
+        ? tz.TZDateTime(tz.local, now.year, now.month - 1, startDay)
         : start;
-    final end = DateTime(monthStart.year, monthStart.month + 1, startDay);
+    final end = tz.TZDateTime(
+      tz.local,
+      monthStart.year,
+      monthStart.month + 1,
+      startDay,
+    );
     for (final budget in data.budgets) {
       if (budget.limitMinor <= 0) {
         continue;
@@ -199,11 +223,11 @@ class NotificationService {
         await showOnce(
           key,
           'Как ваши финансы?',
-          'Вы давно не добавляли операции. Обновите учёт в Finora.',
+          'Вы давно не добавляли операции. Обновите учёт в Finance.',
         );
       } else {
         await _schedule(
-          'inactive',
+          identifier('inactive'),
           'Как ваши финансы?',
           'Самое время обновить учёт операций.',
           reminder,
@@ -221,7 +245,7 @@ class NotificationService {
       );
     }
     await _schedule(
-      'weekly',
+      identifier('weekly'),
       'Ваш финансовый отчёт за неделю',
       'Откройте аналитику и посмотрите, как прошла неделя.',
       weekly,
@@ -229,9 +253,9 @@ class NotificationService {
     );
     final monthly = tz.TZDateTime(tz.local, now.year, now.month + 1, 1, 10);
     await _schedule(
-      'monthly',
+      identifier('monthly'),
       'Итоги финансового месяца',
-      'Доходы, расходы и прогресс целей — в аналитике Finora.',
+      'Доходы, расходы и прогресс целей — в аналитике Finance.',
       monthly,
       match: DateTimeComponents.dayOfMonthAndTime,
     );
@@ -245,13 +269,13 @@ class NotificationService {
   }
 
   Future<void> _schedule(
-    String key,
+    int id,
     String title,
     String body,
     tz.TZDateTime date, {
     DateTimeComponents? match,
   }) => _plugin.zonedSchedule(
-    _id(key),
+    id,
     title,
     body,
     date,
@@ -269,19 +293,142 @@ class NotificationService {
     return hash;
   }
 
-  /// Reminder-only rules are not mutated into financial operations. Jump close
-  /// to the current period before using the domain calendar recurrence, so a
-  /// years-old daily rule cannot monopolize startup with an unbounded loop.
-  static DateTime _firstFutureOccurrence(RecurringRule rule, DateTime now) {
-    if (rule.nextDate.isAfter(now)) {
-      return rule.nextDate;
+  static const _perRuleHorizon = 12;
+  static const _recurringCapacity = 397;
+
+  /// A finite batch remains scheduled in Android after the app is closed. A
+  /// later sync replenishes it; this service never creates ledger entries.
+  static List<_PlannedReminder> _planRecurring(
+    List<RecurringRule> rules,
+    List<FinanceEntry> entries,
+    tz.TZDateTime now,
+  ) {
+    final result = <_PlannedReminder>[];
+    for (final rule in rules.where((r) => r.enabled && r.reminderEnabled)) {
+      _validateReminder(rule);
+      var start = rule;
+      if (rule.automatic && rule.reminderDaysBefore == 0) {
+        // Automatic bookkeeping may already have advanced nextDate at midnight.
+        // Keep a still-future same-day reminder for an actual posted occurrence;
+        // ordinary/manual transactions or an id-prefix lookalike cannot create it.
+        final today = entries.where(
+          (entry) =>
+              entry.status == 'posted' &&
+              entry.kind == rule.kind &&
+              entry.currency == rule.currency &&
+              entry.id ==
+                  'recurring:${rule.id}:${entry.date.toIso8601String()}' &&
+              entry.date.year == now.year &&
+              entry.date.month == now.month &&
+              entry.date.day == now.day,
+        );
+        if (today.isNotEmpty) {
+          start = rule.copyWith(nextDate: today.first.date);
+        }
+      }
+      var current = _nearCurrentOccurrence(start, now);
+      var count = 0;
+      // The calendar jump is at most one occurrence behind the relevant day.
+      // Keep a separate bounded guard for corrupt/non-advancing recurrence data.
+      for (var step = 0; step < _perRuleHorizon + 4; step++) {
+        final due = current.nextDate;
+        final reminder = tz.TZDateTime(
+          tz.local,
+          due.year,
+          due.month,
+          due.day - rule.reminderDaysBefore,
+          rule.reminderHour,
+          rule.reminderMinute,
+        );
+        if (reminder.isAfter(now)) {
+          final signature = jsonEncode({
+            'name': rule.name,
+            'amountMinor': rule.amountMinor,
+            'currency': rule.currency,
+            'paymentType': rule.paymentType,
+            'frequency': rule.frequency,
+            'interval': rule.interval,
+            'anchorDay': rule.anchorDay,
+            'lead': rule.reminderDaysBefore,
+            'hour': rule.reminderHour,
+            'minute': rule.reminderMinute,
+          });
+          result.add(
+            _PlannedReminder(
+              rule: rule,
+              due: due,
+              date: reminder,
+              key: 'recurring:${rule.id}:${_formatDate(due)}:$signature',
+            ),
+          );
+          count++;
+          if (count == _perRuleHorizon) {
+            break;
+          }
+        }
+        final next = FinanceEngine.nextOccurrence(current);
+        if (!next.isAfter(current.nextDate)) {
+          throw const FormatException('Регулярная операция не продвигает дату');
+        }
+        current = current.copyWith(nextDate: next);
+      }
+      if (count != _perRuleHorizon) {
+        throw const FormatException(
+          'Не удалось рассчитать напоминания операции',
+        );
+      }
     }
-    if (rule.interval < 1) {
-      throw const FormatException(
-        'Интервал регулярной операции должен быть положительным',
-      );
+    // Prefer soonest reminders across all rules, independently of UI ordering.
+    result.sort((left, right) {
+      final byDate = left.date.compareTo(right.date);
+      return byDate == 0 ? left.key.compareTo(right.key) : byDate;
+    });
+    return result.take(_recurringCapacity).toList();
+  }
+
+  static void _validateReminder(RecurringRule rule) {
+    if (!const [0, 1, 3, 7].contains(rule.reminderDaysBefore) ||
+        rule.reminderHour < 0 ||
+        rule.reminderHour > 23 ||
+        rule.reminderMinute < 0 ||
+        rule.reminderMinute > 59 ||
+        rule.interval < 1 ||
+        rule.interval > 36600 ||
+        rule.anchorDay < 1 ||
+        rule.anchorDay > 31 ||
+        rule.amountMinor <= 0 ||
+        rule.amountMinor > FinanceEngine.maxMinor ||
+        !RegExp(r'^[A-Z]{3}$').hasMatch(rule.currency)) {
+      throw const FormatException('Некорректные настройки напоминания');
     }
+    if (!const [
+      'daily',
+      'custom',
+      'weekly',
+      'monthly',
+      'yearly',
+    ].contains(rule.frequency)) {
+      throw const FormatException('Неизвестный период регулярной операции');
+    }
+  }
+
+  /// Date fields are calendar payment dates, not a time-of-day cutoff. In
+  /// particular, today's midnight payment may still remind today at 10:00.
+  /// Jump near the first due date whose *reminder* can still be in the future.
+  static RecurringRule _nearCurrentOccurrence(
+    RecurringRule rule,
+    tz.TZDateTime now,
+  ) {
     final original = rule.nextDate;
+    final target = DateTime.utc(
+      now.year,
+      now.month,
+      now.day + rule.reminderDaysBefore,
+    );
+    final origin = DateTime.utc(original.year, original.month, original.day);
+    if (target.isBefore(origin)) {
+      return rule;
+    }
     DateTime create(int year, int month, int day) => original.isUtc
         ? DateTime.utc(
             year,
@@ -303,68 +450,64 @@ class NotificationService {
             original.millisecond,
             original.microsecond,
           );
-    var current = rule;
     switch (rule.frequency) {
       case 'daily':
       case 'custom':
       case 'weekly':
         final stride = rule.interval * (rule.frequency == 'weekly' ? 7 : 1);
-        final fromDay = DateTime.utc(
-          original.year,
-          original.month,
-          original.day,
+        final steps = target.difference(origin).inDays ~/ stride;
+        return rule.copyWith(
+          nextDate: create(
+            original.year,
+            original.month,
+            original.day + steps * stride,
+          ),
         );
-        final toDay = DateTime.utc(now.year, now.month, now.day);
-        final steps = toDay.difference(fromDay).inDays ~/ stride;
-        if (steps > 1) {
-          current = rule.copyWith(
-            nextDate: create(
-              original.year,
-              original.month,
-              original.day + (steps - 1) * stride,
-            ),
-          );
-        }
       case 'monthly':
       case 'yearly':
         final stride = rule.interval * (rule.frequency == 'yearly' ? 12 : 1);
         final months =
-            (now.year - original.year) * 12 + now.month - original.month;
+            (target.year - original.year) * 12 + target.month - original.month;
         final steps = months ~/ stride;
-        if (steps > 1) {
-          // Keep the preceding occurrence in the original anchor month; the
-          // domain function decides month-end/leap-day clamping.
-          current = rule.copyWith(
-            nextDate: create(
-              original.year,
-              original.month + (steps - 1) * stride,
-              1,
-            ),
-          );
-          final target = current.nextDate;
-          final last = create(target.year, target.month + 1, 0).day;
-          final day = original.day > last ? last : original.day;
-          current = current.copyWith(
-            nextDate: create(target.year, target.month, day),
-          );
+        if (steps == 0) {
+          return rule;
         }
+        final month = create(original.year, original.month + steps * stride, 1);
+        final lastDay = create(month.year, month.month + 1, 0).day;
+        return rule.copyWith(
+          nextDate: create(
+            month.year,
+            month.month,
+            rule.anchorDay > lastDay ? lastDay : rule.anchorDay,
+          ),
+        );
       default:
         throw const FormatException('Неизвестный период регулярной операции');
     }
-    // The arithmetic jump leaves at most a handful of calendar steps even
-    // across DST transitions; fail explicitly if a corrupted rule cannot advance.
-    for (var step = 0; step < 8; step++) {
-      if (current.nextDate.isAfter(now)) {
-        return current.nextDate;
-      }
-      final next = FinanceEngine.nextOccurrence(current);
-      if (!next.isAfter(current.nextDate)) {
-        throw const FormatException('Регулярная операция не продвигает дату');
-      }
-      current = current.copyWith(nextDate: next);
-    }
-    throw const FormatException(
-      'Не удалось рассчитать следующую дату операции',
-    );
   }
+
+  static String _formatAmount(int minor) {
+    final whole = (minor ~/ 100).toString().replaceAllMapped(
+      RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
+      (match) => '${match[1]}\u202f',
+    );
+    return '$whole,${(minor % 100).toString().padLeft(2, '0')}';
+  }
+
+  static String _formatDate(DateTime date) =>
+      '${date.day.toString().padLeft(2, '0')}.'
+      '${date.month.toString().padLeft(2, '0')}.${date.year}';
+}
+
+class _PlannedReminder {
+  const _PlannedReminder({
+    required this.rule,
+    required this.due,
+    required this.date,
+    required this.key,
+  });
+  final RecurringRule rule;
+  final DateTime due;
+  final tz.TZDateTime date;
+  final String key;
 }

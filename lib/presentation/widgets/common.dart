@@ -3,6 +3,8 @@ import 'package:intl/intl.dart';
 
 import '../../domain/models.dart';
 import '../theme/icon_catalog.dart';
+import '../theme/app_theme.dart';
+export '../theme/app_theme.dart' show FinanceColors;
 export '../theme/icon_catalog.dart';
 
 abstract final class FinanceFormat {
@@ -15,10 +17,7 @@ String decimalMinor(int value) =>
 String displayDate(DateTime value) =>
     DateFormat(FinanceFormat.datePattern, 'ru').format(value);
 
-String money(int value, [String currency = 'RUB', bool hidden = false]) {
-  if (hidden) {
-    return '••••••';
-  }
+String money(int value, [String currency = 'RUB']) {
   final symbol = switch (currency) {
     'RUB' => '₽',
     'USD' => '\$',
@@ -52,14 +51,14 @@ const currencies = [
   'CHF',
 ];
 const categoryColors = [
-  0xFFA8C889,
-  0xFFD5B995,
-  0xFF94B8D4,
-  0xFFB2A0CF,
-  0xFFE5A58F,
-  0xFF84C4B3,
-  0xFFE0C77B,
-  0xFFCC9DAF,
+  0xFFBEA07A,
+  0xFFD67C7E,
+  0xFF9BA98C,
+  0xFFB6A78D,
+  0xFF9F8EAF,
+  0xFF8EA9A4,
+  0xFFCEAF76,
+  0xFF94A0B6,
 ];
 
 class SurfaceCard extends StatelessWidget {
@@ -143,15 +142,16 @@ class CategoryBadge extends StatelessWidget {
   final double size;
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
+    final colors = FinanceColors.of(context);
     final c =
-        color ?? (category == null ? scheme.onSurface : Color(category!.color));
+        color ??
+        (category == null ? colors.iconForeground : Color(category!.color));
     return Container(
       width: size,
       height: size,
       decoration: BoxDecoration(
         color: category == null
-            ? c.withValues(alpha: .14)
+            ? colors.iconBackground
             : Color(category!.background),
         borderRadius: BorderRadius.circular(15),
       ),
@@ -178,7 +178,7 @@ class EmptyState extends StatelessWidget {
     padding: const EdgeInsets.all(32),
     child: Column(
       children: [
-        Icon(icon, size: 44, color: Theme.of(context).colorScheme.primary),
+        Icon(icon, size: 44, color: FinanceColors.of(context).iconForeground),
         const SizedBox(height: 16),
         Text(
           title,

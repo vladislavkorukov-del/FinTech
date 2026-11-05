@@ -5,6 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
 import '../../domain/models.dart';
+import '../../domain/service_catalog.dart';
+import '../widgets/service_badge.dart';
 import '../../domain/finance_engine.dart';
 import '../controller.dart';
 import '../widgets/common.dart';

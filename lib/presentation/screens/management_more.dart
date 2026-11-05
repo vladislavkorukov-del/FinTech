@@ -15,7 +15,7 @@ class MoreScreen extends StatelessWidget {
           ),
           (
             title: 'Категории',
-            subtitle: 'Ваш порядок в финансах',
+            subtitle: 'Доходы, расходы и иконки',
             icon: Icons.grid_view_rounded,
             page: const CategoriesScreen(),
           ),
@@ -27,7 +27,7 @@ class MoreScreen extends StatelessWidget {
           ),
           (
             title: 'Накопления',
-            subtitle: 'Ближе к вашим целям',
+            subtitle: 'Цели и пополнения',
             icon: Icons.savings_outlined,
             page: const GoalsScreen(),
           ),
@@ -39,7 +39,7 @@ class MoreScreen extends StatelessWidget {
           ),
           (
             title: 'Календарь',
-            subtitle: 'Финансы день за днём',
+            subtitle: 'Операции по датам',
             icon: Icons.calendar_month_outlined,
             page: const CalendarScreen(),
           ),
@@ -59,20 +59,13 @@ class MoreScreen extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 24, 20, 30),
       children: [
-        Text(
-          'Больше возможностей',
-          style: Theme.of(context).textTheme.headlineLarge,
-        ),
-        const SizedBox(height: 8),
-        Text(
-          c.data.demo
-              ? 'Демонстрационный профиль'
-              : 'Ваше финансовое пространство',
-          style: TextStyle(
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
+        Text('Ещё', style: Theme.of(context).textTheme.headlineLarge),
+        if (c.data.demo)
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 12),
+            child: Text('Демонстрационный профиль'),
           ),
-        ),
-        const SizedBox(height: 26),
+        const SizedBox(height: 12),
         ...routes.map(
           (r) => Padding(
             padding: const EdgeInsets.only(bottom: 12),

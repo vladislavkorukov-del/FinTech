@@ -37,6 +37,7 @@ void main() {
     );
     test('every preset keeps text and buttons accessible in both themes', () {
       expect(AppTheme.presetNames.keys, [
+        'coffee',
         'lime',
         'electric',
         'sage',
@@ -80,11 +81,78 @@ void main() {
               theme.filledButtonTheme.style!.foregroundColor!.resolve({})!,
               theme.filledButtonTheme.style!.backgroundColor!.resolve({})!,
             ),
-            greaterThanOrEqualTo(7),
+            greaterThanOrEqualTo(preset == 'coffee' ? 4.5 : 7),
           );
         }
       }
     });
+    test(
+      'coffee uses warm surfaces and taupe buttons, highlighting only selection',
+      () {
+        final dark = AppTheme.build(Brightness.dark, 'coffee');
+        final light = AppTheme.build(Brightness.light, 'coffee');
+        expect(dark.scaffoldBackgroundColor, const Color(0xFF0F0C08));
+        expect(dark.colorScheme.surface, const Color(0xFF231A12));
+        expect(dark.colorScheme.onSurface, const Color(0xFFF7F5F1));
+        expect(dark.colorScheme.primary, const Color(0xFFFBE88C));
+        expect(dark.colorScheme.secondary, const Color(0xFF886B4B));
+        expect(
+          dark.extension<FinanceColors>()!.expense,
+          const Color(0xFFD67C7E),
+        );
+        for (final theme in [dark, light]) {
+          expect(
+            theme.filledButtonTheme.style!.backgroundColor!.resolve({}),
+            const Color(0xFF886B4B),
+          );
+          expect(
+            theme.filledButtonTheme.style!.foregroundColor!.resolve({}),
+            const Color(0xFFF7F5F1),
+          );
+          expect(
+            theme.segmentedButtonTheme.style!.backgroundColor!.resolve({
+              WidgetState.selected,
+            }),
+            const Color(0xFFFBE88C),
+          );
+          expect(
+            theme.segmentedButtonTheme.style!.backgroundColor!.resolve({}),
+            theme.colorScheme.surface,
+          );
+          expect(
+            theme.datePickerTheme.backgroundColor,
+            theme.colorScheme.surface,
+          );
+          expect(
+            theme.datePickerTheme.dayBackgroundColor!.resolve({
+              WidgetState.selected,
+            }),
+            const Color(0xFFFBE88C),
+          );
+          expect(
+            theme.datePickerTheme.dayForegroundColor!.resolve({
+              WidgetState.selected,
+            }),
+            const Color(0xFF0F0C08),
+          );
+          expect(theme.dialogTheme.backgroundColor, theme.colorScheme.surface);
+          final colors = theme.extension<FinanceColors>()!;
+          expect(
+            contrast(colors.expense, theme.colorScheme.surface),
+            greaterThanOrEqualTo(4.5),
+          );
+          expect(
+            contrast(colors.income, theme.colorScheme.surface),
+            greaterThanOrEqualTo(4.5),
+          );
+          expect(
+            contrast(colors.iconForeground, colors.iconBackground),
+            greaterThanOrEqualTo(4.5),
+          );
+        }
+      },
+    );
+
     test('legacy color names keep their data but render the lime palette', () {
       for (final legacy in ['gold', 'lavender', 'blue', 'unknown']) {
         expect(AppTheme.accent(legacy), AppTheme.lime);

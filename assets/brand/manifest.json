@@ -1,0 +1,9 @@
+{
+  "asset": "Finance_F_5000_rub_texture_v7.png",
+  "sourceArchive": "Finance_icon_5000_rub.zip",
+  "width": 1254,
+  "height": 1254,
+  "bytes": 1876256,
+  "sha256": "1520aa31c87f3b5ee37aeed64432be9c8ca4c17bd3fd547329916906799e2388",
+  "modifications": "none; identical user-supplied PNG in Flutter assets and Android drawable-nodpi"
+}

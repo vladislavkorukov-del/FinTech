@@ -84,10 +84,10 @@ class GoalCard extends StatelessWidget {
           Text('${(ratio * 100).round()}% накоплено'),
           const SizedBox(height: 8),
           Text(
-            money(saved, goal.currency, c.hidden),
+            money(saved, goal.currency),
             style: Theme.of(context).textTheme.headlineSmall,
           ),
-          Text('из ${money(goal.targetMinor, goal.currency, c.hidden)}'),
+          Text('из ${money(goal.targetMinor, goal.currency)}'),
           const SizedBox(height: 16),
           ClipRRect(
             borderRadius: BorderRadius.circular(10),
@@ -110,7 +110,7 @@ class GoalCard extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(top: 12),
               child: Text(
-                'Переводами отложено ${money(contributed, goal.currency, c.hidden)}',
+                'Переводами отложено ${money(contributed, goal.currency)}',
                 style: Theme.of(context).textTheme.bodySmall,
               ),
             ),

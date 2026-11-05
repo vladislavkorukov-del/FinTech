@@ -30,6 +30,279 @@ void main() {
   });
 
   test(
+    'new profile defaults are dark coffee and notifications opt-in',
+    () async {
+      final data = await repository.load();
+      expect(data.preferences.theme, 'dark');
+      expect(data.preferences.accent, 'coffee');
+      expect(data.preferences.notifications, isFalse);
+      expect(data.recurring.every((r) => !r.reminderEnabled), isTrue);
+      expect(data.preferences.toJson().containsKey('hideAmounts'), isFalse);
+    },
+  );
+
+  test(
+    'independent v2 fixture migrates to v3 preserving family media and explicit preferences',
+    () async {
+      final media = Directory(p.join(directory.path, 'receipts'));
+      await media.create();
+      final file = File(p.join(media.path, 'legacy.bin'));
+      await file.writeAsBytes([1, 2, 3]);
+      final path = p.join(directory.path, 'release-v2.db');
+      final expected = await _createLegacyV1(
+        path,
+        now,
+        version: 2,
+        mediaPath: file.path,
+      );
+      final migrated = await FinanceRepository.open(
+        factory: databaseFactoryFfi,
+        path: path,
+        clock: () => now,
+      );
+      try {
+        final actual = await migrated.load();
+        expect(actual.toJson(), expected.toJson());
+        expect(
+          FinanceEngine.balance(actual.accounts.single, actual.entries),
+          122457,
+        );
+        expect(actual.preferences.theme, 'system');
+        expect(actual.preferences.notifications, isTrue);
+        expect(actual.members.map((m) => m.name), ['Я', 'Семья']);
+        expect(
+          await File(actual.entries.single.attachmentPath!).readAsBytes(),
+          [1, 2, 3],
+        );
+        expect(actual.recurring.every((r) => !r.reminderEnabled), isTrue);
+        final reader = await databaseFactoryFfi.openDatabase(
+          path,
+          options: OpenDatabaseOptions(readOnly: true, singleInstance: false),
+        );
+        expect(await reader.getVersion(), 3);
+        final preferences =
+            jsonDecode(
+                  (await reader.query(
+                        'settings',
+                        where: 'key = ?',
+                        whereArgs: ['preferences'],
+                      )).single['value']
+                      as String,
+                )
+                as Map;
+        expect(preferences.containsKey('hideAmounts'), isFalse);
+        await reader.close();
+        final archive = await migrated.exportJson();
+        await repository.importJson(archive);
+        expect(
+          (await repository.load()).preferences.toJson(),
+          expected.preferences.toJson(),
+        );
+      } finally {
+        await migrated.close();
+      }
+      // Raw v2 snapshots are accepted without requiring a destructive upgrade.
+      final original = p.join(directory.path, 'raw-v2.db');
+      await _createLegacyV1(original, now, version: 2, mediaPath: file.path);
+      await repository.restoreDatabase(original);
+      expect((await repository.load()).toJson(), expected.toJson());
+    },
+  );
+
+  test(
+    'quick category preferences reopen, archive retains history and stale choices clear',
+    () async {
+      final data = await repository.load();
+      final preferences = data.preferences.copyWith(
+        lastExpenseCategoryId: 'expense-0',
+        lastIncomeCategoryId: 'income-0',
+      );
+      await repository.save(data.copyWith(preferences: preferences));
+      await repository.close();
+      repository = await reopen();
+      var actual = await repository.load();
+      expect(actual.preferences.lastExpenseCategoryId, 'expense-0');
+      expect(actual.preferences.lastIncomeCategoryId, 'income-0');
+      final balance = FinanceEngine.totalBalance(
+        actual.accounts,
+        actual.entries,
+        'RUB',
+        actual.goals,
+      );
+      await repository.save(
+        actual.copyWith(
+          categories: [
+            for (final c in actual.categories)
+              c.id == 'expense-0' ? c.copyWith(archived: true) : c,
+          ],
+        ),
+      );
+      actual = await repository.load();
+      expect(
+        actual.categories.firstWhere((c) => c.id == 'expense-0').archived,
+        isTrue,
+      );
+      expect(actual.entries.any((e) => e.categoryId == 'expense-0'), isTrue);
+      expect(
+        FinanceEngine.totalBalance(
+          actual.accounts,
+          actual.entries,
+          'RUB',
+          actual.goals,
+        ),
+        balance,
+      );
+      expect(actual.preferences.lastExpenseCategoryId, isNull);
+      expect(actual.preferences.lastIncomeCategoryId, 'income-0');
+      final archive =
+          jsonDecode(await repository.exportJson()) as Map<String, dynamic>;
+      archive['data']['preferences']['lastExpenseCategoryId'] = 'missing';
+      archive['data']['preferences']['lastIncomeCategoryId'] = 'expense-1';
+      await repository.importJson(jsonEncode(archive));
+      actual = await repository.load();
+      expect(actual.preferences.lastExpenseCategoryId, isNull);
+      expect(actual.preferences.lastIncomeCategoryId, isNull);
+    },
+  );
+
+  test(
+    'reminder and service settings roundtrip independently and invalid values roll back',
+    () async {
+      final data = await repository.load();
+      final rule = data.recurring.first.copyWith(
+        serviceId: 'custom.internet',
+        reminderEnabled: true,
+        reminderDaysBefore: 7,
+        reminderHour: 23,
+        reminderMinute: 59,
+        automatic: false,
+        enabled: false,
+      );
+      await repository.save(data.copyWith(recurring: [rule]));
+      await repository.close();
+      repository = await reopen();
+      final actual = await repository.load();
+      expect(actual.recurring.single.toJson(), rule.toJson());
+      final archive = await repository.exportJson();
+      for (final invalid in [
+        rule.copyWith(reminderDaysBefore: 2),
+        rule.copyWith(reminderHour: 24),
+        rule.copyWith(reminderMinute: -1),
+        rule.copyWith(serviceId: '../escape'),
+        rule.copyWith(serviceId: 'x' * 81),
+      ]) {
+        await expectLater(
+          repository.save(actual.copyWith(recurring: [invalid])),
+          throwsFormatException,
+        );
+        expect(await repository.exportJson(), archive);
+      }
+      for (final days in [0, 1, 3, 7]) {
+        await repository.save(
+          actual.copyWith(
+            recurring: [
+              rule.copyWith(
+                reminderDaysBefore: days,
+                enabled: true,
+                automatic: true,
+                reminderEnabled: false,
+              ),
+            ],
+          ),
+        );
+      }
+      await repository.importJson(archive);
+      expect(
+        (await repository.load()).recurring.single.toJson(),
+        rule.toJson(),
+      );
+    },
+  );
+
+  test(
+    'custom service icons embed restore and reject arbitrary imported paths',
+    () async {
+      final data = await repository.load();
+      final root = Directory(p.join(directory.path, 'service_icons'));
+      await root.create();
+      final file = File(p.join(root.path, 'brand.bin'));
+      await file.writeAsBytes([137, 80, 78, 71, 1, 2, 3]);
+      final entry = data.entries.first.copyWith(
+        serviceId: 'spotify',
+        serviceIconPath: file.path,
+      );
+      final rule = data.recurring.first.copyWith(
+        serviceId: 'custom.brand',
+        customIconPath: file.path,
+      );
+      await repository.save(
+        data.copyWith(
+          entries: [entry, ...data.entries.skip(1)],
+          recurring: [rule],
+        ),
+      );
+      final archive = await repository.exportJson();
+      expect(archive, isNot(contains(file.path)));
+      final encoded = jsonDecode(archive) as Map<String, dynamic>;
+      expect((encoded['serviceIcons'] as Map).keys.toSet(), {
+        'entry:${entry.id}',
+        'recurring:${rule.id}',
+      });
+      await file.delete();
+      await repository.importJson(archive);
+      var actual = await repository.load();
+      expect(await File(actual.entries.first.serviceIconPath!).readAsBytes(), [
+        137,
+        80,
+        78,
+        71,
+        1,
+        2,
+        3,
+      ]);
+      expect(
+        await File(actual.recurring.single.customIconPath!).readAsBytes(),
+        [137, 80, 78, 71, 1, 2, 3],
+      );
+      expect(await repository.exportJson(), archive);
+      final snapshot = p.join(directory.path, 'service-icons.db');
+      await repository.backupDatabase(snapshot);
+      await repository.restoreDatabase(snapshot);
+      actual = await repository.load();
+      expect(actual.entries.first.serviceIconPath, isNotNull);
+      expect(actual.recurring.single.customIconPath, isNotNull);
+      final reader = await databaseFactoryFfi.openDatabase(
+        snapshot,
+        options: OpenDatabaseOptions(singleInstance: false),
+      );
+      await reader.update('entries', {'serviceIconPath': '/etc/passwd'});
+      await reader.update('recurring', {'customIconPath': '../../secrets'});
+      await reader.close();
+      await repository.restoreDatabase(snapshot);
+      actual = await repository.load();
+      expect(actual.entries.every((e) => e.serviceIconPath == null), isTrue);
+      expect(actual.recurring.single.customIconPath, isNull);
+      await repository.importJson(archive);
+      final saved = await repository.exportJson();
+      encoded['serviceIcons'] = {
+        'recurring:absent': base64Encode([1]),
+      };
+      await expectLater(
+        repository.importJson(jsonEncode(encoded)),
+        throwsFormatException,
+      );
+      expect(await repository.exportJson(), saved);
+      encoded['serviceIcons'] = {};
+      encoded['data']['entries'][0]['serviceIconPath'] = '/etc/passwd';
+      encoded['data']['recurring'][0]['customIconPath'] = '../../secrets';
+      await repository.importJson(jsonEncode(encoded));
+      actual = await repository.load();
+      expect(actual.entries.every((e) => e.serviceIconPath == null), isTrue);
+      expect(actual.recurring.single.customIconPath, isNull);
+    },
+  );
+
+  test(
     'v1 SQLite migration preserves records and classifies regular payments',
     () async {
       final legacyPath = p.join(directory.path, 'legacy.db');
@@ -61,7 +334,7 @@ void main() {
           legacyPath,
           options: OpenDatabaseOptions(readOnly: true, singleInstance: false),
         );
-        expect(await reader.getVersion(), 2);
+        expect(await reader.getVersion(), 3);
         expect(await reader.rawQuery('PRAGMA foreign_key_check'), isEmpty);
         await reader.close();
       } finally {
@@ -71,7 +344,7 @@ void main() {
   );
 
   test(
-    'legacy JSON and raw database backups restore to v2 without lost balances',
+    'legacy JSON and raw database backups restore to v3 without lost balances',
     () async {
       final legacyPath = p.join(directory.path, 'legacy-restore.db');
       final expected = await _createLegacyV1(legacyPath, now);
@@ -90,7 +363,7 @@ void main() {
       expect((await repository.load()).toJson(), expected.toJson());
       final newArchive =
           jsonDecode(await repository.exportJson()) as Map<String, dynamic>;
-      expect(newArchive['schemaVersion'], 2);
+      expect(newArchive['schemaVersion'], 3);
       await repository.importJson(jsonEncode(newArchive));
       expect((await repository.load()).toJson(), expected.toJson());
       final newSnapshot = p.join(directory.path, 'migrated-snapshot.db');
@@ -294,7 +567,7 @@ void main() {
         ],
         preferences: data.preferences.copyWith(
           theme: 'dark',
-          hideAmounts: true,
+          lastExpenseCategoryId: 'expense-0',
         ),
       );
       await repository.save(changed);
@@ -678,7 +951,12 @@ void main() {
 
 /// An independent, populated release-v1 database fixture. It intentionally has
 /// no toGoalId/paymentType columns and cannot be created by the v2 repository.
-Future<FinanceData> _createLegacyV1(String path, DateTime now) async {
+Future<FinanceData> _createLegacyV1(
+  String path,
+  DateTime now, {
+  int version = 1,
+  String? mediaPath,
+}) async {
   final data = FinanceData(
     accounts: const [
       Account(id: 'legacy-account', name: 'Моя карта', openingMinor: 123456),
@@ -706,6 +984,7 @@ Future<FinanceData> _createLegacyV1(String path, DateTime now) async {
         categoryId: 'legacy-sub-category',
         date: now,
         note: 'Сохранить комментарий',
+        attachmentPath: mediaPath,
         tags: const ['Семья'],
       ),
     ],
@@ -740,18 +1019,25 @@ Future<FinanceData> _createLegacyV1(String path, DateTime now) async {
         paymentType: 'mandatory',
       ),
     ],
-    members: const [Member(id: 'me', name: 'Я')],
-    preferences: const AppPreferences(accent: 'gold'),
+    members: const [
+      Member(id: 'me', name: 'Я'),
+      Member(id: 'family', name: 'Семья'),
+    ],
+    preferences: const AppPreferences(
+      theme: 'system',
+      accent: 'gold',
+      notifications: true,
+    ),
   );
   final db = await databaseFactoryFfi.openDatabase(
     path,
     options: OpenDatabaseOptions(
-      version: 1,
+      version: version,
       onConfigure: (db) async {
         await db.execute('PRAGMA foreign_keys=ON');
       },
       onCreate: (db, _) async {
-        for (final sql in _v1Schema) {
+        for (final sql in version == 1 ? _v1Schema : _v2Schema) {
           await db.execute(sql);
         }
       },
@@ -763,16 +1049,34 @@ Future<FinanceData> _createLegacyV1(String path, DateTime now) async {
   await db.transaction((tx) async {
     await tx.insert('currencies', {'code': 'RUB', 'minorDigits': 2});
     await tx.insert('accounts', scalar(data.accounts.single.toJson()));
-    await tx.insert('members', data.members.single.toJson());
+    for (final member in data.members) {
+      await tx.insert('members', member.toJson());
+    }
     for (final c in data.categories) {
-      await tx.insert('categories', c.toJson()..remove('subcategories'));
+      await tx.insert(
+        'categories',
+        c.toJson()
+          ..remove('subcategories')
+          ..remove('archived'),
+      );
     }
     await tx.insert('goals', data.goals.single.toJson());
     final row = data.entries.single.toJson()
       ..remove('toGoalId')
+      ..remove('serviceId')
+      ..remove('serviceIconPath')
       ..remove('attachmentPath')
       ..remove('tags');
+    if (version == 2) {
+      row['toGoalId'] = null;
+    }
     await tx.insert('entries', row);
+    if (mediaPath != null) {
+      await tx.insert('attachments', {
+        'entryId': 'legacy-entry',
+        'path': mediaPath,
+      });
+    }
     await tx.insert('tags', {'id': 1, 'name': 'Семья'});
     await tx.insert('entry_tags', {
       'entryId': 'legacy-entry',
@@ -781,13 +1085,26 @@ Future<FinanceData> _createLegacyV1(String path, DateTime now) async {
     });
     await tx.insert('budgets', data.budgets.single.toJson());
     for (final r in data.recurring) {
-      await tx.insert('recurring', scalar(r.toJson()..remove('paymentType')));
+      final row = scalar(
+        r.toJson()
+          ..remove('paymentType')
+          ..remove('serviceId')
+          ..remove('customIconPath')
+          ..remove('reminderEnabled')
+          ..remove('reminderDaysBefore')
+          ..remove('reminderHour')
+          ..remove('reminderMinute'),
+      );
+      if (version == 2) {
+        row['paymentType'] = r.paymentType;
+      }
+      await tx.insert('recurring', row);
     }
     await tx.insert('settings', {'key': 'initialized', 'value': 'true'});
     await tx.insert('settings', {'key': 'demo', 'value': 'false'});
     await tx.insert('settings', {
       'key': 'preferences',
-      'value': jsonEncode(data.preferences.toJson()),
+      'value': jsonEncode({...data.preferences.toJson(), 'hideAmounts': true}),
     });
   });
   await db.close();
@@ -810,5 +1127,25 @@ const _v1Schema = [
   'CREATE TABLE budgets(id TEXT PRIMARY KEY, name TEXT NOT NULL, currency TEXT NOT NULL REFERENCES currencies(code), categoryId TEXT REFERENCES categories(id), limitMinor INTEGER NOT NULL CHECK(limitMinor > 0))',
   'CREATE TABLE goals(id TEXT PRIMARY KEY, name TEXT NOT NULL, currency TEXT NOT NULL REFERENCES currencies(code), targetMinor INTEGER NOT NULL CHECK(targetMinor > 0), savedMinor INTEGER NOT NULL CHECK(savedMinor >= 0), color INTEGER NOT NULL, icon INTEGER NOT NULL, deadline TEXT)',
   'CREATE TABLE recurring(id TEXT PRIMARY KEY, name TEXT NOT NULL, accountId TEXT NOT NULL REFERENCES accounts(id), currency TEXT NOT NULL REFERENCES currencies(code), categoryId TEXT REFERENCES categories(id), kind TEXT NOT NULL, amountMinor INTEGER NOT NULL CHECK(amountMinor > 0), interval INTEGER NOT NULL, anchorDay INTEGER NOT NULL, frequency TEXT NOT NULL, nextDate TEXT NOT NULL, automatic INTEGER NOT NULL, enabled INTEGER NOT NULL)',
+  'CREATE TABLE settings(key TEXT PRIMARY KEY, value TEXT NOT NULL)',
+];
+
+const _v2Schema = [
+  'CREATE TABLE currencies(code TEXT PRIMARY KEY, minorDigits INTEGER NOT NULL)',
+  'CREATE TABLE members(id TEXT PRIMARY KEY, name TEXT NOT NULL)',
+  'CREATE TABLE accounts(id TEXT PRIMARY KEY, name TEXT NOT NULL, type TEXT NOT NULL, currency TEXT NOT NULL REFERENCES currencies(code), bank TEXT NOT NULL, lastFour TEXT NOT NULL, openingMinor INTEGER NOT NULL, creditLimitMinor INTEGER NOT NULL, excluded INTEGER NOT NULL, archived INTEGER NOT NULL, color INTEGER NOT NULL, icon INTEGER NOT NULL)',
+  'CREATE TABLE categories(id TEXT PRIMARY KEY, name TEXT NOT NULL, kind TEXT NOT NULL, color INTEGER NOT NULL, background INTEGER NOT NULL, icon INTEGER NOT NULL, "order" INTEGER NOT NULL)',
+  'CREATE TABLE subcategories(categoryId TEXT NOT NULL REFERENCES categories(id), name TEXT NOT NULL, position INTEGER NOT NULL, PRIMARY KEY(categoryId,name))',
+  'CREATE TABLE entries(id TEXT PRIMARY KEY, kind TEXT NOT NULL, amountMinor INTEGER NOT NULL CHECK(amountMinor > 0), currency TEXT NOT NULL REFERENCES currencies(code), accountId TEXT NOT NULL REFERENCES accounts(id), toAccountId TEXT REFERENCES accounts(id), toGoalId TEXT REFERENCES goals(id), categoryId TEXT REFERENCES categories(id), subcategory TEXT, destinationMinor INTEGER, date TEXT NOT NULL, note TEXT NOT NULL, payee TEXT NOT NULL, status TEXT NOT NULL, recurrence TEXT NOT NULL, memberId TEXT NOT NULL REFERENCES members(id), latitude REAL, longitude REAL)',
+  'CREATE INDEX entries_date ON entries(date)',
+  'CREATE INDEX entries_account ON entries(accountId)',
+  'CREATE INDEX entries_category ON entries(categoryId)',
+  'CREATE INDEX entries_goal ON entries(toGoalId)',
+  'CREATE TABLE tags(id INTEGER PRIMARY KEY, name TEXT NOT NULL UNIQUE)',
+  'CREATE TABLE entry_tags(entryId TEXT NOT NULL REFERENCES entries(id), tagId INTEGER NOT NULL REFERENCES tags(id), position INTEGER NOT NULL, PRIMARY KEY(entryId,tagId))',
+  'CREATE TABLE attachments(entryId TEXT PRIMARY KEY REFERENCES entries(id), path TEXT NOT NULL)',
+  'CREATE TABLE budgets(id TEXT PRIMARY KEY, name TEXT NOT NULL, currency TEXT NOT NULL REFERENCES currencies(code), categoryId TEXT REFERENCES categories(id), limitMinor INTEGER NOT NULL CHECK(limitMinor > 0))',
+  'CREATE TABLE goals(id TEXT PRIMARY KEY, name TEXT NOT NULL, currency TEXT NOT NULL REFERENCES currencies(code), targetMinor INTEGER NOT NULL CHECK(targetMinor > 0), savedMinor INTEGER NOT NULL CHECK(savedMinor >= 0), color INTEGER NOT NULL, icon INTEGER NOT NULL, deadline TEXT)',
+  'CREATE TABLE recurring(id TEXT PRIMARY KEY, name TEXT NOT NULL, accountId TEXT NOT NULL REFERENCES accounts(id), currency TEXT NOT NULL REFERENCES currencies(code), categoryId TEXT REFERENCES categories(id), kind TEXT NOT NULL, amountMinor INTEGER NOT NULL CHECK(amountMinor > 0), interval INTEGER NOT NULL, anchorDay INTEGER NOT NULL, frequency TEXT NOT NULL, nextDate TEXT NOT NULL, automatic INTEGER NOT NULL, enabled INTEGER NOT NULL, paymentType TEXT NOT NULL DEFAULT \'mandatory\')',
   'CREATE TABLE settings(key TEXT PRIMARY KEY, value TEXT NOT NULL)',
 ];

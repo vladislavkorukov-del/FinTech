@@ -220,14 +220,12 @@ class DailyExpenseChart extends StatelessWidget {
     required this.days,
     required this.amountsMinor,
     required this.currency,
-    required this.hidden,
     this.onDayTap,
   });
   final DateTime start;
   final int days;
   final Map<int, int> amountsMinor;
   final String currency;
-  final bool hidden;
   final ValueChanged<DateTime>? onDayTap;
   @override
   Widget build(BuildContext context) {
@@ -245,7 +243,7 @@ class DailyExpenseChart extends StatelessWidget {
           final barHeight = amount == 0
               ? 2.0
               : math.max(4.0, amount / maxMinor * 108);
-          final label = money(amount, currency, hidden);
+          final label = money(amount, currency);
           return SizedBox(
             width: 86,
             child: Semantics(

@@ -6,7 +6,7 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <application
         android:name="${applicationName}"
-        android:label="Finora"
+        android:label="Finance"
         android:icon="@drawable/ic_launcher"
         android:allowBackup="false"
         android:fullBackupContent="@xml/backup_rules"

@@ -6,6 +6,8 @@ import '../../domain/models.dart';
 import '../controller.dart';
 import '../widgets/common.dart';
 import '../widgets/charts.dart';
+import '../widgets/category_orbit_chart.dart';
+import '../widgets/half_year_chart.dart';
 import 'transactions.dart';
 
 class AnalyticsScreen extends StatefulWidget {
@@ -69,7 +71,6 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
       currency,
       _kind,
     ).entries.toList()..sort((a, b) => b.value.compareTo(a.value));
-    final total = _kind == EntryKind.expense ? totals.expense : totals.income;
     final days = DateTime.utc(
       end.year,
       end.month,
@@ -203,82 +204,25 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
           ),
           const SizedBox(height: 20),
           SurfaceCard(
-            child: Column(
-              children: [
-                SizedBox(
-                  width: 240,
-                  child: DonutChart(
-                    values: cats.map((e) => e.value).toList(),
-                    colors: cats
-                        .map(
-                          (e) => Color.lerp(
-                            scheme.primary,
-                            scheme.onSurface,
-                            .12 * cats.indexOf(e).clamp(0, 5),
-                          )!,
-                        )
-                        .toList(),
-                    onSelect: (i) => open(cats[i].key),
-                    center: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          _kind == EntryKind.expense
-                              ? 'Всего расходов'
-                              : 'Всего доходов',
-                          style: TextStyle(
-                            fontSize: 10,
-                            color: scheme.onSurfaceVariant,
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        FittedBox(
-                          child: Text(
-                            money(total, currency, c.hidden),
-                            style: Theme.of(context).textTheme.titleLarge,
-                          ),
-                        ),
-                      ],
-                    ),
+            padding: const EdgeInsets.all(14),
+            child: CategoryOrbitChart(
+              kind: _kind,
+              slices: cats.map((item) {
+                final category = c.category(item.key);
+                return CategorySlice(
+                  id: item.key,
+                  name: category?.name ?? 'Прочее',
+                  icon: categoryIcon(category?.icon ?? 19),
+                  color: Color(
+                    category?.color ??
+                        categoryColors[item.key.hashCode.abs() %
+                            categoryColors.length],
                   ),
-                ),
-                if (cats.isEmpty)
-                  const EmptyState(
-                    'Пока нет данных',
-                    'Операции за выбранный период появятся здесь.',
-                  ),
-                for (final item in cats)
-                  ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    leading: CategoryBadge(
-                      category: c.category(item.key),
-                      size: 36,
-                    ),
-                    title: Text(
-                      c.category(item.key)?.name ?? 'Прочее',
-                      style: const TextStyle(fontSize: 14),
-                    ),
-                    subtitle: ClipRRect(
-                      borderRadius: BorderRadius.circular(6),
-                      child: LinearProgressIndicator(
-                        value: total == 0 ? 0 : item.value / total,
-                        minHeight: 3,
-                        color: scheme.primary,
-                        backgroundColor: scheme.outlineVariant.withValues(
-                          alpha: .15,
-                        ),
-                      ),
-                    ),
-                    trailing: Text(
-                      money(item.value, currency, c.hidden),
-                      style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    onTap: () => open(item.key),
-                  ),
-              ],
+                  amount: item.value,
+                );
+              }).toList(),
+              currency: currency,
+              onDetails: open,
             ),
           ),
           const SectionTitle('Доходы и расходы'),
@@ -290,15 +234,15 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                     Expanded(
                       child: _Stat(
                         'Доходы',
-                        money(totals.income, currency, c.hidden),
-                        scheme.onSurface,
+                        money(totals.income, currency),
+                        FinanceColors.of(context).income,
                       ),
                     ),
                     Expanded(
                       child: _Stat(
                         'Расходы',
-                        money(totals.expense, currency, c.hidden),
-                        scheme.onSurfaceVariant,
+                        money(totals.expense, currency),
+                        FinanceColors.of(context).expense,
                       ),
                     ),
                   ],
@@ -307,7 +251,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                 _Comparison(income: totals.income, expense: totals.expense),
                 const SizedBox(height: 14),
                 Text(
-                  'Разница: ${money(totals.net, currency, c.hidden)}',
+                  'Разница: ${money(totals.net, currency)}',
                   style: const TextStyle(fontWeight: FontWeight.w600),
                 ),
               ],
@@ -331,7 +275,6 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                   days: days,
                   amountsMinor: daily,
                   currency: currency,
-                  hidden: c.hidden,
                   onDayTap: (date) => Navigator.push(
                     context,
                     MaterialPageRoute<void>(
@@ -362,46 +305,21 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
               ],
             ),
           ),
-          const SectionTitle('Динамика за полгода'),
+          const SectionTitle('Последние 6 месяцев'),
           SurfaceCard(
-            child: Column(
-              children: [
-                for (var i = 0; i < monthly.length; i++)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    child: Row(
-                      children: [
-                        SizedBox(
-                          width: 42,
-                          child: Text(
-                            DateFormat('MMM', 'ru').format(
-                              DateTime(
-                                DateTime.now().year,
-                                DateTime.now().month - 5 + i,
-                              ),
-                            ),
-                            style: const TextStyle(fontSize: 11),
-                          ),
-                        ),
-                        Expanded(
-                          child: _Comparison(
-                            income: monthly[i].income,
-                            expense: monthly[i].expense,
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        SizedBox(
-                          width: 78,
-                          child: Text(
-                            money(monthly[i].net, currency, c.hidden),
-                            textAlign: TextAlign.right,
-                            style: const TextStyle(fontSize: 11),
-                          ),
-                        ),
-                      ],
-                    ),
+            child: HalfYearChart(
+              months: List.generate(
+                6,
+                (i) => MonthFlow(
+                  month: DateTime(
+                    DateTime.now().year,
+                    DateTime.now().month - 5 + i,
                   ),
-              ],
+                  income: monthly[i].income,
+                  expense: monthly[i].expense,
+                ),
+              ),
+              currency: currency,
             ),
           ),
           if (c.data.goals.isNotEmpty) ...[
@@ -426,7 +344,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                           ),
                           const SizedBox(height: 10),
                           Text(
-                            '${money(FinanceEngine.goalSaved(g, c.data.entries), g.currency, c.hidden)} из ${money(g.targetMinor, g.currency, c.hidden)}',
+                            '${money(FinanceEngine.goalSaved(g, c.data.entries), g.currency)} из ${money(g.targetMinor, g.currency)}',
                             style: const TextStyle(fontSize: 12),
                           ),
                         ],
@@ -464,12 +382,11 @@ class _Comparison extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final total = income + expense;
-    final scheme = Theme.of(context).colorScheme;
     return Column(
       children: [
         LinearProgressIndicator(
           value: total == 0 ? 0 : income / total,
-          color: scheme.primary,
+          color: FinanceColors.of(context).income,
           backgroundColor: Theme.of(
             context,
           ).colorScheme.outlineVariant.withValues(alpha: .12),
@@ -479,7 +396,7 @@ class _Comparison extends StatelessWidget {
         const SizedBox(height: 5),
         LinearProgressIndicator(
           value: total == 0 ? 0 : expense / total,
-          color: scheme.onSurfaceVariant,
+          color: FinanceColors.of(context).expense,
           backgroundColor: Theme.of(
             context,
           ).colorScheme.outlineVariant.withValues(alpha: .12),

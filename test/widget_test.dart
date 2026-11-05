@@ -63,7 +63,11 @@ void main() {
             FinoraApp(controller: controller, requireDeviceSecurity: false),
           );
           await tester.pumpAndSettle();
-          expect(find.text('Мои финансы'), findsOneWidget);
+          expect(
+            find.byKey(const ValueKey('dashboard-actions')),
+            findsOneWidget,
+          );
+          expect(find.text('Мои финансы'), findsNothing);
           expect(tester.takeException(), isNull);
           // Walk the entire dashboard; lazy rows/charts must lay out as well.
           final scroll = find.byType(Scrollable).first;

@@ -15,6 +15,7 @@ import 'presentation/screens/analytics.dart';
 import 'presentation/screens/management.dart';
 import 'presentation/screens/entry_editor.dart';
 import 'presentation/widgets/common.dart';
+import 'presentation/widgets/finance_header.dart';
 import 'domain/models.dart';
 
 Future<void> main() async {
@@ -70,7 +71,7 @@ class _BootstrapState extends State<Bootstrap> {
     }
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.build(Brightness.dark, 'lime'),
+      theme: AppTheme.build(Brightness.dark, 'coffee'),
       home: Scaffold(
         body: Center(
           child: Padding(
@@ -79,14 +80,10 @@ class _BootstrapState extends State<Bootstrap> {
                 ? const Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(
-                        Icons.blur_on_rounded,
-                        size: 56,
-                        color: Color(0xFFC6F36B),
-                      ),
+                      SizedBox(width: 64, height: 64, child: FinanceBrand()),
                       SizedBox(height: 20),
                       Text(
-                        'FINORA',
+                        'FINANCE',
                         style: TextStyle(fontSize: 22, letterSpacing: 4),
                       ),
                       SizedBox(height: 24),
@@ -139,7 +136,7 @@ class FinoraApp extends StatelessWidget {
         FinanceFormat.numberPattern = p.numberFormat;
         FinanceFormat.datePattern = p.dateFormat;
         return MaterialApp(
-          title: 'Finora — мои финансы',
+          title: 'Finance — личные финансы',
           debugShowCheckedModeBanner: false,
           locale: const Locale('ru'),
           supportedLocales: const [Locale('ru'), Locale('en')],
@@ -398,7 +395,9 @@ class _SecurityGateState extends State<SecurityGate>
         if (catchUp && !pin) {
           unawaited(
             FinanceScope.of(context).processRecurring().catchError((Object e) {
-              if (mounted) showError(context, e);
+              if (mounted) {
+                showError(context, e);
+              }
             }),
           );
         }
@@ -570,7 +569,7 @@ class _SecurityGateState extends State<SecurityGate>
                       style: Theme.of(context).textTheme.headlineLarge,
                     ),
                     const SizedBox(height: 12),
-                    const Text('Введите PIN для входа в Finora'),
+                    const Text('Введите PIN для входа в Finance'),
                     const SizedBox(height: 28),
                     TextField(
                       controller: _pin,

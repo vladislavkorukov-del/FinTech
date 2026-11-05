@@ -1,0 +1,1140 @@
+{
+  "sourceCommit": "4bfa9da744e2c06928047314ce30dc5c8d1ad759",
+  "sourceRepository": "https://github.com/simple-icons/simple-icons",
+  "items": [
+    {
+      "id": "youtube_premium",
+      "name": "YouTube Premium",
+      "group": "video",
+      "aliases": [
+        "ютуб",
+        "ютюб",
+        "премиум",
+        "youtube premium"
+      ],
+      "assetPath": "assets/services/youtube.svg",
+      "color": "FF0000",
+      "simpleIconsTitle": "YouTube",
+      "source": "https://www.youtube.com/howyoutubeworks/resources/brand-resources/#logos-icons-and-colors",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/youtube.svg",
+      "sha256": "5038808acbbc4e6edda16cbeb1cc6dec80e4e4ee4e227e039c41229fa222aa8c"
+    },
+    {
+      "id": "spotify",
+      "name": "Spotify",
+      "group": "music",
+      "aliases": [
+        "спотифай",
+        "споти",
+        "музыка"
+      ],
+      "assetPath": "assets/services/spotify.svg",
+      "color": "1ED760",
+      "simpleIconsTitle": "Spotify",
+      "source": "https://developer.spotify.com/documentation/general/design-and-branding/#using-our-logo",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/spotify.svg",
+      "sha256": "b9ec9bec7769c35643981586d6ea0d675aaf3871b32f8a291bcac7a87fff0bc1"
+    },
+    {
+      "id": "netflix",
+      "name": "Netflix",
+      "group": "video",
+      "aliases": [
+        "нетфликс",
+        "нетфликc",
+        "кино"
+      ],
+      "assetPath": "assets/services/netflix.svg",
+      "color": "E50914",
+      "simpleIconsTitle": "Netflix",
+      "source": "https://brand.netflix.com/en/assets/logos",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/netflix.svg",
+      "sha256": "67dbc495988bd5667a09ed4f56e14db4070a44c7a74e297b146c229f70fd6f6e"
+    },
+    {
+      "id": "yandex_plus",
+      "name": "Яндекс Плюс",
+      "group": "other",
+      "aliases": [
+        "yandex plus",
+        "яндекс плюс",
+        "яндекс+",
+        "yandex+"
+      ],
+      "assetPath": null,
+      "color": null,
+      "simpleIconsTitle": null,
+      "source": null,
+      "license": null,
+      "svgUrl": null,
+      "sha256": null
+    },
+    {
+      "id": "kinopoisk",
+      "name": "Кинопоиск",
+      "group": "video",
+      "aliases": [
+        "kinopoisk",
+        "кино поиск"
+      ],
+      "assetPath": "assets/services/kinopoisk.svg",
+      "color": "FF5500",
+      "simpleIconsTitle": "Kinopoisk",
+      "source": "https://www.kinopoisk.ru/special/branding",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/kinopoisk.svg",
+      "sha256": "c17362c835f79f2cbf7402e26de22bec71e555dc9df8a77844b0c9dff226b3de"
+    },
+    {
+      "id": "vk_music",
+      "name": "VK Музыка",
+      "group": "music",
+      "aliases": [
+        "vk music",
+        "вк",
+        "вконтакте",
+        "вк музыка"
+      ],
+      "assetPath": "assets/services/vk.svg",
+      "color": "0077FF",
+      "simpleIconsTitle": "VK",
+      "source": "https://vk.com/brand",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/vk.svg",
+      "sha256": "2d8fae863c9fdf5937f49326708dcf6cff0f5617ee67b502776b426bbe2cace8"
+    },
+    {
+      "id": "telegram_premium",
+      "name": "Telegram Premium",
+      "group": "other",
+      "aliases": [
+        "телеграм",
+        "телеграм премиум",
+        "телега",
+        "telegram"
+      ],
+      "assetPath": "assets/services/telegram.svg",
+      "color": "26A5E4",
+      "simpleIconsTitle": "Telegram",
+      "source": "https://telegram.org/tour/screenshots",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/telegram.svg",
+      "sha256": "147fd8f8923e7e5f463fe98c0eb9913bead6b2ae59935728cda141002ec8a7c9"
+    },
+    {
+      "id": "apple_music",
+      "name": "Apple Music",
+      "group": "music",
+      "aliases": [
+        "эппл мьюзик",
+        "эпл музыка",
+        "apple"
+      ],
+      "assetPath": "assets/services/applemusic.svg",
+      "color": "FA243C",
+      "simpleIconsTitle": "Apple Music",
+      "source": "https://www.apple.com/itunes/marketing-on-music/identity-guidelines.html#apple-music-icon",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/applemusic.svg",
+      "sha256": "365264bcf032a1acb6f18554cf7d34b1b2a75f7e571848629173bbfd0e1cadbb"
+    },
+    {
+      "id": "icloud",
+      "name": "iCloud+",
+      "group": "cloud",
+      "aliases": [
+        "айклауд",
+        "icloud",
+        "apple cloud"
+      ],
+      "assetPath": "assets/services/icloud.svg",
+      "color": "3693F3",
+      "simpleIconsTitle": "iCloud",
+      "source": "https://commons.wikimedia.org/wiki/File:ICloud_logo.svg",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/icloud.svg",
+      "sha256": "52044c50a9c97d2995507f0f68c13944597a69d1acf2bf7dea6718b5edfb444c"
+    },
+    {
+      "id": "google_one",
+      "name": "Google One",
+      "group": "cloud",
+      "aliases": [
+        "гугл ван",
+        "гугл облако",
+        "google one"
+      ],
+      "assetPath": null,
+      "color": null,
+      "simpleIconsTitle": null,
+      "source": null,
+      "license": null,
+      "svgUrl": null,
+      "sha256": null
+    },
+    {
+      "id": "chatgpt",
+      "name": "ChatGPT",
+      "group": "productivity",
+      "aliases": [
+        "чатгпт",
+        "чат гпт",
+        "openai",
+        "чат джипити"
+      ],
+      "assetPath": null,
+      "color": null,
+      "simpleIconsTitle": null,
+      "source": null,
+      "license": null,
+      "svgUrl": null,
+      "sha256": null
+    },
+    {
+      "id": "okko",
+      "name": "Okko",
+      "group": "video",
+      "aliases": [
+        "окко",
+        "окко кино"
+      ],
+      "assetPath": null,
+      "color": null,
+      "simpleIconsTitle": null,
+      "source": null,
+      "license": null,
+      "svgUrl": null,
+      "sha256": null
+    },
+    {
+      "id": "ivi",
+      "name": "Иви",
+      "group": "video",
+      "aliases": [
+        "ivi",
+        "иви"
+      ],
+      "assetPath": null,
+      "color": null,
+      "simpleIconsTitle": null,
+      "source": null,
+      "license": null,
+      "svgUrl": null,
+      "sha256": null
+    },
+    {
+      "id": "wink",
+      "name": "Wink",
+      "group": "video",
+      "aliases": [
+        "винк",
+        "ростелеком"
+      ],
+      "assetPath": null,
+      "color": null,
+      "simpleIconsTitle": null,
+      "source": null,
+      "license": null,
+      "svgUrl": null,
+      "sha256": null
+    },
+    {
+      "id": "start",
+      "name": "START",
+      "group": "video",
+      "aliases": [
+        "старт",
+        "start"
+      ],
+      "assetPath": null,
+      "color": null,
+      "simpleIconsTitle": null,
+      "source": null,
+      "license": null,
+      "svgUrl": null,
+      "sha256": null
+    },
+    {
+      "id": "kion",
+      "name": "KION",
+      "group": "video",
+      "aliases": [
+        "кион",
+        "мтс кино"
+      ],
+      "assetPath": null,
+      "color": null,
+      "simpleIconsTitle": null,
+      "source": null,
+      "license": null,
+      "svgUrl": null,
+      "sha256": null
+    },
+    {
+      "id": "microsoft365",
+      "name": "Microsoft 365",
+      "group": "productivity",
+      "aliases": [
+        "майкрософт",
+        "office",
+        "офис",
+        "microsoft365",
+        "ms365"
+      ],
+      "assetPath": null,
+      "color": null,
+      "simpleIconsTitle": null,
+      "source": null,
+      "license": null,
+      "svgUrl": null,
+      "sha256": null
+    },
+    {
+      "id": "dropbox",
+      "name": "Dropbox",
+      "group": "cloud",
+      "aliases": [
+        "дропбокс",
+        "облако"
+      ],
+      "assetPath": "assets/services/dropbox.svg",
+      "color": "0061FF",
+      "simpleIconsTitle": "Dropbox",
+      "source": "https://www.dropbox.com/branding",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/dropbox.svg",
+      "sha256": "1c9ea4ac8e318f3f6a598568df1a38ece03b7bc52a3a72d48c9e760340d7aeec"
+    },
+    {
+      "id": "playstation_plus",
+      "name": "PlayStation Plus",
+      "group": "games",
+      "aliases": [
+        "плейстейшн",
+        "ps plus",
+        "psplus",
+        "sony",
+        "пс плюс"
+      ],
+      "assetPath": "assets/services/playstation.svg",
+      "color": "0070D1",
+      "simpleIconsTitle": "PlayStation",
+      "source": "https://www.playstation.com/en-us/",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/playstation.svg",
+      "sha256": "b68b4d7b63443759b9c4d77a5501c5758eeae06a6d594d278d5eb6cb4d3dbbe4"
+    },
+    {
+      "id": "youtube_music",
+      "name": "YouTube Music",
+      "group": "music",
+      "aliases": [
+        "ютуб музыка",
+        "ютюб музыка",
+        "youtube music"
+      ],
+      "assetPath": "assets/services/youtubemusic.svg",
+      "color": "FF0000",
+      "simpleIconsTitle": "YouTube Music",
+      "source": "https://partnermarketinghub.withgoogle.com/#/brands",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/youtubemusic.svg",
+      "sha256": "f96c8a67f93717df8f9f57b0e96638b19e8fd80a165ddf83598592b5342612f5"
+    },
+    {
+      "id": "deezer",
+      "name": "Deezer",
+      "group": "music",
+      "aliases": [
+        "дизер",
+        "музыка"
+      ],
+      "assetPath": "assets/services/deezer.svg",
+      "color": "A238FF",
+      "simpleIconsTitle": "Deezer",
+      "source": "https://deezerbrand.com/document/37#/-/logo",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/deezer.svg",
+      "sha256": "928ee1c513ccf49c125956f8cb300558701a112eb2adaede966d032408cc480c"
+    },
+    {
+      "id": "tidal",
+      "name": "TIDAL",
+      "group": "music",
+      "aliases": [
+        "тайдал",
+        "тидал"
+      ],
+      "assetPath": "assets/services/tidal.svg",
+      "color": "000000",
+      "simpleIconsTitle": "TIDAL",
+      "source": "https://tidal.com/press",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/tidal.svg",
+      "sha256": "99f2c0efba4e756b58da03fa35b5d163f1033e77671f1bf2931df29f8694e4af"
+    },
+    {
+      "id": "twitch",
+      "name": "Twitch",
+      "group": "video",
+      "aliases": [
+        "твич",
+        "стримы"
+      ],
+      "assetPath": "assets/services/twitch.svg",
+      "color": "9146FF",
+      "simpleIconsTitle": "Twitch",
+      "source": "https://brand.twitch.tv",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/twitch.svg",
+      "sha256": "dbe27bc02a01b8d89b6259cacef328c9fa70bb13c29f38c36eb1421863f6f0b6"
+    },
+    {
+      "id": "discord_nitro",
+      "name": "Discord Nitro",
+      "group": "other",
+      "aliases": [
+        "дискорд",
+        "нитро",
+        "discord"
+      ],
+      "assetPath": "assets/services/discord.svg",
+      "color": "5865F2",
+      "simpleIconsTitle": "Discord",
+      "source": "https://discord.com/branding",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/discord.svg",
+      "sha256": "1d364b72c9eaf1fe37d17ca88cd8fb541308dc0f3b09e2ab3b824f380b3493d5"
+    },
+    {
+      "id": "notion",
+      "name": "Notion",
+      "group": "productivity",
+      "aliases": [
+        "ноушен",
+        "нотион",
+        "заметки"
+      ],
+      "assetPath": "assets/services/notion.svg",
+      "color": "000000",
+      "simpleIconsTitle": "Notion",
+      "source": "https://www.notion.so",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/notion.svg",
+      "sha256": "b17d2a2b592a06252efef522d5205f0c7a958f748d40df1011ed081417e42f85"
+    },
+    {
+      "id": "todoist",
+      "name": "Todoist",
+      "group": "productivity",
+      "aliases": [
+        "тудуист",
+        "тодоист",
+        "задачи"
+      ],
+      "assetPath": "assets/services/todoist.svg",
+      "color": "E44332",
+      "simpleIconsTitle": "Todoist",
+      "source": "https://doist.com/press",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/todoist.svg",
+      "sha256": "112b8e04327007cf75839bee7547718f334908c27700f9d5f5211062258510fe"
+    },
+    {
+      "id": "github_copilot",
+      "name": "GitHub Copilot",
+      "group": "productivity",
+      "aliases": [
+        "гитхаб",
+        "копилот",
+        "github",
+        "разработка"
+      ],
+      "assetPath": "assets/services/githubcopilot.svg",
+      "color": "000000",
+      "simpleIconsTitle": "GitHub Copilot",
+      "source": "https://primer.style/foundations/icons/copilot-24",
+      "license": {
+        "type": "MIT"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/githubcopilot.svg",
+      "sha256": "c72c1e0018e84b3128c5a1ac43ec2be135ac6ec4eb9c0ea18ed76416d23f2af3"
+    },
+    {
+      "id": "figma",
+      "name": "Figma",
+      "group": "productivity",
+      "aliases": [
+        "фигма",
+        "дизайн"
+      ],
+      "assetPath": "assets/services/figma.svg",
+      "color": "F24E1E",
+      "simpleIconsTitle": "Figma",
+      "source": "https://www.figma.com/using-the-figma-brand/",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/figma.svg",
+      "sha256": "2f86fca501dfed321a62f28743f29d9dd738dac91668eac5260ab746d1ef8840"
+    },
+    {
+      "id": "duolingo",
+      "name": "Duolingo",
+      "group": "other",
+      "aliases": [
+        "дуолинго",
+        "языки"
+      ],
+      "assetPath": "assets/services/duolingo.svg",
+      "color": "58CC02",
+      "simpleIconsTitle": "Duolingo",
+      "source": "https://design.duolingo.com",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/duolingo.svg",
+      "sha256": "6c9afdf8d66ddfa9c2a40d09acf3b1b053f5d352a5817ff6fa0a4163eb4396e8"
+    },
+    {
+      "id": "strava",
+      "name": "Strava",
+      "group": "other",
+      "aliases": [
+        "страва",
+        "спорт"
+      ],
+      "assetPath": "assets/services/strava.svg",
+      "color": "FC4C02",
+      "simpleIconsTitle": "Strava",
+      "source": "https://itunes.apple.com/us/app/strava-running-and-cycling-gps/id426826309",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/strava.svg",
+      "sha256": "d35fc3af2d7f4f86d152bac009c33ac27660ffa0efde39e6a8137e32bebdf6b8"
+    },
+    {
+      "id": "lastpass",
+      "name": "LastPass",
+      "group": "security",
+      "aliases": [
+        "ластпасс",
+        "пароли"
+      ],
+      "assetPath": "assets/services/lastpass.svg",
+      "color": "D32D27",
+      "simpleIconsTitle": "LastPass",
+      "source": "https://lastpass.com/press-room/",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/lastpass.svg",
+      "sha256": "532ab0945eae37796f7c3fd90a05fedc75b1529a0c37ae509d091e330f24ad8f"
+    },
+    {
+      "id": "onepassword",
+      "name": "1Password",
+      "group": "security",
+      "aliases": [
+        "ванпассворд",
+        "один пароль",
+        "пароли"
+      ],
+      "assetPath": "assets/services/1password.svg",
+      "color": "145FE4",
+      "simpleIconsTitle": "1Password",
+      "source": "https://1password.com/press",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/1password.svg",
+      "sha256": "7153e7c2de67386c02835960855f627769573039aeb03e89577c7fb7f94f0c44"
+    },
+    {
+      "id": "zoom",
+      "name": "Zoom",
+      "group": "productivity",
+      "aliases": [
+        "зум",
+        "видеосвязь"
+      ],
+      "assetPath": "assets/services/zoom.svg",
+      "color": "0B5CFF",
+      "simpleIconsTitle": "Zoom",
+      "source": "https://brand.zoom.us/media-library/",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/zoom.svg",
+      "sha256": "da5b2f13d38ca61c88a227f58e3bebcbcbb55412d97678ecff49ae7c603f9a7b"
+    },
+    {
+      "id": "patreon",
+      "name": "Patreon",
+      "group": "other",
+      "aliases": [
+        "патреон",
+        "авторы"
+      ],
+      "assetPath": "assets/services/patreon.svg",
+      "color": "000000",
+      "simpleIconsTitle": "Patreon",
+      "source": "https://www.patreon.com/brand",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/patreon.svg",
+      "sha256": "19b2589a0ab396e942aac60d7a8bd84b3d8c207bae1fa668c7b2f539e31decaa"
+    },
+    {
+      "id": "crunchyroll",
+      "name": "Crunchyroll",
+      "group": "video",
+      "aliases": [
+        "кранчиролл",
+        "аниме"
+      ],
+      "assetPath": "assets/services/crunchyroll.svg",
+      "color": "FF5E00",
+      "simpleIconsTitle": "Crunchyroll",
+      "source": "https://www.crunchyroll.com",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/crunchyroll.svg",
+      "sha256": "3b9c3d87339e18ec09f25e0c3eaffdc5ad4630df3d108fcd907e1b64c4cd13ea"
+    },
+    {
+      "id": "audible",
+      "name": "Audible",
+      "group": "other",
+      "aliases": [
+        "одибл",
+        "аудиокниги",
+        "amazon audible"
+      ],
+      "assetPath": "assets/services/audible.svg",
+      "color": "F8991C",
+      "simpleIconsTitle": "Audible",
+      "source": "https://commons.wikimedia.org/wiki/File:Audible_logo.svg",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/audible.svg",
+      "sha256": "da672f9be930294a7bac8992bb61d78248e30bbdc006efb03abbeb871922b787"
+    },
+    {
+      "id": "headspace",
+      "name": "Headspace",
+      "group": "other",
+      "aliases": [
+        "хэдспейс",
+        "медитация"
+      ],
+      "assetPath": "assets/services/headspace.svg",
+      "color": "F47D31",
+      "simpleIconsTitle": "Headspace",
+      "source": "https://www.headspace.com/press-and-media",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/headspace.svg",
+      "sha256": "4615a16df8bacf170a71f589852d7340f883cc78299fd21aa2d3b1a7ee5cc3a8"
+    },
+    {
+      "id": "mubi",
+      "name": "MUBI",
+      "group": "video",
+      "aliases": [
+        "муби",
+        "кино"
+      ],
+      "assetPath": "assets/services/mubi.svg",
+      "color": "000000",
+      "simpleIconsTitle": "MUBI",
+      "source": "https://mubi.com",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/mubi.svg",
+      "sha256": "f49ca57d4efb9356a76088e0148b2f9c6d253dccb20ae5fba8d108d82b80e290"
+    },
+    {
+      "id": "hbo_max",
+      "name": "HBO Max",
+      "group": "video",
+      "aliases": [
+        "эйчбио",
+        "макс",
+        "hbo"
+      ],
+      "assetPath": "assets/services/hbomax.svg",
+      "color": "000000",
+      "simpleIconsTitle": "HBO Max",
+      "source": "https://commons.wikimedia.org/wiki/File:Max_2025_logo.svg",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/hbomax.svg",
+      "sha256": "7d964ae20f0c9dc40d20ef9fab36658cb962443ae52fa7d075c20d12eb1b3e04"
+    },
+    {
+      "id": "paramount_plus",
+      "name": "Paramount+",
+      "group": "video",
+      "aliases": [
+        "парамаунт",
+        "paramount"
+      ],
+      "assetPath": "assets/services/paramountplus.svg",
+      "color": "0064FF",
+      "simpleIconsTitle": "Paramount+",
+      "source": "https://www.paramount.com/brand/paramount-plus",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/paramountplus.svg",
+      "sha256": "6b8a777222266eefdb08b9737cef97cdecf10143f5402d06634f615b127851f9"
+    },
+    {
+      "id": "nordvpn",
+      "name": "NordVPN",
+      "group": "security",
+      "aliases": [
+        "норд впн",
+        "норд",
+        "vpn"
+      ],
+      "assetPath": "assets/services/nordvpn.svg",
+      "color": "4687FF",
+      "simpleIconsTitle": "NordVPN",
+      "source": "https://nordvpn.com/press-area/",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/nordvpn.svg",
+      "sha256": "67b6ef11503f19d465d2e4534baddb79fabaa083e01945675b5a9faba7fce3a1"
+    },
+    {
+      "id": "proton_vpn",
+      "name": "Proton VPN",
+      "group": "security",
+      "aliases": [
+        "протон впн",
+        "protonvpn",
+        "vpn"
+      ],
+      "assetPath": "assets/services/protonvpn.svg",
+      "color": "66DEB1",
+      "simpleIconsTitle": "Proton VPN",
+      "source": "https://proton.me/media/kit",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/protonvpn.svg",
+      "sha256": "d6ba996e987cfef04a0f4aa765c1f2164096737d8f31551f552ce6c5d9f19f2b"
+    },
+    {
+      "id": "proton_drive",
+      "name": "Proton Drive",
+      "group": "cloud",
+      "aliases": [
+        "протон драйв",
+        "proton cloud"
+      ],
+      "assetPath": "assets/services/protondrive.svg",
+      "color": "EB508D",
+      "simpleIconsTitle": "Proton Drive",
+      "source": "https://proton.me/media/kit",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/protondrive.svg",
+      "sha256": "c6225e35eee32ef2db5319f1a1510262bc2e96abd9f36d596d946c470b733f56"
+    },
+    {
+      "id": "google_drive",
+      "name": "Google Drive",
+      "group": "cloud",
+      "aliases": [
+        "гугл диск",
+        "google диск",
+        "gdrive"
+      ],
+      "assetPath": "assets/services/googledrive.svg",
+      "color": "4285F4",
+      "simpleIconsTitle": "Google Drive",
+      "source": "https://developers.google.com/drive/web/branding",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/googledrive.svg",
+      "sha256": "7e678aba9e463140ec8603f0e6cc78bb80f6caf9cd3ee73335026a90729a1a40"
+    },
+    {
+      "id": "bitwarden",
+      "name": "Bitwarden",
+      "group": "security",
+      "aliases": [
+        "битварден",
+        "пароли"
+      ],
+      "assetPath": "assets/services/bitwarden.svg",
+      "color": "175DDC",
+      "simpleIconsTitle": "Bitwarden",
+      "source": "https://bitwarden.com/brand",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/bitwarden.svg",
+      "sha256": "024626ec72d252bded6042e9e38052440bada37a36064edd415fac18be1e6824"
+    },
+    {
+      "id": "evernote",
+      "name": "Evernote",
+      "group": "productivity",
+      "aliases": [
+        "эверноут",
+        "заметки"
+      ],
+      "assetPath": "assets/services/evernote.svg",
+      "color": "00A82D",
+      "simpleIconsTitle": "Evernote",
+      "source": "https://evernote.com/about-us",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/evernote.svg",
+      "sha256": "47fd3e1994735b07063a704e604970c73f075172c156b381f25a71a7520a0de4"
+    },
+    {
+      "id": "obsidian",
+      "name": "Obsidian",
+      "group": "productivity",
+      "aliases": [
+        "обсидиан",
+        "заметки"
+      ],
+      "assetPath": "assets/services/obsidian.svg",
+      "color": "7C3AED",
+      "simpleIconsTitle": "Obsidian",
+      "source": "https://obsidian.md",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/obsidian.svg",
+      "sha256": "ceee016a3e7afcfa931e19b3dfa9eb26685fc8a9b4f177ff921e358d628abb33"
+    },
+    {
+      "id": "webflow",
+      "name": "Webflow",
+      "group": "productivity",
+      "aliases": [
+        "вебфлоу",
+        "сайты"
+      ],
+      "assetPath": "assets/services/webflow.svg",
+      "color": "146EF5",
+      "simpleIconsTitle": "Webflow",
+      "source": "https://brand-at.webflow.io/resources#logos",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/webflow.svg",
+      "sha256": "04343bc856b7c074048aa80b5f17582286ae611ef47af17472607df5cea68d6a"
+    },
+    {
+      "id": "linear",
+      "name": "Linear",
+      "group": "productivity",
+      "aliases": [
+        "линеар",
+        "задачи"
+      ],
+      "assetPath": "assets/services/linear.svg",
+      "color": "5E6AD2",
+      "simpleIconsTitle": "Linear",
+      "source": "https://linear.app",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/linear.svg",
+      "sha256": "90b91b61090f4f9c94f9cb24769642278f03e8eedcfe5680738cf3a186bfc00f"
+    },
+    {
+      "id": "asana",
+      "name": "Asana",
+      "group": "productivity",
+      "aliases": [
+        "асана",
+        "задачи"
+      ],
+      "assetPath": "assets/services/asana.svg",
+      "color": "F06A6A",
+      "simpleIconsTitle": "Asana",
+      "source": "https://asana.com/brand",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/asana.svg",
+      "sha256": "ecdcda759ad672b2f4c90a872ba69ed0071e019741e01308f4bbbf8d4c54be0c"
+    },
+    {
+      "id": "clickup",
+      "name": "ClickUp",
+      "group": "productivity",
+      "aliases": [
+        "кликап",
+        "задачи"
+      ],
+      "assetPath": "assets/services/clickup.svg",
+      "color": "7B68EE",
+      "simpleIconsTitle": "ClickUp",
+      "source": "https://clickup.com/brand",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/clickup.svg",
+      "sha256": "bc5f176ff57afa4a9cc83ec916d5c1a4cb968e6dcb7644b1c548e738734fff74"
+    },
+    {
+      "id": "vimeo",
+      "name": "Vimeo",
+      "group": "video",
+      "aliases": [
+        "вимео",
+        "видео"
+      ],
+      "assetPath": "assets/services/vimeo.svg",
+      "color": "1AB7EA",
+      "simpleIconsTitle": "Vimeo",
+      "source": "https://press.vimeo.com/brand-guidelines",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/vimeo.svg",
+      "sha256": "8769e0252009f9babc5f1de2ba6c0638411a2104e7f6f3af6b13cc8310cbd992"
+    },
+    {
+      "id": "soundcloud",
+      "name": "SoundCloud Go+",
+      "group": "music",
+      "aliases": [
+        "саундклауд",
+        "soundcloud",
+        "музыка"
+      ],
+      "assetPath": "assets/services/soundcloud.svg",
+      "color": "FF5500",
+      "simpleIconsTitle": "SoundCloud",
+      "source": "https://press.soundcloud.com",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/soundcloud.svg",
+      "sha256": "02bac3d2cb8c1091aeae61219803dadbb4364dd636e50f60567d25dfcde7c12c"
+    },
+    {
+      "id": "bandcamp",
+      "name": "Bandcamp",
+      "group": "music",
+      "aliases": [
+        "бэндкемп",
+        "бандкамп"
+      ],
+      "assetPath": "assets/services/bandcamp.svg",
+      "color": "408294",
+      "simpleIconsTitle": "Bandcamp",
+      "source": "https://bandcamp.com/buttons",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/bandcamp.svg",
+      "sha256": "d8aba588023c3dc412ec4f8780b1f1c5c49c5079bc3b8b05ad4e175e9445a4d8"
+    },
+    {
+      "id": "pocket_casts",
+      "name": "Pocket Casts",
+      "group": "music",
+      "aliases": [
+        "покет кастс",
+        "подкасты"
+      ],
+      "assetPath": "assets/services/pocketcasts.svg",
+      "color": "F43E37",
+      "simpleIconsTitle": "Pocket Casts",
+      "source": "https://blog.pocketcasts.com/press/",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/pocketcasts.svg",
+      "sha256": "d4bc33f5847310da10758889adad064dd00ed9bd3fd3aeb6fcc7c7e1a3fdbfdc"
+    },
+    {
+      "id": "overcast",
+      "name": "Overcast",
+      "group": "music",
+      "aliases": [
+        "оверкаст",
+        "подкасты"
+      ],
+      "assetPath": "assets/services/overcast.svg",
+      "color": "FC7E0F",
+      "simpleIconsTitle": "Overcast",
+      "source": "https://overcast.fm",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/overcast.svg",
+      "sha256": "7c84d12a834a9fa916d4e935bf1fae082ca31c24a558410593f75f6efd23c29f"
+    },
+    {
+      "id": "mega",
+      "name": "MEGA",
+      "group": "cloud",
+      "aliases": [
+        "мега облако",
+        "облако"
+      ],
+      "assetPath": "assets/services/mega.svg",
+      "color": "D9272E",
+      "simpleIconsTitle": "MEGA",
+      "source": "https://mega.io/media",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/mega.svg",
+      "sha256": "9005a4d39cd8e5f40e1f547d96b548d6ea75a0b30faba377d9cbbe16b929bdab"
+    },
+    {
+      "id": "dashlane",
+      "name": "Dashlane",
+      "group": "security",
+      "aliases": [
+        "дэшлейн",
+        "пароли"
+      ],
+      "assetPath": "assets/services/dashlane.svg",
+      "color": "0E353D",
+      "simpleIconsTitle": "Dashlane",
+      "source": "https://brandfolder.com/dashlane/brandkitpartners",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/dashlane.svg",
+      "sha256": "ed0d3bbbce5bfd400cbace976c717b1a11b689b6fa36c3e60bc444469765410d"
+    },
+    {
+      "id": "surfshark",
+      "name": "Surfshark",
+      "group": "security",
+      "aliases": [
+        "серфшарк",
+        "сёрфшарк",
+        "vpn"
+      ],
+      "assetPath": "assets/services/surfshark.svg",
+      "color": "1EBFBF",
+      "simpleIconsTitle": "Surfshark",
+      "source": "https://surfshark.com/press/assets",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/surfshark.svg",
+      "sha256": "5e217a88eb5bdd9a9ca882be4b6a7c0949fabd06465fae397b83f5792a3be308"
+    },
+    {
+      "id": "expressvpn",
+      "name": "ExpressVPN",
+      "group": "security",
+      "aliases": [
+        "экспресс впн",
+        "vpn"
+      ],
+      "assetPath": "assets/services/expressvpn.svg",
+      "color": "DA3940",
+      "simpleIconsTitle": "ExpressVPN",
+      "source": "https://www.expressvpn.com/press",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/expressvpn.svg",
+      "sha256": "7246dd7b5bfce370bc7aa627acc67de83acbb881b11fe9e73cb671b70a5bf208"
+    },
+    {
+      "id": "mullvad",
+      "name": "Mullvad VPN",
+      "group": "security",
+      "aliases": [
+        "муллвад",
+        "мульвад",
+        "vpn"
+      ],
+      "assetPath": "assets/services/mullvad.svg",
+      "color": "294D73",
+      "simpleIconsTitle": "Mullvad",
+      "source": "https://mullvad.net/press#logos",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/mullvad.svg",
+      "sha256": "bf228c15811759a3b1e5c28ee9f23d603c0ce5fe06982416d0105e0b154a128d"
+    },
+    {
+      "id": "backblaze",
+      "name": "Backblaze",
+      "group": "cloud",
+      "aliases": [
+        "бэкблейз",
+        "резервная копия"
+      ],
+      "assetPath": "assets/services/backblaze.svg",
+      "color": "E21E29",
+      "simpleIconsTitle": "Backblaze",
+      "source": "https://www.backblaze.com/company/news.html",
+      "license": {
+        "type": "CC0-1.0"
+      },
+      "svgUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/4bfa9da744e2c06928047314ce30dc5c8d1ad759/icons/backblaze.svg",
+      "sha256": "6d14c7226eafd00abf0b9eb633fd106dbfad2eae7d69faf48562a3676d71c734"
+    }
+  ]
+}

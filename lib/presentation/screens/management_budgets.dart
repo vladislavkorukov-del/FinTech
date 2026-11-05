@@ -106,16 +106,16 @@ class BudgetCard extends StatelessWidget {
           ),
           const SizedBox(height: 14),
           Text(
-            '${money(spent, budget.currency, c.hidden)} из ${money(budget.limitMinor, budget.currency, c.hidden)}',
+            '${money(spent, budget.currency)} из ${money(budget.limitMinor, budget.currency)}',
           ),
           const SizedBox(height: 5),
           Text(
-            '${spent > budget.limitMinor ? 'Превышение' : 'Осталось'} ${money((budget.limitMinor - spent).abs(), budget.currency, c.hidden)}',
+            '${spent > budget.limitMinor ? 'Превышение' : 'Осталось'} ${money((budget.limitMinor - spent).abs(), budget.currency)}',
             style: TextStyle(color: color),
           ),
           const SizedBox(height: 5),
           Text(
-            'Прогноз: ${money(forecast, budget.currency, c.hidden)}',
+            'Прогноз: ${money(forecast, budget.currency)}',
             style: Theme.of(context).textTheme.bodySmall,
           ),
         ],
@@ -143,7 +143,9 @@ Future<void> _budgetEditor(BuildContext context, {Budget? budget}) async {
       _select('Категория', category, {
         '': 'Все расходы',
         for (final v in c.data.categories.where(
-          (a) => a.kind == EntryKind.expense,
+          (a) =>
+              a.kind == EntryKind.expense &&
+              (!a.archived || a.id == budget?.categoryId),
         ))
           v.id: v.name,
       }, (v) => set(() => category = v)),

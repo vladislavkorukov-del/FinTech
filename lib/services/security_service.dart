@@ -142,7 +142,7 @@ class SecurityService {
     }
     try {
       return await _auth.authenticate(
-        localizedReason: 'Подтвердите вход в Finora',
+        localizedReason: 'Подтвердите вход в Finance',
         options: const AuthenticationOptions(
           biometricOnly: true,
           stickyAuth: true,

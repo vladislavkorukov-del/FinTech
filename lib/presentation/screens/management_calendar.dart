@@ -136,26 +136,22 @@ class _CalendarScreenState extends State<CalendarScreen> {
                               ),
                             if (income > 0)
                               Text(
-                                c.hidden
-                                    ? '•••'
-                                    : '+${NumberFormat.compact(locale: 'ru').format(income / 100)}',
+                                '+${NumberFormat.compact(locale: 'ru').format(income / 100)}',
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 9,
-                                  color: Color(0xFF84B892),
+                                  color: FinanceColors.of(context).income,
                                 ),
                               ),
                             if (expense > 0)
                               Text(
-                                c.hidden
-                                    ? '•••'
-                                    : '−${NumberFormat.compact(locale: 'ru').format(expense / 100)}',
+                                '−${NumberFormat.compact(locale: 'ru').format(expense / 100)}',
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 9,
-                                  color: Color(0xFFD59B85),
+                                  color: FinanceColors.of(context).expense,
                                 ),
                               ),
                           ],
@@ -216,7 +212,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                             ? '−'
                             : e.kind == EntryKind.income
                             ? '+'
-                            : ''}${money(e.amountMinor, e.currency, c.hidden)}',
+                            : ''}${money(e.amountMinor, e.currency)}',
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         textAlign: TextAlign.end,

@@ -251,11 +251,77 @@ class CategoriesScreen extends StatefulWidget {
 
 class _CategoriesScreenState extends State<CategoriesScreen> {
   EntryKind kind = EntryKind.expense;
+  bool showArchive = false;
   @override
   Widget build(BuildContext context) {
     final c = FinanceScope.of(context);
-    final list = c.data.categories.where((a) => a.kind == kind).toList()
-      ..sort((a, b) => a.order.compareTo(b.order));
+    final archiveCount = c.data.categories
+        .where((a) => a.kind == kind && a.archived)
+        .length;
+    final list =
+        c.data.categories
+            .where((a) => a.kind == kind && a.archived == showArchive)
+            .toList()
+          ..sort((a, b) => a.order.compareTo(b.order));
+    Widget categoryRow(Category cat, int index) => Padding(
+      key: ValueKey(cat.id),
+      padding: const EdgeInsets.only(bottom: 10),
+      child: SurfaceCard(
+        padding: const EdgeInsets.all(14),
+        onTap: () => _categoryEditor(context, kind: kind, category: cat),
+        child: Row(
+          children: [
+            CategoryBadge(category: cat),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    cat.name,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  if (cat.subcategories.isNotEmpty)
+                    Text(
+                      cat.subcategories.join(' · '),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  if (cat.archived)
+                    Text(
+                      'В архиве · история сохранена',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                ],
+              ),
+            ),
+            if (cat.archived)
+              IconButton(
+                tooltip: 'Восстановить категорию',
+                onPressed: () => _attempt(context, () async {
+                  await c.saveCategory(cat.copyWith(archived: false));
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('«${cat.name}» восстановлена')),
+                    );
+                  }
+                }),
+                icon: const Icon(Icons.unarchive_outlined),
+              )
+            else
+              ReorderableDragStartListener(
+                index: index,
+                child: const Padding(
+                  padding: EdgeInsets.all(8),
+                  child: Icon(Icons.drag_handle_rounded),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
     return Scaffold(
       appBar: AppBar(
         title: const Text('Категории'),
@@ -270,96 +336,95 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.all(20),
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: SegmentedButton<EntryKind>(
-                segments: const [
-                  ButtonSegment(
-                    value: EntryKind.expense,
-                    label: Text('Расходы'),
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: SegmentedButton<EntryKind>(
+                    segments: const [
+                      ButtonSegment(
+                        value: EntryKind.expense,
+                        label: Text('Расходы'),
+                      ),
+                      ButtonSegment(
+                        value: EntryKind.income,
+                        label: Text('Доходы'),
+                      ),
+                    ],
+                    selected: {kind},
+                    onSelectionChanged: (value) => setState(() {
+                      kind = value.first;
+                      showArchive = false;
+                    }),
                   ),
-                  ButtonSegment(value: EntryKind.income, label: Text('Доходы')),
+                ),
+                if (archiveCount > 0 || showArchive) ...[
+                  const SizedBox(height: 10),
+                  FilterChip(
+                    label: Text('Архив ($archiveCount)'),
+                    selected: showArchive,
+                    onSelected: (value) => setState(() => showArchive = value),
+                  ),
                 ],
-                selected: {kind},
-                onSelectionChanged: (v) => setState(() => kind = v.first),
+              ],
+            ),
+          ),
+          if (showArchive)
+            const Padding(
+              padding: EdgeInsets.fromLTRB(20, 0, 20, 16),
+              child: Text(
+                'Архивные категории остаются в истории и аналитике. Восстановите категорию, чтобы использовать её для новых операций.',
               ),
             ),
-          ),
           if (list.isEmpty)
-            const EmptyState(
-              'Пока нет категорий',
-              'Создайте категории для удобного учёта.',
-            ),
-          Expanded(
-            child: ReorderableListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              itemCount: list.length,
-              onReorderItem: (oldIndex, newIndex) =>
-                  _attempt(context, () async {
-                    final items = [...list];
-                    items.insert(newIndex, items.removeAt(oldIndex));
-                    final order = {
-                      for (var i = 0; i < items.length; i++) items[i].id: i,
-                    };
-                    await c.mutate(
-                      (d) => d.copyWith(
-                        categories: d.categories
-                            .map(
-                              (v) => v.kind == kind
-                                  ? v.copyWith(order: order[v.id])
-                                  : v,
-                            )
-                            .toList(),
-                      ),
-                    );
-                  }),
-              itemBuilder: (_, i) {
-                final cat = list[i];
-                return Padding(
-                  key: ValueKey(cat.id),
-                  padding: const EdgeInsets.only(bottom: 10),
-                  child: SurfaceCard(
-                    padding: const EdgeInsets.all(14),
-                    onTap: () =>
-                        _categoryEditor(context, kind: kind, category: cat),
-                    child: Row(
-                      children: [
-                        CategoryBadge(category: cat),
-                        const SizedBox(width: 14),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                cat.name,
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                style: Theme.of(context).textTheme.titleMedium,
+            Expanded(
+              child: SingleChildScrollView(
+                child: EmptyState(
+                  showArchive
+                      ? 'Архив пуст'
+                      : 'Нет категорий ${kind == EntryKind.expense ? 'расходов' : 'доходов'}',
+                  showArchive
+                      ? 'Все категории этого типа активны.'
+                      : 'Добавьте категорию кнопкой +.',
+                ),
+              ),
+            )
+          else
+            Expanded(
+              child: showArchive
+                  ? ListView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      itemCount: list.length,
+                      itemBuilder: (_, i) => categoryRow(list[i], i),
+                    )
+                  : ReorderableListView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      itemCount: list.length,
+                      onReorderItem: (oldIndex, newIndex) =>
+                          _attempt(context, () async {
+                            final items = [...list];
+                            items.insert(newIndex, items.removeAt(oldIndex));
+                            final order = {
+                              for (var i = 0; i < items.length; i++)
+                                items[i].id: i,
+                            };
+                            await c.mutate(
+                              (d) => d.copyWith(
+                                categories: d.categories
+                                    .map(
+                                      (v) => v.kind == kind && !v.archived
+                                          ? v.copyWith(order: order[v.id])
+                                          : v,
+                                    )
+                                    .toList(),
                               ),
-                              if (cat.subcategories.isNotEmpty)
-                                Text(
-                                  cat.subcategories.join(' · '),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                            ],
-                          ),
-                        ),
-                        ReorderableDragStartListener(
-                          index: i,
-                          child: const Padding(
-                            padding: EdgeInsets.all(8),
-                            child: Icon(Icons.drag_handle_rounded),
-                          ),
-                        ),
-                      ],
+                            );
+                          }),
+                      itemBuilder: (_, i) => categoryRow(list[i], i),
                     ),
-                  ),
-                );
-              },
             ),
-          ),
         ],
       ),
     );
@@ -375,13 +440,46 @@ Future<void> _categoryEditor(
   final name = _text(category?.name ?? '');
   final subs = _text(category?.subcategories.join(', ') ?? '');
   var icon = category?.icon ?? 0;
-  var color = category?.color ?? categoryColors.first;
-  var bg = category?.background ?? 0xFF253025;
+  final theme = Theme.of(context);
+  var selectedKind = category?.kind ?? kind;
+  var color =
+      category?.color ??
+      categoryColors[c.data.categories.length % categoryColors.length];
+  var bg =
+      category?.background ??
+      Color.alphaBlend(
+        Color(color).withValues(alpha: .16),
+        theme.colorScheme.surface,
+      ).toARGB32();
   await _edit(
     context,
     title: category == null ? 'Новая категория' : 'Настройка категории',
     controllers: [name, subs],
     fields: (set) => [
+      if (category == null) ...[
+        const Text('Тип категории'),
+        const SizedBox(height: 10),
+        SegmentedButton<EntryKind>(
+          key: const ValueKey('category-kind'),
+          segments: const [
+            ButtonSegment(value: EntryKind.expense, label: Text('Расход')),
+            ButtonSegment(value: EntryKind.income, label: Text('Доход')),
+          ],
+          selected: {selectedKind},
+          onSelectionChanged: (value) => set(() => selectedKind = value.first),
+        ),
+        const SizedBox(height: 18),
+      ] else ...[
+        Text(
+          'Тип: ${category.kind == EntryKind.expense ? 'Расход' : 'Доход'}',
+          style: theme.textTheme.labelLarge,
+        ),
+        const SizedBox(height: 8),
+        const Text(
+          'Тип существующей категории сохраняется для корректной истории операций.',
+        ),
+        const SizedBox(height: 18),
+      ],
       _field(name, 'Название', maxLength: 80),
       ListTile(
         contentPadding: EdgeInsets.zero,
@@ -389,7 +487,7 @@ Future<void> _categoryEditor(
           category: Category(
             id: 'preview',
             name: '',
-            kind: kind,
+            kind: selectedKind,
             color: color,
             background: bg,
             icon: icon,
@@ -427,10 +525,12 @@ Future<void> _categoryEditor(
                   ...categoryColors.map(
                     (v) => Color(v).withValues(alpha: .18).toARGB32(),
                   ),
-                  0xFF253025,
-                  0xFF302821,
-                  0xFF242C35,
-                  0xFFF1EEE8,
+                  0xFF231A12,
+                  0xFF30251B,
+                  0xFF403021,
+                  0xFF886B4B,
+                  0xFFE7DDD0,
+                  0xFFF7F5F1,
                 ]
                 .map(
                   (v) => InkWell(
@@ -457,18 +557,35 @@ Future<void> _categoryEditor(
       ),
       const SizedBox(height: 18),
       _optional(subs, 'Подкатегории через запятую'),
+      if (category != null) ...[
+        const SizedBox(height: 16),
+        if (category.archived)
+          OutlinedButton.icon(
+            icon: const Icon(Icons.unarchive_outlined),
+            label: const Text('Восстановить категорию'),
+            onPressed: () => _attempt(context, () async {
+              await c.saveCategory(category.copyWith(archived: false));
+              if (context.mounted) {
+                Navigator.pop(context);
+              }
+            }),
+          )
+        else
+          _CategoryRemoveAction(controller: c, category: category),
+      ],
     ],
     save: () => c.saveCategory(
       Category(
         id: category?.id ?? c.id(),
         name: name.text.trim(),
-        kind: kind,
+        kind: selectedKind,
+        archived: category?.archived ?? false,
         color: color,
         background: bg,
         icon: icon,
         order:
             category?.order ??
-            c.data.categories.where((a) => a.kind == kind).length,
+            c.data.categories.where((a) => a.kind == selectedKind).length,
         subcategories: subs.text
             .split(',')
             .map((e) => e.trim())
@@ -477,6 +594,75 @@ Future<void> _categoryEditor(
             .toList(),
       ),
     ),
-    delete: category == null ? null : () => c.deleteCategory(category.id),
   );
+}
+
+class _CategoryRemoveAction extends StatefulWidget {
+  const _CategoryRemoveAction({
+    required this.controller,
+    required this.category,
+  });
+  final FinanceController controller;
+  final Category category;
+  @override
+  State<_CategoryRemoveAction> createState() => _CategoryRemoveActionState();
+}
+
+class _CategoryRemoveActionState extends State<_CategoryRemoveAction> {
+  bool busy = false;
+  @override
+  Widget build(BuildContext context) {
+    final c = widget.controller;
+    final id = widget.category.id;
+    final linked =
+        c.data.entries.any((e) => e.categoryId == id) ||
+        c.data.budgets.any((b) => b.categoryId == id) ||
+        c.data.recurring.any((r) => r.categoryId == id);
+    return TextButton.icon(
+      icon: Icon(
+        linked ? Icons.archive_outlined : Icons.delete_outline_rounded,
+      ),
+      label: Text(linked ? 'Переместить в архив' : 'Удалить категорию'),
+      onPressed: busy
+          ? null
+          : () async {
+              final accepted = await confirm(
+                context,
+                linked
+                    ? 'Переместить категорию в архив?'
+                    : 'Удалить категорию?',
+                linked
+                    ? 'Категория исчезнет из выбора для новых операций. Все операции, бюджеты и аналитика сохранятся. Категорию можно восстановить из архива.'
+                    : 'У категории нет связанных операций, бюджетов или регулярных платежей. Она будет удалена.',
+              );
+              if (!accepted || !context.mounted) {
+                return;
+              }
+              setState(() => busy = true);
+              try {
+                await c.deleteCategory(id);
+                if (context.mounted) {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        linked
+                            ? 'Категория в архиве. История сохранена.'
+                            : 'Категория удалена.',
+                      ),
+                    ),
+                  );
+                }
+              } catch (error) {
+                if (context.mounted) {
+                  showError(context, error);
+                }
+              } finally {
+                if (mounted) {
+                  setState(() => busy = false);
+                }
+              }
+            },
+    );
+  }
 }

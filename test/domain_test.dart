@@ -44,6 +44,94 @@ void main() {
     status: status,
   );
 
+  group('v3 model compatibility', () {
+    test(
+      'new defaults are opt-in while explicit legacy preferences survive',
+      () {
+        const preferences = AppPreferences();
+        expect(preferences.theme, 'dark');
+        expect(preferences.accent, 'coffee');
+        expect(preferences.notifications, isFalse);
+        final old = AppPreferences.fromJson({
+          'theme': 'light',
+          'accent': 'lime',
+          'notifications': true,
+          'hideAmounts': true,
+        });
+        expect(old.theme, 'light');
+        expect(old.notifications, isTrue);
+        expect(old.toJson().containsKey('hideAmounts'), isFalse);
+        final quick = preferences.copyWith(
+          lastExpenseCategoryId: 'food',
+          lastIncomeCategoryId: 'salary',
+        );
+        expect(
+          AppPreferences.fromJson(quick.toJson()).toJson(),
+          quick.toJson(),
+        );
+        expect(
+          quick
+              .copyWith(lastExpenseCategoryId: null, lastIncomeCategoryId: null)
+              .lastExpenseCategoryId,
+          isNull,
+        );
+      },
+    );
+    test(
+      'category archival, service branding and reminder settings serialize and clear',
+      () {
+        final archived = food.copyWith(archived: true);
+        expect(Category.fromJson(archived.toJson()).archived, isTrue);
+        final branded = entry().copyWith(
+          serviceId: 'spotify',
+          serviceIconPath: '/private/logo.png',
+        );
+        expect(
+          FinanceEntry.fromJson(branded.toJson()).toJson(),
+          branded.toJson(),
+        );
+        expect(
+          branded
+              .copyWith(serviceId: null, serviceIconPath: null)
+              .serviceIconPath,
+          isNull,
+        );
+        final rule = RecurringRule(
+          id: 'rule',
+          name: 'Сервис',
+          accountId: 'bank',
+          amountMinor: 100,
+          nextDate: start,
+          serviceId: 'custom.service',
+          customIconPath: '/private/logo.png',
+          reminderEnabled: true,
+          reminderDaysBefore: 3,
+          reminderHour: 9,
+          reminderMinute: 15,
+          enabled: false,
+          automatic: true,
+        );
+        expect(RecurringRule.fromJson(rule.toJson()).toJson(), rule.toJson());
+        expect(
+          rule.copyWith(serviceId: null, customIconPath: null).customIconPath,
+          isNull,
+        );
+        final legacy = rule.toJson()
+          ..remove('serviceId')
+          ..remove('customIconPath')
+          ..remove('reminderEnabled')
+          ..remove('reminderDaysBefore')
+          ..remove('reminderHour')
+          ..remove('reminderMinute');
+        final decoded = RecurringRule.fromJson(legacy);
+        expect(decoded.reminderEnabled, isFalse);
+        expect(decoded.reminderHour, 10);
+        expect(decoded.automatic, isTrue);
+        expect(decoded.enabled, isFalse);
+      },
+    );
+  });
+
   group('Goal ledger transfers', () {
     const goal = Goal(
       id: 'trip',

@@ -5,12 +5,14 @@ import '../../domain/finance_engine.dart';
 import '../../domain/models.dart';
 import '../controller.dart';
 import '../widgets/common.dart';
-import '../widgets/charts.dart';
 import '../widgets/entry_tile.dart';
 import 'management.dart';
 import 'entry_editor.dart';
 import 'transactions.dart';
-import 'settings.dart';
+import '../widgets/finance_header.dart';
+import '../widgets/finance_quick_actions.dart';
+import '../widgets/category_orbit_chart.dart';
+import '../widgets/service_badge.dart';
 
 class Dashboard extends StatelessWidget {
   const Dashboard({
@@ -24,8 +26,8 @@ class Dashboard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = FinanceScope.of(context);
-    final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
+    final scheme = Theme.of(context).colorScheme;
+    final colors = FinanceColors.of(context);
     final totals = FinanceEngine.totals(
       c.data.entries,
       c.periodStart,
@@ -60,271 +62,48 @@ class Dashboard extends StatelessWidget {
       context,
       TransactionsScreen(initialKind: kind, initialRange: range),
     );
-    void category(String id) =>
-        _open(context, TransactionsScreen(categoryId: id, initialRange: range));
     return ListView(
       key: const PageStorageKey('dashboard'),
-      padding: const EdgeInsets.fromLTRB(20, 18, 20, 30),
+      padding: const EdgeInsets.fromLTRB(18, 4, 18, 24),
       children: [
-        Row(
-          children: [
-            Container(
-              width: 42,
-              height: 42,
-              decoration: BoxDecoration(
-                color: const Color(0xFF070807),
-                borderRadius: BorderRadius.circular(15),
-              ),
-              child: const Icon(
-                Icons.blur_on_rounded,
-                color: Color(0xFFC5E768),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                'FINORA',
-                style: theme.textTheme.labelSmall?.copyWith(letterSpacing: 2),
-              ),
-            ),
-            IconButton(
-              tooltip: 'Настройки',
-              onPressed: () => _open(context, const SettingsScreen()),
-              icon: const Icon(Icons.tune_rounded),
-            ),
-            IconButton(
-              tooltip: c.hidden ? 'Показать суммы' : 'Скрыть суммы',
-              onPressed: () async {
-                try {
-                  await c.preferences(
-                    c.data.preferences.copyWith(hideAmounts: !c.hidden),
-                  );
-                } catch (e) {
-                  if (context.mounted) showError(context, e);
-                }
-              },
-              icon: Icon(
-                c.hidden
-                    ? Icons.visibility_off_outlined
-                    : Icons.visibility_outlined,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 18),
-        Text('Мои финансы', style: theme.textTheme.headlineLarge),
-        const SizedBox(height: 8),
-        Row(
-          children: [
-            Expanded(
-              child: Text(
-                'Всё важное. В одном месте.',
-                style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 13),
-              ),
-            ),
-            TextButton(
-              onPressed: () => _open(context, const MembersScreen()),
-              child: const Text('Моя семья'),
-            ),
-          ],
-        ),
+        const FinanceHeader(),
+        const SizedBox(height: 12),
+        const FinanceQuickActions(),
         const SizedBox(height: 14),
-        Material(
-          color: const Color(0xFF070807),
-          borderRadius: BorderRadius.circular(28),
-          child: InkWell(
-            onTap: () => _open(context, const AccountsScreen()),
-            borderRadius: BorderRadius.circular(28),
-            child: Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(28),
-                gradient: const LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [Color(0xFF070807), Color(0xFF1F2321)],
-                ),
-              ),
-              child: DefaultTextStyle.merge(
-                style: const TextStyle(color: Color(0xFFFCFEFA)),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        const Expanded(
-                          child: Text(
-                            'ОБЩИЙ БАЛАНС',
-                            style: TextStyle(
-                              fontSize: 11,
-                              letterSpacing: 1.5,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xFFACAEA9),
-                            ),
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFC5E768),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            c.currency,
-                            style: const TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w700,
-                              color: Color(0xFF070807),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-                    FittedBox(
-                      fit: BoxFit.scaleDown,
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        money(c.balance, c.currency, c.hidden),
-                        style: const TextStyle(
-                          fontSize: 42,
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: -1.6,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.north_east_rounded,
-                          color: Color(0xFFC5E768),
-                          size: 17,
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            'За месяц ${totals.net >= 0 ? '+' : ''}${money(totals.net, c.currency, c.hidden)}',
-                            style: const TextStyle(
-                              fontSize: 13,
-                              color: Color(0xFFC5E768),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    const Text(
-                      'Счета и средства, переведённые в мечты',
-                      style: TextStyle(fontSize: 10, color: Color(0xFFACAEA9)),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: 14),
-        Row(
-          children: [
-            Expanded(
-              child: _SummaryTile(
-                title: 'Доходы',
-                amount: totals.income,
-                currency: c.currency,
-                hidden: c.hidden,
-                icon: Icons.south_west_rounded,
-                onTap: () => operations(EntryKind.income),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _SummaryTile(
-                title: 'Расходы',
-                amount: totals.expense,
-                currency: c.currency,
-                hidden: c.hidden,
-                icon: Icons.north_east_rounded,
-                onTap: () => operations(EntryKind.expense),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 18),
-        Row(
-          children: [
-            for (final action in [
-              (EntryKind.expense, 'Расход', Icons.remove_rounded),
-              (EntryKind.income, 'Доход', Icons.add_rounded),
-              (EntryKind.transfer, 'Перевод', Icons.swap_horiz_rounded),
-            ])
+        SurfaceCard(
+          key: const ValueKey('dashboard-balance'),
+          padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 16),
+          onTap: () => _open(context, const AccountsScreen()),
+          child: Row(
+            children: [
               Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  child: FilledButton.tonal(
-                    onPressed: () => showEntryEditor(context, kind: action.$1),
-                    style: FilledButton.styleFrom(
-                      backgroundColor: action.$1 == EntryKind.expense
-                          ? scheme.primary
-                          : scheme.surface,
-                      foregroundColor: action.$1 == EntryKind.expense
-                          ? scheme.onPrimary
-                          : scheme.onSurface,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 3,
-                        vertical: 17,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                        side: BorderSide(
-                          color: scheme.outlineVariant.withValues(alpha: .5),
-                        ),
-                      ),
-                    ),
-                    child: Column(
-                      children: [
-                        Icon(action.$3, size: 23),
-                        const SizedBox(height: 7),
-                        Text(
-                          action.$2,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
+                child: Text(
+                  'Общий баланс',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: scheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Flexible(
+                flex: 2,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    money(c.balance, c.currency),
+                    style: TextStyle(
+                      fontSize: 25,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: -.6,
+                      color: scheme.onSurface,
                     ),
                   ),
                 ),
               ),
-          ],
-        ),
-        if (c.data.demo)
-          Padding(
-            padding: const EdgeInsets.only(top: 18),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.science_outlined,
-                  size: 16,
-                  color: scheme.onSurfaceVariant,
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    'Демонстрационный семейный профиль',
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: scheme.onSurfaceVariant,
-                    ),
-                  ),
-                ),
-              ],
-            ),
+            ],
           ),
+        ),
         SectionTitle(
           'Все счета',
           action: '+ Счёт',
@@ -334,14 +113,14 @@ class Dashboard extends StatelessWidget {
           SurfaceCard(
             onTap: () => showAccountEditor(context),
             child: const EmptyState(
-              'Добавьте первый счёт',
-              'Карты, наличные, вклады — все деньги будут здесь.',
+              'Добавьте счёт',
+              'Карта, наличные, вклад или кошелёк.',
               icon: Icons.add_card_outlined,
             ),
           ),
         for (final account in active)
           Padding(
-            padding: const EdgeInsets.only(bottom: 10),
+            padding: const EdgeInsets.only(bottom: 8),
             child: _AccountRow(account: account),
           ),
         if (archived.isNotEmpty)
@@ -353,7 +132,7 @@ class Dashboard extends StatelessWidget {
               collapsedShape: const Border(),
               title: Text(
                 'Архивные счета · ${archived.length}',
-                style: theme.textTheme.titleMedium,
+                style: Theme.of(context).textTheme.titleMedium,
               ),
               childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
               children: archived
@@ -366,6 +145,30 @@ class Dashboard extends StatelessWidget {
                   .toList(),
             ),
           ),
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            Expanded(
+              child: _SummaryTile(
+                title: 'Доходы',
+                amount: totals.income,
+                currency: c.currency,
+                icon: Icons.south_west_rounded,
+                onTap: () => operations(EntryKind.income),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: _SummaryTile(
+                title: 'Расходы',
+                amount: totals.expense,
+                currency: c.currency,
+                icon: Icons.north_east_rounded,
+                onTap: () => operations(EntryKind.expense),
+              ),
+            ),
+          ],
+        ),
         SectionTitle(
           'Обзор месяца',
           action: DateFormat('LLLL', 'ru').format(DateTime.now()),
@@ -376,30 +179,29 @@ class Dashboard extends StatelessWidget {
           total: totals.expense,
           difference: difference,
           onAnalytics: onAnalytics,
-          onCategory: category,
+          onCategory: (id) => _open(
+            context,
+            TransactionsScreen(categoryId: id, initialRange: range),
+          ),
         ),
         SectionTitle(
           'Мечты и накопления',
-          action: 'Все мечты',
+          action: 'Все',
           onTap: () => _open(context, const GoalsScreen()),
         ),
         if (c.data.goals.isEmpty)
           SurfaceCard(
             onTap: () => _open(context, const GoalsScreen()),
-            child: const Row(
-              children: [
-                Icon(Icons.auto_awesome_outlined),
-                SizedBox(width: 14),
-                Expanded(
-                  child: Text('Создайте мечту и переводите на неё деньги'),
-                ),
-              ],
+            child: const EmptyState(
+              'Нет целей накоплений',
+              'Добавьте цель, сумму и срок.',
+              icon: Icons.savings_outlined,
             ),
           )
         else
           for (final goal in c.data.goals)
             Padding(
-              padding: const EdgeInsets.only(bottom: 10),
+              padding: const EdgeInsets.only(bottom: 8),
               child: _DreamRow(goal: goal),
             ),
         const _PaymentSection(
@@ -421,29 +223,30 @@ class Dashboard extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
           child: recent.isEmpty
               ? const EmptyState(
-                  'История начинается здесь',
-                  'Добавьте первую операцию кнопкой +.',
+                  'Операций нет',
+                  'Добавьте доход, расход или перевод.',
                 )
               : Column(
                   children: recent.take(5).map((e) => EntryTile(e)).toList(),
                 ),
         ),
         SectionTitle(
-          'Бюджет под контролем',
-          action: 'Настроить',
+          'Бюджеты',
+          action: 'Все',
           onTap: () => _open(context, const BudgetsScreen()),
         ),
         if (c.data.budgets.isEmpty)
           SurfaceCard(
             onTap: () => _open(context, const BudgetsScreen()),
-            child: const Text(
-              'Установите месячный лимит и планируйте расходы.',
+            child: const EmptyState(
+              'Бюджет не задан',
+              'Установите общий лимит или лимиты категорий.',
             ),
           )
         else
           for (final budget in c.data.budgets.take(2))
             Padding(
-              padding: const EdgeInsets.only(bottom: 10),
+              padding: const EdgeInsets.only(bottom: 8),
               child: SurfaceCard(
                 onTap: () => _open(context, const BudgetsScreen()),
                 child: Builder(
@@ -454,28 +257,26 @@ class Dashboard extends StatelessWidget {
                       c.periodStart,
                       c.periodEnd,
                     );
-                    final ratio = spent / budget.limitMinor;
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(budget.name, style: theme.textTheme.titleMedium),
+                        Text(
+                          budget.name,
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
                         const SizedBox(height: 12),
                         LinearProgressIndicator(
-                          value: ratio.clamp(0, 1),
-                          minHeight: 7,
+                          value: (spent / budget.limitMinor).clamp(0, 1),
+                          color: spent > budget.limitMinor
+                              ? colors.expense
+                              : scheme.primary,
+                          minHeight: 6,
                           borderRadius: BorderRadius.circular(8),
-                          color: ratio >= 1 ? scheme.error : scheme.primary,
-                          backgroundColor: scheme.outlineVariant.withValues(
-                            alpha: .35,
-                          ),
                         ),
-                        const SizedBox(height: 10),
+                        const SizedBox(height: 8),
                         Text(
-                          '${money(spent, budget.currency, c.hidden)} из ${money(budget.limitMinor, budget.currency, c.hidden)} · ${(ratio * 100).round()}%',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: scheme.onSurfaceVariant,
-                          ),
+                          '${money(spent, budget.currency)} из ${money(budget.limitMinor, budget.currency)}',
+                          style: const TextStyle(fontSize: 12),
                         ),
                       ],
                     );
@@ -483,12 +284,6 @@ class Dashboard extends StatelessWidget {
                 ),
               ),
             ),
-        const SizedBox(height: 24),
-        Text(
-          'Уверенность начинается с ясности.',
-          textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 11, color: scheme.onSurfaceVariant),
-        ),
       ],
     );
   }
@@ -515,12 +310,12 @@ class _AccountRow extends StatelessWidget {
             width: 42,
             height: 42,
             decoration: BoxDecoration(
-              color: const Color(0xFF1F2321),
+              color: FinanceColors.of(context).iconBackground,
               borderRadius: BorderRadius.circular(14),
             ),
             child: Icon(
               categoryIcon(account.icon),
-              color: const Color(0xFFC5E768),
+              color: FinanceColors.of(context).iconForeground,
               size: 21,
             ),
           ),
@@ -571,7 +366,6 @@ class _AccountRow extends StatelessWidget {
                 money(
                   FinanceEngine.balance(account, c.data.entries),
                   account.currency,
-                  c.hidden,
                 ),
                 style: const TextStyle(
                   fontSize: 18,
@@ -652,7 +446,7 @@ class _DreamRow extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           Text(
-            '${money(saved, goal.currency, c.hidden)} · $percent% накоплено',
+            '${money(saved, goal.currency)} · $percent% накоплено',
             style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant),
           ),
         ],
@@ -722,7 +516,11 @@ class _PaymentSection extends StatelessWidget {
                 for (final r in rules.take(3))
                   ListTile(
                     contentPadding: const EdgeInsets.symmetric(vertical: 4),
-                    leading: CategoryBadge(icon: icon, color: scheme.onSurface),
+                    leading: ServiceBadge(
+                      serviceId: r.serviceId,
+                      customIconPath: r.customIconPath,
+                      name: r.name,
+                    ),
                     title: Text(
                       r.name,
                       maxLines: 2,
@@ -741,7 +539,7 @@ class _PaymentSection extends StatelessWidget {
                         maxWidth: MediaQuery.sizeOf(context).width * .3,
                       ),
                       child: Text(
-                        money(r.amountMinor, r.currency, c.hidden),
+                        money(r.amountMinor, r.currency),
                         maxLines: 2,
                         textAlign: TextAlign.end,
                         style: const TextStyle(
@@ -776,13 +574,11 @@ class _SummaryTile extends StatelessWidget {
     required this.title,
     required this.amount,
     required this.currency,
-    required this.hidden,
     required this.icon,
     required this.onTap,
   });
   final String title, currency;
   final int amount;
-  final bool hidden;
   final IconData icon;
   final VoidCallback onTap;
   @override
@@ -815,7 +611,7 @@ class _SummaryTile extends StatelessWidget {
         FittedBox(
           fit: BoxFit.scaleDown,
           child: Text(
-            money(amount, currency, hidden),
+            money(amount, currency),
             style: Theme.of(context).textTheme.titleLarge,
           ),
         ),
@@ -837,109 +633,57 @@ class _ExpenseOverview extends StatelessWidget {
   final double? difference;
   final VoidCallback onAnalytics;
   final ValueChanged<String> onCategory;
-  Color shade(int i) => Color.lerp(
-    const Color(0xFFC5E768),
-    const Color(0xFF434840),
-    i / categories.length.clamp(1, 100),
-  )!;
   @override
   Widget build(BuildContext context) {
     final c = FinanceScope.of(context);
-    final theme = Theme.of(context);
     return SurfaceCard(
-      onTap: onAnalytics,
+      padding: const EdgeInsets.all(14),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
               Expanded(
                 child: Text(
-                  'Куда уходят деньги',
-                  style: theme.textTheme.titleMedium,
+                  'Расходы по категориям',
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
               ),
-              const Icon(Icons.arrow_outward_rounded, size: 18),
+              IconButton(
+                tooltip: 'Открыть аналитику',
+                onPressed: onAnalytics,
+                icon: const Icon(Icons.open_in_new_rounded, size: 18),
+              ),
             ],
           ),
-          const SizedBox(height: 18),
-          LayoutBuilder(
-            builder: (context, constraints) => Row(
-              children: [
-                SizedBox(
-                  width: constraints.maxWidth * .43,
-                  child: DonutChart(
-                    values: categories.map((e) => e.value).toList(),
-                    colors: List.generate(categories.length, shade),
-                    onSelect: (i) => onCategory(categories[i].key),
-                    center: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          '${categories.length}',
-                          style: theme.textTheme.headlineSmall,
-                        ),
-                        const Text('категорий', style: TextStyle(fontSize: 10)),
-                      ],
-                    ),
-                  ),
+          CategoryOrbitChart(
+            slices: categories.map((e) {
+              final category = c.category(e.key);
+              return CategorySlice(
+                id: e.key,
+                name: category?.name ?? 'Прочее',
+                icon: categoryIcon(category?.icon ?? 19),
+                color: Color(
+                  category?.color ??
+                      categoryColors[e.key.hashCode.abs() %
+                          categoryColors.length],
                 ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    children: [
-                      for (final item in categories.take(3))
-                        InkWell(
-                          onTap: () => onCategory(item.key),
-                          borderRadius: BorderRadius.circular(10),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 9),
-                            child: Row(
-                              children: [
-                                Container(
-                                  width: 6,
-                                  height: 6,
-                                  decoration: BoxDecoration(
-                                    color: shade(categories.indexOf(item)),
-                                    shape: BoxShape.circle,
-                                  ),
-                                ),
-                                const SizedBox(width: 7),
-                                Expanded(
-                                  child: Text(
-                                    c.category(item.key)?.name ?? 'Прочее',
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(fontSize: 11),
-                                  ),
-                                ),
-                                Text(
-                                  '${total == 0 ? 0 : (item.value / total * 100).round()}%',
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
+                amount: e.value,
+              );
+            }).toList(),
+            currency: c.currency,
+            onDetails: onCategory,
+          ),
+          if (difference != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 10),
+              child: Text(
+                'На ${difference!.abs().round()}% ${difference! <= 0 ? 'меньше' : 'больше'}, чем в прошлом месяце',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
-              ],
+              ),
             ),
-          ),
-          const SizedBox(height: 14),
-          Text(
-            difference == null
-                ? 'Добавьте прошлый месяц для сравнения'
-                : 'На ${difference!.abs().round()}% ${difference! <= 0 ? 'меньше' : 'больше'}, чем в прошлом месяце',
-            style: TextStyle(
-              fontSize: 12,
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-          ),
         ],
       ),
     );

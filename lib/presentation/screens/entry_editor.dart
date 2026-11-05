@@ -21,7 +21,9 @@ Future<void> showEntryEditor(
   String? goalId,
 }) async {
   final c = FinanceScope.of(context);
-  if (c.data.accounts.where((a) => !a.archived).isEmpty) {
+  final editingHistory =
+      entry != null && c.data.entries.any((e) => e.id == entry.id);
+  if (!editingHistory && c.data.accounts.where((a) => !a.archived).isEmpty) {
     if (await confirm(
           context,
           'Добавьте счёт',
@@ -231,9 +233,25 @@ class _EntryEditorState extends State<EntryEditor> {
         attachmentPath: _attachment,
         latitude: _lat,
         longitude: _lon,
+        serviceId: _kind == EntryKind.transfer ? null : widget.entry?.serviceId,
+        serviceIconPath: _kind == EntryKind.transfer
+            ? null
+            : widget.entry?.serviceIconPath,
       );
       await c.mutate((data) {
         FinanceEngine.validateEntry(entry, data);
+        final original = data.entries
+            .where((e) => e.id == entry.id)
+            .firstOrNull;
+        final category = data.categories
+            .where((cat) => cat.id == entry.categoryId)
+            .firstOrNull;
+        if (category?.archived == true &&
+            original?.categoryId != category!.id) {
+          throw const FormatException(
+            'Категория в архиве. Выберите активную категорию.',
+          );
+        }
         final rules = [...data.recurring];
         if (widget.entry == null &&
             _recurrence != 'none' &&
@@ -268,6 +286,7 @@ class _EntryEditorState extends State<EntryEditor> {
         return data.copyWith(
           entries: [...data.entries.where((e) => e.id != entry.id), entry],
           recurring: rules,
+          preferences: c.rememberCategory(data, entry),
         );
       });
       if (mounted) {
@@ -288,6 +307,10 @@ class _EntryEditorState extends State<EntryEditor> {
   Widget build(BuildContext context) {
     final c = FinanceScope.of(context);
     final scheme = Theme.of(context).colorScheme;
+    final original = c.data.entries
+        .where((e) => e.id == widget.entry?.id)
+        .firstOrNull;
+    final editingHistory = original != null;
     final active = c.data.accounts
         .where((a) => !a.archived || a.id == _account || a.id == _to)
         .toList();
@@ -295,12 +318,22 @@ class _EntryEditorState extends State<EntryEditor> {
     final targetCurrency = _goalDestination
         ? c.goal(_goal)?.currency
         : c.account(_to ?? '')?.currency;
-    final categories = c.data.categories.where((c) => c.kind == _kind).toList()
-      ..sort((a, b) => a.order.compareTo(b.order));
+    final categories =
+        c.data.categories
+            .where(
+              (cat) =>
+                  cat.kind == _kind &&
+                  (!cat.archived ||
+                      (editingHistory &&
+                          cat.id == original.categoryId &&
+                          cat.id == _category)),
+            )
+            .toList()
+          ..sort((a, b) => a.order.compareTo(b.order));
     final sub = c.category(_category)?.subcategories ?? [];
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.entry == null ? 'Новая операция' : 'Редактирование'),
+        title: Text(editingHistory ? 'Редактирование' : 'Новая операция'),
         actions: [
           if (widget.entry != null)
             IconButton(
@@ -543,6 +576,33 @@ class _EntryEditorState extends State<EntryEditor> {
                   ),
                 ],
               ] else ...[
+                if (widget.entry == null)
+                  Builder(
+                    builder: (context) {
+                      final lastId = _kind == EntryKind.expense
+                          ? c.data.preferences.lastExpenseCategoryId
+                          : c.data.preferences.lastIncomeCategoryId;
+                      final last = c.category(lastId);
+                      if (last == null || last.archived || last.kind != _kind) {
+                        return const SizedBox.shrink();
+                      }
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 18),
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: ActionChip(
+                            key: const ValueKey('last-category'),
+                            avatar: Icon(categoryIcon(last.icon), size: 18),
+                            label: Text('Последняя: ${last.name}'),
+                            onPressed: () => setState(() {
+                              _category = last.id;
+                              _subcategory = null;
+                            }),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
                 const SectionTitle('Категория'),
                 if (categories.isEmpty)
                   TextButton(
@@ -601,21 +661,6 @@ class _EntryEditorState extends State<EntryEditor> {
                   labelText: 'Получатель / магазин',
                   prefixIcon: Icon(Icons.storefront_outlined),
                 ),
-                onChanged: (v) {
-                  if (_category == null && _kind != EntryKind.transfer) {
-                    final prior = c.data.entries
-                        .where(
-                          (e) =>
-                              e.kind == _kind &&
-                              e.payee.toLowerCase() == v.trim().toLowerCase() &&
-                              e.categoryId != null,
-                        )
-                        .firstOrNull;
-                    if (prior != null) {
-                      setState(() => _category = prior.categoryId);
-                    }
-                  }
-                },
               ),
               const SizedBox(height: 12),
               SurfaceCard(
