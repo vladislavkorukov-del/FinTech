@@ -50,6 +50,8 @@ class _FinanceBackgroundState extends State<FinanceBackground>
           child: LayoutBuilder(
             builder: (context, box) {
               final size = box.biggest.shortestSide;
+              // Orbs with a defined body and a soft rim: shapes the glass
+              // cards visibly blur and bend as they drift behind them.
               Widget glow(Color color, double scale) => RepaintBoundary(
                 child: Container(
                   width: size * scale,
@@ -57,13 +59,21 @@ class _FinanceBackgroundState extends State<FinanceBackground>
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     gradient: RadialGradient(
-                      colors: [color, color.withValues(alpha: 0)],
+                      stops: const [0, .55, .72, 1],
+                      colors: [
+                        color,
+                        color.withValues(alpha: color.a * .85),
+                        color.withValues(alpha: color.a * .3),
+                        color.withValues(alpha: 0),
+                      ],
                     ),
                   ),
                 ),
               );
               final a = glow(b.glowA, 1.15);
               final c = glow(b.glowB, 1.0);
+              final small = glow(b.glowA, .55);
+              final tiny = glow(b.glowB, .42);
               return Stack(
                 key: const ValueKey('finance-backdrop'),
                 fit: StackFit.expand,
@@ -103,6 +113,28 @@ class _FinanceBackgroundState extends State<FinanceBackground>
                             ),
                           ),
                           Positioned(
+                            top: box.maxHeight * .70,
+                            right: -size * .12,
+                            child: Transform.translate(
+                              offset: Offset(
+                                math.sin(t + 2) * size * .10,
+                                math.cos(t + 2) * size * .07,
+                              ),
+                              child: small,
+                            ),
+                          ),
+                          Positioned(
+                            top: box.maxHeight * .16,
+                            left: size * .08,
+                            child: Transform.translate(
+                              offset: Offset(
+                                math.cos(t + 4) * size * .08,
+                                math.sin(t + 4) * size * .06,
+                              ),
+                              child: tiny,
+                            ),
+                          ),
+                          Positioned(
                             top: box.maxHeight * .42,
                             left: -size * .45,
                             child: Transform.translate(
@@ -125,7 +157,8 @@ class _FinanceBackgroundState extends State<FinanceBackground>
             },
           ),
         ),
-        widget.child,
+        // Glass panes share one snapshot of the backdrop.
+        BackdropGroup(child: widget.child),
       ],
     );
   }

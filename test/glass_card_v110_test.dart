@@ -12,24 +12,34 @@ double _contrast(Color a, Color b) {
   return (hi + .05) / (lo + .05);
 }
 
-/// Finance 1.10: «liquid glass» cards. Text stays readable on the glass over
-/// any part of the backdrop, and the card corners show no square of shadow.
+/// Finance 1.10: «liquid glass» cards. Text stays readable on the glass and on
+/// the backdrop over its brightest orbs, and the card corners show nothing
+/// but the backdrop (no square of shadow).
 void main() {
   for (final preset in AppTheme.presetNames.keys) {
     for (final b in Brightness.values) {
-      test('$preset ${b.name}: text readable on glass', () {
+      test('$preset ${b.name}: text readable on glass and backdrop', () {
         final theme = AppTheme.app(b, preset);
         final backdrop = theme.extension<FinanceBackdrop>()!;
         final ink = theme.colorScheme.onSurface;
-        final fill = GlassSurface.fill(theme, null, null, 1);
+        final secondary = theme.colorScheme.onSurfaceVariant;
+        final pane = GlassSurface.pane(theme, null, null, 1);
+        // Glass is see-through.
+        expect(pane.a, lessThan(.65));
         for (final under in [backdrop.top, backdrop.middle, backdrop.bottom]) {
-          for (final f in fill) {
-            final seen = Color.alphaBlend(f, under);
+          // The brightest spot is right under a color orb.
+          for (final orb in [
+            Colors.transparent,
+            backdrop.glowA,
+            backdrop.glowB,
+          ]) {
+            final bare = Color.alphaBlend(orb, under);
+            expect(_contrast(ink, bare), greaterThanOrEqualTo(4.5));
+            final seen = Color.alphaBlend(pane, bare);
             expect(_contrast(ink, seen), greaterThanOrEqualTo(4.5));
+            expect(_contrast(secondary, seen), greaterThanOrEqualTo(4.5));
           }
         }
-        // Glass is translucent: the backdrop reads through.
-        expect(fill.every((c) => c.a < 1), isTrue);
       });
     }
   }
@@ -79,29 +89,32 @@ void main() {
       );
     }
 
-    final base = backdrop.computeLuminance();
-    // Just inside each bounding-box corner but outside the 24 px radius.
+    // Just inside each bounding-box corner but outside the 24 px radius,
+    // and below the card: exactly the backdrop, no square, no shadow.
     for (final p in [
       card.topLeft + const Offset(2, 2),
       card.topRight + const Offset(-3, 2),
       card.bottomLeft + const Offset(2, -3),
       card.bottomRight + const Offset(-3, -3),
-      // Below the card, where the shadow falls.
       card.bottomLeft + const Offset(4, 6),
       card.bottomRight + const Offset(-4, 6),
     ]) {
+      final c = at(p);
       expect(
-        at(p).computeLuminance(),
-        lessThanOrEqualTo(base + .002),
-        reason: 'corner at $p must not show a light square',
+        [
+          (c.r - backdrop.r).abs(),
+          (c.g - backdrop.g).abs(),
+          (c.b - backdrop.b).abs(),
+        ].every((d) => d < 2 / 255),
+        isTrue,
+        reason: 'corner at $p must show the plain backdrop, got $c',
       );
     }
-    // The glass body itself is lighter than the backdrop (shadow is not
-    // painted under it).
-    expect(at(card.center).computeLuminance(), greaterThan(base));
+    // The pane itself is drawn and the rim catches light at the top-left.
+    expect(at(card.center), isNot(backdrop));
     expect(
-      at(card.bottomCenter - const Offset(0, 6)).computeLuminance(),
-      greaterThan(base),
+      at(card.topCenter + const Offset(0, .5)).computeLuminance(),
+      greaterThan(at(card.center).computeLuminance()),
     );
   });
 }

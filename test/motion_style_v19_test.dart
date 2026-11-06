@@ -129,7 +129,7 @@ void main() {
       final value = inTiles(money(amount));
       expect(value, findsOneWidget);
       final tile = find
-          .ancestor(of: find.text(label), matching: find.byType(Ink))
+          .ancestor(of: find.text(label), matching: find.byType(GlassSurface))
           .first;
       final center = tester.getCenter(tile).dx;
       expect(tester.getCenter(value).dx, closeTo(center, 1.5), reason: label);

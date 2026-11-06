@@ -1,14 +1,50 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 
-/// Finance 1.10 "liquid glass" surface: a translucent tinted fill that lets
-/// the theme backdrop and its glows show through, a light rim that is bright
-/// at the top-left and fades around the edge, a soft specular band at the
-/// top and a rounded shadow underneath.
+/// Finance 1.10 «liquid glass», after iOS: the card is a clear pane that
+/// blurs and saturates whatever lies behind it (the theme backdrop and its
+/// moving color blobs), with a thin light rim and a soft inner glow at the
+/// edge that reads as the thickness of the glass. Flat: no drop shadow, no
+/// gradient body.
 ///
-/// Everything is painted inside one rounded clip except the shadow, which
-/// sits outside it, so no rectangular corners of shadow or ink ever show.
-/// No backdrop blur is used: it would cost a full-screen pass per card while
-/// the blurred backdrop already looks the same.
+/// The blur samples only inside the card (bounded blur), so colors from
+/// outside never bleed in at the edges, and all panes share one backdrop
+/// snapshot through the app's [BackdropGroup].
+/// The edge-refraction shader (`shaders/liquid_glass.frag`). It runs only
+/// with Impeller, which Android uses; elsewhere (and in widget tests) the
+/// panes keep the blur without refraction.
+abstract final class GlassShader {
+  static ui.FragmentProgram? _program;
+  static final _filters = <(double, double), ui.ImageFilter>{};
+
+  static Future<void> load() async {
+    if (!ui.ImageFilter.isShaderFilterSupported || _program != null) return;
+    try {
+      _program = await ui.FragmentProgram.fromAsset(
+        'shaders/liquid_glass.frag',
+      );
+    } catch (_) {
+      _program = null; // keep plain glass
+    }
+  }
+
+  /// Refraction filter for a pane with [radius] at [dpr]; null when the
+  /// shader is not available.
+  static ui.ImageFilter? filter(double radius, double dpr) {
+    final program = _program;
+    if (program == null) return null;
+    return _filters.putIfAbsent((radius, dpr), () {
+      final shader = program.fragmentShader()
+        ..setFloat(2, radius * dpr)
+        ..setFloat(3, 16 * dpr)
+        ..setFloat(4, 9 * dpr)
+        ..setFloat(5, GlassSurface.saturation);
+      return ui.ImageFilter.shader(shader);
+    });
+  }
+}
+
 class GlassSurface extends StatelessWidget {
   const GlassSurface({
     super.key,
@@ -25,32 +61,43 @@ class GlassSurface extends StatelessWidget {
   final double radius;
   final EdgeInsetsGeometry padding;
 
-  /// Glass body color; defaults to the color scheme surface.
+  /// Color the pane is tinted toward; defaults to the color scheme surface.
   final Color? base;
 
-  /// Color the glass is tinted with toward the top-left (accent by default).
+  /// Optional colored tint (income/expense tiles).
   final Color? tint;
   final double tintStrength;
   final VoidCallback? onTap;
 
-  /// Opacity of the glass body. High enough that text keeps the contrast of
-  /// the opaque surface, low enough that the backdrop color reads through.
-  static double bodyAlpha(Brightness b) => b == Brightness.dark ? .80 : .74;
+  static const blurSigma = 9.0;
 
-  /// Fill colors from the top-left to the bottom-right corner.
-  static List<Color> fill(ThemeData theme, Color? base, Color? tint, double k) {
+  /// Saturation boost of what is seen through the glass.
+  static const saturation = 1.6;
+
+  /// The pane's own color over the blurred backdrop: thin, so the backdrop
+  /// reads through, but enough to keep text contrast on any part of it.
+  static Color pane(ThemeData theme, Color? base, Color? tint, double k) {
     final dark = theme.brightness == Brightness.dark;
     final body = base ?? theme.colorScheme.surface;
-    final glow = tint ?? theme.colorScheme.primary;
-    final a = bodyAlpha(theme.brightness);
-    Color layer(double white, double tinted, double alpha) => Color.alphaBlend(
-      glow.withValues(alpha: tinted * k),
-      Color.alphaBlend(Colors.white.withValues(alpha: white), body),
-    ).withValues(alpha: alpha);
+    // Dark glass is smoky (a touch darker than the surface), light glass
+    // milky; either keeps secondary text at ≥ 4.5:1 over the brightest glow.
+    var c = dark
+        ? Color.lerp(body, Colors.black, .35)!.withValues(alpha: .56)
+        : body.withValues(alpha: .58);
+    if (tint != null) {
+      c = Color.alphaBlend(tint.withValues(alpha: (dark ? .10 : .08) * k), c);
+    }
+    return c;
+  }
+
+  static List<double> _saturate(double s) {
+    const r = .2126, g = .7152, b = .0722;
+    final i = 1 - s;
     return [
-      layer(dark ? .07 : .35, dark ? .16 : .12, a),
-      layer(dark ? .02 : .12, dark ? .05 : .04, a - .04),
-      layer(0, dark ? .10 : .07, a),
+      r * i + s, g * i, b * i, 0, 0, //
+      r * i, g * i + s, b * i, 0, 0,
+      r * i, g * i, b * i + s, 0, 0,
+      0, 0, 0, 1, 0,
     ];
   }
 
@@ -59,34 +106,33 @@ class GlassSurface extends StatelessWidget {
     final theme = Theme.of(context);
     final dark = theme.brightness == Brightness.dark;
     final r = BorderRadius.circular(radius);
-    return CustomPaint(
-      // Rounded shadow outside the clip, cut out under the glass so it does
-      // not darken the translucent body.
-      painter: GlassShadowPainter(
-        radius: radius,
-        shadow: BoxShadow(
-          color: Colors.black.withValues(alpha: dark ? .32 : .09),
-          blurRadius: 24,
-          spreadRadius: -6,
-          offset: const Offset(0, 10),
+    return ClipRRect(
+      borderRadius: r,
+      child: BackdropFilter.grouped(
+        filterConfig: ImageFilterConfig.compose(
+          outer: ImageFilterConfig(
+            GlassShader.filter(
+                  radius,
+                  MediaQuery.devicePixelRatioOf(context),
+                ) ??
+                ui.ColorFilter.matrix(_saturate(saturation)),
+          ),
+          inner: const ImageFilterConfig.blur(
+            sigmaX: blurSigma,
+            sigmaY: blurSigma,
+            bounded: true,
+          ),
         ),
-      ),
-      child: Material(
-        type: MaterialType.transparency,
-        shape: RoundedRectangleBorder(borderRadius: r),
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: onTap,
-          child: Ink(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                stops: const [0, .5, 1],
-                colors: fill(theme, base, tint, tintStrength),
-              ),
-            ),
+        child: Material(
+          type: MaterialType.transparency,
+          child: InkWell(
+            onTap: onTap,
             child: CustomPaint(
+              painter: GlassPanePainter(
+                radius: radius,
+                color: pane(theme, base, tint, tintStrength),
+                dark: dark,
+              ),
               foregroundPainter: GlassRimPainter(radius: radius, dark: dark),
               child: Padding(padding: padding, child: child),
             ),
@@ -97,41 +143,50 @@ class GlassSurface extends StatelessWidget {
   }
 }
 
-/// Paints [shadow] around a rounded rect but never inside it.
-class GlassShadowPainter extends CustomPainter {
-  const GlassShadowPainter({required this.radius, required this.shadow});
+/// The pane color plus a soft glow just inside the edge, brighter at the top
+/// where the light falls: the rounded thickness of real glass.
+class GlassPanePainter extends CustomPainter {
+  const GlassPanePainter({
+    required this.radius,
+    required this.color,
+    required this.dark,
+  });
   final double radius;
-  final BoxShadow shadow;
+  final Color color;
+  final bool dark;
 
   @override
   void paint(Canvas canvas, Size size) {
-    final body = RRect.fromRectAndRadius(
-      Offset.zero & size,
-      Radius.circular(radius),
-    );
-    final reach = shadow.blurRadius * 2 + shadow.offset.distance;
+    final rect = Offset.zero & size;
+    final body = RRect.fromRectAndRadius(rect, Radius.circular(radius));
+    canvas.drawRRect(body, Paint()..color = color);
     canvas.save();
-    canvas.clipPath(
-      Path.combine(
-        PathOperation.difference,
-        Path()..addRect(body.outerRect.inflate(reach)),
-        Path()..addRRect(body),
-      ),
-    );
+    canvas.clipRRect(body);
     canvas.drawRRect(
-      body.shift(shadow.offset).inflate(shadow.spreadRadius),
-      shadow.toPaint(),
+      body,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 10
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 7)
+        ..shader = LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Colors.white.withValues(alpha: dark ? .16 : .55),
+            Colors.white.withValues(alpha: dark ? .04 : .20),
+          ],
+        ).createShader(rect),
     );
     canvas.restore();
   }
 
   @override
-  bool shouldRepaint(GlassShadowPainter old) =>
-      old.radius != radius || old.shadow != shadow;
+  bool shouldRepaint(GlassPanePainter old) =>
+      old.radius != radius || old.color != color || old.dark != dark;
 }
 
-/// The glass edge: a specular band at the top and a 1.2 px rim whose light
-/// falls from the top-left corner and catches again at the bottom-right.
+/// A hairline rim: bright where the light hits (top-left), almost gone along
+/// the sides and catching again at the bottom-right corner.
 class GlassRimPainter extends CustomPainter {
   const GlassRimPainter({required this.radius, required this.dark});
   final double radius;
@@ -140,35 +195,21 @@ class GlassRimPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final rect = Offset.zero & size;
-    final outer = RRect.fromRectAndRadius(rect, Radius.circular(radius));
+    const w = 1.0;
     canvas.drawRRect(
-      outer,
-      Paint()
-        ..shader = LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          stops: const [0, .32],
-          colors: [
-            Colors.white.withValues(alpha: dark ? .07 : .22),
-            Colors.white.withValues(alpha: 0),
-          ],
-        ).createShader(rect),
-    );
-    const w = 1.2;
-    canvas.drawRRect(
-      outer.deflate(w / 2),
+      RRect.fromRectAndRadius(rect, Radius.circular(radius)).deflate(w / 2),
       Paint()
         ..style = PaintingStyle.stroke
         ..strokeWidth = w
         ..shader = LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          stops: const [0, .35, .7, 1],
+          stops: const [0, .3, .7, 1],
           colors: [
-            Colors.white.withValues(alpha: dark ? .38 : .85),
-            Colors.white.withValues(alpha: dark ? .06 : .25),
-            Colors.white.withValues(alpha: dark ? .03 : .15),
-            Colors.white.withValues(alpha: dark ? .18 : .55),
+            Colors.white.withValues(alpha: dark ? .55 : .95),
+            Colors.white.withValues(alpha: dark ? .10 : .35),
+            Colors.white.withValues(alpha: dark ? .06 : .30),
+            Colors.white.withValues(alpha: dark ? .30 : .80),
           ],
         ).createShader(rect),
     );
