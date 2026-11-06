@@ -92,7 +92,7 @@ class Dashboard extends StatelessWidget {
     );
     final blocks = <String, Widget>{
       'summary': Padding(
-        padding: const EdgeInsets.only(top: 10, bottom: 8),
+        padding: const EdgeInsets.only(top: 6, bottom: 6),
         child: Row(
           key: const ValueKey('dashboard-month-summary'),
           children: [
@@ -760,37 +760,49 @@ class _SummaryTile extends StatelessWidget {
     return PressScale(
       child: KeyedSubtree(
         key: ValueKey('summary-$title'),
+        // 1.17: compact — tighter padding, a smaller amount, minimal gap.
         child: GlassSurface(
-          radius: 22,
+          radius: 18,
           onTap: onTap,
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(icon, size: 15, color: tone),
-                  const SizedBox(width: 5),
+                  Icon(icon, size: 13, color: tone),
+                  const SizedBox(width: 4),
                   Flexible(
                     child: Text(
                       title,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 11,
+                        height: 1.2,
                         color: scheme.onSurfaceVariant,
                       ),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 6),
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                child: AnimatedMoney(
-                  amount,
-                  currency: currency,
-                  style: Theme.of(context).textTheme.titleLarge,
+              const SizedBox(height: 1),
+              // A fixed line, so both tiles are always the same height even
+              // when a long amount is scaled down to fit.
+              SizedBox(
+                height: 21 * MediaQuery.textScalerOf(context).scale(1),
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: AnimatedMoney(
+                    amount,
+                    currency: currency,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontSize: 17,
+                      height: 1.2,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
                 ),
               ),
             ],

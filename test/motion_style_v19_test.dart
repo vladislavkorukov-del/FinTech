@@ -153,6 +153,28 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('income and expense tiles are compact', (tester) async {
+    await mount(
+      tester,
+      Scaffold(
+        body: Dashboard(onTransactions: () {}, onAnalytics: () {}),
+      ),
+      reduce: true,
+    );
+    await tester.pump();
+    final heights = <double>[];
+    for (final title in ['Доходы', 'Расходы']) {
+      final tile = tester.getSize(find.byKey(ValueKey('summary-$title')));
+      heights.add(tile.height);
+      // 1.17: was about 74 px high.
+      // ignore: avoid_print
+      print('$title tile ${tile.height}');
+      expect(tile.height, lessThanOrEqualTo(56), reason: title);
+    }
+    expect(heights.first, heights.last, reason: 'both tiles are equal');
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('reduce motion shows final values on the first frame', (
     tester,
   ) async {

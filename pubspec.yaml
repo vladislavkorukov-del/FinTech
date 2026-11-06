@@ -1,7 +1,7 @@
 name: finora
 description: Offline-first personal and family finance for Android.
 publish_to: none
-version: 1.16.0+26
+version: 1.17.0+27
 
 environment:
   sdk: '>=3.8.0 <4.0.0'
