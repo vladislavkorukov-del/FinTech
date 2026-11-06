@@ -109,6 +109,9 @@ void main() {
         200,
         scrollable: find.byType(Scrollable).first,
       );
+      // 1.14: accounts form one draggable block, built as a whole.
+      await tester.ensureVisible(header);
+      await tester.pumpAndSettle();
       await tester.tap(header);
       await tester.pumpAndSettle();
       await tester.scrollUntilVisible(

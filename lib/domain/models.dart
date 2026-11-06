@@ -637,6 +637,13 @@ class AppPreferences {
   final String? lastIncomeCategoryId;
   final bool notifications;
 
+  /// Order the person dragged things into (1.14): main screen blocks,
+  /// accounts and goals, as ids. Empty means the default order; ids that no
+  /// longer exist are ignored and new ones go last.
+  final List<String> dashboardOrder;
+  final List<String> accountOrder;
+  final List<String> goalOrder;
+
   const AppPreferences({
     this.theme = 'dark',
     this.accent = 'coffee',
@@ -649,6 +656,9 @@ class AppPreferences {
     this.lastExpenseCategoryId,
     this.lastIncomeCategoryId,
     this.notifications = false,
+    this.dashboardOrder = const [],
+    this.accountOrder = const [],
+    this.goalOrder = const [],
   });
 
   AppPreferences copyWith({
@@ -663,6 +673,9 @@ class AppPreferences {
     Object? lastExpenseCategoryId = _absent,
     Object? lastIncomeCategoryId = _absent,
     bool? notifications,
+    List<String>? dashboardOrder,
+    List<String>? accountOrder,
+    List<String>? goalOrder,
   }) => AppPreferences(
     theme: theme ?? this.theme,
     accent: accent ?? this.accent,
@@ -679,6 +692,9 @@ class AppPreferences {
         ? this.lastIncomeCategoryId
         : lastIncomeCategoryId as String?,
     notifications: notifications ?? this.notifications,
+    dashboardOrder: dashboardOrder ?? this.dashboardOrder,
+    accountOrder: accountOrder ?? this.accountOrder,
+    goalOrder: goalOrder ?? this.goalOrder,
   );
 
   Map<String, Object?> toJson() => {
@@ -693,7 +709,13 @@ class AppPreferences {
     'lastExpenseCategoryId': lastExpenseCategoryId,
     'lastIncomeCategoryId': lastIncomeCategoryId,
     'notifications': notifications,
+    'dashboardOrder': dashboardOrder,
+    'accountOrder': accountOrder,
+    'goalOrder': goalOrder,
   };
+
+  static List<String> _ids(Object? value) =>
+      value is List ? List.unmodifiable(value.whereType<String>()) : const [];
 
   factory AppPreferences.fromJson(Map<String, dynamic> json) => AppPreferences(
     theme: json['theme'] as String? ?? 'dark',
@@ -707,7 +729,27 @@ class AppPreferences {
     lastExpenseCategoryId: json['lastExpenseCategoryId'] as String?,
     lastIncomeCategoryId: json['lastIncomeCategoryId'] as String?,
     notifications: json['notifications'] as bool? ?? false,
+    dashboardOrder: _ids(json['dashboardOrder']),
+    accountOrder: _ids(json['accountOrder']),
+    goalOrder: _ids(json['goalOrder']),
   );
+
+  /// [items] in the person's [order] (by [id]); unknown items keep their
+  /// relative order after the known ones.
+  static List<T> arrange<T>(
+    List<T> items,
+    List<String> order,
+    String Function(T) id,
+  ) {
+    final rank = {for (var i = 0; i < order.length; i++) order[i]: i};
+    final indexed = [for (var i = 0; i < items.length; i++) (i, items[i])];
+    indexed.sort((a, b) {
+      final ra = rank[id(a.$2)] ?? order.length + a.$1;
+      final rb = rank[id(b.$2)] ?? order.length + b.$1;
+      return ra.compareTo(rb);
+    });
+    return [for (final item in indexed) item.$2];
+  }
 }
 
 class FinanceData {

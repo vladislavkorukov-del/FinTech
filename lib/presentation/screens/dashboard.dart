@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show listEquals;
 import 'package:intl/intl.dart';
 
 import '../../domain/finance_engine.dart';
@@ -65,213 +66,390 @@ class Dashboard extends StatelessWidget {
       context,
       TransactionsScreen(initialKind: kind, initialRange: range),
     );
-    final sections = <Widget>[
-      const FinanceHeader(),
-      const SizedBox(height: 10),
-      Row(
-        key: const ValueKey('dashboard-month-summary'),
-        children: [
-          Expanded(
-            child: _SummaryTile(
-              title: 'Доходы',
-              amount: totals.income,
-              currency: c.currency,
-              icon: Icons.south_west_rounded,
-              tone: colors.income,
-              onTap: () => operations(EntryKind.income),
+    final prefs = c.data.preferences;
+    // Saved against the current settings, never a stale copy, so two quick
+    // drags do not undo each other.
+    void Function(List<String>) save(
+      AppPreferences Function(AppPreferences, List<String>) apply,
+    ) =>
+        (List<String> ids) =>
+            c.mutate((d) => d.copyWith(preferences: apply(d.preferences, ids)));
+
+    final accounts = AppPreferences.arrange(
+      active,
+      prefs.accountOrder,
+      (a) => a.id,
+    );
+    final goals = AppPreferences.arrange(
+      c.data.goals,
+      prefs.goalOrder,
+      (g) => g.id,
+    );
+    Widget block(List<Widget> children) => Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      children: children,
+    );
+    final blocks = <String, Widget>{
+      'summary': Padding(
+        padding: const EdgeInsets.only(top: 10, bottom: 8),
+        child: Row(
+          key: const ValueKey('dashboard-month-summary'),
+          children: [
+            Expanded(
+              child: _SummaryTile(
+                title: 'Доходы',
+                amount: totals.income,
+                currency: c.currency,
+                icon: Icons.south_west_rounded,
+                tone: colors.income,
+                onTap: () => operations(EntryKind.income),
+              ),
             ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: _SummaryTile(
-              title: 'Расходы',
-              amount: totals.expense,
-              currency: c.currency,
-              icon: Icons.north_east_rounded,
-              tone: colors.expense,
-              onTap: () => operations(EntryKind.expense),
+            const SizedBox(width: 8),
+            Expanded(
+              child: _SummaryTile(
+                title: 'Расходы',
+                amount: totals.expense,
+                currency: c.currency,
+                icon: Icons.north_east_rounded,
+                tone: colors.expense,
+                onTap: () => operations(EntryKind.expense),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
-      const SizedBox(height: 8),
-      const FinanceQuickActions(),
-      SectionTitle(
-        'Все счета',
-        action: '+ Счёт',
-        onTap: () => showAccountEditor(context),
-      ),
-      if (active.isEmpty)
-        SurfaceCard(
+      'quick': const FinanceQuickActions(),
+      'accounts': block([
+        SectionTitle(
+          'Все счета',
+          action: '+ Счёт',
           onTap: () => showAccountEditor(context),
-          child: const EmptyState(
-            'Добавьте счёт',
-            'Карта, наличные, вклад или кошелёк.',
-            icon: Icons.add_card_outlined,
-          ),
         ),
-      for (final account in active)
-        Padding(
-          padding: const EdgeInsets.only(bottom: 6),
-          child: _AccountRow(account: account),
-        ),
-      if (archived.isNotEmpty)
-        SurfaceCard(
-          padding: EdgeInsets.zero,
-          child: ExpansionTile(
-            key: const PageStorageKey('dashboard-archived-accounts'),
-            shape: const Border(),
-            collapsedShape: const Border(),
-            title: Text(
-              'Архивные счета · ${archived.length}',
-              style: Theme.of(context).textTheme.titleMedium,
+        if (active.isEmpty)
+          SurfaceCard(
+            onTap: () => showAccountEditor(context),
+            child: const EmptyState(
+              'Добавьте счёт',
+              'Карта, наличные, вклад или кошелёк.',
+              icon: Icons.add_card_outlined,
             ),
-            childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-            children: archived
-                .map(
-                  (a) => Padding(
-                    padding: const EdgeInsets.only(top: 6),
-                    child: _AccountRow(account: a),
-                  ),
-                )
-                .toList(),
+          ),
+        _Reorderable(
+          listKey: 'dashboard-accounts',
+          ids: prefs.accountOrder,
+          onSave: save((p, ids) => p.copyWith(accountOrder: ids)),
+          items: {
+            for (final account in accounts)
+              account.id: Padding(
+                padding: const EdgeInsets.only(bottom: 6),
+                child: _AccountRow(account: account),
+              ),
+          },
+        ),
+        if (archived.isNotEmpty)
+          SurfaceCard(
+            padding: EdgeInsets.zero,
+            child: ExpansionTile(
+              key: const PageStorageKey('dashboard-archived-accounts'),
+              shape: const Border(),
+              collapsedShape: const Border(),
+              title: Text(
+                'Архивные счета · ${archived.length}',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+              children: archived
+                  .map(
+                    (a) => Padding(
+                      padding: const EdgeInsets.only(top: 6),
+                      child: _AccountRow(account: a),
+                    ),
+                  )
+                  .toList(),
+            ),
+          ),
+      ]),
+      'overview': block([
+        SectionTitle(
+          'Обзор месяца',
+          action: DateFormat('LLLL', 'ru').format(DateTime.now()),
+          onTap: () => _open(context, const CalendarScreen()),
+        ),
+        _ExpenseOverview(
+          categories: categories,
+          total: totals.expense,
+          difference: difference,
+          onAnalytics: onAnalytics,
+          onCategory: (id) => _open(
+            context,
+            TransactionsScreen(categoryId: id, initialRange: range),
           ),
         ),
-      SectionTitle(
-        'Обзор месяца',
-        action: DateFormat('LLLL', 'ru').format(DateTime.now()),
-        onTap: () => _open(context, const CalendarScreen()),
-      ),
-      _ExpenseOverview(
-        categories: categories,
-        total: totals.expense,
-        difference: difference,
-        onAnalytics: onAnalytics,
-        onCategory: (id) => _open(
-          context,
-          TransactionsScreen(categoryId: id, initialRange: range),
-        ),
-      ),
-      SectionTitle(
-        'Мечты и накопления',
-        action: 'Все',
-        onTap: () => _open(context, const GoalsScreen()),
-      ),
-      if (c.data.goals.isEmpty)
-        SurfaceCard(
+      ]),
+      'goals': block([
+        SectionTitle(
+          'Мечты и накопления',
+          action: 'Все',
           onTap: () => _open(context, const GoalsScreen()),
-          child: const EmptyState(
-            'Нет целей накоплений',
-            'Добавьте цель, сумму и срок.',
-            icon: Icons.savings_outlined,
+        ),
+        if (goals.isEmpty)
+          SurfaceCard(
+            onTap: () => _open(context, const GoalsScreen()),
+            child: const EmptyState(
+              'Нет целей накоплений',
+              'Добавьте цель, сумму и срок.',
+              icon: Icons.savings_outlined,
+            ),
+          )
+        else
+          _Reorderable(
+            listKey: 'dashboard-goals',
+            ids: prefs.goalOrder,
+            onSave: save((p, ids) => p.copyWith(goalOrder: ids)),
+            items: {
+              for (final goal in goals)
+                goal.id: Padding(
+                  padding: const EdgeInsets.only(bottom: 6),
+                  child: _DreamRow(goal: goal),
+                ),
+            },
           ),
-        )
-      else
-        for (final goal in c.data.goals)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 6),
-            child: _DreamRow(goal: goal),
-          ),
-      const _PaymentSection(
+      ]),
+      'subscriptions': const _PaymentSection(
         paymentType: 'subscription',
         title: 'Подписки',
         icon: Icons.subscriptions_outlined,
       ),
-      const _PaymentSection(
+      'mandatory': const _PaymentSection(
         paymentType: 'mandatory',
         title: 'Обязательные платежи',
         icon: Icons.receipt_long_outlined,
       ),
-      SectionTitle('Последние операции', action: 'Все', onTap: onTransactions),
-      SurfaceCard(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
-        child: recent.isEmpty
-            ? const EmptyState(
-                'Операций нет',
-                'Добавьте доход, расход или перевод.',
-              )
-            : Column(
-                children: recent
-                    .take(5)
-                    .map(
-                      (e) => EntryTile(
-                        e,
-                        // Payee summary with a period choice; transfers and
-                        // operations without a payee open the editor.
-                        onTap:
-                            e.kind == EntryKind.transfer ||
-                                e.payee.trim().isEmpty
-                            ? null
-                            : () =>
-                                  _open(context, PayeeSummaryScreen(entry: e)),
-                      ),
-                    )
-                    .toList(),
-              ),
-      ),
-      SectionTitle(
-        'Бюджеты',
-        action: 'Все',
-        onTap: () => _open(context, const BudgetsScreen()),
-      ),
-      if (c.data.budgets.isEmpty)
+      'recent': block([
+        SectionTitle(
+          'Последние операции',
+          action: 'Все',
+          onTap: onTransactions,
+        ),
         SurfaceCard(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+          child: recent.isEmpty
+              ? const EmptyState(
+                  'Операций нет',
+                  'Добавьте доход, расход или перевод.',
+                )
+              : Column(
+                  children: recent
+                      .take(5)
+                      .map(
+                        (e) => EntryTile(
+                          e,
+                          // Payee summary with a period choice; transfers and
+                          // operations without a payee open the editor.
+                          onTap:
+                              e.kind == EntryKind.transfer ||
+                                  e.payee.trim().isEmpty
+                              ? null
+                              : () => _open(
+                                  context,
+                                  PayeeSummaryScreen(entry: e),
+                                ),
+                        ),
+                      )
+                      .toList(),
+                ),
+        ),
+      ]),
+      'budgets': block([
+        SectionTitle(
+          'Бюджеты',
+          action: 'Все',
           onTap: () => _open(context, const BudgetsScreen()),
-          child: const EmptyState(
-            'Бюджет не задан',
-            'Установите общий лимит или лимиты категорий.',
-          ),
-        )
-      else
-        for (final budget in c.data.budgets.take(2))
-          Padding(
-            padding: const EdgeInsets.only(bottom: 6),
-            child: SurfaceCard(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              onTap: () => _open(context, const BudgetsScreen()),
-              child: Builder(
-                builder: (context) {
-                  final spent = FinanceEngine.budgetSpent(
-                    budget,
-                    c.data.entries,
-                    c.periodStart,
-                    c.periodEnd,
-                  );
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        budget.name,
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      const SizedBox(height: 12),
-                      LinearProgressIndicator(
-                        value: (spent / budget.limitMinor).clamp(0, 1),
-                        color: spent > budget.limitMinor
-                            ? colors.expense
-                            : scheme.primary,
-                        minHeight: 6,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        '${money(spent, budget.currency)} из ${money(budget.limitMinor, budget.currency)}',
-                        style: const TextStyle(fontSize: 12),
-                      ),
-                    ],
-                  );
-                },
+        ),
+        if (c.data.budgets.isEmpty)
+          SurfaceCard(
+            onTap: () => _open(context, const BudgetsScreen()),
+            child: const EmptyState(
+              'Бюджет не задан',
+              'Установите общий лимит или лимиты категорий.',
+            ),
+          )
+        else
+          for (final budget in c.data.budgets.take(2))
+            Padding(
+              padding: const EdgeInsets.only(bottom: 6),
+              child: SurfaceCard(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
+                onTap: () => _open(context, const BudgetsScreen()),
+                child: Builder(
+                  builder: (context) {
+                    final spent = FinanceEngine.budgetSpent(
+                      budget,
+                      c.data.entries,
+                      c.periodStart,
+                      c.periodEnd,
+                    );
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          budget.name,
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        const SizedBox(height: 12),
+                        LinearProgressIndicator(
+                          value: (spent / budget.limitMinor).clamp(0, 1),
+                          color: spent > budget.limitMinor
+                              ? colors.expense
+                              : scheme.primary,
+                          minHeight: 6,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          '${money(spent, budget.currency)} из ${money(budget.limitMinor, budget.currency)}',
+                          style: const TextStyle(fontSize: 12),
+                        ),
+                      ],
+                    );
+                  },
+                ),
               ),
             ),
+      ]),
+    };
+    // 1.14: every block can be dragged to a new place with a long press;
+    // accounts and goals inside their blocks too. The order is saved.
+    return _Reorderable(
+      listKey: 'dashboard',
+      ids: prefs.dashboardOrder,
+      onSave: save((p, ids) => p.copyWith(dashboardOrder: ids)),
+      nested: false,
+      header: const Reveal(index: 0, child: FinanceHeader()),
+      footer: Padding(
+        key: const ValueKey('dashboard-reorder-hint'),
+        padding: const EdgeInsets.only(top: 18),
+        child: Text(
+          'Удерживайте блок, счёт или цель, чтобы переместить',
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 11, color: scheme.onSurfaceVariant),
+        ),
+      ),
+      // 1.9: sections arrive in a short cascade.
+      wrap: (i, child) => Reveal(index: i + 1, child: child),
+      items: blocks,
+    );
+  }
+}
+
+/// A dragged block or row: lifted slightly, without the default grey card.
+Widget _lifted(Widget child, int index, Animation<double> animation) =>
+    AnimatedBuilder(
+      animation: animation,
+      child: child,
+      builder: (context, child) {
+        final t = Curves.easeOut.transform(animation.value);
+        return Transform.scale(
+          scale: 1 + .03 * t,
+          child: Material(
+            type: MaterialType.transparency,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: .28 * t),
+                    blurRadius: 24,
+                    offset: const Offset(0, 10),
+                  ),
+                ],
+              ),
+              child: child,
+            ),
           ),
-    ];
-    return ListView(
-      key: const PageStorageKey('dashboard'),
-      padding: const EdgeInsets.fromLTRB(16, 4, 16, 20),
+        );
+      },
+    );
+
+/// A list whose items are dragged into a new order with a long press. The
+/// new order shows at once and is then saved through [onSave]; [ids] is the
+/// saved order (unknown ids ignored, new items last). A nested list (accounts,
+/// goals inside a block) does not scroll by itself.
+class _Reorderable extends StatefulWidget {
+  const _Reorderable({
+    required this.listKey,
+    required this.ids,
+    required this.items,
+    required this.onSave,
+    this.nested = true,
+    this.header,
+    this.footer,
+    this.wrap,
+  });
+  final String listKey;
+  final List<String> ids;
+  final Map<String, Widget> items;
+  final void Function(List<String>) onSave;
+  final bool nested;
+  final Widget? header, footer;
+  final Widget Function(int index, Widget child)? wrap;
+  @override
+  State<_Reorderable> createState() => _ReorderableState();
+}
+
+class _ReorderableState extends State<_Reorderable> {
+  List<String>? _local;
+
+  @override
+  void didUpdateWidget(covariant _Reorderable old) {
+    super.didUpdateWidget(old);
+    if (!listEquals(old.ids, widget.ids)) _local = null;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final order = AppPreferences.arrange(
+      widget.items.keys.toList(),
+      _local ?? widget.ids,
+      (id) => id,
+    );
+    void reorder(int from, int to) {
+      // [to] is the final place, already adjusted for the moved item.
+      final next = [...order];
+      next.insert(to, next.removeAt(from));
+      if (listEquals(next, order)) return;
+      setState(() => _local = next);
+      widget.onSave(next);
+    }
+
+    return ReorderableListView(
+      key: widget.nested
+          ? ValueKey(widget.listKey)
+          : PageStorageKey(widget.listKey),
+      shrinkWrap: widget.nested,
+      physics: widget.nested ? const NeverScrollableScrollPhysics() : null,
+      padding: widget.nested
+          ? EdgeInsets.zero
+          : const EdgeInsets.fromLTRB(16, 4, 16, 20),
+      buildDefaultDragHandles: false,
+      proxyDecorator: _lifted,
+      header: widget.header,
+      footer: widget.footer,
+      onReorderItem: reorder,
       children: [
-        // 1.9: sections arrive in a short cascade.
-        for (var i = 0; i < sections.length; i++)
-          Reveal(index: i, child: sections[i]),
+        for (var i = 0; i < order.length; i++)
+          ReorderableDelayedDragStartListener(
+            key: ValueKey('${widget.listKey}-${order[i]}'),
+            index: i,
+            child:
+                widget.wrap?.call(i, widget.items[order[i]]!) ??
+                widget.items[order[i]]!,
+          ),
       ],
     );
   }
