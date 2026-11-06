@@ -2,6 +2,10 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+
+import '../../domain/service_catalog.dart';
+import '../../domain/voice_entry_parser.dart';
+import '../../services/voice_input_service.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
@@ -27,6 +31,7 @@ Future<void> showEntryEditor(
   String? goalId,
   bool startScan = false,
   String? scanImagePath,
+  bool startVoice = false,
 }) async {
   final c = FinanceScope.of(context);
   final editingHistory =
@@ -56,6 +61,7 @@ Future<void> showEntryEditor(
           goalId: goalId,
           startScan: startScan,
           scanImagePath: scanImagePath,
+          startVoice: startVoice,
         ),
       ),
     );
@@ -70,8 +76,12 @@ class EntryEditor extends StatefulWidget {
     this.goalId,
     this.startScan = false,
     this.scanImagePath,
+    this.startVoice = false,
   });
   final FinanceEntry? entry;
+
+  /// Opens the speech dialog right away (voice quick action, 1.19).
+  final bool startVoice;
   final EntryKind kind;
   final String? goalId;
   final bool startScan;
@@ -90,6 +100,10 @@ class _EntryEditorState extends State<EntryEditor> {
   late DateTime _date;
   double? _lat, _lon;
   bool _advanced = false, _busy = false, _customPad = true;
+
+  /// Store or service of the payee (logo), and the last phrase heard.
+  String? _serviceId, _heard;
+  final _speech = const VoiceInputService();
   final _ocr = ReceiptOcrService();
   final _images = ReceiptImageStore();
   FinanceController? _controller;
@@ -128,6 +142,12 @@ class _EntryEditorState extends State<EntryEditor> {
     _member = e?.memberId ?? 'me';
     _status = e?.status ?? 'posted';
     _recurrence = e?.recurrence ?? 'none';
+    _serviceId = e?.serviceId;
+    if (widget.startVoice) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) unawaited(_voice());
+      });
+    }
     if (widget.startScan || widget.scanImagePath != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) unawaited(_scan(initialPath: widget.scanImagePath));
@@ -437,7 +457,15 @@ class _EntryEditorState extends State<EntryEditor> {
         attachmentPath: _attachment,
         latitude: _lat,
         longitude: _lon,
-        serviceId: _kind == EntryKind.transfer ? null : widget.entry?.serviceId,
+        // A store found by voice keeps its logo only while the payee still
+        // names it (the person may have typed another payee).
+        serviceId:
+            _kind == EntryKind.transfer ||
+                (_serviceId != null &&
+                    _serviceId != widget.entry?.serviceId &&
+                    ServiceCatalog.byName(_payee.text)?.id != _serviceId)
+            ? null
+            : _serviceId,
         serviceIconPath: _kind == EntryKind.transfer
             ? null
             : widget.entry?.serviceIconPath,
@@ -504,6 +532,44 @@ class _EntryEditorState extends State<EntryEditor> {
       if (mounted) {
         setState(() => _busy = false);
       }
+    }
+  }
+
+  /// Listens once and fills the form from the phrase; nothing is saved
+  /// until the person taps «Сохранить».
+  Future<void> _voice() async {
+    if (_busy) return;
+    final c = FinanceScope.of(context);
+    setState(() => _busy = true);
+    try {
+      final heard = await _speech.listen();
+      if (!mounted || heard.isEmpty) return;
+      final d = VoiceEntryParser.parseBest(
+        heard,
+        categories: c.data.categories,
+        history: c.data.entries,
+      );
+      setState(() {
+        _heard = d.heard;
+        _kind = d.kind;
+        if (d.amountMinor != null) _amount.text = decimalMinor(d.amountMinor!);
+        if (d.payee.isNotEmpty) _payee.text = d.payee;
+        _serviceId = d.serviceId;
+        _category = d.categoryId;
+        _subcategory = null;
+        if (d.date != null) _date = d.date!;
+      });
+      if (d.amountMinor == null && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Не расслышал сумму в «${d.heard}». Введите её.'),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) showError(context, e);
+    } finally {
+      if (mounted) setState(() => _busy = false);
     }
   }
 
@@ -601,6 +667,32 @@ class _EntryEditorState extends State<EntryEditor> {
                   onPressed: _busy ? null : () => _scan(),
                   icon: const Icon(Icons.document_scanner_outlined),
                   label: const Text('Распознать скриншот из банка'),
+                ),
+                const SizedBox(height: 8),
+                OutlinedButton.icon(
+                  key: const ValueKey('voice-entry'),
+                  onPressed: _busy ? null : () => _voice(),
+                  icon: const Icon(Icons.mic_none_rounded),
+                  label: const Text('Сказать голосом'),
+                ),
+                const SizedBox(height: 16),
+              ],
+              if (_heard != null) ...[
+                SurfaceCard(
+                  key: const ValueKey('voice-heard'),
+                  padding: const EdgeInsets.all(14),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.mic_none_rounded, size: 18),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          'Услышал: «$_heard». Проверьте и сохраните.',
+                          style: const TextStyle(fontSize: 13),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: 16),
               ],

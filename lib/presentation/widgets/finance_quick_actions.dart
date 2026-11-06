@@ -92,6 +92,31 @@ class FinanceQuickActions extends StatelessWidget {
             ),
           ),
         ],
+        // 1.19: voice entry — say «Пятёрочка 450 рублей».
+        const SizedBox(width: 8),
+        SizedBox(
+          width: 48,
+          height: 48,
+          child: IconButton.outlined(
+            key: const ValueKey('quick-action-voice'),
+            tooltip: 'Голосом',
+            style: IconButton.styleFrom(
+              backgroundColor: GlassSurface.pane(
+                Theme.of(context),
+                null,
+                null,
+                1,
+              ),
+              foregroundColor: scheme.onSurface,
+              side: BorderSide(color: scheme.onSurface.withValues(alpha: .07)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15),
+              ),
+            ),
+            onPressed: () => showEntryEditor(context, startVoice: true),
+            icon: const Icon(Icons.mic_none_rounded, size: 20),
+          ),
+        ),
       ],
     );
   }

@@ -11,6 +11,7 @@ import java.util.TimeZone
 class MainActivity : FlutterFragmentActivity() {
     private var receiptOcr: ReceiptOcrBridge? = null
     private var receiptShare: ReceiptShareBridge? = null
+    private var voiceInput: VoiceInputBridge? = null
     private var dispatchedShareIntent: Intent? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,6 +33,8 @@ class MainActivity : FlutterFragmentActivity() {
         receiptOcr = ReceiptOcrBridge(this, flutterEngine.dartExecutor.binaryMessenger)
         receiptShare?.close()
         receiptShare = ReceiptShareBridge(this, flutterEngine.dartExecutor.binaryMessenger)
+        voiceInput?.close()
+        voiceInput = VoiceInputBridge(this, flutterEngine.dartExecutor.binaryMessenger)
         // FlutterFragment may attach after Activity.onCreate has returned.
         // Dispatch here too, once per Intent, so cold-start shares cannot vanish.
         dispatchShareIntent(intent)
@@ -51,7 +54,16 @@ class MainActivity : FlutterFragmentActivity() {
         bridge.accept(value)
     }
 
+    @Deprecated("Speech dialog result")
+    @Suppress("DEPRECATION")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (voiceInput?.onActivityResult(requestCode, resultCode, data) == true) return
+        super.onActivityResult(requestCode, resultCode, data)
+    }
+
     override fun onDestroy() {
+        voiceInput?.close()
+        voiceInput = null
         receiptOcr?.close()
         receiptOcr = null
         receiptShare?.close()
