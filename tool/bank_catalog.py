@@ -136,6 +136,75 @@ LOGOS = {
             'sha256': 'b791536f8df8f799e0425117bb7fb903a8beea54fa45662c1fab9749ffb4bbae', 'why': 'Official site icon of Credit Europe Bank (Russia).'},
     '3538': {'sourceType': 'official-website', 'url': 'https://131.ru/favicon.svg', 'page': 'https://131.ru/',
             'sha256': 'e175cabd0c555785df84b311a5a45d9478d42eeefb0711d8ba8f76cb8db908a6', 'why': 'Official site icon of Bank 131.'},
+    # 1.12: site icons through public favicon mirrors (the sites themselves fail
+    # TLS verification from the build host). Reviewed by eye; refused: Хоум Банк
+    # (site now serves the Sovcombank mark), Цифра банк (old «F» of the former
+    # brand), РенКап, Зенит, Авангард, Мособлбанк, Примсоцбанк (only blurry
+    # small favicons).
+    '1481': {'sourceType': 'google-favicon-service', 'url': "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fsberbank.ru&size=256", 'page': 'https://sberbank.ru/',
+            'sha256': 'dad980542683010a0d0faa83bc936ca1bbdbb475d67949c556033e79522fdd17', 'why': 'Site icon of https://sberbank.ru/ as served by the Google favicon service; reviewed as the current mark.'},
+    '1000': {'sourceType': 'google-favicon-service', 'url': "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fvtb.ru&size=256", 'page': 'https://vtb.ru/',
+            'sha256': '950c934651a0ccb94020b1bcbb3e6629d79170e07a1a392bf8ba9beec270ff35', 'why': 'Site icon of https://vtb.ru/ as served by the Google favicon service; reviewed as the current mark.'},
+    '1326': {'sourceType': 'google-favicon-service', 'url': "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Falfabank.ru&size=256", 'page': 'https://alfabank.ru/',
+            'sha256': '57d914ddee89f30c0587a7a66611f83d33861defcc149427e7c61ce87717358a', 'why': 'Site icon of https://alfabank.ru/ as served by the Google favicon service; reviewed as the current mark.'},
+    '2673': {'sourceType': 'google-favicon-service', 'url': "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Ftbank.ru&size=256", 'page': 'https://tbank.ru/',
+            'sha256': 'f9a33200e9e5fd804635ff99b649cb91e0dda142c54df765cd0dec5d0d04f1dc', 'why': 'Site icon of https://tbank.ru/ as served by the Google favicon service; reviewed as the current mark.'},
+    '3349': {'sourceType': 'google-favicon-service', 'url': "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Frshb.ru&size=256", 'page': 'https://rshb.ru/',
+            'sha256': 'ee7739c68ef9b0d361e4915207fa26a7dedfb01bc2374e1aa2dc2421da9fbb33', 'why': 'Site icon of https://rshb.ru/ as served by the Google favicon service; reviewed as the current mark.'},
+    '963': {'sourceType': 'google-favicon-service', 'url': "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fsovcombank.ru&size=256", 'page': 'https://sovcombank.ru/',
+            'sha256': 'e96dac369d4992d0ccb59208808253612248e56f30fe234072df80cfd31bb890', 'why': 'Site icon of https://sovcombank.ru/ as served by the Google favicon service; reviewed as the current mark.'},
+    '3251': {'sourceType': 'google-favicon-service', 'url': "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fpsbank.ru&size=256", 'page': 'https://psbank.ru/',
+            'sha256': '56c21ab514862f951594222fc55343960abc80561b212277278b685faf571f89', 'why': 'Site icon of https://psbank.ru/ as served by the Google favicon service; reviewed as the current mark.'},
+    '1978': {'sourceType': 'google-favicon-service', 'url': "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fmkb.ru&size=256", 'page': 'https://mkb.ru/',
+            'sha256': 'f6612c2e8ecc3fb8ed11d80a9b76d05dfe22f097f3042a1ce81f0d622a9e9333', 'why': 'Site icon of https://mkb.ru/ as served by the Google favicon service; reviewed as the current mark.'},
+    '2312': {'sourceType': 'yandex-favicon-service', 'url': "https://favicon.yandex.net/favicon/v2/domrfbank.ru?size=120&stub=0", 'page': 'https://domrfbank.ru/',
+            'sha256': '8b915b344d5c857b99b7398684041e7f04dd61576c1a7fdc74fdca0c393494cb', 'why': 'Site icon of https://domrfbank.ru/ as served by the Yandex favicon service; reviewed as the current mark.'},
+    '2766': {'sourceType': 'google-favicon-service', 'url': "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fotpbank.ru&size=256", 'page': 'https://otpbank.ru/',
+            'sha256': 'c384013e0fc0cb4849dd9c0b02e758639363d5ab8cc765d6293276f4295df505', 'why': 'Site icon of https://otpbank.ru/ as served by the Google favicon service; reviewed as the current mark.'},
+    '3545': {'sourceType': 'yandex-favicon-service', 'url': "https://favicon.yandex.net/favicon/v2/tochka.com?size=120&stub=0", 'page': 'https://tochka.com/',
+            'sha256': '55977ed7fda6fd81ef6295848d58608623ef24e93058053be0a86b96aa330d60', 'why': 'Site icon of https://tochka.com/ as served by the Yandex favicon service; reviewed as the current mark.'},
+    '3027': {'sourceType': 'google-favicon-service', 'url': "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fbank.yandex.ru&size=256", 'page': 'https://bank.yandex.ru/',
+            'sha256': 'b53c2fe635697878aa5c22271f2c539612cd009b33023eec6e6c7bafb51243bb', 'why': 'Site icon of https://bank.yandex.ru/ as served by the Google favicon service; reviewed as the current mark.'},
+    '841': {'sourceType': 'google-favicon-service', 'url': "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fwb-bank.ru&size=256", 'page': 'https://wb-bank.ru/',
+            'sha256': '3639bfcf45125ae39e25c6de9b329415cc685975e4ce0d6208342d7c4b426c3b', 'why': 'Site icon of https://wb-bank.ru/ as served by the Google favicon service; reviewed as the current mark.'},
+    '2306': {'sourceType': 'yandex-favicon-service', 'url': "https://favicon.yandex.net/favicon/v2/absolutbank.ru?size=120&stub=0", 'page': 'https://absolutbank.ru/',
+            'sha256': 'ef1349074ad25cbd4314950c3bf2c96e2cada50d265f1b10265efe923b40959a', 'why': 'Site icon of https://absolutbank.ru/ as served by the Yandex favicon service; reviewed as the current mark.'},
+    '2590': {'sourceType': 'yandex-favicon-service', 'url': "https://favicon.yandex.net/favicon/v2/akbars.ru?size=120&stub=0", 'page': 'https://akbars.ru/',
+            'sha256': '25dc4a0067f7c6d1b9f533b7a388979b4ae75ffe6dae1e4b854758d4f144cf54', 'why': 'Site icon of https://akbars.ru/ as served by the Yandex favicon service; reviewed as the current mark.'},
+    '328': {'sourceType': 'yandex-favicon-service', 'url': "https://favicon.yandex.net/favicon/v2/abr.ru?size=120&stub=0", 'page': 'https://abr.ru/',
+            'sha256': '329c23d5eb5d92a02a94e2d0575dd400ec80a19da1d08aaa1c9c13c108f1d13f', 'why': 'Site icon of https://abr.ru/ as served by the Yandex favicon service; reviewed as the current mark.'},
+    '2268': {'sourceType': 'yandex-favicon-service', 'url': "https://favicon.yandex.net/favicon/v2/mtsbank.ru?size=120&stub=0", 'page': 'https://mtsbank.ru/',
+            'sha256': 'ac861809f766bec5a77009906c7838d9b7eeb87209b96a0b917591b005a202ca', 'why': 'Site icon of https://mtsbank.ru/ as served by the Yandex favicon service; reviewed as the current mark.'},
+    '3354': {'sourceType': 'yandex-favicon-service', 'url': "https://favicon.yandex.net/favicon/v2/rencredit.ru?size=120&stub=0", 'page': 'https://rencredit.ru/',
+            'sha256': '0a35c991aefc120148aee2c94ea7681be795af7be525c7e349534c305a5d813f', 'why': 'Site icon of https://rencredit.ru/ as served by the Yandex favicon service; reviewed as the current mark.'},
+    '1927': {'sourceType': 'yandex-favicon-service', 'url': "https://favicon.yandex.net/favicon/v2/modulbank.ru?size=120&stub=0", 'page': 'https://modulbank.ru/',
+            'sha256': '2c34d731fab2cb44786ba8011710d82fa749a1ea3664d844d4edee7f7f6110e2', 'why': 'Site icon of https://modulbank.ru/ as served by the Yandex favicon service; reviewed as the current mark.'},
+    '429': {'sourceType': 'google-favicon-service', 'url': "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fubrr.ru&size=256", 'page': 'https://ubrr.ru/',
+            'sha256': '597571e3bceafce82f0cd49227ea72edd66929220dff530797628d52f75d7629', 'why': 'Site icon of https://ubrr.ru/ as served by the Google favicon service; reviewed as the current mark.'},
+    '2275': {'sourceType': 'google-favicon-service', 'url': "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Furalsib.ru&size=256", 'page': 'https://uralsib.ru/',
+            'sha256': '95497a6f5fb40f8382c8066fef12b980189cf64bfb79f97dd8da16f7429e63b7', 'why': 'Site icon of https://uralsib.ru/ as served by the Google favicon service; reviewed as the current mark.'},
+    '436': {'sourceType': 'google-favicon-service', 'url': "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fbspb.ru&size=256", 'page': 'https://bspb.ru/',
+            'sha256': '8a15b4a4ab2e864963c173225fd8994fb5824345e645dc79ad4668ef643099c7', 'why': 'Site icon of https://bspb.ru/ as served by the Google favicon service; reviewed as the current mark.'},
+    '2289': {'sourceType': 'google-favicon-service', 'url': "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Frsb.ru&size=256", 'page': 'https://rsb.ru/',
+            'sha256': 'd9280a9d3223dcae533650ac525bfda5b33a6cef02f416955bd695b8fb446796', 'why': 'Site icon of https://rsb.ru/ as served by the Google favicon service; reviewed as the current mark.'},
+    '2998': {'sourceType': 'yandex-favicon-service', 'url': "https://favicon.yandex.net/favicon/v2/expobank.ru?size=120&stub=0", 'page': 'https://expobank.ru/',
+            'sha256': 'fbfaaf5afe66974d7603b884b85936e966882e0f5b823ac7c3c38511b3e4c353', 'why': 'Site icon of https://expobank.ru/ as served by the Yandex favicon service; reviewed as the current mark.'},
+    '2707': {'sourceType': 'google-favicon-service', 'url': "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Flockobank.ru&size=256", 'page': 'https://lockobank.ru/',
+            'sha256': '089566394aff28d707477214f906ce310ce6e6fe9d2a468b47a43b37a98f4f7c', 'why': 'Site icon of https://lockobank.ru/ as served by the Google favicon service; reviewed as the current mark.'},
+    '101': {'sourceType': 'yandex-favicon-service', 'url': "https://favicon.yandex.net/favicon/v2/bcs-bank.com?size=120&stub=0", 'page': 'https://bcs-bank.com/',
+            'sha256': '6700a700c8c8460174ada46916f129eee8e530c1d98ec9b9964d34210d6d29a8', 'why': 'Site icon of https://bcs-bank.com/ as served by the Yandex favicon service; reviewed as the current mark.'},
+    '2546': {'sourceType': 'yandex-favicon-service', 'url': "https://favicon.yandex.net/favicon/v2/novikom.ru?size=120&stub=0", 'page': 'https://novikom.ru/',
+            'sha256': 'cf714a0d2dfae89c9e4be5c104ab32a9f42bdf2100d88700cf4a6fc3e1634a7a', 'why': 'Site icon of https://novikom.ru/ as served by the Yandex favicon service; reviewed as the current mark.'},
+    '705': {'sourceType': 'google-favicon-service', 'url': "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fsinara.ru&size=256", 'page': 'https://sinara.ru/',
+            'sha256': '41e51a33665c362fb66d96fabbe820821c11812a32585a2d5ef73a9716704859', 'why': 'Site icon of https://sinara.ru/ as served by the Google favicon service; reviewed as the current mark.'},
+    '2440': {'sourceType': 'google-favicon-service', 'url': "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fmetallinvestbank.ru&size=256", 'page': 'https://metallinvestbank.ru/',
+            'sha256': 'ac2ea8d0ef74f922f1cb89f418455ebe3eb9debc4649d0f728b32336799b25d3', 'why': 'Site icon of https://metallinvestbank.ru/ as served by the Google favicon service; reviewed as the current mark.'},
+    '3279': {'sourceType': 'yandex-favicon-service', 'url': "https://favicon.yandex.net/favicon/v2/trust.ru?size=120&stub=0", 'page': 'https://trust.ru/',
+            'sha256': '8af57e7bb247190a98c4a9c6775ce601c73efd4bef9094e0a7318a1c04269c02', 'why': 'Site icon of https://trust.ru/ as served by the Yandex favicon service; reviewed as the current mark.'},
+    '2368': {'sourceType': 'google-favicon-service', 'url': "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fblanc.ru&size=256", 'page': 'https://blanc.ru/',
+            'sha256': '448a387ea751aa943c16ebdd8059fab3e4b406406e847bab4c320e6a1a8afa2a', 'why': 'Site icon of https://blanc.ru/ as served by the Google favicon service; reviewed as the current mark.'},
+    '2210': {'sourceType': 'yandex-favicon-service', 'url': "https://favicon.yandex.net/favicon/v2/tkbbank.ru?size=120&stub=0", 'page': 'https://tkbbank.ru/',
+            'sha256': '85649f3e1bff72216b568f6cf779d4d3498fe130f4e6c23892a24ec28541d7d5', 'why': 'Site icon of https://tkbbank.ru/ as served by the Yandex favicon service; reviewed as the current mark.'},
 }
 
 
@@ -403,6 +472,9 @@ def validate_artwork(name, content):
         width, height = struct.unpack('>II', content[16:24])
         if not width or not height or width > 12000 or height > 12000:
             raise ValueError(f'Invalid image dimensions: {name}')
+    elif name.endswith('.jpg'):
+        if not content.startswith(b'\xff\xd8\xff'):
+            raise ValueError(f'Not JPEG artwork: {name}')
     else:
         raise ValueError(f'Unsupported artwork type: {name}')
 
@@ -451,7 +523,21 @@ def fetch_logos():
         record = {'regNumber': reg, 'id': id_for(reg), 'brand': BRANDS[reg][0],
                   'background': spec.get('background', '#FFFFFF'), 'inset': spec.get('inset', 0.1),
                   'selection': spec['why'], 'sourceType': spec.get('sourceType', 'wikimedia-commons')}
-        if record['sourceType'] == 'official-website':
+        if record['sourceType'] in ('google-favicon-service', 'yandex-favicon-service'):
+            content = download(spec['url'], BROWSER_UA)
+            if digest(content) != spec['sha256']:
+                raise SystemExit(f'Mirrored site icon changed since review: {reg}; review it again')
+            kind = 'jpg' if content.startswith(b'\xff\xd8\xff') else 'png'
+            path = ASSETS / f'{id_for(reg)}.{kind}'
+            record.update({
+                'source': spec['page'], 'downloadUrl': spec['url'],
+                'mime': 'image/jpeg' if kind == 'jpg' else 'image/png',
+                'license': {'LicenseShortName': 'Proprietary (bank website icon via favicon mirror)'},
+                'rights': 'Site icon published by the bank\'s official website, as served by a public '
+                          'favicon mirror; copyright and trademark belong to the bank. Used only to '
+                          'identify the bank; no endorsement implied.',
+            })
+        elif record['sourceType'] == 'official-website':
             content = download(spec['url'], BROWSER_UA)
             if digest(content) != spec['sha256']:
                 raise SystemExit(f'Official artwork changed since review: {reg}; review it again')
@@ -567,7 +653,8 @@ def verify():
     for item in manifest['items']:
         assert item['regNumber'] in regs, f'logo for unknown bank {item["regNumber"]}'
         assert item['downloadUrl'].startswith('https://'), item['id']
-        assert item['sourceType'] in ('official-website', 'wikimedia-commons'), item['id']
+        assert item['sourceType'] in ('official-website', 'wikimedia-commons', 'google-favicon-service',
+                                  'yandex-favicon-service'), item['id']
         assert item.get('license', {}).get('LicenseShortName'), f'missing license {item["id"]}'
         raw = (ROOT / item['assetPath']).read_bytes()
         validate_artwork(item['assetPath'], raw)

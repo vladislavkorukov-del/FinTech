@@ -1,0 +1,2160 @@
+{
+ "items": [
+  {
+   "id": "pyaterochka",
+   "name": "Пятёрочка",
+   "group": "groceries",
+   "site": "https://5ka.ru/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2F5ka.ru&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/pyaterochka.png",
+   "originalSha256": "80eae457e20c2f5e65c9b1fd1917c733c799206d3f4f341e260357d458136376",
+   "originalBytes": 5057,
+   "size": [
+    256,
+    256
+   ],
+   "rasterPath": "assets/stores/raster/pyaterochka.png",
+   "rasterSha256": "08626fa775b24b7fae06ab9cf24050e8ed53199d3d58e57fad6d3522854f1b50",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "magnit",
+   "name": "Магнит",
+   "group": "groceries",
+   "site": "https://magnit.ru/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fmagnit.ru&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/magnit.png",
+   "originalSha256": "dde0699fc701734e5a7fa62313fc7ed60c11a8807f8952b344c867871370754b",
+   "originalBytes": 14917,
+   "size": [
+    180,
+    180
+   ],
+   "rasterPath": "assets/stores/raster/magnit.png",
+   "rasterSha256": "71708e4e639603ae373282b8ae5e726c4cdbbffec37e2d8db2d0eb56c73e950e",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "perekrestok",
+   "name": "Перекрёсток",
+   "group": "groceries",
+   "site": "https://perekrestok.ru/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fperekrestok.ru&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/perekrestok.png",
+   "originalSha256": "d2712dcc7d4a63dd08f7e645b91a9c1a81734839a67bf211ac3e2a6a42172ef7",
+   "originalBytes": 5603,
+   "size": [
+    180,
+    180
+   ],
+   "rasterPath": "assets/stores/raster/perekrestok.png",
+   "rasterSha256": "2ac32d904732257f01f17f9304625a5450606ca75db2b45a1ca19dbeaca1d189",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "vkusvill",
+   "name": "ВкусВилл",
+   "group": "groceries",
+   "site": "https://vkusvill.ru/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fvkusvill.ru&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/vkusvill.png",
+   "originalSha256": "1516685ca553b0ae56ce3ae8f66c717ae28eb18503c1b8aafa8227377398ce92",
+   "originalBytes": 1313,
+   "size": [
+    180,
+    180
+   ],
+   "rasterPath": "assets/stores/raster/vkusvill.png",
+   "rasterSha256": "4cd118292d5164d38134c0efda7aae114a0c778afd43a24616a971495235dc4d",
+   "background": "#2DBE64",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "lenta",
+   "name": "Лента",
+   "group": "groceries",
+   "site": "https://lenta.com/",
+   "sourceType": "yandex-favicon-service",
+   "downloadUrl": "https://favicon.yandex.net/favicon/v2/lenta.com?size=120&stub=0",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/lenta.png",
+   "originalSha256": "7f5d32c2c6a2ece1713390ceee814bc3f746f74520a3aa2b7cb90971609cf4c7",
+   "originalBytes": 4497,
+   "size": [
+    120,
+    120
+   ],
+   "rasterPath": "assets/stores/raster/lenta.png",
+   "rasterSha256": "96c8c3160006f34402eacd7e24a4641691c204f45665637b9840d67baad4a3c9",
+   "background": "#003C96",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "auchan",
+   "name": "Ашан",
+   "group": "groceries",
+   "site": "https://auchan.ru/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fauchan.ru&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/auchan.png",
+   "originalSha256": "a6b828f1e2a418306b852374aa2cd96afbbadc4759664848b6134169a76798fb",
+   "originalBytes": 3175,
+   "size": [
+    294,
+    234
+   ],
+   "rasterPath": "assets/stores/raster/auchan.png",
+   "rasterSha256": "593b84ef0f33253d79fc2ae8d800437dc275c263cefe3fe661a4398cf188e6c7",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "dixy",
+   "name": "Дикси",
+   "group": "groceries",
+   "site": "https://dixy.ru/",
+   "sourceType": "yandex-favicon-service",
+   "downloadUrl": "https://favicon.yandex.net/favicon/v2/dixy.ru?size=120&stub=0",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/dixy.png",
+   "originalSha256": "48d0fa386c7ee6f8e2b60065091b98eb7546d0d12a7cf721c7106e219cf6dc23",
+   "originalBytes": 3185,
+   "size": [
+    120,
+    120
+   ],
+   "rasterPath": "assets/stores/raster/dixy.png",
+   "rasterSha256": "0755ae6ef2be4266bfbff99e8eac1d7a2a507e5cae20c5a76efbcd7687aa0e81",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "metro_cc",
+   "name": "METRO",
+   "group": "groceries",
+   "site": "https://online.metro-cc.ru/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fonline.metro-cc.ru&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/metro_cc.png",
+   "originalSha256": "b73e94b44b8ae35e8877428199f727612dd01029c56756e1ac6d5710994291a5",
+   "originalBytes": 487,
+   "size": [
+    256,
+    256
+   ],
+   "rasterPath": null,
+   "rasterSha256": null,
+   "background": "#1A4487",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied.",
+   "rejected": "Only a tiny favicon exists; the 256 px rendition is a pixelated upscale."
+  },
+  {
+   "id": "spar",
+   "name": "SPAR",
+   "group": "groceries",
+   "site": "https://spar.ru/",
+   "sourceType": "yandex-favicon-service",
+   "downloadUrl": "https://favicon.yandex.net/favicon/v2/spar.ru?size=120&stub=0",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/spar.png",
+   "originalSha256": "26bb9a021f4a21ecd3e9af61a2bf90054d156e13c4518ab3b2ab1bca8e88ec19",
+   "originalBytes": 8705,
+   "size": [
+    120,
+    120
+   ],
+   "rasterPath": null,
+   "rasterSha256": null,
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied.",
+   "rejected": "Mirror returned an unrelated, damaged picture."
+  },
+  {
+   "id": "okey",
+   "name": "О’КЕЙ",
+   "group": "groceries",
+   "site": "https://okmarket.ru/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fokmarket.ru&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/okey.jpg",
+   "originalSha256": "b5bf3e357bef14b4f0b05732e3fbd9f9522b25afbc7831bd1d22832c3ec60cb9",
+   "originalBytes": 4864,
+   "size": [
+    180,
+    180
+   ],
+   "rasterPath": "assets/stores/raster/okey.png",
+   "rasterSha256": "db2bb6bdbf3eab945a05139317201f1f8c7d38092a83b272c66bf4ab596a0608",
+   "background": "#FD0001",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "fixprice",
+   "name": "Fix Price",
+   "group": "groceries",
+   "site": "https://fix-price.com/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Ffix-price.com&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/fixprice.png",
+   "originalSha256": "60461527da865db0a7455368d5209293d3dc7207465afd45b4538fd7380715a8",
+   "originalBytes": 2430,
+   "size": [
+    192,
+    192
+   ],
+   "rasterPath": "assets/stores/raster/fixprice.png",
+   "rasterSha256": "64629718f4066c704799f17939914e3d0d8db79638474bdac25e99454393e91d",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "samokat",
+   "name": "Самокат",
+   "group": "groceries",
+   "site": "https://samokat.ru/",
+   "sourceType": "yandex-favicon-service",
+   "downloadUrl": "https://favicon.yandex.net/favicon/v2/samokat.ru?size=120&stub=0",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/samokat.png",
+   "originalSha256": "c6356575a4d3b4be77f41c539e6282fe8df1f7387c17155774217b19cc75d67a",
+   "originalBytes": 2921,
+   "size": [
+    120,
+    120
+   ],
+   "rasterPath": "assets/stores/raster/samokat.png",
+   "rasterSha256": "0aa7c9e1d28234770adb83917c0c5f7acf9dd8c03bedd5681a442be64e08ed3e",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "yandex_lavka",
+   "name": "Яндекс Лавка",
+   "group": "groceries",
+   "site": "https://lavka.yandex.ru/",
+   "sourceType": "yandex-favicon-service",
+   "downloadUrl": "https://favicon.yandex.net/favicon/v2/lavka.yandex.ru?size=120&stub=0",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/yandex_lavka.png",
+   "originalSha256": "5b20eaf4d2cd9e0e42cbcae2fc4af2b4a59a9c77e434c52c3722f3cb43b49fd1",
+   "originalBytes": 2540,
+   "size": [
+    120,
+    120
+   ],
+   "rasterPath": "assets/stores/raster/yandex_lavka.png",
+   "rasterSha256": "eda4366ff5ccaf26395b8adb964e546868208ef691cb7d3752e9cd0af6bc2e93",
+   "background": "#00ADFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "kuper",
+   "name": "Купер",
+   "group": "groceries",
+   "site": "https://kuper.ru/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fkuper.ru&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/kuper.png",
+   "originalSha256": "7f7a5195fbeceeaf8733471ddbe89e556404c1dd98072922b8e30c6ec37f55ff",
+   "originalBytes": 7863,
+   "size": [
+    256,
+    256
+   ],
+   "rasterPath": "assets/stores/raster/kuper.png",
+   "rasterSha256": "1647c3f2f4d1c5d45eb0e04a3c1e88bcc8d7dea8d56993157d6f24ead3187d4a",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "chizhik",
+   "name": "Чижик",
+   "group": "groceries",
+   "site": "https://chizhik.club/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fchizhik.club&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/chizhik.png",
+   "originalSha256": "f8e5df941dc986f6e5747e50bac3c9f98f0e70e9fb7a25b1b17dd42b5ec02001",
+   "originalBytes": 7893,
+   "size": [
+    180,
+    180
+   ],
+   "rasterPath": "assets/stores/raster/chizhik.png",
+   "rasterSha256": "c55a5613f57f28881b1235f0c612b4d28c4d4ec889462585352b092548f56895",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "miratorg",
+   "name": "Мираторг",
+   "group": "groceries",
+   "site": "https://miratorg.ru/",
+   "sourceType": "official-website",
+   "downloadUrl": "https://miratorg.ru/favicon-114x114.png",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/miratorg.png",
+   "originalSha256": "ebb8b0aa537e61b87d725ea5ac19493e4e446c81e715ca2c214f9fce509188b8",
+   "originalBytes": 6619,
+   "size": [
+    200,
+    200
+   ],
+   "rasterPath": "assets/stores/raster/miratorg.png",
+   "rasterSha256": "3dcdc89ff65f75b48e598bb742ca33683612befee1563ff668a025bccd515df5",
+   "background": "#BA0C2F",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "azbuka_vkusa",
+   "name": "Азбука вкуса",
+   "group": "groceries",
+   "site": "https://av.ru/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fav.ru&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/azbuka_vkusa.png",
+   "originalSha256": "84be5eb705ce653d78fb1be4d7230145b471b5bf0f807e09987a49b4c86cc7aa",
+   "originalBytes": 14252,
+   "size": [
+    180,
+    180
+   ],
+   "rasterPath": "assets/stores/raster/azbuka_vkusa.png",
+   "rasterSha256": "749eee1ae911519dc8c629a70761f22f0c6249e69fe189bb9cb28435d80ce947",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "globus",
+   "name": "Глобус",
+   "group": "groceries",
+   "site": "https://globus.ru/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fglobus.ru&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/globus.png",
+   "originalSha256": "7d668843aff76602f2f2505ea834d7bcfc8efe37a8de0dfbd58f730faae0546f",
+   "originalBytes": 3282,
+   "size": [
+    180,
+    180
+   ],
+   "rasterPath": "assets/stores/raster/globus.png",
+   "rasterSha256": "79447349133f8ba4a42a72ff0f2a43e27e02209526185cf954189b9390a7d4f4",
+   "background": "#FDB715",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "verny",
+   "name": "Верный",
+   "group": "groceries",
+   "site": "https://verno-info.ru/",
+   "sourceType": "yandex-favicon-service",
+   "downloadUrl": "https://favicon.yandex.net/favicon/v2/verno-info.ru?size=120&stub=0",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/verny.png",
+   "originalSha256": "21250f3580256eae86e3cd9691601cc09b5643dcb605e24f3eb1124718cbf32e",
+   "originalBytes": 8540,
+   "size": [
+    120,
+    120
+   ],
+   "rasterPath": null,
+   "rasterSha256": null,
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied.",
+   "rejected": "Site publishes only a 16 px favicon; the 120 px copy is a blurry upscale."
+  },
+  {
+   "id": "krasnoe_beloe",
+   "name": "Красное&Белое",
+   "group": "groceries",
+   "site": "https://krasnoeibeloe.ru/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fkrasnoeibeloe.ru&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/krasnoe_beloe.png",
+   "originalSha256": "08cccb537498c4221a0df6daef53a12988cc69123c0857159477298330cb4ff7",
+   "originalBytes": 2587,
+   "size": [
+    180,
+    180
+   ],
+   "rasterPath": "assets/stores/raster/krasnoe_beloe.png",
+   "rasterSha256": "e31affe4d03267bcf0c3a5bb38b697fcfb060708b1e634780a191406362eb8db",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "bristol",
+   "name": "Бристоль",
+   "group": "groceries",
+   "site": "https://bristol.ru/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fbristol.ru&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/bristol.png",
+   "originalSha256": "fa75df30b8372d7402ed68febebe4bfff99e8014ac3787a3314a016cbf49b8b8",
+   "originalBytes": 12678,
+   "size": [
+    180,
+    180
+   ],
+   "rasterPath": "assets/stores/raster/bristol.png",
+   "rasterSha256": "88efb61f4ac13d61154fe9ec6722ccf6984adf8d25fbbe1d98604f05bccc9892",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "monetka",
+   "name": "Монетка",
+   "group": "groceries",
+   "site": "https://monetka.ru/",
+   "sourceType": "yandex-favicon-service",
+   "downloadUrl": "https://favicon.yandex.net/favicon/v2/monetka.ru?size=120&stub=0",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/monetka.png",
+   "originalSha256": "a62675d33fa4bdf1b4b6961293d7fcdbba8af5ad3773dbdd8c8bd40de912f530",
+   "originalBytes": 8634,
+   "size": [
+    120,
+    120
+   ],
+   "rasterPath": "assets/stores/raster/monetka.png",
+   "rasterSha256": "2d0c6bbc80539d13fc2c9007396b401353867d77792cf569df351bad70254227",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "maria_ra",
+   "name": "Мария-Ра",
+   "group": "groceries",
+   "site": "https://maria-ra.ru/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fmaria-ra.ru&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/maria_ra.png",
+   "originalSha256": "50446c4c8a889566e0167e866f1f905c3ff44aeb5d98f83be205bd901e2ab26a",
+   "originalBytes": 16578,
+   "size": [
+    180,
+    180
+   ],
+   "rasterPath": "assets/stores/raster/maria_ra.png",
+   "rasterSha256": "7aac8f6e3480963d9fca4cd8301029f3358d0f87a97c5a68c3df01b81416b4ef",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "svetofor",
+   "name": "Светофор",
+   "group": "groceries",
+   "site": "https://svetoforonline.ru/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fsvetoforonline.ru&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/svetofor.png",
+   "originalSha256": "18c8782b6584143b72d80e487f672fc0b396bbb90234b42a4ac85f7e17e57031",
+   "originalBytes": 13494,
+   "size": [
+    180,
+    180
+   ],
+   "rasterPath": null,
+   "rasterSha256": null,
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied.",
+   "rejected": "Official site of the chain not confirmed; icon is a generic traffic light."
+  },
+  {
+   "id": "vkusno_i_tochka",
+   "name": "Вкусно — и точка",
+   "group": "food",
+   "site": "https://vkusnoitochka.ru/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fvkusnoitochka.ru&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/vkusno_i_tochka.png",
+   "originalSha256": "3637c696f6d4eea2d544f14ee970b45b3076b841adbeb471cf0d2cef830103ba",
+   "originalBytes": 8049,
+   "size": [
+    180,
+    180
+   ],
+   "rasterPath": "assets/stores/raster/vkusno_i_tochka.png",
+   "rasterSha256": "a96b8ca0572c192fcf08aa549d60859048b787ad25052fd51a1101215e9f99e8",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "rostics",
+   "name": "Rostic’s",
+   "group": "food",
+   "site": "https://rostics.ru/",
+   "sourceType": "yandex-favicon-service",
+   "downloadUrl": "https://favicon.yandex.net/favicon/v2/rostics.ru?size=120&stub=0",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/rostics.png",
+   "originalSha256": "2e6660b0a6d00756b725886a4c04bb4271e42945644bcbd9b77120a5b9754b1c",
+   "originalBytes": 11384,
+   "size": [
+    120,
+    120
+   ],
+   "rasterPath": "assets/stores/raster/rostics.png",
+   "rasterSha256": "7ccb9d09b15b859418ffb58880f2d81602e6197b6e7d61e5f392be4c336bbb6e",
+   "background": "#CE3A39",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "burger_king",
+   "name": "Бургер Кинг",
+   "group": "food",
+   "site": "https://burgerkingrus.ru/",
+   "sourceType": "yandex-favicon-service",
+   "downloadUrl": "https://favicon.yandex.net/favicon/v2/burgerkingrus.ru?size=120&stub=0",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/burger_king.png",
+   "originalSha256": "3863ef27e3adf72d2f071b9379269f7773d62cfec5ac1294fad53fabba7c59ea",
+   "originalBytes": 6151,
+   "size": [
+    120,
+    120
+   ],
+   "rasterPath": "assets/stores/raster/burger_king.png",
+   "rasterSha256": "521fd12a213bc4fbda76ce236ef3795f66a48f4eb53451cd62c058067fa9a8d3",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "dodo",
+   "name": "Додо Пицца",
+   "group": "food",
+   "site": "https://dodopizza.ru/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fdodopizza.ru&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/dodo.png",
+   "originalSha256": "2f76e23ada368e3a1db9001bc78d9cc9769d5e4daee17135b28d312015a1ea62",
+   "originalBytes": 43697,
+   "size": [
+    180,
+    180
+   ],
+   "rasterPath": "assets/stores/raster/dodo.png",
+   "rasterSha256": "e5f84cbaf64eeabd7349a2820b0287de6c7900a08e99662941c24bf9982bd91a",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "teremok",
+   "name": "Теремок",
+   "group": "food",
+   "site": "https://teremok.ru/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fteremok.ru&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/teremok.png",
+   "originalSha256": "2a398ca54d3fb67f73c8a28a64cb3fbfb8865420157972048e30d10ccfacbdc0",
+   "originalBytes": 8725,
+   "size": [
+    192,
+    192
+   ],
+   "rasterPath": "assets/stores/raster/teremok.png",
+   "rasterSha256": "75e27c807d8ce9e4b1f202c21759321b5127d2f664b49401d16e8590bfbe4385",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "shokoladnitsa",
+   "name": "Шоколадница",
+   "group": "food",
+   "site": "https://shoko.ru/",
+   "sourceType": "yandex-favicon-service",
+   "downloadUrl": "https://favicon.yandex.net/favicon/v2/shoko.ru?size=120&stub=0",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/shokoladnitsa.png",
+   "originalSha256": "1c72bb5692be8e512cce16765d795be1c03e0e4f0db7b2f8d7f27fcd490391ff",
+   "originalBytes": 6186,
+   "size": [
+    120,
+    120
+   ],
+   "rasterPath": "assets/stores/raster/shokoladnitsa.png",
+   "rasterSha256": "07a71badd7fbb7f501b9fadb9dc246b30f3c2e08a38a1b437284e7f24c9c2958",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "cofix",
+   "name": "Cofix",
+   "group": "food",
+   "site": "https://cofix.ru/",
+   "sourceType": "yandex-favicon-service",
+   "downloadUrl": "https://favicon.yandex.net/favicon/v2/cofix.ru?size=120&stub=0",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/cofix.png",
+   "originalSha256": "9549ee8473d5cb53258cb137c8bed4207419083cbab579b416b4ee4168b7a976",
+   "originalBytes": 2467,
+   "size": [
+    120,
+    120
+   ],
+   "rasterPath": "assets/stores/raster/cofix.png",
+   "rasterSha256": "74099cdf4af1722bf182b194b3cfc9f567320d281b386b6643993c8e76b246c9",
+   "background": "#000000",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "coffee_like",
+   "name": "Coffee Like",
+   "group": "food",
+   "site": "https://coffee-like.com/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fcoffee-like.com&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/coffee_like.png",
+   "originalSha256": "179857d1b24b88b92e3cc6cabd6e577cf7da728bea3361d8aafe7da38ee5472e",
+   "originalBytes": 4013,
+   "size": [
+    180,
+    180
+   ],
+   "rasterPath": "assets/stores/raster/coffee_like.png",
+   "rasterSha256": "ed990e7a44aa1e1b7aad7409c20328583179e8a7617416025c8566b1cda27c68",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "stars_coffee",
+   "name": "Stars Coffee",
+   "group": "food",
+   "site": "https://stars-coffee.ru/",
+   "sourceType": "yandex-favicon-service",
+   "downloadUrl": "https://favicon.yandex.net/favicon/v2/stars-coffee.ru?size=120&stub=0",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/stars_coffee.png",
+   "originalSha256": "e2e85d1b062e1a341b8bd4dba1dcbabf8a784a976b1eb757401a5799df2d169f",
+   "originalBytes": 24568,
+   "size": [
+    120,
+    120
+   ],
+   "rasterPath": null,
+   "rasterSha256": null,
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied.",
+   "rejected": "Site publishes only a 16 px favicon; the 120 px copy is a blurry upscale."
+  },
+  {
+   "id": "coffeemania",
+   "name": "Кофемания",
+   "group": "food",
+   "site": "https://coffeemania.ru/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fcoffeemania.ru&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/coffeemania.png",
+   "originalSha256": "52a4d2145b45b2761bb283e73ec18d993aae1b4c67cfa4c02ac3c6d8bcd4c036",
+   "originalBytes": 3847,
+   "size": [
+    256,
+    256
+   ],
+   "rasterPath": "assets/stores/raster/coffeemania.png",
+   "rasterSha256": "c431f81c504666fc0258ae42a5373ac5f6898d7b03641819af0a415014a84f83",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "yandex_eda",
+   "name": "Яндекс Еда",
+   "group": "food",
+   "site": "https://eda.yandex.ru/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Feda.yandex.ru&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/yandex_eda.png",
+   "originalSha256": "f2792777a5523a6935e51e7627f0b2626da5462e2b012ab026154b6305dcd5f4",
+   "originalBytes": 10603,
+   "size": [
+    96,
+    96
+   ],
+   "rasterPath": "assets/stores/raster/yandex_eda.png",
+   "rasterSha256": "a6faa6165f4d5fcf48f29ea6bf44e6c0794f02f4ae39552ca18e6b7e4e951524",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "tanuki",
+   "name": "Тануки",
+   "group": "food",
+   "site": "https://tanuki.ru/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Ftanuki.ru&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/tanuki.png",
+   "originalSha256": "6533994400f74440432446439d4426ef94c10395719396bf1d29cc67b8f2f72e",
+   "originalBytes": 3791,
+   "size": [
+    192,
+    192
+   ],
+   "rasterPath": "assets/stores/raster/tanuki.png",
+   "rasterSha256": "16a81e344d1a51bc98a5b381d7b5c3c4b5baea26e69e8951acde7a67d77184e6",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "yakitoriya",
+   "name": "Якитория",
+   "group": "food",
+   "site": "https://yakitoriya.ru/",
+   "sourceType": "yandex-favicon-service",
+   "downloadUrl": "https://favicon.yandex.net/favicon/v2/yakitoriya.ru?size=120&stub=0",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/yakitoriya.png",
+   "originalSha256": "43ada573e66a310efc555f84885fe58c65ce1bec745d3ce39ddf6b210cb90746",
+   "originalBytes": 8270,
+   "size": [
+    120,
+    120
+   ],
+   "rasterPath": "assets/stores/raster/yakitoriya.png",
+   "rasterSha256": "b88f00b049c1f786dc930d130c00b792aa28a90dd2fcc8e09cf0c43d797d05f6",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "papa_johns",
+   "name": "Папа Джонс",
+   "group": "food",
+   "site": "https://papajohns.ru/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fpapajohns.ru&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/papa_johns.png",
+   "originalSha256": "3472209dccbe810ce8fb46bb884a4ead850e1add7c6c8beef50b56738189389e",
+   "originalBytes": 4994,
+   "size": [
+    180,
+    180
+   ],
+   "rasterPath": "assets/stores/raster/papa_johns.png",
+   "rasterSha256": "95a4c3b88ccb116429a13a93d47064a3eaa4a8d18b4d77403527b38aa45b69b2",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "wildberries",
+   "name": "Wildberries",
+   "group": "shops",
+   "site": "https://wildberries.ru/",
+   "sourceType": "yandex-favicon-service",
+   "downloadUrl": "https://favicon.yandex.net/favicon/v2/wildberries.ru?size=120&stub=0",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/wildberries.png",
+   "originalSha256": "3e9e73021227d84dff20b165ef89b5c0405198c9a59ff89aa8a7755f0009e26d",
+   "originalBytes": 2430,
+   "size": [
+    120,
+    120
+   ],
+   "rasterPath": "assets/stores/raster/wildberries.png",
+   "rasterSha256": "16096aa7fb6eb3c1a6fc9cefd9398df9b84efb4ac2a858d1fdeefadd84ca6617",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "ozon",
+   "name": "Ozon",
+   "group": "shops",
+   "site": "https://ozon.ru/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fozon.ru&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/ozon.png",
+   "originalSha256": "f678e091b376f97fe0eb79acbea37b74dd06138d13b857ec14987ea20f3cfb42",
+   "originalBytes": 1795,
+   "size": [
+    152,
+    152
+   ],
+   "rasterPath": "assets/stores/raster/ozon.png",
+   "rasterSha256": "55a8f9d129e13216e1881aa9b166abeb5876570839459a2599325f59bbf1f22d",
+   "background": "#005BFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "yandex_market",
+   "name": "Яндекс Маркет",
+   "group": "shops",
+   "site": "https://market.yandex.ru/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fmarket.yandex.ru&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/yandex_market.png",
+   "originalSha256": "57e4a5dcb2c5ffa498f5a76c601ca7294196873a100f2c6fdac2997d4b95ad93",
+   "originalBytes": 3079,
+   "size": [
+    196,
+    196
+   ],
+   "rasterPath": "assets/stores/raster/yandex_market.png",
+   "rasterSha256": "3fddf41c56315eca3a45f0b2374e3505f6e4678f13f6e834e9a0cf0452bd0d04",
+   "background": "#FF5226",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "megamarket",
+   "name": "Мегамаркет",
+   "group": "shops",
+   "site": "https://megamarket.ru/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fmegamarket.ru&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/megamarket.png",
+   "originalSha256": "f64e38d11f7a361ad190744960bd63b04d7b5e12cf230012ead32d16a16cd016",
+   "originalBytes": 3358,
+   "size": [
+    196,
+    196
+   ],
+   "rasterPath": "assets/stores/raster/megamarket.png",
+   "rasterSha256": "0c233f78d6359825482146a24fffddf18b92ccef38314a9fca5088f7254b26bc",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "aliexpress",
+   "name": "AliExpress",
+   "group": "shops",
+   "site": "https://aliexpress.ru/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Faliexpress.ru&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/aliexpress.png",
+   "originalSha256": "dc3855c596fbc521f6a60642eaebf599b1992e81cffcbe071d29e6e1a5bfb018",
+   "originalBytes": 6191,
+   "size": [
+    180,
+    180
+   ],
+   "rasterPath": "assets/stores/raster/aliexpress.png",
+   "rasterSha256": "67a560f8a482ac0f0a6e65e62943040a415f704e1ca1749f8ca4cf70cc8e5940",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "avito",
+   "name": "Авито",
+   "group": "shops",
+   "site": "https://avito.ru/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Favito.ru&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/avito.png",
+   "originalSha256": "587a17cda97b7c93483e5ba534288e3051a73e017f80acc65a613c8029e8a16e",
+   "originalBytes": 1841,
+   "size": [
+    180,
+    180
+   ],
+   "rasterPath": "assets/stores/raster/avito.png",
+   "rasterSha256": "2700c30bcbf888802167e60a5fbe5c1c03142b6a1afd7a5ceebf49b40fb5521a",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "lamoda",
+   "name": "Lamoda",
+   "group": "shops",
+   "site": "https://lamoda.ru/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Flamoda.ru&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/lamoda.png",
+   "originalSha256": "56ee943595c3f90076144ff79cb10bf5f61297131c52eea9f55b0bc74acbf8fe",
+   "originalBytes": 539,
+   "size": [
+    120,
+    120
+   ],
+   "rasterPath": "assets/stores/raster/lamoda.png",
+   "rasterSha256": "e8358f16f619b5bc430095020ae01925235dbdb8db5555a16e577b9ebae131f3",
+   "background": "#000000",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "mvideo",
+   "name": "М.Видео",
+   "group": "shops",
+   "site": "https://mvideo.ru/",
+   "sourceType": "yandex-favicon-service",
+   "downloadUrl": "https://favicon.yandex.net/favicon/v2/mvideo.ru?size=120&stub=0",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/mvideo.png",
+   "originalSha256": "096584284bb853db7374dcf394b64702a80a07c89e9a56826c26ee72ca6d8e1e",
+   "originalBytes": 7048,
+   "size": [
+    120,
+    120
+   ],
+   "rasterPath": "assets/stores/raster/mvideo.png",
+   "rasterSha256": "313df7871a62094d98ddf0975c92af453be8cb5ef4ff334e1c7ec30d40ba0d4f",
+   "background": "#DE231E",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "eldorado",
+   "name": "Эльдорадо",
+   "group": "shops",
+   "site": "https://eldorado.ru/",
+   "sourceType": "yandex-favicon-service",
+   "downloadUrl": "https://favicon.yandex.net/favicon/v2/eldorado.ru?size=120&stub=0",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/eldorado.png",
+   "originalSha256": "7153e715d4bdace3d5c4f913e5804b9fcea49cace048cb086a67bc3a2cdd337c",
+   "originalBytes": 7621,
+   "size": [
+    120,
+    120
+   ],
+   "rasterPath": null,
+   "rasterSha256": null,
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied.",
+   "rejected": "Site publishes only a 48 px favicon; the 120 px copy is blurry."
+  },
+  {
+   "id": "dns",
+   "name": "DNS",
+   "group": "shops",
+   "site": "https://dns-shop.ru/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fdns-shop.ru&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/dns.png",
+   "originalSha256": "bb60216be6548d127684b3363c23b581611879e8c2ec5dfddf1f713bb56bfd64",
+   "originalBytes": 682,
+   "size": [
+    114,
+    114
+   ],
+   "rasterPath": "assets/stores/raster/dns.png",
+   "rasterSha256": "032753ebb73c3bd208c0608311adf4e0d01369adfb1cc83892ebc48f45dfb2f6",
+   "background": "#F68B1F",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "citilink",
+   "name": "Ситилинк",
+   "group": "shops",
+   "site": "https://citilink.ru/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fcitilink.ru&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/citilink.png",
+   "originalSha256": "6d1560b679ddc23ec79b05ff0f988eab922a15b32fe25f4e16cab40556c1d77d",
+   "originalBytes": 1624,
+   "size": [
+    256,
+    256
+   ],
+   "rasterPath": "assets/stores/raster/citilink.png",
+   "rasterSha256": "93a324143d9791b26dc6cc02505027f132be34213922785187c202d74169f10b",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "lemana_pro",
+   "name": "Лемана ПРО",
+   "group": "shops",
+   "site": "https://lemanapro.ru/",
+   "sourceType": "yandex-favicon-service",
+   "downloadUrl": "https://favicon.yandex.net/favicon/v2/lemanapro.ru?size=120&stub=0",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/lemana_pro.png",
+   "originalSha256": "0c78b8bf6e2b044996f45158092867e6ff7d9c10b0ec0a782bf049ed3fd49cde",
+   "originalBytes": 5955,
+   "size": [
+    120,
+    120
+   ],
+   "rasterPath": "assets/stores/raster/lemana_pro.png",
+   "rasterSha256": "01bb9381f0677725e34da2787b9f802fe3476fa2c2f01646c76d4940717b704c",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "obi",
+   "name": "OBI",
+   "group": "shops",
+   "site": "https://obi.ru/",
+   "sourceType": "yandex-favicon-service",
+   "downloadUrl": "https://favicon.yandex.net/favicon/v2/obi.ru?size=120&stub=0",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/obi.png",
+   "originalSha256": "256acc6ed27833422451ebbce83e5580f4caac23bf3cf61dcfa71638a19ed178",
+   "originalBytes": 2669,
+   "size": [
+    120,
+    120
+   ],
+   "rasterPath": null,
+   "rasterSha256": null,
+   "background": "#FF7500",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied.",
+   "rejected": "obi.ru serves the «ДОМ Лента» icon; the brand change is not verified."
+  },
+  {
+   "id": "petrovich",
+   "name": "Петрович",
+   "group": "shops",
+   "site": "https://petrovich.ru/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fpetrovich.ru&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/petrovich.png",
+   "originalSha256": "25d453b32bce7db072f7d58c8a119415b36bdce46b7ccc2f3fa71e24bbd5575b",
+   "originalBytes": 4708,
+   "size": [
+    256,
+    256
+   ],
+   "rasterPath": "assets/stores/raster/petrovich.png",
+   "rasterSha256": "5f646e17c5fb81c603ae5c053752e2fcb3ed93756a22c3cdfeb5eebd7299867f",
+   "background": "#FFCD10",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "hoff",
+   "name": "Hoff",
+   "group": "shops",
+   "site": "https://hoff.ru/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fhoff.ru&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/hoff.png",
+   "originalSha256": "0bc3592081a3f0e7d477732abc31b6616b6f0f944b7de20ba144417f0e5e3f8e",
+   "originalBytes": 670,
+   "size": [
+    180,
+    180
+   ],
+   "rasterPath": "assets/stores/raster/hoff.png",
+   "rasterSha256": "eabae197368edfd64514b43eb370fae6dfaefff592065c62575f1604c8f1168c",
+   "background": "#DA0916",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "detmir",
+   "name": "Детский мир",
+   "group": "shops",
+   "site": "https://detmir.ru/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fdetmir.ru&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/detmir.png",
+   "originalSha256": "d27fd394b0fa33be1a3c908dafe31e4440959ea0db09b055a462f5f06bd51b4b",
+   "originalBytes": 5468,
+   "size": [
+    152,
+    152
+   ],
+   "rasterPath": "assets/stores/raster/detmir.png",
+   "rasterSha256": "ffdb0252e2d859722f2fc25350712b97425bf5e9181142e2c2fd765ef41c1b28",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "sportmaster",
+   "name": "Спортмастер",
+   "group": "shops",
+   "site": "https://sportmaster.ru/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fsportmaster.ru&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/sportmaster.png",
+   "originalSha256": "b8ed140e52dca453e75b4b21739b525945970e34441ee54c3f54bc684d6ce249",
+   "originalBytes": 3078,
+   "size": [
+    180,
+    180
+   ],
+   "rasterPath": "assets/stores/raster/sportmaster.png",
+   "rasterSha256": "6c3efe8ae6a6efbd98a973b6d0027cda9792f16ff852700370231b56cf1a6d5d",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "chitai_gorod",
+   "name": "Читай-город",
+   "group": "shops",
+   "site": "https://chitai-gorod.ru/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fchitai-gorod.ru&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/chitai_gorod.png",
+   "originalSha256": "160a54eba8f829ab5bfe49edf2097ee9d5ae9c893caeae80f5172674ddd143cc",
+   "originalBytes": 7203,
+   "size": [
+    256,
+    256
+   ],
+   "rasterPath": "assets/stores/raster/chitai_gorod.png",
+   "rasterSha256": "3d05f1e1019247d47b3b8695eecdb4f6bf69769591dedc1e60e2f77c85f5882b",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "familia",
+   "name": "Familia",
+   "group": "shops",
+   "site": "https://famil.ru/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Ffamil.ru&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/familia.png",
+   "originalSha256": "4f5578c9f504404772ead220cc9276c793e9da50396c71aa088ba58ad1739e54",
+   "originalBytes": 319,
+   "size": [
+    120,
+    120
+   ],
+   "rasterPath": "assets/stores/raster/familia.png",
+   "rasterSha256": "708e39d32c934e5d45a05e2590bdf2ce15149dcb621227fdf84cfe6ef66d36e0",
+   "background": "#5F2C80",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "goldapple",
+   "name": "Золотое Яблоко",
+   "group": "beauty",
+   "site": "https://goldapple.ru/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fgoldapple.ru&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/goldapple.png",
+   "originalSha256": "ec4d969b7e6410ad6f158e55be49407bec2469db6e8c4a0798b63a5e1e957f49",
+   "originalBytes": 2464,
+   "size": [
+    180,
+    180
+   ],
+   "rasterPath": "assets/stores/raster/goldapple.png",
+   "rasterSha256": "87ee8b34f65db7867fcd24645bf756b8c77b548727c03301a73192e05dba5e90",
+   "background": "#DCFF00",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "letu",
+   "name": "Л’Этуаль",
+   "group": "beauty",
+   "site": "https://letu.ru/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fletu.ru&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/letu.png",
+   "originalSha256": "60768a3f70ae62a9d8ab35c80e787c10c47045ffeecbbb49e53836470a0ce336",
+   "originalBytes": 4003,
+   "size": [
+    256,
+    256
+   ],
+   "rasterPath": "assets/stores/raster/letu.png",
+   "rasterSha256": "939dfbdd0a852489f5f6ebed6c4977abe7159d5620002f204df0d72fdb6fed71",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "rivegauche",
+   "name": "Рив Гош",
+   "group": "beauty",
+   "site": "https://rivegauche.ru/",
+   "sourceType": "yandex-favicon-service",
+   "downloadUrl": "https://favicon.yandex.net/favicon/v2/rivegauche.ru?size=120&stub=0",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/rivegauche.png",
+   "originalSha256": "17d1a6e12e9b60d9aa56be5531a6cd621bc8378960e969a7fbd5dc7834ae9b9b",
+   "originalBytes": 12784,
+   "size": [
+    120,
+    120
+   ],
+   "rasterPath": "assets/stores/raster/rivegauche.png",
+   "rasterSha256": "e4779a1d17b1dab1a125464a22adfc357c7027c1dd80d4e2f712918996c36bb9",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "podruzhka",
+   "name": "Подружка",
+   "group": "beauty",
+   "site": "https://podrygka.ru/",
+   "sourceType": "yandex-favicon-service",
+   "downloadUrl": "https://favicon.yandex.net/favicon/v2/podrygka.ru?size=120&stub=0",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/podruzhka.png",
+   "originalSha256": "c472135a31e5535f02ee98b89a071cfb25402bc3806cf0e730d7f377337d804a",
+   "originalBytes": 9636,
+   "size": [
+    120,
+    120
+   ],
+   "rasterPath": "assets/stores/raster/podruzhka.png",
+   "rasterSha256": "1dcb146d185d21b0d2c7cc4989ce65d9615b03f691f2d38ac803721b0d55ac9f",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "ulybka_radugi",
+   "name": "Улыбка радуги",
+   "group": "beauty",
+   "site": "https://r-ulybka.ru/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fr-ulybka.ru&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/ulybka_radugi.png",
+   "originalSha256": "98fc087ce925f016ef3a1ce235ac350308e866e1e9fce8ec09322eb898ddbd32",
+   "originalBytes": 2271,
+   "size": [
+    256,
+    256
+   ],
+   "rasterPath": "assets/stores/raster/ulybka_radugi.png",
+   "rasterSha256": "0732edc96236253cf1d3c63cde2dec44143db5a5e635c607938dec4108fa7adf",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "gloria_jeans",
+   "name": "Gloria Jeans",
+   "group": "beauty",
+   "site": "https://gloria-jeans.ru/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fgloria-jeans.ru&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/gloria_jeans.png",
+   "originalSha256": "28b34f11cc9f0f89fa9518384680509ca6889e4b72264bc0cd5fe8ad8469f048",
+   "originalBytes": 1692,
+   "size": [
+    180,
+    180
+   ],
+   "rasterPath": "assets/stores/raster/gloria_jeans.png",
+   "rasterSha256": "2905fbbbf3d5a35fc62b85ae68e741921f3a77693465e77bf7852993de90e9e9",
+   "background": "#848183",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "rigla",
+   "name": "Ригла",
+   "group": "pharmacy",
+   "site": "https://rigla.ru/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Frigla.ru&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/rigla.png",
+   "originalSha256": "e0712af671fc66f598119c90558e6eaa28f4ed9902cc52a29dbfe80406e4f22f",
+   "originalBytes": 30479,
+   "size": [
+    196,
+    196
+   ],
+   "rasterPath": "assets/stores/raster/rigla.png",
+   "rasterSha256": "a7a38011819d366f3bb9dab510d955a726a5bb34c2485dfadecce3c367e014a5",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "gorzdrav",
+   "name": "Горздрав",
+   "group": "pharmacy",
+   "site": "https://gorzdrav.org/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fgorzdrav.org&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/gorzdrav.png",
+   "originalSha256": "63487e6e286013885173eb019cf1c72d542723d931f99cb1580c776438aa8d08",
+   "originalBytes": 5122,
+   "size": [
+    152,
+    152
+   ],
+   "rasterPath": "assets/stores/raster/gorzdrav.png",
+   "rasterSha256": "505fcc98c7d48df242fba23bb185d4af99b5272d36ff7f67eeff2c215c5bffa1",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "apteka_366",
+   "name": "Аптека 36,6",
+   "group": "pharmacy",
+   "site": "https://366.ru/",
+   "sourceType": "yandex-favicon-service",
+   "downloadUrl": "https://favicon.yandex.net/favicon/v2/366.ru?size=120&stub=0",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/apteka_366.png",
+   "originalSha256": "e931323db32a39c70203519f4532123644c1c4c418b722158a505fb7b464b29c",
+   "originalBytes": 7917,
+   "size": [
+    120,
+    120
+   ],
+   "rasterPath": "assets/stores/raster/apteka_366.png",
+   "rasterSha256": "9656d92ed046a8175e247ccf21901c44061479995f6691705db253b286624769",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "apteka_april",
+   "name": "Аптека Апрель",
+   "group": "pharmacy",
+   "site": "https://apteka-april.ru/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fapteka-april.ru&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/apteka_april.png",
+   "originalSha256": "14904464aec641256435937e3a650d9c1f8b5c91c93c0281b3550abb8a74c97a",
+   "originalBytes": 8551,
+   "size": [
+    256,
+    256
+   ],
+   "rasterPath": "assets/stores/raster/apteka_april.png",
+   "rasterSha256": "9f8505b5b6fdfb2e9a3496c0b06bbf8c082ab5c24677770d6f1e408a82baedbc",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "eapteka",
+   "name": "ЕАПТЕКА",
+   "group": "pharmacy",
+   "site": "https://eapteka.ru/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Feapteka.ru&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/eapteka.png",
+   "originalSha256": "8959c37b85b72c2c7cf6a28b0e29c9a2d020cc79466ec6a925297e70643df21b",
+   "originalBytes": 5999,
+   "size": [
+    192,
+    192
+   ],
+   "rasterPath": "assets/stores/raster/eapteka.png",
+   "rasterSha256": "e6692918551134522febacdb4eface667b9decf7879edc1dcc06a55501cf017b",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "zdravcity",
+   "name": "Здравсити",
+   "group": "pharmacy",
+   "site": "https://zdravcity.ru/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fzdravcity.ru&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/zdravcity.png",
+   "originalSha256": "88563398bf01d3726949e04f8be4ac5dd1ef6245abb126e3f536282e57d159ed",
+   "originalBytes": 1194,
+   "size": [
+    180,
+    180
+   ],
+   "rasterPath": "assets/stores/raster/zdravcity.png",
+   "rasterSha256": "c2a8ebdd4e39f6cc9d0b167375ff880e6c02b65fc4ee80d606848c8c165e1ae5",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "apteka_ru",
+   "name": "Аптека.ру",
+   "group": "pharmacy",
+   "site": "https://apteka.ru/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fapteka.ru&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/apteka_ru.png",
+   "originalSha256": "dd3d503fe2cbd9753d4431a5edd1b3a472952042c93ace3819a6d0d3f0b6b3dd",
+   "originalBytes": 11703,
+   "size": [
+    256,
+    256
+   ],
+   "rasterPath": "assets/stores/raster/apteka_ru.png",
+   "rasterSha256": "6497eb64942d00ad88548d363cb52487b969feafa8ae5c4069f7b8f7589126fb",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "planeta_zdorovya",
+   "name": "Планета Здоровья",
+   "group": "pharmacy",
+   "site": "https://planetazdorovo.ru/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fplanetazdorovo.ru&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/planeta_zdorovya.png",
+   "originalSha256": "463402371bc0f3c3ea27c05e601c3d79da2be75d071a84655a3fb00eac141b1c",
+   "originalBytes": 35502,
+   "size": [
+    196,
+    196
+   ],
+   "rasterPath": "assets/stores/raster/planeta_zdorovya.png",
+   "rasterSha256": "e8b1d2c928829a41888c0df862bcf530c2da8aaa62daeee81a6c0c620163a688",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "stolichki",
+   "name": "Столички",
+   "group": "pharmacy",
+   "site": "https://stolichki.ru/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fstolichki.ru&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/stolichki.png",
+   "originalSha256": "f4715747c2d06bdeaf0542cacae7f8a247dbbe81b1bf3ab738c14a3fa353a9c9",
+   "originalBytes": 18943,
+   "size": [
+    180,
+    180
+   ],
+   "rasterPath": "assets/stores/raster/stolichki.png",
+   "rasterSha256": "2c2228def40db84e703f261a4b065834c247885ca9ce33d2cbe39fcf5e79f179",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "invitro",
+   "name": "Инвитро",
+   "group": "pharmacy",
+   "site": "https://invitro.ru/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Finvitro.ru&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/invitro.png",
+   "originalSha256": "1d38c61968f45ea25d684f9121c816a405a21f992785fcb57b7c535f4e49ee2d",
+   "originalBytes": 13193,
+   "size": [
+    256,
+    256
+   ],
+   "rasterPath": "assets/stores/raster/invitro.png",
+   "rasterSha256": "1476340ba68856fad49b94a7c402d03a77b243cc120380de246a89488afe0feb",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "gemotest",
+   "name": "Гемотест",
+   "group": "pharmacy",
+   "site": "https://gemotest.ru/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fgemotest.ru&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/gemotest.png",
+   "originalSha256": "c0621780cb01a05948393b03cb2b5c4a4f50360c61ca070c32ba771c2aa6e0f6",
+   "originalBytes": 623,
+   "size": [
+    180,
+    180
+   ],
+   "rasterPath": "assets/stores/raster/gemotest.png",
+   "rasterSha256": "6d4d9ed2273b9be6e1d68d97587b99092cbf30b697088f54db374a3a1a9cda31",
+   "background": "#007934",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "sberzdorovie",
+   "name": "СберЗдоровье",
+   "group": "pharmacy",
+   "site": "https://sberhealth.ru/",
+   "sourceType": "yandex-favicon-service",
+   "downloadUrl": "https://favicon.yandex.net/favicon/v2/sberhealth.ru?size=120&stub=0",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/sberzdorovie.png",
+   "originalSha256": "f9fb92e16143a1e1676834dfd98df732c3a3c938cf2efbd7e9090d62ec5912e8",
+   "originalBytes": 17438,
+   "size": [
+    120,
+    120
+   ],
+   "rasterPath": null,
+   "rasterSha256": null,
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied.",
+   "rejected": "Site publishes only a 32 px favicon; the 120 px copy is blurry."
+  },
+  {
+   "id": "whoosh",
+   "name": "Whoosh",
+   "group": "transport",
+   "site": "https://whoosh-bike.ru/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fwhoosh-bike.ru&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/whoosh.png",
+   "originalSha256": "023110e2f848171840f97f78c2a36c79b846bc70e09c513670c91400916b0c5e",
+   "originalBytes": 2560,
+   "size": [
+    256,
+    256
+   ],
+   "rasterPath": "assets/stores/raster/whoosh.png",
+   "rasterSha256": "69567e28c2ad7ce9ea73715e7d242dfc5b9261e6fbe8e8bd45671643f372b141",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "urent",
+   "name": "Юрент",
+   "group": "transport",
+   "site": "https://urent.ru/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Furent.ru&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/urent.png",
+   "originalSha256": "a2bc5047fcd81f07f092b6979d9bb8e1527ddbad50839fab481c4dea246774d4",
+   "originalBytes": 1414,
+   "size": [
+    180,
+    180
+   ],
+   "rasterPath": "assets/stores/raster/urent.png",
+   "rasterSha256": "cacb810655f8915322cbb80a71018356b5e1770da80cf3852c8f53995f231cd3",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "yandex_go",
+   "name": "Яндекс Go",
+   "group": "transport",
+   "site": "https://go.yandex/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fgo.yandex&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/yandex_go.png",
+   "originalSha256": "e3ec7e5119f6fdfe6eace7a40515b954fedcab06dcfb823e4ed9550a8cfd5f4e",
+   "originalBytes": 1998,
+   "size": [
+    180,
+    180
+   ],
+   "rasterPath": "assets/stores/raster/yandex_go.png",
+   "rasterSha256": "0c1968c81965e7f28aa29ee2870775a04a4c39f34ec1ce285ea40d25392f45a4",
+   "background": "#FFEA00",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "citydrive",
+   "name": "Ситидрайв",
+   "group": "transport",
+   "site": "https://citydrive.ru/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fcitydrive.ru&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/citydrive.png",
+   "originalSha256": "9305d7aee9ffb9693667d07e4e5efa8aafa813f3a5eb74faeb8c87538505050a",
+   "originalBytes": 5652,
+   "size": [
+    150,
+    150
+   ],
+   "rasterPath": "assets/stores/raster/citydrive.png",
+   "rasterSha256": "00a35726d9f23d037dc700049b275e3f16edcaf6505948667c9e87c807c13997",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "delimobil",
+   "name": "Делимобиль",
+   "group": "transport",
+   "site": "https://delimobil.ru/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fdelimobil.ru&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/delimobil.png",
+   "originalSha256": "afe35b536de5ae6366da630a39adf0dfabf003d5ed120db549c0207403e85b17",
+   "originalBytes": 11928,
+   "size": [
+    256,
+    256
+   ],
+   "rasterPath": "assets/stores/raster/delimobil.png",
+   "rasterSha256": "3fd46e8b481e07ce2dfa6eda234e600638cc9d6300404998470071008e3f953a",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "belkacar",
+   "name": "BelkaCar",
+   "group": "transport",
+   "site": "https://belkacar.ru/",
+   "sourceType": "yandex-favicon-service",
+   "downloadUrl": "https://favicon.yandex.net/favicon/v2/belkacar.ru?size=120&stub=0",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/belkacar.png",
+   "originalSha256": "a4a5bc2be19c39819b90d9df3e1733a0807e5190823645176208a94113b99182",
+   "originalBytes": 2087,
+   "size": [
+    120,
+    120
+   ],
+   "rasterPath": "assets/stores/raster/belkacar.png",
+   "rasterSha256": "381618d463b0ea4518218761da438bbabb1ebaee0d0c852ba70f81e957ddfabd",
+   "background": "#141414",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "taxi_maxim",
+   "name": "Такси Максим",
+   "group": "transport",
+   "site": "https://taximaxim.ru/",
+   "sourceType": "yandex-favicon-service",
+   "downloadUrl": "https://favicon.yandex.net/favicon/v2/taximaxim.ru?size=120&stub=0",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/taxi_maxim.png",
+   "originalSha256": "454fdd1ffaa176ee1e6435ff0c17e4eda20851b76020d7849820017c279e3be4",
+   "originalBytes": 9651,
+   "size": [
+    120,
+    120
+   ],
+   "rasterPath": null,
+   "rasterSha256": null,
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied.",
+   "rejected": "No large site icon; the 120 px copy is a blurry upscale."
+  },
+  {
+   "id": "indrive",
+   "name": "inDrive",
+   "group": "transport",
+   "site": "https://indrive.com/",
+   "sourceType": "yandex-favicon-service",
+   "downloadUrl": "https://favicon.yandex.net/favicon/v2/indrive.com?size=120&stub=0",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/indrive.png",
+   "originalSha256": "4ffeebccc67172b3f3b4de598afbd9935f75faa58a169f48e71b34fde88201d4",
+   "originalBytes": 7909,
+   "size": [
+    120,
+    120
+   ],
+   "rasterPath": "assets/stores/raster/indrive.png",
+   "rasterSha256": "d5ab39d7cee6dd6c7905f0ff5d404d8ab1957027228baf63cbbd02cf5827582f",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "mosmetro",
+   "name": "Московское метро",
+   "group": "travel",
+   "site": "https://mosmetro.ru/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fmosmetro.ru&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/mosmetro.png",
+   "originalSha256": "0c7fb8d09459b1f78d7fbc2d9b71e42d3937a9d30f98100a0733001cf4ac7fb8",
+   "originalBytes": 2160,
+   "size": [
+    180,
+    180
+   ],
+   "rasterPath": "assets/stores/raster/mosmetro.png",
+   "rasterSha256": "781e68a4cf89e7750a6e9b3493538d9fb8486ad0e9b6bc34388560d739fdc256",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "rzd",
+   "name": "РЖД",
+   "group": "travel",
+   "site": "https://rzd.ru/",
+   "sourceType": "yandex-favicon-service",
+   "downloadUrl": "https://favicon.yandex.net/favicon/v2/rzd.ru?size=120&stub=0",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/rzd.png",
+   "originalSha256": "c91b45098fbebd909062dd94c753d32e900e18f4a55386f11192ead78657ea55",
+   "originalBytes": 3536,
+   "size": [
+    120,
+    120
+   ],
+   "rasterPath": "assets/stores/raster/rzd.png",
+   "rasterSha256": "3be2ee23e094339a004dddfe7e38e42820908e409b8a10735b1dce59352e5ebd",
+   "background": "#E11F26",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "aeroflot",
+   "name": "Аэрофлот",
+   "group": "travel",
+   "site": "https://aeroflot.ru/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Faeroflot.ru&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/aeroflot.png",
+   "originalSha256": "2f2cd08645a70055be4adaa2a3b9097cabf914108bb34fad94265de9bfc12658",
+   "originalBytes": 1778,
+   "size": [
+    120,
+    120
+   ],
+   "rasterPath": "assets/stores/raster/aeroflot.png",
+   "rasterSha256": "0c5de3ae19a4ac513c98da858b11b8ff8e7371f6fbef95ef0b0f3a62b99556c0",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "s7",
+   "name": "S7 Airlines",
+   "group": "travel",
+   "site": "https://s7.ru/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fs7.ru&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/s7.png",
+   "originalSha256": "a0b31cf6ba737276bbdfd22c8e0009fefd7b0795a9d85bd7d73de76c1e950cf1",
+   "originalBytes": 2193,
+   "size": [
+    180,
+    180
+   ],
+   "rasterPath": "assets/stores/raster/s7.png",
+   "rasterSha256": "d9777ad566a15bd33aab64b3e476e4b980bf3194e84ca4185da62a0b096afe27",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "pobeda",
+   "name": "Победа",
+   "group": "travel",
+   "site": "https://pobeda.aero/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fpobeda.aero&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/pobeda.png",
+   "originalSha256": "6a3e4470975104bcf7ad3564b85cb841a0f54be84fd64bbe3d39ca8f1e7c9956",
+   "originalBytes": 23848,
+   "size": [
+    180,
+    180
+   ],
+   "rasterPath": "assets/stores/raster/pobeda.png",
+   "rasterSha256": "c7deaf658529daaa46414fde696f8ab32848bf8b7eed06b94ce8a4175e4f361f",
+   "background": "#48B2E9",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "ural_airlines",
+   "name": "Уральские авиалинии",
+   "group": "travel",
+   "site": "https://uralairlines.ru/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Furalairlines.ru&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/ural_airlines.png",
+   "originalSha256": "af9b5a7320d0ef4007848b459ca02971b5e2fe0e4aef46d9ec20d9a4a60c072f",
+   "originalBytes": 18834,
+   "size": [
+    180,
+    180
+   ],
+   "rasterPath": "assets/stores/raster/ural_airlines.png",
+   "rasterSha256": "8bade029b6dee3025a5f70fd5385dd307953162c8e9afddecbd432a61090639c",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "tutu",
+   "name": "Туту",
+   "group": "travel",
+   "site": "https://tutu.ru/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Ftutu.ru&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/tutu.png",
+   "originalSha256": "0a3a43f5aa2777740b44dbebe89ca5b87731f149d7877446f238872a229e0f68",
+   "originalBytes": 2648,
+   "size": [
+    180,
+    180
+   ],
+   "rasterPath": "assets/stores/raster/tutu.png",
+   "rasterSha256": "9b68dd56612dd5c1972cd35466d2cbf7d7c31e00390efb0be8a8d2550f993f19",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "aeroexpress",
+   "name": "Аэроэкспресс",
+   "group": "travel",
+   "site": "https://aeroexpress.ru/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Faeroexpress.ru&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/aeroexpress.png",
+   "originalSha256": "c477bde87da34abfba718a59184228f44f900ebc5c17fc2a85227a520bedc1f3",
+   "originalBytes": 14053,
+   "size": [
+    192,
+    192
+   ],
+   "rasterPath": "assets/stores/raster/aeroexpress.png",
+   "rasterSha256": "09022150a5ac99ecdf313bc73237e8de2c444886df8a08a4608085a81994206d",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "yandex_travel",
+   "name": "Яндекс Путешествия",
+   "group": "travel",
+   "site": "https://travel.yandex.ru/",
+   "sourceType": "yandex-favicon-service",
+   "downloadUrl": "https://favicon.yandex.net/favicon/v2/travel.yandex.ru?size=120&stub=0",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/yandex_travel.png",
+   "originalSha256": "fd28fb6bb57cfd61e12824d3d5c6166c166ab22595a26d6b7bf06ca8705ee715",
+   "originalBytes": 9656,
+   "size": [
+    120,
+    120
+   ],
+   "rasterPath": "assets/stores/raster/yandex_travel.png",
+   "rasterSha256": "ba6fed75114358e3eac6ffe39e12611ae0feb993a74963268647e7dd2823f444",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "ostrovok",
+   "name": "Островок",
+   "group": "travel",
+   "site": "https://ostrovok.ru/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fostrovok.ru&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/ostrovok.png",
+   "originalSha256": "d7373570cc12767cce19bb7c2576668c90b8c586de064370d4ffb28de11a16d0",
+   "originalBytes": 3757,
+   "size": [
+    128,
+    128
+   ],
+   "rasterPath": "assets/stores/raster/ostrovok.png",
+   "rasterSha256": "da9f0edb04a58914b00a2b2f85cb141c7557a48a990e5baa321f3ed6d01d39cd",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "aviasales",
+   "name": "Авиасейлс",
+   "group": "travel",
+   "site": "https://aviasales.ru/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Faviasales.ru&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/aviasales.png",
+   "originalSha256": "4c9a5ff59a963683ea2652aab215945a4b67be0ae7ff3e21c04afd3f73c7b980",
+   "originalBytes": 5852,
+   "size": [
+    256,
+    256
+   ],
+   "rasterPath": "assets/stores/raster/aviasales.png",
+   "rasterSha256": "204a224eaea6ef2e11f3e58ec2bcc0ddef11d2a7de88262f3f872ecbc3bc7a2e",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "lukoil",
+   "name": "Лукойл",
+   "group": "fuel",
+   "site": "https://lukoil.ru/",
+   "sourceType": "yandex-favicon-service",
+   "downloadUrl": "https://favicon.yandex.net/favicon/v2/lukoil.ru?size=120&stub=0",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/lukoil.png",
+   "originalSha256": "9c28eb40b30a7001a55fd7609b4c591e1a5fb551f9fbed47f9f940651c4afb9f",
+   "originalBytes": 11245,
+   "size": [
+    120,
+    120
+   ],
+   "rasterPath": null,
+   "rasterSha256": null,
+   "background": "#DA2A36",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied.",
+   "rejected": "Site publishes only a 16 px favicon; the 120 px copy is a blurry upscale."
+  },
+  {
+   "id": "rosneft",
+   "name": "Роснефть",
+   "group": "fuel",
+   "site": "https://rosneft-azs.ru/",
+   "sourceType": "yandex-favicon-service",
+   "downloadUrl": "https://favicon.yandex.net/favicon/v2/rosneft-azs.ru?size=120&stub=0",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/rosneft.png",
+   "originalSha256": "8b3535db8d2d3fd1cf6d1542cdbc44ff14112ddacc0dd05b992e7dca0f457f12",
+   "originalBytes": 1209,
+   "size": [
+    120,
+    120
+   ],
+   "rasterPath": "assets/stores/raster/rosneft.png",
+   "rasterSha256": "6e83977121dd4ade3f8ba2e6742e5423ac93db0615dceaac452060afccfa09e7",
+   "background": "#FED208",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "gazpromneft",
+   "name": "Газпромнефть",
+   "group": "fuel",
+   "site": "https://gpnbonus.ru/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fgpnbonus.ru&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/gazpromneft.png",
+   "originalSha256": "551d2bee94925b1b5e577782f01ba70d7afb7ef006c373c7e6d543124f33eb0b",
+   "originalBytes": 3058,
+   "size": [
+    256,
+    256
+   ],
+   "rasterPath": "assets/stores/raster/gazpromneft.png",
+   "rasterSha256": "8b2cfb7150082bc8d091e53872fe4cba13513d5af9313fb590a8da2a2214e0a1",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "tatneft",
+   "name": "Татнефть",
+   "group": "fuel",
+   "site": "https://tatneft.ru/",
+   "sourceType": "yandex-favicon-service",
+   "downloadUrl": "https://favicon.yandex.net/favicon/v2/tatneft.ru?size=120&stub=0",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/tatneft.png",
+   "originalSha256": "eb8a70c2ab4ce74b3420d5bbba2be79027083f4e08c50b22d9f12da5199b0552",
+   "originalBytes": 10252,
+   "size": [
+    120,
+    120
+   ],
+   "rasterPath": null,
+   "rasterSha256": null,
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied.",
+   "rejected": "No large site icon reachable; the 120 px copy is a blurry upscale."
+  },
+  {
+   "id": "gosuslugi",
+   "name": "Госуслуги",
+   "group": "services",
+   "site": "https://gosuslugi.ru/",
+   "sourceType": "yandex-favicon-service",
+   "downloadUrl": "https://favicon.yandex.net/favicon/v2/gosuslugi.ru?size=120&stub=0",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/gosuslugi.png",
+   "originalSha256": "ceeca14b882f459b0afbfc3696d7895fecaab174a9281ef323836e333aff7fb1",
+   "originalBytes": 5684,
+   "size": [
+    120,
+    120
+   ],
+   "rasterPath": null,
+   "rasterSha256": null,
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied.",
+   "rejected": "No large site icon reachable; the 120 px copy is a blurry upscale."
+  },
+  {
+   "id": "pochta",
+   "name": "Почта России",
+   "group": "services",
+   "site": "https://pochta.ru/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fpochta.ru&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/pochta.png",
+   "originalSha256": "3a4588c3f7f79d656611fcb0482ff932d2c84c60a3749ed8c3a4a13e2b6203dd",
+   "originalBytes": 1577,
+   "size": [
+    180,
+    180
+   ],
+   "rasterPath": "assets/stores/raster/pochta.png",
+   "rasterSha256": "82e200806479d25797319a4b486769539abc9ddffb16fdb20a2e25587c726d94",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "cdek",
+   "name": "СДЭК",
+   "group": "services",
+   "site": "https://cdek.ru/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fcdek.ru&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/cdek.png",
+   "originalSha256": "13375c3ffcc5a18f02730329d55cefc3f30132ee9886db7f0578334dfada0374",
+   "originalBytes": 1954,
+   "size": [
+    256,
+    256
+   ],
+   "rasterPath": "assets/stores/raster/cdek.png",
+   "rasterSha256": "a22aa5503de4c9ae3a39320bd9a30132dffc08f3fc8edea38ef3d13eb9a3dc99",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "boxberry",
+   "name": "Boxberry",
+   "group": "services",
+   "site": "https://boxberry.ru/",
+   "sourceType": "yandex-favicon-service",
+   "downloadUrl": "https://favicon.yandex.net/favicon/v2/boxberry.ru?size=120&stub=0",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/boxberry.png",
+   "originalSha256": "27dc739eb117567e8b8b3ebc52e347f562bcde8fcfc0f68434ffffb4355516ca",
+   "originalBytes": 6036,
+   "size": [
+    120,
+    120
+   ],
+   "rasterPath": null,
+   "rasterSha256": null,
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied.",
+   "rejected": "boxberry.ru now redirects to Yandex Delivery; its icon is not Boxberry's."
+  },
+  {
+   "id": "cian",
+   "name": "ЦИАН",
+   "group": "services",
+   "site": "https://cian.ru/",
+   "sourceType": "yandex-favicon-service",
+   "downloadUrl": "https://favicon.yandex.net/favicon/v2/cian.ru?size=120&stub=0",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/cian.png",
+   "originalSha256": "3bda977ff9ff50418f3a2f787df37aea9693698bc89173da64f7bc8a45f7d54e",
+   "originalBytes": 2763,
+   "size": [
+    120,
+    120
+   ],
+   "rasterPath": "assets/stores/raster/cian.png",
+   "rasterSha256": "c4e985c1407432b7149215016ba6c1d6a81c4c348a3c396477e2ebf5bf885d30",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "profi",
+   "name": "Профи",
+   "group": "services",
+   "site": "https://profi.ru/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fprofi.ru&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/profi.png",
+   "originalSha256": "05ecc0b39c85856e65fd3cf9a7e3835e17d70ac4314b7968f9dddb30f556e5a7",
+   "originalBytes": 541,
+   "size": [
+    152,
+    152
+   ],
+   "rasterPath": "assets/stores/raster/profi.png",
+   "rasterSha256": "dd6391566ab1680126239365415f791900b0978e4866a00a761d5eac5c7589cd",
+   "background": "#E81634",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "world_class",
+   "name": "World Class",
+   "group": "services",
+   "site": "https://worldclass.ru/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fworldclass.ru&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/world_class.png",
+   "originalSha256": "46f9b1bc9e519b869385bb0bef162ffe17204df6f03b6510a2c750b5a4ef7e7d",
+   "originalBytes": 16990,
+   "size": [
+    192,
+    192
+   ],
+   "rasterPath": "assets/stores/raster/world_class.png",
+   "rasterSha256": "10473de621178c810265c7f767138d2138d147a46988046a21be2eca99af019e",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "ddx",
+   "name": "DDX Fitness",
+   "group": "services",
+   "site": "https://ddxfitness.ru/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fddxfitness.ru&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/ddx.png",
+   "originalSha256": "847372ee3c127435372d629610a27cc186edb42188be70ddd5970e61b66ff793",
+   "originalBytes": 14845,
+   "size": [
+    256,
+    256
+   ],
+   "rasterPath": "assets/stores/raster/ddx.png",
+   "rasterSha256": "72de37d8bf3f5adb5335f6f22d57d563a3ad0eea71c3d64b9d4441fbf9e2ea9f",
+   "background": "#FFFFFF",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  },
+  {
+   "id": "karo",
+   "name": "КАРО",
+   "group": "services",
+   "site": "https://karofilm.ru/",
+   "sourceType": "google-favicon-service",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fkarofilm.ru&size=256",
+   "fetched": "2026-11-06",
+   "originalPath": "assets/stores/karo.png",
+   "originalSha256": "936be37ec77a6279f37b8b4b2a9cef5471c0158b57f1680ed5a03118200bc087",
+   "originalBytes": 1645,
+   "size": [
+    256,
+    256
+   ],
+   "rasterPath": "assets/stores/raster/karo.png",
+   "rasterSha256": "38976a77103d8908683581abaef8f9f8b06e8c770d0b8d786629b9df62b1b40c",
+   "background": "#1C1D24",
+   "rights": "Site icon published by the brand's official website, as served by a public favicon mirror. Copyright and trademark belong to the brand owner; used only to identify the payee; no endorsement implied."
+  }
+ ],
+ "missing": [
+  "yandex_drive"
+ ]
+}

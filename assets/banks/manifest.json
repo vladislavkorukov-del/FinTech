@@ -208,6 +208,614 @@
    "assetPath": "assets/banks/bank_3538.svg",
    "bytes": 471,
    "sha256": "e175cabd0c555785df84b311a5a45d9478d42eeefb0711d8ba8f76cb8db908a6"
+  },
+  {
+   "regNumber": "1481",
+   "id": "bank_1481",
+   "brand": "Сбербанк",
+   "background": "#FFFFFF",
+   "inset": 0.1,
+   "selection": "Site icon of https://sberbank.ru/ as served by the Google favicon service; reviewed as the current mark.",
+   "sourceType": "google-favicon-service",
+   "source": "https://sberbank.ru/",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fsberbank.ru&size=256",
+   "mime": "image/jpeg",
+   "license": {
+    "LicenseShortName": "Proprietary (bank website icon via favicon mirror)"
+   },
+   "rights": "Site icon published by the bank's official website, as served by a public favicon mirror; copyright and trademark belong to the bank. Used only to identify the bank; no endorsement implied.",
+   "assetPath": "assets/banks/bank_1481.jpg",
+   "bytes": 4446,
+   "sha256": "dad980542683010a0d0faa83bc936ca1bbdbb475d67949c556033e79522fdd17"
+  },
+  {
+   "regNumber": "1000",
+   "id": "bank_1000",
+   "brand": "ВТБ",
+   "background": "#FFFFFF",
+   "inset": 0.1,
+   "selection": "Site icon of https://vtb.ru/ as served by the Google favicon service; reviewed as the current mark.",
+   "sourceType": "google-favicon-service",
+   "source": "https://vtb.ru/",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fvtb.ru&size=256",
+   "mime": "image/png",
+   "license": {
+    "LicenseShortName": "Proprietary (bank website icon via favicon mirror)"
+   },
+   "rights": "Site icon published by the bank's official website, as served by a public favicon mirror; copyright and trademark belong to the bank. Used only to identify the bank; no endorsement implied.",
+   "assetPath": "assets/banks/bank_1000.png",
+   "bytes": 822,
+   "sha256": "950c934651a0ccb94020b1bcbb3e6629d79170e07a1a392bf8ba9beec270ff35"
+  },
+  {
+   "regNumber": "1326",
+   "id": "bank_1326",
+   "brand": "Альфа-Банк",
+   "background": "#FFFFFF",
+   "inset": 0.1,
+   "selection": "Site icon of https://alfabank.ru/ as served by the Google favicon service; reviewed as the current mark.",
+   "sourceType": "google-favicon-service",
+   "source": "https://alfabank.ru/",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Falfabank.ru&size=256",
+   "mime": "image/png",
+   "license": {
+    "LicenseShortName": "Proprietary (bank website icon via favicon mirror)"
+   },
+   "rights": "Site icon published by the bank's official website, as served by a public favicon mirror; copyright and trademark belong to the bank. Used only to identify the bank; no endorsement implied.",
+   "assetPath": "assets/banks/bank_1326.png",
+   "bytes": 809,
+   "sha256": "57d914ddee89f30c0587a7a66611f83d33861defcc149427e7c61ce87717358a"
+  },
+  {
+   "regNumber": "2673",
+   "id": "bank_2673",
+   "brand": "Т-Банк",
+   "background": "#FFFFFF",
+   "inset": 0.1,
+   "selection": "Site icon of https://tbank.ru/ as served by the Google favicon service; reviewed as the current mark.",
+   "sourceType": "google-favicon-service",
+   "source": "https://tbank.ru/",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Ftbank.ru&size=256",
+   "mime": "image/jpeg",
+   "license": {
+    "LicenseShortName": "Proprietary (bank website icon via favicon mirror)"
+   },
+   "rights": "Site icon published by the bank's official website, as served by a public favicon mirror; copyright and trademark belong to the bank. Used only to identify the bank; no endorsement implied.",
+   "assetPath": "assets/banks/bank_2673.jpg",
+   "bytes": 2265,
+   "sha256": "f9a33200e9e5fd804635ff99b649cb91e0dda142c54df765cd0dec5d0d04f1dc"
+  },
+  {
+   "regNumber": "3349",
+   "id": "bank_3349",
+   "brand": "Россельхозбанк",
+   "background": "#FFFFFF",
+   "inset": 0.1,
+   "selection": "Site icon of https://rshb.ru/ as served by the Google favicon service; reviewed as the current mark.",
+   "sourceType": "google-favicon-service",
+   "source": "https://rshb.ru/",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Frshb.ru&size=256",
+   "mime": "image/png",
+   "license": {
+    "LicenseShortName": "Proprietary (bank website icon via favicon mirror)"
+   },
+   "rights": "Site icon published by the bank's official website, as served by a public favicon mirror; copyright and trademark belong to the bank. Used only to identify the bank; no endorsement implied.",
+   "assetPath": "assets/banks/bank_3349.png",
+   "bytes": 448,
+   "sha256": "ee7739c68ef9b0d361e4915207fa26a7dedfb01bc2374e1aa2dc2421da9fbb33"
+  },
+  {
+   "regNumber": "963",
+   "id": "bank_963",
+   "brand": "Совкомбанк",
+   "background": "#FFFFFF",
+   "inset": 0.1,
+   "selection": "Site icon of https://sovcombank.ru/ as served by the Google favicon service; reviewed as the current mark.",
+   "sourceType": "google-favicon-service",
+   "source": "https://sovcombank.ru/",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fsovcombank.ru&size=256",
+   "mime": "image/png",
+   "license": {
+    "LicenseShortName": "Proprietary (bank website icon via favicon mirror)"
+   },
+   "rights": "Site icon published by the bank's official website, as served by a public favicon mirror; copyright and trademark belong to the bank. Used only to identify the bank; no endorsement implied.",
+   "assetPath": "assets/banks/bank_963.png",
+   "bytes": 8000,
+   "sha256": "e96dac369d4992d0ccb59208808253612248e56f30fe234072df80cfd31bb890"
+  },
+  {
+   "regNumber": "3251",
+   "id": "bank_3251",
+   "brand": "ПСБ",
+   "background": "#FFFFFF",
+   "inset": 0.1,
+   "selection": "Site icon of https://psbank.ru/ as served by the Google favicon service; reviewed as the current mark.",
+   "sourceType": "google-favicon-service",
+   "source": "https://psbank.ru/",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fpsbank.ru&size=256",
+   "mime": "image/png",
+   "license": {
+    "LicenseShortName": "Proprietary (bank website icon via favicon mirror)"
+   },
+   "rights": "Site icon published by the bank's official website, as served by a public favicon mirror; copyright and trademark belong to the bank. Used only to identify the bank; no endorsement implied.",
+   "assetPath": "assets/banks/bank_3251.png",
+   "bytes": 1287,
+   "sha256": "56c21ab514862f951594222fc55343960abc80561b212277278b685faf571f89"
+  },
+  {
+   "regNumber": "1978",
+   "id": "bank_1978",
+   "brand": "МКБ",
+   "background": "#FFFFFF",
+   "inset": 0.1,
+   "selection": "Site icon of https://mkb.ru/ as served by the Google favicon service; reviewed as the current mark.",
+   "sourceType": "google-favicon-service",
+   "source": "https://mkb.ru/",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fmkb.ru&size=256",
+   "mime": "image/png",
+   "license": {
+    "LicenseShortName": "Proprietary (bank website icon via favicon mirror)"
+   },
+   "rights": "Site icon published by the bank's official website, as served by a public favicon mirror; copyright and trademark belong to the bank. Used only to identify the bank; no endorsement implied.",
+   "assetPath": "assets/banks/bank_1978.png",
+   "bytes": 15678,
+   "sha256": "f6612c2e8ecc3fb8ed11d80a9b76d05dfe22f097f3042a1ce81f0d622a9e9333"
+  },
+  {
+   "regNumber": "2312",
+   "id": "bank_2312",
+   "brand": "Банк ДОМ.РФ",
+   "background": "#FFFFFF",
+   "inset": 0.1,
+   "selection": "Site icon of https://domrfbank.ru/ as served by the Yandex favicon service; reviewed as the current mark.",
+   "sourceType": "yandex-favicon-service",
+   "source": "https://domrfbank.ru/",
+   "downloadUrl": "https://favicon.yandex.net/favicon/v2/domrfbank.ru?size=120&stub=0",
+   "mime": "image/png",
+   "license": {
+    "LicenseShortName": "Proprietary (bank website icon via favicon mirror)"
+   },
+   "rights": "Site icon published by the bank's official website, as served by a public favicon mirror; copyright and trademark belong to the bank. Used only to identify the bank; no endorsement implied.",
+   "assetPath": "assets/banks/bank_2312.png",
+   "bytes": 8664,
+   "sha256": "8b915b344d5c857b99b7398684041e7f04dd61576c1a7fdc74fdca0c393494cb"
+  },
+  {
+   "regNumber": "2766",
+   "id": "bank_2766",
+   "brand": "ОТП Банк",
+   "background": "#FFFFFF",
+   "inset": 0.1,
+   "selection": "Site icon of https://otpbank.ru/ as served by the Google favicon service; reviewed as the current mark.",
+   "sourceType": "google-favicon-service",
+   "source": "https://otpbank.ru/",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fotpbank.ru&size=256",
+   "mime": "image/png",
+   "license": {
+    "LicenseShortName": "Proprietary (bank website icon via favicon mirror)"
+   },
+   "rights": "Site icon published by the bank's official website, as served by a public favicon mirror; copyright and trademark belong to the bank. Used only to identify the bank; no endorsement implied.",
+   "assetPath": "assets/banks/bank_2766.png",
+   "bytes": 9496,
+   "sha256": "c384013e0fc0cb4849dd9c0b02e758639363d5ab8cc765d6293276f4295df505"
+  },
+  {
+   "regNumber": "3545",
+   "id": "bank_3545",
+   "brand": "Точка",
+   "background": "#FFFFFF",
+   "inset": 0.1,
+   "selection": "Site icon of https://tochka.com/ as served by the Yandex favicon service; reviewed as the current mark.",
+   "sourceType": "yandex-favicon-service",
+   "source": "https://tochka.com/",
+   "downloadUrl": "https://favicon.yandex.net/favicon/v2/tochka.com?size=120&stub=0",
+   "mime": "image/png",
+   "license": {
+    "LicenseShortName": "Proprietary (bank website icon via favicon mirror)"
+   },
+   "rights": "Site icon published by the bank's official website, as served by a public favicon mirror; copyright and trademark belong to the bank. Used only to identify the bank; no endorsement implied.",
+   "assetPath": "assets/banks/bank_3545.png",
+   "bytes": 367,
+   "sha256": "55977ed7fda6fd81ef6295848d58608623ef24e93058053be0a86b96aa330d60"
+  },
+  {
+   "regNumber": "3027",
+   "id": "bank_3027",
+   "brand": "Яндекс Банк",
+   "background": "#FFFFFF",
+   "inset": 0.1,
+   "selection": "Site icon of https://bank.yandex.ru/ as served by the Google favicon service; reviewed as the current mark.",
+   "sourceType": "google-favicon-service",
+   "source": "https://bank.yandex.ru/",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fbank.yandex.ru&size=256",
+   "mime": "image/png",
+   "license": {
+    "LicenseShortName": "Proprietary (bank website icon via favicon mirror)"
+   },
+   "rights": "Site icon published by the bank's official website, as served by a public favicon mirror; copyright and trademark belong to the bank. Used only to identify the bank; no endorsement implied.",
+   "assetPath": "assets/banks/bank_3027.png",
+   "bytes": 2446,
+   "sha256": "b53c2fe635697878aa5c22271f2c539612cd009b33023eec6e6c7bafb51243bb"
+  },
+  {
+   "regNumber": "841",
+   "id": "bank_841",
+   "brand": "WB Банк",
+   "background": "#FFFFFF",
+   "inset": 0.1,
+   "selection": "Site icon of https://wb-bank.ru/ as served by the Google favicon service; reviewed as the current mark.",
+   "sourceType": "google-favicon-service",
+   "source": "https://wb-bank.ru/",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fwb-bank.ru&size=256",
+   "mime": "image/png",
+   "license": {
+    "LicenseShortName": "Proprietary (bank website icon via favicon mirror)"
+   },
+   "rights": "Site icon published by the bank's official website, as served by a public favicon mirror; copyright and trademark belong to the bank. Used only to identify the bank; no endorsement implied.",
+   "assetPath": "assets/banks/bank_841.png",
+   "bytes": 12564,
+   "sha256": "3639bfcf45125ae39e25c6de9b329415cc685975e4ce0d6208342d7c4b426c3b"
+  },
+  {
+   "regNumber": "2306",
+   "id": "bank_2306",
+   "brand": "Абсолют Банк",
+   "background": "#FFFFFF",
+   "inset": 0.1,
+   "selection": "Site icon of https://absolutbank.ru/ as served by the Yandex favicon service; reviewed as the current mark.",
+   "sourceType": "yandex-favicon-service",
+   "source": "https://absolutbank.ru/",
+   "downloadUrl": "https://favicon.yandex.net/favicon/v2/absolutbank.ru?size=120&stub=0",
+   "mime": "image/png",
+   "license": {
+    "LicenseShortName": "Proprietary (bank website icon via favicon mirror)"
+   },
+   "rights": "Site icon published by the bank's official website, as served by a public favicon mirror; copyright and trademark belong to the bank. Used only to identify the bank; no endorsement implied.",
+   "assetPath": "assets/banks/bank_2306.png",
+   "bytes": 3577,
+   "sha256": "ef1349074ad25cbd4314950c3bf2c96e2cada50d265f1b10265efe923b40959a"
+  },
+  {
+   "regNumber": "2590",
+   "id": "bank_2590",
+   "brand": "Ак Барс Банк",
+   "background": "#FFFFFF",
+   "inset": 0.1,
+   "selection": "Site icon of https://akbars.ru/ as served by the Yandex favicon service; reviewed as the current mark.",
+   "sourceType": "yandex-favicon-service",
+   "source": "https://akbars.ru/",
+   "downloadUrl": "https://favicon.yandex.net/favicon/v2/akbars.ru?size=120&stub=0",
+   "mime": "image/png",
+   "license": {
+    "LicenseShortName": "Proprietary (bank website icon via favicon mirror)"
+   },
+   "rights": "Site icon published by the bank's official website, as served by a public favicon mirror; copyright and trademark belong to the bank. Used only to identify the bank; no endorsement implied.",
+   "assetPath": "assets/banks/bank_2590.png",
+   "bytes": 3454,
+   "sha256": "25dc4a0067f7c6d1b9f533b7a388979b4ae75ffe6dae1e4b854758d4f144cf54"
+  },
+  {
+   "regNumber": "328",
+   "id": "bank_328",
+   "brand": "Банк «Россия»",
+   "background": "#FFFFFF",
+   "inset": 0.1,
+   "selection": "Site icon of https://abr.ru/ as served by the Yandex favicon service; reviewed as the current mark.",
+   "sourceType": "yandex-favicon-service",
+   "source": "https://abr.ru/",
+   "downloadUrl": "https://favicon.yandex.net/favicon/v2/abr.ru?size=120&stub=0",
+   "mime": "image/png",
+   "license": {
+    "LicenseShortName": "Proprietary (bank website icon via favicon mirror)"
+   },
+   "rights": "Site icon published by the bank's official website, as served by a public favicon mirror; copyright and trademark belong to the bank. Used only to identify the bank; no endorsement implied.",
+   "assetPath": "assets/banks/bank_328.png",
+   "bytes": 15413,
+   "sha256": "329c23d5eb5d92a02a94e2d0575dd400ec80a19da1d08aaa1c9c13c108f1d13f"
+  },
+  {
+   "regNumber": "2268",
+   "id": "bank_2268",
+   "brand": "МТС Банк",
+   "background": "#FFFFFF",
+   "inset": 0.1,
+   "selection": "Site icon of https://mtsbank.ru/ as served by the Yandex favicon service; reviewed as the current mark.",
+   "sourceType": "yandex-favicon-service",
+   "source": "https://mtsbank.ru/",
+   "downloadUrl": "https://favicon.yandex.net/favicon/v2/mtsbank.ru?size=120&stub=0",
+   "mime": "image/png",
+   "license": {
+    "LicenseShortName": "Proprietary (bank website icon via favicon mirror)"
+   },
+   "rights": "Site icon published by the bank's official website, as served by a public favicon mirror; copyright and trademark belong to the bank. Used only to identify the bank; no endorsement implied.",
+   "assetPath": "assets/banks/bank_2268.png",
+   "bytes": 1357,
+   "sha256": "ac861809f766bec5a77009906c7838d9b7eeb87209b96a0b917591b005a202ca"
+  },
+  {
+   "regNumber": "3354",
+   "id": "bank_3354",
+   "brand": "Ренессанс Банк",
+   "background": "#FFFFFF",
+   "inset": 0.1,
+   "selection": "Site icon of https://rencredit.ru/ as served by the Yandex favicon service; reviewed as the current mark.",
+   "sourceType": "yandex-favicon-service",
+   "source": "https://rencredit.ru/",
+   "downloadUrl": "https://favicon.yandex.net/favicon/v2/rencredit.ru?size=120&stub=0",
+   "mime": "image/png",
+   "license": {
+    "LicenseShortName": "Proprietary (bank website icon via favicon mirror)"
+   },
+   "rights": "Site icon published by the bank's official website, as served by a public favicon mirror; copyright and trademark belong to the bank. Used only to identify the bank; no endorsement implied.",
+   "assetPath": "assets/banks/bank_3354.png",
+   "bytes": 4079,
+   "sha256": "0a35c991aefc120148aee2c94ea7681be795af7be525c7e349534c305a5d813f"
+  },
+  {
+   "regNumber": "1927",
+   "id": "bank_1927",
+   "brand": "Модульбанк",
+   "background": "#FFFFFF",
+   "inset": 0.1,
+   "selection": "Site icon of https://modulbank.ru/ as served by the Yandex favicon service; reviewed as the current mark.",
+   "sourceType": "yandex-favicon-service",
+   "source": "https://modulbank.ru/",
+   "downloadUrl": "https://favicon.yandex.net/favicon/v2/modulbank.ru?size=120&stub=0",
+   "mime": "image/png",
+   "license": {
+    "LicenseShortName": "Proprietary (bank website icon via favicon mirror)"
+   },
+   "rights": "Site icon published by the bank's official website, as served by a public favicon mirror; copyright and trademark belong to the bank. Used only to identify the bank; no endorsement implied.",
+   "assetPath": "assets/banks/bank_1927.png",
+   "bytes": 796,
+   "sha256": "2c34d731fab2cb44786ba8011710d82fa749a1ea3664d844d4edee7f7f6110e2"
+  },
+  {
+   "regNumber": "429",
+   "id": "bank_429",
+   "brand": "УБРиР",
+   "background": "#FFFFFF",
+   "inset": 0.1,
+   "selection": "Site icon of https://ubrr.ru/ as served by the Google favicon service; reviewed as the current mark.",
+   "sourceType": "google-favicon-service",
+   "source": "https://ubrr.ru/",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fubrr.ru&size=256",
+   "mime": "image/png",
+   "license": {
+    "LicenseShortName": "Proprietary (bank website icon via favicon mirror)"
+   },
+   "rights": "Site icon published by the bank's official website, as served by a public favicon mirror; copyright and trademark belong to the bank. Used only to identify the bank; no endorsement implied.",
+   "assetPath": "assets/banks/bank_429.png",
+   "bytes": 3475,
+   "sha256": "597571e3bceafce82f0cd49227ea72edd66929220dff530797628d52f75d7629"
+  },
+  {
+   "regNumber": "2275",
+   "id": "bank_2275",
+   "brand": "Уралсиб",
+   "background": "#FFFFFF",
+   "inset": 0.1,
+   "selection": "Site icon of https://uralsib.ru/ as served by the Google favicon service; reviewed as the current mark.",
+   "sourceType": "google-favicon-service",
+   "source": "https://uralsib.ru/",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Furalsib.ru&size=256",
+   "mime": "image/png",
+   "license": {
+    "LicenseShortName": "Proprietary (bank website icon via favicon mirror)"
+   },
+   "rights": "Site icon published by the bank's official website, as served by a public favicon mirror; copyright and trademark belong to the bank. Used only to identify the bank; no endorsement implied.",
+   "assetPath": "assets/banks/bank_2275.png",
+   "bytes": 27562,
+   "sha256": "95497a6f5fb40f8382c8066fef12b980189cf64bfb79f97dd8da16f7429e63b7"
+  },
+  {
+   "regNumber": "436",
+   "id": "bank_436",
+   "brand": "Банк «Санкт-Петербург»",
+   "background": "#FFFFFF",
+   "inset": 0.1,
+   "selection": "Site icon of https://bspb.ru/ as served by the Google favicon service; reviewed as the current mark.",
+   "sourceType": "google-favicon-service",
+   "source": "https://bspb.ru/",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fbspb.ru&size=256",
+   "mime": "image/png",
+   "license": {
+    "LicenseShortName": "Proprietary (bank website icon via favicon mirror)"
+   },
+   "rights": "Site icon published by the bank's official website, as served by a public favicon mirror; copyright and trademark belong to the bank. Used only to identify the bank; no endorsement implied.",
+   "assetPath": "assets/banks/bank_436.png",
+   "bytes": 935,
+   "sha256": "8a15b4a4ab2e864963c173225fd8994fb5824345e645dc79ad4668ef643099c7"
+  },
+  {
+   "regNumber": "2289",
+   "id": "bank_2289",
+   "brand": "Русский Стандарт",
+   "background": "#FFFFFF",
+   "inset": 0.1,
+   "selection": "Site icon of https://rsb.ru/ as served by the Google favicon service; reviewed as the current mark.",
+   "sourceType": "google-favicon-service",
+   "source": "https://rsb.ru/",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Frsb.ru&size=256",
+   "mime": "image/png",
+   "license": {
+    "LicenseShortName": "Proprietary (bank website icon via favicon mirror)"
+   },
+   "rights": "Site icon published by the bank's official website, as served by a public favicon mirror; copyright and trademark belong to the bank. Used only to identify the bank; no endorsement implied.",
+   "assetPath": "assets/banks/bank_2289.png",
+   "bytes": 36021,
+   "sha256": "d9280a9d3223dcae533650ac525bfda5b33a6cef02f416955bd695b8fb446796"
+  },
+  {
+   "regNumber": "2998",
+   "id": "bank_2998",
+   "brand": "Экспобанк",
+   "background": "#FFFFFF",
+   "inset": 0.1,
+   "selection": "Site icon of https://expobank.ru/ as served by the Yandex favicon service; reviewed as the current mark.",
+   "sourceType": "yandex-favicon-service",
+   "source": "https://expobank.ru/",
+   "downloadUrl": "https://favicon.yandex.net/favicon/v2/expobank.ru?size=120&stub=0",
+   "mime": "image/png",
+   "license": {
+    "LicenseShortName": "Proprietary (bank website icon via favicon mirror)"
+   },
+   "rights": "Site icon published by the bank's official website, as served by a public favicon mirror; copyright and trademark belong to the bank. Used only to identify the bank; no endorsement implied.",
+   "assetPath": "assets/banks/bank_2998.png",
+   "bytes": 1763,
+   "sha256": "fbfaaf5afe66974d7603b884b85936e966882e0f5b823ac7c3c38511b3e4c353"
+  },
+  {
+   "regNumber": "2707",
+   "id": "bank_2707",
+   "brand": "Локо-Банк",
+   "background": "#FFFFFF",
+   "inset": 0.1,
+   "selection": "Site icon of https://lockobank.ru/ as served by the Google favicon service; reviewed as the current mark.",
+   "sourceType": "google-favicon-service",
+   "source": "https://lockobank.ru/",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Flockobank.ru&size=256",
+   "mime": "image/png",
+   "license": {
+    "LicenseShortName": "Proprietary (bank website icon via favicon mirror)"
+   },
+   "rights": "Site icon published by the bank's official website, as served by a public favicon mirror; copyright and trademark belong to the bank. Used only to identify the bank; no endorsement implied.",
+   "assetPath": "assets/banks/bank_2707.png",
+   "bytes": 2307,
+   "sha256": "089566394aff28d707477214f906ce310ce6e6fe9d2a468b47a43b37a98f4f7c"
+  },
+  {
+   "regNumber": "101",
+   "id": "bank_101",
+   "brand": "БКС Банк",
+   "background": "#FFFFFF",
+   "inset": 0.1,
+   "selection": "Site icon of https://bcs-bank.com/ as served by the Yandex favicon service; reviewed as the current mark.",
+   "sourceType": "yandex-favicon-service",
+   "source": "https://bcs-bank.com/",
+   "downloadUrl": "https://favicon.yandex.net/favicon/v2/bcs-bank.com?size=120&stub=0",
+   "mime": "image/png",
+   "license": {
+    "LicenseShortName": "Proprietary (bank website icon via favicon mirror)"
+   },
+   "rights": "Site icon published by the bank's official website, as served by a public favicon mirror; copyright and trademark belong to the bank. Used only to identify the bank; no endorsement implied.",
+   "assetPath": "assets/banks/bank_101.png",
+   "bytes": 13318,
+   "sha256": "6700a700c8c8460174ada46916f129eee8e530c1d98ec9b9964d34210d6d29a8"
+  },
+  {
+   "regNumber": "2546",
+   "id": "bank_2546",
+   "brand": "Новикомбанк",
+   "background": "#FFFFFF",
+   "inset": 0.1,
+   "selection": "Site icon of https://novikom.ru/ as served by the Yandex favicon service; reviewed as the current mark.",
+   "sourceType": "yandex-favicon-service",
+   "source": "https://novikom.ru/",
+   "downloadUrl": "https://favicon.yandex.net/favicon/v2/novikom.ru?size=120&stub=0",
+   "mime": "image/png",
+   "license": {
+    "LicenseShortName": "Proprietary (bank website icon via favicon mirror)"
+   },
+   "rights": "Site icon published by the bank's official website, as served by a public favicon mirror; copyright and trademark belong to the bank. Used only to identify the bank; no endorsement implied.",
+   "assetPath": "assets/banks/bank_2546.png",
+   "bytes": 6020,
+   "sha256": "cf714a0d2dfae89c9e4be5c104ab32a9f42bdf2100d88700cf4a6fc3e1634a7a"
+  },
+  {
+   "regNumber": "705",
+   "id": "bank_705",
+   "brand": "Банк Синара",
+   "background": "#FFFFFF",
+   "inset": 0.1,
+   "selection": "Site icon of https://sinara.ru/ as served by the Google favicon service; reviewed as the current mark.",
+   "sourceType": "google-favicon-service",
+   "source": "https://sinara.ru/",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fsinara.ru&size=256",
+   "mime": "image/png",
+   "license": {
+    "LicenseShortName": "Proprietary (bank website icon via favicon mirror)"
+   },
+   "rights": "Site icon published by the bank's official website, as served by a public favicon mirror; copyright and trademark belong to the bank. Used only to identify the bank; no endorsement implied.",
+   "assetPath": "assets/banks/bank_705.png",
+   "bytes": 10449,
+   "sha256": "41e51a33665c362fb66d96fabbe820821c11812a32585a2d5ef73a9716704859"
+  },
+  {
+   "regNumber": "2440",
+   "id": "bank_2440",
+   "brand": "Металлинвестбанк",
+   "background": "#FFFFFF",
+   "inset": 0.1,
+   "selection": "Site icon of https://metallinvestbank.ru/ as served by the Google favicon service; reviewed as the current mark.",
+   "sourceType": "google-favicon-service",
+   "source": "https://metallinvestbank.ru/",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fmetallinvestbank.ru&size=256",
+   "mime": "image/png",
+   "license": {
+    "LicenseShortName": "Proprietary (bank website icon via favicon mirror)"
+   },
+   "rights": "Site icon published by the bank's official website, as served by a public favicon mirror; copyright and trademark belong to the bank. Used only to identify the bank; no endorsement implied.",
+   "assetPath": "assets/banks/bank_2440.png",
+   "bytes": 1855,
+   "sha256": "ac2ea8d0ef74f922f1cb89f418455ebe3eb9debc4649d0f728b32336799b25d3"
+  },
+  {
+   "regNumber": "3279",
+   "id": "bank_3279",
+   "brand": "Банк Траст",
+   "background": "#FFFFFF",
+   "inset": 0.1,
+   "selection": "Site icon of https://trust.ru/ as served by the Yandex favicon service; reviewed as the current mark.",
+   "sourceType": "yandex-favicon-service",
+   "source": "https://trust.ru/",
+   "downloadUrl": "https://favicon.yandex.net/favicon/v2/trust.ru?size=120&stub=0",
+   "mime": "image/png",
+   "license": {
+    "LicenseShortName": "Proprietary (bank website icon via favicon mirror)"
+   },
+   "rights": "Site icon published by the bank's official website, as served by a public favicon mirror; copyright and trademark belong to the bank. Used only to identify the bank; no endorsement implied.",
+   "assetPath": "assets/banks/bank_3279.png",
+   "bytes": 2621,
+   "sha256": "8af57e7bb247190a98c4a9c6775ce601c73efd4bef9094e0a7318a1c04269c02"
+  },
+  {
+   "regNumber": "2368",
+   "id": "bank_2368",
+   "brand": "Бланк банк",
+   "background": "#FFFFFF",
+   "inset": 0.1,
+   "selection": "Site icon of https://blanc.ru/ as served by the Google favicon service; reviewed as the current mark.",
+   "sourceType": "google-favicon-service",
+   "source": "https://blanc.ru/",
+   "downloadUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https%3A%2F%2Fblanc.ru&size=256",
+   "mime": "image/png",
+   "license": {
+    "LicenseShortName": "Proprietary (bank website icon via favicon mirror)"
+   },
+   "rights": "Site icon published by the bank's official website, as served by a public favicon mirror; copyright and trademark belong to the bank. Used only to identify the bank; no endorsement implied.",
+   "assetPath": "assets/banks/bank_2368.png",
+   "bytes": 3131,
+   "sha256": "448a387ea751aa943c16ebdd8059fab3e4b406406e847bab4c320e6a1a8afa2a"
+  },
+  {
+   "regNumber": "2210",
+   "id": "bank_2210",
+   "brand": "ТКБ Банк",
+   "background": "#FFFFFF",
+   "inset": 0.1,
+   "selection": "Site icon of https://tkbbank.ru/ as served by the Yandex favicon service; reviewed as the current mark.",
+   "sourceType": "yandex-favicon-service",
+   "source": "https://tkbbank.ru/",
+   "downloadUrl": "https://favicon.yandex.net/favicon/v2/tkbbank.ru?size=120&stub=0",
+   "mime": "image/png",
+   "license": {
+    "LicenseShortName": "Proprietary (bank website icon via favicon mirror)"
+   },
+   "rights": "Site icon published by the bank's official website, as served by a public favicon mirror; copyright and trademark belong to the bank. Used only to identify the bank; no endorsement implied.",
+   "assetPath": "assets/banks/bank_2210.png",
+   "bytes": 3265,
+   "sha256": "85649f3e1bff72216b568f6cf779d4d3498fe130f4e6c23892a24ec28541d7d5"
   }
  ]
 }

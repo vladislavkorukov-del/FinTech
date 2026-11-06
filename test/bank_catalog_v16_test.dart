@@ -111,7 +111,12 @@ void main() {
       expect(record['downloadUrl'], startsWith('https://'));
       expect(
         record['sourceType'],
-        isIn(['official-website', 'wikimedia-commons']),
+        isIn([
+          'official-website',
+          'wikimedia-commons',
+          'google-favicon-service',
+          'yandex-favicon-service',
+        ]),
       );
       expect(record['sha256'], matches(RegExp(r'^[0-9a-f]{64}$')));
       expect((record['license'] as Map)['LicenseShortName'], isNotEmpty);

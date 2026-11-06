@@ -1,5 +1,6 @@
 // Offline subscription metadata. Original artwork provenance: docs/SERVICE_ASSETS.md.
 import 'bank_catalog.dart';
+import 'store_catalog.dart';
 
 class SubscriptionService {
   const SubscriptionService({
@@ -44,6 +45,7 @@ abstract final class ServiceCatalog {
     'security': 'Безопасность',
     'games': 'Игры',
     'other': 'Другие',
+    ...StoreCatalog.groups,
     'banks': 'Банки и кредитные организации',
   };
 
@@ -55,6 +57,7 @@ abstract final class ServiceCatalog {
   );
   static final List<SubscriptionService> all = List.unmodifiable([
     ...entries,
+    ...StoreCatalog.entries,
     ...banks,
   ]);
   static final Map<String, SubscriptionService> _byId = {
@@ -2166,7 +2169,37 @@ abstract final class ServiceCatalog {
               ),
         )
         .toList();
-    return found.length == 1 ? found.single : null;
+    if (found.length == 1) return found.single;
+    return found.isEmpty ? store(name) : null;
+  }
+
+  /// The store or everyday service a payee belongs to. Bank statements add
+  /// a branch, city or number after the brand («MAGNIT MM KOSTROMA»,
+  /// «Пятёрочка 1234», «OZON.RU»), so the payee may also start with the
+  /// brand name followed by more words. The longest matching name wins; a
+  /// tie between two brands returns null instead of guessing.
+  static SubscriptionService? store(String? payee) {
+    if (payee == null) return null;
+    final key = _loose(payee);
+    if (key.isEmpty) return null;
+    SubscriptionService? best;
+    var length = 0;
+    var tie = false;
+    for (final store in StoreCatalog.entries) {
+      for (final name in [store.name, ...store.aliases]) {
+        final brand = _loose(name);
+        if (brand.isEmpty) continue;
+        if (key != brand && !key.startsWith('$brand ')) continue;
+        if (brand.length > length) {
+          best = store;
+          length = brand.length;
+          tie = false;
+        } else if (brand.length == length && !identical(best, store)) {
+          tie = true;
+        }
+      }
+    }
+    return tie ? null : best;
   }
 
   static String _normalize(String value) => value
@@ -2178,7 +2211,7 @@ abstract final class ServiceCatalog {
   /// Punctuation-insensitive form, so «Т-Банк», "Т Банк" and «ДОМ.РФ»
   /// match however a person types them.
   static String _loose(String value) =>
-      _normalize(value.replaceAll(RegExp(r'[«»"“”„()\-–—.,/]'), ' '));
+      _normalize(value.replaceAll(RegExp(r'''[«»"“”„()\-–—.,/*’'&_]'''), ' '));
 
   static List<SubscriptionService> search(String query, {String? group}) {
     final terms = _normalize(
