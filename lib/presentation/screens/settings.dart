@@ -8,6 +8,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../services/security_service.dart';
+import '../../services/user_files.dart';
 import '../controller.dart';
 import '../theme/app_theme.dart';
 import '../widgets/common.dart';
@@ -247,6 +248,79 @@ class _SettingsScreenState extends State<SettingsScreen> {
             child: ListView(
               padding: const EdgeInsets.all(20),
               children: [
+                // 1.18: reset is easy to find, hard to do by accident.
+                SurfaceCard(
+                  key: const ValueKey('reset-card'),
+                  padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.restart_alt_rounded,
+                            color: Theme.of(context).colorScheme.error,
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              'Сброс данных',
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        'Удалит операции, счета, цели, бюджеты, платежи и фото чеков. '
+                        'Тема и валюта останутся, категории вернутся к стандартным.',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedButton(
+                              key: const ValueKey('reset-backup-first'),
+                              style: OutlinedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                ),
+                              ),
+                              onPressed: () => _run(() => _export('json')),
+                              child: const FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text('Сохранить копию', maxLines: 1),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: FilledButton(
+                              key: const ValueKey('reset-all'),
+                              style: FilledButton.styleFrom(
+                                backgroundColor: Theme.of(
+                                  context,
+                                ).colorScheme.error,
+                                foregroundColor: Theme.of(
+                                  context,
+                                ).colorScheme.onError,
+                              ),
+                              onPressed: () => _run(_resetAll),
+                              child: const FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text('Сбросить всё', maxLines: 1),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
                 const SectionTitle('Внешний вид'),
                 SurfaceCard(
                   child: Column(
@@ -544,7 +618,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 const Padding(
                   padding: EdgeInsets.symmetric(vertical: 16),
                   child: Text(
-                    'Finance · 1.17.0',
+                    'Finance · 1.18.0',
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 12),
                   ),
@@ -553,7 +627,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   onPressed: () => showLicensePage(
                     context: context,
                     applicationName: 'Finance',
-                    applicationVersion: '1.17.0',
+                    applicationVersion: '1.18.0',
                   ),
                   icon: const Icon(Icons.article_outlined, size: 18),
                   label: const Text('Лицензии'),
@@ -607,6 +681,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ],
       ),
     );
+  }
+
+  /// Asks the person to type «СБРОС», then erases all data and files.
+  Future<void> _resetAll() async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (_) => const _ResetDialog(),
+    );
+    if (ok != true || !mounted) return;
+    final c = FinanceScope.of(context);
+    await c.resetAll();
+    await UserFiles.wipe();
+    if (mounted) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Все данные сброшены.')));
+    }
   }
 
   Widget _backupAction(
@@ -891,6 +982,67 @@ class _StyleGalleryState extends State<_StyleGallery> {
           );
         },
       ),
+    );
+  }
+}
+
+/// Confirmation for a full reset: the button works only after «СБРОС» is
+/// typed, so it cannot happen by a stray tap.
+class _ResetDialog extends StatefulWidget {
+  const _ResetDialog();
+  @override
+  State<_ResetDialog> createState() => _ResetDialogState();
+}
+
+class _ResetDialogState extends State<_ResetDialog> {
+  final _word = TextEditingController();
+  @override
+  void dispose() {
+    _word.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final ready = _word.text.trim().toUpperCase() == 'СБРОС';
+    return AlertDialog(
+      title: const Text('Сбросить все данные?'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Операции, счета, цели, бюджеты, регулярные платежи и фото чеков '
+            'будут удалены без возможности восстановления, если нет копии. '
+            'Чтобы подтвердить, введите СБРОС.',
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            key: const ValueKey('reset-word'),
+            controller: _word,
+            autofocus: true,
+            textCapitalization: TextCapitalization.characters,
+            decoration: const InputDecoration(hintText: 'СБРОС'),
+            onChanged: (_) => setState(() {}),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context, false),
+          child: const Text('Отмена'),
+        ),
+        FilledButton(
+          key: const ValueKey('reset-confirm'),
+          style: FilledButton.styleFrom(
+            backgroundColor: scheme.error,
+            foregroundColor: scheme.onError,
+          ),
+          onPressed: ready ? () => Navigator.pop(context, true) : null,
+          child: const Text('Сбросить'),
+        ),
+      ],
     );
   }
 }

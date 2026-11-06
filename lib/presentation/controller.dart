@@ -226,6 +226,9 @@ class FinanceController extends ChangeNotifier {
   }
 
   Future<void> clearDemo() => _replace(repository.clearDemo);
+
+  /// Erases all the person's data (see [FinanceRepository.resetAll]).
+  Future<void> resetAll() => _replace(repository.resetAll);
   Future<void> importJson(String content) =>
       _replace(() => repository.importJson(content));
   Future<void> restore(String path) =>

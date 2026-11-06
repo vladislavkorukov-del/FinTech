@@ -171,6 +171,34 @@ class FinanceRepository {
     );
   }
 
+  /// Erases everything the person entered (1.18): operations, accounts,
+  /// goals, budgets, regular payments and family members. Categories return
+  /// to the standard set; appearance and formats (theme, style, currency,
+  /// number/date format, week and month start, lock) are kept. The demo is
+  /// not seeded again.
+  Future<void> resetAll() async {
+    final old = await load();
+    final fresh = createDemoData(_clock());
+    await save(
+      FinanceData(
+        categories: fresh.categories,
+        members: const [Member(id: 'me', name: 'Я')],
+        preferences: AppPreferences(
+          theme: old.preferences.theme,
+          accent: old.preferences.accent,
+          baseCurrency: old.preferences.baseCurrency,
+          numberFormat: old.preferences.numberFormat,
+          dateFormat: old.preferences.dateFormat,
+          weekStart: old.preferences.weekStart,
+          monthStart: old.preferences.monthStart,
+          lockMinutes: old.preferences.lockMinutes,
+          notifications: old.preferences.notifications,
+        ),
+        demo: false,
+      ),
+    );
+  }
+
   Future<String> exportJson() async {
     final data = await load();
     var totalBytes = 0;
