@@ -8,6 +8,7 @@ import '../../domain/models.dart';
 import '../controller.dart';
 import '../widgets/motion.dart';
 import 'account_import_screen.dart';
+import 'tutorial.dart';
 
 /// Welcome screens (Finance 1.21; Apple style since 1.22): on the first launch
 /// of a new install and after «Сбросить всё». Pure black or white, large
@@ -20,7 +21,7 @@ class OnboardingScreen extends StatefulWidget {
 }
 
 /// iOS system colors.
-abstract final class _Apple {
+abstract final class AppleUi {
   static Color blue(bool dark) =>
       dark ? const Color(0xFF0A84FF) : const Color(0xFF007AFF);
   static Color green(bool dark) =>
@@ -118,12 +119,29 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     }
   }
 
-  Future<void> _finish() async {
+  /// With [tour], the short app tour (1.25) comes first; it can be left
+  /// at any page.
+  Future<void> _finish({bool tour = false}) async {
+    if (_busy) return;
     final c = FinanceScope.of(context);
     HapticFeedback.mediumImpact();
     // Close the keyboard before the main screen appears (1.22.1).
     FocusManager.instance.primaryFocus?.unfocus();
     await SystemChannels.textInput.invokeMethod<void>('TextInput.hide');
+    if (tour && mounted) {
+      setState(() => _busy = true);
+      try {
+        await Navigator.push(
+          context,
+          MaterialPageRoute<bool>(
+            fullscreenDialog: true,
+            builder: (_) => const TutorialScreen(),
+          ),
+        );
+      } finally {
+        if (mounted) setState(() => _busy = false);
+      }
+    }
     await c.mutate(
       (d) => d.copyWith(preferences: d.preferences.copyWith(onboarded: true)),
     );
@@ -135,7 +153,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     final dark = Theme.of(context).brightness == Brightness.dark;
     final name = c.data.preferences.userName;
     return Scaffold(
-      backgroundColor: _Apple.back(dark),
+      backgroundColor: AppleUi.back(dark),
       body: SafeArea(
         child: Stack(
           children: [
@@ -146,7 +164,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 _Hello(onStart: () => _go(1)),
                 _Step(
                   icon: Icons.person_rounded,
-                  tile: _Apple.blue(dark),
+                  tile: AppleUi.blue(dark),
                   title: 'Как вас зовут?',
                   subtitle: 'Так Finance будет к вам обращаться.',
                   primary: 'Продолжить',
@@ -170,7 +188,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 ),
                 _Step(
                   icon: Icons.contrast_rounded,
-                  tile: _Apple.indigo(dark),
+                  tile: AppleUi.indigo(dark),
                   title: 'Светлое или тёмное?',
                   subtitle: 'Это можно поменять в настройках.',
                   primary: 'Продолжить',
@@ -184,7 +202,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 ),
                 _Step(
                   icon: Icons.swap_horiz_rounded,
-                  tile: _Apple.green(dark),
+                  tile: AppleUi.green(dark),
                   title: 'Перенести данные?',
                   subtitle:
                       'Счета из другой домашней бухгалтерии можно перенести '
@@ -194,7 +212,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       _Choice(
                         key: const ValueKey('onboarding-import'),
                         icon: Icons.photo_library_rounded,
-                        tile: _Apple.green(dark),
+                        tile: AppleUi.green(dark),
                         title: 'Перенести счета со скриншота',
                         subtitle: 'Дзен-мани, CoinKeeper, Monefy, банк',
                         onTap: _busy ? null : () => _source('import'),
@@ -202,7 +220,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       _Choice(
                         key: const ValueKey('onboarding-clean'),
                         icon: Icons.auto_awesome_rounded,
-                        tile: _Apple.blue(dark),
+                        tile: AppleUi.blue(dark),
                         title: 'Начать с чистого листа',
                         subtitle: 'Добавите счета сами',
                         onTap: _busy ? null : () => _source('clean'),
@@ -210,7 +228,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       _Choice(
                         key: const ValueKey('onboarding-example'),
                         icon: Icons.visibility_rounded,
-                        tile: _Apple.orange(dark),
+                        tile: AppleUi.orange(dark),
                         title: 'Посмотреть на примере',
                         subtitle: 'Демо-данные, потом их можно очистить',
                         onTap: _busy ? null : () => _source('example'),
@@ -218,7 +236,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     ],
                   ),
                 ),
-                _Done(name: name, visible: _page == 4, onFinish: _finish),
+                _Done(
+                  name: name,
+                  visible: _page == 4,
+                  onTour: () => _finish(tour: true),
+                  onFinish: _finish,
+                ),
               ],
             ),
             if (_page > 0 && _page < 4)
@@ -228,7 +251,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 child: TextButton.icon(
                   key: const ValueKey('onboarding-back'),
                   style: TextButton.styleFrom(
-                    foregroundColor: _Apple.blue(dark),
+                    foregroundColor: AppleUi.blue(dark),
                   ),
                   onPressed: () => _go(_page - 1),
                   icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
@@ -305,12 +328,12 @@ class _HelloState extends State<_Hello> with SingleTickerProviderStateMixin {
   Widget build(BuildContext context) {
     final dark = Theme.of(context).brightness == Brightness.dark;
     final colors = [
-      _Apple.blue(dark),
-      _Apple.purple(dark),
+      AppleUi.blue(dark),
+      AppleUi.purple(dark),
       const Color(0xFFFF375F),
-      _Apple.orange(dark),
-      _Apple.green(dark),
-      _Apple.blue(dark),
+      AppleUi.orange(dark),
+      AppleUi.green(dark),
+      AppleUi.blue(dark),
     ];
     return Padding(
       padding: const EdgeInsets.fromLTRB(32, 24, 32, 28),
@@ -371,17 +394,17 @@ class _HelloState extends State<_Hello> with SingleTickerProviderStateMixin {
             style: TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w600,
-              color: _Apple.label(dark),
+              color: AppleUi.label(dark),
             ),
           ),
           const SizedBox(height: 4),
           Text(
             'Ваши деньги — спокойно и под контролем',
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 15, color: _Apple.secondary(dark)),
+            style: TextStyle(fontSize: 15, color: AppleUi.secondary(dark)),
           ),
           const Spacer(flex: 6),
-          _AppleButton(
+          AppleButton(
             key: const ValueKey('onboarding-start'),
             label: 'Начать',
             onPressed: widget.onStart,
@@ -441,7 +464,7 @@ class _Step extends StatelessWidget {
               fontWeight: FontWeight.w700,
               letterSpacing: -.8,
               height: 1.1,
-              color: _Apple.label(dark),
+              color: AppleUi.label(dark),
             ),
           ),
           const SizedBox(height: 10),
@@ -451,20 +474,20 @@ class _Step extends StatelessWidget {
             style: TextStyle(
               fontSize: 16,
               height: 1.35,
-              color: _Apple.secondary(dark),
+              color: AppleUi.secondary(dark),
             ),
           ),
           const SizedBox(height: 32),
           Expanded(child: SingleChildScrollView(child: child)),
           if (primary != null)
-            _AppleButton(
+            AppleButton(
               key: ValueKey('onboarding-$primary'),
               label: primary!,
               onPressed: onPrimary,
             ),
           if (secondary != null)
             TextButton(
-              style: TextButton.styleFrom(foregroundColor: _Apple.blue(dark)),
+              style: TextButton.styleFrom(foregroundColor: AppleUi.blue(dark)),
               onPressed: onSecondary,
               child: Text(secondary!),
             ),
@@ -475,8 +498,8 @@ class _Step extends StatelessWidget {
 }
 
 /// The Apple blue, full-width, 14-radius button.
-class _AppleButton extends StatelessWidget {
-  const _AppleButton({super.key, required this.label, this.onPressed});
+class AppleButton extends StatelessWidget {
+  const AppleButton({super.key, required this.label, this.onPressed});
   final String label;
   final VoidCallback? onPressed;
   @override
@@ -491,10 +514,10 @@ class _AppleButton extends StatelessWidget {
       child: FilledButton(
         onPressed: onPressed,
         style: FilledButton.styleFrom(
-          backgroundColor: _Apple.blue(dark),
+          backgroundColor: AppleUi.blue(dark),
           foregroundColor: Colors.white,
-          disabledBackgroundColor: _Apple.grouped(dark),
-          disabledForegroundColor: _Apple.secondary(dark),
+          disabledBackgroundColor: AppleUi.grouped(dark),
+          disabledForegroundColor: AppleUi.secondary(dark),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14),
           ),
@@ -529,7 +552,7 @@ class _NameField extends StatelessWidget {
     final dark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       decoration: BoxDecoration(
-        color: _Apple.grouped(dark),
+        color: AppleUi.grouped(dark),
         borderRadius: BorderRadius.circular(14),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
@@ -538,15 +561,15 @@ class _NameField extends StatelessWidget {
         controller: controller,
         textAlign: TextAlign.center,
         textCapitalization: TextCapitalization.words,
-        cursorColor: _Apple.blue(dark),
+        cursorColor: AppleUi.blue(dark),
         style: TextStyle(
           fontSize: 24,
           fontWeight: FontWeight.w600,
-          color: _Apple.label(dark),
+          color: AppleUi.label(dark),
         ),
         decoration: InputDecoration(
           hintText: 'Имя',
-          hintStyle: TextStyle(color: _Apple.secondary(dark)),
+          hintStyle: TextStyle(color: AppleUi.secondary(dark)),
           border: InputBorder.none,
           enabledBorder: InputBorder.none,
           focusedBorder: InputBorder.none,
@@ -568,7 +591,7 @@ class _Appearance extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dark = Theme.of(context).brightness == Brightness.dark;
-    final blue = _Apple.blue(dark);
+    final blue = AppleUi.blue(dark);
     Widget option(String id, String label, Color back, Color ink) {
       final on = value == id;
       return Expanded(
@@ -590,7 +613,7 @@ class _Appearance extends StatelessWidget {
                   color: back,
                   borderRadius: BorderRadius.circular(22),
                   border: Border.all(
-                    color: on ? blue : _Apple.separator(dark),
+                    color: on ? blue : AppleUi.separator(dark),
                     width: on ? 3 : 1,
                   ),
                 ),
@@ -625,7 +648,7 @@ class _Appearance extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w500,
-                  color: _Apple.label(dark),
+                  color: AppleUi.label(dark),
                 ),
               ),
               const SizedBox(height: 8),
@@ -637,7 +660,7 @@ class _Appearance extends StatelessWidget {
                   shape: BoxShape.circle,
                   color: on ? blue : Colors.transparent,
                   border: Border.all(
-                    color: on ? blue : _Apple.separator(dark),
+                    color: on ? blue : AppleUi.separator(dark),
                     width: 1.5,
                   ),
                 ),
@@ -690,7 +713,7 @@ class _Group extends StatelessWidget {
     return ClipRRect(
       borderRadius: BorderRadius.circular(14),
       child: ColoredBox(
-        color: _Apple.grouped(dark),
+        color: AppleUi.grouped(dark),
         child: Column(
           children: [
             for (var i = 0; i < children.length; i++) ...[
@@ -700,7 +723,7 @@ class _Group extends StatelessWidget {
                   child: Divider(
                     height: .5,
                     thickness: .5,
-                    color: _Apple.separator(dark),
+                    color: AppleUi.separator(dark),
                   ),
                 ),
               children[i],
@@ -756,7 +779,7 @@ class _Choice extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
-                        color: _Apple.label(dark),
+                        color: AppleUi.label(dark),
                       ),
                     ),
                     const SizedBox(height: 2),
@@ -764,13 +787,13 @@ class _Choice extends StatelessWidget {
                       subtitle,
                       style: TextStyle(
                         fontSize: 13,
-                        color: _Apple.secondary(dark),
+                        color: AppleUi.secondary(dark),
                       ),
                     ),
                   ],
                 ),
               ),
-              Icon(Icons.chevron_right_rounded, color: _Apple.separator(dark)),
+              Icon(Icons.chevron_right_rounded, color: AppleUi.separator(dark)),
             ],
           ),
         ),
@@ -800,13 +823,13 @@ class _Toggle extends StatelessWidget {
           Expanded(
             child: Text(
               title,
-              style: TextStyle(fontSize: 16, color: _Apple.label(dark)),
+              style: TextStyle(fontSize: 16, color: AppleUi.label(dark)),
             ),
           ),
           Switch(
             value: on,
             activeThumbColor: Colors.white,
-            activeTrackColor: _Apple.green(dark),
+            activeTrackColor: AppleUi.green(dark),
             inactiveThumbColor: Colors.white,
             inactiveTrackColor: dark
                 ? const Color(0xFF39393D)
@@ -825,11 +848,12 @@ class _Done extends StatelessWidget {
   const _Done({
     required this.name,
     required this.visible,
+    required this.onTour,
     required this.onFinish,
   });
   final String name;
   final bool visible;
-  final VoidCallback onFinish;
+  final VoidCallback onTour, onFinish;
   @override
   Widget build(BuildContext context) {
     final dark = Theme.of(context).brightness == Brightness.dark;
@@ -846,7 +870,7 @@ class _Done extends StatelessWidget {
             curve: Curves.easeInOutCubic,
             builder: (_, t, _) => CustomPaint(
               size: const Size.square(110),
-              painter: _CheckPainter(t: t, color: _Apple.green(dark)),
+              painter: _CheckPainter(t: t, color: AppleUi.green(dark)),
             ),
           ),
           const SizedBox(height: 28),
@@ -858,27 +882,36 @@ class _Done extends StatelessWidget {
               fontSize: 32,
               fontWeight: FontWeight.w700,
               letterSpacing: -.8,
-              color: _Apple.label(dark),
+              color: AppleUi.label(dark),
             ),
           ),
           const SizedBox(height: 12),
           Text(
-            'Нажмите на круг внизу экрана и скажите, например: '
-            '«Пятёрочка 450 рублей».',
+            'Хотите короткое знакомство с приложением? Восемь карточек — '
+            'около минуты. Его можно пропустить в любой момент.',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 16,
               height: 1.35,
-              color: _Apple.secondary(dark),
+              color: AppleUi.secondary(dark),
             ),
           ),
           const Spacer(flex: 5),
-          _AppleButton(
-            key: const ValueKey('onboarding-finish'),
-            label: 'Начать пользоваться',
-            onPressed: onFinish,
+          AppleButton(
+            key: const ValueKey('onboarding-tour'),
+            label: 'Показать, что умеет Finance',
+            onPressed: onTour,
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 4),
+          TextButton(
+            key: const ValueKey('onboarding-finish'),
+            style: TextButton.styleFrom(
+              foregroundColor: AppleUi.blue(dark),
+              minimumSize: const Size(double.infinity, 44),
+            ),
+            onPressed: onFinish,
+            child: const Text('Пропустить обучение'),
+          ),
         ],
       ),
     );

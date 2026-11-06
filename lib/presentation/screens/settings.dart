@@ -14,6 +14,7 @@ import '../controller.dart';
 import '../theme/app_theme.dart';
 import '../widgets/common.dart';
 import 'account_import_screen.dart';
+import 'tutorial.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -606,6 +607,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ],
                   ),
                 ),
+                // 1.25: the app tour from the welcome screens, again.
+                const SectionTitle('Обучение'),
+                SurfaceCard(
+                  child: _backupAction(
+                    'Что умеет Finance',
+                    'Короткое знакомство: голос, скриншоты, мечты, аналитика',
+                    Icons.school_outlined,
+                    () => Navigator.push(
+                      context,
+                      MaterialPageRoute<bool>(
+                        fullscreenDialog: true,
+                        builder: (_) => const TutorialScreen(),
+                      ),
+                    ),
+                  ),
+                ),
                 // 1.22.1: accounts from another finance app by a screenshot.
                 const SectionTitle('Перенос данных'),
                 SurfaceCard(
@@ -661,7 +678,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 const Padding(
                   padding: EdgeInsets.symmetric(vertical: 16),
                   child: Text(
-                    'Finance · 1.24.0',
+                    'Finance · 1.25.0',
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 12),
                   ),
@@ -670,7 +687,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   onPressed: () => showLicensePage(
                     context: context,
                     applicationName: 'Finance',
-                    applicationVersion: '1.24.0',
+                    applicationVersion: '1.25.0',
                   ),
                   icon: const Icon(Icons.article_outlined, size: 18),
                   label: const Text('Лицензии'),
