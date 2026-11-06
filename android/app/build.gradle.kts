@@ -25,6 +25,7 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
     defaultConfig {
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         applicationId = "com.finora.fintech"
         minSdk = 24
         targetSdk = flutter.targetSdkVersion
@@ -64,6 +65,9 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.7.1")
     implementation("cz.adaptech.tesseract4android:tesseract4android:4.9.0")
     implementation("androidx.exifinterface:exifinterface:1.4.1")
+    // Developer-only on-device OCR check (not part of the release APK).
+    androidTestImplementation("androidx.test:runner:1.6.2")
+    androidTestImplementation("androidx.test.ext:junit:1.2.1")
 }
 
 flutter {

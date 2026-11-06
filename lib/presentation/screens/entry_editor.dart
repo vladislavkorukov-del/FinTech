@@ -327,7 +327,9 @@ class _EntryEditorState extends State<EntryEditor> {
         _note.text = draft.comment;
         _attachment = path;
         _scanApplied = true;
-        _scanText = result.text;
+        _scanText = result.focusRows.isEmpty
+            ? result.text
+            : '${result.text.trim()}\n\n— Поиск строки ИТОГ —\n${result.focusRows.join('\n')}';
         _scanWarnings = warnings;
       });
       adopted = true;
