@@ -142,7 +142,9 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('cancelled speech leaves an empty editor', (tester) async {
+  testWidgets('cancelled speech opens nothing; the editor still listens', (
+    tester,
+  ) async {
     heard = [];
     tester.view.physicalSize = const Size(420, 1400);
     tester.view.devicePixelRatio = 1;
@@ -154,10 +156,15 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('nav-voice')));
     await flush(tester, () => calls > 0);
     await tester.pumpAndSettle();
-    expect(find.byType(EntryEditor), findsOneWidget);
-    expect(find.byKey(const ValueKey('voice-heard')), findsNothing);
+    // 1.23: the orb listens before opening anything.
+    expect(find.byType(EntryEditor), findsNothing);
     expect(controller.data.entries, isEmpty);
-    // The editor's own button listens again.
+    // A long press adds by hand; the editor's own button listens again.
+    await tester.longPress(find.byKey(const ValueKey('nav-voice')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Поступление на счёт'));
+    await tester.pumpAndSettle();
+    expect(find.byType(EntryEditor), findsOneWidget);
     heard = ['зарплата 90 тысяч'];
     await tester.tap(find.byKey(const ValueKey('voice-entry')));
     await flush(

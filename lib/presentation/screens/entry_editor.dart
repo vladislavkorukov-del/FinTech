@@ -32,6 +32,7 @@ Future<void> showEntryEditor(
   bool startScan = false,
   String? scanImagePath,
   bool startVoice = false,
+  List<String>? voiceHeard,
 }) async {
   final c = FinanceScope.of(context);
   final editingHistory =
@@ -62,6 +63,7 @@ Future<void> showEntryEditor(
           startScan: startScan,
           scanImagePath: scanImagePath,
           startVoice: startVoice,
+          voiceHeard: voiceHeard,
         ),
       ),
     );
@@ -77,8 +79,13 @@ class EntryEditor extends StatefulWidget {
     this.startScan = false,
     this.scanImagePath,
     this.startVoice = false,
+    this.voiceHeard,
   });
   final FinanceEntry? entry;
+
+  /// Phrases already heard by the voice orb (1.23): the form is filled
+  /// from them without asking again.
+  final List<String>? voiceHeard;
 
   /// Opens the speech dialog right away (voice quick action, 1.19).
   final bool startVoice;
@@ -146,6 +153,12 @@ class _EntryEditorState extends State<EntryEditor> {
     if (widget.startVoice) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) unawaited(_voice());
+      });
+    }
+    final heard = widget.voiceHeard;
+    if (heard != null && heard.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _applyVoice(heard);
       });
     }
     if (widget.startScan || widget.scanImagePath != null) {
@@ -535,6 +548,33 @@ class _EntryEditorState extends State<EntryEditor> {
     }
   }
 
+  /// Fills the form from heard phrases; nothing is saved until «Сохранить».
+  void _applyVoice(List<String> heard, [FinanceController? controller]) {
+    final c = controller ?? FinanceScope.of(context);
+    final d = VoiceEntryParser.parseBest(
+      heard,
+      categories: c.data.categories,
+      history: c.data.entries,
+    );
+    setState(() {
+      _heard = d.heard;
+      _kind = d.kind;
+      if (d.amountMinor != null) _amount.text = decimalMinor(d.amountMinor!);
+      if (d.payee.isNotEmpty) _payee.text = d.payee;
+      _serviceId = d.serviceId;
+      _category = d.categoryId;
+      _subcategory = null;
+      if (d.date != null) _date = d.date!;
+    });
+    if (d.amountMinor == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Не расслышал сумму в «${d.heard}». Введите её.'),
+        ),
+      );
+    }
+  }
+
   /// Listens once and fills the form from the phrase; nothing is saved
   /// until the person taps «Сохранить».
   Future<void> _voice() async {
@@ -544,28 +584,7 @@ class _EntryEditorState extends State<EntryEditor> {
     try {
       final heard = await _speech.listen();
       if (!mounted || heard.isEmpty) return;
-      final d = VoiceEntryParser.parseBest(
-        heard,
-        categories: c.data.categories,
-        history: c.data.entries,
-      );
-      setState(() {
-        _heard = d.heard;
-        _kind = d.kind;
-        if (d.amountMinor != null) _amount.text = decimalMinor(d.amountMinor!);
-        if (d.payee.isNotEmpty) _payee.text = d.payee;
-        _serviceId = d.serviceId;
-        _category = d.categoryId;
-        _subcategory = null;
-        if (d.date != null) _date = d.date!;
-      });
-      if (d.amountMinor == null && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Не расслышал сумму в «${d.heard}». Введите её.'),
-          ),
-        );
-      }
+      _applyVoice(heard, c);
     } catch (e) {
       if (mounted) showError(context, e);
     } finally {

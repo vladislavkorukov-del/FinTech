@@ -16,8 +16,12 @@ class TransactionsScreen extends StatefulWidget {
     this.accountId,
     this.goalId,
     this.initialKind,
+    this.title,
   });
   final String? categoryId, accountId, goalId;
+
+  /// Heading for a list opened by voice («Расходы · июнь 2026», 1.23).
+  final String? title;
   final DateTimeRange? initialRange;
   final EntryKind? initialKind;
   @override
@@ -309,9 +313,9 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          widget.goalId == null
-              ? 'Операции'
-              : 'Мечта: ${c.goal(widget.goalId)?.name ?? 'Накопления'}',
+          widget.goalId != null
+              ? 'Мечта: ${c.goal(widget.goalId)?.name ?? 'Накопления'}'
+              : widget.title ?? 'Операции',
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
@@ -357,7 +361,10 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
               children: [
                 Expanded(
                   child: Text(
-                    '${entries.length} операций',
+                    key: const ValueKey('transactions-count'),
+                    _kind == null
+                        ? '${entries.length} операций'
+                        : '${entries.length} операций · ${money(entries.where((e) => e.currency == c.currency).fold(0, (sum, e) => sum + e.amountMinor), c.currency)}',
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
                       fontSize: 12,

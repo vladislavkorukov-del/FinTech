@@ -6,10 +6,12 @@ class VoiceInputService {
   const VoiceInputService();
   static const _channel = MethodChannel('finora/voice');
 
-  Future<List<String>> listen() async {
+  Future<List<String>> listen({
+    String prompt = 'Скажите, например: «Пятёрочка 450 рублей»',
+  }) async {
     try {
       final heard = await _channel.invokeListMethod<String>('listen', {
-        'prompt': 'Скажите, например: «Пятёрочка 450 рублей»',
+        'prompt': prompt,
       });
       return heard ?? const [];
     } on MissingPluginException {

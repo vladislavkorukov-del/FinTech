@@ -23,6 +23,9 @@ import 'presentation/widgets/common.dart';
 import 'presentation/widgets/finance_background.dart';
 import 'presentation/widgets/finance_header.dart';
 import 'presentation/widgets/voice_orb.dart';
+import 'presentation/voice_commands.dart';
+import 'domain/voice_command_parser.dart';
+import 'services/voice_input_service.dart';
 import 'domain/models.dart';
 
 Future<void> main() async {
@@ -298,6 +301,40 @@ class _HomeShellState extends State<HomeShell> {
     }
   }
 
+  /// The voice orb (1.23): a command («покажи расходы за июнь», «поменяй
+  /// тему на зелёную») is carried out; anything else is an operation and
+  /// opens the editor filled from the phrase.
+  Future<void> _voice() async {
+    final c = FinanceScope.of(context);
+    List<String> heard;
+    try {
+      heard = await const VoiceInputService().listen(
+        prompt: VoiceCommands.prompt,
+      );
+    } catch (error) {
+      if (mounted) showError(context, error);
+      return;
+    }
+    if (heard.isEmpty || !mounted) return;
+    final command = VoiceCommandParser.parse(
+      heard,
+      categories: c.data.categories,
+      accounts: c.data.accounts,
+      weekStart: c.data.preferences.weekStart,
+    );
+    if (command == null) {
+      await showEntryEditor(context, voiceHeard: heard);
+    } else {
+      await VoiceCommands.run(
+        context,
+        command,
+        onTab: (tab) {
+          if (mounted) setState(() => _tab = tab);
+        },
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -354,7 +391,7 @@ class _HomeShellState extends State<HomeShell> {
                       heightFactor: 1,
                       child: VoiceOrb(
                         size: 54,
-                        onTap: () => showEntryEditor(context, startVoice: true),
+                        onTap: _voice,
                         onLongPress: _add,
                       ),
                     ),
