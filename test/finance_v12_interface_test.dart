@@ -561,64 +561,76 @@ void main() {
       expect(find.byKey(const ValueKey('last-category')), findsNothing);
     },
   );
+  testWidgets('1.26 ring: period in the middle, branch only on tap, details', (
+    tester,
+  ) async {
+    String? detail;
+    const slices = [
+      CategorySlice(
+        id: 'a',
+        name: 'Еда',
+        icon: Icons.restaurant_outlined,
+        color: Colors.orange,
+        amount: 2500,
+      ),
+      CategorySlice(
+        id: 'b',
+        name: 'Дом',
+        icon: Icons.home_outlined,
+        color: Colors.blue,
+        amount: 7500,
+      ),
+    ];
+    await mount(
+      tester,
+      Scaffold(
+        body: CategoryOrbitChart(
+          title: 'Ноябрь',
+          slices: slices,
+          currency: 'RUB',
+          onDetails: (s) => detail = s,
+        ),
+      ),
+    );
+    expect(find.text('Ноябрь'), findsOneWidget);
+    expect(find.text(money(10000)), findsOneWidget);
+    expect(find.text('2 категории'), findsOneWidget);
+    // Icons sit on the sectors; no branches until a tap.
+    expect(find.byKey(const ValueKey('category-icon-a')), findsOneWidget);
+    expect(find.byKey(const ValueKey('category-icon-b')), findsOneWidget);
+    expect(find.byKey(const ValueKey('category-bubble')), findsNothing);
+    expect(find.text('25%'), findsNothing);
+    expect(find.byTooltip('Следующие категории'), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('category-icon-b')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('category-bubble')), findsOneWidget);
+    expect(find.text('Дом'), findsOneWidget);
+    expect(find.text(money(7500)), findsOneWidget);
+    expect(find.text('75%'), findsNWidgets(2));
+    await tester.tap(find.byKey(const ValueKey('category-details')));
+    expect(detail, 'b');
+    // Tapping the ring itself picks the sector there.
+    final painted = find
+        .descendant(
+          of: find.byType(CategoryOrbitChart),
+          matching: find.byType(CustomPaint),
+        )
+        .first;
+    final center = tester.getCenter(painted);
+    final ring = tester.getSize(painted).height / 2 - 12 - 190 * .17 / 2;
+    await tester.tapAt(center + Offset(ring * .7, -ring * .7));
+    await tester.pumpAndSettle();
+    expect(find.text('Еда'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('category-details')));
+    expect(detail, 'a');
+    // The middle lets go.
+    await tester.tapAt(center);
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('category-bubble')), findsNothing);
+    expect(find.text('Ноябрь'), findsOneWidget);
+  });
   testWidgets(
-    'ring keeps category totals, independently toggles labels and selects sector',
-    (tester) async {
-      String? detail;
-      const slices = [
-        CategorySlice(
-          id: 'a',
-          name: 'Еда',
-          icon: Icons.restaurant_outlined,
-          color: Colors.orange,
-          amount: 2500,
-        ),
-        CategorySlice(
-          id: 'b',
-          name: 'Дом',
-          icon: Icons.home_outlined,
-          color: Colors.blue,
-          amount: 7500,
-        ),
-      ];
-      await mount(
-        tester,
-        Scaffold(
-          body: CategoryOrbitChart(
-            slices: slices,
-            currency: 'RUB',
-            onDetails: (s) => detail = s,
-          ),
-        ),
-      );
-      expect(find.text('25%'), findsOneWidget);
-      expect(find.text('75%'), findsOneWidget);
-      expect(find.text(money(10000)), findsOneWidget);
-      await tester.tap(find.byKey(const ValueKey('category-value-a')));
-      await tester.pumpAndSettle();
-      expect(find.text(money(2500)), findsOneWidget);
-      expect(find.text('75%'), findsOneWidget);
-      await tester.tap(find.byKey(const ValueKey('category-value-a')));
-      await tester.pumpAndSettle();
-      expect(find.text('25%'), findsOneWidget);
-      await tester.tap(find.byKey(const ValueKey('category-icon-b')));
-      await tester.pumpAndSettle();
-      await tester.tap(find.byKey(const ValueKey('category-details')));
-      expect(detail, 'b');
-      final painted = find
-          .descendant(
-            of: find.byType(CategoryOrbitChart),
-            matching: find.byType(CustomPaint),
-          )
-          .first;
-      await tester.tapAt(tester.getCenter(painted) + const Offset(65, -65));
-      await tester.pumpAndSettle();
-      await tester.tap(find.byKey(const ValueKey('category-details')));
-      expect(detail, 'a');
-    },
-  );
-  testWidgets(
-    'many categories page around full ring with no lost totals or320pxoverflows',
+    'many categories stay on one ring with no lost totals or 320px overflows',
     (tester) async {
       final slices = List.generate(
         27,
@@ -644,19 +656,12 @@ void main() {
         scale: 1.5,
       );
       expect(find.text(money(2700)), findsOneWidget);
+      expect(find.byTooltip('Следующие категории'), findsNothing);
       expect(tester.takeException(), isNull);
-      for (var i = 0; i < 4; i++) {
-        final next = find.byTooltip('Следующие категории');
-        await tester.ensureVisible(next);
-        await tester.tap(next);
-        await tester.pumpAndSettle();
-        expect(find.text(money(2700)), findsOneWidget);
-        expect(tester.takeException(), isNull);
-      }
     },
   );
   testWidgets(
-    'ring preserves huge exact labels with accessibility text and rounds to100percent',
+    'ring keeps huge exact sums with accessibility text and rounds to 100 percent',
     (tester) async {
       final slices = List.generate(
         3,
@@ -681,14 +686,13 @@ void main() {
         size: const Size(320, 800),
         scale: 1.8,
       );
-      expect(find.text('33,4%'), findsOneWidget);
-      expect(find.text('33,3%'), findsNWidgets(2));
-      final value = find.byKey(const ValueKey('category-value-0'));
-      await tester.ensureVisible(value);
+      await tester.tap(find.byKey(const ValueKey('category-icon-0')));
       await tester.pumpAndSettle();
-      await tester.tap(value);
-      await tester.pumpAndSettle();
+      expect(find.text('33,4%'), findsNWidgets(2));
       expect(find.text(money(9007199254740991, 'USD')), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('category-icon-1')));
+      await tester.pumpAndSettle();
+      expect(find.text('33,3%'), findsNWidgets(2));
       expect(tester.takeException(), isNull);
     },
   );

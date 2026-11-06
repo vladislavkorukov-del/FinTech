@@ -1,6 +1,7 @@
 import 'account_import_parser.dart';
 import 'models.dart';
 import 'service_catalog.dart';
+import 'service_recognizer.dart';
 import 'voice_entry_parser.dart';
 
 /// A spoken command (Finance 1.23): navigation, a filtered list of
@@ -228,7 +229,11 @@ abstract final class VoiceCommandParser {
     DateTime today,
     int weekStart,
   ) {
-    final t = _norm(heard);
+    // 1.26: «Финора, покажи расходы» — the name is a greeting, not a word.
+    final t = _norm(heard).replaceFirst(
+      RegExp(r'^(?:эй |слушай |привет |ну )?(?:финора|финор|finora) ?'),
+      '',
+    );
     if (t.isEmpty) return null;
     if (!_amount(t) &&
         (_themeWord.hasMatch(t) ||
@@ -687,7 +692,10 @@ abstract final class VoiceCommandParser {
     );
     final restWords = rest.split(' ').where((w) => w.isNotEmpty).toList();
     // A known service among the words («яндекс плюс», «netflix»).
-    SubscriptionService? service;
+    SubscriptionService? service = ServiceRecognizer.find(rest);
+    if (service != null && ServiceCatalog.banks.contains(service)) {
+      service = null;
+    }
     for (var n = restWords.length; n >= 1 && service == null; n--) {
       for (var i = 0; i + n <= restWords.length && service == null; i++) {
         final s = ServiceCatalog.byName(restWords.sublist(i, i + n).join(' '));

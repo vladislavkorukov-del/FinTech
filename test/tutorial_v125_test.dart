@@ -202,7 +202,7 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    final item = find.text('Что умеет Finance');
+    final item = find.text('Что умеет Finora');
     await tester.scrollUntilVisible(
       item,
       300,

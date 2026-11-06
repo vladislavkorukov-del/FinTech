@@ -62,7 +62,7 @@ void main() {
       await tester.pumpAndSettle();
       await tester.pump(const Duration(seconds: 61));
       await tester.pumpAndSettle();
-      expect(find.text('Введите PIN для входа в Finance'), findsOneWidget);
+      expect(find.text('Введите PIN для входа в Finora'), findsOneWidget);
       expect(find.text('Новая операция'), findsNothing);
       expect(find.text('Новая операция', skipOffstage: false), findsOneWidget);
       expect(tester.takeException(), isNull);

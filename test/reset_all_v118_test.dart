@@ -146,7 +146,7 @@ void main() {
   }
 
   Future<void> flush(WidgetTester tester, bool Function() done) async {
-    for (var i = 0; i < 50 && !done(); i++) {
+    for (var i = 0; i < 150 && !done(); i++) {
       await tester.runAsync(
         () => Future<void>.delayed(const Duration(milliseconds: 20)),
       );
@@ -172,44 +172,49 @@ void main() {
     await tester.pump(const Duration(seconds: 1));
   });
 
-  testWidgets('the reset card is first; it needs «СБРОС» and wipes files', (
+  testWidgets('1.26: reset is a quiet row; a swipe confirms it, no message', (
     tester,
   ) async {
     await mount(tester);
-    final card = find.byKey(const ValueKey('reset-card'));
-    expect(card, findsOneWidget);
-    // On the first screen, above «Внешний вид».
-    expect(
-      tester.getTopLeft(card).dy,
-      lessThan(tester.getTopLeft(find.text('Внешний вид')).dy),
+    final row = find.byKey(const ValueKey('reset-all'));
+    await tester.scrollUntilVisible(
+      row,
+      300,
+      scrollable: find.byType(Scrollable).first,
     );
-    expect(tester.getBottomLeft(card).dy, lessThan(1000));
+    await tester.pump(const Duration(milliseconds: 300));
 
     // Cancel changes nothing.
-    await tester.tap(find.byKey(const ValueKey('reset-all')));
-    await tester.pump(const Duration(milliseconds: 400));
+    await tester.tap(row);
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.byKey(const ValueKey('reset-sheet')), findsOneWidget);
+    expect(find.text('Проведите, чтобы сбросить'), findsOneWidget);
     await tester.tap(find.text('Отмена'));
-    await tester.pump(const Duration(milliseconds: 400));
+    await tester.pump(const Duration(milliseconds: 500));
     expect(controller.data.entries, hasLength(1));
 
-    await tester.tap(find.byKey(const ValueKey('reset-all')));
+    // A short swipe springs back and does nothing.
+    await tester.tap(row);
+    await tester.pump(const Duration(milliseconds: 500));
+    final knob = find.byKey(const ValueKey('swipe-knob'));
+    await tester.drag(knob, const Offset(120, 0));
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.byKey(const ValueKey('reset-sheet')), findsOneWidget);
+    expect(controller.data.entries, hasLength(1));
+
+    // All the way: reset.
+    await tester.drag(knob, const Offset(600, 0));
     await tester.pump(const Duration(milliseconds: 400));
-    FilledButton confirm() => tester.widget<FilledButton>(
-      find.byKey(const ValueKey('reset-confirm')),
-    );
-    expect(confirm().onPressed, isNull);
-    await tester.enterText(find.byKey(const ValueKey('reset-word')), 'сбро');
-    await tester.pump();
-    expect(confirm().onPressed, isNull);
-    await tester.enterText(find.byKey(const ValueKey('reset-word')), 'сброс');
-    await tester.pump();
-    expect(confirm().onPressed, isNotNull);
-    await tester.tap(find.byKey(const ValueKey('reset-confirm')));
     await flush(
       tester,
-      () => find.text('Все данные сброшены.').evaluate().isNotEmpty,
+      () =>
+          controller.data.entries.isEmpty &&
+          !Directory('${dir.path}/receipts').existsSync() &&
+          !Directory('${dir.path}/service_icons').existsSync(),
     );
-    expect(find.text('Все данные сброшены.'), findsOneWidget);
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.text('Все данные сброшены.'), findsNothing);
+    expect(find.byType(SnackBar), findsNothing);
     expectReset(controller.data);
     expectReset((await tester.runAsync(repository.load))!);
     for (final name in ['receipts', 'service_icons']) {
@@ -220,6 +225,32 @@ void main() {
       );
     }
     expect(File('${dir.path}/db').existsSync(), isTrue);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('1.26: settings are grouped into pages; backups are inside', (
+    tester,
+  ) async {
+    await mount(tester);
+    for (final key in [
+      'settings-profile',
+      'settings-appearance',
+      'settings-general',
+      'settings-notifications',
+      'settings-security',
+      'settings-backups',
+    ]) {
+      expect(find.byKey(ValueKey(key)), findsOneWidget, reason: key);
+    }
+    // No backup buttons on the first page.
+    expect(find.text('Полная копия'), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('settings-backups')));
+    for (var i = 0; i < 6; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    expect(find.text('Резервные копии'), findsOneWidget);
+    expect(find.text('Полная копия'), findsOneWidget);
+    expect(find.text('Из снимка базы'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 }

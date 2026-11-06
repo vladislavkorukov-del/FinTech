@@ -202,7 +202,7 @@ void main() {
   testWidgets('style gallery selects and persists a reference theme', (
     tester,
   ) async {
-    await mount(tester, const SettingsScreen());
+    await mount(tester, const SettingsScreen(section: 'appearance'));
     // Settings shows a progress indicator while it reads device security.
     await tester.pump(const Duration(milliseconds: 500));
     final gallery = find.byKey(const ValueKey('style-gallery'));

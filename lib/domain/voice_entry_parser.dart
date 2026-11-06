@@ -1,6 +1,7 @@
 import 'models.dart';
 import 'receipt_parser.dart';
 import 'service_catalog.dart';
+import 'service_recognizer.dart';
 import 'store_catalog.dart';
 
 /// What a spoken phrase becomes (Finance 1.19). Always reviewed in the entry
@@ -185,6 +186,8 @@ abstract final class VoiceEntryParser {
   );
   static final _dateWords = RegExp(r'(^|\s)(сегодня|вчера|позавчера)(?=\s|$)');
   static const _filler = {
+    'финора',
+    'finora',
     'на',
     'в',
     'во',
@@ -408,7 +411,10 @@ abstract final class VoiceEntryParser {
         }
       }
     }
-    return best ?? ServiceCatalog.store(phrase);
+    // 1.26: also subscriptions and names said in Cyrillic («чат гпт»).
+    return best ??
+        ServiceCatalog.store(phrase) ??
+        ServiceRecognizer.find(phrase);
   }
 
   /// «пятерочке» ~ «пятерочка», «магните» ~ «магнит»: the same word with a

@@ -6,7 +6,7 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <application
         android:name="${applicationName}"
-        android:label="Finance"
+        android:label="Finora"
         android:icon="@drawable/ic_launcher"
         android:allowBackup="false"
         android:fullBackupContent="@xml/backup_rules"
@@ -26,7 +26,7 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <intent-filter android:label="Скриншот в Finance">
+            <intent-filter android:label="Скриншот в Finora">
                 <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <data android:mimeType="image/*" />

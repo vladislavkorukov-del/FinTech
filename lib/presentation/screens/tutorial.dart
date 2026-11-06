@@ -53,23 +53,32 @@ final _pages = <_Page>[
         Icons.touch_app_outlined,
         'Нажмите на доходы или расходы — откроется список',
       ),
+      (
+        Icons.donut_large_rounded,
+        'В «Обзоре месяца» нажмите на часть круга — увидите долю категории',
+      ),
     ],
     picture: (context, dark) => const _DashboardPicture(),
   ),
   _Page(
     icon: Icons.mic_rounded,
     color: AppleUi.indigo,
-    eyebrow: 'Голосовой круг',
-    title: 'Скажите — и записано',
+    eyebrow: 'Финора',
+    title: 'Знакомьтесь: Финора',
     text:
-        'Круг внизу экрана слушает. Назовите магазин и сумму — категория '
+        'Кругляш внизу — ваш финансовый ассистент. Нажмите: Финора '
+        'обрадуется и выслушает. Назовите магазин и сумму — категория '
         'подберётся сама.',
     tips: [
       (
         Icons.record_voice_over_outlined,
         '«Пятёрочка 450», «зарплата 90 тысяч»',
       ),
-      (Icons.front_hand_outlined, 'Удержание круга — ручной ввод'),
+      (
+        Icons.translate_rounded,
+        'Сервисы можно называть по-русски: «чат гпт», «нетфликс»',
+      ),
+      (Icons.front_hand_outlined, 'Удержание кругляша — ручной ввод'),
       (Icons.check_circle_outline, 'Сохраняется только после вашего нажатия'),
     ],
     picture: (context, dark) => const _VoicePicture(),
@@ -79,7 +88,7 @@ final _pages = <_Page>[
     color: AppleUi.purple,
     eyebrow: 'Команды',
     title: 'Управляйте голосом',
-    text: 'Тот же круг понимает просьбы: показать, открыть, перекрасить.',
+    text: 'Финора понимает просьбы: показать, открыть, перекрасить.',
     tips: [
       (
         Icons.calendar_month_outlined,
@@ -121,7 +130,7 @@ final _pages = <_Page>[
         'Поделитесь скриншотом из банка или выберите его — операции '
         'распознаются на телефоне, без интернета.',
     tips: [
-      (Icons.share_outlined, 'Из галереи: «Поделиться», затем Finance'),
+      (Icons.share_outlined, 'Из галереи: «Поделиться», затем Finora'),
       (
         Icons.swap_horiz_rounded,
         'Переводы между своими счетами — отдельной категорией',
@@ -165,10 +174,14 @@ final _pages = <_Page>[
     title: 'Ваши данные — только у вас',
     text:
         'Приложение не ходит в интернет. Вход по PIN или отпечатку, '
-        'резервная копия в файл, перенос счетов из другого приложения по '
+        'резервные копии, перенос счетов из другого приложения по '
         'скриншоту.',
     tips: [
-      (Icons.settings_outlined, 'Всё это — в «Ещё», раздел «Настройки»'),
+      (
+        Icons.settings_outlined,
+        'Настройки — по разделам: вид, защита, резервные копии',
+      ),
+      (Icons.swipe_right_alt_rounded, 'Сброс данных подтверждается свайпом'),
       (Icons.school_outlined, 'Обучение можно открыть снова в настройках'),
     ],
     picture: (context, dark) => const _SafePicture(),
@@ -840,8 +853,8 @@ class _AnalyticsPicture extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text('42 380', style: _strong(dark, 16)),
-                  Text('за месяц', style: _small(dark)),
+                  Text('Ноябрь', style: _small(dark)),
+                  Text('42 380 ₽', style: _strong(dark, 15)),
                 ],
               ),
             ),

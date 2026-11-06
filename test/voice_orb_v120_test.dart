@@ -1,4 +1,5 @@
 import 'package:finora/presentation/theme/app_theme.dart';
+import 'package:finora/presentation/widgets/finora_orb.dart';
 import 'package:finora/presentation/widgets/motion.dart';
 import 'package:finora/presentation/widgets/voice_orb.dart';
 import 'package:flutter/material.dart';
@@ -31,7 +32,10 @@ void main() {
     final (taps, holds) = await mount(tester);
     expect(taps, 1);
     expect(holds, 1);
-    expect(find.bySemanticsLabel('Голосовой ввод операции'), findsOneWidget);
+    expect(
+      find.bySemanticsLabel('Финора: голосовой ввод операции'),
+      findsOneWidget,
+    );
     // Still in tests and with reduce motion: no animation at all.
     expect(tester.hasRunningAnimations, isFalse);
   });
@@ -63,5 +67,52 @@ void main() {
     await tester.pump(VoiceOrb.idle);
     await tester.pump(const Duration(seconds: 8));
     expect(tester.hasRunningAnimations, isFalse);
+  });
+
+  testWidgets('1.26: Finora hops for joy, then listens', (tester) async {
+    Motion.debugForceAmbient = true;
+    addTearDown(() => Motion.debugForceAmbient = false);
+    var taps = 0;
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.app(Brightness.dark, 'midnight'),
+        home: Scaffold(
+          body: Center(
+            child: VoiceOrb(onTap: () => taps++, onLongPress: () {}),
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+    final orb = find.byKey(const ValueKey('nav-voice'));
+    final rest = tester.getRect(orb);
+    await tester.tap(orb);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 120));
+    // Mid-hop: glad, bigger and lifted; the microphone waits a moment.
+    final painter = tester
+        .widgetList<CustomPaint>(
+          find.descendant(of: orb, matching: find.byType(CustomPaint)),
+        )
+        .map((p) => p.painter)
+        .whereType<FinoraOrbPainter>()
+        .single;
+    expect(painter.mood, FinoraMood.happy);
+    expect(painter.joy, greaterThan(0));
+    expect(taps, 0);
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(taps, 1);
+    await tester.pump(const Duration(milliseconds: 600));
+    final after = tester
+        .widgetList<CustomPaint>(
+          find.descendant(of: orb, matching: find.byType(CustomPaint)),
+        )
+        .map((p) => p.painter)
+        .whereType<FinoraOrbPainter>()
+        .single;
+    expect(after.mood, FinoraMood.calm);
+    expect(tester.getRect(orb), rest);
+    await tester.pump(VoiceOrb.idle);
+    await tester.pump(const Duration(seconds: 8));
   });
 }

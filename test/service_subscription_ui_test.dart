@@ -471,7 +471,7 @@ void main() {
         isFalse,
       );
       expect(
-        find.textContaining('Разрешите уведомления Finance'),
+        find.textContaining('Разрешите уведомления Finora'),
         findsOneWidget,
       );
       await reveal(

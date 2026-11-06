@@ -15,9 +15,15 @@ import '../theme/app_theme.dart';
 import '../widgets/common.dart';
 import 'account_import_screen.dart';
 import 'tutorial.dart';
+import '../widgets/grouped_list.dart';
+import '../widgets/finora_orb.dart';
 
 class SettingsScreen extends StatefulWidget {
-  const SettingsScreen({super.key});
+  const SettingsScreen({super.key, this.section});
+
+  /// One page of settings (1.26): general, appearance, notifications,
+  /// security, backups or about; null for the list of them.
+  final String? section;
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
 }
@@ -178,10 +184,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
     await SharePlus.instance.share(
       ShareParams(
         files: [XFile(path)],
-        subject: 'Резервная копия Finance',
+        subject: 'Резервная копия Finora',
         text: type == 'csv'
-            ? 'Операции Finance'
-            : 'Резервная копия Finance. Храните файл в безопасном месте.',
+            ? 'Операции Finora'
+            : 'Резервная копия Finora. Храните файл в безопасном месте.',
       ),
     );
   }
@@ -238,10 +244,415 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
+  static const version = '1.26.0';
+
+  /// One settings page: a section of the root list.
+  Widget _page(String title, List<Widget> children) => Scaffold(
+    appBar: AppBar(title: Text(title)),
+    body: Stack(
+      children: [
+        AbsorbPointer(
+          absorbing: busy,
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
+            children: children,
+          ),
+        ),
+        if (busy)
+          const Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: LinearProgressIndicator(),
+          ),
+      ],
+    ),
+  );
+
+  void _open(String section) => Navigator.push(
+    context,
+    MaterialPageRoute<void>(builder: (_) => SettingsScreen(section: section)),
+  );
+
   @override
   Widget build(BuildContext context) {
     final c = FinanceScope.of(context);
     final p = c.data.preferences;
+    switch (widget.section) {
+      case 'general':
+        return _page('Основные', [
+          SurfaceCard(
+            child: Column(
+              children: [
+                // 1.21: the name from the welcome screens.
+                TextFormField(
+                  key: const ValueKey('settings-name'),
+                  initialValue: p.userName,
+                  textCapitalization: TextCapitalization.words,
+                  decoration: const InputDecoration(labelText: 'Ваше имя'),
+                  onFieldSubmitted: (value) => _run(() async {
+                    final name = value.trim();
+                    await c.mutate(
+                      (d) => d.copyWith(
+                        preferences: d.preferences.copyWith(userName: name),
+                        members: [
+                          for (final m in d.members)
+                            m.id == 'me' && name.isNotEmpty
+                                ? Member(id: 'me', name: name)
+                                : m,
+                        ],
+                      ),
+                    );
+                  }),
+                ),
+                const SizedBox(height: 12),
+                _setting<String>(
+                  'Основная валюта',
+                  p.baseCurrency,
+                  {for (final v in currencies) v: v},
+                  (v) => _run(
+                    () => c.preferences(
+                      c.data.preferences.copyWith(baseCurrency: v),
+                    ),
+                  ),
+                ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 12),
+                  child: Text(
+                    'Баланс и аналитика показывают выбранную валюту. Средства в других валютах учитываются отдельно — без неявной конвертации.',
+                  ),
+                ),
+                _setting<int>(
+                  'Первый день недели',
+                  p.weekStart,
+                  const {1: 'Понедельник', 7: 'Воскресенье'},
+                  (v) => _run(
+                    () => c.preferences(
+                      c.data.preferences.copyWith(weekStart: v),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 14),
+                _setting<int>(
+                  'Начало финансового месяца',
+                  p.monthStart,
+                  {for (var day = 1; day <= 28; day++) day: '$day число'},
+                  (v) => _run(
+                    () => c.preferences(
+                      c.data.preferences.copyWith(monthStart: v),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 14),
+                _setting<String>(
+                  'Формат чисел',
+                  p.numberFormat,
+                  const {'space_comma': '12 345,67', 'comma_dot': '12,345.67'},
+                  (v) => _run(
+                    () => c.preferences(
+                      c.data.preferences.copyWith(numberFormat: v),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 14),
+                _setting<String>(
+                  'Формат даты',
+                  p.dateFormat,
+                  const {
+                    'dd.MM.yyyy': '31.12.2026',
+                    'yyyy-MM-dd': '2026-12-31',
+                    'dd/MM/yyyy': '31/12/2026',
+                  },
+                  (v) => _run(
+                    () => c.preferences(
+                      c.data.preferences.copyWith(dateFormat: v),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ]);
+      case 'appearance':
+        return _page('Внешний вид', [
+          SurfaceCard(
+            child: Column(
+              children: [
+                _setting<String>(
+                  'Тема',
+                  p.theme,
+                  const {
+                    'system': 'Как в системе',
+                    'dark': 'Тёмная',
+                    'light': 'Светлая',
+                  },
+                  (v) => _run(
+                    () => c.preferences(c.data.preferences.copyWith(theme: v)),
+                  ),
+                ),
+                const SizedBox(height: 14),
+                _StyleGallery(
+                  selected: p.accent,
+                  brightness: Theme.of(context).brightness,
+                  onSelected: (v) => _run(
+                    () => c.preferences(c.data.preferences.copyWith(accent: v)),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                _setting<String>(
+                  'Визуальный стиль',
+                  AppTheme.presetNames.containsKey(p.accent)
+                      ? p.accent
+                      : 'lime',
+                  AppTheme.presetNames,
+                  (v) => _run(
+                    () => c.preferences(c.data.preferences.copyWith(accent: v)),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ]);
+      case 'notifications':
+        return _page('Уведомления', [
+          SurfaceCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SwitchListTile.adaptive(
+                  contentPadding: EdgeInsets.zero,
+                  title: const Text('Финансовые напоминания'),
+                  subtitle: const Text('Платежи, бюджеты, цели и отчёты'),
+                  value: p.notifications,
+                  onChanged: (value) => _run(() async {
+                    if (value) {
+                      final allowed = await c.notifications.requestPermission();
+                      if (!allowed) {
+                        throw const FormatException(
+                          'Разрешите уведомления для Finora в настройках Android.',
+                        );
+                      }
+                    }
+                    await c.preferences(
+                      c.data.preferences.copyWith(notifications: value),
+                    );
+                    final result = await c.waitForNotificationSync();
+                    if (!result.succeeded && context.mounted) {
+                      showError(
+                        context,
+                        const FormatException(notificationSyncWarning),
+                      );
+                    }
+                  }),
+                ),
+                if (c.notificationSyncPending) ...[
+                  const SizedBox(height: 8),
+                  const Text('Обновляем уведомления…'),
+                ],
+                if (c.notificationSyncResult?.succeeded == false) ...[
+                  const SizedBox(height: 8),
+                  const Text(
+                    notificationSyncWarning,
+                    key: ValueKey('notification-sync-warning'),
+                  ),
+                ],
+                TextButton.icon(
+                  key: const ValueKey('notification-sync-retry'),
+                  onPressed: busy || c.notificationSyncPending
+                      ? null
+                      : () => _run(() async {
+                          final result = await c.retryNotificationSync();
+                          if (!context.mounted) return;
+                          if (!result.succeeded) {
+                            showError(
+                              context,
+                              const FormatException(notificationSyncWarning),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context)
+                              ..hideCurrentSnackBar()
+                              ..showSnackBar(
+                                const SnackBar(
+                                  content: Text('Уведомления обновлены.'),
+                                ),
+                              );
+                          }
+                        }),
+                  icon: const Icon(Icons.refresh_rounded),
+                  label: Text(
+                    c.notificationSyncResult?.succeeded == false
+                        ? 'Повторить обновление уведомлений'
+                        : 'Обновить уведомления',
+                  ),
+                ),
+                const Text(
+                  'Android может задерживать уведомления для экономии батареи. Автоматические финансовые операции создаются при запуске приложения.',
+                  style: TextStyle(fontSize: 12),
+                ),
+              ],
+            ),
+          ),
+        ]);
+      case 'security':
+        return _page('Защита', [
+          SurfaceCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (!securityLoaded)
+                  OutlinedButton.icon(
+                    onPressed: _loadSecurity,
+                    icon: const Icon(Icons.refresh),
+                    label: const Text('Проверить доступность защиты'),
+                  ),
+                if (securityLoaded) ...[
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: const Icon(Icons.lock_outline),
+                    title: Text(hasPin ? 'Изменить PIN' : 'Установить PIN'),
+                    subtitle: const Text('От 4 до 6 цифр'),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => _run(_configurePin),
+                  ),
+                  if (hasPin) ...[
+                    SwitchListTile.adaptive(
+                      contentPadding: EdgeInsets.zero,
+                      title: const Text('Биометрический вход'),
+                      value: biometric,
+                      onChanged: (v) => _run(() => _toggleBiometric(v)),
+                    ),
+                    const SizedBox(height: 14),
+                    _setting<int>(
+                      'Автоблокировка',
+                      p.lockMinutes,
+                      const {
+                        0: 'Сразу',
+                        1: 'Через минуту',
+                        5: 'Через 5 минут',
+                        15: 'Через 15 минут',
+                      },
+                      (v) => _run(
+                        () => c.preferences(
+                          c.data.preferences.copyWith(lockMinutes: v),
+                        ),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () => _run(_removePin),
+                      child: const Text('Отключить PIN'),
+                    ),
+                  ],
+                ],
+                const SizedBox(height: 8),
+                const Text(
+                  'PIN защищает вход в приложение. Экспортированные файлы и локальная база не шифруются отдельно. Защита устройства и безопасное хранение копий остаются важными.',
+                  style: TextStyle(fontSize: 12),
+                ),
+              ],
+            ),
+          ),
+        ]);
+      case 'backups':
+        return _page('Резервные копии', [
+          GroupedSection(
+            title: 'Сохранить',
+            footer:
+                'Файлы не шифруются: храните их в надёжном месте. PIN в копию '
+                'не попадает.',
+            children: [
+              GroupedRow(
+                key: const ValueKey('backup-json'),
+                icon: Icons.upload_file_rounded,
+                color: TileColors.blue,
+                title: 'Полная копия',
+                subtitle: 'JSON — для переноса на другой телефон',
+                onTap: () => _run(() => _export('json')),
+              ),
+              GroupedRow(
+                icon: Icons.table_chart_rounded,
+                color: TileColors.green,
+                title: 'Таблица операций',
+                subtitle: 'CSV для Excel и Google Таблиц',
+                onTap: () => _run(() => _export('csv')),
+              ),
+              GroupedRow(
+                icon: Icons.storage_rounded,
+                color: TileColors.indigo,
+                title: 'Снимок базы',
+                subtitle: 'Файл SQLite целиком',
+                onTap: () => _run(() => _export('db')),
+              ),
+            ],
+          ),
+          GroupedSection(
+            title: 'Восстановить',
+            footer: 'Восстановление заменит все текущие данные.',
+            children: [
+              GroupedRow(
+                icon: Icons.download_rounded,
+                color: TileColors.orange,
+                title: 'Из полной копии',
+                subtitle: 'Файл JSON',
+                onTap: () => _run(() => _import('json')),
+              ),
+              GroupedRow(
+                icon: Icons.restore_rounded,
+                color: TileColors.gray,
+                title: 'Из снимка базы',
+                subtitle: 'Файл SQLite',
+                onTap: () => _run(() => _import('db')),
+              ),
+            ],
+          ),
+        ]);
+      case 'about':
+        return _page('О приложении', [
+          const SizedBox(height: 12),
+          const Center(child: FinoraMark(size: 72)),
+          const SizedBox(height: 12),
+          Text(
+            'Finora',
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.headlineSmall,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Версия $version · ваш финансовый ассистент',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 13,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: 24),
+          GroupedSection(
+            footer:
+                'Данные хранятся только на этом телефоне. Приложение не '
+                'обращается к интернету.',
+            children: [
+              GroupedRow(
+                icon: Icons.article_rounded,
+                color: TileColors.gray,
+                title: 'Лицензии',
+                onTap: () => showLicensePage(
+                  context: context,
+                  applicationName: 'Finora',
+                  applicationVersion: version,
+                ),
+              ),
+            ],
+          ),
+        ]);
+    }
+    final name = p.userName.trim();
+    final themeName = switch (p.theme) {
+      'light' => 'Светлая',
+      'system' => 'Как в системе',
+      _ => 'Тёмная',
+    };
+    final style = (AppTheme.presetNames[p.accent] ?? p.accent)
+        .split(' · ')
+        .first;
     return Scaffold(
       appBar: AppBar(title: const Text('Настройки')),
       body: Stack(
@@ -249,485 +660,177 @@ class _SettingsScreenState extends State<SettingsScreen> {
           AbsorbPointer(
             absorbing: busy,
             child: ListView(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
               children: [
-                // 1.18: reset is easy to find, hard to do by accident.
+                // 1.26: who uses the app, at the top like on the iPhone.
                 SurfaceCard(
-                  key: const ValueKey('reset-card'),
-                  padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                  key: const ValueKey('settings-profile'),
+                  padding: const EdgeInsets.all(16),
+                  onTap: () => _open('general'),
+                  child: Row(
                     children: [
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.restart_alt_rounded,
-                            color: Theme.of(context).colorScheme.error,
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Text(
-                              'Сброс данных',
-                              style: Theme.of(context).textTheme.titleMedium,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        'Удалит операции, счета, цели, бюджеты, платежи и фото чеков. '
-                        'Тема и валюта останутся, категории вернутся к стандартным.',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: OutlinedButton(
-                              key: const ValueKey('reset-backup-first'),
-                              style: OutlinedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 10,
-                                ),
-                              ),
-                              onPressed: () => _run(() => _export('json')),
-                              child: const FittedBox(
-                                fit: BoxFit.scaleDown,
-                                child: Text('Сохранить копию', maxLines: 1),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: FilledButton(
-                              key: const ValueKey('reset-all'),
-                              style: FilledButton.styleFrom(
-                                backgroundColor: Theme.of(
-                                  context,
-                                ).colorScheme.error,
-                                foregroundColor: Theme.of(
-                                  context,
-                                ).colorScheme.onError,
-                              ),
-                              onPressed: () => _run(_resetAll),
-                              child: const FittedBox(
-                                fit: BoxFit.scaleDown,
-                                child: Text('Сбросить всё', maxLines: 1),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                const SectionTitle('Внешний вид'),
-                SurfaceCard(
-                  child: Column(
-                    children: [
-                      _setting<String>(
-                        'Тема',
-                        p.theme,
-                        const {
-                          'system': 'Как в системе',
-                          'dark': 'Тёмная',
-                          'light': 'Светлая',
-                        },
-                        (v) => _run(
-                          () => c.preferences(
-                            c.data.preferences.copyWith(theme: v),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 14),
-                      _StyleGallery(
-                        selected: p.accent,
-                        brightness: Theme.of(context).brightness,
-                        onSelected: (v) => _run(
-                          () => c.preferences(
-                            c.data.preferences.copyWith(accent: v),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      _setting<String>(
-                        'Визуальный стиль',
-                        AppTheme.presetNames.containsKey(p.accent)
-                            ? p.accent
-                            : 'lime',
-                        AppTheme.presetNames,
-                        (v) => _run(
-                          () => c.preferences(
-                            c.data.preferences.copyWith(accent: v),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SectionTitle('Личные предпочтения'),
-                SurfaceCard(
-                  child: Column(
-                    children: [
-                      // 1.21: the name from the welcome screens.
-                      TextFormField(
-                        key: const ValueKey('settings-name'),
-                        initialValue: p.userName,
-                        textCapitalization: TextCapitalization.words,
-                        decoration: const InputDecoration(
-                          labelText: 'Ваше имя',
-                        ),
-                        onFieldSubmitted: (value) => _run(() async {
-                          final name = value.trim();
-                          await c.mutate(
-                            (d) => d.copyWith(
-                              preferences: d.preferences.copyWith(
-                                userName: name,
-                              ),
-                              members: [
-                                for (final m in d.members)
-                                  m.id == 'me' && name.isNotEmpty
-                                      ? Member(id: 'me', name: name)
-                                      : m,
-                              ],
-                            ),
-                          );
-                        }),
-                      ),
-                      const SizedBox(height: 12),
-                      _setting<String>(
-                        'Основная валюта',
-                        p.baseCurrency,
-                        {for (final v in currencies) v: v},
-                        (v) => _run(
-                          () => c.preferences(
-                            c.data.preferences.copyWith(baseCurrency: v),
-                          ),
-                        ),
-                      ),
-                      const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 12),
+                      CircleAvatar(
+                        radius: 28,
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        foregroundColor: Theme.of(
+                          context,
+                        ).colorScheme.onPrimary,
                         child: Text(
-                          'Баланс и аналитика показывают выбранную валюту. Средства в других валютах учитываются отдельно — без неявной конвертации.',
-                        ),
-                      ),
-                      _setting<int>(
-                        'Первый день недели',
-                        p.weekStart,
-                        const {1: 'Понедельник', 7: 'Воскресенье'},
-                        (v) => _run(
-                          () => c.preferences(
-                            c.data.preferences.copyWith(weekStart: v),
+                          name.isEmpty ? 'F' : name[0].toUpperCase(),
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                       ),
-                      const SizedBox(height: 14),
-                      _setting<int>(
-                        'Начало финансового месяца',
-                        p.monthStart,
-                        {for (var day = 1; day <= 28; day++) day: '$day число'},
-                        (v) => _run(
-                          () => c.preferences(
-                            c.data.preferences.copyWith(monthStart: v),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 14),
-                      _setting<String>(
-                        'Формат чисел',
-                        p.numberFormat,
-                        const {
-                          'space_comma': '12 345,67',
-                          'comma_dot': '12,345.67',
-                        },
-                        (v) => _run(
-                          () => c.preferences(
-                            c.data.preferences.copyWith(numberFormat: v),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 14),
-                      _setting<String>(
-                        'Формат даты',
-                        p.dateFormat,
-                        const {
-                          'dd.MM.yyyy': '31.12.2026',
-                          'yyyy-MM-dd': '2026-12-31',
-                          'dd/MM/yyyy': '31/12/2026',
-                        },
-                        (v) => _run(
-                          () => c.preferences(
-                            c.data.preferences.copyWith(dateFormat: v),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SectionTitle('Уведомления'),
-                SurfaceCard(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SwitchListTile.adaptive(
-                        contentPadding: EdgeInsets.zero,
-                        title: const Text('Финансовые напоминания'),
-                        subtitle: const Text('Платежи, бюджеты, цели и отчёты'),
-                        value: p.notifications,
-                        onChanged: (value) => _run(() async {
-                          if (value) {
-                            final allowed = await c.notifications
-                                .requestPermission();
-                            if (!allowed) {
-                              throw const FormatException(
-                                'Разрешите уведомления для Finance в настройках Android.',
-                              );
-                            }
-                          }
-                          await c.preferences(
-                            c.data.preferences.copyWith(notifications: value),
-                          );
-                          final result = await c.waitForNotificationSync();
-                          if (!result.succeeded && context.mounted) {
-                            showError(
-                              context,
-                              const FormatException(notificationSyncWarning),
-                            );
-                          }
-                        }),
-                      ),
-                      if (c.notificationSyncPending) ...[
-                        const SizedBox(height: 8),
-                        const Text('Обновляем уведомления…'),
-                      ],
-                      if (c.notificationSyncResult?.succeeded == false) ...[
-                        const SizedBox(height: 8),
-                        const Text(
-                          notificationSyncWarning,
-                          key: ValueKey('notification-sync-warning'),
-                        ),
-                      ],
-                      TextButton.icon(
-                        key: const ValueKey('notification-sync-retry'),
-                        onPressed: busy || c.notificationSyncPending
-                            ? null
-                            : () => _run(() async {
-                                final result = await c.retryNotificationSync();
-                                if (!context.mounted) return;
-                                if (!result.succeeded) {
-                                  showError(
-                                    context,
-                                    const FormatException(
-                                      notificationSyncWarning,
-                                    ),
-                                  );
-                                } else {
-                                  ScaffoldMessenger.of(context)
-                                    ..hideCurrentSnackBar()
-                                    ..showSnackBar(
-                                      const SnackBar(
-                                        content: Text('Уведомления обновлены.'),
-                                      ),
-                                    );
-                                }
-                              }),
-                        icon: const Icon(Icons.refresh_rounded),
-                        label: Text(
-                          c.notificationSyncResult?.succeeded == false
-                              ? 'Повторить обновление уведомлений'
-                              : 'Обновить уведомления',
-                        ),
-                      ),
-                      const Text(
-                        'Android может задерживать уведомления для экономии батареи. Автоматические финансовые операции создаются при запуске приложения.',
-                        style: TextStyle(fontSize: 12),
-                      ),
-                    ],
-                  ),
-                ),
-                const SectionTitle('Защита'),
-                SurfaceCard(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      if (!securityLoaded)
-                        OutlinedButton.icon(
-                          onPressed: _loadSecurity,
-                          icon: const Icon(Icons.refresh),
-                          label: const Text('Проверить доступность защиты'),
-                        ),
-                      if (securityLoaded) ...[
-                        ListTile(
-                          contentPadding: EdgeInsets.zero,
-                          leading: const Icon(Icons.lock_outline),
-                          title: Text(
-                            hasPin ? 'Изменить PIN' : 'Установить PIN',
-                          ),
-                          subtitle: const Text('От 4 до 6 цифр'),
-                          trailing: const Icon(Icons.chevron_right),
-                          onTap: () => _run(_configurePin),
-                        ),
-                        if (hasPin) ...[
-                          SwitchListTile.adaptive(
-                            contentPadding: EdgeInsets.zero,
-                            title: const Text('Биометрический вход'),
-                            value: biometric,
-                            onChanged: (v) => _run(() => _toggleBiometric(v)),
-                          ),
-                          const SizedBox(height: 14),
-                          _setting<int>(
-                            'Автоблокировка',
-                            p.lockMinutes,
-                            const {
-                              0: 'Сразу',
-                              1: 'Через минуту',
-                              5: 'Через 5 минут',
-                              15: 'Через 15 минут',
-                            },
-                            (v) => _run(
-                              () => c.preferences(
-                                c.data.preferences.copyWith(lockMinutes: v),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              name.isEmpty ? 'Ваше имя' : name,
+                              style: Theme.of(context).textTheme.titleLarge,
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              'Имя, валюта, форматы',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant,
                               ),
                             ),
-                          ),
-                          TextButton(
-                            onPressed: () => _run(_removePin),
-                            child: const Text('Отключить PIN'),
-                          ),
-                        ],
-                      ],
-                      const SizedBox(height: 8),
-                      const Text(
-                        'PIN защищает вход в приложение. Экспортированные файлы и локальная база не шифруются отдельно. Защита устройства и безопасное хранение копий остаются важными.',
-                        style: TextStyle(fontSize: 12),
+                          ],
+                        ),
                       ),
+                      const Icon(Icons.chevron_right_rounded),
                     ],
                   ),
                 ),
-                // 1.25: the app tour from the welcome screens, again.
-                const SectionTitle('Обучение'),
-                SurfaceCard(
-                  child: _backupAction(
-                    'Что умеет Finance',
-                    'Короткое знакомство: голос, скриншоты, мечты, аналитика',
-                    Icons.school_outlined,
-                    () => Navigator.push(
-                      context,
-                      MaterialPageRoute<bool>(
-                        fullscreenDialog: true,
-                        builder: (_) => const TutorialScreen(),
-                      ),
+                const SizedBox(height: 22),
+                GroupedSection(
+                  title: 'Основное',
+                  children: [
+                    GroupedRow(
+                      key: const ValueKey('settings-appearance'),
+                      icon: Icons.palette_rounded,
+                      color: TileColors.purple,
+                      title: 'Внешний вид',
+                      value: '$themeName · $style',
+                      onTap: () => _open('appearance'),
                     ),
-                  ),
-                ),
-                // 1.22.1: accounts from another finance app by a screenshot.
-                const SectionTitle('Перенос данных'),
-                SurfaceCard(
-                  child: _backupAction(
-                    'Перенести счета со скриншота',
-                    'Из другой домашней бухгалтерии или банка — названия и остатки',
-                    Icons.add_photo_alternate_outlined,
-                    () => Navigator.push(
-                      context,
-                      MaterialPageRoute<void>(
-                        builder: (_) => const AccountImportScreen(),
-                      ),
+                    GroupedRow(
+                      key: const ValueKey('settings-general'),
+                      icon: Icons.tune_rounded,
+                      color: TileColors.blue,
+                      title: 'Валюта и форматы',
+                      value: p.baseCurrency,
+                      onTap: () => _open('general'),
                     ),
-                  ),
+                    GroupedRow(
+                      key: const ValueKey('settings-notifications'),
+                      icon: Icons.notifications_rounded,
+                      color: TileColors.red,
+                      title: 'Уведомления',
+                      value: p.notifications ? 'Вкл.' : 'Выкл.',
+                      onTap: () => _open('notifications'),
+                    ),
+                    GroupedRow(
+                      key: const ValueKey('settings-security'),
+                      icon: Icons.lock_rounded,
+                      color: TileColors.green,
+                      title: 'Защита',
+                      value: !securityLoaded
+                          ? null
+                          : hasPin
+                          ? (biometric ? 'PIN и отпечаток' : 'PIN')
+                          : 'Выкл.',
+                      onTap: () => _open('security'),
+                    ),
+                  ],
                 ),
-                const SectionTitle('Резервные копии'),
-                SurfaceCard(
-                  child: Column(
-                    children: [
-                      _backupAction(
-                        'Экспорт JSON',
-                        'Полная переносимая копия',
-                        Icons.upload_file_outlined,
-                        () => _run(() => _export('json')),
-                      ),
-                      _backupAction(
-                        'Импорт JSON',
-                        'Заменить текущие данные',
-                        Icons.download_outlined,
-                        () => _run(() => _import('json')),
-                      ),
-                      _backupAction(
-                        'Экспорт CSV',
-                        'Таблица операций для Excel',
-                        Icons.table_chart_outlined,
-                        () => _run(() => _export('csv')),
-                      ),
-                      _backupAction(
-                        'Копия базы SQLite',
-                        'Снимок локальной базы',
-                        Icons.storage_outlined,
-                        () => _run(() => _export('db')),
-                      ),
-                      _backupAction(
-                        'Восстановить базу',
-                        'Из файла SQLite',
-                        Icons.restore_outlined,
-                        () => _run(() => _import('db')),
-                      ),
-                    ],
-                  ),
-                ),
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 16),
-                  child: Text(
-                    'Finance · 1.25.0',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 12),
-                  ),
-                ),
-                TextButton.icon(
-                  onPressed: () => showLicensePage(
-                    context: context,
-                    applicationName: 'Finance',
-                    applicationVersion: '1.25.0',
-                  ),
-                  icon: const Icon(Icons.article_outlined, size: 18),
-                  label: const Text('Лицензии'),
-                ),
-                if (c.data.demo) ...[
-                  const SectionTitle('Демонстрационный профиль'),
-                  SurfaceCard(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        const Text(
-                          'Сейчас вы знакомитесь с примером семейных финансов. Очистка удалит только демонстрационные записи. Ваши собственные операции, цели и бюджеты сохранятся. Счета с вашими операциями останутся с нулевым начальным балансом.',
+                GroupedSection(
+                  title: 'Данные',
+                  children: [
+                    GroupedRow(
+                      key: const ValueKey('settings-backups'),
+                      icon: Icons.cloud_upload_rounded,
+                      color: TileColors.indigo,
+                      title: 'Резервные копии',
+                      subtitle: 'Сохранить и восстановить',
+                      onTap: () => _open('backups'),
+                    ),
+                    // 1.22.1: accounts from another finance app.
+                    GroupedRow(
+                      key: const ValueKey('settings-import'),
+                      icon: Icons.move_down_rounded,
+                      color: TileColors.teal,
+                      title: 'Перенести счета со скриншота',
+                      subtitle: 'Из другого приложения или банка',
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute<void>(
+                          builder: (_) => const AccountImportScreen(),
                         ),
-                        const SizedBox(height: 16),
-                        OutlinedButton(
-                          onPressed: () => _run(() async {
-                            if (!await confirm(
-                              context,
-                              'Очистить демонстрационные данные?',
-                              'Будут удалены только примеры. Ваши записи сохранятся. Начальные балансы демонстрационных счетов с вашими операциями обнулятся. Рекомендуем сначала экспортировать копию.',
-                            )) {
-                              return;
-                            }
-                            await c.clearDemo();
-                            if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'Демонстрационные данные очищены. Ваши записи сохранены.',
-                                  ),
-                                ),
-                              );
-                            }
-                          }),
-                          child: const Text('Очистить демонстрационные данные'),
-                        ),
-                      ],
+                      ),
                     ),
-                  ),
-                ],
+                    if (c.data.demo)
+                      GroupedRow(
+                        key: const ValueKey('settings-clear-demo'),
+                        icon: Icons.cleaning_services_rounded,
+                        color: TileColors.orange,
+                        title: 'Убрать пример',
+                        subtitle: 'Ваши записи сохранятся',
+                        onTap: () => _run(_clearDemo),
+                      ),
+                  ],
+                ),
+                GroupedSection(
+                  title: 'Finora',
+                  children: [
+                    // 1.25: the app tour from the welcome screens, again.
+                    GroupedRow(
+                      key: const ValueKey('settings-tutorial'),
+                      icon: Icons.school_rounded,
+                      color: TileColors.orange,
+                      title: 'Что умеет Finora',
+                      subtitle: 'Короткое обучение',
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute<bool>(
+                          fullscreenDialog: true,
+                          builder: (_) => const TutorialScreen(),
+                        ),
+                      ),
+                    ),
+                    GroupedRow(
+                      key: const ValueKey('settings-about'),
+                      icon: Icons.info_rounded,
+                      color: TileColors.gray,
+                      title: 'О приложении',
+                      value: version,
+                      onTap: () => _open('about'),
+                    ),
+                  ],
+                ),
+                // 1.26: quiet, at the end; a swipe confirms it.
+                GroupedSection(
+                  footer:
+                      'Удалит операции, счета, мечты, бюджеты и платежи. '
+                      'Тема и имя останутся.',
+                  children: [
+                    GroupedRow(
+                      key: const ValueKey('reset-all'),
+                      icon: Icons.restart_alt_rounded,
+                      color: TileColors.red,
+                      title: 'Сбросить все данные',
+                      destructive: true,
+                      onTap: () => _run(_resetAll),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
@@ -743,38 +846,40 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  Future<void> _clearDemo() async {
+    final c = FinanceScope.of(context);
+    if (!await confirm(
+      context,
+      'Убрать пример?',
+      'Будут удалены только примеры. Ваши записи сохранятся. Начальные '
+          'балансы демонстрационных счетов с вашими операциями обнулятся.',
+    )) {
+      return;
+    }
+    await c.clearDemo();
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Пример убран. Ваши записи сохранены.')),
+      );
+    }
+  }
+
   /// Asks the person to type «СБРОС», then erases all data and files.
   Future<void> _resetAll() async {
-    final ok = await showDialog<bool>(
+    final ok = await showModalBottomSheet<bool>(
       context: context,
-      builder: (_) => const _ResetDialog(),
+      isScrollControlled: true,
+      builder: (_) => _ResetSheet(onBackup: () => _run(() => _export('json'))),
     );
     if (ok != true || !mounted) return;
     final c = FinanceScope.of(context);
     final navigator = Navigator.of(context);
-    final messenger = ScaffoldMessenger.of(context);
     await c.resetAll();
     await UserFiles.wipe();
-    messenger.showSnackBar(
-      const SnackBar(content: Text('Все данные сброшены.')),
-    );
-    // 1.22: back to the start, where the welcome screens open again.
+    // 1.22: back to the start, where the welcome screens open again; 1.26:
+    // without a message on top of them.
     navigator.popUntil((route) => route.isFirst);
   }
-
-  Widget _backupAction(
-    String title,
-    String subtitle,
-    IconData icon,
-    VoidCallback onTap,
-  ) => ListTile(
-    contentPadding: EdgeInsets.zero,
-    leading: Icon(icon),
-    title: Text(title),
-    subtitle: Text(subtitle),
-    trailing: const Icon(Icons.chevron_right),
-    onTap: onTap,
-  );
 }
 
 Widget _setting<T>(
@@ -1050,61 +1155,83 @@ class _StyleGalleryState extends State<_StyleGallery> {
 
 /// Confirmation for a full reset: the button works only after «СБРОС» is
 /// typed, so it cannot happen by a stray tap.
-class _ResetDialog extends StatefulWidget {
-  const _ResetDialog();
-  @override
-  State<_ResetDialog> createState() => _ResetDialogState();
-}
-
-class _ResetDialogState extends State<_ResetDialog> {
-  final _word = TextEditingController();
-  @override
-  void dispose() {
-    _word.dispose();
-    super.dispose();
-  }
-
+/// The reset sheet (1.26): what goes, a backup first if wanted, and a
+/// swipe to confirm like the iPhone's «slide to power off».
+class _ResetSheet extends StatelessWidget {
+  const _ResetSheet({required this.onBackup});
+  final VoidCallback onBackup;
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final ready = _word.text.trim().toUpperCase() == 'СБРОС';
-    return AlertDialog(
-      title: const Text('Сбросить все данные?'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
+    Widget line(IconData icon, String text) => Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
         children: [
-          const Text(
-            'Операции, счета, цели, бюджеты, регулярные платежи и фото чеков '
-            'будут удалены без возможности восстановления, если нет копии. '
-            'Чтобы подтвердить, введите СБРОС.',
-          ),
-          const SizedBox(height: 12),
-          TextField(
-            key: const ValueKey('reset-word'),
-            controller: _word,
-            autofocus: true,
-            textCapitalization: TextCapitalization.characters,
-            decoration: const InputDecoration(hintText: 'СБРОС'),
-            onChanged: (_) => setState(() {}),
-          ),
+          Icon(icon, size: 18, color: scheme.onSurfaceVariant),
+          const SizedBox(width: 10),
+          Expanded(child: Text(text)),
         ],
       ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context, false),
-          child: const Text('Отмена'),
+    );
+    return SafeArea(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(24, 4, 24, 20),
+        child: Column(
+          key: const ValueKey('reset-sheet'),
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Center(
+              child: Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  color: scheme.error.withValues(alpha: .14),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(Icons.restart_alt_rounded, color: scheme.error),
+              ),
+            ),
+            const SizedBox(height: 14),
+            Text(
+              'Начать с чистого листа?',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: 16),
+            line(
+              Icons.delete_outline_rounded,
+              'Удалятся операции, счета, мечты, бюджеты, платежи и фото чеков',
+            ),
+            line(Icons.palette_outlined, 'Тема, имя и валюта останутся'),
+            line(
+              Icons.waving_hand_outlined,
+              'Затем откроется приветствие, как при первом запуске',
+            ),
+            const SizedBox(height: 8),
+            OutlinedButton.icon(
+              key: const ValueKey('reset-backup-first'),
+              onPressed: onBackup,
+              icon: const Icon(Icons.upload_file_rounded),
+              label: const Text('Сначала сохранить копию'),
+            ),
+            const SizedBox(height: 16),
+            SwipeToConfirm(
+              key: const ValueKey('reset-slider'),
+              label: 'Проведите, чтобы сбросить',
+              onConfirmed: () =>
+                  Future<void>.delayed(const Duration(milliseconds: 250), () {
+                    if (context.mounted) Navigator.pop(context, true);
+                  }),
+            ),
+            const SizedBox(height: 6),
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Отмена'),
+            ),
+          ],
         ),
-        FilledButton(
-          key: const ValueKey('reset-confirm'),
-          style: FilledButton.styleFrom(
-            backgroundColor: scheme.error,
-            foregroundColor: scheme.onError,
-          ),
-          onPressed: ready ? () => Navigator.pop(context, true) : null,
-          child: const Text('Сбросить'),
-        ),
-      ],
+      ),
     );
   }
 }

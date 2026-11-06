@@ -1,5 +1,6 @@
 import 'models.dart';
 import 'service_catalog.dart';
+import 'service_recognizer.dart';
 
 /// Category for a known payee (Finance 1.13): Пятёрочка → «Продукты»,
 /// Whoosh → «Транспорт», a subscription → «Подписки».
@@ -95,13 +96,19 @@ abstract final class CategoryHints {
     required List<Category> categories,
   }) {
     if (payee == null || kind != EntryKind.expense) return null;
-    final place = ServiceCatalog.byName(payee);
+    // 1.26: names in Cyrillic too («чат гпт» → ChatGPT).
+    final spoken = ServiceRecognizer.find(payee);
+    final place = ServiceCatalog.byName(payee) ?? spoken;
     if (place == null || place.group == 'banks') return null;
     final store = place.id.startsWith('store_');
     // A subscription counts only when the payee names the subscription
     // itself (Spotify, Яндекс Плюс), not just its parent brand: «Сбербанк» on
     // a bank screenshot is usually a transfer, not СберПрайм.
-    if (!store && !_loose(payee).contains(_loose(place.name))) return null;
+    if (!store &&
+        spoken?.id != place.id &&
+        !_loose(payee).contains(_loose(place.name))) {
+      return null;
+    }
     final rules = store
         ? _byStore[place.id] ?? _byGroup[place.group]
         : _subscriptions;

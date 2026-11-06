@@ -174,7 +174,7 @@ class Dashboard extends StatelessWidget {
       'overview': block([
         SectionTitle(
           'Обзор месяца',
-          action: DateFormat('LLLL', 'ru').format(DateTime.now()),
+          action: 'Календарь',
           onTap: () => _open(context, const CalendarScreen()),
         ),
         _ExpenseOverview(
@@ -331,15 +331,9 @@ class Dashboard extends StatelessWidget {
       onSave: save((p, ids) => p.copyWith(dashboardOrder: ids)),
       nested: false,
       header: const Reveal(index: 0, child: FinanceHeader()),
-      footer: Padding(
-        key: const ValueKey('dashboard-reorder-hint'),
-        padding: const EdgeInsets.only(top: 18),
-        child: Text(
-          'Удерживайте блок, счёт или цель, чтобы переместить',
-          textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 11, color: scheme.onSurfaceVariant),
-        ),
-      ),
+      // 1.26: no hint here any more — the tour explains dragging.
+      footer: const SizedBox(height: 18),
+
       // 1.9: sections arrive in a short cascade.
       wrap: (i, child) => Reveal(index: i + 1, child: child),
       items: blocks,
@@ -829,26 +823,17 @@ class _ExpenseOverview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = FinanceScope.of(context);
+    final month = DateFormat('LLLL', 'ru').format(DateTime.now());
+    final scheme = Theme.of(context).colorScheme;
+    // 1.26: one compact ring, the month in the middle.
     return SurfaceCard(
-      padding: const EdgeInsets.all(12),
+      key: const ValueKey('expense-overview'),
+      padding: const EdgeInsets.fromLTRB(12, 14, 12, 6),
       child: Column(
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  'Расходы по категориям',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-              ),
-              IconButton(
-                tooltip: 'Открыть аналитику',
-                onPressed: onAnalytics,
-                icon: const Icon(Icons.open_in_new_rounded, size: 18),
-              ),
-            ],
-          ),
           CategoryOrbitChart(
+            title: month[0].toUpperCase() + month.substring(1),
+            diameter: 190,
             slices: categories.map((e) {
               final category = c.category(e.key);
               return CategorySlice(
@@ -866,17 +851,28 @@ class _ExpenseOverview extends StatelessWidget {
             currency: c.currency,
             onDetails: onCategory,
           ),
-          if (difference != null)
-            Padding(
-              padding: const EdgeInsets.only(top: 10),
-              child: Text(
-                'На ${difference!.abs().round()}% ${difference! <= 0 ? 'меньше' : 'больше'}, чем в прошлом месяце',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
+          Row(
+            children: [
+              Expanded(
+                child: difference == null
+                    ? const SizedBox.shrink()
+                    : Padding(
+                        padding: const EdgeInsets.only(left: 6),
+                        child: Text(
+                          'На ${difference!.abs().round()}% ${difference! <= 0 ? 'меньше' : 'больше'}, чем в прошлом месяце',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: scheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ),
               ),
-            ),
+              TextButton(
+                onPressed: onAnalytics,
+                child: const Text('Аналитика'),
+              ),
+            ],
+          ),
         ],
       ),
     );

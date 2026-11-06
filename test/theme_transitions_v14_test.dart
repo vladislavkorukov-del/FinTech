@@ -116,9 +116,14 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.text('Ещё'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Настройки'));
+      await tester.ensureVisible(find.byKey(const ValueKey('more-settings')));
       await tester.pumpAndSettle();
-      expect(find.byType(SettingsScreen), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('more-settings')));
+      await tester.pumpAndSettle();
+      // 1.26: settings are grouped; the look has its own page.
+      await tester.tap(find.byKey(const ValueKey('settings-appearance')));
+      await tester.pumpAndSettle();
+      expect(find.byType(SettingsScreen), findsWidgets);
 
       Future<void> select(
         String label,
@@ -186,7 +191,7 @@ void main() {
             () => controller.data.preferences.accent == preset.key,
           );
           final currentTheme = Theme.of(
-            tester.element(find.byType(SettingsScreen)),
+            tester.element(find.byType(SettingsScreen).last),
           );
           // The running app paints the preset's backdrop over a transparent
           // scaffold (1.8); cards and the backdrop come from the preset.
@@ -214,7 +219,7 @@ void main() {
               await tester.pumpAndSettle();
               expect(
                 Theme.of(
-                  tester.element(find.byType(SettingsScreen)),
+                  tester.element(find.byType(SettingsScreen).last),
                 ).brightness,
                 brightness,
               );

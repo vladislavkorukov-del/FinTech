@@ -196,7 +196,7 @@ void main() {
   testWidgets(
     'global opt-in remains busy until the already queued sync completes',
     (tester) async {
-      await mount(tester, const SettingsScreen());
+      await mount(tester, const SettingsScreen(section: 'notifications'));
       await reveal(tester, toggle());
       await tester.tap(toggle());
       await until(tester, () => notifications.gates.length == 1);
@@ -225,7 +225,7 @@ void main() {
         preferences: controller.data.preferences.copyWith(notifications: true),
       );
       await tester.runAsync(() => repository.save(controller.data));
-      await mount(tester, const SettingsScreen());
+      await mount(tester, const SettingsScreen(section: 'notifications'));
       await reveal(tester, toggle());
       await tester.tap(toggle());
       await until(tester, () => notifications.gates.length == 1);
@@ -245,7 +245,7 @@ void main() {
   testWidgets(
     'scheduling failure is visible and settings retry performs no financial write',
     (tester) async {
-      await mount(tester, const SettingsScreen());
+      await mount(tester, const SettingsScreen(section: 'notifications'));
       await reveal(tester, toggle());
       await tester.tap(toggle());
       await until(tester, () => notifications.gates.length == 1);

@@ -14,7 +14,7 @@ import 'theme/app_theme.dart';
 /// screen's tab: 0 home, 1 operations, 3 analytics, 4 more.
 abstract final class VoiceCommands {
   static const prompt =
-      'Скажите операцию или команду: «Пятёрочка 450», «покажи расходы '
+      'Финора слушает: «Пятёрочка 450», «покажи расходы '
       'за июнь», «хочу машину за 2 млн», «поменяй тему на зелёную»';
 
   static Future<void> run(

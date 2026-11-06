@@ -1,11 +1,11 @@
 import 'dart:async';
-import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../domain/models.dart';
 import '../controller.dart';
+import '../widgets/finora_orb.dart';
 import '../widgets/motion.dart';
 import 'account_import_screen.dart';
 import 'tutorial.dart';
@@ -161,12 +161,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               controller: _pages,
               physics: const NeverScrollableScrollPhysics(),
               children: [
-                _Hello(onStart: () => _go(1)),
+                _Hello(onStart: () => _go(1), visible: _page == 0),
                 _Step(
                   icon: Icons.person_rounded,
                   tile: AppleUi.blue(dark),
                   title: 'Как вас зовут?',
-                  subtitle: 'Так Finance будет к вам обращаться.',
+                  subtitle: 'Так Финора будет к вам обращаться.',
                   primary: 'Продолжить',
                   onPrimary: _name.text.trim().isEmpty
                       ? null
@@ -265,11 +265,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 }
 
-/// «Привет» in many languages, its letters filled with a slowly drifting
-/// gradient, as on the iPhone welcome screen.
+/// «Привет» in many languages (1.26: Finora says it). The letters are
+/// painted with a flowing gradient — no mask layer, so no light specks at
+/// the edges — and one word leaves before the next comes, without a ghost.
 class _Hello extends StatefulWidget {
-  const _Hello({required this.onStart});
+  const _Hello({required this.onStart, required this.visible});
   final VoidCallback onStart;
+  final bool visible;
   @override
   State<_Hello> createState() => _HelloState();
 }
@@ -290,36 +292,43 @@ class _HelloState extends State<_Hello> with SingleTickerProviderStateMixin {
     'Привет',
   ];
   int _i = 0;
-  Timer? _timer, _rest;
+  Timer? _timer;
   late final AnimationController _shine = AnimationController(
     vsync: this,
-    duration: const Duration(seconds: 6),
+    duration: const Duration(milliseconds: 3200),
   );
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    _sync();
+  }
+
+  @override
+  void didUpdateWidget(_Hello old) {
+    super.didUpdateWidget(old);
+    if (old.visible != widget.visible) _sync();
+  }
+
+  /// Moves only while the page is seen.
+  void _sync() {
     _timer?.cancel();
-    if (Motion.ambient(context)) {
-      if (!_shine.isAnimating) _shine.repeat();
-      _timer = Timer.periodic(const Duration(milliseconds: 1800), (_) {
-        if (!mounted) return;
-        setState(() => _i = (_i + 1) % _words.length);
-        // One round, then it rests on «Привет».
-        if (_i == _words.length - 1) {
-          _timer?.cancel();
-          _rest = Timer(const Duration(seconds: 3), () {
-            if (mounted) _shine.stop();
-          });
-        }
-      });
+    if (!widget.visible || !Motion.ambient(context)) {
+      _shine.stop();
+      return;
     }
+    if (!_shine.isAnimating) _shine.repeat();
+    _timer = Timer.periodic(const Duration(milliseconds: 1900), (timer) {
+      if (!mounted) return;
+      setState(() => _i = (_i + 1) % _words.length);
+      // One round of languages, then it rests on «Привет» (still flowing).
+      if (_i == _words.length - 1) timer.cancel();
+    });
   }
 
   @override
   void dispose() {
     _timer?.cancel();
-    _rest?.cancel();
     _shine.dispose();
     super.dispose();
   }
@@ -339,18 +348,34 @@ class _HelloState extends State<_Hello> with SingleTickerProviderStateMixin {
       padding: const EdgeInsets.fromLTRB(32, 24, 32, 28),
       child: Column(
         children: [
-          const Spacer(flex: 5),
+          const Spacer(flex: 4),
+          // 1.26: Finora greets — surprised to see you, glad, a wink, then
+          // calm and blinking. Tap it and it hops.
+          const FinoraCharacter(
+            key: ValueKey('onboarding-finora'),
+            size: 112,
+            moods: [
+              FinoraMood.surprised,
+              FinoraMood.happy,
+              FinoraMood.wink,
+              FinoraMood.happy,
+              FinoraMood.calm,
+            ],
+            step: Duration(milliseconds: 1300),
+          ),
+          const SizedBox(height: 26),
           SizedBox(
-            height: 120,
+            height: 100,
             child: AnimatedSwitcher(
               duration: const Duration(milliseconds: 900),
-              switchInCurve: Curves.easeOutCubic,
-              switchOutCurve: Curves.easeInCubic,
+              // The old word is gone before the new one appears.
+              switchInCurve: const Interval(.42, 1, curve: Curves.easeOutCubic),
+              switchOutCurve: const Interval(.55, 1, curve: Curves.easeIn),
               transitionBuilder: (child, a) => FadeTransition(
                 opacity: a,
                 child: SlideTransition(
                   position: Tween(
-                    begin: const Offset(0, .08),
+                    begin: const Offset(0, .12),
                     end: Offset.zero,
                   ).animate(a),
                   child: child,
@@ -359,51 +384,49 @@ class _HelloState extends State<_Hello> with SingleTickerProviderStateMixin {
               child: AnimatedBuilder(
                 key: ValueKey(_i),
                 animation: _shine,
-                builder: (context, child) => ShaderMask(
-                  blendMode: BlendMode.srcIn,
-                  shaderCallback: (rect) {
-                    final shift = _shine.value * 2;
-                    return LinearGradient(
-                      begin: Alignment(-1 - shift, -.3),
-                      end: Alignment(3 - shift, .3),
-                      colors: colors,
-                      tileMode: TileMode.mirror,
-                    ).createShader(rect);
-                  },
-                  child: child,
-                ),
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Text(
-                    _words[_i],
-                    style: const TextStyle(
-                      fontSize: 80,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: -2.5,
-                      height: 1,
-                      color: Colors.white,
+                builder: (context, _) {
+                  // A band of colors flowing through the letters.
+                  final shift = _shine.value * 600;
+                  return FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      _words[_i],
+                      key: const ValueKey('onboarding-hello'),
+                      style: TextStyle(
+                        fontSize: 76,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: -2.5,
+                        height: 1.1,
+                        foreground: Paint()
+                          ..shader = LinearGradient(
+                            colors: colors,
+                            tileMode: TileMode.repeated,
+                          ).createShader(Rect.fromLTWH(-shift, 0, 600, 90)),
+                      ),
                     ),
-                  ),
-                ),
+                  );
+                },
               ),
             ),
           ),
           const SizedBox(height: 18),
           Text(
-            'Finance',
+            'Финора — ваш финансовый ассистент',
+            key: const ValueKey('onboarding-tagline'),
+            textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w600,
               color: AppleUi.label(dark),
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 6),
           Text(
-            'Ваши деньги — спокойно и под контролем',
+            'Записывает траты с голоса и скриншотов, считает и подсказывает',
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 15, color: AppleUi.secondary(dark)),
           ),
-          const Spacer(flex: 6),
+          const Spacer(flex: 5),
           AppleButton(
             key: const ValueKey('onboarding-start'),
             label: 'Начать',
@@ -862,16 +885,11 @@ class _Done extends StatelessWidget {
       child: Column(
         children: [
           const Spacer(flex: 4),
-          TweenAnimationBuilder<double>(
-            tween: Tween(begin: visible ? 0 : 1, end: 1),
-            duration: Motion.reduced(context)
-                ? Duration.zero
-                : const Duration(milliseconds: 1100),
-            curve: Curves.easeInOutCubic,
-            builder: (_, t, _) => CustomPaint(
-              size: const Size.square(110),
-              painter: _CheckPainter(t: t, color: AppleUi.green(dark)),
-            ),
+          // 1.26: Finora is glad it is all set.
+          FinoraCharacter(
+            key: ValueKey('onboarding-done-finora-$visible'),
+            size: 110,
+            moods: const [FinoraMood.happy, FinoraMood.wink, FinoraMood.happy],
           ),
           const SizedBox(height: 28),
           Text(
@@ -899,7 +917,7 @@ class _Done extends StatelessWidget {
           const Spacer(flex: 5),
           AppleButton(
             key: const ValueKey('onboarding-tour'),
-            label: 'Показать, что умеет Finance',
+            label: 'Показать, что умеет Finora',
             onPressed: onTour,
           ),
           const SizedBox(height: 4),
@@ -916,48 +934,4 @@ class _Done extends StatelessWidget {
       ),
     );
   }
-}
-
-/// A circle drawn first, then the tick, like a payment confirmation.
-class _CheckPainter extends CustomPainter {
-  const _CheckPainter({required this.t, required this.color});
-  final double t;
-  final Color color;
-  @override
-  void paint(Canvas canvas, Size size) {
-    final r = size.width / 2;
-    final c = Offset(r, r);
-    final stroke = Paint()
-      ..color = color
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 6
-      ..strokeCap = StrokeCap.round
-      ..strokeJoin = StrokeJoin.round;
-    final circle = (t / .6).clamp(0.0, 1.0);
-    canvas.drawArc(
-      Rect.fromCircle(center: c, radius: r - 4),
-      -math.pi / 2,
-      2 * math.pi * circle,
-      false,
-      stroke,
-    );
-    final tick = ((t - .55) / .45).clamp(0.0, 1.0);
-    if (tick <= 0) return;
-    final a = Offset(size.width * .29, size.height * .52);
-    final b = Offset(size.width * .44, size.height * .67);
-    final d = Offset(size.width * .72, size.height * .37);
-    final path = Path()..moveTo(a.dx, a.dy);
-    if (tick < .4) {
-      final p = Offset.lerp(a, b, tick / .4)!;
-      path.lineTo(p.dx, p.dy);
-    } else {
-      path.lineTo(b.dx, b.dy);
-      final p = Offset.lerp(b, d, (tick - .4) / .6)!;
-      path.lineTo(p.dx, p.dy);
-    }
-    canvas.drawPath(path, stroke..strokeWidth = 7);
-  }
-
-  @override
-  bool shouldRepaint(_CheckPainter old) => old.t != t || old.color != color;
 }

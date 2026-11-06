@@ -3,7 +3,9 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 
+import '../../domain/category_hints.dart';
 import '../../domain/service_catalog.dart';
+import '../../domain/service_recognizer.dart';
 import '../../domain/voice_entry_parser.dart';
 import '../../services/voice_input_service.dart';
 import 'package:flutter/services.dart';
@@ -21,6 +23,7 @@ import '../../services/receipt_ocr_service.dart';
 import '../controller.dart';
 import '../widgets/common.dart';
 import '../widgets/amount_pad.dart';
+import '../widgets/service_badge.dart';
 import 'management.dart';
 import 'scan_import_screen.dart';
 
@@ -456,7 +459,10 @@ class _EntryEditorState extends State<EntryEditor> {
         categoryId: _kind == EntryKind.transfer ? null : _category,
         subcategory: _kind == EntryKind.transfer ? null : _subcategory,
         date: _date,
-        payee: _payee.text.trim(),
+        // 1.26: «чат гпт» is saved as «ChatGPT».
+        payee: _typedService != null && _typedService == _serviceId
+            ? ServiceCatalog.byId(_typedService)!.name
+            : _payee.text.trim(),
         note: _note.text.trim(),
         tags: _tags.text
             .split(',')
@@ -476,7 +482,10 @@ class _EntryEditorState extends State<EntryEditor> {
             _kind == EntryKind.transfer ||
                 (_serviceId != null &&
                     _serviceId != widget.entry?.serviceId &&
-                    ServiceCatalog.byName(_payee.text)?.id != _serviceId)
+                    (ServiceCatalog.byName(_payee.text) ??
+                                ServiceRecognizer.find(_payee.text))
+                            ?.id !=
+                        _serviceId)
             ? null
             : _serviceId,
         serviceIconPath: _kind == EntryKind.transfer
@@ -546,6 +555,45 @@ class _EntryEditorState extends State<EntryEditor> {
         setState(() => _busy = false);
       }
     }
+  }
+
+  /// A service recognized in the typed payee (1.26), its logo shown in the
+  /// field; and whether the category came from it, so it may change again.
+  String? _typedService;
+  bool _categoryFromPayee = false;
+
+  /// «чат гпт», «нетфликс», «вуш»: the service, its logo and category.
+  void _payeeTyped(String text) {
+    if (_kind == EntryKind.transfer) return;
+    final c = FinanceScope.of(context);
+    final found = ServiceRecognizer.find(text) ?? ServiceCatalog.byName(text);
+    final service = found == null || ServiceCatalog.banks.contains(found)
+        ? null
+        : found;
+    if (service?.id == _typedService) return;
+    setState(() {
+      _typedService = service?.id;
+      if (service == null) {
+        if (_categoryFromPayee) {
+          _category = null;
+          _categoryFromPayee = false;
+        }
+        return;
+      }
+      _serviceId = service.id;
+      if (_category == null || _categoryFromPayee) {
+        final category = CategoryHints.forPayee(
+          service.name,
+          kind: _kind,
+          categories: c.data.categories,
+        );
+        if (category != null) {
+          _category = category;
+          _subcategory = null;
+          _categoryFromPayee = true;
+        }
+      }
+    });
   }
 
   /// Fills the form from heard phrases; nothing is saved until «Сохранить».
@@ -1034,6 +1082,7 @@ class _EntryEditorState extends State<EntryEditor> {
                             label: Text('Последняя: ${last.name}'),
                             onPressed: () => setState(() {
                               _category = last.id;
+                              _categoryFromPayee = false;
                               _subcategory = null;
                             }),
                           ),
@@ -1067,6 +1116,7 @@ class _EntryEditorState extends State<EntryEditor> {
                           selected: _category == cat.id,
                           onSelected: (_) => setState(() {
                             _category = cat.id;
+                            _categoryFromPayee = false;
                             _subcategory = null;
                           }),
                         ),
@@ -1094,10 +1144,24 @@ class _EntryEditorState extends State<EntryEditor> {
               ],
               const SizedBox(height: 20),
               TextFormField(
+                key: const ValueKey('entry-payee'),
                 controller: _payee,
-                decoration: const InputDecoration(
+                onChanged: _payeeTyped,
+                decoration: InputDecoration(
                   labelText: 'Получатель / магазин',
-                  prefixIcon: Icon(Icons.storefront_outlined),
+                  prefixIcon: _typedService == null
+                      ? const Icon(Icons.storefront_outlined)
+                      : Padding(
+                          padding: const EdgeInsets.all(10),
+                          child: ServiceBadge(
+                            serviceId: _typedService,
+                            size: 26,
+                          ),
+                        ),
+                  helperText: _typedService == null
+                      ? null
+                      : 'Финора узнала: '
+                            '${ServiceCatalog.byId(_typedService)!.name}',
                 ),
               ),
               const SizedBox(height: 12),

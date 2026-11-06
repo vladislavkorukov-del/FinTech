@@ -113,6 +113,8 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Ещё'));
     await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Категории'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Категории'));
     await tester.pumpAndSettle();
     expect(find.byType(CategoriesScreen), findsOneWidget);

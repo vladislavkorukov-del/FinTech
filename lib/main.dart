@@ -159,7 +159,7 @@ class FinoraApp extends StatelessWidget {
         FinanceFormat.numberPattern = p.numberFormat;
         FinanceFormat.datePattern = p.dateFormat;
         return MaterialApp(
-          title: 'Finance — личные финансы',
+          title: 'Finora — личные финансы',
           debugShowCheckedModeBanner: false,
           locale: const Locale('ru'),
           supportedLocales: const [Locale('ru'), Locale('en')],
@@ -671,7 +671,7 @@ class _SecurityGateState extends State<SecurityGate>
                       style: Theme.of(context).textTheme.headlineLarge,
                     ),
                     const SizedBox(height: 12),
-                    const Text('Введите PIN для входа в Finance'),
+                    const Text('Введите PIN для входа в Finora'),
                     const SizedBox(height: 28),
                     TextField(
                       controller: _pin,

@@ -6,6 +6,7 @@ import 'package:finora/domain/models.dart';
 import 'package:finora/main.dart';
 import 'package:finora/presentation/controller.dart';
 import 'package:finora/presentation/screens/entry_editor.dart';
+import 'package:finora/presentation/widgets/amount_pad.dart';
 import 'package:finora/presentation/screens/management.dart';
 import 'package:finora/presentation/screens/settings.dart';
 import 'package:finora/presentation/screens/transactions.dart';
@@ -230,5 +231,53 @@ void main() {
     expect(rule.accountId, 'card');
     expect(rule.categoryId, isNotNull);
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('1.26: typed «чат гпт» becomes ChatGPT with logo and category', (
+    tester,
+  ) async {
+    await start(tester);
+    await tester.longPress(find.byKey(const ValueKey('nav-voice')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Покупка или платёж'));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const ValueKey('entry-payee')),
+      'чат гпт',
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Финора узнала: ChatGPT'), findsOneWidget);
+    expect(find.text('Подписки'), findsWidgets);
+    for (final digit in ['2', '0', '0', '0']) {
+      await tester.tap(
+        find.descendant(of: find.byType(AmountPad), matching: find.text(digit)),
+      );
+      await tester.pump();
+    }
+    await tester.pumpAndSettle();
+    final save = find.text('Сохранить операцию');
+    await tester.scrollUntilVisible(
+      save,
+      300,
+      scrollable: find
+          .descendant(
+            of: find.byType(EntryEditor),
+            matching: find.byType(Scrollable),
+          )
+          .first,
+    );
+    await tester.ensureVisible(save);
+    await tester.pumpAndSettle();
+    await tester.tap(save);
+    await flush(tester, () => controller.data.entries.length == 5);
+    final entry = controller.data.entries.firstWhere((e) => e.id.length > 2);
+    expect(entry.payee, 'ChatGPT');
+    expect(entry.serviceId, 'chatgpt');
+    expect(
+      controller.data.categories
+          .firstWhere((c) => c.id == entry.categoryId)
+          .name,
+      'Подписки',
+    );
   });
 }

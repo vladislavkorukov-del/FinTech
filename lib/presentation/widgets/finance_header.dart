@@ -70,7 +70,7 @@ class _FinanceBrandState extends State<FinanceBrand>
     animation: _motion,
     child: Image.asset(
       FinanceBrand.asset,
-      semanticLabel: 'Finance',
+      semanticLabel: 'Finora',
       fit: BoxFit.contain,
       isAntiAlias: true,
       filterQuality: FilterQuality.high,

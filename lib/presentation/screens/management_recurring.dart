@@ -446,7 +446,7 @@ Future<void> showRecurringEditor(
                             showError(
                               reminderContext,
                               const FormatException(
-                                'Разрешите уведомления Finance в настройках Android.',
+                                'Разрешите уведомления Finora в настройках Android.',
                               ),
                             );
                             return;

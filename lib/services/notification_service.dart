@@ -223,7 +223,7 @@ class NotificationService {
         await showOnce(
           key,
           'Как ваши финансы?',
-          'Вы давно не добавляли операции. Обновите учёт в Finance.',
+          'Вы давно не добавляли операции. Обновите учёт в Finora.',
         );
       } else {
         await _schedule(
@@ -255,7 +255,7 @@ class NotificationService {
     await _schedule(
       identifier('monthly'),
       'Итоги финансового месяца',
-      'Доходы, расходы и прогресс целей — в аналитике Finance.',
+      'Доходы, расходы и прогресс целей — в аналитике Finora.',
       monthly,
       match: DateTimeComponents.dayOfMonthAndTime,
     );

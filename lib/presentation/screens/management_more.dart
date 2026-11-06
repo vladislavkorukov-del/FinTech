@@ -1,109 +1,130 @@
 part of 'management.dart';
 
+/// The «Ещё» tab (1.26): everything else, grouped like the iPhone settings.
 class MoreScreen extends StatelessWidget {
   const MoreScreen({super.key});
   @override
   Widget build(BuildContext context) {
     final c = FinanceScope.of(context);
-    final routes =
-        <({String title, String subtitle, IconData icon, Widget page})>[
-          (
-            title: 'Счета',
-            subtitle: 'Карты, наличные и вклады',
-            icon: Icons.wallet_outlined,
-            page: const AccountsScreen(),
-          ),
-          (
-            title: 'Категории',
-            subtitle: 'Доходы, расходы и иконки',
-            icon: Icons.grid_view_rounded,
-            page: const CategoriesScreen(),
-          ),
-          (
-            title: 'Бюджеты',
-            subtitle: 'Расходы в пределах плана',
-            icon: Icons.pie_chart_outline_rounded,
-            page: const BudgetsScreen(),
-          ),
-          (
-            title: 'Накопления',
-            subtitle: 'Цели и пополнения',
-            icon: Icons.savings_outlined,
-            page: const GoalsScreen(),
-          ),
-          (
-            title: 'Регулярные платежи',
-            subtitle: 'Подписки и обязательства',
-            icon: Icons.update_rounded,
-            page: const RecurringScreen(),
-          ),
-          (
-            title: 'Календарь',
-            subtitle: 'Операции по датам',
-            icon: Icons.calendar_month_outlined,
-            page: const CalendarScreen(),
-          ),
-          (
-            title: 'Семья',
-            subtitle: 'Участники общего бюджета',
-            icon: Icons.people_outline_rounded,
-            page: const MembersScreen(),
-          ),
-          (
-            title: 'Настройки',
-            subtitle: 'Стиль, защита и резервные копии',
-            icon: Icons.tune_rounded,
-            page: const SettingsScreen(),
-          ),
-        ];
+    final d = c.data;
+    void open(Widget page) => openFinancePage(context, page);
+    String count(int n) => n == 0 ? '' : '$n';
+    GroupedRow row(
+      String id,
+      IconData icon,
+      Color color,
+      String title,
+      String subtitle,
+      Widget page, {
+      String? value,
+    }) => GroupedRow(
+      key: ValueKey('more-$id'),
+      icon: icon,
+      color: color,
+      title: title,
+      subtitle: subtitle,
+      value: value == null || value.isEmpty ? null : value,
+      onTap: () => open(page),
+    );
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 24, 20, 30),
       children: [
         Text('Ещё', style: Theme.of(context).textTheme.headlineLarge),
-        if (c.data.demo)
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 12),
-            child: Text('Демонстрационный профиль'),
-          ),
-        const SizedBox(height: 12),
-        ...routes.map(
-          (r) => Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: SurfaceCard(
-              padding: const EdgeInsets.all(16),
-              onTap: () => openFinancePage(context, r.page),
-              child: Row(
-                children: [
-                  CategoryBadge(
-                    icon: r.icon,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          r.title,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                        const SizedBox(height: 3),
-                        Text(
-                          r.subtitle,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                      ],
-                    ),
-                  ),
-                  const Icon(Icons.chevron_right, size: 20),
-                ],
+        if (d.demo)
+          Padding(
+            padding: const EdgeInsets.only(top: 6),
+            child: Text(
+              'Сейчас показан пример',
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
           ),
+        const SizedBox(height: 20),
+        GroupedSection(
+          title: 'Деньги',
+          children: [
+            row(
+              'accounts',
+              Icons.account_balance_wallet_rounded,
+              TileColors.blue,
+              'Счета',
+              'Карты, наличные и вклады',
+              const AccountsScreen(),
+              value: count(d.accounts.where((a) => !a.archived).length),
+            ),
+            row(
+              'goals',
+              Icons.star_rounded,
+              TileColors.orange,
+              'Мечты',
+              'Цели и накопления',
+              const GoalsScreen(),
+              value: count(d.goals.length),
+            ),
+            row(
+              'recurring',
+              Icons.event_repeat_rounded,
+              TileColors.purple,
+              'Подписки и платежи',
+              'Регулярные списания и доходы',
+              const RecurringScreen(),
+              value: count(d.recurring.where((r) => r.enabled).length),
+            ),
+          ],
+        ),
+        GroupedSection(
+          title: 'Планирование',
+          children: [
+            row(
+              'budgets',
+              Icons.pie_chart_rounded,
+              TileColors.green,
+              'Бюджеты',
+              'Расходы в пределах плана',
+              const BudgetsScreen(),
+              value: count(d.budgets.length),
+            ),
+            row(
+              'calendar',
+              Icons.calendar_month_rounded,
+              TileColors.red,
+              'Календарь',
+              'Операции и платежи по датам',
+              const CalendarScreen(),
+            ),
+            row(
+              'categories',
+              Icons.category_rounded,
+              TileColors.teal,
+              'Категории',
+              'Доходы, расходы и иконки',
+              const CategoriesScreen(),
+              value: count(d.categories.where((x) => !x.archived).length),
+            ),
+          ],
+        ),
+        GroupedSection(
+          title: 'Общее',
+          children: [
+            row(
+              'members',
+              Icons.people_alt_rounded,
+              TileColors.pink,
+              'Семья',
+              'Участники общего бюджета',
+              const MembersScreen(),
+              value: count(d.members.length),
+            ),
+            row(
+              'settings',
+              Icons.settings_rounded,
+              TileColors.gray,
+              'Настройки',
+              'Вид, защита, копии и обучение',
+              const SettingsScreen(),
+            ),
+          ],
         ),
       ],
     );
