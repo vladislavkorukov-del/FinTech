@@ -128,42 +128,55 @@ class FinanceHeader extends StatelessWidget {
                 key: const ValueKey('header-balance'),
                 borderRadius: BorderRadius.circular(16),
                 onTap: () => open(const AccountsScreen()),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 6,
-                    vertical: 4,
+                child: Ink(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    // Soft accent halo behind the total balance.
+                    gradient: RadialGradient(
+                      radius: 1.4,
+                      colors: [
+                        scheme.primary.withValues(alpha: .18),
+                        scheme.primary.withValues(alpha: 0),
+                      ],
+                    ),
                   ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Text(
-                          'Общий баланс · ${c.currency}',
-                          maxLines: 1,
-                          style: TextStyle(
-                            fontSize: 11,
-                            letterSpacing: .2,
-                            color: scheme.onSurfaceVariant,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 4,
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            'Общий баланс · ${c.currency}',
+                            maxLines: 1,
+                            style: TextStyle(
+                              fontSize: 11,
+                              letterSpacing: .2,
+                              color: scheme.onSurfaceVariant,
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 1),
-                      FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Text(
-                          money(c.balance, c.currency),
-                          key: const ValueKey('header-balance-amount'),
-                          maxLines: 1,
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: -.5,
-                            color: scheme.onSurface,
+                        const SizedBox(height: 1),
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            money(c.balance, c.currency),
+                            key: const ValueKey('header-balance-amount'),
+                            maxLines: 1,
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: -.5,
+                              color: scheme.onSurface,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),

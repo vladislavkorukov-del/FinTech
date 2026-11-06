@@ -178,12 +178,17 @@ void main() {
           final currentTheme = Theme.of(
             tester.element(find.byType(SettingsScreen)),
           );
+          // The running app paints the preset's backdrop over a transparent
+          // scaffold (1.8); cards and the backdrop come from the preset.
+          final expected = AppTheme.build(currentTheme.brightness, preset.key);
+          expect(currentTheme.scaffoldBackgroundColor, Colors.transparent);
           expect(
-            currentTheme.scaffoldBackgroundColor,
-            AppTheme.build(
-              currentTheme.brightness,
-              preset.key,
-            ).scaffoldBackgroundColor,
+            currentTheme.colorScheme.surface,
+            expected.colorScheme.surface,
+          );
+          expect(
+            currentTheme.extension<FinanceBackdrop>()!.top,
+            expected.extension<FinanceBackdrop>()!.top,
           );
           if (mode == 'system') {
             for (final brightness in [Brightness.dark, Brightness.light]) {

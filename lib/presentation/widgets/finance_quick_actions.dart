@@ -16,6 +16,16 @@ class FinanceQuickActions extends StatelessWidget {
       (EntryKind.expense, 'Расход', Icons.remove_rounded),
       (EntryKind.transfer, 'Перевод', Icons.swap_horiz_rounded),
     ];
+    // Each action carries its own accent over the theme's button color.
+    final scheme = Theme.of(context).colorScheme;
+    Color tint(EntryKind kind) => Color.alphaBlend(
+      switch (kind) {
+        EntryKind.income => colors.income,
+        EntryKind.expense => colors.expense,
+        EntryKind.transfer => scheme.primary,
+      }.withValues(alpha: .22),
+      colors.iconBackground,
+    );
     return Row(
       key: const ValueKey('dashboard-actions'),
       children: [
@@ -28,7 +38,7 @@ class FinanceQuickActions extends StatelessWidget {
               style: FilledButton.styleFrom(
                 minimumSize: const Size(0, 48),
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
-                backgroundColor: colors.iconBackground,
+                backgroundColor: tint(actions[i].$1),
                 foregroundColor: colors.iconForeground,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(15),

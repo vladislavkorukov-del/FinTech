@@ -19,6 +19,7 @@ import 'presentation/screens/analytics.dart';
 import 'presentation/screens/management.dart';
 import 'presentation/screens/entry_editor.dart';
 import 'presentation/widgets/common.dart';
+import 'presentation/widgets/finance_background.dart';
 import 'presentation/widgets/finance_header.dart';
 import 'domain/models.dart';
 
@@ -158,16 +159,16 @@ class FinoraApp extends StatelessWidget {
           locale: const Locale('ru'),
           supportedLocales: const [Locale('ru'), Locale('en')],
           localizationsDelegates: GlobalMaterialLocalizations.delegates,
-          theme: AppTheme.build(Brightness.light, p.accent),
-          darkTheme: AppTheme.build(Brightness.dark, p.accent),
+          theme: AppTheme.app(Brightness.light, p.accent),
+          darkTheme: AppTheme.app(Brightness.dark, p.accent),
           themeMode: switch (p.theme) {
             'light' => ThemeMode.light,
             'dark' => ThemeMode.dark,
             _ => ThemeMode.system,
           },
-          builder: requireDeviceSecurity
-              ? (context, child) => SecurityGate(child: child!)
-              : null,
+          builder: (context, child) => FinanceBackground(
+            child: requireDeviceSecurity ? SecurityGate(child: child!) : child!,
+          ),
           home: const HomeShell(),
         );
       },

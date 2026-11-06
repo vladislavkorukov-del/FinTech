@@ -9,9 +9,13 @@ import 'service_badge.dart';
 import '../../domain/service_catalog.dart';
 
 class EntryTile extends StatelessWidget {
-  const EntryTile(this.entry, {super.key, this.swipe = true});
+  const EntryTile(this.entry, {super.key, this.swipe = true, this.onTap});
   final FinanceEntry entry;
   final bool swipe;
+
+  /// Overrides the default «open editor» tap (the dashboard opens a payee
+  /// summary instead).
+  final VoidCallback? onTap;
   @override
   Widget build(BuildContext context) {
     final c = FinanceScope.of(context);
@@ -74,7 +78,7 @@ class EntryTile extends StatelessWidget {
           ),
         ),
       ),
-      onTap: () => showEntryEditor(context, entry: entry),
+      onTap: onTap ?? () => showEntryEditor(context, entry: entry),
     );
     if (!swipe) {
       return tile;

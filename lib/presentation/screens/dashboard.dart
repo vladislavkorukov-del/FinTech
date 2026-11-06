@@ -8,6 +8,7 @@ import '../widgets/common.dart';
 import '../widgets/entry_tile.dart';
 import 'management.dart';
 import 'entry_editor.dart';
+import 'payee_summary_screen.dart';
 import 'transactions.dart';
 import '../widgets/finance_header.dart';
 import '../widgets/finance_quick_actions.dart';
@@ -78,6 +79,7 @@ class Dashboard extends StatelessWidget {
                 amount: totals.income,
                 currency: c.currency,
                 icon: Icons.south_west_rounded,
+                tone: colors.income,
                 onTap: () => operations(EntryKind.income),
               ),
             ),
@@ -88,6 +90,7 @@ class Dashboard extends StatelessWidget {
                 amount: totals.expense,
                 currency: c.currency,
                 icon: Icons.north_east_rounded,
+                tone: colors.expense,
                 onTap: () => operations(EntryKind.expense),
               ),
             ),
@@ -194,7 +197,24 @@ class Dashboard extends StatelessWidget {
                   'Добавьте доход, расход или перевод.',
                 )
               : Column(
-                  children: recent.take(5).map((e) => EntryTile(e)).toList(),
+                  children: recent
+                      .take(5)
+                      .map(
+                        (e) => EntryTile(
+                          e,
+                          // Payee summary with a period choice; transfers and
+                          // operations without a payee open the editor.
+                          onTap:
+                              e.kind == EntryKind.transfer ||
+                                  e.payee.trim().isEmpty
+                              ? null
+                              : () => _open(
+                                  context,
+                                  PayeeSummaryScreen(entry: e),
+                                ),
+                        ),
+                      )
+                      .toList(),
                 ),
         ),
         SectionTitle(
@@ -549,48 +569,78 @@ class _SummaryTile extends StatelessWidget {
     required this.currency,
     required this.icon,
     required this.onTap,
+    required this.tone,
   });
   final String title, currency;
   final int amount;
   final IconData icon;
   final VoidCallback onTap;
+
+  /// Income or expense color: the card is tinted with it.
+  final Color tone;
   @override
-  Widget build(BuildContext context) => SurfaceCard(
-    onTap: onTap,
-    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Icon(
-              icon,
-              size: 17,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final radius = BorderRadius.circular(22);
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: radius,
+        child: Ink(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+          decoration: BoxDecoration(
+            borderRadius: radius,
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color.alphaBlend(tone.withValues(alpha: .26), scheme.surface),
+                Color.alphaBlend(tone.withValues(alpha: .06), scheme.surface),
+              ],
             ),
-            const SizedBox(width: 7),
-            Flexible(
-              child: Text(
-                title,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+            border: Border.all(color: tone.withValues(alpha: .30)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 24,
+                    height: 24,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: tone.withValues(alpha: .22),
+                    ),
+                    child: Icon(icon, size: 15, color: tone),
+                  ),
+                  const SizedBox(width: 7),
+                  Flexible(
+                    child: Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: scheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  money(amount, currency),
+                  style: Theme.of(context).textTheme.titleLarge,
                 ),
               ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 6),
-        FittedBox(
-          fit: BoxFit.scaleDown,
-          child: Text(
-            money(amount, currency),
-            style: Theme.of(context).textTheme.titleLarge,
+            ],
           ),
         ),
-      ],
-    ),
-  );
+      ),
+    );
+  }
 }
 
 class _ExpenseOverview extends StatelessWidget {

@@ -71,6 +71,77 @@ class FinanceColors extends ThemeExtension<FinanceColors> {
   }
 }
 
+/// Painted app background (1.8): a vertical gradient that starts tinted by
+/// the palette and two soft color glows. The plain [ThemeData.scaffoldBackgroundColor]
+/// stays the palette's base color underneath.
+@immutable
+class FinanceBackdrop extends ThemeExtension<FinanceBackdrop> {
+  const FinanceBackdrop({
+    required this.top,
+    required this.middle,
+    required this.bottom,
+    required this.glowA,
+    required this.glowB,
+  });
+  final Color top, middle, bottom, glowA, glowB;
+
+  static FinanceBackdrop of(BuildContext context) {
+    final theme = Theme.of(context);
+    final base = theme.colorScheme.surfaceContainerLowest;
+    return theme.extension<FinanceBackdrop>() ??
+        FinanceBackdrop(
+          top: base,
+          middle: base,
+          bottom: base,
+          glowA: Colors.transparent,
+          glowB: Colors.transparent,
+        );
+  }
+
+  /// Derives a backdrop from a base color and two accents.
+  factory FinanceBackdrop.derive({
+    required bool dark,
+    required Color base,
+    required Color tint,
+    required Color glow,
+    required Color second,
+    double strength = 1,
+  }) => FinanceBackdrop(
+    top: Color.lerp(base, tint, (dark ? .42 : .30) * strength)!,
+    middle: Color.lerp(base, tint, (dark ? .12 : .08) * strength)!,
+    bottom: Color.lerp(base, second, (dark ? .16 : .12) * strength)!,
+    glowA: glow.withValues(alpha: (dark ? .20 : .26) * strength),
+    glowB: second.withValues(alpha: (dark ? .16 : .20) * strength),
+  );
+
+  @override
+  FinanceBackdrop copyWith({
+    Color? top,
+    Color? middle,
+    Color? bottom,
+    Color? glowA,
+    Color? glowB,
+  }) => FinanceBackdrop(
+    top: top ?? this.top,
+    middle: middle ?? this.middle,
+    bottom: bottom ?? this.bottom,
+    glowA: glowA ?? this.glowA,
+    glowB: glowB ?? this.glowB,
+  );
+
+  @override
+  FinanceBackdrop lerp(covariant FinanceBackdrop? other, double t) {
+    if (other == null) return this;
+    return FinanceBackdrop(
+      top: Color.lerp(top, other.top, t)!,
+      middle: Color.lerp(middle, other.middle, t)!,
+      bottom: Color.lerp(bottom, other.bottom, t)!,
+      glowA: Color.lerp(glowA, other.glowA, t)!,
+      glowB: Color.lerp(glowB, other.glowB, t)!,
+    );
+  }
+}
+
 /// Finance supports the warm Coffee palette and preserves earlier presets.
 /// User-defined category colors are separate from the product color system.
 abstract final class AppTheme {
@@ -123,6 +194,13 @@ abstract final class AppTheme {
     // Legacy accents remain readable, without reviving the old multicolor UI.
     _ => lime,
   };
+
+  /// Theme used by the running app: [build] plus a transparent scaffold so
+  /// the painted [FinanceBackdrop] shows behind every screen.
+  static ThemeData app(Brightness brightness, String selected) {
+    final theme = build(brightness, selected);
+    return theme.copyWith(scaffoldBackgroundColor: Colors.transparent);
+  }
 
   static ThemeData build(Brightness brightness, String selected) {
     if (selected == 'coffee') {
@@ -181,6 +259,13 @@ abstract final class AppTheme {
     );
     return base.copyWith(
       extensions: [
+        FinanceBackdrop.derive(
+          dark: dark,
+          base: dark ? darkBase : lightBase,
+          tint: dark ? Color.lerp(seed, const Color(0xFF1E3A2A), .45)! : seed,
+          glow: seed,
+          second: dark ? sage : const Color(0xFF9EC5B0),
+        ),
         FinanceColors(
           expense: dark ? const Color(0xFFD6B58E) : const Color(0xFF7A6046),
           income: dark ? seed : graphite,
@@ -453,7 +538,16 @@ abstract final class AppTheme {
       highlightColor: palette.accent.withValues(alpha: .12),
       splashColor: palette.accent.withValues(alpha: .12),
       scaffoldBackgroundColor: base,
-      extensions: [colors],
+      extensions: [
+        colors,
+        FinanceBackdrop.derive(
+          dark: dark,
+          base: base,
+          tint: dark ? palette.panel : palette.accent,
+          glow: palette.accent,
+          second: palette.signal,
+        ),
+      ],
       textTheme: inherited.textTheme.apply(bodyColor: ink, displayColor: ink),
       appBarTheme: inherited.appBarTheme.copyWith(foregroundColor: ink),
       iconTheme: IconThemeData(color: colors.iconForeground),
@@ -819,7 +913,17 @@ abstract final class AppTheme {
     return inherited.copyWith(
       colorScheme: scheme,
       scaffoldBackgroundColor: base,
-      extensions: [colors],
+      extensions: [
+        colors,
+        // Espresso: warm brown top, lemon and coral glows instead of black.
+        FinanceBackdrop.derive(
+          dark: dark,
+          base: base,
+          tint: dark ? coffeeTaupe : coffeeHighlight,
+          glow: coffeeHighlight,
+          second: coffeeCoral,
+        ),
+      ],
       textTheme: inherited.textTheme.apply(bodyColor: ink, displayColor: ink),
       appBarTheme: inherited.appBarTheme.copyWith(foregroundColor: ink),
       iconTheme: IconThemeData(color: colors.iconForeground),
