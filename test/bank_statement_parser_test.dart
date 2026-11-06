@@ -160,7 +160,8 @@ void main() {
       );
       expect(d.isStatement, isFalse);
       expect(d.drafts, hasLength(1));
-      expect(d.drafts.single.amountMinor, 24480);
+      // Paper receipts are not recognized any more: one empty draft.
+      expect(d.drafts.single.amountMinor, isNull);
     },
   );
   test('simple receipt with total is protected even without fiscal marker', () {

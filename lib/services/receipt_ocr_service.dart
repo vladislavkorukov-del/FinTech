@@ -9,10 +9,6 @@ class ReceiptOcrResult {
   final double confidence;
   final List<RecognizedLine> lines;
 
-  /// Rows of a second, enlarged pass over the receipt's «ИТОГ» band
-  /// (optional; empty for older native builds and non-receipt images).
-  final List<String> focusRows;
-
   /// Digits-only re-reads of the amount column of a bank list, one per row
   /// (optional; empty for older native builds and for receipts).
   final List<RecognizedLine> amountLines;
@@ -21,7 +17,6 @@ class ReceiptOcrResult {
     required this.text,
     required this.confidence,
     this.lines = const [],
-    this.focusRows = const [],
     this.amountLines = const [],
   });
 }
@@ -97,20 +92,10 @@ class ReceiptOcrService {
         maxLines: 200,
         maxText: 512,
       );
-      final rawFocus = response['focus'];
-      if (rawFocus != null &&
-          (rawFocus is! List ||
-              rawFocus.length > 160 ||
-              rawFocus.any((row) => row is! String || row.length > 512))) {
-        throw _invalidResponse;
-      }
       return ReceiptOcrResult(
         text: text,
         confidence: confidence,
         lines: lines,
-        focusRows: List.unmodifiable(
-          (rawFocus as List? ?? const []).cast<String>(),
-        ),
         amountLines: amountLines,
       );
     } on PlatformException catch (error) {

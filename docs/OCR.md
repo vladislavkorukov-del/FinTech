@@ -370,3 +370,20 @@ two new photos and a 2× copy simulating a camera-sized frame) give the
 hardware acceleration; a phone is expected to be one to two orders of
 magnitude faster, not measured. The «Распознанный текст» section of the
 editor now also lists the ИТОГ search rows for diagnosis.
+
+## Paper receipts removed (1.7.0)
+
+At the owner's request the recognition of paper/till receipts was removed;
+only screenshots from bank apps are recognized (one operation or a history
+list). Removed: the camera option, the native «ИТОГ» search pass (whole-page
+block reading and band re-reads), `ReceiptTotal` and its tests/fixtures.
+Kept: illumination flattening, the per-row amount-column re-read for bank
+lists, single-operation and list parsing, the private image attachment
+(«Добавить чек» only stores a picture, it never reads it).
+
+If an image looks like a paper receipt (fiscal fields, quantity × price rows,
+a total with tender/item lines) the editor shows one draft with an **empty
+amount** and the note «Похоже на бумажный чек. Распознавание чеков
+отключено…»; nothing is pre-filled from the receipt and it is never split
+into list operations. The sections above about receipt totals describe
+1.6.x and are kept as history.

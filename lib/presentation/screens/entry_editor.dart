@@ -190,45 +190,15 @@ class _EntryEditorState extends State<EntryEditor> {
 
   Future<void> _scan({String? initialPath}) async {
     if (_scanning || _busy) return;
-    ImageSource? source;
-    if (initialPath == null) {
-      source = await showModalBottomSheet<ImageSource>(
-        context: context,
-        useSafeArea: true,
-        builder: (context) => SafeArea(
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  ListTile(
-                    leading: const Icon(Icons.photo_library_outlined),
-                    title: const Text('Скриншот или фото из галереи'),
-                    onTap: () => Navigator.pop(context, ImageSource.gallery),
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.photo_camera_outlined),
-                    title: const Text(
-                      'Сфотографировать чек или список операций',
-                    ),
-                    onTap: () => Navigator.pop(context, ImageSource.camera),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      );
-      if (source == null || !mounted) return;
-    }
+    // Screenshots from a bank app only; paper-receipt recognition was removed.
+    const ImageSource source = ImageSource.gallery;
     final epoch = ++_scanEpoch;
     String? path;
     var adopted = false;
     setState(() => _scanning = true);
     try {
       path = initialPath == null
-          ? await _images.pick(source!)
+          ? await _images.pick(source)
           : await _images.copy(XFile(initialPath));
       if (path == null || !mounted || epoch != _scanEpoch) return;
       _ownedScans.add(path);
@@ -243,7 +213,6 @@ class _EntryEditorState extends State<EntryEditor> {
       final document = BankStatementParser.parse(
         result.text,
         lines: result.lines,
-        focusRows: result.focusRows,
         amountLines: result.amountLines,
         categories: c.data.categories,
         history: c.data.entries,
@@ -327,9 +296,7 @@ class _EntryEditorState extends State<EntryEditor> {
         _note.text = draft.comment;
         _attachment = path;
         _scanApplied = true;
-        _scanText = result.focusRows.isEmpty
-            ? result.text
-            : '${result.text.trim()}\n\n— Поиск строки ИТОГ —\n${result.focusRows.join('\n')}';
+        _scanText = result.text;
         _scanWarnings = warnings;
       });
       adopted = true;
@@ -564,10 +531,7 @@ class _EntryEditorState extends State<EntryEditor> {
                 children: [
                   const CircularProgressIndicator(),
                   const SizedBox(height: 24),
-                  const Text(
-                    'Читаем чек или скриншот',
-                    textAlign: TextAlign.center,
-                  ),
+                  const Text('Читаем скриншот', textAlign: TextAlign.center),
                   const SizedBox(height: 8),
                   const Text(
                     'Изображение обрабатывается на устройстве.',
@@ -636,7 +600,7 @@ class _EntryEditorState extends State<EntryEditor> {
                   key: const ValueKey('scan-receipt'),
                   onPressed: _busy ? null : () => _scan(),
                   icon: const Icon(Icons.document_scanner_outlined),
-                  label: const Text('Распознать чек или скриншот'),
+                  label: const Text('Распознать скриншот из банка'),
                 ),
                 const SizedBox(height: 16),
               ],

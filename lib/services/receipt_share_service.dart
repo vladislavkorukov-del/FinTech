@@ -56,8 +56,7 @@ class ReceiptShareService {
       throw ReceiptShareException(error.code, switch (error.code) {
         'SHARE_IMAGE_TOO_LARGE' =>
           'Изображение слишком большое. Максимум — 20 МБ.',
-        'SHARE_INVALID_IMAGE' =>
-          'Поделиться можно только изображением чека или скриншотом.',
+        'SHARE_INVALID_IMAGE' => 'Поделиться можно только скриншотом из банка.',
         'SHARE_BUSY' => 'Дождитесь загрузки предыдущего изображения.',
         _ =>
           'Не удалось открыть изображение. Попробуйте выбрать его из галереи.',

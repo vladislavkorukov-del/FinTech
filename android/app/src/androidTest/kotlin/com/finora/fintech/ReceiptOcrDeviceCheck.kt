@@ -48,7 +48,6 @@ class ReceiptOcrDeviceCheck {
                     put("text", result["text"])
                     put("confidence", result["confidence"])
                     put("lines", JSONArray(result["lines"] as List<*>))
-                    put("focus", JSONArray(result["focus"] as List<*>))
                     put("amounts", JSONArray(result["amounts"] as List<*>))
                 }
             } catch (error: Throwable) {

@@ -1,4 +1,22 @@
-# Проверка Finance 1.6.4
+# Проверка Finance 1.7.0
+
+6 ноября 2026. Распознавание бумажных чеков удалено по решению владельца; остаются скриншоты из банков. `com.finora.fintech`, прежний сертификат, `finora.db`, схема version3 — без изменений.
+
+| Проверка | Результат |
+|---|---|
+| `dart format` / `flutter analyze` | без изменений / No issues found |
+| `flutter test --no-pub` | **341 passed, 0 failed, 0 skipped** (тесты итога чека удалены вместе с функцией; чек теперь проверяется как «пустая сумма + пояснение») |
+| `tool/check_native_ocr_v16.py` | банковские фикстуры 1.5 без изменений; тонкий шрифт банка 8/8 |
+| `:app:compileReleaseKotlin`, `compileDebugAndroidTestKotlin` | exit 0 |
+| Release | прежний сертификат `65c17c4a…350b42`; 1.7.0 / code 12; INTERNET нет; zipalign ok; метка «Поделиться» — «Скриншот в Finance» |
+
+ZIP SHA-256: `107bae968c701a57b2429429a8907b7bd89cfd0de96efadc4c1a452790810f58`.
+
+Не проверено на телефоне.
+
+---
+
+## Предыдущая версия: проверка Finance 1.6.4
 
 6 ноября 2026. Первый прогон настоящего нативного OCR (Tesseract4Android 4.9.0, JNI, Bitmap) — эмулятор Android 14 x86_64 без аппаратного ускорения. `com.finora.fintech`, прежний сертификат, `finora.db`, схема version3 — без изменений.
 

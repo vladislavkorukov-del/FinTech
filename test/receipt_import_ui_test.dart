@@ -65,7 +65,7 @@ void main() {
     );
     controller = FinanceController(repo, _Quiet(), await repo.load());
     text =
-        'ПЯТЁРОЧКА\nКАССОВЫЙ ЧЕК\n05.11.2026 14:32\nИТОГО 244,80 ₽\nНДС 22,25\nНАЛИЧНЫМИ 500,00\nСДАЧА 255,20';
+        'Т-Банк\nПокупка\nПЯТЁРОЧКА\n−244,80 ₽\n05.11.2026 14:32\nКарта •••• 4321\nБаланс 12 000,00 ₽';
     ocrCalls = 0;
     pending = null;
     shared = null;

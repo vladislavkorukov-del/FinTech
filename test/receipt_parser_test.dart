@@ -33,44 +33,6 @@ void main() {
     now: now,
   );
 
-  test(
-    'cash receipt chooses total over VAT, tender, change, products and fiscal IDs',
-    () {
-      const text = '''ПЯТЁРОЧКА
-КАССОВЫЙ ЧЕК
-ПРИХОД
-05.11.2026 14:32:18
-ИНН 7701234567
-Молоко 2 x 89,90 = 179,80
-Хлеб 1 x 65,00 = 65,00
-ИТОГО 244,80 ₽
-В том числе НДС 10% 22,25
-Оплата наличными 5000,00
-СДАЧА 4755,20
-ФН 7285440600123456
-ФД 1234 ФП 12121212''';
-      final draft = parse(text);
-      expect(draft.amountMinor, 24480);
-      expect(draft.currency, 'RUB');
-      expect(draft.payee, 'ПЯТЁРОЧКА');
-      expect(draft.kind, EntryKind.expense);
-      expect(draft.date, DateTime(2026, 11, 5, 14, 32, 18));
-      expect(draft.categoryId, 'food');
-      expect(draft.rawText, text);
-    },
-  );
-
-  test(
-    'amount due outranks pre-discount total and repeated total is not ambiguous',
-    () {
-      final draft = parse(
-        'ВкусВилл\nКассовый чек\nИТОГО 1 200,00 руб.\nСКИДКА 200,00\nК ОПЛАТЕ 1 000,00 руб.\nК оплате 1000,00 руб.\n05.11.2026 10:30',
-      );
-      expect(draft.amountMinor, 100000);
-      expect(draft.categoryId, 'food');
-    },
-  );
-
   test('bank amount beats balance, cashback, commission and masked card', () {
     final draft = parse(
       'СберБанк\nОперация выполнена\nПокупка\nМагазин: ЛУКОЙЛ\nСумма операции\n-2 345,67 ₽\nКарта •••• 4321\nОстаток 128 000,00 ₽\nКэшбэк 234,00 ₽\nКомиссия 20,00 ₽\n05.11.2026 13:47',
@@ -198,17 +160,6 @@ void main() {
   });
 
   test(
-    'competing totals require manual choice instead of selecting the largest',
-    () {
-      final draft = parse(
-        'Кассовый чек\nИТОГО 1000 ₽\nДругой кассовый чек\nИТОГО 500 ₽',
-      );
-      expect(draft.amountMinor, isNull);
-      expect(draft.warnings.any((w) => w.contains('несколько')), isTrue);
-    },
-  );
-
-  test(
     'multiple currencies without a unique selected amount remain explicit',
     () {
       final draft = parse('Конвертация\n100 USD\n9 000 RUB');
@@ -334,17 +285,6 @@ void main() {
   );
 
   test(
-    'merchant category outranks mixed line-items and only one total is produced',
-    () {
-      final draft = parse(
-        'ВКУСВИЛЛ\nКассовый чек\nМолоко 100 ₽\nКофе 200 ₽\nИтого 300 ₽',
-      );
-      expect(draft.amountMinor, 30000);
-      expect(draft.categoryId, 'food');
-    },
-  );
-
-  test(
     'subcategory keywords can select a parent but never create a subcategory ID',
     () {
       final draft = parse(
@@ -416,7 +356,7 @@ void main() {
   test(
     'copyWith can clear every nullable suggestion and leaves original unchanged',
     () {
-      final draft = parse('SPAR\nКассовый чек\nИтого 100 ₽\n05.11.2026');
+      final draft = parse('Покупка\nSPAR\n-100 ₽\n05.11.2026');
       final cleared = draft.copyWith(
         amountMinor: null,
         currency: null,
@@ -430,23 +370,6 @@ void main() {
       expect(cleared.categoryId, isNull);
       expect(draft.amountMinor, 10000);
       expect(draft.categoryId, 'food');
-    },
-  );
-  test(
-    'duplicate totals with omitted local currency remain one compatible amount',
-    () {
-      final draft = parse('SPAR\nКассовый чек\nИтого 1000 RUB\nИТОГО 1000');
-      expect(draft.amountMinor, 100000);
-      expect(draft.currency, 'RUB');
-    },
-  );
-  test(
-    'tax-exempt total stays usable while separate VAT lines stay excluded',
-    () {
-      final draft = parse(
-        'Ромашка\nКассовый чек\nИтого без НДС 1 200,00 ₽\nСдача 3 800,00 ₽',
-      );
-      expect(draft.amountMinor, 120000);
     },
   );
   test(
@@ -489,13 +412,6 @@ void main() {
     for (final label in ['Баланс', 'Остаток', 'Комиссия', 'Кэшбэк']) {
       expect(parse('$label\n1000 ₽').amountMinor, isNull, reason: label);
     }
-  });
-  test('split receipt total beats tender and supports written rubles', () {
-    final draft = parse(
-      'Кассовый чек\nРомашка\nИтого\n1 250 рублей\nНаличными\n5000 ₽\nСдача\n3750 ₽',
-    );
-    expect(draft.amountMinor, 125000);
-    expect(draft.currency, 'RUB');
   });
   test(
     'screenshot signed amount fills when ruble glyph was omitted by OCR',
@@ -552,4 +468,20 @@ void main() {
       expect(ReceiptParser.parseAmount('89 000,00 2'), isNull);
     },
   );
+
+  test('paper receipts are no longer recognized: no amount, clear note', () {
+    for (final text in [
+      'ПЯТЁРОЧКА\nКАССОВЫЙ ЧЕК\nМолоко 179,80\nИТОГО 244,80 ₽\nНДС 22,25\nНАЛИЧНЫМИ 500,00\nСДАЧА 255,20\nФН 7380440700123456',
+      'ВкусВилл\nКассовый чек\nИТОГО 1 200,00 руб.\nСКИДКА 200,00\nК ОПЛАТЕ 1 000,00 руб.\nК оплате 1000,00 руб.\n05.11.2026 10:30',
+      'Кассовый чек\nИТОГО 1000 ₽\nДругой кассовый чек\nИТОГО 500 ₽',
+      'ВКУСВИЛЛ\nКассовый чек\nМолоко 100 ₽\nКофе 200 ₽\nИтого 300 ₽',
+      'SPAR\nКассовый чек\nИтого 1000 RUB\nИТОГО 1000',
+      'Ромашка\nКассовый чек\nИтого без НДС 1 200,00 ₽\nСдача 3 800,00 ₽',
+      'Кассовый чек\nРомашка\nИтого\n1 250 рублей\nНаличными\n5000 ₽\nСдача\n3750 ₽',
+    ]) {
+      final draft = parse(text);
+      expect(draft.amountMinor, isNull, reason: text);
+      expect(draft.warnings, contains(ReceiptParser.paperReceiptWarning));
+    }
+  });
 }

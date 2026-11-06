@@ -41,15 +41,11 @@ internal class ReceiptOcrEngine(private val context: Context) {
             "кассов|товарн|фискальн|(?<![а-я])ндс(?![а-я])|grand\\s+total|subtotal",
             RegexOption.IGNORE_CASE,
         )
-        // Broader receipt evidence for the focused total pass (not for the
-        // sparse retry decision above, which keeps its 1.5 behavior).
+        // Receipt evidence: such images get no bank amount-column re-read.
         private val RECEIPT_LIKE = Regex(
             "кассов|товарн|фискальн|(?<![а-я])ндс(?![а-я])|кассир|безнал|наличн|итог|к\\s*оплате|grand\\s+total|subtotal",
             RegexOption.IGNORE_CASE,
         )
-        private const val MAX_FOCUS_BANDS = 3
-        private const val MAX_FOCUS_ROWS = 160
-        private const val MAX_FOCUS_PIXELS = 4_000_000L
         private const val MAX_AMOUNT_ROWS = 200
         private val MODELS = mapOf(
             "rus" to "e16e5e036cce1d9ec2b00063cf8b54472625b9e14d893a169e2b0dedeb4df225",
@@ -89,14 +85,8 @@ internal class ReceiptOcrEngine(private val context: Context) {
                 val sparse = recognizePass(engine, bitmap, TessBaseAPI.PageSegMode.PSM_SPARSE_TEXT, cancelled)
                 choosePass(first, sparse)
             } else first
-            // Second, enlarged pass over the receipt's total band. It adds
-            // evidence only; the main text/lines stay exactly as recognized.
+            // Paper-receipt recognition was removed: bank screenshots only.
             val receiptLike = RECEIPT_LIKE.containsMatchIn(chosen.text)
-            // Big bold «ИТОГ» rows are often skipped by automatic layout
-            // analysis; also look for them when the page has little money text.
-            val focus = if (receiptLike || chosen.moneyCount < 2) {
-                focusTotal(engine, bitmap, chosen, cancelled)
-            } else emptyList()
             // Bank lists: re-read the amount column of every row, enlarged,
             // binarized and digits-only. Thin fonts otherwise turn
             // «-10 000 ₽» into «-10» plus «ОООР».
@@ -107,7 +97,6 @@ internal class ReceiptOcrEngine(private val context: Context) {
                 "text" to chosen.text,
                 "confidence" to chosen.confidence,
                 "lines" to chosen.lines,
-                "focus" to focus,
                 "amounts" to amounts,
             )
         } finally {
@@ -173,119 +162,6 @@ internal class ReceiptOcrEngine(private val context: Context) {
             }
         }
         return Pass(text, engine.meanConfidence().coerceIn(0, 100) / 100.0, lines)
-    }
-
-    /** Owner's rule: the receipt amount is the «ИТОГ» row. Reads the whole
-     * page once more as one uniform block (keeps big bold total rows that
-     * automatic segmentation drops), then re-reads every total band found in
-     * either pass enlarged and binarized as a single line. Rows are returned
-     * as optional `focus`; failures other than cancellation return none. */
-    private fun focusTotal(
-        engine: TessBaseAPI,
-        bitmap: Bitmap,
-        chosen: Pass,
-        cancelled: AtomicBoolean,
-    ): List<String> {
-        val rows = mutableListOf<String>()
-        try {
-            // The whole-page block pass is the slow part. Skip it when the
-            // main pass already read a total row together with a money value;
-            // the enlarged band re-read below still double-checks that row.
-            val mainHasTotal = chosen.lines.any {
-                val text = it["text"] as String
-                totalLike(text) && MONEY.containsMatchIn(text)
-            }
-            val block = if (mainHasTotal) {
-                Pass("", chosen.confidence, emptyList())
-            } else {
-                recognizePass(engine, bitmap, TessBaseAPI.PageSegMode.PSM_SINGLE_BLOCK, cancelled)
-            }
-            for (line in block.lines) {
-                if (rows.size >= MAX_FOCUS_ROWS) break
-                rows.add((line["text"] as String).take(512))
-            }
-            // A block-pass row at the height of a total label read by either
-            // pass is the «ИТОГ» row even when its own label is garbled
-            // («ic =92 .00» beside a main-pass «ТОГ»). Mark it explicitly.
-            val labels = (chosen.lines + block.lines).filter { totalLike(it["text"] as String) }
-            for (line in block.lines) {
-                if (rows.size >= MAX_FOCUS_ROWS) break
-                val text = line["text"] as String
-                if (totalLike(text) || text.none { it.isDigit() }) continue
-                val center = ((line["top"] as Double) + (line["bottom"] as Double)) / 2
-                if (labels.any { label ->
-                        center >= (label["top"] as Double) && center <= (label["bottom"] as Double)
-                    }
-                ) rows.add("[ИТОГ] ${text.take(500)}")
-            }
-            val bands = mutableListOf<DoubleArray>()
-            for (line in labels) {
-                val top = (line["top"] as Double) * bitmap.height
-                val bottom = (line["bottom"] as Double) * bitmap.height
-                val height = max(4.0, bottom - top)
-                bands.add(doubleArrayOf(max(0.0, top - .5 * height), min(bitmap.height.toDouble(), bottom + .5 * height), height))
-            }
-            bands.sortBy { it[0] }
-            val merged = mutableListOf<DoubleArray>()
-            for (band in bands) {
-                val last = merged.lastOrNull()
-                if (last != null && band[0] < last[1]) {
-                    last[1] = max(last[1], band[1])
-                    last[2] = max(last[2], band[2])
-                } else merged.add(band)
-            }
-            for (band in merged.take(MAX_FOCUS_BANDS)) {
-                checkCancellation(cancelled)
-                val y0 = band[0].roundToInt()
-                val y1 = band[1].roundToInt()
-                if (y1 - y0 < 8) continue
-                val wanted = (64.0 / band[2]).coerceIn(1.0, 3.0)
-                val area = bitmap.width.toLong() * (y1 - y0)
-                val scale = min(wanted, sqrt(MAX_FOCUS_PIXELS.toDouble() / area)).coerceAtLeast(.5)
-                val crop = Bitmap.createBitmap(bitmap, 0, y0, bitmap.width, y1 - y0)
-                var scaled = crop
-                try {
-                    scaled = Bitmap.createScaledBitmap(
-                        crop,
-                        max(1, (crop.width * scale).roundToInt()),
-                        max(1, (crop.height * scale).roundToInt()),
-                        true,
-                    )
-                } finally {
-                    if (scaled !== crop && crop !== bitmap) crop.recycle()
-                }
-                if (!scaled.isMutable) {
-                    val copy = scaled.copy(Bitmap.Config.ARGB_8888, true)
-                    if (scaled !== bitmap) scaled.recycle()
-                    scaled = copy
-                }
-                try {
-                    flattenIllumination(scaled)
-                    binarize(scaled, 170)
-                    engine.setPageSegMode(TessBaseAPI.PageSegMode.PSM_SINGLE_LINE)
-                    engine.setImage(scaled)
-                    val text = engine.getUTF8Text() ?: ""
-                    checkCancellation(cancelled)
-                    for (row in text.lines()) {
-                        val value = row.trim()
-                        if (value.isEmpty()) continue
-                        if (rows.size >= MAX_FOCUS_ROWS) return rows
-                        // This band was cut around a total label.
-                        rows.add(if (totalLike(value)) value.take(512) else "[ИТОГ] ${value.take(500)}")
-                    }
-                } finally {
-                    if (scaled !== bitmap) scaled.recycle()
-                }
-            }
-        } catch (failure: ReceiptOcrFailure) {
-            if (failure.code == "OCR_CANCELLED") throw failure
-            return emptyList()
-        } catch (_: Exception) {
-            return emptyList()
-        } catch (_: OutOfMemoryError) {
-            return emptyList()
-        }
-        return rows
     }
 
     /** One digits-only line per text row, read from the area right of that
@@ -378,51 +254,6 @@ internal class ReceiptOcrEngine(private val context: Context) {
             }
             bitmap.setPixels(row, 0, bitmap.width, 0, y, bitmap.width, 1)
         }
-    }
-
-    /** OCR-tolerant total label: Latin look-alikes, one wrong letter. */
-    private fun totalLike(text: String): Boolean {
-        val words = text.split(Regex("\\s+"))
-            .filter { word -> word.any { it.isLetter() } }
-            .take(3)
-            .map(::cyrillicLetters)
-            .filter { it.isNotEmpty() }
-        if (words.isEmpty()) return false
-        val first = words[0]
-        if (listOf("ИТОГ", "ИТОГО", "ВСЕГО").any { distance(first, it) <= 1 }) return true
-        if (words.joinToString("").contains("КОПЛАТЕ")) return true
-        return words.size > 1 && distance(words[0] + words[1], "ИТОГ") <= 1
-    }
-
-    private fun cyrillicLetters(word: String): String {
-        val map = mapOf(
-            'A' to 'А', 'B' to 'В', 'C' to 'С', 'E' to 'Е', 'H' to 'Н', 'K' to 'К', 'M' to 'М',
-            'O' to 'О', 'P' to 'Р', 'T' to 'Т', 'X' to 'Х', 'Y' to 'У', 'N' to 'И', 'U' to 'И', 'W' to 'И',
-            'R' to 'Г', 'F' to 'Г', '0' to 'О', 'Ё' to 'Е', 'Й' to 'И',
-        )
-        val out = StringBuilder()
-        for (ch in word.uppercase()) {
-            val mapped = map[ch] ?: ch
-            if (mapped in 'А'..'Я') out.append(mapped)
-        }
-        return out.toString()
-    }
-
-    private fun distance(a: String, b: String): Int {
-        var previous = IntArray(b.length + 1) { it }
-        for (i in a.indices) {
-            val current = IntArray(b.length + 1)
-            current[0] = i + 1
-            for (j in b.indices) {
-                current[j + 1] = minOf(
-                    current[j] + 1,
-                    previous[j + 1] + 1,
-                    previous[j] + if (a[i] == b[j]) 0 else 1,
-                )
-            }
-            previous = current
-        }
-        return previous[b.length]
     }
 
     /** Divides each pixel by a smooth estimate of the paper brightness

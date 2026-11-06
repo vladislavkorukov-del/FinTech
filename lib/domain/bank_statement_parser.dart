@@ -1,6 +1,5 @@
 import 'models.dart';
 import 'receipt_parser.dart';
-import 'receipt_total.dart';
 import 'scan_document.dart';
 import 'scan_draft.dart';
 
@@ -15,7 +14,6 @@ abstract final class BankStatementParser {
     List<FinanceEntry> history = const [],
     DateTime? now,
     String? defaultCurrency,
-    List<String> focusRows = const [],
     List<RecognizedLine> amountLines = const [],
   }) {
     final clock = now ?? DateTime.now();
@@ -35,7 +33,6 @@ abstract final class BankStatementParser {
     final receipt =
         _receiptMarker.hasMatch(source.toLowerCase()) ||
         ReceiptParser.isReceiptText(source) ||
-        focusRows.any(ReceiptTotal.isTotalRow) ||
         (total && (!heading || signedRows == 0));
     ScanDocument single() {
       String parseText = text;
@@ -50,7 +47,6 @@ abstract final class BankStatementParser {
         categories: categories,
         history: history,
         now: clock,
-        focusRows: focusRows,
       );
       if (!identical(parseText, text)) {
         if (draft.amountMinor == null) {
@@ -59,7 +55,6 @@ abstract final class BankStatementParser {
             categories: categories,
             history: history,
             now: clock,
-            focusRows: focusRows,
           );
           if (plain.amountMinor != null) draft = plain;
         }

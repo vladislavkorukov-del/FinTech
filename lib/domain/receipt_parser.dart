@@ -1,6 +1,5 @@
 import 'finance_engine.dart';
 import 'models.dart';
-import 'receipt_total.dart';
 import 'scan_draft.dart';
 
 /// Conservative, deterministic extraction from OCR, not a bank integration.
@@ -11,7 +10,6 @@ abstract final class ReceiptParser {
     required List<Category> categories,
     List<FinanceEntry> history = const [],
     DateTime? now,
-    List<String> focusRows = const [],
   }) {
     final warnings = <String>[];
     final source = normalizeText(text);
@@ -35,8 +33,7 @@ abstract final class ReceiptParser {
     // Fiscal/till receipts list many prices, VAT, tender and change. Only an
     // explicit total may become the operation amount there; otherwise the
     // amount is left empty for review instead of picking or adding up items.
-    final fiscal =
-        isReceiptText(source) || focusRows.any(ReceiptTotal.isTotalRow);
+    final fiscal = isReceiptText(source);
     final candidates = <_Amount>[];
     for (var i = 0; i < lines.length; i++) {
       final line = lines[i];
@@ -133,37 +130,11 @@ abstract final class ReceiptParser {
       }
     }
     _Amount? amount;
-    final total = fiscal
-        ? ReceiptTotal.find(lines, focusRows: focusRows)
-        : null;
-    if (total != null) {
-      candidates
-        ..clear()
-        ..add(_Amount(total.minor, null, 1000, 0, false));
-      if (total.warning != null) warnings.add(total.warning!);
-    } else if (fiscal &&
-        (lines.any(ReceiptTotal.isTotalRow) ||
-            focusRows.any(ReceiptTotal.isTotalRow))) {
-      // A total row exists but its value is unreadable or contradicted:
-      // never fall back to another labelled number.
+    if (fiscal) {
+      // Paper/till receipt recognition was removed at the owner's request:
+      // only bank-app screenshots are recognized. Nothing is pre-filled.
       candidates.clear();
-      warnings.add(
-        ReceiptTotal.totalRowValues([...lines, ...focusRows]).length > 1
-            ? 'Найдено несколько возможных итоговых сумм. Выберите сумму операции вручную.'
-            : 'Строка «ИТОГ» не распознана уверенно. Введите сумму вручную — цены, НДС и оплата не суммируются.',
-      );
-    } else if (fiscal) {
-      // Only a total-labelled value (ИТОГ/ИТОГО/ВСЕГО/TOTAL, also integer
-      // «1 250 рублей») may remain; «сумма операции» and the like do not.
-      final explicit = candidates.where((c) => c.score >= 130).toList();
-      if (explicit.isEmpty) {
-        warnings.add(
-          'Итог чека не найден. Введите сумму вручную — цены товаров, НДС и оплата не суммируются.',
-        );
-      }
-      candidates
-        ..clear()
-        ..addAll(explicit);
+      warnings.add(paperReceiptWarning);
     }
     if (candidates.isNotEmpty) {
       candidates.sort((a, b) => b.score.compareTo(a.score));
@@ -292,19 +263,18 @@ abstract final class ReceiptParser {
     caseSensitive: false,
   );
 
+  static const paperReceiptWarning =
+      'Похоже на бумажный чек. Распознавание чеков отключено — введите сумму вручную или выберите скриншот из банковского приложения.';
+
   /// Shop/till receipt evidence that survives a partly lost header: fiscal
   /// fields, a total label, payment-method lines or quantity × price rows.
   static bool isReceiptText(String text) {
     final lower = normalizeText(text).toLowerCase().replaceAll('ё', 'е');
     if (_fiscalMarker.hasMatch(lower)) return true;
     final items = _itemRow.allMatches(lower).length;
-    final total =
-        RegExp(
-          r'(?<![а-яa-z])итого?(?![а-яa-z])|grand\s+total|subtotal',
-        ).hasMatch(lower) ||
-        normalizeText(
-          text,
-        ).split(RegExp(r'[\r\n]+')).any((row) => ReceiptTotal.isTotalRow(row));
+    final total = RegExp(
+      r'(?<![а-яa-z])итого?(?![а-яa-z])|grand\s+total|subtotal',
+    ).hasMatch(lower);
     final tender = RegExp(
       r'безналичн|наличными|электронными|сдача|внесено|получено\s+от\s+покуп',
     ).hasMatch(lower);

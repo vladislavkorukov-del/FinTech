@@ -28,7 +28,12 @@ void main() {
             Category(id: 'food', name: 'Продукты', kind: EntryKind.expense),
           ],
         );
-        expect(draft.amountMinor, fixture == 'receipt' ? 24480 : 125050);
+        // Paper receipts are no longer recognized: no amount, a clear note.
+        expect(draft.amountMinor, fixture == 'receipt' ? isNull : 125050);
+        if (fixture == 'receipt') {
+          expect(draft.warnings, contains(ReceiptParser.paperReceiptWarning));
+          return;
+        }
         expect(draft.currency, 'RUB');
         expect(draft.categoryId, 'food');
         expect(draft.kind, EntryKind.expense);
