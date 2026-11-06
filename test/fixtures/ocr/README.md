@@ -12,7 +12,9 @@ receipt (DejaVu Sans Mono) with rotation, blur, a shadow gradient, noise and
 JPEG compression. `v16-*` entries use the 1.6 pipeline (illumination
 flattening + enlarged second pass over the total band, emulated on the host);
 `v15-pipeline-*` uses the 1.5 preprocessing without the second pass. `text`,
-`lines` and `focus` are kept exactly as recognized, including OCR mistakes.
+`lines` and `focus` are kept exactly as recognized (`v163-*`: the 1.6.3
+focus pass — whole-page single-block reading plus binarized re-reads of the
+total bands), including OCR mistakes.
 `printedTotalMinor` is the total drawn on the image; `expectedMinor` is what
 the parser must return (null where the text is unreadable). These are not
 photographs of real receipts.

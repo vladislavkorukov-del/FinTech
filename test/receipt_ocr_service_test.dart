@@ -329,7 +329,7 @@ void main() {
     for (final bad in [
       'ИТОГ',
       [1],
-      List.filled(41, 'x'),
+      List.filled(161, 'x'),
       ['x' * 513],
     ]) {
       messenger.setMockMethodCallHandler(channel, (_) async {

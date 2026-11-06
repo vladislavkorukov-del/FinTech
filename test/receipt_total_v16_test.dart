@@ -98,11 +98,9 @@ void main() {
     final d = scan(text, lines: lines);
     single(d, 21980);
     expect(d.drafts.single.rawText, text);
-    // Without coordinates the label is not tied to its value; the printed
-    // 219,80 is still confirmed by its 10% VAT (19,98) and offered for review.
-    final plain = scan(text);
-    single(plain, 21980);
-    expect(plain.drafts.single.warnings.join(' '), contains('проверьте'));
+    // Without coordinates the label is not tied to its value: the amount is
+    // only ever taken from the «ИТОГ» row, so it stays empty for review.
+    single(scan(text), null);
   });
 
   test('OCR spaces and mixed Latin letters inside the total label', () {
@@ -154,13 +152,11 @@ void main() {
       missing.drafts.single.warnings.join(' '),
       contains('Итог чека не найден'),
     );
-    // Without a readable label a cashless payment row is the charged amount;
-    // it is offered with a warning. Item prices alone never are.
+    // Owner's rule: no «ИТОГ» row, no amount — not even the card payment.
     final partial = scan(
       'Молоко 2 x 89,99 =179,98 ₽\nХлеб 1 x 45,00 =45,00 ₽\nОПЛАТА КАРТОЙ 224,98 ₽',
     );
-    single(partial, 22498);
-    expect(partial.drafts.single.warnings.join(' '), contains('проверьте'));
+    single(partial, null);
     final itemsOnly = scan(
       'Кассовый чек\nМолоко 2 x 89,99 =179,98 ₽\nХлеб 1 x 45,00 =45,00 ₽\nСыр 1 x 320,00 =320,00 ₽',
     );

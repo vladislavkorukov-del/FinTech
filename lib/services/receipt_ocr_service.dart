@@ -100,7 +100,7 @@ class ReceiptOcrService {
       final rawFocus = response['focus'];
       if (rawFocus != null &&
           (rawFocus is! List ||
-              rawFocus.length > 40 ||
+              rawFocus.length > 160 ||
               rawFocus.any((row) => row is! String || row.length > 512))) {
         throw _invalidResponse;
       }

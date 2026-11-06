@@ -1,5 +1,6 @@
 import 'models.dart';
 import 'receipt_parser.dart';
+import 'receipt_total.dart';
 import 'scan_document.dart';
 import 'scan_draft.dart';
 
@@ -34,6 +35,7 @@ abstract final class BankStatementParser {
     final receipt =
         _receiptMarker.hasMatch(source.toLowerCase()) ||
         ReceiptParser.isReceiptText(source) ||
+        focusRows.any(ReceiptTotal.isTotalRow) ||
         (total && (!heading || signedRows == 0));
     ScanDocument single() {
       String parseText = text;

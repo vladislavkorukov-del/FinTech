@@ -110,21 +110,34 @@ def prepared(path):
 
 
 def focus_rows(gray, lines, folder):
-    rows, bands = [], []
-    for line in lines:
+    """Same as focusTotal() in 1.6.3: whole-page single-block pass, then an
+    enlarged, flattened, binarized single-line re-read of every total band."""
+    path = folder / "block.png"
+    gray.save(path)
+    block = v15.recognized(path, 6)["lines"]
+    rows = [line["text"] for line in block]
+    bands = []
+    for line in lines + block:
         if total_like(line["text"]):
             h = (line["bottom"] - line["top"]) * gray.height
-            bands.append((max(0, line["top"] * gray.height - h),
-                          min(gray.height, line["bottom"] * gray.height + 2.2 * h), h))
-    if not bands:
-        bands.append((gray.height * .45, gray.height, 0))
-    for y0, y1, h in bands[:3]:
+            bands.append([max(0, line["top"] * gray.height - .5 * h),
+                          min(gray.height, line["bottom"] * gray.height + .5 * h), h])
+    bands.sort()
+    merged = []
+    for band in bands:
+        if merged and band[0] < merged[-1][1]:
+            merged[-1][1] = max(merged[-1][1], band[1])
+            merged[-1][2] = max(merged[-1][2], band[2])
+        else:
+            merged.append(band)
+    for y0, y1, h in merged[:3]:
         crop = gray.crop((0, int(y0), gray.width, int(y1)))
-        scale = min(3.0, max(1.0, 64 / h)) if h else 1.5
+        scale = min(3.0, max(1.0, 64 / h))
         crop = flatten(crop.resize((int(crop.width * scale), int(crop.height * scale)), Image.BICUBIC))
-        path = folder / "focus.png"
-        crop.save(path)
-        rows += [line["text"] for line in v15.recognized(path, 6)["lines"]]
+        crop = crop.point(lambda v: 255 if v > 170 else 0)
+        band_path = folder / "focus.png"
+        crop.save(band_path)
+        rows += [line["text"] for line in v15.recognized(band_path, 7)["lines"]]
     return rows
 
 

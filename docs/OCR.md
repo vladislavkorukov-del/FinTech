@@ -303,3 +303,42 @@ amounts were wrong and two rows missing. Committed evidence uses a synthetic
 screen in the same style: `test/fixtures/ocr/v162-bank-thin.json`,
 `test/bank_screen_v161_test.dart`, `tool/check_native_ocr_v16.py`. The 1.5
 bank fixtures are unchanged. Not run on a phone.
+
+## The amount is the «ИТОГ» row (1.6.3)
+
+Owner's rule: the receipt amount is read **only from the «ИТОГ» row** — not
+from `ВСЕГО`, `СУММА`, `СУММА ЧЕКА`, cash, cashless, change or VAT, even when
+those print the same number.
+
+- `ИТОГ`/`ИТОГО` rows win. `ИТОГ К ОПЛАТЕ`/`К ОПЛАТЕ` are used only when no
+  plain `ИТОГ` row exists, or when a `СКИДКА` row stands between `ИТОГО` and
+  `К ОПЛАТЕ` (the discounted amount is what was charged). `ВСЕГО`/`TOTAL`
+  only when there is neither.
+- Native focus pass (receipts, or any page with fewer than two money rows):
+  the whole page is read once more as one uniform block
+  (`PSM_SINGLE_BLOCK`). On seven real receipt images supplied by the owner
+  automatic segmentation missed or garbled the big bold `ИТОГ` row in six
+  of seven; the block reading found the row in all seven, with a cleanly
+  readable value in six (the crumpled DNS photo needed the cashless row to
+  confirm a damaged reading). Every total
+  band found in either pass is then re-read enlarged, flattened and
+  binarized as a single line.
+- All readings of the «ИТОГ» row are reconciled: the most frequent value
+  wins; a `≡` read as a leading digit (`52550.00` beside `2550.00`) is
+  merged; a damaged reading (`=4199_o0`) counts only when the cashless row or
+  the VAT row confirms it exactly; a single reading off by one digit is
+  corrected only when VAT arithmetic confirms the other value. A reading
+  that equals a VAT amount (skewed row join), readings that disagree without
+  confirmation, or no readable «ИТОГ» row leave the amount **empty**.
+- VAT rates recognized: 5, 7, 10, 18, 20, 22 %, also `18/118`, `10/110`.
+
+| Images (host emulation) | 1.6.2 rules | 1.6.3 |
+|---|---|---|
+| 7 real receipts from the owner (shop, restaurant, rail, DNS photo, correction) | — | **7/7 from the ИТОГ row, 0 wrong** |
+| Synthetic set 1 (60) | 59 / 0 wrong | **58 / 0 wrong** |
+| Synthetic set 2 (40, harsher) | 32 / 0 wrong | **30 / 0 wrong**, 10 empty |
+
+A few synthetic receipts that 1.6.2 solved from the VAT or payment row alone
+now stay empty: that is the owner's rule (only the «ИТОГ» row), not a
+regression. The real images are not committed (third-party receipts with
+names); tests use the relevant rows as read.

@@ -18,7 +18,7 @@ void main() {
               as List)
           .cast<Map<String, dynamic>>();
 
-  test('fixtures are present', () => expect(fixtures, hasLength(18)));
+  test('fixtures are present', () => expect(fixtures, hasLength(19)));
   for (final f in fixtures) {
     test('${f['name']}: ${f['note']}', () {
       final lines = [
@@ -78,39 +78,80 @@ void main() {
     }
   });
 
-  test('VAT confirms, a VAT amount never becomes the total', () {
-    // 8073,10 × 20/120 = 1345,52.
-    final match = ReceiptTotal.find([
-      '=8073.10',
-      'СУММА НДС 20% =1345.52',
-      'НАЛИЧНЫМИ =9000.00',
-      'СДАЧА =926.90',
-    ]);
-    expect(match?.minor, 807310);
-    expect(match?.warning, contains('проверьте'));
+  test('only the «ИТОГ» row is the amount; VAT only checks it', () {
+    // No «ИТОГ» row: a VAT-consistent number is still not the amount.
     expect(
-      ReceiptTotal.find(['ИТОГ', '=1181.18', '=7087.10', '=7087.10'])?.minor,
-      708710,
+      ReceiptTotal.find([
+        '=8073.10',
+        'СУММА НДС 20% =1345.52',
+        'НАЛИЧНЫМИ =9000.00',
+        'СДАЧА =926.90',
+      ]),
+      isNull,
+    );
+    // «ИТОГ» row whose value is really the VAT (1181,18 = 7087,10 × 20/120):
+    // a skewed join, left empty instead of pre-filling the VAT.
+    expect(
+      ReceiptTotal.find(['ИТОГ', '=1181.18', '=7087.10', '=7087.10']),
+      isNull,
     );
     // 2026 rate 22 %: 1220,00 × 22/122 = 220,00.
     expect(
       ReceiptTotal.find(['ИТОГ =1220.00', 'НДС 22% =220.00'])?.evidence,
       containsAll(['label', 'vat']),
     );
-  });
-
-  test('one-digit disagreement is resolved by evidence or left empty', () {
-    // Payment and VAT agree on 8073,10; the label row was misread.
+    // Owner's examples: ИТОГ wins over ВСЕГО, СУММА ЧЕКА, СУММА, cash, VAT.
     expect(
       ReceiptTotal.find([
-        'ИТОГ =9073.10',
-        'СУММА НДС 20% =1345.52',
-        'БЕЗНАЛИЧНЫМИ =8073.10',
+        'ВСЕГО ≡10000.00',
+        'ИТОГ ≡10000.00',
+        'НАЛИЧНЫМИ ≡10000.00',
+        'СДАЧА ≡0.00',
+        'НДС 18% ≡1525.42',
       ])?.minor,
-      807310,
+      1000000,
     );
-    // Two readings, nothing confirms either: do not guess.
-    expect(ReceiptTotal.find(['ИТОГ =9073.10', '=8073.10']), isNull);
+    expect(
+      ReceiptTotal.find([
+        'СУММА =2550.00',
+        'ИТОГ ≡2550.00',
+        'НАЛИЧНЫМИ =1000.00',
+        'ЭЛЕКТРОННЫМИ =1550.00',
+        'Сумма НДС 10% =231.82',
+      ])?.minor,
+      255000,
+    );
+  });
+
+  test('several readings of the «ИТОГ» row are reconciled', () {
+    // Chek correction photo: main pass read «≡» as 5, block pass is right.
+    expect(
+      ReceiptTotal.find(
+        ['ИТОГ 52550.00) ae', 'Сумма НДС 10% =231.82'],
+        focusRows: ['Wor =2550. 00'],
+      )?.minor,
+      255000,
+    );
+    // Restaurant: only the whole-page block pass read the total row.
+    expect(
+      ReceiptTotal.find(
+        ['Бутерброд с красной икрой 250.00*1шт. =250.00'],
+        focusRows: ['итог =1570.00', '№ итог | =1570.00 /'],
+      )?.minor,
+      157000,
+    );
+    // Crumpled photo: damaged «ИТОГ» digits confirmed by the cashless row.
+    final damaged = ReceiptTotal.find([
+      'ИТОГ. =4199_o0.',
+      'БЕЗНАЛИЧНЫМИ =4199.00',
+      'НДС 20% 699,83',
+    ]);
+    expect(damaged?.minor, 419900);
+    expect(damaged?.warning, contains('Проверьте'));
+    // A damaged reading without confirmation is not used.
+    expect(ReceiptTotal.find(['ИТОГ. =4199_o0.']), isNull);
+    // «*» and spaced prefixes: «ИТОГ * 260.00».
+    expect(ReceiptTotal.find(['ИТОГ _*260.00'])?.minor, 26000);
   });
 
   test('cash tendered and change are never the total', () {

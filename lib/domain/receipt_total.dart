@@ -11,16 +11,16 @@ class ReceiptTotalMatch {
 
 /// Finds the total of a shop receipt from OCR rows (top to bottom).
 ///
-/// The amount always is a number printed on the receipt. It is selected by
-/// evidence, never computed:
-///  * a total label (`ИТОГ`, `ИТОГО`, `К ОПЛАТЕ`, `ВСЕГО`, `TOTAL`) read with
-///    OCR tolerance — Latin look-alikes, one wrong/missing letter, spaces;
-///    the value is on the label row or on one of the next two rows;
-///  * an independent confirmation: the same value on a cashless payment row
-///    (`БЕЗНАЛИЧНЫМИ`, `ЭЛЕКТРОННЫМИ`, `КАРТОЙ`) or equal to the sum of the
-///    printed item amounts.
-/// Item prices, VAT, cash tendered, change, discounts and bonuses never win.
-/// Two different, equally supported values give null (review by the person).
+/// Owner's rule (1.6.3): the amount is **the value of the «ИТОГ» row** and
+/// nothing else. `ИТОГ`/`ИТОГО` rows win; `ИТОГ К ОПЛАТЕ`/`К ОПЛАТЕ` are used
+/// only when the receipt has no plain `ИТОГ` row, `ВСЕГО`/`TOTAL` only when
+/// it has neither. Cash, cashless, VAT, `СУММА`, items and change are never
+/// the amount. They only help to choose between several OCR readings of the
+/// same «ИТОГ» row (main pass, whole-page block pass, enlarged band re-read):
+/// the most frequent reading wins, a `≡` misread as a leading digit
+/// (`52550.00` beside `2550.00`) is merged, and a damaged reading
+/// (`=4199_o0`) counts only when cashless payment or VAT confirm it exactly.
+/// Unresolved disagreement leaves the amount empty.
 abstract final class ReceiptTotal {
   static ReceiptTotalMatch? find(
     List<String> rows, {
@@ -28,188 +28,163 @@ abstract final class ReceiptTotal {
   }) {
     final parsed = [for (final row in rows) _Row.parse(row)];
     final focus = [for (final row in focusRows) _Row.parse(row)];
-    final scores = <int, int>{};
-    final evidence = <int, Set<String>>{};
-    void add(int value, int score, String why) {
-      if (value <= 0) return;
-      scores[value] = (scores[value] ?? 0) + score;
-      (evidence[value] ??= {}).add(why);
-    }
-
+    final all = [...parsed, ...focus];
+    final readings = <(int rank, int value, bool loose)>[];
     for (final list in [parsed, focus]) {
-      final focused = identical(list, focus);
       for (var i = 0; i < list.length; i++) {
         final row = list[i];
         if (row.kind != _Kind.total) continue;
-        var value = row.amounts.isEmpty ? null : row.amounts.last;
-        // Value printed below the label (next row or one row further when the
-        // big «ИТОГ» font shifts the right column), skipping excluded rows.
+        int? value = row.amounts.isEmpty ? null : row.amounts.last;
+        // Value printed below the label (big «ИТОГ» font shifts the column).
         for (var j = i + 1; value == null && j <= i + 2; j++) {
           if (j >= list.length) break;
           final next = list[j];
-          if (next.kind == _Kind.total || next.kind == _Kind.excluded) break;
-          if (next.kind == _Kind.none && next.amounts.length == 1) {
-            value = next.amounts.single;
-          }
+          if (next.kind != _Kind.none) break;
+          if (next.amounts.length == 1) value = next.amounts.single;
         }
+        value ??= row.wholeTail;
         if (value != null) {
-          add(value, focused ? 110 : 100, focused ? 'focus-label' : 'label');
+          readings.add((row.rank, value, false));
+        } else {
+          for (final loose in row.loose) {
+            readings.add((row.rank, loose, true));
+          }
         }
       }
     }
-    final all = [...parsed, ...focus];
-    // Every value printed on a non-item row (total, bare value, payment).
-    final printed = <int>{
-      for (final row in all)
-        if (row.kind == _Kind.none ||
-            row.kind == _Kind.total ||
-            row.kind == _Kind.payment)
-          ...row.amounts,
-    };
-    // Cashless payment always equals the amount charged.
-    for (final value in <int>{
-      for (final row in all)
-        if (row.kind == _Kind.payment && row.amounts.isNotEmpty)
-          row.amounts.last,
-    }) {
-      add(value, 45, 'payment');
+    if (readings.isEmpty) return null;
+    var bestRank = readings.map((r) => r.$1).reduce((a, b) => a < b ? a : b);
+    // «ИТОГО 1 200 · СКИДКА 200 · К ОПЛАТЕ 1 000»: the discounted amount due
+    // is what was charged. Only a discount row between them changes the rule.
+    if (bestRank == 1 && readings.any((r) => r.$1 == 2)) {
+      final first = parsed.indexWhere(
+        (r) => r.kind == _Kind.total && r.rank == 1,
+      );
+      final due = parsed.lastIndexWhere(
+        (r) => r.kind == _Kind.total && r.rank == 2,
+      );
+      if (first >= 0 &&
+          due > first &&
+          parsed
+              .sublist(first + 1, due)
+              .any((r) => r.kind == _Kind.excluded && r.discount)) {
+        bestRank = 2;
+      }
     }
-    // A single VAT line fixes the total: VAT = total × rate / (100 + rate).
+    final chosen = readings.where((r) => r.$1 == bestRank).toList();
+
+    // Independent confirmations, used only to choose among «ИТОГ» readings.
+    final confirm = <int, Set<String>>{};
+    for (final row in all) {
+      if (row.kind == _Kind.payment && row.amounts.isNotEmpty) {
+        (confirm[row.amounts.last] ??= {}).add('payment');
+      }
+    }
     final vats = <(int, int)>{
       for (final row in all)
         if (row.vat != null) row.vat!,
     };
-    // A VAT row counts only when its amount really is the VAT of a printed
-    // value; a skewed photo can join «НДС 20%» with the total's row.
-    final vatValues = <int>{};
-    if (vats.length == 1) {
-      final (rate, vat) = vats.single;
-      for (final value in {...printed, ...scores.keys}) {
-        if (value > vat &&
-            ((value * rate / (100 + rate)) - vat).abs() <= 1.01) {
-          add(value, 45, 'vat');
-          vatValues.add(vat);
+    bool vatFits(int value) =>
+        vats.length == 1 &&
+        ((value * vats.single.$1 / (100 + vats.single.$1)) - vats.single.$2)
+                .abs() <=
+            1.01;
+
+    final votes = <int, int>{};
+    for (final r in chosen.where((r) => !r.$3)) {
+      votes[r.$2] = (votes[r.$2] ?? 0) + 1;
+    }
+    // `≡` read as a leading digit: 52550.00 next to 2550.00 is one value.
+    for (final value in votes.keys.toList()) {
+      final text = '$value';
+      for (final other in votes.keys.toList()) {
+        if (other == value || !votes.containsKey(value)) continue;
+        if (text.length == '$other'.length + 1 && text.endsWith('$other')) {
+          votes[other] = (votes[other] ?? 0) + votes.remove(value)!;
         }
       }
     }
-    // A total whose decimal separator OCR lost («2548 ‘ 20») is accepted
-    // only when it matches the single VAT row exactly.
-    if (vats.length == 1) {
-      final (rate, vat) = vats.single;
-      for (final row in all) {
-        if (row.kind == _Kind.excluded || row.kind == _Kind.item) continue;
-        for (final value in row.loose) {
-          if (!printed.contains(value) &&
-              value > vat &&
-              ((value * rate / (100 + rate)) - vat).abs() <= 1.01) {
-            add(value, 45, 'vat');
-            add(value, 10, 'loose');
-          }
-        }
+    // A damaged reading counts only with an exact confirmation.
+    for (final r in chosen.where((r) => r.$3)) {
+      if (confirm.containsKey(r.$2) || vatFits(r.$2)) {
+        votes[r.$2] = (votes[r.$2] ?? 0) + 1;
       }
     }
-    // Implicit VAT pairs (the VAT row's label was lost): total T and VAT
-    // T × rate / (100 + rate) printed as separate values. The VAT value
-    // can never be the total.
-    for (final value in printed) {
-      for (final other in printed) {
-        if (other >= value) continue;
-        for (final rate in const [22, 20, 10]) {
-          if (((value * rate / (100 + rate)) - other).abs() <= 1.01) {
-            add(value, 30, 'vat');
-            vatValues.add(other);
-          }
-        }
-      }
+    if (votes.isEmpty) return null;
+    int support(int v) =>
+        votes[v]! * 10 +
+        (confirm[v]?.isNotEmpty ?? false ? 5 : 0) +
+        (vatFits(v) ? 5 : 0);
+    final ranked = votes.keys.toList()
+      ..sort((a, b) => support(b).compareTo(support(a)));
+    var best = ranked.first;
+    if (ranked.length > 1 && support(ranked[1]) == support(best)) return null;
+    // Readings that differ in one digit with no confirmation: do not guess.
+    if (ranked.length > 1 &&
+        _oneDigitApart(best, ranked[1]) &&
+        support(best) - support(ranked[1]) < 5) {
+      return null;
     }
-    // The same value read on two rows (or in both passes) is corroborated.
-    final counts = <int, int>{};
-    for (final row in all) {
-      if (row.kind == _Kind.item || row.kind == _Kind.excluded) continue;
-      for (final value in row.amounts.toSet()) {
-        counts[value] = (counts[value] ?? 0) + 1;
-      }
-    }
-    counts.forEach((value, count) {
-      if (count >= 2 && scores.containsKey(value)) add(value, 20, 'repeat');
-    });
-    // Sum of printed item amounts confirms a printed value; never invents one.
-    final items = [
-      for (final row in parsed)
-        if (row.kind == _Kind.item && row.amounts.isNotEmpty) row.amounts.last,
-    ];
-    if (items.length >= 2) {
-      final sum = items.fold<int>(0, (a, b) => a + b);
-      if (scores.containsKey(sum) || printed.contains(sum)) {
-        add(sum, 40, 'items-sum');
-      }
-    }
-    for (final value in vatValues) {
-      if (!(evidence[value]?.contains('payment') ?? false)) {
-        scores.remove(value);
-        evidence.remove(value);
-      }
-    }
-    if (scores.isEmpty) return null;
-    bool labelled(int v) =>
-        evidence[v]!.contains('label') || evidence[v]!.contains('focus-label');
-    bool confirmed(int v) =>
-        evidence[v] != null &&
-        evidence[v]!.any(
-          (w) =>
-              w == 'payment' || w == 'vat' || w == 'items-sum' || w == 'repeat',
-        );
-    final ranked = scores.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
-    var best = ranked.first.key;
-    if (ranked.length > 1 && ranked[1].value == ranked.first.value) {
-      final tied = ranked.where((e) => e.value == ranked.first.value);
-      final sure = tied.where((e) => confirmed(e.key)).toList();
-      if (sure.length != 1) return null;
-      best = sure.single.key;
-    }
-    // Without a readable label a value needs an independent confirmation.
-    if (!labelled(best) && !confirmed(best)) return null;
-    // The same printed number read twice with one different digit: trust the
-    // confirmed reading; with no confirmation leave the amount for review.
-    var switched = false;
-    if (!confirmed(best)) {
-      final rivals = {
-        ...printed,
-        ...scores.keys,
-      }.where((v) => v != best && _oneDigitApart(v, best)).toList();
-      if (rivals.isNotEmpty) {
-        final sure = rivals.where(confirmed).toList();
-        if (sure.length != 1) return null;
-        best = sure.single;
-        switched = true;
-      }
-    }
-    // A label-only total contradicted by the single VAT row is a misread
-    // digit somewhere: leave it for review instead of guessing.
-    if (!confirmed(best) && vats.length == 1) {
-      final (rate, vat) = vats.single;
-      if (vat < best * .25 &&
-          ((best * rate / (100 + rate)) - vat).abs() > 1.01) {
+    // A single «ИТОГ» reading with a misread digit: the same number printed
+    // in the total's column (or on the cashless row) that VAT / payment
+    // confirm is the correct reading of that row. A reading contradicted by
+    // the single VAT row is left for review.
+    var corrected = false;
+    final sure = vatFits(best) || (confirm[best]?.isNotEmpty ?? false);
+    if (!sure && votes[best]! < 2) {
+      final printed = <int>{
+        for (final row in all)
+          if (row.kind == _Kind.none ||
+              row.kind == _Kind.total ||
+              row.kind == _Kind.payment)
+            ...row.amounts,
+      };
+      final fitting = printed
+          .where((v) => _oneDigitApart(best, v) && vatFits(v))
+          .toList();
+      if (fitting.length == 1) {
+        best = fitting.single;
+        corrected = true;
+      } else if (vats.length == 1 &&
+          vats.single.$2 < best * .25 &&
+          !vatFits(best)) {
         return null;
       }
     }
-    if (labelled(best) && !switched) {
-      // Another value with its own label is a conflict, not a choice.
-      for (final other in ranked) {
-        if (other.key == best || !labelled(other.key)) continue;
-        if (!confirmed(best) || confirmed(other.key)) return null;
-      }
-    }
-    final why = evidence[best]!;
+    // The «ИТОГ» reading is a VAT amount (rows joined across a skewed photo
+    // or columns swapped by OCR): never pre-fill it.
+    final printedAll = <int>{for (final row in all) ...row.amounts};
+    final isVat =
+        vats.any((v) => v.$2 == best) ||
+        printedAll.any(
+          (v) =>
+              v > best &&
+              const [
+                22,
+                20,
+                18,
+                10,
+              ].any((rate) => ((v * rate / (100 + rate)) - best).abs() <= 1.01),
+        );
+    if (isVat && !(confirm[best]?.isNotEmpty ?? false)) return null;
+    final evidence = <String>{
+      bestRank == 1 ? 'label' : 'label-rank-$bestRank',
+      if ((votes[best] ?? 0) > 1) 'repeat',
+      if (corrected) 'corrected',
+      ...?confirm[best],
+      if (vatFits(best)) 'vat',
+      if (chosen.any((r) => r.$3 && r.$2 == best)) 'loose',
+    };
+    final distinct = chosen.map((r) => r.$2).toSet().length;
     return ReceiptTotalMatch(
       best,
-      why.toList()..sort(),
-      warning: labelled(best) && !switched
-          ? null
-          : why.contains('payment')
-          ? 'Надпись «ИТОГ» не распознана. Сумма взята из строки безналичной оплаты — проверьте.'
-          : 'Надпись «ИТОГ» распознана нечётко. Сумма подтверждена по НДС или сумме позиций — проверьте.',
+      evidence.toList()..sort(),
+      warning:
+          corrected ||
+              evidence.contains('loose') ||
+              (distinct > 1 && (votes[best] ?? 0) < 2)
+          ? 'Строка «ИТОГ» распознана нечётко. Проверьте сумму.'
+          : null,
     );
   }
 
@@ -228,16 +203,38 @@ abstract final class ReceiptTotal {
     final words = row.split(RegExp(r'\s+')).map(letters);
     if (!words.any((w) => w == 'НДС' || w == 'НАС' || w == 'НДО')) return null;
     if (letters(row).contains('БЕЗНДС')) return null;
-    final rate = RegExp(r'(?<!\d)(5|7|10|20|22)\s*%').firstMatch(row);
+    final rate = RegExp(
+      r'(?<!\d)(5|7|10|18|20|22)\s*(?:%|/\s*1[0-2]\d)',
+    ).firstMatch(row);
     final money = amounts(row);
     if (rate == null || money.isEmpty) return null;
     return (int.parse(rate.group(1)!), money.last);
   }
 
+  /// Distinct values printed on total rows (for an «several totals» note).
+  static Set<int> totalRowValues(Iterable<String> rows) => {
+    for (final row in rows)
+      if (isTotalRow(row)) ...amounts(row),
+  };
+
   /// Whether an OCR row is a (possibly damaged) total label.
   static bool isTotalRow(String row) =>
       RegExp(r'[A-Za-zА-Яа-яЁё]{2,}').hasMatch(row) &&
       _classify(row) == _Kind.total;
+
+  static int _rank(String row) {
+    final joined = letters(row);
+    if (joined.contains('КОПЛАТ') || joined.contains('ОПЛАТЕ')) return 2;
+    final first = row
+        .split(RegExp(r'\s+'))
+        .map(letters)
+        .firstWhere((w) => w.isNotEmpty, orElse: () => '');
+    if (_distance(first, 'ВСЕГО') <= 1 ||
+        RegExp(r'TOTAL', caseSensitive: false).hasMatch(row)) {
+      return 3;
+    }
+    return 1;
+  }
 
   /// Latin/digit look-alikes that OCR puts into Cyrillic receipt words.
   static const _homoglyphs = {
@@ -400,6 +397,21 @@ abstract final class ReceiptTotal {
         continue;
       }
     }
+    // Whole rubles written out: `1 250 рублей`, `1 250 руб.`, `1 250 ₽`.
+    for (final m in RegExp(
+      r'(?<![\d.,])(\d{1,3}(?:[ \u00a0]\d{3})*|\d+)\s*(?:руб(?:лей|ля|ль)?\.?|₽)',
+      caseSensitive: false,
+    ).allMatches(repaired)) {
+      if (RegExp(
+        r'[.,]\s?\d{2}\s*$',
+      ).hasMatch(repaired.substring(0, m.start + m.group(1)!.length))) {
+        continue;
+      }
+      final value = int.tryParse(m.group(1)!.replaceAll(RegExp(r'\s'), ''));
+      if (value != null && value > 0 && !result.contains(value * 100)) {
+        result.add(value * 100);
+      }
+    }
     // Quantity × price rows: the last value is the line amount.
     return result;
   }
@@ -408,32 +420,75 @@ abstract final class ReceiptTotal {
 enum _Kind { none, total, payment, excluded, item }
 
 class _Row {
-  const _Row(this.kind, this.amounts, [this.vat, this.loose = const []]);
+  const _Row(
+    this.kind,
+    this.amounts, [
+    this.vat,
+    this.loose = const [],
+    this.rank = 1,
+    this.discount = false,
+    this.wholeTail,
+  ]);
   final _Kind kind;
   final List<int> amounts;
   final (int, int)? vat;
 
-  /// Numbers whose separator was lost: `2548 20`, `2548 ‘ 20`.
+  /// Numbers whose separator was lost or kopecks damaged: `2548 20`,
+  /// `2548 ‘ 20`, `=4199_o0`.
   final List<int> loose;
+
+  /// For total rows: 1 `ИТОГ`/`ИТОГО`, 2 `… К ОПЛАТЕ`, 3 `ВСЕГО`/`TOTAL`.
+  final int rank;
+
+  /// An excluded `СКИДКА` row.
+  final bool discount;
+
+  /// Total rows only: a whole-ruble value ending the row (`ИТОГО 1000`,
+  /// `Итого 1000 RUB`) when no kopeck amount was printed.
+  final int? wholeTail;
   static _Row parse(String text) {
     final amounts = ReceiptTotal.amounts(text);
     final vat = ReceiptTotal.vatOf(text);
     if (vat != null) return _Row(_Kind.excluded, amounts, vat);
     final loose = [
       for (final m in RegExp(
-        r'(?<![\d.,])(\d{2,6})\s?[^\d\sA-Za-zА-Яа-яЁё]?\s?(\d{2})(?![\d%])',
+        r'(?<![\d.,])(\d{2,6})\s?[^\d\sA-Za-zА-Яа-яЁё]?\s?([0-9oOоО@]{2})(?![\d%])',
       ).allMatches(text))
-        int.parse(m.group(1)!) * 100 + int.parse(m.group(2)!),
+        int.parse(m.group(1)!) * 100 +
+            int.parse(m.group(2)!.replaceAll(RegExp('[oOоО@]'), '0')),
     ];
-    if (loose.isNotEmpty) {
-      final row = _Row._plain(text, amounts);
-      return _Row(row.kind, row.amounts, null, loose);
-    }
-    return _Row._plain(text, amounts);
+    final plain = _plain(text, amounts);
+    final rank = plain.kind == _Kind.total ? ReceiptTotal._rank(text) : 1;
+    return _Row(
+      plain.kind,
+      plain.amounts,
+      null,
+      loose,
+      rank,
+      plain.kind == _Kind.excluded &&
+          ReceiptTotal.letters(text).contains('СКИДК'),
+      plain.kind == _Kind.total && amounts.isEmpty ? _wholeTail(text) : null,
+    );
+  }
+
+  static int? _wholeTail(String text) {
+    final match = RegExp(
+      r'(?<![\d.,])(\d{1,3}(?:[ \u00a0]\d{3})+|\d{2,7})\s*(?:rub|rur|руб\S*|₽)?\s*$',
+      caseSensitive: false,
+    ).firstMatch(text);
+    final value = int.tryParse(
+      match?.group(1)?.replaceAll(RegExp(r'\s'), '') ?? '',
+    );
+    return value == null || value <= 0 ? null : value * 100;
   }
 
   static _Row _plain(String text, List<int> amounts) {
-    final hasLetters = RegExp(r'[A-Za-zА-Яа-яЁё]{2,}').hasMatch(text);
+    final hasLetters = RegExp(r'[A-Za-zА-Яа-яЁё]{2,}').hasMatch(
+      text.replaceAll(
+        RegExp(r'руб(?:лей|ля|ль)?\.?|rub', caseSensitive: false),
+        '',
+      ),
+    );
     if (!hasLetters) {
       // `1 x 545.80 =545.80` or a bare `=5824.20` value row.
       final multiplied = RegExp(r'\d\s*[xхX×*]\s*\d').hasMatch(text);

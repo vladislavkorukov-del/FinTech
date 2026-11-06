@@ -35,7 +35,8 @@ abstract final class ReceiptParser {
     // Fiscal/till receipts list many prices, VAT, tender and change. Only an
     // explicit total may become the operation amount there; otherwise the
     // amount is left empty for review instead of picking or adding up items.
-    final fiscal = isReceiptText(source);
+    final fiscal =
+        isReceiptText(source) || focusRows.any(ReceiptTotal.isTotalRow);
     final candidates = <_Amount>[];
     for (var i = 0; i < lines.length; i++) {
       final line = lines[i];
@@ -140,8 +141,21 @@ abstract final class ReceiptParser {
         ..clear()
         ..add(_Amount(total.minor, null, 1000, 0, false));
       if (total.warning != null) warnings.add(total.warning!);
+    } else if (fiscal &&
+        (lines.any(ReceiptTotal.isTotalRow) ||
+            focusRows.any(ReceiptTotal.isTotalRow))) {
+      // A total row exists but its value is unreadable or contradicted:
+      // never fall back to another labelled number.
+      candidates.clear();
+      warnings.add(
+        ReceiptTotal.totalRowValues([...lines, ...focusRows]).length > 1
+            ? 'Найдено несколько возможных итоговых сумм. Выберите сумму операции вручную.'
+            : 'Строка «ИТОГ» не распознана уверенно. Введите сумму вручную — цены, НДС и оплата не суммируются.',
+      );
     } else if (fiscal) {
-      final explicit = candidates.where((c) => c.score >= _totalScore).toList();
+      // Only a total-labelled value (ИТОГ/ИТОГО/ВСЕГО/TOTAL, also integer
+      // «1 250 рублей») may remain; «сумма операции» and the like do not.
+      final explicit = candidates.where((c) => c.score >= 130).toList();
       if (explicit.isEmpty) {
         warnings.add(
           'Итог чека не найден. Введите сумму вручную — цены товаров, НДС и оплата не суммируются.',
@@ -297,7 +311,6 @@ abstract final class ReceiptParser {
     return items >= 2 || (total && (items > 0 || tender));
   }
 
-  static const _totalScore = 120;
   static final _fiscalMarker = RegExp(
     r'кассовый\s*чек|товарный\s*чек|фискальн|(?<![а-яa-z])(?:ккт|рн\s*ккт|зн\s*ккт|фн|фд|фпд?)(?![а-яa-z])\s*[:№#]?\s*\d|кассир|смена\s*[№#]?\s*\d|полный\s+расч[её]т|признак\s+(?:способа|предмета)\s+расч|(?<![а-яa-z])сно(?![а-яa-z])|nalog\.(?:ru|gov)|сайт\s+фнс',
   );

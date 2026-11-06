@@ -48,7 +48,7 @@ internal class ReceiptOcrEngine(private val context: Context) {
             RegexOption.IGNORE_CASE,
         )
         private const val MAX_FOCUS_BANDS = 3
-        private const val MAX_FOCUS_ROWS = 40
+        private const val MAX_FOCUS_ROWS = 160
         private const val MAX_FOCUS_PIXELS = 4_000_000L
         private const val MAX_AMOUNT_ROWS = 200
         private val MODELS = mapOf(
@@ -92,7 +92,9 @@ internal class ReceiptOcrEngine(private val context: Context) {
             // Second, enlarged pass over the receipt's total band. It adds
             // evidence only; the main text/lines stay exactly as recognized.
             val receiptLike = RECEIPT_LIKE.containsMatchIn(chosen.text)
-            val focus = if (receiptLike) {
+            // Big bold «ИТОГ» rows are often skipped by automatic layout
+            // analysis; also look for them when the page has little money text.
+            val focus = if (receiptLike || chosen.moneyCount < 2) {
                 focusTotal(engine, bitmap, chosen, cancelled)
             } else emptyList()
             // Bank lists: re-read the amount column of every row, enlarged,
@@ -173,10 +175,11 @@ internal class ReceiptOcrEngine(private val context: Context) {
         return Pass(text, engine.meanConfidence().coerceIn(0, 100) / 100.0, lines)
     }
 
-    /** Re-reads the band around a (possibly OCR-damaged) «ИТОГ» row at a
-     * larger scale with flattened lighting; if no total row was read, the
-     * lower part of the receipt. Failures (other than cancellation) keep the
-     * main result and return no focus rows. */
+    /** Owner's rule: the receipt amount is the «ИТОГ» row. Reads the whole
+     * page once more as one uniform block (keeps big bold total rows that
+     * automatic segmentation drops), then re-reads every total band found in
+     * either pass enlarged and binarized as a single line. Rows are returned
+     * as optional `focus`; failures other than cancellation return none. */
     private fun focusTotal(
         engine: TessBaseAPI,
         bitmap: Bitmap,
@@ -185,24 +188,34 @@ internal class ReceiptOcrEngine(private val context: Context) {
     ): List<String> {
         val rows = mutableListOf<String>()
         try {
-            val bands = mutableListOf<Triple<Int, Int, Double>>()
-            for (line in chosen.lines) {
-                if (bands.size >= MAX_FOCUS_BANDS) break
+            val block = recognizePass(engine, bitmap, TessBaseAPI.PageSegMode.PSM_SINGLE_BLOCK, cancelled)
+            for (line in block.lines) {
+                if (rows.size >= MAX_FOCUS_ROWS) break
+                rows.add((line["text"] as String).take(512))
+            }
+            val bands = mutableListOf<DoubleArray>()
+            for (line in chosen.lines + block.lines) {
                 if (!totalLike(line["text"] as String)) continue
                 val top = (line["top"] as Double) * bitmap.height
                 val bottom = (line["bottom"] as Double) * bitmap.height
                 val height = max(4.0, bottom - top)
-                bands.add(Triple(
-                    max(0, (top - height).roundToInt()),
-                    min(bitmap.height, (bottom + 2.2 * height).roundToInt()),
-                    height,
-                ))
+                bands.add(doubleArrayOf(max(0.0, top - .5 * height), min(bitmap.height.toDouble(), bottom + .5 * height), height))
             }
-            if (bands.isEmpty()) bands.add(Triple((bitmap.height * .45).roundToInt(), bitmap.height, 0.0))
-            for ((y0, y1, height) in bands) {
+            bands.sortBy { it[0] }
+            val merged = mutableListOf<DoubleArray>()
+            for (band in bands) {
+                val last = merged.lastOrNull()
+                if (last != null && band[0] < last[1]) {
+                    last[1] = max(last[1], band[1])
+                    last[2] = max(last[2], band[2])
+                } else merged.add(band)
+            }
+            for (band in merged.take(MAX_FOCUS_BANDS)) {
                 checkCancellation(cancelled)
+                val y0 = band[0].roundToInt()
+                val y1 = band[1].roundToInt()
                 if (y1 - y0 < 8) continue
-                val wanted = if (height > 0) (64.0 / height).coerceIn(1.0, 3.0) else 1.5
+                val wanted = (64.0 / band[2]).coerceIn(1.0, 3.0)
                 val area = bitmap.width.toLong() * (y1 - y0)
                 val scale = min(wanted, sqrt(MAX_FOCUS_PIXELS.toDouble() / area)).coerceAtLeast(.5)
                 val crop = Bitmap.createBitmap(bitmap, 0, y0, bitmap.width, y1 - y0)
@@ -224,7 +237,8 @@ internal class ReceiptOcrEngine(private val context: Context) {
                 }
                 try {
                     flattenIllumination(scaled)
-                    engine.setPageSegMode(TessBaseAPI.PageSegMode.PSM_SINGLE_BLOCK)
+                    binarize(scaled, 170)
+                    engine.setPageSegMode(TessBaseAPI.PageSegMode.PSM_SINGLE_LINE)
                     engine.setImage(scaled)
                     val text = engine.getUTF8Text() ?: ""
                     checkCancellation(cancelled)
