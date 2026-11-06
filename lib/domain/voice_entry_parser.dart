@@ -120,6 +120,43 @@ abstract final class VoiceEntryParser {
     );
   }
 
+  /// The amount in a phrase and the rest of it, lower case, without the
+  /// amount and currency words (voice commands, 1.24).
+  static ({int minor, String rest})? amountIn(String heard) {
+    final text = _norm(heard);
+    final found = _amount(text);
+    if (found == null) return null;
+    return (
+      minor: found.minor,
+      rest: text
+          .replaceRange(found.start, found.end, ' ')
+          .replaceAll(_currency, ' ')
+          .replaceAll(RegExp(r'\s+'), ' ')
+          .trim(),
+    );
+  }
+
+  /// The expense or income category a phrase suggests, if any.
+  static String? categoryFor(
+    String phrase,
+    EntryKind kind,
+    List<Category> categories,
+  ) {
+    final store = _store(phrase);
+    final payee = store?.name ?? phrase;
+    return (payee.isEmpty
+            ? null
+            : ReceiptParser.suggestCategory(
+                payee: payee,
+                text: '',
+                kind: kind,
+                categories: categories,
+                history: const [],
+              )) ??
+        _named(phrase, kind, categories) ??
+        _byWords(phrase, kind, categories);
+  }
+
   static String _norm(String value) => value
       .toLowerCase()
       .replaceAll('ё', 'е')

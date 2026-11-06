@@ -227,6 +227,32 @@ abstract final class AccountImportParser {
     return words.sublist(i).join(' ');
   }
 
+  /// The account type its name suggests: cash, deposit, savings, credit,
+  /// investment, wallet, debit card or bank account.
+  static String typeFor(String name, int amount, String lastFour) {
+    final n = name.toLowerCase();
+    if (n.contains('налич')) return 'cash';
+    if (n.contains('вклад') || n.contains('депозит')) return 'deposit';
+    if (n.contains('накопит') || n.contains('копилк') || n.contains('сбереж')) {
+      return 'savings';
+    }
+    if (n.contains('кредит') || amount < 0) return 'credit';
+    if (n.contains('инвест') || n.contains('брокер') || n.contains('иис')) {
+      return 'investment';
+    }
+    if (n.contains('кошел') || n.contains('юmoney') || n.contains('qiwi')) {
+      return 'wallet';
+    }
+    // Card digits («•• 4821») or the word «карта» mean a card.
+    if (lastFour.isNotEmpty || n.contains('карт') || n.contains('card')) {
+      return 'debit';
+    }
+    return 'bank';
+  }
+
+  /// A bank named in the account name («Тинькофф Black» → Т-Банк).
+  static String bankFor(String name) => _bank(name);
+
   /// A bank named in the account name («Тинькофф Black» → Т-Банк).
   static String _bank(String name) {
     final words = name.split(' ');

@@ -110,27 +110,6 @@ class _AccountImportScreenState extends State<AccountImportScreen> {
     }
   }
 
-  static String _type(String name, int amount, String lastFour) {
-    final n = name.toLowerCase();
-    if (n.contains('налич')) return 'cash';
-    if (n.contains('вклад') || n.contains('депозит')) return 'deposit';
-    if (n.contains('накопит') || n.contains('копилк') || n.contains('сбереж')) {
-      return 'savings';
-    }
-    if (n.contains('кредит') || amount < 0) return 'credit';
-    if (n.contains('инвест') || n.contains('брокер') || n.contains('иис')) {
-      return 'investment';
-    }
-    if (n.contains('кошел') || n.contains('юmoney') || n.contains('qiwi')) {
-      return 'wallet';
-    }
-    // Card digits («•• 4821») or the word «карта» mean a card.
-    if (lastFour.isNotEmpty || n.contains('карт') || n.contains('card')) {
-      return 'debit';
-    }
-    return 'bank';
-  }
-
   Future<void> _add() async {
     final c = FinanceScope.of(context);
     final chosen = _rows.where((r) => r.selected).toList();
@@ -151,7 +130,7 @@ class _AccountImportScreenState extends State<AccountImportScreen> {
         Account(
           id: c.id(),
           name: name,
-          type: _type(name, amount, r.lastFour),
+          type: AccountImportParser.typeFor(name, amount, r.lastFour),
           currency: r.currency,
           bank: r.bank,
           lastFour: r.lastFour,

@@ -1,4 +1,7 @@
+import 'account_import_parser.dart';
 import 'models.dart';
+import 'service_catalog.dart';
+import 'voice_entry_parser.dart';
 
 /// A spoken command (Finance 1.23): navigation, a filtered list of
 /// operations or a theme change. A phrase that is not a command («Пятёрочка
@@ -90,6 +93,76 @@ class UnknownCommand extends VoiceCommand {
   const UnknownCommand(super.heard);
 }
 
+/// «Хочу машину за 2 млн» → a dream (goal) to save for (1.24).
+class CreateGoalCommand extends VoiceCommand {
+  const CreateGoalCommand(
+    super.heard, {
+    required this.name,
+    this.targetMinor,
+    this.deadline,
+  });
+  final String name;
+
+  /// Null when no price was heard: the person is asked for it.
+  final int? targetMinor;
+  final DateTime? deadline;
+}
+
+/// «Добавь карту Сбер с балансом 15 тысяч».
+class CreateAccountCommand extends VoiceCommand {
+  const CreateAccountCommand(
+    super.heard, {
+    required this.name,
+    required this.type,
+    this.openingMinor = 0,
+    this.bank = '',
+  });
+  final String name, type, bank;
+  final int openingMinor;
+}
+
+/// «Бюджет на продукты 20 тысяч».
+class CreateBudgetCommand extends VoiceCommand {
+  const CreateBudgetCommand(
+    super.heard, {
+    required this.name,
+    required this.limitMinor,
+    this.categoryId,
+  });
+  final String name;
+  final int limitMinor;
+  final String? categoryId;
+}
+
+/// «Добавь категорию Спорт», «новая категория доходов Фриланс».
+class CreateCategoryCommand extends VoiceCommand {
+  const CreateCategoryCommand(super.heard, {required this.name, this.kind});
+  final String name;
+  final EntryKind? kind;
+}
+
+/// «Подписка Яндекс Плюс 399 в месяц», «зарплата 90 тысяч каждый месяц
+/// 10 числа».
+class CreateRecurringCommand extends VoiceCommand {
+  const CreateRecurringCommand(
+    super.heard, {
+    required this.name,
+    this.amountMinor,
+    this.kind = EntryKind.expense,
+    this.frequency = 'monthly',
+    this.paymentType = 'mandatory',
+    this.serviceId,
+    this.categoryId,
+    this.accountId,
+    required this.nextDate,
+  });
+  final String name, frequency, paymentType;
+  final int? amountMinor;
+  final EntryKind kind;
+  final String? serviceId, categoryId, accountId;
+  final DateTime nextDate;
+}
+
 abstract final class VoiceCommandParser {
   /// The first hypothesis that is a command; null when the phrase is an
   /// operation to record.
@@ -163,6 +236,8 @@ abstract final class VoiceCommandParser {
                 (_modeWord.hasMatch(t) || _colorWord.hasMatch(t)))) {
       return _theme(heard, t);
     }
+    final create = _create(heard, t, categories, accounts, today);
+    if (create != null) return create;
     final verb = _showVerb.hasMatch(t);
     if (!verb && !(_listStart.hasMatch(t) && !_amount(t))) return null;
     return _show(heard, t, categories, accounts, today, weekStart);
@@ -271,6 +346,494 @@ abstract final class VoiceCommandParser {
       }
     }
     return ThemeCommand(heard, mode: mode);
+  }
+
+  // ── Creating things ───────────────────────────────────────────────────
+
+  static const _createVerbs = {
+    'добавь',
+    'добавить',
+    'добавим',
+    'создай',
+    'создать',
+    'создадим',
+    'заведи',
+    'завести',
+    'новый',
+    'новая',
+    'новую',
+    'новое',
+    'запиши',
+    'запомни',
+    'поставь',
+    'установи',
+    'сделай',
+    'открой',
+  };
+
+  static VoiceCommand? _create(
+    String heard,
+    String t,
+    List<Category> categories,
+    List<Account> accounts,
+    DateTime today,
+  ) {
+    final words = t.split(' ');
+    bool has(String stem) => words.any((w) => w.startsWith(stem));
+    final verb = words.any(_createVerbs.contains);
+    // «Открой счета» is navigation; «открой новый счёт» creates one.
+    final opens = words.first == 'открой' && !has('нов');
+    final looking = RegExp(
+      r'(?:^| )(?:посмотреть|увидеть|узнать|открыть|глянуть)(?: |$)',
+    ).hasMatch(t);
+
+    // Dreams.
+    final dream =
+        RegExp(
+          r'^(?:я )?(?:хочу|хотел бы|хотела бы|мечтаю)(?: |$)',
+        ).hasMatch(t) ||
+        RegExp(
+          r'(?:^| )(?:коплю|накопить|копить|откладываю)(?: |$)',
+        ).hasMatch(t) ||
+        verb && !opens && (has('мечт') || has('цел'));
+    if (dream && !looking) return _goal(heard, t, today);
+
+    final frequency = _showVerb.hasMatch(t) ? null : _frequency(t);
+    if ((verb && !opens || frequency != null) &&
+        (has('подписк') ||
+            has('регулярн') ||
+            has('автоплат') ||
+            has('абонемент') ||
+            frequency != null && !has('бюджет') && !has('лимит'))) {
+      return _recurring(heard, t, frequency, categories, accounts, today);
+    }
+
+    final money = VoiceEntryParser.amountIn(heard);
+    if ((has('бюджет') || has('лимит')) && money != null && !has('кредитн')) {
+      final category = _match(
+        words,
+        categories
+            .where((c) => !c.archived && c.kind == EntryKind.expense)
+            .map((c) => (c.id, c.name)),
+      );
+      final name = category == null
+          ? 'Бюджет месяца'
+          : categories.firstWhere((c) => c.id == category).name;
+      return CreateBudgetCommand(
+        heard,
+        name: name,
+        limitMinor: money.minor,
+        categoryId: category,
+      );
+    }
+    if (!verb || opens && !has('нов')) return null;
+
+    if (has('категори')) {
+      final kind = has('доход')
+          ? EntryKind.income
+          : has('расход')
+          ? EntryKind.expense
+          : null;
+      final name = _name(heard, t, const {
+        'категорию',
+        'категория',
+        'категории',
+        'для',
+        'доходов',
+        'доходы',
+        'доход',
+        'расходов',
+        'расходы',
+        'расход',
+        'под',
+        'с',
+        'названием',
+        'назови',
+        'называется',
+        'по',
+      });
+      return name.isEmpty
+          ? UnknownCommand(heard)
+          : CreateCategoryCommand(heard, name: name, kind: kind);
+    }
+
+    if (has('счет') ||
+        has('карт') ||
+        has('кошел') ||
+        has('вклад') ||
+        has('наличн') ||
+        has('копилк') ||
+        has('кредитк')) {
+      final debt = has('минус') || has('долг');
+      final opening = (money?.minor ?? 0) * (debt ? -1 : 1);
+      var name = _name(heard, money?.rest ?? t, const {
+        'счет',
+        'счета',
+        'карту',
+        'карта',
+        'кошелек',
+        'с',
+        'со',
+        'балансом',
+        'баланс',
+        'остатком',
+        'остаток',
+        'на',
+        'нем',
+        'ней',
+        'в',
+        'где',
+        'лежит',
+        'лежат',
+        'есть',
+        'и',
+        'минус',
+        'долг',
+        'долгом',
+        'названием',
+        'под',
+        'банке',
+        'банк',
+      });
+      final kindName = has('кредитк') || has('кредитн')
+          ? 'Кредитная карта'
+          : has('налич')
+          ? 'Наличные'
+          : has('вклад')
+          ? 'Вклад'
+          : has('копилк')
+          ? 'Копилка'
+          : has('накопит')
+          ? 'Накопительный счёт'
+          : has('кошел')
+          ? 'Кошелёк'
+          : has('карт')
+          ? 'Карта'
+          : 'Счёт';
+      final bank = name.isEmpty ? '' : AccountImportParser.bankFor(name);
+      if (bank.isNotEmpty && !name.contains(' ')) name = bank;
+      if (name.isEmpty) name = kindName;
+      final type = AccountImportParser.typeFor('$kindName $name', opening, '');
+      return CreateAccountCommand(
+        heard,
+        name: name,
+        type: type,
+        openingMinor: opening,
+        bank: bank,
+      );
+    }
+    return null;
+  }
+
+  /// 'weekly', 'monthly' or 'yearly' when the phrase says how often.
+  static String? _frequency(String t) {
+    if (RegExp(
+      r'ежемесячн|каждый месяц|каждого месяца|в месяц|раз в месяц|помесячн',
+    ).hasMatch(t)) {
+      return 'monthly';
+    }
+    if (RegExp(r'ежегодн|каждый год|в год|раз в год').hasMatch(t)) {
+      return 'yearly';
+    }
+    if (RegExp(r'еженедельн|каждую неделю|в неделю|раз в неделю').hasMatch(t)) {
+      return 'weekly';
+    }
+    if (RegExp(r'ежедневн|каждый день|в день').hasMatch(t)) return 'daily';
+    return null;
+  }
+
+  static CreateGoalCommand _goal(String heard, String t, DateTime today) {
+    // A deadline is said with «к»/«до»/«через», never «за» (that is the
+    // price): «к лету», «до декабря», «к 2028 году», «через 2 года».
+    DateTime? deadline;
+    var text = t;
+    final by = RegExp(
+      r'(?:^| )(?:к|до) (?:концу |конца )?(?:(20\d\d)(?: году| года| год)?|'
+      r'([а-я]+)(?: (20\d\d))?(?: году| года)?)(?= |$)',
+    );
+    for (final m in by.allMatches(t)) {
+      final year = int.tryParse(m.group(1) ?? m.group(3) ?? '');
+      final word = m.group(2);
+      DateTime? found;
+      if (word == null && year != null) {
+        found = DateTime(year, 12, 31);
+      } else if (word != null) {
+        final seasons = {'лет': 6, 'осен': 9, 'зим': 12, 'весн': 3};
+        int? month;
+        for (var i = 0; i < 12; i++) {
+          if (i == 4
+              ? RegExp(r'^ма[йяюе]$').hasMatch(word)
+              : word.startsWith(_months[i])) {
+            month = i + 1;
+          }
+        }
+        for (final e in seasons.entries) {
+          if (word.startsWith(e.key)) month = e.value;
+        }
+        if (word.startsWith('год') || word == 'новому') month = 12;
+        if (month != null) {
+          var yy = year ?? today.year;
+          if (year == null && month < today.month) yy++;
+          found = DateTime(yy, month + 1, 0);
+        }
+      }
+      if (found != null) {
+        deadline = found;
+        text = text.replaceRange(m.start, m.end, ' ');
+        break;
+      }
+    }
+    final later = RegExp(
+      r'через (?:(\d+|[а-я]+) )?(года|год|лет|месяцев|месяца|месяц)(?= |$)',
+    ).firstMatch(text);
+    if (deadline == null && later != null) {
+      final raw = later.group(1);
+      final n = raw == null ? 1 : int.tryParse(raw) ?? _counts[raw] ?? 1;
+      final months = later.group(2)!.startsWith('месяц') ? n : 12 * n;
+      deadline = DateTime(today.year, today.month + months, today.day);
+      text = text.replaceRange(later.start, later.end, ' ');
+    }
+    text = text.replaceAllMapped(
+      RegExp(r'(коплю|копить|накопить|откладываю|отложить) на(?= |$)'),
+      (m) => m.group(1)!,
+    );
+    final money = VoiceEntryParser.amountIn(text);
+    var name = _name(heard, money?.rest ?? text, const {
+      'я',
+      'хочу',
+      'хотел',
+      'хотела',
+      'бы',
+      'мечтаю',
+      'мечта',
+      'мечту',
+      'мечты',
+      'о',
+      'об',
+      'цель',
+      'цели',
+      'коплю',
+      'накопить',
+      'копить',
+      'откладываю',
+      'купить',
+      'приобрести',
+      'за',
+      'стоимостью',
+      'стоит',
+      'ценой',
+      'примерно',
+      'около',
+      'добавь',
+      'создай',
+      'поставь',
+      'запиши',
+    }, accusative: true);
+    // «Хочу на море» → «Поездка на море».
+    if (RegExp(r'^(?:в|во|на) ').hasMatch(name.toLowerCase())) {
+      name = 'Поездка ${name[0].toLowerCase()}${name.substring(1)}';
+    }
+    return CreateGoalCommand(
+      heard,
+      name: name.isEmpty ? 'Мечта' : name,
+      targetMinor: money?.minor,
+      deadline: deadline,
+    );
+  }
+
+  static CreateRecurringCommand _recurring(
+    String heard,
+    String t,
+    String? frequency,
+    List<Category> categories,
+    List<Account> accounts,
+    DateTime today,
+  ) {
+    final words = t.split(' ');
+    bool has(String stem) => words.any((w) => w.startsWith(stem));
+    final kind =
+        has('зарплат') ||
+            has('доход') ||
+            has('поступлен') ||
+            has('стипенд') ||
+            has('пенси') ||
+            has('аванс')
+        ? EntryKind.income
+        : EntryKind.expense;
+    final every = frequency ?? 'monthly';
+    // «10 числа», «каждое 10 число».
+    var text = t;
+    int? day;
+    final dayMatch = RegExp(
+      r'(?:каждое |кажд\S* )?(\d{1,2})(?:-?го)? (?:числа|число)',
+    ).firstMatch(text);
+    if (dayMatch != null) {
+      day = int.parse(dayMatch.group(1)!);
+      text = text.replaceRange(dayMatch.start, dayMatch.end, ' ');
+    }
+    text = text.replaceAll(
+      RegExp(
+        r'ежемесячн\S*|ежегодн\S*|еженедельн\S*|ежедневн\S*|'
+        r'(?:раз |каждый |каждую |каждого )?(?:в )?(?:месяц\S*|год|неделю|день)'
+        r'(?= |$)',
+      ),
+      ' ',
+    );
+    final money = VoiceEntryParser.amountIn(text);
+    final rest = money?.rest ?? text;
+    final account = _match(
+      rest.split(' '),
+      accounts.where((a) => !a.archived).map((a) => (a.id, a.name)),
+    );
+    final restWords = rest.split(' ').where((w) => w.isNotEmpty).toList();
+    // A known service among the words («яндекс плюс», «netflix»).
+    SubscriptionService? service;
+    for (var n = restWords.length; n >= 1 && service == null; n--) {
+      for (var i = 0; i + n <= restWords.length && service == null; i++) {
+        final s = ServiceCatalog.byName(restWords.sublist(i, i + n).join(' '));
+        if (s != null && !ServiceCatalog.banks.contains(s)) service = s;
+      }
+    }
+    var name =
+        service?.name ??
+        _name(heard, rest, const {
+          'добавь',
+          'создай',
+          'новую',
+          'новый',
+          'новая',
+          'запиши',
+          'поставь',
+          'подписку',
+          'подписка',
+          'регулярный',
+          'регулярную',
+          'регулярно',
+          'платеж',
+          'платежа',
+          'автоплатеж',
+          'по',
+          'за',
+          'на',
+          'с',
+          'со',
+          'раз',
+          'каждый',
+          'каждую',
+          'числа',
+          'число',
+        });
+    if (name.isEmpty) {
+      name = kind == EntryKind.income ? 'Регулярный доход' : 'Подписка';
+    }
+    final subscription =
+        kind == EntryKind.expense && (has('подписк') || service != null);
+    String? category = VoiceEntryParser.categoryFor(
+      _norm(name),
+      kind,
+      categories,
+    );
+    if (category == null && subscription) {
+      category = categories
+          .where(
+            (c) =>
+                !c.archived &&
+                c.kind == EntryKind.expense &&
+                _norm(c.name).startsWith('подписк'),
+          )
+          .firstOrNull
+          ?.id;
+    }
+    DateTime next;
+    if (day != null && day >= 1 && day <= 31) {
+      final thisMonth = DateTime(today.year, today.month, day);
+      next = thisMonth.isBefore(today)
+          ? DateTime(today.year, today.month + 1, day)
+          : thisMonth;
+    } else {
+      // Said on the day it was paid: the next payment is one period on.
+      next = switch (every) {
+        'daily' => DateTime(today.year, today.month, today.day + 1),
+        'weekly' => DateTime(today.year, today.month, today.day + 7),
+        'yearly' => DateTime(today.year + 1, today.month, today.day),
+        _ => DateTime(today.year, today.month + 1, today.day),
+      };
+    }
+    return CreateRecurringCommand(
+      heard,
+      name: name,
+      amountMinor: money?.minor,
+      kind: kind,
+      frequency: every,
+      paymentType: subscription ? 'subscription' : 'mandatory',
+      serviceId: kind == EntryKind.expense ? service?.id : null,
+      categoryId: category,
+      accountId: account,
+      nextDate: next,
+    );
+  }
+
+  static const _prepositions = {'в', 'во', 'на', 'до', 'по', 'для', 'с', 'к'};
+
+  /// What is left of [rest] after [drop] words, written as the person said
+  /// it (case from [heard]). With [accusative], words before the first
+  /// preposition go back to the nominative: «машину» → «машина», «новую
+  /// квартиру» → «новая квартира».
+  static String _name(
+    String heard,
+    String rest,
+    Set<String> drop, {
+    bool accusative = false,
+  }) {
+    final original = <String, String>{};
+    for (final w in heard.split(RegExp(r'[^\p{L}\p{N}]+', unicode: true))) {
+      if (w.isEmpty) continue;
+      original.putIfAbsent(w.toLowerCase().replaceAll('ё', 'е'), () => w);
+    }
+    final words = _norm(rest)
+        .split(' ')
+        .where(
+          (w) =>
+              w.isNotEmpty &&
+              !drop.contains(w) &&
+              !(_createVerbs.contains(w) &&
+                  !(accusative && w.startsWith('нов'))),
+        )
+        .where((w) => !RegExp(r'^\d+$').hasMatch(w))
+        .toList();
+    // Leading prepositions left over («на телефон» after «копить»).
+    if (!accusative) {
+      while (words.isNotEmpty && _prepositions.contains(words.first)) {
+        words.removeAt(0);
+      }
+    }
+    final out = <String>[];
+    var nominative = accusative;
+    for (final w in words) {
+      if (_prepositions.contains(w) && out.isNotEmpty) nominative = false;
+      if (out.isEmpty && _prepositions.contains(w)) {
+        // «Хочу на море»: kept for «Поездка на море».
+        out.add(w);
+        nominative = false;
+        continue;
+      }
+      var word = original[w] ?? w;
+      if (nominative && word.length > 3) {
+        final lower = word.toLowerCase();
+        if (lower.endsWith('ую')) {
+          word = '${word.substring(0, word.length - 2)}ая';
+        } else if (lower.endsWith('юю')) {
+          word = '${word.substring(0, word.length - 2)}яя';
+        } else if (lower.endsWith('у')) {
+          word = '${word.substring(0, word.length - 1)}а';
+        } else if (lower.endsWith('ю')) {
+          word = '${word.substring(0, word.length - 1)}я';
+        }
+      }
+      out.add(word);
+    }
+    final name = out.join(' ').trim();
+    return name.isEmpty ? name : name[0].toUpperCase() + name.substring(1);
   }
 
   // ── Lists and screens ─────────────────────────────────────────────────

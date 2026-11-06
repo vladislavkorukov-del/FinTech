@@ -193,4 +193,42 @@ void main() {
     );
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('1.24: a dream, an account and a subscription by voice', (
+    tester,
+  ) async {
+    await start(tester);
+    await say(tester, ['хочу машину за 2 млн']);
+    await flush(tester, () => controller.data.goals.isNotEmpty);
+    await tester.pumpAndSettle();
+    final goal = controller.data.goals.single;
+    expect(goal.name, 'Машина');
+    expect(goal.targetMinor, 200000000);
+    expect(find.byType(GoalsScreen), findsOneWidget);
+    expect(find.textContaining('Мечта «Машина»'), findsOneWidget);
+    // «Отменить» takes it back.
+    await tester.tap(find.text('Отменить'));
+    await flush(tester, () => controller.data.goals.isEmpty);
+    expect(controller.data.goals, isEmpty);
+    await back(tester);
+
+    await say(tester, ['добавь карту Сбер с балансом 15 тысяч']);
+    await flush(tester, () => controller.data.accounts.length == 2);
+    await tester.pumpAndSettle();
+    final sber = controller.data.accounts.last;
+    expect(sber.name, 'Сбербанк');
+    expect(sber.openingMinor, 1500000);
+    expect(find.byType(AccountsScreen), findsOneWidget);
+    await back(tester);
+
+    await say(tester, ['подписка Яндекс Плюс 399 в месяц']);
+    await flush(tester, () => controller.data.recurring.isNotEmpty);
+    await tester.pumpAndSettle();
+    final rule = controller.data.recurring.single;
+    expect(rule.amountMinor, 39900);
+    expect(rule.paymentType, 'subscription');
+    expect(rule.accountId, 'card');
+    expect(rule.categoryId, isNotNull);
+    expect(tester.takeException(), isNull);
+  });
 }
