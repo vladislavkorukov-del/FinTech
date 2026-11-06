@@ -188,7 +188,18 @@ internal class ReceiptOcrEngine(private val context: Context) {
     ): List<String> {
         val rows = mutableListOf<String>()
         try {
-            val block = recognizePass(engine, bitmap, TessBaseAPI.PageSegMode.PSM_SINGLE_BLOCK, cancelled)
+            // The whole-page block pass is the slow part. Skip it when the
+            // main pass already read a total row together with a money value;
+            // the enlarged band re-read below still double-checks that row.
+            val mainHasTotal = chosen.lines.any {
+                val text = it["text"] as String
+                totalLike(text) && MONEY.containsMatchIn(text)
+            }
+            val block = if (mainHasTotal) {
+                Pass("", chosen.confidence, emptyList())
+            } else {
+                recognizePass(engine, bitmap, TessBaseAPI.PageSegMode.PSM_SINGLE_BLOCK, cancelled)
+            }
             for (line in block.lines) {
                 if (rows.size >= MAX_FOCUS_ROWS) break
                 rows.add((line["text"] as String).take(512))
