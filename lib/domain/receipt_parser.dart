@@ -1,3 +1,4 @@
+import 'category_hints.dart';
 import 'finance_engine.dart';
 import 'models.dart';
 import 'scan_draft.dart';
@@ -641,6 +642,13 @@ abstract final class ReceiptParser {
             ..sort((a, b) => b.date.compareTo(a.date));
       if (matched.isNotEmpty) return matched.first.categoryId;
     }
+    // A known store or service decides next (Пятёрочка → Продукты).
+    final hinted = CategoryHints.forPayee(
+      payee,
+      kind: kind,
+      categories: categories,
+    );
+    if (hinted != null) return hinted;
     final rules = kind == EntryKind.income
         ? [
             (RegExp(r'зарплат|salary|payroll'), RegExp(r'зарплат|salary')),
