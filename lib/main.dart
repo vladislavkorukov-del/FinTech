@@ -305,6 +305,9 @@ class _HomeShellState extends State<HomeShell> {
     return Listener(
       onPointerDown: (_) => VoiceOrb.activity.value++,
       child: Scaffold(
+        // 1.22.1: the main screens have no text fields; a keyboard closing
+        // late (after the welcome screens) must not squeeze them.
+        resizeToAvoidBottomInset: false,
         body: SafeArea(
           bottom: false,
           child: AnimatedSwitcher(

@@ -154,6 +154,24 @@ void main() {
     }
   }
 
+  testWidgets('settings open the account import', (tester) async {
+    await mount(tester);
+    final item = find.text('Перенести счета со скриншота');
+    await tester.scrollUntilVisible(
+      item,
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.ensureVisible(item);
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.tap(item);
+    for (var i = 0; i < 10; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    expect(find.text('Перенос счетов'), findsOneWidget);
+    await tester.pump(const Duration(seconds: 1));
+  });
+
   testWidgets('the reset card is first; it needs «СБРОС» and wipes files', (
     tester,
   ) async {

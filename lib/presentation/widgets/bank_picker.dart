@@ -3,6 +3,8 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import '../../domain/bank_catalog.dart';
+import '../../domain/models.dart';
+import '../controller.dart';
 import 'common.dart';
 import 'service_badge.dart';
 
@@ -21,6 +23,19 @@ Widget? bankLogoFor(String bankName, {double size = 44}) {
   final bank = BankCatalog.byName(bankName);
   if (bank?.logoAsset == null) return null;
   return ServiceBadge(serviceId: bank!.id, name: bank.name, size: size);
+}
+
+/// The bank logo of [account], only if the person turned it on for this
+/// account in its editor (1.22.1); null otherwise.
+Widget? accountBankLogo(
+  BuildContext context,
+  Account account, {
+  double size = 44,
+}) {
+  final on = FinanceScope.of(
+    context,
+  ).data.preferences.bankLogos.contains(account.id);
+  return on ? bankLogoFor(account.bank, size: size) : null;
 }
 
 Future<RussianBank?> showBankPicker(BuildContext context) =>

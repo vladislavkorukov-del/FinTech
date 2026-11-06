@@ -2,6 +2,8 @@ import 'package:finora/domain/account_import_parser.dart';
 import 'package:finora/domain/scan_document.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'fixtures/zen_accounts.dart';
+
 /// Finance 1.21: accounts with balances read from a screenshot of another
 /// finance app.
 void main() {
@@ -71,6 +73,51 @@ void main() {
       ('Основная карта', 8451200),
       ('Вклад', 30000000),
     ]);
+  });
+
+  test('a real Дзен-мани list: bold names, not the thin «Личное»', () {
+    // 1.22.1: the owner's screenshot came out as one account
+    // «00000000 Семья Тинькофф Со…».
+    const expected = [
+      ('Наличные', 1000000),
+      ('Бюджет', 536651),
+      ('Накопления Вика', 4003249),
+      ('Машина', 0),
+      ('Квартира и кредиты', 0),
+      ('Семья Тинькофф', 0),
+      ('Совкомбанк Халва', 0),
+      ('Вклад', 5668039),
+    ];
+    for (final psm in [3, 11]) {
+      final drafts = AccountImportParser.parse('', lines: zenLines(psm));
+      expect(
+        drafts.map((d) => (d.name, d.amountMinor)).toList(),
+        expected,
+        reason: 'psm $psm',
+      );
+      expect(drafts.every((d) => d.currency == 'RUB'), isTrue);
+      expect(
+        drafts.firstWhere((d) => d.name == 'Совкомбанк Халва').bank,
+        'Совкомбанк',
+      );
+      expect(
+        drafts.firstWhere((d) => d.name == 'Семья Тинькофф').bank,
+        'Т-Банк',
+      );
+    }
+    // The same list as plain text, «Личное» under each name.
+    const text = '''Наличные
+Личное
+10 000,00 P
+Бюджет
+Личное
+5 366,51 Р
+@ Вклад 56 680,39 Р
+Личное''';
+    expect(
+      AccountImportParser.parse(text).map((d) => (d.name, d.amountMinor)),
+      [('Наличные', 1000000), ('Бюджет', 536651), ('Вклад', 5668039)],
+    );
   });
 
   test('nothing that is not a balance', () {

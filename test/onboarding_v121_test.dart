@@ -204,6 +204,39 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('button labels are never clipped', (tester) async {
+    // 1.22.1: «Продолжить» was cut at the bottom on a phone.
+    await mount(tester);
+    void fits(String key) {
+      final button = find.byKey(ValueKey(key)).first;
+      final box = tester.getRect(button);
+      final label = tester.getRect(
+        find.descendant(of: button, matching: find.byType(Text)).first,
+      );
+      expect(label.top, greaterThanOrEqualTo(box.top), reason: key);
+      expect(label.bottom, lessThanOrEqualTo(box.bottom), reason: key);
+    }
+
+    fits('onboarding-start');
+    await tester.tap(find.byKey(const ValueKey('onboarding-start')));
+    await tester.pumpAndSettle();
+    fits('onboarding-Продолжить');
+  });
+
+  testWidgets('labels fit with large system text too', (tester) async {
+    tester.platformDispatcher.textScaleFactorTestValue = 1.6;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    await mount(tester);
+    final button = find.byKey(const ValueKey('onboarding-start'));
+    final box = tester.getRect(button);
+    final label = tester.getRect(
+      find.descendant(of: button, matching: find.byType(Text)).first,
+    );
+    expect(label.top, greaterThanOrEqualTo(box.top));
+    expect(label.bottom, lessThanOrEqualTo(box.bottom));
+    expect(tester.takeException(), isNull);
+  });
+
   test('people who already use the app never see it', () {
     // Settings saved by earlier versions have no «onboarded» field.
     expect(AppPreferences.fromJson({'theme': 'dark'}).onboarded, isTrue);

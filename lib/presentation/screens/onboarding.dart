@@ -121,6 +121,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   Future<void> _finish() async {
     final c = FinanceScope.of(context);
     HapticFeedback.mediumImpact();
+    // Close the keyboard before the main screen appears (1.22.1).
+    FocusManager.instance.primaryFocus?.unfocus();
+    await SystemChannels.textInput.invokeMethod<void>('TextInput.hide');
     await c.mutate(
       (d) => d.copyWith(preferences: d.preferences.copyWith(onboarded: true)),
     );
@@ -479,9 +482,12 @@ class _AppleButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dark = Theme.of(context).brightness == Brightness.dark;
-    return SizedBox(
-      width: double.infinity,
-      height: 52,
+    // At least 52 high; taller with large system text instead of clipping.
+    return ConstrainedBox(
+      constraints: const BoxConstraints(
+        minWidth: double.infinity,
+        minHeight: 52,
+      ),
       child: FilledButton(
         onPressed: onPressed,
         style: FilledButton.styleFrom(
@@ -492,12 +498,17 @@ class _AppleButton extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14),
           ),
+          // 1.22.1: no vertical padding and a tight line, so the label is
+          // never clipped by the fixed height (the theme style is tall).
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          minimumSize: const Size(double.infinity, 52),
           textStyle: Theme.of(context).textTheme.titleMedium?.copyWith(
             fontSize: 17,
             fontWeight: FontWeight.w600,
+            height: 1.2,
           ),
         ),
-        child: Text(label),
+        child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
       ),
     );
   }

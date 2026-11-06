@@ -13,6 +13,7 @@ import '../../services/user_files.dart';
 import '../controller.dart';
 import '../theme/app_theme.dart';
 import '../widgets/common.dart';
+import 'account_import_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -605,6 +606,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ],
                   ),
                 ),
+                // 1.22.1: accounts from another finance app by a screenshot.
+                const SectionTitle('Перенос данных'),
+                SurfaceCard(
+                  child: _backupAction(
+                    'Перенести счета со скриншота',
+                    'Из другой домашней бухгалтерии или банка — названия и остатки',
+                    Icons.add_photo_alternate_outlined,
+                    () => Navigator.push(
+                      context,
+                      MaterialPageRoute<void>(
+                        builder: (_) => const AccountImportScreen(),
+                      ),
+                    ),
+                  ),
+                ),
                 const SectionTitle('Резервные копии'),
                 SurfaceCard(
                   child: Column(
@@ -645,7 +661,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 const Padding(
                   padding: EdgeInsets.symmetric(vertical: 16),
                   child: Text(
-                    'Finance · 1.22.0',
+                    'Finance · 1.22.1',
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 12),
                   ),
@@ -654,7 +670,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   onPressed: () => showLicensePage(
                     context: context,
                     applicationName: 'Finance',
-                    applicationVersion: '1.22.0',
+                    applicationVersion: '1.22.1',
                   ),
                   icon: const Icon(Icons.article_outlined, size: 18),
                   label: const Text('Лицензии'),

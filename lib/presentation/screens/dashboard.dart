@@ -472,7 +472,7 @@ class _AccountRow extends StatelessWidget {
       ),
       child: Row(
         children: [
-          bankLogoFor(account.bank, size: 38) ??
+          accountBankLogo(context, account, size: 38) ??
               Container(
                 width: 38,
                 height: 38,

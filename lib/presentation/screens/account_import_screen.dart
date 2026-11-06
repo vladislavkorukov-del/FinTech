@@ -161,6 +161,7 @@ class _AccountImportScreenState extends State<AccountImportScreen> {
       );
     }
     if (accounts.isEmpty) return;
+    FocusManager.instance.primaryFocus?.unfocus();
     setState(() => _busy = true);
     try {
       await c.mutate((d) => d.copyWith(accounts: [...d.accounts, ...accounts]));

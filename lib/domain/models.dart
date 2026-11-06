@@ -652,6 +652,10 @@ class AppPreferences {
   /// install starts with false.
   final bool onboarded;
 
+  /// Accounts that show their bank's logo (1.22.1). Off by default: the
+  /// person turns it on per account in the account editor.
+  final List<String> bankLogos;
+
   const AppPreferences({
     this.theme = 'dark',
     this.accent = 'coffee',
@@ -669,6 +673,7 @@ class AppPreferences {
     this.goalOrder = const [],
     this.userName = '',
     this.onboarded = true,
+    this.bankLogos = const [],
   });
 
   AppPreferences copyWith({
@@ -688,6 +693,7 @@ class AppPreferences {
     List<String>? goalOrder,
     String? userName,
     bool? onboarded,
+    List<String>? bankLogos,
   }) => AppPreferences(
     theme: theme ?? this.theme,
     accent: accent ?? this.accent,
@@ -709,6 +715,7 @@ class AppPreferences {
     goalOrder: goalOrder ?? this.goalOrder,
     userName: userName ?? this.userName,
     onboarded: onboarded ?? this.onboarded,
+    bankLogos: bankLogos ?? this.bankLogos,
   );
 
   Map<String, Object?> toJson() => {
@@ -728,6 +735,7 @@ class AppPreferences {
     'goalOrder': goalOrder,
     'userName': userName,
     'onboarded': onboarded,
+    'bankLogos': bankLogos,
   };
 
   static List<String> _ids(Object? value) =>
@@ -750,6 +758,7 @@ class AppPreferences {
     goalOrder: _ids(json['goalOrder']),
     userName: json['userName'] as String? ?? '',
     onboarded: json['onboarded'] as bool? ?? true,
+    bankLogos: _ids(json['bankLogos']),
   );
 
   /// [items] in the person's [order] (by [id]); unknown items keep their

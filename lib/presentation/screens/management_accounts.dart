@@ -56,7 +56,7 @@ class AccountsScreen extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  bankLogoFor(a.bank) ??
+                  accountBankLogo(context, a) ??
                       CategoryBadge(
                         icon: categoryIcon(a.icon),
                         color: Color(a.color),
@@ -129,6 +129,8 @@ Future<void> showAccountEditor(BuildContext context, {Account? account}) async {
   var type = a?.type ?? 'bank';
   var currency = a?.currency ?? c.currency;
   var excluded = a?.excluded ?? false;
+  final id = a?.id ?? c.id();
+  var showLogo = c.data.preferences.bankLogos.contains(id);
   var archived = a?.archived ?? false;
   var color = a?.color ?? categoryColors.first;
   var icon = a?.icon ?? 26;
@@ -208,6 +210,15 @@ Future<void> showAccountEditor(BuildContext context, {Account? account}) async {
         },
       ),
       _colors(color, (v) => set(() => color = v)),
+      // 1.22.1: the bank's logo is shown only when turned on here.
+      SwitchListTile.adaptive(
+        key: const ValueKey('account-show-logo'),
+        contentPadding: EdgeInsets.zero,
+        title: const Text('Показывать логотип банка'),
+        subtitle: const Text('Вместо значка счёта, если банк узнан'),
+        value: showLogo,
+        onChanged: (v) => set(() => showLogo = v),
+      ),
       SwitchListTile.adaptive(
         contentPadding: EdgeInsets.zero,
         title: const Text('Исключить из общего баланса'),
@@ -230,20 +241,29 @@ Future<void> showAccountEditor(BuildContext context, {Account? account}) async {
       if (cap < 0) {
         throw const FormatException('Лимит не может быть отрицательным.');
       }
-      await c.saveAccount(
-        Account(
-          id: a?.id ?? c.id(),
-          name: name.text.trim(),
-          type: type,
-          currency: currency,
-          openingMinor: start,
-          creditLimitMinor: cap,
-          bank: bank.text.trim(),
-          lastFour: last.text,
-          excluded: excluded,
-          archived: archived,
-          color: color,
-          icon: icon,
+      final account = Account(
+        id: id,
+        name: name.text.trim(),
+        type: type,
+        currency: currency,
+        openingMinor: start,
+        creditLimitMinor: cap,
+        bank: bank.text.trim(),
+        lastFour: last.text,
+        excluded: excluded,
+        archived: archived,
+        color: color,
+        icon: icon,
+      );
+      await c.mutate(
+        (d) => d.copyWith(
+          accounts: [...d.accounts.where((x) => x.id != id), account],
+          preferences: d.preferences.copyWith(
+            bankLogos: [
+              ...d.preferences.bankLogos.where((x) => x != id),
+              if (showLogo) id,
+            ],
+          ),
         ),
       );
     },

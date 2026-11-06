@@ -30,49 +30,103 @@ abstract final class AccountImportParser {
     String text, {
     List<RecognizedLine> lines = const [],
     String defaultCurrency = 'RUB',
-  }) {
-    final rows = lines.isEmpty
-        ? text.split('\n')
-        : _visualRows(lines).map((r) => r.text).toList();
+  }) => lines.isEmpty
+      ? _fromText(text, defaultCurrency)
+      : _fromLines(lines, defaultCurrency);
+
+  /// Plain text: a name with its balance on one line, or the name on the
+  /// first line above the balance (a thin caption like «Личное» between them
+  /// is not the name).
+  static List<AccountDraft> _fromText(String text, String currency) {
     final drafts = <AccountDraft>[];
-    String? pendingName;
-    for (final raw in rows) {
+    String? firstName;
+    for (final raw in text.split('\n')) {
       final row = raw.replaceAll(RegExp(r'\s+'), ' ').trim();
       if (row.isEmpty) continue;
       final money = _money(row);
       if (money == null) {
-        // A name line waiting for its balance on the next line.
         final name = _cleanName(row);
-        pendingName = name.isEmpty || _skip(name) ? null : row;
+        if (name.isNotEmpty && !_skip(name)) firstName ??= row;
         continue;
       }
       var nameText = row.replaceRange(money.start, money.end, ' ').trim();
-      if (_cleanName(nameText).isEmpty && pendingName != null) {
-        nameText = pendingName;
+      if (_cleanName(nameText).isEmpty && firstName != null) {
+        nameText = firstName;
       }
-      pendingName = null;
-      final name = _cleanName(nameText);
-      if (name.isEmpty || _skip(name)) continue;
-      final four = RegExp(
-        r'(?:[*•·∙●.xх]{2,}|№)\s?(\d{4})\b',
-      ).firstMatch(nameText)?.group(1);
-      drafts.add(
-        AccountDraft(
-          name: name,
-          amountMinor: money.minor,
-          currency: money.currency ?? defaultCurrency,
-          lastFour: four ?? '',
-          bank: _bank(name),
-        ),
-      );
+      firstName = null;
+      final draft = _draft(nameText, money, currency);
+      if (draft != null) drafts.add(draft);
     }
     return drafts;
+  }
+
+  /// Screen geometry, anchored on the balances: each balance on the right
+  /// belongs to the name on its left at its height or just above it — the
+  /// bold top line of a list item. The thin caption under the name
+  /// («Личное») sits below the balance and is not taken; icon circles (read
+  /// as «©», «@», «0») have no letters and are ignored.
+  static List<AccountDraft> _fromLines(
+    List<RecognizedLine> lines,
+    String currency,
+  ) {
+    final sorted = [...lines]..sort((a, b) => a.top.compareTo(b.top));
+    final used = <RecognizedLine>{};
+    final drafts = <AccountDraft>[];
+    for (final line in sorted) {
+      final text = line.text.replaceAll(RegExp(r'\s+'), ' ').trim();
+      final money = _money(text);
+      if (money == null) continue;
+      // The name in the same line («Наличные 10 000,00 ₽»).
+      var nameText = text.replaceRange(money.start, money.end, ' ').trim();
+      if (_cleanName(nameText).isEmpty) {
+        final h = line.bottom - line.top;
+        final mid = (line.top + line.bottom) / 2;
+        RecognizedLine? best;
+        for (final other in sorted) {
+          if (identical(other, line) || used.contains(other)) continue;
+          if (other.left >= line.left) continue; // names are on the left
+          if (_money(other.text) != null) continue;
+          final name = _cleanName(other.text);
+          if (name.isEmpty || _skip(name)) continue;
+          final center = (other.top + other.bottom) / 2;
+          // At the balance's height or up to about one line above it.
+          if (center < mid - 1.6 * h || center > mid + .2 * h) continue;
+          if (best == null || other.top < best.top) best = other;
+        }
+        if (best == null) continue;
+        used.add(best);
+        nameText = best.text;
+      }
+      final draft = _draft(nameText, money, currency);
+      if (draft != null) drafts.add(draft);
+    }
+    return drafts;
+  }
+
+  static AccountDraft? _draft(
+    String nameText,
+    ({int minor, String? currency, int start, int end}) money,
+    String currency,
+  ) {
+    final name = _cleanName(nameText);
+    if (name.isEmpty || _skip(name)) return null;
+    final four = RegExp(
+      r'(?:[*•·∙●.xх]{2,}|№)\s?(\d{4})\b',
+    ).firstMatch(nameText)?.group(1);
+    return AccountDraft(
+      name: name,
+      amountMinor: money.minor,
+      currency: money.currency ?? currency,
+      lastFour: four ?? '',
+      bank: _bank(name),
+    );
   }
 
   static const _currencies = <String, String>{
     '₽': 'RUB',
     'руб': 'RUB',
     'р': 'RUB',
+    'p': 'RUB', // OCR often reads ₽ as a Latin P
     'rub': 'RUB',
     'rur': 'RUB',
     r'$': 'USD',
@@ -103,7 +157,7 @@ abstract final class AccountImportParser {
       r'([-−–+]?)\s?(\$|€|₽|£|¥|₸|₺|₾)?\s?'
       r'(\d{1,3}(?:[   .,]\d{3})+|\d+)'
       r'(?:([.,])(\d{1,2}))?(?!\d)\s?'
-      r'(₽|руб\.?|р\.?|rub|rur|\$|usd|€|eur|₸|kzt|¥|cny|₺|try|£|gbp|₾|gel|aed|chf)?'
+      r'(₽|руб\.?|р\.?|p\.?|rub|rur|\$|usd|€|eur|₸|kzt|¥|cny|₺|try|£|gbp|₾|gel|aed|chf)?'
       r'(?![а-яa-z])',
       caseSensitive: false,
     );
@@ -146,19 +200,32 @@ abstract final class AccountImportParser {
   static final _skipWords = RegExp(
     r'^(итог[оа]?|всего|общий баланс|баланс|все счета|мои счета|счета|'
     r'доступно|доступный остаток|остаток|сумма|капитал|активы|долги|'
-    r'кредитный лимит|лимит|total|balance|accounts|net worth)$',
+    r'кредитный лимит|лимит|личное|общее|семейное|совместное|'
+    r'total|balance|accounts|net worth)$',
   );
 
   static bool _skip(String name) =>
       _skipWords.hasMatch(name.toLowerCase().replaceAll('ё', 'е').trim());
 
   /// The account name without card masks, symbols and stray digits.
-  static String _cleanName(String value) => value
+  static String _cleanName(String value) => _dropIcons(value)
       .replaceAll(RegExp(r'(?:[*•·∙●.xх]{2,}|№)\s?\d{4}\b'), ' ')
       .replaceAll(RegExp(r'[|•·∙●*>›»<‹«]+'), ' ')
       .replaceAll(RegExp(r'^[\s\-–—:]+|[\s\-–—:]+$'), '')
       .replaceAll(RegExp(r'\s+'), ' ')
       .trim();
+
+  /// Leading tokens without letters are icons read as text («©», «@»,
+  /// «(=)», «00000000»).
+  static String _dropIcons(String value) {
+    final words = value.trim().split(RegExp(r'\s+'));
+    var i = 0;
+    while (i < words.length &&
+        !RegExp(r'[a-zа-яё]', caseSensitive: false).hasMatch(words[i])) {
+      i++;
+    }
+    return words.sublist(i).join(' ');
+  }
 
   /// A bank named in the account name («Тинькофф Black» → Т-Банк).
   static String _bank(String name) {
@@ -170,35 +237,5 @@ abstract final class AccountImportParser {
       }
     }
     return '';
-  }
-
-  /// OCR lines joined into visual rows by vertical overlap, left to right.
-  static List<({String text, double top})> _visualRows(
-    List<RecognizedLine> lines,
-  ) {
-    final sorted = [...lines]..sort((a, b) => a.top.compareTo(b.top));
-    final rows = <List<RecognizedLine>>[];
-    for (final line in sorted) {
-      final mid = (line.top + line.bottom) / 2;
-      final row = rows.where((r) {
-        final top = r.map((l) => l.top).reduce((a, b) => a < b ? a : b);
-        final bottom = r.map((l) => l.bottom).reduce((a, b) => a > b ? a : b);
-        return mid > top && mid < bottom;
-      }).firstOrNull;
-      if (row == null) {
-        rows.add([line]);
-      } else {
-        row.add(line);
-      }
-    }
-    return [
-      for (final r in rows)
-        (
-          text: (r..sort((a, b) => a.left.compareTo(b.left)))
-              .map((l) => l.text)
-              .join('   '),
-          top: r.first.top,
-        ),
-    ];
   }
 }
