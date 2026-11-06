@@ -7,6 +7,7 @@ import 'package:sqflite/sqflite.dart';
 
 import '../domain/finance_engine.dart';
 import '../domain/models.dart';
+import '../domain/style_ids.dart';
 import 'demo_data.dart';
 
 /// The persistence boundary. Every ledger replacement is validated and committed
@@ -750,23 +751,7 @@ class FinanceRepository {
     final prefs = data.preferences;
     currency(prefs.baseCurrency);
     if (!['light', 'dark', 'system'].contains(prefs.theme) ||
-        ![
-          'coffee',
-          'lime',
-          'electric',
-          'sage',
-          'graphite',
-          'paper',
-          'midnight',
-          'harbor',
-          'forest',
-          'velvet',
-          'aurora',
-          'royal',
-          'gold',
-          'lavender',
-          'blue',
-        ].contains(prefs.accent) ||
+        ![...visualStyleIds, ...legacyStyleIds].contains(prefs.accent) ||
         !['space_comma', 'comma_dot'].contains(prefs.numberFormat) ||
         ![
           'dd.MM.yyyy',

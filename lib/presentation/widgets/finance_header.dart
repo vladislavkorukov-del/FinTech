@@ -6,6 +6,7 @@ import '../screens/management.dart';
 import '../screens/settings.dart';
 import '../theme/app_theme.dart';
 import 'common.dart' show money;
+import 'motion.dart';
 
 class FinanceBrand extends StatefulWidget {
   const FinanceBrand({super.key, this.animated = true});
@@ -163,10 +164,10 @@ class FinanceHeader extends StatelessWidget {
                         const SizedBox(height: 1),
                         FittedBox(
                           fit: BoxFit.scaleDown,
-                          child: Text(
-                            money(c.balance, c.currency),
-                            key: const ValueKey('header-balance-amount'),
-                            maxLines: 1,
+                          child: AnimatedMoney(
+                            c.balance,
+                            currency: c.currency,
+                            textKey: const ValueKey('header-balance-amount'),
                             style: TextStyle(
                               fontSize: 22,
                               fontWeight: FontWeight.w600,

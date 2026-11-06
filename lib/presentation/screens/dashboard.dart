@@ -12,6 +12,7 @@ import 'payee_summary_screen.dart';
 import 'transactions.dart';
 import '../widgets/finance_header.dart';
 import '../widgets/finance_quick_actions.dart';
+import '../widgets/motion.dart';
 import '../widgets/bank_picker.dart';
 import '../widgets/category_orbit_chart.dart';
 import '../widgets/service_badge.dart';
@@ -64,217 +65,213 @@ class Dashboard extends StatelessWidget {
       context,
       TransactionsScreen(initialKind: kind, initialRange: range),
     );
+    final sections = <Widget>[
+      const FinanceHeader(),
+      const SizedBox(height: 10),
+      Row(
+        key: const ValueKey('dashboard-month-summary'),
+        children: [
+          Expanded(
+            child: _SummaryTile(
+              title: 'Доходы',
+              amount: totals.income,
+              currency: c.currency,
+              icon: Icons.south_west_rounded,
+              tone: colors.income,
+              onTap: () => operations(EntryKind.income),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: _SummaryTile(
+              title: 'Расходы',
+              amount: totals.expense,
+              currency: c.currency,
+              icon: Icons.north_east_rounded,
+              tone: colors.expense,
+              onTap: () => operations(EntryKind.expense),
+            ),
+          ),
+        ],
+      ),
+      const SizedBox(height: 8),
+      const FinanceQuickActions(),
+      SectionTitle(
+        'Все счета',
+        action: '+ Счёт',
+        onTap: () => showAccountEditor(context),
+      ),
+      if (active.isEmpty)
+        SurfaceCard(
+          onTap: () => showAccountEditor(context),
+          child: const EmptyState(
+            'Добавьте счёт',
+            'Карта, наличные, вклад или кошелёк.',
+            icon: Icons.add_card_outlined,
+          ),
+        ),
+      for (final account in active)
+        Padding(
+          padding: const EdgeInsets.only(bottom: 6),
+          child: _AccountRow(account: account),
+        ),
+      if (archived.isNotEmpty)
+        SurfaceCard(
+          padding: EdgeInsets.zero,
+          child: ExpansionTile(
+            key: const PageStorageKey('dashboard-archived-accounts'),
+            shape: const Border(),
+            collapsedShape: const Border(),
+            title: Text(
+              'Архивные счета · ${archived.length}',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+            children: archived
+                .map(
+                  (a) => Padding(
+                    padding: const EdgeInsets.only(top: 6),
+                    child: _AccountRow(account: a),
+                  ),
+                )
+                .toList(),
+          ),
+        ),
+      SectionTitle(
+        'Обзор месяца',
+        action: DateFormat('LLLL', 'ru').format(DateTime.now()),
+        onTap: () => _open(context, const CalendarScreen()),
+      ),
+      _ExpenseOverview(
+        categories: categories,
+        total: totals.expense,
+        difference: difference,
+        onAnalytics: onAnalytics,
+        onCategory: (id) => _open(
+          context,
+          TransactionsScreen(categoryId: id, initialRange: range),
+        ),
+      ),
+      SectionTitle(
+        'Мечты и накопления',
+        action: 'Все',
+        onTap: () => _open(context, const GoalsScreen()),
+      ),
+      if (c.data.goals.isEmpty)
+        SurfaceCard(
+          onTap: () => _open(context, const GoalsScreen()),
+          child: const EmptyState(
+            'Нет целей накоплений',
+            'Добавьте цель, сумму и срок.',
+            icon: Icons.savings_outlined,
+          ),
+        )
+      else
+        for (final goal in c.data.goals)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 6),
+            child: _DreamRow(goal: goal),
+          ),
+      const _PaymentSection(
+        paymentType: 'subscription',
+        title: 'Подписки',
+        icon: Icons.subscriptions_outlined,
+      ),
+      const _PaymentSection(
+        paymentType: 'mandatory',
+        title: 'Обязательные платежи',
+        icon: Icons.receipt_long_outlined,
+      ),
+      SectionTitle('Последние операции', action: 'Все', onTap: onTransactions),
+      SurfaceCard(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+        child: recent.isEmpty
+            ? const EmptyState(
+                'Операций нет',
+                'Добавьте доход, расход или перевод.',
+              )
+            : Column(
+                children: recent
+                    .take(5)
+                    .map(
+                      (e) => EntryTile(
+                        e,
+                        // Payee summary with a period choice; transfers and
+                        // operations without a payee open the editor.
+                        onTap:
+                            e.kind == EntryKind.transfer ||
+                                e.payee.trim().isEmpty
+                            ? null
+                            : () =>
+                                  _open(context, PayeeSummaryScreen(entry: e)),
+                      ),
+                    )
+                    .toList(),
+              ),
+      ),
+      SectionTitle(
+        'Бюджеты',
+        action: 'Все',
+        onTap: () => _open(context, const BudgetsScreen()),
+      ),
+      if (c.data.budgets.isEmpty)
+        SurfaceCard(
+          onTap: () => _open(context, const BudgetsScreen()),
+          child: const EmptyState(
+            'Бюджет не задан',
+            'Установите общий лимит или лимиты категорий.',
+          ),
+        )
+      else
+        for (final budget in c.data.budgets.take(2))
+          Padding(
+            padding: const EdgeInsets.only(bottom: 6),
+            child: SurfaceCard(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              onTap: () => _open(context, const BudgetsScreen()),
+              child: Builder(
+                builder: (context) {
+                  final spent = FinanceEngine.budgetSpent(
+                    budget,
+                    c.data.entries,
+                    c.periodStart,
+                    c.periodEnd,
+                  );
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        budget.name,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: 12),
+                      LinearProgressIndicator(
+                        value: (spent / budget.limitMinor).clamp(0, 1),
+                        color: spent > budget.limitMinor
+                            ? colors.expense
+                            : scheme.primary,
+                        minHeight: 6,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        '${money(spent, budget.currency)} из ${money(budget.limitMinor, budget.currency)}',
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ),
+    ];
     return ListView(
       key: const PageStorageKey('dashboard'),
       padding: const EdgeInsets.fromLTRB(16, 4, 16, 20),
       children: [
-        const FinanceHeader(),
-        const SizedBox(height: 10),
-        Row(
-          key: const ValueKey('dashboard-month-summary'),
-          children: [
-            Expanded(
-              child: _SummaryTile(
-                title: 'Доходы',
-                amount: totals.income,
-                currency: c.currency,
-                icon: Icons.south_west_rounded,
-                tone: colors.income,
-                onTap: () => operations(EntryKind.income),
-              ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: _SummaryTile(
-                title: 'Расходы',
-                amount: totals.expense,
-                currency: c.currency,
-                icon: Icons.north_east_rounded,
-                tone: colors.expense,
-                onTap: () => operations(EntryKind.expense),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        const FinanceQuickActions(),
-        SectionTitle(
-          'Все счета',
-          action: '+ Счёт',
-          onTap: () => showAccountEditor(context),
-        ),
-        if (active.isEmpty)
-          SurfaceCard(
-            onTap: () => showAccountEditor(context),
-            child: const EmptyState(
-              'Добавьте счёт',
-              'Карта, наличные, вклад или кошелёк.',
-              icon: Icons.add_card_outlined,
-            ),
-          ),
-        for (final account in active)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 6),
-            child: _AccountRow(account: account),
-          ),
-        if (archived.isNotEmpty)
-          SurfaceCard(
-            padding: EdgeInsets.zero,
-            child: ExpansionTile(
-              key: const PageStorageKey('dashboard-archived-accounts'),
-              shape: const Border(),
-              collapsedShape: const Border(),
-              title: Text(
-                'Архивные счета · ${archived.length}',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-              children: archived
-                  .map(
-                    (a) => Padding(
-                      padding: const EdgeInsets.only(top: 6),
-                      child: _AccountRow(account: a),
-                    ),
-                  )
-                  .toList(),
-            ),
-          ),
-        SectionTitle(
-          'Обзор месяца',
-          action: DateFormat('LLLL', 'ru').format(DateTime.now()),
-          onTap: () => _open(context, const CalendarScreen()),
-        ),
-        _ExpenseOverview(
-          categories: categories,
-          total: totals.expense,
-          difference: difference,
-          onAnalytics: onAnalytics,
-          onCategory: (id) => _open(
-            context,
-            TransactionsScreen(categoryId: id, initialRange: range),
-          ),
-        ),
-        SectionTitle(
-          'Мечты и накопления',
-          action: 'Все',
-          onTap: () => _open(context, const GoalsScreen()),
-        ),
-        if (c.data.goals.isEmpty)
-          SurfaceCard(
-            onTap: () => _open(context, const GoalsScreen()),
-            child: const EmptyState(
-              'Нет целей накоплений',
-              'Добавьте цель, сумму и срок.',
-              icon: Icons.savings_outlined,
-            ),
-          )
-        else
-          for (final goal in c.data.goals)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 6),
-              child: _DreamRow(goal: goal),
-            ),
-        const _PaymentSection(
-          paymentType: 'subscription',
-          title: 'Подписки',
-          icon: Icons.subscriptions_outlined,
-        ),
-        const _PaymentSection(
-          paymentType: 'mandatory',
-          title: 'Обязательные платежи',
-          icon: Icons.receipt_long_outlined,
-        ),
-        SectionTitle(
-          'Последние операции',
-          action: 'Все',
-          onTap: onTransactions,
-        ),
-        SurfaceCard(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
-          child: recent.isEmpty
-              ? const EmptyState(
-                  'Операций нет',
-                  'Добавьте доход, расход или перевод.',
-                )
-              : Column(
-                  children: recent
-                      .take(5)
-                      .map(
-                        (e) => EntryTile(
-                          e,
-                          // Payee summary with a period choice; transfers and
-                          // operations without a payee open the editor.
-                          onTap:
-                              e.kind == EntryKind.transfer ||
-                                  e.payee.trim().isEmpty
-                              ? null
-                              : () => _open(
-                                  context,
-                                  PayeeSummaryScreen(entry: e),
-                                ),
-                        ),
-                      )
-                      .toList(),
-                ),
-        ),
-        SectionTitle(
-          'Бюджеты',
-          action: 'Все',
-          onTap: () => _open(context, const BudgetsScreen()),
-        ),
-        if (c.data.budgets.isEmpty)
-          SurfaceCard(
-            onTap: () => _open(context, const BudgetsScreen()),
-            child: const EmptyState(
-              'Бюджет не задан',
-              'Установите общий лимит или лимиты категорий.',
-            ),
-          )
-        else
-          for (final budget in c.data.budgets.take(2))
-            Padding(
-              padding: const EdgeInsets.only(bottom: 6),
-              child: SurfaceCard(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 14,
-                ),
-                onTap: () => _open(context, const BudgetsScreen()),
-                child: Builder(
-                  builder: (context) {
-                    final spent = FinanceEngine.budgetSpent(
-                      budget,
-                      c.data.entries,
-                      c.periodStart,
-                      c.periodEnd,
-                    );
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          budget.name,
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                        const SizedBox(height: 12),
-                        LinearProgressIndicator(
-                          value: (spent / budget.limitMinor).clamp(0, 1),
-                          color: spent > budget.limitMinor
-                              ? colors.expense
-                              : scheme.primary,
-                          minHeight: 6,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          '${money(spent, budget.currency)} из ${money(budget.limitMinor, budget.currency)}',
-                          style: const TextStyle(fontSize: 12),
-                        ),
-                      ],
-                    );
-                  },
-                ),
-              ),
-            ),
+        // 1.9: sections arrive in a short cascade.
+        for (var i = 0; i < sections.length; i++)
+          Reveal(index: i, child: sections[i]),
       ],
     );
   }
@@ -582,60 +579,81 @@ class _SummaryTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final radius = BorderRadius.circular(22);
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
+    return PressScale(
+      child: Sheen(
         borderRadius: radius,
-        child: Ink(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
-          decoration: BoxDecoration(
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: onTap,
             borderRadius: radius,
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Color.alphaBlend(tone.withValues(alpha: .26), scheme.surface),
-                Color.alphaBlend(tone.withValues(alpha: .06), scheme.surface),
-              ],
-            ),
-            border: Border.all(color: tone.withValues(alpha: .30)),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    width: 24,
-                    height: 24,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: tone.withValues(alpha: .22),
+            child: Ink(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+              decoration: BoxDecoration(
+                borderRadius: radius,
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Color.alphaBlend(
+                      tone.withValues(alpha: .30),
+                      scheme.surface,
                     ),
-                    child: Icon(icon, size: 15, color: tone),
+                    Color.alphaBlend(
+                      tone.withValues(alpha: .07),
+                      scheme.surface,
+                    ),
+                  ],
+                ),
+                border: Border.all(color: tone.withValues(alpha: .34)),
+                boxShadow: [
+                  BoxShadow(
+                    color: tone.withValues(alpha: .16),
+                    blurRadius: 20,
+                    offset: const Offset(0, 8),
                   ),
-                  const SizedBox(width: 7),
-                  Flexible(
-                    child: Text(
-                      title,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: scheme.onSurfaceVariant,
+                ],
+              ),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        width: 24,
+                        height: 24,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: tone.withValues(alpha: .22),
+                        ),
+                        child: Icon(icon, size: 15, color: tone),
                       ),
+                      const SizedBox(width: 7),
+                      Flexible(
+                        child: Text(
+                          title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: scheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: AnimatedMoney(
+                      amount,
+                      currency: currency,
+                      style: Theme.of(context).textTheme.titleLarge,
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 6),
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(
-                  money(amount, currency),
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-              ),
-            ],
+            ),
           ),
         ),
       ),

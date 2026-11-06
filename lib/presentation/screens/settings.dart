@@ -266,6 +266,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ),
                       ),
                       const SizedBox(height: 14),
+                      _StyleGallery(
+                        selected: p.accent,
+                        brightness: Theme.of(context).brightness,
+                        onSelected: (v) => _run(
+                          () => c.preferences(
+                            c.data.preferences.copyWith(accent: v),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
                       _setting<String>(
                         'Визуальный стиль',
                         AppTheme.presetNames.containsKey(p.accent)
@@ -534,7 +544,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 const Padding(
                   padding: EdgeInsets.symmetric(vertical: 16),
                   child: Text(
-                    'Finance · 1.8.0',
+                    'Finance · 1.9.0',
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 12),
                   ),
@@ -543,7 +553,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   onPressed: () => showLicensePage(
                     context: context,
                     applicationName: 'Finance',
-                    applicationVersion: '1.8.0',
+                    applicationVersion: '1.9.0',
                   ),
                   icon: const Icon(Icons.article_outlined, size: 18),
                   label: const Text('Лицензии'),
@@ -726,4 +736,161 @@ class _PinDialogState extends State<_PinDialog> {
       ),
     ],
   );
+}
+
+/// Horizontal gallery of all styles: each tile shows the theme's backdrop
+/// gradient, a card and its accent, so a style can be picked by look.
+class _StyleGallery extends StatefulWidget {
+  const _StyleGallery({
+    required this.selected,
+    required this.brightness,
+    required this.onSelected,
+  });
+  final String selected;
+  final Brightness brightness;
+  final ValueChanged<String> onSelected;
+  @override
+  State<_StyleGallery> createState() => _StyleGalleryState();
+}
+
+class _StyleGalleryState extends State<_StyleGallery> {
+  static const _tile = 78.0, _gap = 10.0;
+  // Opens scrolled so the current style is visible (not always the first).
+  late final ScrollController _scroll = ScrollController(
+    initialScrollOffset: () {
+      final index = AppTheme.presetNames.keys.toList().indexOf(widget.selected);
+      return index <= 1 ? 0.0 : (index - 1) * (_tile + _gap);
+    }(),
+  );
+
+  @override
+  void dispose() {
+    _scroll.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final selected = widget.selected;
+    final brightness = widget.brightness;
+    final onSelected = widget.onSelected;
+    final current = Theme.of(context).colorScheme;
+    return SizedBox(
+      height: 118,
+      child: ListView.separated(
+        key: const ValueKey('style-gallery'),
+        controller: _scroll,
+        scrollDirection: Axis.horizontal,
+        itemCount: AppTheme.presetNames.length,
+        separatorBuilder: (_, _) => const SizedBox(width: _gap),
+        itemBuilder: (context, index) {
+          final id = AppTheme.presetNames.keys.elementAt(index);
+          final theme = AppTheme.build(brightness, id);
+          final b = theme.extension<FinanceBackdrop>()!;
+          final scheme = theme.colorScheme;
+          final active = id == selected;
+          final name = AppTheme.presetNames[id]!.split(' · ').first;
+          return Semantics(
+            button: true,
+            selected: active,
+            label: 'Стиль ${AppTheme.presetNames[id]}',
+            child: GestureDetector(
+              key: ValueKey('style-$id'),
+              onTap: () => onSelected(id),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 260),
+                curve: Curves.easeOutCubic,
+                width: _tile,
+                padding: const EdgeInsets.all(7),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [b.top, b.middle, b.bottom],
+                  ),
+                  border: Border.all(
+                    color: active ? current.primary : scheme.outlineVariant,
+                    width: active ? 2.5 : 1,
+                  ),
+                  boxShadow: active
+                      ? [
+                          BoxShadow(
+                            color: current.primary.withValues(alpha: .35),
+                            blurRadius: 14,
+                          ),
+                        ]
+                      : const [],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: scheme.surface,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: const EdgeInsets.all(7),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              width: 18,
+                              height: 18,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: scheme.primary,
+                              ),
+                              child: active
+                                  ? Icon(
+                                      Icons.check_rounded,
+                                      size: 13,
+                                      color: scheme.onPrimary,
+                                    )
+                                  : null,
+                            ),
+                            const Spacer(),
+                            Container(
+                              height: 5,
+                              width: 34,
+                              decoration: BoxDecoration(
+                                color: scheme.onSurface.withValues(alpha: .7),
+                                borderRadius: BorderRadius.circular(3),
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Container(
+                              height: 5,
+                              width: 22,
+                              decoration: BoxDecoration(
+                                color: scheme.tertiary,
+                                borderRadius: BorderRadius.circular(3),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    Text(
+                      name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: active ? FontWeight.w700 : FontWeight.w500,
+                        color: scheme.onSurface,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
 }

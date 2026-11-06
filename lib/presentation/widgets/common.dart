@@ -6,6 +6,7 @@ import '../theme/icon_catalog.dart';
 import '../theme/app_theme.dart';
 export '../theme/app_theme.dart' show FinanceColors;
 export '../theme/icon_catalog.dart';
+import 'motion.dart';
 
 abstract final class FinanceFormat {
   static String numberPattern = 'space_comma';
@@ -74,26 +75,73 @@ class SurfaceCard extends StatelessWidget {
   final Color? color;
   final VoidCallback? onTap;
   @override
-  Widget build(BuildContext context) => Material(
-    color: color ?? Theme.of(context).colorScheme.surface,
-    borderRadius: BorderRadius.circular(24),
-    child: InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(24),
-      child: Container(
-        padding: padding,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(
-            color: Theme.of(
-              context,
-            ).colorScheme.outlineVariant.withValues(alpha: .16),
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final dark = theme.brightness == Brightness.dark;
+    final fill = color ?? scheme.surface;
+    final radius = BorderRadius.circular(24);
+    // 1.9: a soft accent-tinted gradient, a glass highlight along the top
+    // edge and a colored shadow give cards depth over the painted backdrop.
+    final card = Material(
+      color: Colors.transparent,
+      borderRadius: radius,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: radius,
+        child: Ink(
+          decoration: BoxDecoration(
+            borderRadius: radius,
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color.alphaBlend(
+                  Colors.white.withValues(alpha: dark ? .035 : .4),
+                  fill,
+                ),
+                fill,
+                Color.alphaBlend(
+                  scheme.primary.withValues(alpha: dark ? .07 : .05),
+                  fill,
+                ),
+              ],
+              stops: const [0, .55, 1],
+            ),
+            border: Border.all(
+              color: scheme.outlineVariant.withValues(alpha: .18),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: dark
+                    ? scheme.primary.withValues(alpha: .08)
+                    : Colors.black.withValues(alpha: .05),
+                blurRadius: 22,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: Container(
+            padding: padding,
+            foregroundDecoration: BoxDecoration(
+              borderRadius: radius,
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                stops: const [0, .3],
+                colors: [
+                  Colors.white.withValues(alpha: dark ? .05 : .18),
+                  Colors.white.withValues(alpha: 0),
+                ],
+              ),
+            ),
+            child: child,
           ),
         ),
-        child: child,
       ),
-    ),
-  );
+    );
+    return PressScale(enabled: onTap != null, child: card);
+  }
 }
 
 class SectionTitle extends StatelessWidget {

@@ -177,10 +177,26 @@ abstract final class AppTheme {
     'velvet': 'Lavender · мягкий',
     'aurora': 'Aurora · вечерний',
     'royal': 'Royal / Nitro · контрастный',
+    'sunset': 'Sunset · закатный',
+    'rose': 'Rose · пудровый',
+    'neon': 'Neon · яркий',
+    'crimson': 'Crimson · бордо и синий',
+    'dusk': 'Dusk · сумеречный',
+    'emerald': 'Emerald · изумрудный',
+    'tropic': 'Tropic · тропический',
+    'twilight': 'Twilight · пастельный',
+    'plum': 'Plum · сливовый',
+    'wine': 'Wine · винный',
+    'copper': 'Copper · медный',
+    'sand': 'Sand · песочный',
+    'apricot': 'Apricot · абрикосовый',
+    'terracotta': 'Holst · терракотовый',
   };
 
   static Color accent(String value) => switch (value) {
     'coffee' => coffeeHighlight,
+    _ when referencePalettes.containsKey(value) =>
+      referencePalettes[value]!.accent,
     'harbor' => referencePalettes['harbor']!.accent,
     'forest' => referencePalettes['forest']!.accent,
     'velvet' => referencePalettes['velvet']!.accent,

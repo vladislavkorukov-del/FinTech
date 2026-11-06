@@ -54,9 +54,9 @@ double contrast(Color first, Color second) {
 
 void main() {
   test(
-    'five named reference themes extend, rather than replace, seven presets',
+    'reference themes (5 + 14 in 1.9) extend, rather than replace, seven presets',
     () {
-      expect(AppTheme.presetNames.length, 12);
+      expect(AppTheme.presetNames.length, 26);
       expect(
         AppTheme.presetNames.keys,
         containsAll([

@@ -100,7 +100,7 @@ void main() {
   );
 
   testWidgets(
-    'Settings changes all twelve styles in light dark and system with animated frames',
+    'Settings changes all styles in light dark and system with animated frames',
     (tester) async {
       tester.view.physicalSize = const Size(430, 960);
       tester.view.devicePixelRatio = 1;
@@ -132,8 +132,15 @@ void main() {
         await tester.pumpAndSettle();
         await tester.tap(field);
         await tester.pumpAndSettle();
-        final item = find.text(value).last;
-        await tester.ensureVisible(item);
+        // 26 styles (1.9): the open menu is a scrolling list.
+        final menu = find.byType(Scrollable).last;
+        // The menu opens scrolled to the current style: start from the top.
+        await tester.drag(menu, const Offset(0, 4000));
+        await tester.pumpAndSettle();
+        final inMenu = find.descendant(of: menu, matching: find.text(value));
+        await tester.scrollUntilVisible(inMenu, 120, scrollable: menu);
+        await tester.pumpAndSettle();
+        final item = inMenu.last;
         await tester.tap(item);
         await tester.pump();
         await tester.runAsync(() async {

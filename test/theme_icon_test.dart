@@ -1,6 +1,8 @@
+import 'package:finora/domain/style_ids.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:finora/presentation/theme/app_theme.dart';
+import 'package:finora/presentation/theme/reference_palettes.dart';
 import 'package:finora/presentation/theme/icon_catalog.dart';
 import 'package:finora/presentation/screens/management.dart';
 import 'package:finora/presentation/widgets/common.dart' show SectionTitle;
@@ -36,20 +38,7 @@ void main() {
       },
     );
     test('every preset keeps text and buttons accessible in both themes', () {
-      expect(AppTheme.presetNames.keys, [
-        'coffee',
-        'lime',
-        'electric',
-        'sage',
-        'graphite',
-        'paper',
-        'midnight',
-        'harbor',
-        'forest',
-        'velvet',
-        'aurora',
-        'royal',
-      ]);
+      expect(AppTheme.presetNames.keys, visualStyleIds);
       for (final preset in AppTheme.presetNames.keys) {
         for (final brightness in Brightness.values) {
           final theme = AppTheme.build(brightness, preset);
@@ -87,14 +76,7 @@ void main() {
               theme.filledButtonTheme.style!.backgroundColor!.resolve({})!,
             ),
             greaterThanOrEqualTo(
-              const {
-                    'coffee',
-                    'harbor',
-                    'forest',
-                    'velvet',
-                    'aurora',
-                    'royal',
-                  }.contains(preset)
+              preset == 'coffee' || referencePalettes.containsKey(preset)
                   ? 4.5
                   : 7,
             ),
