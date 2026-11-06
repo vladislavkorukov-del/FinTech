@@ -124,7 +124,9 @@ abstract final class VoiceEntryParser {
       .toLowerCase()
       .replaceAll('ё', 'е')
       .replaceAll(RegExp(r'[«»"“”!?;:]'), ' ')
-      .replaceAll(RegExp(r'(?<=\d)\s+(?=\d{3}(\D|$))'), '') // 1 250 → 1250
+      // Thousands separators as speech services write them: «1.300»,
+      // «1 300», «12.500.000», «1,300» (a group of exactly three digits).
+      .replaceAll(RegExp('(?<=\\d)[\\s.,\u00a0\u202f](?=\\d{3}(?!\\d))'), '')
       .replaceAll(RegExp(r'\s+'), ' ')
       .trim();
 
@@ -193,10 +195,13 @@ abstract final class VoiceEntryParser {
     'скинули',
   };
 
-  static const _units = {
+  /// Spelled numbers, as recognizers sometimes leave them.
+  static const _words = <String, int>{
+    'ноль': 0,
     'один': 1,
     'одна': 1,
     'одну': 1,
+    'одной': 1,
     'два': 2,
     'две': 2,
     'три': 3,
@@ -207,6 +212,15 @@ abstract final class VoiceEntryParser {
     'восемь': 8,
     'девять': 9,
     'десять': 10,
+    'одиннадцать': 11,
+    'двенадцать': 12,
+    'тринадцать': 13,
+    'четырнадцать': 14,
+    'пятнадцать': 15,
+    'шестнадцать': 16,
+    'семнадцать': 17,
+    'восемнадцать': 18,
+    'девятнадцать': 19,
     'двадцать': 20,
     'тридцать': 30,
     'сорок': 40,
@@ -226,71 +240,108 @@ abstract final class VoiceEntryParser {
     'девятьсот': 900,
   };
 
+  /// «тысяча», «млн», «миллиардов», «к» → their factor.
+  static int? _multiplier(String w) {
+    if (w == 'к' || w == 'k' || w == 'тыс' || w.startsWith('тысяч')) {
+      return 1000;
+    }
+    if (w == 'млн' || w.startsWith('миллион')) return 1000000;
+    if (w == 'млрд' || w.startsWith('миллиард')) return 1000000000;
+    return null;
+  }
+
+  static bool _rubles(String w) =>
+      w == 'р' || w == '₽' || w == 'руб' || w.startsWith('рубл');
+  static bool _kopecks(String w) => w == 'коп' || w.startsWith('копе');
+
+  /// A number word or token in minor units (×100): «1300» → 130000,
+  /// «2,5» → 250, «триста» → 30000, «полторы» → 150; null if not a number.
+  static int? _number(String w) {
+    final digits = RegExp(r'^(\d+)(?:[.,](\d{1,2}))?$').firstMatch(w);
+    if (digits != null) {
+      final whole = int.parse(digits.group(1)!);
+      final fraction = (digits.group(2) ?? '').padRight(2, '0');
+      return whole * 100 + int.parse(fraction);
+    }
+    if (w == 'полторы' || w == 'полтора') return 150;
+    if (w == 'пол') return 50;
+    final value = _words[w];
+    return value == null ? null : value * 100;
+  }
+
   /// Amount in minor units and where it was in [text].
+  ///
+  /// Reads runs of numbers and factors the usual way («2 миллиона 300
+  /// тысяч 50» = 2 300 050; «одна тысяча триста» = 1300), then optional
+  /// «руб» and «N коп». Integer arithmetic only, so any size is exact. The
+  /// largest run wins («такси на 3 человек 600» → 600).
   static ({int minor, int start, int end})? _amount(String text) {
-    // «полторы тысячи», «тысяча/тысячу» alone, «пол тысячи».
-    final words = RegExp(
-      r'(полторы|пол)\s*тысяч[а-яёa-z]*|(^|\s)(тысяч[ау])(?=\s|$)',
-    ).firstMatch(text);
-    // Digits: «1250», «1250,50», «5 тысяч 300», «5к», «2,5 тысячи»,
-    // «250 рублей 50 копеек».
-    final digits = RegExp(
-      r'(\d+(?:[.,]\d{1,2})?)\s*(тысяч[а-яёa-z]*|тыс\.?|к|млн|миллион[а-яёa-z]*)?(?:\s+(\d{1,3}))?'
-      r'(?:\s*(?:рубл[а-яёa-z]*|руб\.?|р\.?|₽))?(?:\s+(\d{1,2})\s*(?:копе[а-яёa-z]*|коп\.?))?',
+    // «5к», «10k» → «5 к».
+    final spaced = text.replaceAllMapped(
+      RegExp(r'(?<=\d)(к|k)(?=\s|$)'),
+      (m) => ' ${m.group(1)}',
     );
+    final tokens = RegExp(r'\S+').allMatches(spaced).toList();
+    // Map offsets back to [text] (only «5к» splits change them).
+    int back(int offset) {
+      var shift = 0;
+      for (final m in RegExp(r'(?<=\d)(к|k)(?=\s|$)').allMatches(text)) {
+        if (m.start + shift < offset) shift++;
+      }
+      return offset - shift;
+    }
+
     ({int minor, int start, int end})? best;
-    for (final m in digits.allMatches(text)) {
-      final number = double.parse(m.group(1)!.replaceAll(',', '.'));
-      final unit = m.group(2) ?? '';
-      var minor = (number * 100).round();
-      if (unit.startsWith('тыс') || unit == 'к') {
-        minor *= 1000;
-        final tail = m.group(3);
-        if (tail != null) minor += int.parse(tail) * 100;
-      } else if (unit.startsWith('мил') || unit == 'млн') {
-        minor *= 1000000;
-      } else if (m.group(3) != null) {
-        // «250 50» without units: not an amount pair; keep the first number.
-        final cut = m.start + m.group(0)!.indexOf(m.group(3)!);
-        final value = (minor, m.start, cut);
-        if (best == null || value.$1 > best.minor) {
-          best = (minor: value.$1, start: value.$2, end: value.$3);
-        }
+    var i = 0;
+    while (i < tokens.length) {
+      // «пол» is a half only before a factor («пол тысячи»), not «на пол».
+      bool half(int k) =>
+          tokens[k].group(0) == 'пол' &&
+          (k + 1 >= tokens.length ||
+              _multiplier(tokens[k + 1].group(0)!) == null);
+      final first = half(i) ? null : _number(tokens[i].group(0)!);
+      if (first == null) {
+        i++;
         continue;
       }
-      final kopecks = m.group(4);
-      if (kopecks != null) minor += int.parse(kopecks);
-      if (minor <= 0) continue;
-      // The largest number is the amount («такси 600 на 3 человек» → 600).
-      if (best == null || minor > best.minor) {
-        best = (minor: minor, start: m.start, end: m.end);
+      // Run: numbers and factors.
+      var total = 0, current = 0, j = i;
+      while (j < tokens.length) {
+        final w = tokens[j].group(0)!;
+        final n = half(j) ? null : _number(w);
+        final m = _multiplier(w);
+        if (n != null) {
+          current += n;
+        } else if (m != null) {
+          total += (current == 0 ? 100 : current) * m;
+          current = 0;
+        } else {
+          break;
+        }
+        j++;
       }
-    }
-    if (best != null) return best;
-    if (words != null) {
-      final w = words.group(0)!.trim();
-      final minor = w.startsWith('полтор')
-          ? 150000
-          : w.startsWith('пол')
-          ? 50000
-          : 100000;
-      return (minor: minor, start: words.start, end: words.end);
-    }
-    // Spelled out: «пятьсот рублей», «двести пятьдесят».
-    final spelled = RegExp(
-      '(?:(?:${_units.keys.join('|')})\\s*)+(?=рубл|руб|₽|\$|\\s)',
-    ).firstMatch(text);
-    if (spelled != null) {
-      final value = spelled
-          .group(0)!
-          .trim()
-          .split(RegExp(r'\s+'))
-          .fold<int>(0, (sum, w) => sum + (_units[w] ?? 0));
-      if (value > 0) {
-        return (minor: value * 100, start: spelled.start, end: spelled.end);
+      var minor = total + current;
+      var end = tokens[j - 1].end;
+      // «руб» then «N коп».
+      if (j < tokens.length && _rubles(tokens[j].group(0)!)) {
+        end = tokens[j].end;
+        j++;
       }
+      if (j + 1 < tokens.length && _kopecks(tokens[j + 1].group(0)!)) {
+        final kop =
+            int.tryParse(tokens[j].group(0)!) ?? (_words[tokens[j].group(0)!]);
+        if (kop != null && kop < 100) {
+          minor = minor - minor % 100 + kop;
+          end = tokens[j + 1].end;
+          j += 2;
+        }
+      }
+      if (minor > 0 && (best == null || minor > best.minor)) {
+        best = (minor: minor, start: back(tokens[i].start), end: back(end));
+      }
+      i = j > i ? j : i + 1;
     }
-    return null;
+    return best;
   }
 
   static String _loose(String value) => value
