@@ -150,6 +150,24 @@ void main() {
     expect(damaged?.warning, contains('Проверьте'));
     // A damaged reading without confirmation is not used.
     expect(ReceiptTotal.find(['ИТОГ. =4199_o0.']), isNull);
+    // On a real phone: the main pass read only «ТОГ», the block pass read
+    // the row as «ic =92 .00»; native marks that row by its height.
+    expect(
+      ReceiptTotal.find(
+        ['Шоколад ГОРЬКИЙ', 'ТОГ', '=92 . Ш', 'НАЛИЧНЫМИ |', '=92.00'],
+        focusRows: ['ic =92 .00', 'НАЛИЧНЫМИ =92 .00', '[ИТОГ] ic =92 .00'],
+      )?.minor,
+      9200,
+    );
+    // On a real phone the band re-read lost a digit («570.00»); the block
+    // pass and the printed cash rows support 1570.00.
+    expect(
+      ReceiptTotal.find(
+        ['=1570.00', '=1570.00', 'ПОЛУЧЕНО НАЛИЧНЫМИ =1600.00'],
+        focusRows: ['итог =1570.00', '№ итог 570.00 /'],
+      )?.minor,
+      157000,
+    );
     // «*» and spaced prefixes: «ИТОГ * 260.00».
     expect(ReceiptTotal.find(['ИТОГ _*260.00'])?.minor, 26000);
   });

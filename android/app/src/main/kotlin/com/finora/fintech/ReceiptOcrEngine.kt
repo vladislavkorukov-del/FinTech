@@ -193,9 +193,22 @@ internal class ReceiptOcrEngine(private val context: Context) {
                 if (rows.size >= MAX_FOCUS_ROWS) break
                 rows.add((line["text"] as String).take(512))
             }
+            // A block-pass row at the height of a total label read by either
+            // pass is the «ИТОГ» row even when its own label is garbled
+            // («ic =92 .00» beside a main-pass «ТОГ»). Mark it explicitly.
+            val labels = (chosen.lines + block.lines).filter { totalLike(it["text"] as String) }
+            for (line in block.lines) {
+                if (rows.size >= MAX_FOCUS_ROWS) break
+                val text = line["text"] as String
+                if (totalLike(text) || text.none { it.isDigit() }) continue
+                val center = ((line["top"] as Double) + (line["bottom"] as Double)) / 2
+                if (labels.any { label ->
+                        center >= (label["top"] as Double) && center <= (label["bottom"] as Double)
+                    }
+                ) rows.add("[ИТОГ] ${text.take(500)}")
+            }
             val bands = mutableListOf<DoubleArray>()
-            for (line in chosen.lines + block.lines) {
-                if (!totalLike(line["text"] as String)) continue
+            for (line in labels) {
                 val top = (line["top"] as Double) * bitmap.height
                 val bottom = (line["bottom"] as Double) * bitmap.height
                 val height = max(4.0, bottom - top)
@@ -246,7 +259,8 @@ internal class ReceiptOcrEngine(private val context: Context) {
                         val value = row.trim()
                         if (value.isEmpty()) continue
                         if (rows.size >= MAX_FOCUS_ROWS) return rows
-                        rows.add(value.take(512))
+                        // This band was cut around a total label.
+                        rows.add(if (totalLike(value)) value.take(512) else "[ИТОГ] ${value.take(500)}")
                     }
                 } finally {
                     if (scaled !== bitmap) scaled.recycle()
