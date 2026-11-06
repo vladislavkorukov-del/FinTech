@@ -94,16 +94,6 @@ abstract final class ReceiptTotal {
     for (final r in chosen.where((r) => !r.$3)) {
       votes[r.$2] = (votes[r.$2] ?? 0) + 1;
     }
-    // `≡` read as a leading digit: 52550.00 next to 2550.00 is one value.
-    for (final value in votes.keys.toList()) {
-      final text = '$value';
-      for (final other in votes.keys.toList()) {
-        if (other == value || !votes.containsKey(value)) continue;
-        if (text.length == '$other'.length + 1 && text.endsWith('$other')) {
-          votes[other] = (votes[other] ?? 0) + votes.remove(value)!;
-        }
-      }
-    }
     // A damaged reading counts only with an exact confirmation.
     for (final r in chosen.where((r) => r.$3)) {
       if (confirm.containsKey(r.$2) || vatFits(r.$2)) {
@@ -111,10 +101,36 @@ abstract final class ReceiptTotal {
       }
     }
     if (votes.isEmpty) return null;
+    // The same number printed elsewhere on the receipt (cash/cashless rows,
+    // a bare value of the total column) supports that reading.
+    int seen(int v) => all
+        .where(
+          (r) =>
+              (r.kind == _Kind.none || r.kind == _Kind.payment) &&
+              r.amounts.contains(v),
+        )
+        .length;
     int support(int v) =>
-        votes[v]! * 10 +
+        (votes[v] ?? 0) * 10 +
         (confirm[v]?.isNotEmpty ?? false ? 5 : 0) +
-        (vatFits(v) ? 5 : 0);
+        (vatFits(v) ? 5 : 0) +
+        (seen(v) > 3 ? 3 : seen(v)) * 3;
+    // Two readings where one has an extra leading digit: «≡» read as 5 or 3
+    // (52550.00 beside 2550.00), or a digit lost at the edge (570.00 beside
+    // 1570.00). Evidence decides; otherwise only a leading 5/3 is a glyph.
+    for (final long in votes.keys.toList()) {
+      for (final short in votes.keys.toList()) {
+        if (!votes.containsKey(long) || !votes.containsKey(short)) continue;
+        final l = '$long', t = '$short';
+        if (l.length != t.length + 1 || !l.endsWith(t)) continue;
+        final keepShort = support(short) != support(long)
+            ? support(short) > support(long)
+            : (l[0] == '5' || l[0] == '3');
+        final winner = keepShort ? short : long;
+        final loser = keepShort ? long : short;
+        votes[winner] = votes[winner]! + votes.remove(loser)!;
+      }
+    }
     final ranked = votes.keys.toList()
       ..sort((a, b) => support(b).compareTo(support(a)));
     var best = ranked.first;
