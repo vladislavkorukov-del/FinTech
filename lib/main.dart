@@ -18,6 +18,7 @@ import 'presentation/screens/transactions.dart';
 import 'presentation/screens/analytics.dart';
 import 'presentation/screens/management.dart';
 import 'presentation/screens/entry_editor.dart';
+import 'presentation/screens/onboarding.dart';
 import 'presentation/widgets/common.dart';
 import 'presentation/widgets/finance_background.dart';
 import 'presentation/widgets/finance_header.dart';
@@ -170,7 +171,8 @@ class FinoraApp extends StatelessWidget {
           builder: (context, child) => FinanceBackground(
             child: requireDeviceSecurity ? SecurityGate(child: child!) : child!,
           ),
-          home: const HomeShell(),
+          // 1.21: welcome screens on the very first launch.
+          home: p.onboarded ? const HomeShell() : const OnboardingScreen(),
         );
       },
     ),

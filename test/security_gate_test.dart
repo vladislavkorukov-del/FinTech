@@ -37,7 +37,12 @@ void main() {
         controller = FinanceController(
           repository,
           QuietNotifications(),
-          data.copyWith(preferences: data.preferences.copyWith(lockMinutes: 1)),
+          data.copyWith(
+            preferences: data.preferences.copyWith(
+              lockMinutes: 1,
+              onboarded: true,
+            ),
+          ),
         );
       });
       await tester.pumpWidget(FinoraApp(controller: controller));

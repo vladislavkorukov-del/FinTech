@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../../domain/models.dart';
 import '../../services/security_service.dart';
 import '../../services/user_files.dart';
 import '../controller.dart';
@@ -369,6 +370,32 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 SurfaceCard(
                   child: Column(
                     children: [
+                      // 1.21: the name from the welcome screens.
+                      TextFormField(
+                        key: const ValueKey('settings-name'),
+                        initialValue: p.userName,
+                        textCapitalization: TextCapitalization.words,
+                        decoration: const InputDecoration(
+                          labelText: 'Ваше имя',
+                        ),
+                        onFieldSubmitted: (value) => _run(() async {
+                          final name = value.trim();
+                          await c.mutate(
+                            (d) => d.copyWith(
+                              preferences: d.preferences.copyWith(
+                                userName: name,
+                              ),
+                              members: [
+                                for (final m in d.members)
+                                  m.id == 'me' && name.isNotEmpty
+                                      ? Member(id: 'me', name: name)
+                                      : m,
+                              ],
+                            ),
+                          );
+                        }),
+                      ),
+                      const SizedBox(height: 12),
                       _setting<String>(
                         'Основная валюта',
                         p.baseCurrency,
@@ -618,7 +645,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 const Padding(
                   padding: EdgeInsets.symmetric(vertical: 16),
                   child: Text(
-                    'Finance · 1.20.1',
+                    'Finance · 1.21.0',
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 12),
                   ),
@@ -627,7 +654,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   onPressed: () => showLicensePage(
                     context: context,
                     applicationName: 'Finance',
-                    applicationVersion: '1.20.1',
+                    applicationVersion: '1.21.0',
                   ),
                   icon: const Icon(Icons.article_outlined, size: 18),
                   label: const Text('Лицензии'),

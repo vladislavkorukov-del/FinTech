@@ -33,7 +33,10 @@ void main() {
       factory: databaseFactoryFfi,
       path: '${directory.path}/ledger.db',
     );
-    final data = await repository.load();
+    final seeded = await repository.load();
+    final data = seeded.copyWith(
+      preferences: seeded.preferences.copyWith(onboarded: true),
+    );
     original = data.toJson()..remove('preferences');
     controller = FinanceController(repository, _QuietNotifications(), data);
   });
@@ -240,7 +243,10 @@ void main() {
           factory: databaseFactoryFfi,
           path: '${directory.path}/ledger.db',
         );
-        final data = await repository.load();
+        final seeded = await repository.load();
+        final data = seeded.copyWith(
+          preferences: seeded.preferences.copyWith(onboarded: true),
+        );
         controller = FinanceController(repository, _QuietNotifications(), data);
         return data;
       });

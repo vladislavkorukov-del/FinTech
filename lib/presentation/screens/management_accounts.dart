@@ -12,6 +12,17 @@ class AccountsScreen extends StatelessWidget {
         title: const Text('Счета'),
         actions: [
           IconButton(
+            key: const ValueKey('accounts-import'),
+            tooltip: 'Перенести счета со скриншота',
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute<void>(
+                builder: (_) => const AccountImportScreen(),
+              ),
+            ),
+            icon: const Icon(Icons.add_photo_alternate_outlined),
+          ),
+          IconButton(
             tooltip: 'Добавить счёт',
             onPressed: () => showAccountEditor(context),
             icon: const Icon(Icons.add_rounded),

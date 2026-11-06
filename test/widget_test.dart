@@ -31,10 +31,14 @@ void main() {
       factory: databaseFactoryFfi,
       path: '${directory.path}/ledger.db',
     );
+    final seeded = await repository.load();
+    // An install already in use (1.21 welcome screens done).
     controller = FinanceController(
       repository,
       SilentNotifications(),
-      await repository.load(),
+      seeded.copyWith(
+        preferences: seeded.preferences.copyWith(onboarded: true),
+      ),
     );
   });
   tearDown(() async {

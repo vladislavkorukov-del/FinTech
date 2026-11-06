@@ -644,6 +644,14 @@ class AppPreferences {
   final List<String> accountOrder;
   final List<String> goalOrder;
 
+  /// The person's name from the welcome screens (1.21); empty if skipped.
+  final String userName;
+
+  /// Whether the welcome screens were completed. Settings saved by earlier
+  /// versions have no such field and count as completed; only a brand-new
+  /// install starts with false.
+  final bool onboarded;
+
   const AppPreferences({
     this.theme = 'dark',
     this.accent = 'coffee',
@@ -659,6 +667,8 @@ class AppPreferences {
     this.dashboardOrder = const [],
     this.accountOrder = const [],
     this.goalOrder = const [],
+    this.userName = '',
+    this.onboarded = true,
   });
 
   AppPreferences copyWith({
@@ -676,6 +686,8 @@ class AppPreferences {
     List<String>? dashboardOrder,
     List<String>? accountOrder,
     List<String>? goalOrder,
+    String? userName,
+    bool? onboarded,
   }) => AppPreferences(
     theme: theme ?? this.theme,
     accent: accent ?? this.accent,
@@ -695,6 +707,8 @@ class AppPreferences {
     dashboardOrder: dashboardOrder ?? this.dashboardOrder,
     accountOrder: accountOrder ?? this.accountOrder,
     goalOrder: goalOrder ?? this.goalOrder,
+    userName: userName ?? this.userName,
+    onboarded: onboarded ?? this.onboarded,
   );
 
   Map<String, Object?> toJson() => {
@@ -712,6 +726,8 @@ class AppPreferences {
     'dashboardOrder': dashboardOrder,
     'accountOrder': accountOrder,
     'goalOrder': goalOrder,
+    'userName': userName,
+    'onboarded': onboarded,
   };
 
   static List<String> _ids(Object? value) =>
@@ -732,6 +748,8 @@ class AppPreferences {
     dashboardOrder: _ids(json['dashboardOrder']),
     accountOrder: _ids(json['accountOrder']),
     goalOrder: _ids(json['goalOrder']),
+    userName: json['userName'] as String? ?? '',
+    onboarded: json['onboarded'] as bool? ?? true,
   );
 
   /// [items] in the person's [order] (by [id]); unknown items keep their

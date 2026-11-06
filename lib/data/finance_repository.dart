@@ -111,7 +111,12 @@ class FinanceRepository {
       where: 'key = ?',
       whereArgs: ['initialized'],
     )).isEmpty) {
-      await repository.save(createDemoData(repository._clock()));
+      // A brand-new install: the demo ledger, and the welcome screens
+      // (1.21) are shown first.
+      final demo = createDemoData(repository._clock());
+      await repository.save(
+        demo.copyWith(preferences: demo.preferences.copyWith(onboarded: false)),
+      );
     }
     return repository;
   }
@@ -182,7 +187,14 @@ class FinanceRepository {
     await save(
       FinanceData(
         categories: fresh.categories,
-        members: const [Member(id: 'me', name: 'Я')],
+        members: [
+          Member(
+            id: 'me',
+            name: old.preferences.userName.isEmpty
+                ? 'Я'
+                : old.preferences.userName,
+          ),
+        ],
         preferences: AppPreferences(
           theme: old.preferences.theme,
           accent: old.preferences.accent,
@@ -193,6 +205,8 @@ class FinanceRepository {
           monthStart: old.preferences.monthStart,
           lockMinutes: old.preferences.lockMinutes,
           notifications: old.preferences.notifications,
+          userName: old.preferences.userName,
+          onboarded: old.preferences.onboarded,
         ),
         demo: false,
       ),
