@@ -175,6 +175,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
             (e) => Padding(
               padding: const EdgeInsets.only(bottom: 10),
               child: SurfaceCard(
+                frosted: false,
                 onTap: () => showEntryEditor(context, entry: e),
                 padding: const EdgeInsets.all(14),
                 child: Row(

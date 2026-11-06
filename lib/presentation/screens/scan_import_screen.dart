@@ -251,6 +251,7 @@ class _ScanImportScreenState extends State<ScanImportScreen> {
               return Padding(
                 padding: const EdgeInsets.only(bottom: 10),
                 child: SurfaceCard(
+                  frosted: false,
                   padding: const EdgeInsets.symmetric(
                     horizontal: 8,
                     vertical: 10,

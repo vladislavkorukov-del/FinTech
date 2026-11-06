@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:io';
 import 'dart:math' as math;
 
@@ -7,9 +6,9 @@ import 'package:flutter/material.dart';
 import 'common.dart' show money;
 
 /// Motion rules for Finance 1.9: short, eased, never blocking input, and off
-/// when the system asks to reduce motion. Endless ambient loops (breathing
-/// backdrop, repeating sheen) also stay off in widget tests, which wait for
-/// all animations to finish.
+/// when the system asks to reduce motion. Endless ambient loops stay off in widget
+/// tests, which wait for all animations to finish. Since 1.11.1 the app has
+/// none: every animation runs once and then the screen goes quiet.
 abstract final class Motion {
   static bool reduced(BuildContext context) =>
       MediaQuery.maybeOf(context)?.disableAnimations ?? false;
@@ -134,18 +133,11 @@ class _AnimatedMoneyState extends State<AnimatedMoney> {
   }
 }
 
-/// A soft diagonal light sweep over its child: once when shown and then,
-/// as an ambient effect, every [every].
+/// A soft diagonal light sweep over its child, once when shown.
 class Sheen extends StatefulWidget {
-  const Sheen({
-    super.key,
-    required this.child,
-    required this.borderRadius,
-    this.every = const Duration(seconds: 9),
-  });
+  const Sheen({super.key, required this.child, required this.borderRadius});
   final Widget child;
   final BorderRadius borderRadius;
-  final Duration every;
   @override
   State<Sheen> createState() => _SheenState();
 }
@@ -155,7 +147,6 @@ class _SheenState extends State<Sheen> with SingleTickerProviderStateMixin {
     vsync: this,
     duration: const Duration(milliseconds: 1400),
   );
-  Timer? _timer;
   bool _started = false;
 
   @override
@@ -163,19 +154,13 @@ class _SheenState extends State<Sheen> with SingleTickerProviderStateMixin {
     super.didChangeDependencies();
     if (_started || Motion.reduced(context)) return;
     _started = true;
+    // Once only: a repeating sweep would redraw the whole screen (and every
+    // glass blur on it) every few seconds.
     _c.forward(from: 0);
-    if (Motion.ambient(context)) {
-      _timer = Timer.periodic(widget.every, (_) {
-        if (mounted && TickerMode.valuesOf(context).enabled) {
-          _c.forward(from: 0);
-        }
-      });
-    }
   }
 
   @override
   void dispose() {
-    _timer?.cancel();
     _c.dispose();
     super.dispose();
   }

@@ -66,38 +66,20 @@ void main() {
     expect(gradient.colors.toSet(), hasLength(greaterThan(1)));
   });
 
-  testWidgets('ambient glows breathe, and stand still with reduce motion', (
-    tester,
-  ) async {
+  testWidgets('backdrop stands still: no frames when idle', (tester) async {
+    // Even where endless ambient motion would be allowed, the backdrop does
+    // not animate (1.11.1: a drifting backdrop re-ran every glass blur on
+    // every frame and made phones lag).
     Motion.debugForceAmbient = true;
     addTearDown(() => Motion.debugForceAmbient = false);
-    Offset glow() => tester
-        .widgetList<Transform>(
-          find.descendant(
-            of: find.byKey(const ValueKey('finance-backdrop')),
-            matching: find.byType(Transform),
-          ),
-        )
-        .map((t) => Offset(t.transform.storage[12], t.transform.storage[13]))
-        .firstWhere((o) => o != Offset.zero, orElse: () => Offset.zero);
-    Widget app({bool reduce = false}) => MaterialApp(
-      theme: AppTheme.app(Brightness.dark, 'sunset'),
-      home: MediaQuery(
-        data: MediaQueryData(disableAnimations: reduce),
-        child: const FinanceBackground(child: SizedBox()),
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.app(Brightness.dark, 'sunset'),
+        home: const FinanceBackground(child: SizedBox()),
       ),
     );
-    await tester.pumpWidget(app());
-    await tester.pump(const Duration(seconds: 2));
-    final first = glow();
-    await tester.pump(const Duration(seconds: 4));
-    expect(glow(), isNot(first));
-    expect(tester.hasRunningAnimations, isTrue);
-    await tester.pumpWidget(app(reduce: true));
     await tester.pump(const Duration(seconds: 1));
-    final still = glow();
-    await tester.pump(const Duration(seconds: 4));
-    expect(glow(), still);
-    await tester.pumpWidget(const SizedBox());
+    expect(tester.hasRunningAnimations, isFalse);
+    expect(tester.binding.hasScheduledFrame, isFalse);
   });
 }

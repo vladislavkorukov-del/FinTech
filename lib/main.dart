@@ -26,7 +26,6 @@ import 'domain/models.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('ru');
-  await GlassShader.load();
   LicenseRegistry.addLicense(() async* {
     final text = await rootBundle.loadString(
       'assets/ocr/THIRD_PARTY_NOTICES.txt',

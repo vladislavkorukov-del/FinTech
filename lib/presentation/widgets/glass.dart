@@ -2,49 +2,18 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 
-/// Finance 1.10 «liquid glass», after iOS: the card is a clear pane that
-/// blurs and saturates whatever lies behind it (the theme backdrop and its
-/// moving color blobs), with a thin light rim and a soft inner glow at the
-/// edge that reads as the thickness of the glass. Flat: no drop shadow, no
-/// gradient body.
+/// Finance «liquid glass», after iOS: the card is a clear pane over the theme
+/// backdrop and its color orbs, with a thin light rim and a light band just
+/// inside the edge that reads as the thickness of the glass. Flat: no drop
+/// shadow, no gradient body.
 ///
-/// The blur samples only inside the card (bounded blur), so colors from
-/// outside never bleed in at the edges, and all panes share one backdrop
-/// snapshot through the app's [BackdropGroup].
-/// The edge-refraction shader (`shaders/liquid_glass.frag`). It runs only
-/// with Impeller, which Android uses; elsewhere (and in widget tests) the
-/// panes keep the blur without refraction.
-abstract final class GlassShader {
-  static ui.FragmentProgram? _program;
-  static final _filters = <(double, double), ui.ImageFilter>{};
-
-  static Future<void> load() async {
-    if (!ui.ImageFilter.isShaderFilterSupported || _program != null) return;
-    try {
-      _program = await ui.FragmentProgram.fromAsset(
-        'shaders/liquid_glass.frag',
-      );
-    } catch (_) {
-      _program = null; // keep plain glass
-    }
-  }
-
-  /// Refraction filter for a pane with [radius] at [dpr]; null when the
-  /// shader is not available.
-  static ui.ImageFilter? filter(double radius, double dpr) {
-    final program = _program;
-    if (program == null) return null;
-    return _filters.putIfAbsent((radius, dpr), () {
-      final shader = program.fragmentShader()
-        ..setFloat(2, radius * dpr)
-        ..setFloat(3, 16 * dpr)
-        ..setFloat(4, 9 * dpr)
-        ..setFloat(5, GlassSurface.saturation);
-      return ui.ImageFilter.shader(shader);
-    });
-  }
-}
-
+/// 1.11.1, for speed on real phones:
+///  * a [frosted] pane blurs and saturates what lies behind it, and all panes
+///    share one backdrop snapshot through the app's [BackdropGroup];
+///  * rows of long lists are clear (`frosted: false`): over the soft
+///    backdrop they look the same and cost nothing extra per frame;
+///  * no refraction shader pass and no blurred mask in the painters;
+///  * the backdrop does not animate, so an idle screen draws no frames.
 class GlassSurface extends StatelessWidget {
   const GlassSurface({
     super.key,
@@ -55,6 +24,7 @@ class GlassSurface extends StatelessWidget {
     this.tint,
     this.tintStrength = 1,
     this.onTap,
+    this.frosted = true,
   });
 
   final Widget child;
@@ -69,18 +39,21 @@ class GlassSurface extends StatelessWidget {
   final double tintStrength;
   final VoidCallback? onTap;
 
-  static const blurSigma = 9.0;
+  /// Whether the pane blurs the backdrop behind it.
+  final bool frosted;
 
-  /// Saturation boost of what is seen through the glass.
-  static const saturation = 1.6;
+  static const blurSigma = 12.0;
 
-  /// The pane's own color over the blurred backdrop: thin, so the backdrop
-  /// reads through, but enough to keep text contrast on any part of it.
+  /// Saturation boost of what is seen through frosted glass.
+  static const saturation = 1.5;
+
+  /// The pane's own color over the backdrop: thin, so the backdrop reads
+  /// through, but enough to keep text contrast on any part of it.
   static Color pane(ThemeData theme, Color? base, Color? tint, double k) {
     final dark = theme.brightness == Brightness.dark;
     final body = base ?? theme.colorScheme.surface;
     // Dark glass is smoky (a touch darker than the surface), light glass
-    // milky; either keeps secondary text at ≥ 4.5:1 over the brightest glow.
+    // milky; either keeps secondary text at ≥ 4.5:1 over the brightest orb.
     var c = dark
         ? Color.lerp(body, Colors.black, .35)!.withValues(alpha: .56)
         : body.withValues(alpha: .58);
@@ -101,50 +74,44 @@ class GlassSurface extends StatelessWidget {
     ];
   }
 
+  /// Blur, then the saturation boost; one shared instance.
+  static final ui.ImageFilter filter = ui.ImageFilter.compose(
+    outer: ui.ColorFilter.matrix(_saturate(saturation)),
+    inner: ui.ImageFilter.blur(
+      sigmaX: blurSigma,
+      sigmaY: blurSigma,
+      tileMode: TileMode.clamp,
+    ),
+  );
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final dark = theme.brightness == Brightness.dark;
-    final r = BorderRadius.circular(radius);
-    return ClipRRect(
-      borderRadius: r,
-      child: BackdropFilter.grouped(
-        filterConfig: ImageFilterConfig.compose(
-          outer: ImageFilterConfig(
-            GlassShader.filter(
-                  radius,
-                  MediaQuery.devicePixelRatioOf(context),
-                ) ??
-                ui.ColorFilter.matrix(_saturate(saturation)),
+    Widget glass = Material(
+      type: MaterialType.transparency,
+      child: InkWell(
+        onTap: onTap,
+        child: CustomPaint(
+          painter: GlassPanePainter(
+            radius: radius,
+            color: pane(theme, base, tint, tintStrength),
+            dark: dark,
           ),
-          inner: const ImageFilterConfig.blur(
-            sigmaX: blurSigma,
-            sigmaY: blurSigma,
-            bounded: true,
-          ),
-        ),
-        child: Material(
-          type: MaterialType.transparency,
-          child: InkWell(
-            onTap: onTap,
-            child: CustomPaint(
-              painter: GlassPanePainter(
-                radius: radius,
-                color: pane(theme, base, tint, tintStrength),
-                dark: dark,
-              ),
-              foregroundPainter: GlassRimPainter(radius: radius, dark: dark),
-              child: Padding(padding: padding, child: child),
-            ),
-          ),
+          foregroundPainter: GlassRimPainter(radius: radius, dark: dark),
+          child: Padding(padding: padding, child: child),
         ),
       ),
     );
+    if (frosted) {
+      glass = BackdropFilter.grouped(filter: filter, child: glass);
+    }
+    return ClipRRect(borderRadius: BorderRadius.circular(radius), child: glass);
   }
 }
 
-/// The pane color plus a soft glow just inside the edge, brighter at the top
-/// where the light falls: the rounded thickness of real glass.
+/// The pane color plus a light band just inside the edge, brighter at the
+/// top where the light falls. Two plain strokes, no blur mask.
 class GlassPanePainter extends CustomPainter {
   const GlassPanePainter({
     required this.radius,
@@ -160,24 +127,26 @@ class GlassPanePainter extends CustomPainter {
     final rect = Offset.zero & size;
     final body = RRect.fromRectAndRadius(rect, Radius.circular(radius));
     canvas.drawRRect(body, Paint()..color = color);
-    canvas.save();
-    canvas.clipRRect(body);
-    canvas.drawRRect(
-      body,
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 10
-        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 7)
-        ..shader = LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            Colors.white.withValues(alpha: dark ? .16 : .55),
-            Colors.white.withValues(alpha: dark ? .04 : .20),
-          ],
-        ).createShader(rect),
-    );
-    canvas.restore();
+    Shader band(double top, double bottom) => LinearGradient(
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+      colors: [
+        Colors.white.withValues(alpha: top),
+        Colors.white.withValues(alpha: bottom),
+      ],
+    ).createShader(rect);
+    for (final (inset, width, top, bottom) in [
+      (3.0, 6.0, dark ? .05 : .22, dark ? .015 : .08),
+      (1.5, 3.0, dark ? .07 : .28, dark ? .02 : .10),
+    ]) {
+      canvas.drawRRect(
+        body.deflate(inset),
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = width
+          ..shader = band(top, bottom),
+      );
+    }
   }
 
   @override
