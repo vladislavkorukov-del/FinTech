@@ -582,78 +582,50 @@ class _SummaryTile extends StatelessWidget {
     return PressScale(
       child: Sheen(
         borderRadius: radius,
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: onTap,
-            borderRadius: radius,
-            child: Ink(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-              decoration: BoxDecoration(
-                borderRadius: radius,
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Color.alphaBlend(
-                      tone.withValues(alpha: .30),
-                      scheme.surface,
-                    ),
-                    Color.alphaBlend(
-                      tone.withValues(alpha: .07),
-                      scheme.surface,
-                    ),
-                  ],
-                ),
-                border: Border.all(color: tone.withValues(alpha: .34)),
-                boxShadow: [
-                  BoxShadow(
-                    color: tone.withValues(alpha: .16),
-                    blurRadius: 20,
-                    offset: const Offset(0, 8),
-                  ),
-                ],
-              ),
-              child: Column(
+        child: GlassSurface(
+          radius: 22,
+          tint: tone,
+          tintStrength: 1.9,
+          onTap: onTap,
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        width: 24,
-                        height: 24,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: tone.withValues(alpha: .22),
-                        ),
-                        child: Icon(icon, size: 15, color: tone),
-                      ),
-                      const SizedBox(width: 7),
-                      Flexible(
-                        child: Text(
-                          title,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: scheme.onSurfaceVariant,
-                          ),
-                        ),
-                      ),
-                    ],
+                  Container(
+                    width: 24,
+                    height: 24,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: tone.withValues(alpha: .22),
+                    ),
+                    child: Icon(icon, size: 15, color: tone),
                   ),
-                  const SizedBox(height: 6),
-                  FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: AnimatedMoney(
-                      amount,
-                      currency: currency,
-                      style: Theme.of(context).textTheme.titleLarge,
+                  const SizedBox(width: 7),
+                  Flexible(
+                    child: Text(
+                      title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: scheme.onSurfaceVariant,
+                      ),
                     ),
                   ),
                 ],
               ),
-            ),
+              const SizedBox(height: 6),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: AnimatedMoney(
+                  amount,
+                  currency: currency,
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+              ),
+            ],
           ),
         ),
       ),
