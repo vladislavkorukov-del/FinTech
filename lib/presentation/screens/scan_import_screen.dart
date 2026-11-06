@@ -312,7 +312,7 @@ class _ScanImportScreenState extends State<ScanImportScreen> {
                               '$kindName · ${d.date == null ? "Нужна дата" : displayDate(d.date!)}',
                             ),
                             Text(
-                              '${category?.name ?? (d.kind == EntryKind.transfer ? "Между счетами" : "Нужна категория")} · ${account?.name ?? "Нужен счёт"}',
+                              '${category?.name ?? (d.kind == EntryKind.transfer ? "Перевод между своими счетами" : "Нужна категория")} · ${account?.name ?? "Нужен счёт"}',
                             ),
                             if (duplicate)
                               Text(
@@ -368,8 +368,15 @@ class _ScannedOperationEditorState extends State<_ScannedOperationEditor> {
       _received,
       _currency;
   EntryKind? _kind;
+
+  /// Income or expense to return to when «Перевод между своими счетами» is
+  /// replaced by an ordinary category again.
+  EntryKind _ordinaryKind = EntryKind.expense;
   String? _account, _category, _to;
   DateTime? _date;
+
+  /// The category list also offers «Перевод между своими счетами» (1.13.1).
+  static const _ownTransfer = '__own_transfer__';
   @override
   void initState() {
     super.initState();
@@ -387,6 +394,7 @@ class _ScannedOperationEditorState extends State<_ScannedOperationEditor> {
     );
     _currency = TextEditingController(text: d.currency ?? '');
     _kind = d.kind;
+    if (d.kind == EntryKind.income) _ordinaryKind = EntryKind.income;
     _category = d.categoryId;
     _date = d.date;
     _account = item.accountId;
@@ -473,8 +481,13 @@ class _ScannedOperationEditorState extends State<_ScannedOperationEditor> {
   Widget build(BuildContext context) {
     final c = FinanceScope.of(context);
     final accounts = c.data.accounts.where((a) => !a.archived).toList();
+    final transfer = _kind == EntryKind.transfer;
     final cats = c.data.categories
-        .where((a) => !a.archived && a.kind == _kind)
+        .where(
+          (a) =>
+              !a.archived &&
+              a.kind == (transfer || _kind == null ? _ordinaryKind : _kind),
+        )
         .toList();
     final account = c.account(_account ?? '');
     final to = c.account(_to ?? '');
@@ -487,6 +500,7 @@ class _ScannedOperationEditorState extends State<_ScannedOperationEditor> {
             padding: const EdgeInsets.fromLTRB(20, 4, 20, 30),
             children: [
               DropdownButtonFormField<EntryKind>(
+                key: ValueKey('scan-row-kind-$_kind'),
                 initialValue: _kind,
                 isExpanded: true,
                 decoration: const InputDecoration(labelText: 'Тип операции'),
@@ -505,6 +519,9 @@ class _ScannedOperationEditorState extends State<_ScannedOperationEditor> {
                   ),
                 ],
                 onChanged: (kind) => setState(() {
+                  if (kind == EntryKind.income || kind == EntryKind.expense) {
+                    _ordinaryKind = kind!;
+                  }
                   _kind = kind;
                   _category = null;
                 }),
@@ -577,25 +594,54 @@ class _ScannedOperationEditorState extends State<_ScannedOperationEditor> {
                   ),
                 ),
               const SizedBox(height: 14),
-              if (_kind != EntryKind.transfer)
-                DropdownButtonFormField<String>(
-                  key: ValueKey('scan-row-category-$_kind-$_category'),
-                  initialValue: cats.any((a) => a.id == _category)
-                      ? _category
-                      : null,
-                  isExpanded: true,
-                  decoration: const InputDecoration(labelText: 'Категория'),
-                  items: [
-                    for (final cat in cats)
-                      DropdownMenuItem(
-                        value: cat.id,
-                        child: Text(cat.name, overflow: TextOverflow.ellipsis),
-                      ),
-                  ],
-                  onChanged: (id) => setState(() => _category = id),
-                  validator: (v) => v == null ? 'Выберите категорию' : null,
-                ),
+              DropdownButtonFormField<String>(
+                key: ValueKey('scan-row-category-$_kind-$_category'),
+                initialValue: transfer
+                    ? _ownTransfer
+                    : cats.any((a) => a.id == _category)
+                    ? _category
+                    : null,
+                isExpanded: true,
+                decoration: const InputDecoration(labelText: 'Категория'),
+                items: [
+                  const DropdownMenuItem(
+                    key: ValueKey('scan-row-own-transfer'),
+                    value: _ownTransfer,
+                    child: Row(
+                      children: [
+                        Icon(Icons.swap_horiz_rounded, size: 20),
+                        SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'Перевод между своими счетами',
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  for (final cat in cats)
+                    DropdownMenuItem(
+                      value: cat.id,
+                      child: Text(cat.name, overflow: TextOverflow.ellipsis),
+                    ),
+                ],
+                onChanged: (id) => setState(() {
+                  if (id == _ownTransfer) {
+                    _kind = EntryKind.transfer;
+                    _category = null;
+                  } else {
+                    if (_kind != EntryKind.income &&
+                        _kind != EntryKind.expense) {
+                      _kind = _ordinaryKind;
+                    }
+                    _category = id;
+                  }
+                }),
+                validator: (v) => v == null ? 'Выберите категорию' : null,
+              ),
               if (_kind == EntryKind.transfer) ...[
+                const SizedBox(height: 14),
                 DropdownButtonFormField<String>(
                   initialValue:
                       accounts.any((a) => a.id == _to && a.id != _account)

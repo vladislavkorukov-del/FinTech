@@ -445,4 +445,63 @@ void main() {
       expect((await tester.runAsync(repo.load))!.entries, isEmpty);
     },
   );
+  testWidgets(
+    'category list offers «Перевод между своими счетами» and saves a transfer',
+    (tester) async {
+      text = bankPage;
+      await openBatch(tester);
+      await tester.tap(find.byKey(const ValueKey('scan-edit-0')));
+      await tester.pumpAndSettle();
+      Finder field(String label) => find.byWidgetPredicate(
+        (w) => w is InputDecorator && w.decoration.labelText == label,
+      );
+      Future<void> pick(String label, String item) async {
+        await tester.ensureVisible(field(label));
+        await tester.pumpAndSettle();
+        await tester.tap(field(label));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text(item).last);
+        await tester.pumpAndSettle();
+      }
+
+      // Auto-detected: Пятёрочка → Продукты.
+      expect(
+        find.descendant(
+          of: field('Категория'),
+          matching: find.text('Продукты'),
+        ),
+        findsOneWidget,
+      );
+      await pick('Категория', 'Перевод между своими счетами');
+      expect(find.text('Перевод между счетами'), findsOneWidget); // type
+      expect(field('Счёт зачисления'), findsOneWidget);
+      // Back to a category: an expense again, no destination account.
+      await pick('Категория', 'Продукты');
+      expect(find.text('Расход'), findsOneWidget);
+      expect(field('Счёт зачисления'), findsNothing);
+      await pick('Категория', 'Перевод между своими счетами');
+      await pick('Счёт зачисления', 'Наличные · RUB');
+      final apply = find.byKey(const ValueKey('apply-scan-row'));
+      await tester.scrollUntilVisible(
+        apply,
+        220,
+        scrollable: find.byType(Scrollable).last,
+      );
+      await tester.tap(apply);
+      await tester.pumpAndSettle();
+      expect(find.textContaining('Перевод между своими счетами'), findsWidgets);
+      await batchReveal(tester, find.byKey(const ValueKey('scan-select-1')));
+      await tester.tap(find.byKey(const ValueKey('scan-select-1')));
+      await tester.pump();
+      await batchReveal(tester, find.byKey(const ValueKey('save-scan-batch')));
+      await tester.tap(find.byKey(const ValueKey('save-scan-batch')));
+      await flush(tester, () => controller.data.entries.length == 1);
+      final entry = controller.data.entries.single;
+      expect(entry.kind, EntryKind.transfer);
+      expect(entry.accountId, 'card');
+      expect(entry.toAccountId, 'cash');
+      expect(entry.categoryId, isNull);
+      expect(tester.takeException(), isNull);
+    },
+  );
 }
