@@ -14,7 +14,9 @@
    "bytes": 17356,
    "width": 384,
    "height": 384,
-   "operation": "Inkscape SVG page rendered proportionally with transparent gutter; original colors unchanged"
+   "operation": "Inkscape SVG page rendered proportionally with transparent gutter; original colors unchanged; shown as square (outside of the mark made transparent)",
+   "shape": "square",
+   "backing": false
   },
   {
    "id": "bank_3292",
@@ -26,7 +28,9 @@
    "bytes": 9096,
    "width": 384,
    "height": 384,
-   "operation": "Inkscape SVG page rendered proportionally with transparent gutter; original colors unchanged"
+   "operation": "Inkscape SVG page rendered proportionally with transparent gutter; original colors unchanged; shown as square (outside of the mark made transparent)",
+   "shape": "square",
+   "backing": false
   },
   {
    "id": "bank_1",
@@ -38,7 +42,9 @@
    "bytes": 28607,
    "width": 384,
    "height": 384,
-   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged"
+   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged; shown as square (outside of the mark made transparent)",
+   "shape": "square",
+   "backing": false
   },
   {
    "id": "bank_3510k",
@@ -50,7 +56,9 @@
    "bytes": 18262,
    "width": 384,
    "height": 384,
-   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged"
+   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged; shown as square (outside of the mark made transparent)",
+   "shape": "square",
+   "backing": false
   },
   {
    "id": "bank_3542",
@@ -62,7 +70,9 @@
    "bytes": 35201,
    "width": 384,
    "height": 384,
-   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged"
+   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged; shown as square (outside of the mark made transparent)",
+   "shape": "square",
+   "backing": false
   },
   {
    "id": "bank_1810",
@@ -74,7 +84,9 @@
    "bytes": 9241,
    "width": 384,
    "height": 384,
-   "operation": "Inkscape SVG page rendered proportionally with transparent gutter; original colors unchanged"
+   "operation": "Inkscape SVG page rendered proportionally with transparent gutter; original colors unchanged",
+   "shape": "tile",
+   "backing": false
   },
   {
    "id": "bank_2225",
@@ -86,7 +98,9 @@
    "bytes": 24506,
    "width": 384,
    "height": 384,
-   "operation": "Inkscape SVG page rendered proportionally with transparent gutter; original colors unchanged"
+   "operation": "Inkscape SVG page rendered proportionally with transparent gutter; original colors unchanged",
+   "shape": "tile",
+   "backing": false
   },
   {
    "id": "bank_2799",
@@ -98,7 +112,9 @@
    "bytes": 17453,
    "width": 384,
    "height": 384,
-   "operation": "Inkscape SVG page rendered proportionally with transparent gutter; original colors unchanged"
+   "operation": "Inkscape SVG page rendered proportionally with transparent gutter; original colors unchanged",
+   "shape": "tile",
+   "backing": false
   },
   {
    "id": "bank_3223",
@@ -110,7 +126,9 @@
    "bytes": 10828,
    "width": 384,
    "height": 384,
-   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged"
+   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged; shown as square (outside of the mark made transparent)",
+   "shape": "square",
+   "backing": false
   },
   {
    "id": "bank_3311",
@@ -118,11 +136,13 @@
    "assetPath": "assets/banks/raster/bank_3311.png",
    "sourceAssetPath": "assets/banks/bank_3311.svg",
    "sourceSha256": "b791536f8df8f799e0425117bb7fb903a8beea54fa45662c1fab9749ffb4bbae",
-   "sha256": "658afc3e7b6e5560e8fb1661b1e0286ce8f6b974e2a519aec383fc05dd054e7e",
-   "bytes": 15823,
+   "sha256": "9b682c6dbb6346983e1448e4623c54829834e47094855e8c1f85d30fc08992ac",
+   "bytes": 29848,
    "width": 384,
    "height": 384,
-   "operation": "Inkscape SVG page rendered proportionally with transparent gutter; original colors unchanged"
+   "operation": "Inkscape SVG page rendered proportionally with transparent gutter; original colors unchanged; shown as round (outside of the mark made transparent)",
+   "shape": "round",
+   "backing": false
   },
   {
    "id": "bank_3538",
@@ -134,7 +154,9 @@
    "bytes": 5154,
    "width": 384,
    "height": 384,
-   "operation": "Inkscape SVG page rendered proportionally with transparent gutter; original colors unchanged"
+   "operation": "Inkscape SVG page rendered proportionally with transparent gutter; original colors unchanged; shown as square (outside of the mark made transparent)",
+   "shape": "square",
+   "backing": false
   },
   {
    "id": "bank_1481",
@@ -142,11 +164,13 @@
    "assetPath": "assets/banks/raster/bank_1481.png",
    "sourceAssetPath": "assets/banks/bank_1481.jpg",
    "sourceSha256": "dad980542683010a0d0faa83bc936ca1bbdbb475d67949c556033e79522fdd17",
-   "sha256": "ebedcac000bbc7a02396e0de6911f4dffad26f684847aa0b36dc5a5b0bc70187",
-   "bytes": 83936,
+   "sha256": "588534602cd74cd06e53e63710f160b3763c45892e8413d6d91a7ee0022dccfa",
+   "bytes": 120771,
    "width": 384,
    "height": 384,
-   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged"
+   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged; shown as round (outside of the mark made transparent)",
+   "shape": "round",
+   "backing": false
   },
   {
    "id": "bank_1000",
@@ -158,7 +182,9 @@
    "bytes": 8703,
    "width": 384,
    "height": 384,
-   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged"
+   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged; shown as square (outside of the mark made transparent)",
+   "shape": "square",
+   "backing": false
   },
   {
    "id": "bank_1326",
@@ -170,7 +196,9 @@
    "bytes": 12279,
    "width": 384,
    "height": 384,
-   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged"
+   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged; shown as square (outside of the mark made transparent)",
+   "shape": "square",
+   "backing": false
   },
   {
    "id": "bank_2673",
@@ -182,7 +210,9 @@
    "bytes": 27345,
    "width": 384,
    "height": 384,
-   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged"
+   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged; shown as square (outside of the mark made transparent)",
+   "shape": "square",
+   "backing": false
   },
   {
    "id": "bank_3349",
@@ -194,7 +224,9 @@
    "bytes": 2736,
    "width": 384,
    "height": 384,
-   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged"
+   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged",
+   "shape": "tile",
+   "backing": false
   },
   {
    "id": "bank_963",
@@ -202,11 +234,13 @@
    "assetPath": "assets/banks/raster/bank_963.png",
    "sourceAssetPath": "assets/banks/bank_963.png",
    "sourceSha256": "e96dac369d4992d0ccb59208808253612248e56f30fe234072df80cfd31bb890",
-   "sha256": "93775dc3f32fb2269f589212063b4a8226ad97667f085d42a00533d52449f521",
-   "bytes": 42010,
+   "sha256": "590c442d62f36a10d3d31ab0648cee10d2c5b2527594cbd0e1da4dab1872f36e",
+   "bytes": 25842,
    "width": 384,
    "height": 384,
-   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged"
+   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged; shown as round (outside of the mark made transparent)",
+   "shape": "round",
+   "backing": false
   },
   {
    "id": "bank_3251",
@@ -218,7 +252,9 @@
    "bytes": 16955,
    "width": 384,
    "height": 384,
-   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged"
+   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged",
+   "shape": "tile",
+   "backing": false
   },
   {
    "id": "bank_1978",
@@ -226,11 +262,13 @@
    "assetPath": "assets/banks/raster/bank_1978.png",
    "sourceAssetPath": "assets/banks/bank_1978.png",
    "sourceSha256": "f6612c2e8ecc3fb8ed11d80a9b76d05dfe22f097f3042a1ce81f0d622a9e9333",
-   "sha256": "efd207a442449e2ff49befdfad4693fcc17d107b90f8898fdf9f1ccb3335e1b2",
-   "bytes": 84489,
+   "sha256": "7d4aea8a7b72ab9bd942e0ced0a1a45c947553063c4b0761d5ad6b53f3b6619b",
+   "bytes": 74983,
    "width": 384,
    "height": 384,
-   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged"
+   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged; shown as round (outside of the mark made transparent)",
+   "shape": "round",
+   "backing": false
   },
   {
    "id": "bank_2312",
@@ -242,7 +280,9 @@
    "bytes": 52708,
    "width": 384,
    "height": 384,
-   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged"
+   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged; shown as square (outside of the mark made transparent)",
+   "shape": "square",
+   "backing": false
   },
   {
    "id": "bank_2766",
@@ -250,11 +290,13 @@
    "assetPath": "assets/banks/raster/bank_2766.png",
    "sourceAssetPath": "assets/banks/bank_2766.png",
    "sourceSha256": "c384013e0fc0cb4849dd9c0b02e758639363d5ab8cc765d6293276f4295df505",
-   "sha256": "3da512ec47d49380c73c20d3b6f84867d224a8188b1a223dfc2407c2710ddca9",
-   "bytes": 62997,
+   "sha256": "ae350b994a025c1c998a5580d31592437ab096fd3ca44bb1d4edb02914f963d1",
+   "bytes": 54536,
    "width": 384,
    "height": 384,
-   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged"
+   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged; shown as round (outside of the mark made transparent)",
+   "shape": "round",
+   "backing": false
   },
   {
    "id": "bank_3545",
@@ -266,7 +308,9 @@
    "bytes": 3763,
    "width": 384,
    "height": 384,
-   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged"
+   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged; shown as square (outside of the mark made transparent)",
+   "shape": "square",
+   "backing": false
   },
   {
    "id": "bank_3027",
@@ -274,11 +318,13 @@
    "assetPath": "assets/banks/raster/bank_3027.png",
    "sourceAssetPath": "assets/banks/bank_3027.png",
    "sourceSha256": "b53c2fe635697878aa5c22271f2c539612cd009b33023eec6e6c7bafb51243bb",
-   "sha256": "e84cc38d3cc1c8af4a900fd8ef1b23b7f3b729a60006f8f3cf225fb437b89b23",
-   "bytes": 23277,
+   "sha256": "3ca7268d5af1bfc2efc58517608237974b91caf773db37b3f5da385f4162c702",
+   "bytes": 20060,
    "width": 384,
    "height": 384,
-   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged"
+   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged; shown as round (outside of the mark made transparent)",
+   "shape": "round",
+   "backing": false
   },
   {
    "id": "bank_841",
@@ -290,7 +336,9 @@
    "bytes": 32597,
    "width": 384,
    "height": 384,
-   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged"
+   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged; shown as square (outside of the mark made transparent)",
+   "shape": "square",
+   "backing": false
   },
   {
    "id": "bank_2306",
@@ -298,11 +346,13 @@
    "assetPath": "assets/banks/raster/bank_2306.png",
    "sourceAssetPath": "assets/banks/bank_2306.png",
    "sourceSha256": "ef1349074ad25cbd4314950c3bf2c96e2cada50d265f1b10265efe923b40959a",
-   "sha256": "6cdac2f45b126e71f9cf9e766a65234ab0bc509f13b8d9d25552f1dd494472d0",
-   "bytes": 38491,
+   "sha256": "03383a8879b8e28aa8fecffc50c200ed18af4168ba2e8592ee8bedfd43ce48d2",
+   "bytes": 53164,
    "width": 384,
    "height": 384,
-   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged"
+   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged; shown as round (outside of the mark made transparent)",
+   "shape": "round",
+   "backing": false
   },
   {
    "id": "bank_2590",
@@ -314,7 +364,9 @@
    "bytes": 32451,
    "width": 384,
    "height": 384,
-   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged"
+   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged; shown as square (outside of the mark made transparent)",
+   "shape": "square",
+   "backing": false
   },
   {
    "id": "bank_328",
@@ -322,11 +374,13 @@
    "assetPath": "assets/banks/raster/bank_328.png",
    "sourceAssetPath": "assets/banks/bank_328.png",
    "sourceSha256": "329c23d5eb5d92a02a94e2d0575dd400ec80a19da1d08aaa1c9c13c108f1d13f",
-   "sha256": "c2845c6e1931c9c7967d00bf8258ffc05b2a58ee9eb0ca0febc404a142e2aa99",
-   "bytes": 101739,
+   "sha256": "f5a29ee42989e0125efd36192677974e250e1ff7eb5bfff1401955822c1b18f8",
+   "bytes": 104702,
    "width": 384,
    "height": 384,
-   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged"
+   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged; shown as round (outside of the mark made transparent)",
+   "shape": "round",
+   "backing": false
   },
   {
    "id": "bank_2268",
@@ -338,7 +392,9 @@
    "bytes": 15822,
    "width": 384,
    "height": 384,
-   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged"
+   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged; shown as square (outside of the mark made transparent)",
+   "shape": "square",
+   "backing": false
   },
   {
    "id": "bank_3354",
@@ -350,7 +406,9 @@
    "bytes": 43069,
    "width": 384,
    "height": 384,
-   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged"
+   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged; shown as square (outside of the mark made transparent)",
+   "shape": "square",
+   "backing": false
   },
   {
    "id": "bank_1927",
@@ -362,7 +420,9 @@
    "bytes": 14461,
    "width": 384,
    "height": 384,
-   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged"
+   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged; shown as square (outside of the mark made transparent)",
+   "shape": "square",
+   "backing": false
   },
   {
    "id": "bank_429",
@@ -374,7 +434,9 @@
    "bytes": 31730,
    "width": 384,
    "height": 384,
-   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged"
+   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged",
+   "shape": "tile",
+   "backing": false
   },
   {
    "id": "bank_2275",
@@ -386,7 +448,9 @@
    "bytes": 83592,
    "width": 384,
    "height": 384,
-   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged"
+   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged; shown as square (outside of the mark made transparent)",
+   "shape": "square",
+   "backing": false
   },
   {
    "id": "bank_436",
@@ -398,7 +462,9 @@
    "bytes": 18090,
    "width": 384,
    "height": 384,
-   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged"
+   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged; shown as square (outside of the mark made transparent)",
+   "shape": "square",
+   "backing": false
   },
   {
    "id": "bank_2289",
@@ -406,11 +472,13 @@
    "assetPath": "assets/banks/raster/bank_2289.png",
    "sourceAssetPath": "assets/banks/bank_2289.png",
    "sourceSha256": "d9280a9d3223dcae533650ac525bfda5b33a6cef02f416955bd695b8fb446796",
-   "sha256": "f89861a21803e9d04065df8021339cb57311744d05ba841ec6aaabd502f32063",
-   "bytes": 80668,
+   "sha256": "45a486bc4ed947550398d5e083814ce24bfd59845b1a521e705f03ba0b3b1982",
+   "bytes": 95568,
    "width": 384,
    "height": 384,
-   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged"
+   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged; shown as round (outside of the mark made transparent)",
+   "shape": "round",
+   "backing": false
   },
   {
    "id": "bank_2998",
@@ -422,7 +490,9 @@
    "bytes": 25562,
    "width": 384,
    "height": 384,
-   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged"
+   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged",
+   "shape": "tile",
+   "backing": false
   },
   {
    "id": "bank_2707",
@@ -430,11 +500,13 @@
    "assetPath": "assets/banks/raster/bank_2707.png",
    "sourceAssetPath": "assets/banks/bank_2707.png",
    "sourceSha256": "089566394aff28d707477214f906ce310ce6e6fe9d2a468b47a43b37a98f4f7c",
-   "sha256": "0ba05cd89393656d69c40f7214cf1260230552859ee31c86d771d76bf8725117",
-   "bytes": 33871,
+   "sha256": "d374cd434e29eaf46ce72c11c7159bed35fef8cfce691456153843b38b95708e",
+   "bytes": 32729,
    "width": 384,
    "height": 384,
-   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged"
+   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged; shown as round (outside of the mark made transparent)",
+   "shape": "round",
+   "backing": false
   },
   {
    "id": "bank_101",
@@ -442,11 +514,13 @@
    "assetPath": "assets/banks/raster/bank_101.png",
    "sourceAssetPath": "assets/banks/bank_101.png",
    "sourceSha256": "6700a700c8c8460174ada46916f129eee8e530c1d98ec9b9964d34210d6d29a8",
-   "sha256": "ccbf480e895f71589f2db31bee50977024c22572ed4af46e153fceb4975cdefc",
-   "bytes": 77841,
+   "sha256": "f2b21b2059d4d768aeb5ecaf803de92c0c9c359edfa16fa7380362500873be31",
+   "bytes": 63050,
    "width": 384,
    "height": 384,
-   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged"
+   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged; shown as round (outside of the mark made transparent)",
+   "shape": "round",
+   "backing": false
   },
   {
    "id": "bank_2546",
@@ -458,7 +532,9 @@
    "bytes": 78545,
    "width": 384,
    "height": 384,
-   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged"
+   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged",
+   "shape": "tile",
+   "backing": false
   },
   {
    "id": "bank_705",
@@ -470,7 +546,9 @@
    "bytes": 36277,
    "width": 384,
    "height": 384,
-   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged"
+   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged; shown as square (outside of the mark made transparent)",
+   "shape": "square",
+   "backing": false
   },
   {
    "id": "bank_2440",
@@ -478,11 +556,13 @@
    "assetPath": "assets/banks/raster/bank_2440.png",
    "sourceAssetPath": "assets/banks/bank_2440.png",
    "sourceSha256": "ac2ea8d0ef74f922f1cb89f418455ebe3eb9debc4649d0f728b32336799b25d3",
-   "sha256": "9b4a2e09f65d0950a4db5bab4bb7761f269871b664ce11ca87329ff9b3001a8e",
-   "bytes": 61977,
+   "sha256": "38a8dab199e0d1c4260f50914712c3624961b5c7eea47ecbbf32b549e2bb87d1",
+   "bytes": 60906,
    "width": 384,
    "height": 384,
-   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged"
+   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged; shown as round (outside of the mark made transparent)",
+   "shape": "round",
+   "backing": false
   },
   {
    "id": "bank_3279",
@@ -494,7 +574,9 @@
    "bytes": 21514,
    "width": 384,
    "height": 384,
-   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged"
+   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged; shown as square (outside of the mark made transparent)",
+   "shape": "square",
+   "backing": false
   },
   {
    "id": "bank_2368",
@@ -506,7 +588,9 @@
    "bytes": 25882,
    "width": 384,
    "height": 384,
-   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged"
+   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged; shown as square (outside of the mark made transparent)",
+   "shape": "square",
+   "backing": false
   },
   {
    "id": "bank_2210",
@@ -518,7 +602,9 @@
    "bytes": 50501,
    "width": 384,
    "height": 384,
-   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged"
+   "operation": "Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged; shown as square (outside of the mark made transparent)",
+   "shape": "square",
+   "backing": false
   }
  ]
 }

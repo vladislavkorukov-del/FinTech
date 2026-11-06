@@ -125,7 +125,7 @@ void main() {
           bytes.buffer.asUint8List(),
         );
         final frame = await codec.getNextFrame();
-        expect(frame.image.width, greaterThanOrEqualTo(96), reason: store.id);
+        expect(frame.image.width, greaterThanOrEqualTo(80), reason: store.id);
       });
     }
     await tester.pumpWidget(

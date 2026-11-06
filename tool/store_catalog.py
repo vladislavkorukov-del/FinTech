@@ -15,6 +15,7 @@ with the reason and get no logo (nothing is drawn or guessed).
 Modes (network is developer-only and opt-in):
   --fetch      download candidates into assets/stores/ and record them
   --sheet PNG  contact sheet of fetched icons for the visual review
+  --render     rebuild display copies from the originals (shape, no network)
   --generate   write lib/domain/store_catalog.dart from the manifest
   --verify     offline: files, display copies and Dart agree with the manifest
 """
@@ -31,6 +32,9 @@ import urllib.parse
 import urllib.request
 
 from PIL import Image
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import logo_shape  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT / 'assets/stores'
@@ -232,14 +236,16 @@ def mirrors(domain):
 
 
 def as_png(content):
-    """Decoded, size-checked image re-encoded losslessly as RGBA PNG."""
+    """Display copy: the decoded icon in its own outline (round marks cut to
+    the mark, see logo_shape), losslessly encoded as RGBA PNG, plus its shape."""
     image = Image.open(io.BytesIO(content))
     image.load()
     if min(image.size) < MIN_SIDE:
         return None
+    shape, shown, backing = logo_shape.analyze(image)
     out = io.BytesIO()
-    image.convert('RGBA').save(out, 'PNG', optimize=True)
-    return out.getvalue(), image.size
+    shown.convert('RGBA').save(out, 'PNG', optimize=True)
+    return out.getvalue(), image.size, shape, backing
 
 
 def corner_color(image):
@@ -266,7 +272,7 @@ def fetch():
                 converted = None
             if not converted:
                 continue
-            png, size = converted
+            png, size, shape, backing = converted
             kind = {'PNG': 'png', 'JPEG': 'jpg', 'ICO': 'ico', 'WEBP': 'webp', 'GIF': 'gif'}.get(
                 Image.open(io.BytesIO(content)).format, 'bin')
             original = ASSETS / f'{bid}.{kind}'
@@ -281,6 +287,7 @@ def fetch():
                 'originalBytes': len(content), 'size': list(size),
                 'rasterPath': str((RASTER / f'{bid}.png').relative_to(ROOT)), 'rasterSha256': digest(png),
                 'background': corner_color(image),
+                'shape': shape, 'backing': bool(backing),
                 'rights': 'Site icon published by the brand\'s official website, as served by a public '
                           'favicon mirror. Copyright and trademark belong to the brand owner; used only '
                           'to identify the payee; no endorsement implied.',
@@ -324,6 +331,23 @@ def sheet(path):
     out.save(path)
 
 
+def render():
+    """Rebuild display copies from the recorded originals (no network)."""
+    data = json.loads(MANIFEST.read_text())
+    for item in data['items']:
+        content = (ROOT / item['originalPath']).read_bytes()
+        if digest(content) != item['originalSha256']:
+            raise SystemExit(f'{item["originalPath"]} differs from manifest')
+        png, _, shape, backing = as_png(content)
+        item.update({'shape': shape, 'backing': bool(backing)})
+        if item['id'] in REJECTED:
+            continue
+        (ROOT / item['rasterPath']).write_bytes(png)
+        item['rasterSha256'] = digest(png)
+    MANIFEST.write_text(json.dumps(data, ensure_ascii=False, indent=1) + '\n')
+    print(f'Rendered {len(accepted())} display copies')
+
+
 def accepted():
     items = json.loads(MANIFEST.read_text())['items']
     return [i for i in items if i['id'] not in REJECTED]
@@ -347,7 +371,14 @@ def dart_source():
     lines += ['  };', '', '  static const entries = <SubscriptionService>[']
     for item in accepted():
         name, group, domain, aliases = BRANDS[item['id']]
-        bg = item['background'].lstrip('#')
+        shape = item.get('shape', 'tile')
+        if shape == 'tile':
+            background, inset = '0xFF' + item['background'].lstrip('#'), .1
+        else:
+            # Round and square marks show in their own outline with nothing
+            # behind them; a see-through round mark keeps a white disc.
+            background = '0xFFFFFFFF' if shape == 'round' and item.get('backing') else '0x00FFFFFF'
+            inset = 0
         lines += [
             '    SubscriptionService(',
             f'      id: {dart_string("store_" + item["id"])},',
@@ -357,8 +388,9 @@ def dart_source():
             f'      assetPath: {dart_string(item["rasterPath"])},',
             f'      rasterPath: {dart_string(item["rasterPath"])},',
             '      preserveColors: true,',
-            f'      background: 0xFF{bg},',
-            '      inset: 0,',
+            f'      background: {background},',
+            f'      inset: {inset},',
+            f'      shape: {dart_string(shape)},',
             '    ),',
         ]
     lines += ['  ];', '}', '']
@@ -404,6 +436,7 @@ def main():
     mode = parser.add_mutually_exclusive_group(required=True)
     mode.add_argument('--fetch', action='store_true')
     mode.add_argument('--sheet', metavar='PNG')
+    mode.add_argument('--render', action='store_true')
     mode.add_argument('--generate', action='store_true')
     mode.add_argument('--verify', action='store_true')
     args = parser.parse_args()
@@ -411,6 +444,8 @@ def main():
         fetch()
     elif args.sheet:
         sheet(args.sheet)
+    elif args.render:
+        render()
     elif args.generate:
         generate()
     else:

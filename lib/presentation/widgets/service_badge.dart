@@ -78,6 +78,9 @@ class _ServiceBadgeState extends State<ServiceBadge> {
       color: scheme.onSurfaceVariant,
       size: size * .48,
     );
+    // Round marks are shown as circles and square ones as squares, with
+    // nothing behind them; other marks sit on a light tile (1.12.1).
+    final shape = uploaded || asset == null ? 'tile' : service!.shape;
     final inset = uploaded ? .06 : (service?.inset ?? .18).clamp(0.0, .4);
     final pixels = serviceLogoDecodeSize(
       size * (1 - 2 * inset),
@@ -98,7 +101,13 @@ class _ServiceBadgeState extends State<ServiceBadge> {
             height: pixels,
             policy: ResizeImagePolicy.fit,
           );
-    final radius = BorderRadius.circular(size * .30);
+    final round = shape == 'round';
+    final radius = BorderRadius.circular(
+      size * (shape == 'square' ? .22 : .30),
+    );
+    final fill = !uploaded && asset != null
+        ? Color(service!.background)
+        : scheme.surfaceContainerHighest;
     return Semantics(
       label: name ?? service?.name ?? 'Сервис',
       image: true,
@@ -107,19 +116,22 @@ class _ServiceBadgeState extends State<ServiceBadge> {
         width: size,
         height: size,
         padding: EdgeInsets.all(size * inset),
-        clipBehavior: Clip.antiAlias,
+        // A round copy is already transparent outside the mark; clipping it
+        // would cut what sticks out of the circle (Пятёрочка's leaf).
+        clipBehavior: round ? Clip.none : Clip.antiAlias,
         decoration: BoxDecoration(
-          color: !uploaded && asset != null
-              ? Color(service!.background)
-              : scheme.surfaceContainerHighest,
-          borderRadius: radius,
+          color: fill,
+          shape: round ? BoxShape.circle : BoxShape.rectangle,
+          borderRadius: round ? null : radius,
         ),
-        foregroundDecoration: BoxDecoration(
-          borderRadius: radius,
-          border: Border.all(
-            color: scheme.outlineVariant.withValues(alpha: .2),
-          ),
-        ),
+        foregroundDecoration: round
+            ? null
+            : BoxDecoration(
+                borderRadius: radius,
+                border: Border.all(
+                  color: scheme.outlineVariant.withValues(alpha: .2),
+                ),
+              ),
         child: image != null
             ? Image(
                 image: image,

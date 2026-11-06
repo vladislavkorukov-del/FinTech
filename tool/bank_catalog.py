@@ -36,6 +36,9 @@ import urllib.request
 import xml.etree.ElementTree as ET
 import zipfile
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import logo_shape  # noqa: E402
+
 ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT / 'assets/banks'
 RASTER = ASSETS / 'raster'
@@ -385,6 +388,7 @@ def generate_dart(registry, manifest, raster):
         '    this.preserveColors = true,',
         '    this.background = 0xFFFFFFFF,',
         '    this.inset = .1,',
+        "    this.logoShape = 'tile',",
         '  });',
         '',
         '  /// Registration number in the Bank of Russia register (e.g. 1481, 3510-К).',
@@ -402,6 +406,9 @@ def generate_dart(registry, manifest, raster):
         '  final int background;',
         '  final double inset;',
         '',
+        '  /// round, square or tile (see tool/logo_shape.py).',
+        '  final String logoShape;',
+        '',
         "  String get id => 'bank_${regNumber.toLowerCase().replaceAll('к', 'k').replaceAll('ц', 'c').replaceAll(RegExp('[^0-9a-z]'), '')}';",
         "  String? get rasterAsset => logoAsset == null ? null : 'assets/banks/raster/$id.png';",
         '',
@@ -415,6 +422,7 @@ def generate_dart(registry, manifest, raster):
         '    preserveColors: preserveColors,',
         '    background: background,',
         '    inset: inset,',
+        '    shape: logoShape,',
         '  );',
         '}',
         '',
@@ -451,8 +459,18 @@ def generate_dart(registry, manifest, raster):
             if id_for(reg) not in rendered:
                 raise SystemExit(f'Logo without PNG display copy: {reg}')
             lines.append(f"      logoAsset: {dart_string(logo['assetPath'])},")
-            lines.append(f"      background: 0xFF{logo.get('background', '#FFFFFF').lstrip('#').upper()},")
-            lines.append(f"      inset: {logo.get('inset', 0.1)},")
+            shown = rendered[id_for(reg)]
+            shape = shown.get('shape', 'tile')
+            if shape == 'tile':
+                lines.append(f"      background: 0xFF{logo.get('background', '#FFFFFF').lstrip('#').upper()},")
+                lines.append(f"      inset: {logo.get('inset', 0.1)},")
+            else:
+                # Round and square marks show in their own outline, nothing
+                # behind them (a see-through round mark keeps a white disc).
+                backing = shape == 'round' and shown.get('backing')
+                lines.append(f"      background: {'0xFFFFFFFF' if backing else '0x00FFFFFF'},")
+                lines.append('      inset: 0,')
+                lines.append(f'      logoShape: {dart_string(shape)},')
         lines.append('    ),')
     lines += ['  ];', HELPERS, '}', '']
     return '\n'.join(lines)
@@ -619,6 +637,13 @@ def render():
                 image = image.resize((max(1, round(image.width * scale)), max(1, round(image.height * scale))),
                                      Image.Resampling.LANCZOS)
                 operation = 'Original PNG proportionally resized (Lanczos) into transparent canvas; colors unchanged'
+            # Round/square marks are cut to their own outline (logo_shape).
+            shape, shaped, backing = logo_shape.analyze(image)
+            if shape != logo_shape.TILE:
+                scale = (SIZE - 2 * GUTTER) / max(shaped.size)
+                image = shaped.resize((max(1, round(shaped.width * scale)), max(1, round(shaped.height * scale))),
+                                      Image.Resampling.LANCZOS)
+                operation += f'; shown as {shape} (outside of the mark made transparent)'
             square = Image.new('RGBA', (SIZE, SIZE))
             square.alpha_composite(image, ((SIZE - image.width) // 2, (SIZE - image.height) // 2))
             out = io.BytesIO()
@@ -629,7 +654,8 @@ def render():
             records.append({'id': item['id'], 'regNumber': item['regNumber'],
                             'assetPath': str(target.relative_to(ROOT)), 'sourceAssetPath': item['assetPath'],
                             'sourceSha256': item['sha256'], 'sha256': digest(data), 'bytes': len(data),
-                            'width': SIZE, 'height': SIZE, 'operation': operation})
+                            'width': SIZE, 'height': SIZE, 'operation': operation,
+                            'shape': shape, 'backing': bool(backing)})
     renderer = subprocess.check_output(['inkscape', '--version'], text=True, stderr=subprocess.DEVNULL).strip()
     RASTER_MANIFEST.write_text(json.dumps({
         'renderer': renderer, 'sourceManifestSha256': digest(MANIFEST.read_bytes()),

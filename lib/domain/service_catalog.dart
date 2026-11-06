@@ -14,6 +14,7 @@ class SubscriptionService {
     this.background = 0xFFFFFFFF,
     this.inset = .18,
     this.rasterPath,
+    this.shape = 'tile',
   });
   final String id, name, group;
   final List<String> aliases;
@@ -28,6 +29,11 @@ class SubscriptionService {
   final bool preserveColors;
   final int background;
   final double inset;
+
+  /// How the badge outlines the mark: `round` (a circle, nothing behind
+  /// it unless [background] is opaque), `square` (the icon's own square)
+  /// or `tile` (the mark on a [background] tile with [inset] padding).
+  final String shape;
 }
 
 abstract final class ServiceCatalog {
