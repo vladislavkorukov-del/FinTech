@@ -40,9 +40,10 @@ class GlassSurface extends StatelessWidget {
     final body = base ?? theme.colorScheme.surface;
     // Dark glass is smoky (a touch darker than the surface), light glass
     // milky; either keeps secondary text at ≥ 4.5:1 over the brightest orb.
+    // 1.15: a little denser — reads as thicker, calmer glass.
     var c = dark
-        ? Color.lerp(body, Colors.black, .35)!.withValues(alpha: .56)
-        : body.withValues(alpha: .58);
+        ? Color.lerp(body, Colors.black, .35)!.withValues(alpha: .64)
+        : body.withValues(alpha: .66);
     if (tint != null) {
       c = Color.alphaBlend(tint.withValues(alpha: (dark ? .10 : .08) * k), c);
     }
@@ -90,27 +91,43 @@ class GlassPanePainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final rect = Offset.zero & size;
     final body = RRect.fromRectAndRadius(rect, Radius.circular(radius));
-    canvas.drawRRect(body, Paint()..color = color);
-    Shader band(double top, double bottom) => LinearGradient(
-      begin: Alignment.topCenter,
-      end: Alignment.bottomCenter,
-      colors: [
-        Colors.white.withValues(alpha: top),
-        Colors.white.withValues(alpha: bottom),
-      ],
-    ).createShader(rect);
-    for (final (inset, width, top, bottom) in [
-      (3.0, 6.0, dark ? .05 : .22, dark ? .015 : .08),
-      (1.5, 3.0, dark ? .07 : .28, dark ? .02 : .10),
-    ]) {
-      canvas.drawRRect(
-        body.deflate(inset),
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = width
-          ..shader = band(top, bottom),
-      );
-    }
+    // 1.15: depth instead of shine — the body is a touch lighter at the top
+    // and settles darker at the bottom; one soft light band under the top
+    // edge. Plain gradients, no blur.
+    canvas.drawRRect(
+      body,
+      Paint()
+        ..shader = LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Color.alphaBlend(
+              Colors.white.withValues(alpha: dark ? .035 : .18),
+              color,
+            ),
+            color,
+            Color.alphaBlend(
+              Colors.black.withValues(alpha: dark ? .10 : .03),
+              color,
+            ),
+          ],
+          stops: const [0, .45, 1],
+        ).createShader(rect),
+    );
+    canvas.drawRRect(
+      body.deflate(1.5),
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 3
+        ..shader = LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.center,
+          colors: [
+            Colors.white.withValues(alpha: dark ? .05 : .22),
+            Colors.white.withValues(alpha: 0),
+          ],
+        ).createShader(rect),
+    );
   }
 
   @override
@@ -128,7 +145,7 @@ class GlassRimPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final rect = Offset.zero & size;
-    const w = 1.0;
+    const w = .8;
     canvas.drawRRect(
       RRect.fromRectAndRadius(rect, Radius.circular(radius)).deflate(w / 2),
       Paint()
@@ -137,12 +154,14 @@ class GlassRimPainter extends CustomPainter {
         ..shader = LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          stops: const [0, .3, .7, 1],
+          // 1.15: restrained — a fine highlight along the top, the sides
+          // almost bare, a faint catch at the bottom-right.
+          stops: const [0, .35, .75, 1],
           colors: [
-            Colors.white.withValues(alpha: dark ? .55 : .95),
-            Colors.white.withValues(alpha: dark ? .10 : .35),
-            Colors.white.withValues(alpha: dark ? .06 : .30),
-            Colors.white.withValues(alpha: dark ? .30 : .80),
+            Colors.white.withValues(alpha: dark ? .30 : .90),
+            Colors.white.withValues(alpha: dark ? .07 : .40),
+            Colors.white.withValues(alpha: dark ? .04 : .35),
+            Colors.white.withValues(alpha: dark ? .12 : .65),
           ],
         ).createShader(rect),
     );

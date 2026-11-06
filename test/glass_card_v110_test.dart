@@ -25,7 +25,7 @@ void main() {
         final secondary = theme.colorScheme.onSurfaceVariant;
         final pane = GlassSurface.pane(theme, null, null, 1);
         // Glass is see-through.
-        expect(pane.a, lessThan(.65));
+        expect(pane.a, lessThan(.7));
         for (final under in [backdrop.top, backdrop.middle, backdrop.bottom]) {
           // The brightest spot is right under a color orb.
           for (final orb in [
