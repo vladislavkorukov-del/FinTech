@@ -342,3 +342,31 @@ A few synthetic receipts that 1.6.2 solved from the VAT or payment row alone
 now stay empty: that is the owner's rule (only the «ИТОГ» row), not a
 regression. The real images are not committed (third-party receipts with
 names); tests use the relevant rows as read.
+
+## First run of the real native engine (1.6.4)
+
+The owner reported that receipts the host emulation read correctly still
+failed on the phone. 1.6.4 adds `android/app/src/androidTest/.../ReceiptOcrDeviceCheck.kt`:
+it runs the **real** `ReceiptOcrEngine` (Tesseract4Android 4.9.0, JNI,
+Android `Bitmap`, EXIF) on images pushed with `adb` and saves the engine's
+response. It ran on an Android 14 x86_64 emulator (software CPU, no KVM).
+
+Differences from the host emulation found this way, and fixed:
+
+- The band re-read lost a leading digit on the device (`итог 570.00` while
+  the block pass read `=1570.00`). The 1.6.3 merge for `≡` read as a
+  leading digit would have taken 570. Now repeated printing, VAT and
+  payment decide; without evidence only a leading 5 or 3 (the `≡` glyph)
+  is treated as an artifact.
+- The main pass read only `ТОГ` and the block pass read the row as
+  `ic =92 .00`. Native now marks block rows at the height of a total label,
+  and the band re-reads, as `[ИТОГ] …`, so the value is taken from them.
+- Speed: the whole-page block pass is skipped when the main pass already
+  read a total row with a money value (−30 % time on the owner's photo).
+
+Result on the device engine: 10/10 receipts (7 earlier samples, the owner's
+two new photos and a 2× copy simulating a camera-sized frame) give the
+«ИТОГ» amount, 0 wrong. Emulator timings are 4–18 min per image without
+hardware acceleration; a phone is expected to be one to two orders of
+magnitude faster, not measured. The «Распознанный текст» section of the
+editor now also lists the ИТОГ search rows for diagnosis.
