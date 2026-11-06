@@ -267,7 +267,6 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
       key: ValueKey(cat.id),
       padding: const EdgeInsets.only(bottom: 10),
       child: SurfaceCard(
-        frosted: false,
         padding: const EdgeInsets.all(14),
         onTap: () => _categoryEditor(context, kind: kind, category: cat),
         child: Row(

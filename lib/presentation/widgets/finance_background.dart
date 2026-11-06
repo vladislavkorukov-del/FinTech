@@ -6,10 +6,8 @@ import '../theme/app_theme.dart';
 /// vertical gradient and four soft color orbs that the glass cards show
 /// through.
 ///
-/// 1.11.1: the orbs stand still. A drifting backdrop redrew every frame, and
-/// with it every glass blur on screen, which made the app lag on phones.
-/// Static, an idle screen draws no frames at all, and the whole backdrop is
-/// one cached layer.
+/// 1.11.1: the orbs stand still; an idle screen draws no frames at all, and
+/// the whole backdrop is one layer that scrolling never repaints.
 class FinanceBackground extends StatelessWidget {
   const FinanceBackground({super.key, required this.child});
   final Widget child;
@@ -85,8 +83,7 @@ class FinanceBackground extends StatelessWidget {
             },
           ),
         ),
-        // Glass panes share one snapshot of the backdrop.
-        BackdropGroup(child: child),
+        child,
       ],
     );
   }

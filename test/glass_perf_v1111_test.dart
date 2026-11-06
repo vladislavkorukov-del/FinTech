@@ -5,6 +5,7 @@ import 'package:finora/domain/models.dart';
 import 'package:finora/main.dart';
 import 'package:finora/presentation/controller.dart';
 import 'package:finora/presentation/screens/management.dart';
+import 'package:finora/presentation/widgets/common.dart';
 import 'package:finora/presentation/widgets/motion.dart';
 import 'package:finora/services/notification_service.dart';
 import 'package:flutter/material.dart';
@@ -17,10 +18,10 @@ class _Quiet extends NotificationService {
   Future<void> sync(FinanceData data) async {}
 }
 
-/// Finance 1.11.1: the glass must not cost frames. Once the entrance
-/// animations end the app draws nothing until the user acts, the main
-/// screen has only a handful of blurred panes, and long lists use clear
-/// (unblurred) glass rows.
+/// Finance 1.11: the glass must not cost frames. Once the entrance
+/// animations end the app draws nothing until the user acts (1.11.1), and
+/// glass cards add no blur or clip layers that would re-run on every scroll
+/// frame (1.11.2).
 void main() {
   sqfliteFfiInit();
   late Directory temp;
@@ -70,7 +71,7 @@ void main() {
     await temp.delete(recursive: true);
   });
 
-  testWidgets('idle main screen draws no frames; few blurred panes', (
+  testWidgets('idle main screen draws no frames; glass adds no layers', (
     tester,
   ) async {
     Motion.debugForceAmbient = true;
@@ -86,11 +87,39 @@ void main() {
     await tester.pump(const Duration(seconds: 20));
     expect(tester.hasRunningAnimations, isFalse);
     expect(tester.binding.hasScheduledFrame, isFalse);
-    final blurred = find.byType(BackdropFilter).evaluate().length;
-    expect(blurred, inInclusiveRange(1, 8), reason: '$blurred blurred panes');
+    expect(find.byType(GlassSurface), findsWidgets);
+    expect(find.byType(BackdropFilter), findsNothing);
+    // Between each glass card and its own tap layer there is no clip.
+    for (final glass in find.byType(GlassSurface).evaluate()) {
+      final ink = find
+          .descendant(
+            of: find.byWidget(glass.widget),
+            matching: find.byType(InkWell),
+          )
+          .first;
+      expect(
+        find.ancestor(
+          of: ink,
+          matching: find.byWidgetPredicate(
+            (w) =>
+                ((w is ClipRRect && w.clipBehavior != Clip.none) ||
+                    (w is ClipRect && w.clipBehavior != Clip.none) ||
+                    (w is ClipPath && w.clipBehavior != Clip.none)) &&
+                find
+                    .descendant(
+                      of: find.byWidget(glass.widget),
+                      matching: find.byWidget(w),
+                    )
+                    .evaluate()
+                    .isNotEmpty,
+          ),
+        ),
+        findsNothing,
+      );
+    }
   });
 
-  testWidgets('calendar day rows are clear glass, not blurred', (tester) async {
+  testWidgets('calendar day rows are glass without blur', (tester) async {
     tester.view.physicalSize = const Size(400, 1600);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
@@ -101,16 +130,14 @@ void main() {
     final nav = tester.state<NavigatorState>(find.byType(Navigator).first);
     nav.push(MaterialPageRoute(builder: (_) => const CalendarScreen()));
     await tester.pumpAndSettle();
-    final cafe = find.textContaining('Кафе');
-    expect(cafe, findsWidgets);
-    for (final row in cafe.evaluate()) {
-      expect(
-        find.ancestor(
-          of: find.byWidget(row.widget),
-          matching: find.byType(BackdropFilter),
-        ),
-        findsNothing,
-      );
-    }
+    expect(find.textContaining('Кафе'), findsWidgets);
+    expect(
+      find.ancestor(
+        of: find.textContaining('Кафе').first,
+        matching: find.byType(GlassSurface),
+      ),
+      findsOneWidget,
+    );
+    expect(find.byType(BackdropFilter), findsNothing);
   });
 }

@@ -1,5 +1,3 @@
-import 'dart:ui' as ui;
-
 import 'package:flutter/material.dart';
 
 /// Finance «liquid glass», after iOS: the card is a clear pane over the theme
@@ -7,13 +5,10 @@ import 'package:flutter/material.dart';
 /// inside the edge that reads as the thickness of the glass. Flat: no drop
 /// shadow, no gradient body.
 ///
-/// 1.11.1, for speed on real phones:
-///  * a [frosted] pane blurs and saturates what lies behind it, and all panes
-///    share one backdrop snapshot through the app's [BackdropGroup];
-///  * rows of long lists are clear (`frosted: false`): over the soft
-///    backdrop they look the same and cost nothing extra per frame;
-///  * no refraction shader pass and no blurred mask in the painters;
-///  * the backdrop does not animate, so an idle screen draws no frames.
+/// 1.11.2, for smooth scrolling: no backdrop blur and no clip layer at all.
+/// A blur under every card re-ran on every scroll frame; over the soft
+/// backdrop a translucent pane looks almost the same and costs only two
+/// rounded rects and two strokes per card, like the opaque cards of 1.9.
 class GlassSurface extends StatelessWidget {
   const GlassSurface({
     super.key,
@@ -24,7 +19,6 @@ class GlassSurface extends StatelessWidget {
     this.tint,
     this.tintStrength = 1,
     this.onTap,
-    this.frosted = true,
   });
 
   final Widget child;
@@ -38,14 +32,6 @@ class GlassSurface extends StatelessWidget {
   final Color? tint;
   final double tintStrength;
   final VoidCallback? onTap;
-
-  /// Whether the pane blurs the backdrop behind it.
-  final bool frosted;
-
-  static const blurSigma = 12.0;
-
-  /// Saturation boost of what is seen through frosted glass.
-  static const saturation = 1.5;
 
   /// The pane's own color over the backdrop: thin, so the backdrop reads
   /// through, but enough to keep text contrast on any part of it.
@@ -63,50 +49,28 @@ class GlassSurface extends StatelessWidget {
     return c;
   }
 
-  static List<double> _saturate(double s) {
-    const r = .2126, g = .7152, b = .0722;
-    final i = 1 - s;
-    return [
-      r * i + s, g * i, b * i, 0, 0, //
-      r * i, g * i + s, b * i, 0, 0,
-      r * i, g * i, b * i + s, 0, 0,
-      0, 0, 0, 1, 0,
-    ];
-  }
-
-  /// Blur, then the saturation boost; one shared instance.
-  static final ui.ImageFilter filter = ui.ImageFilter.compose(
-    outer: ui.ColorFilter.matrix(_saturate(saturation)),
-    inner: ui.ImageFilter.blur(
-      sigmaX: blurSigma,
-      sigmaY: blurSigma,
-      tileMode: TileMode.clamp,
-    ),
-  );
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final dark = theme.brightness == Brightness.dark;
-    Widget glass = Material(
-      type: MaterialType.transparency,
-      child: InkWell(
-        onTap: onTap,
-        child: CustomPaint(
-          painter: GlassPanePainter(
-            radius: radius,
-            color: pane(theme, base, tint, tintStrength),
-            dark: dark,
-          ),
-          foregroundPainter: GlassRimPainter(radius: radius, dark: dark),
+    final r = BorderRadius.circular(radius);
+    return CustomPaint(
+      painter: GlassPanePainter(
+        radius: radius,
+        color: pane(theme, base, tint, tintStrength),
+        dark: dark,
+      ),
+      foregroundPainter: GlassRimPainter(radius: radius, dark: dark),
+      child: Material(
+        type: MaterialType.transparency,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: r,
+          customBorder: RoundedRectangleBorder(borderRadius: r),
           child: Padding(padding: padding, child: child),
         ),
       ),
     );
-    if (frosted) {
-      glass = BackdropFilter.grouped(filter: filter, child: glass);
-    }
-    return ClipRRect(borderRadius: BorderRadius.circular(radius), child: glass);
   }
 }
 

@@ -71,15 +71,12 @@ class SurfaceCard extends StatelessWidget {
     this.padding = const EdgeInsets.all(20),
     this.color,
     this.onTap,
-    this.frosted = true,
   });
   final Widget child;
   final EdgeInsets padding;
   final Color? color;
   final VoidCallback? onTap;
 
-  /// Blur the backdrop behind the card. Rows of long lists pass false.
-  final bool frosted;
   @override
   Widget build(BuildContext context) => PressScale(
     enabled: onTap != null,
@@ -89,7 +86,6 @@ class SurfaceCard extends StatelessWidget {
       padding: padding,
       base: color,
       onTap: onTap,
-      frosted: frosted,
       child: child,
     ),
   );
