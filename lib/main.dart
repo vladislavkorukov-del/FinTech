@@ -317,58 +317,64 @@ class _HomeShellState extends State<HomeShell> {
           ),
         ),
       ),
-      bottomNavigationBar: SafeArea(
-        top: false,
-        child: Container(
-          decoration: BoxDecoration(
-            color: scheme.surface,
-            border: Border(
-              top: BorderSide(
-                color: scheme.outlineVariant.withValues(alpha: .14),
-              ),
+      // The bar's color runs under the system navigation area (Android 15+
+      // draws apps edge to edge), so no strip of backdrop shows below it.
+      bottomNavigationBar: DecoratedBox(
+        key: const ValueKey('bottom-nav'),
+        decoration: BoxDecoration(
+          color: scheme.surface,
+          border: Border(
+            top: BorderSide(
+              color: scheme.outlineVariant.withValues(alpha: .14),
             ),
           ),
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
-          child: Row(
-            children: [
-              _nav(0, Icons.space_dashboard_outlined, 'Главная'),
-              _nav(1, Icons.receipt_long_outlined, 'Операции'),
-              Expanded(
-                child: Center(
-                  heightFactor: 1,
-                  child: Semantics(
-                    label: 'Добавить операцию',
-                    button: true,
-                    child: InkWell(
-                      onTap: _add,
-                      borderRadius: BorderRadius.circular(20),
-                      child: Container(
-                        width: 52,
-                        height: 52,
-                        decoration: BoxDecoration(
-                          color: scheme.primary,
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: [
-                            BoxShadow(
-                              color: scheme.primary.withValues(alpha: .18),
-                              blurRadius: 15,
-                              offset: const Offset(0, 5),
-                            ),
-                          ],
-                        ),
-                        child: Icon(
-                          Icons.add_rounded,
-                          size: 30,
-                          color: scheme.onPrimary,
+        ),
+        child: SafeArea(
+          top: false,
+          minimum: const EdgeInsets.only(bottom: 8),
+          child: Padding(
+            padding: const EdgeInsets.only(top: 8, left: 6, right: 6),
+            child: Row(
+              children: [
+                _nav(0, Icons.space_dashboard_outlined, 'Главная'),
+                _nav(1, Icons.receipt_long_outlined, 'Операции'),
+                Expanded(
+                  child: Center(
+                    heightFactor: 1,
+                    child: Semantics(
+                      label: 'Добавить операцию',
+                      button: true,
+                      child: InkWell(
+                        onTap: _add,
+                        borderRadius: BorderRadius.circular(20),
+                        child: Container(
+                          width: 52,
+                          height: 52,
+                          decoration: BoxDecoration(
+                            color: scheme.primary,
+                            borderRadius: BorderRadius.circular(20),
+                            boxShadow: [
+                              BoxShadow(
+                                color: scheme.primary.withValues(alpha: .18),
+                                blurRadius: 15,
+                                offset: const Offset(0, 5),
+                              ),
+                            ],
+                          ),
+                          child: Icon(
+                            Icons.add_rounded,
+                            size: 30,
+                            color: scheme.onPrimary,
+                          ),
                         ),
                       ),
                     ),
                   ),
                 ),
-              ),
-              _nav(3, Icons.bar_chart_rounded, 'Аналитика'),
-              _nav(4, Icons.grid_view_rounded, 'Ещё'),
-            ],
+                _nav(3, Icons.bar_chart_rounded, 'Аналитика'),
+                _nav(4, Icons.grid_view_rounded, 'Ещё'),
+              ],
+            ),
           ),
         ),
       ),
