@@ -24,8 +24,8 @@ void main() {
         final ink = theme.colorScheme.onSurface;
         final secondary = theme.colorScheme.onSurfaceVariant;
         final pane = GlassSurface.pane(theme, null, null, 1);
-        // Glass is see-through.
-        expect(pane.a, lessThan(.7));
+        // 1.16: the card is nearly solid (calm, no color showing through).
+        expect(pane.a, greaterThan(.85));
         for (final under in [backdrop.top, backdrop.middle, backdrop.bottom]) {
           // The brightest spot is right under a color orb.
           for (final orb in [
@@ -110,11 +110,9 @@ void main() {
         reason: 'corner at $p must show the plain backdrop, got $c',
       );
     }
-    // The pane itself is drawn and the rim catches light at the top-left.
+    // The card is drawn, and its edge is one visible hairline (1.16: no
+    // highlights, so the edge differs from the flat body, nothing more).
     expect(at(card.center), isNot(backdrop));
-    expect(
-      at(card.topCenter + const Offset(0, .5)).computeLuminance(),
-      greaterThan(at(card.center).computeLuminance()),
-    );
+    expect(at(card.topCenter), isNot(at(card.center))); // the 1 px edge row
   });
 }

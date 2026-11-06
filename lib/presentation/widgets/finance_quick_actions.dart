@@ -16,16 +16,13 @@ class FinanceQuickActions extends StatelessWidget {
       (EntryKind.expense, 'Расход', Icons.remove_rounded),
       (EntryKind.transfer, 'Перевод', Icons.swap_horiz_rounded),
     ];
-    // Each action carries its own accent over the theme's button color.
+    // 1.16: three equal, quiet buttons; only the icon carries a color.
     final scheme = Theme.of(context).colorScheme;
-    Color tint(EntryKind kind) => Color.alphaBlend(
-      switch (kind) {
-        EntryKind.income => colors.income,
-        EntryKind.expense => colors.expense,
-        EntryKind.transfer => scheme.primary,
-      }.withValues(alpha: .22),
-      colors.iconBackground,
-    );
+    Color tone(EntryKind kind) => switch (kind) {
+      EntryKind.income => colors.income,
+      EntryKind.expense => colors.expense,
+      EntryKind.transfer => scheme.onSurfaceVariant,
+    };
     return Row(
       key: const ValueKey('dashboard-actions'),
       children: [
@@ -38,8 +35,16 @@ class FinanceQuickActions extends StatelessWidget {
               style: FilledButton.styleFrom(
                 minimumSize: const Size(0, 48),
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
-                backgroundColor: tint(actions[i].$1),
-                foregroundColor: colors.iconForeground,
+                backgroundColor: GlassSurface.pane(
+                  Theme.of(context),
+                  null,
+                  null,
+                  1,
+                ),
+                side: BorderSide(
+                  color: scheme.onSurface.withValues(alpha: .07),
+                ),
+                foregroundColor: scheme.onSurface,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(15),
                 ),
@@ -48,7 +53,11 @@ class FinanceQuickActions extends StatelessWidget {
                   ? Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(actions[i].$3, size: 16),
+                        Icon(
+                          actions[i].$3,
+                          size: 16,
+                          color: tone(actions[i].$1),
+                        ),
                         const SizedBox(height: 3),
                         Text(
                           actions[i].$2,
@@ -62,7 +71,11 @@ class FinanceQuickActions extends StatelessWidget {
                   : Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(actions[i].$3, size: 17),
+                        Icon(
+                          actions[i].$3,
+                          size: 17,
+                          color: tone(actions[i].$1),
+                        ),
                         const SizedBox(width: 5),
                         Flexible(
                           child: Text(

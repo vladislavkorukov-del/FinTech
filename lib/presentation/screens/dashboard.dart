@@ -756,14 +756,12 @@ class _SummaryTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final radius = BorderRadius.circular(22);
+    // 1.16: a neutral card; the color stays only in the small arrow.
     return PressScale(
-      child: Sheen(
-        borderRadius: radius,
+      child: KeyedSubtree(
+        key: ValueKey('summary-$title'),
         child: GlassSurface(
           radius: 22,
-          tint: tone,
-          tintStrength: 1.9,
           onTap: onTap,
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
           child: Column(
@@ -771,16 +769,8 @@ class _SummaryTile extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Container(
-                    width: 24,
-                    height: 24,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: tone.withValues(alpha: .22),
-                    ),
-                    child: Icon(icon, size: 15, color: tone),
-                  ),
-                  const SizedBox(width: 7),
+                  Icon(icon, size: 15, color: tone),
+                  const SizedBox(width: 5),
                   Flexible(
                     child: Text(
                       title,

@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import '../controller.dart';
 import '../screens/management.dart';
 import '../screens/settings.dart';
-import '../theme/app_theme.dart';
 import 'common.dart' show money;
+import 'glass.dart';
 import 'motion.dart';
 
 class FinanceBrand extends StatefulWidget {
@@ -99,14 +99,15 @@ class FinanceHeader extends StatelessWidget {
   const FinanceHeader({super.key});
   @override
   Widget build(BuildContext context) {
-    final colors = FinanceColors.of(context);
     final scheme = Theme.of(context).colorScheme;
     final c = FinanceScope.of(context);
     void open(Widget page) =>
         Navigator.push(context, MaterialPageRoute<void>(builder: (_) => page));
+    // 1.16: quiet round buttons in the card color.
     final buttonStyle = IconButton.styleFrom(
-      backgroundColor: colors.iconBackground,
-      foregroundColor: colors.iconForeground,
+      backgroundColor: GlassSurface.pane(Theme.of(context), null, null, 1),
+      foregroundColor: scheme.onSurface,
+      side: BorderSide(color: scheme.onSurface.withValues(alpha: .07)),
       minimumSize: const Size(48, 48),
     );
     return ConstrainedBox(
@@ -129,18 +130,8 @@ class FinanceHeader extends StatelessWidget {
                 key: const ValueKey('header-balance'),
                 borderRadius: BorderRadius.circular(16),
                 onTap: () => open(const AccountsScreen()),
+                // 1.16: no halo behind the balance.
                 child: Ink(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16),
-                    // Soft accent halo behind the total balance.
-                    gradient: RadialGradient(
-                      radius: 1.4,
-                      colors: [
-                        scheme.primary.withValues(alpha: .18),
-                        scheme.primary.withValues(alpha: 0),
-                      ],
-                    ),
-                  ),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 6,

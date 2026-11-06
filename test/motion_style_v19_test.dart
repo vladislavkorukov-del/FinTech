@@ -120,8 +120,14 @@ void main() {
       ),
     );
     // Mid-animation the amount is still counting up.
-    Finder inTiles(String text) =>
-        find.descendant(of: find.byType(Sheen), matching: find.text(text));
+    Finder inTiles(String text) => find.descendant(
+      of: find.byWidgetPredicate(
+        (w) =>
+            w.key is ValueKey<String> &&
+            (w.key! as ValueKey<String>).value.startsWith('summary-'),
+      ),
+      matching: find.text(text),
+    );
     await tester.pump(const Duration(milliseconds: 150));
     expect(inTiles(money(1971338)), findsNothing);
     await tester.pumpAndSettle();
@@ -158,8 +164,14 @@ void main() {
       reduce: true,
     );
     await tester.pump();
-    Finder inTiles(String text) =>
-        find.descendant(of: find.byType(Sheen), matching: find.text(text));
+    Finder inTiles(String text) => find.descendant(
+      of: find.byWidgetPredicate(
+        (w) =>
+            w.key is ValueKey<String> &&
+            (w.key! as ValueKey<String>).value.startsWith('summary-'),
+      ),
+      matching: find.text(text),
+    );
     expect(inTiles(money(1971338)), findsOneWidget);
     expect(inTiles(money(9000000)), findsOneWidget);
     expect(tester.hasRunningAnimations, isFalse);

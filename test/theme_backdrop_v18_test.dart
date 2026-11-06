@@ -26,8 +26,8 @@ void main() {
           (b.top.g - base.g).abs(),
           (b.top.b - base.b).abs(),
         ].reduce((a, c) => a > c ? a : c);
-        // 1.15: quieter backdrop, still visibly tinted.
-        expect(shift, greaterThan(.025), reason: 'top is visibly tinted');
+        // 1.16: a calm backdrop, still tinted by the theme at the top.
+        expect(shift, greaterThan(.015), reason: 'top is visibly tinted');
         expect(b.glowA.a, greaterThan(0));
         expect(b.glowB.a, greaterThan(0));
         final ink = theme.colorScheme.onSurface;

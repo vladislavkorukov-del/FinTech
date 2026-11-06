@@ -106,7 +106,17 @@ class SectionTitle extends StatelessWidget {
         ),
         if (action != null)
           if (onTap != null)
-            TextButton(onPressed: onTap, child: Text(action!))
+            // 1.16: a quiet link; the title carries the section.
+            TextButton(
+              onPressed: onTap,
+              style: TextButton.styleFrom(
+                foregroundColor: Theme.of(context).colorScheme.onSurfaceVariant,
+                textStyle: Theme.of(
+                  context,
+                ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w500),
+              ),
+              child: Text(action!),
+            )
           else
             Flexible(
               child: Text(

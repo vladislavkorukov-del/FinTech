@@ -107,12 +107,13 @@ class FinanceBackdrop extends ThemeExtension<FinanceBackdrop> {
     required Color second,
     double strength = 1,
   }) => FinanceBackdrop(
-    // 1.15: about a third quieter than 1.11.
-    top: Color.lerp(base, tint, (dark ? .30 : .22) * strength)!,
-    middle: Color.lerp(base, tint, (dark ? .08 : .06) * strength)!,
-    bottom: Color.lerp(base, second, (dark ? .11 : .09) * strength)!,
-    glowA: glow.withValues(alpha: (dark ? .19 : .21) * strength),
-    glowB: second.withValues(alpha: (dark ? .15 : .18) * strength),
+    // 1.16: calm — a light wash of the theme color at the top, the rest
+    // close to the plain base; glows barely there.
+    top: Color.lerp(base, tint, (dark ? .18 : .14) * strength)!,
+    middle: Color.lerp(base, tint, (dark ? .04 : .03) * strength)!,
+    bottom: Color.lerp(base, second, (dark ? .05 : .04) * strength)!,
+    glowA: glow.withValues(alpha: (dark ? .07 : .08) * strength),
+    glowB: second.withValues(alpha: (dark ? .05 : .06) * strength),
   );
 
   @override
