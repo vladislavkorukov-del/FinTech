@@ -21,6 +21,7 @@ import 'presentation/screens/entry_editor.dart';
 import 'presentation/widgets/common.dart';
 import 'presentation/widgets/finance_background.dart';
 import 'presentation/widgets/finance_header.dart';
+import 'presentation/widgets/voice_orb.dart';
 import 'domain/models.dart';
 
 Future<void> main() async {
@@ -298,82 +299,65 @@ class _HomeShellState extends State<HomeShell> {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    return Scaffold(
-      body: SafeArea(
-        bottom: false,
-        child: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 220),
-          child: KeyedSubtree(
-            key: ValueKey(_tab),
-            child: switch (_tab) {
-              0 => Dashboard(
-                onTransactions: () => setState(() => _tab = 1),
-                onAnalytics: () => setState(() => _tab = 3),
-              ),
-              1 => const TransactionsScreen(),
-              3 => const AnalyticsScreen(),
-              _ => const MoreScreen(),
-            },
-          ),
-        ),
-      ),
-      // The bar's color runs under the system navigation area (Android 15+
-      // draws apps edge to edge), so no strip of backdrop shows below it.
-      bottomNavigationBar: DecoratedBox(
-        key: const ValueKey('bottom-nav'),
-        decoration: BoxDecoration(
-          color: scheme.surface,
-          border: Border(
-            top: BorderSide(
-              color: scheme.outlineVariant.withValues(alpha: .14),
+    // Any touch wakes the voice orb's animation (it rests when idle).
+    return Listener(
+      onPointerDown: (_) => VoiceOrb.activity.value++,
+      child: Scaffold(
+        body: SafeArea(
+          bottom: false,
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 220),
+            child: KeyedSubtree(
+              key: ValueKey(_tab),
+              child: switch (_tab) {
+                0 => Dashboard(
+                  onTransactions: () => setState(() => _tab = 1),
+                  onAnalytics: () => setState(() => _tab = 3),
+                ),
+                1 => const TransactionsScreen(),
+                3 => const AnalyticsScreen(),
+                _ => const MoreScreen(),
+              },
             ),
           ),
         ),
-        child: SafeArea(
-          top: false,
-          minimum: const EdgeInsets.only(bottom: 8),
-          child: Padding(
-            padding: const EdgeInsets.only(top: 8, left: 6, right: 6),
-            child: Row(
-              children: [
-                _nav(0, Icons.space_dashboard_outlined, 'Главная'),
-                _nav(1, Icons.receipt_long_outlined, 'Операции'),
-                Expanded(
-                  child: Center(
-                    heightFactor: 1,
-                    child: Semantics(
-                      label: 'Добавить операцию',
-                      button: true,
-                      child: InkWell(
-                        onTap: _add,
-                        borderRadius: BorderRadius.circular(20),
-                        child: Container(
-                          width: 52,
-                          height: 52,
-                          decoration: BoxDecoration(
-                            color: scheme.primary,
-                            borderRadius: BorderRadius.circular(20),
-                            boxShadow: [
-                              BoxShadow(
-                                color: scheme.primary.withValues(alpha: .18),
-                                blurRadius: 15,
-                                offset: const Offset(0, 5),
-                              ),
-                            ],
-                          ),
-                          child: Icon(
-                            Icons.add_rounded,
-                            size: 30,
-                            color: scheme.onPrimary,
-                          ),
-                        ),
+        // The bar's color runs under the system navigation area (Android 15+
+        // draws apps edge to edge), so no strip of backdrop shows below it.
+        bottomNavigationBar: DecoratedBox(
+          key: const ValueKey('bottom-nav'),
+          decoration: BoxDecoration(
+            color: scheme.surface,
+            border: Border(
+              top: BorderSide(
+                color: scheme.outlineVariant.withValues(alpha: .14),
+              ),
+            ),
+          ),
+          child: SafeArea(
+            top: false,
+            minimum: const EdgeInsets.only(bottom: 8),
+            child: Padding(
+              padding: const EdgeInsets.only(top: 8, left: 6, right: 6),
+              child: Row(
+                children: [
+                  _nav(0, Icons.space_dashboard_outlined, 'Главная'),
+                  _nav(1, Icons.receipt_long_outlined, 'Операции'),
+                  // 1.20: the living voice orb replaces «+»; a long press
+                  // still adds an operation by hand.
+                  Expanded(
+                    child: Center(
+                      heightFactor: 1,
+                      child: VoiceOrb(
+                        size: 54,
+                        onTap: () => showEntryEditor(context, startVoice: true),
+                        onLongPress: _add,
                       ),
                     ),
                   ),
-                ),
-                _nav(3, Icons.bar_chart_rounded, 'Аналитика'),
-                _nav(4, Icons.grid_view_rounded, 'Ещё'),
-              ],
+                  _nav(3, Icons.bar_chart_rounded, 'Аналитика'),
+                  _nav(4, Icons.grid_view_rounded, 'Ещё'),
+                ],
+              ),
             ),
           ),
         ),

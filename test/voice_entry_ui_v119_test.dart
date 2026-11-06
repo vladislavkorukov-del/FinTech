@@ -19,7 +19,7 @@ class _Quiet extends NotificationService {
   Future<void> sync(FinanceData data) async {}
 }
 
-/// Finance 1.19: the microphone quick action opens the editor, listens and
+/// Finance 1.19/1.20: the voice orb in the bottom bar opens the editor, listens and
 /// fills it; the person saves.
 void main() {
   final binding = TestWidgetsFlutterBinding.ensureInitialized();
@@ -91,7 +91,7 @@ void main() {
       FinoraApp(controller: controller, requireDeviceSecurity: false),
     );
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const ValueKey('quick-action-voice')));
+    await tester.tap(find.byKey(const ValueKey('nav-voice')));
     await flush(
       tester,
       () => find.byKey(const ValueKey('voice-heard')).evaluate().isNotEmpty,
@@ -151,7 +151,7 @@ void main() {
       FinoraApp(controller: controller, requireDeviceSecurity: false),
     );
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const ValueKey('quick-action-voice')));
+    await tester.tap(find.byKey(const ValueKey('nav-voice')));
     await flush(tester, () => calls > 0);
     await tester.pumpAndSettle();
     expect(find.byType(EntryEditor), findsOneWidget);
