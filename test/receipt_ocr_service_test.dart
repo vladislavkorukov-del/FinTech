@@ -341,4 +341,58 @@ void main() {
       );
     }
   });
+
+  test('optional amount-column re-reads are decoded with geometry', () async {
+    const path = '/data/user/0/com.finora.fintech/app_flutter/receipts/a.jpg';
+    messenger.setMockMethodCallHandler(channel, (_) async {
+      return {
+        'text': 'Анна -10',
+        'confidence': 0.8,
+        'amounts': [
+          {
+            'text': '-10 000Р',
+            'left': .67,
+            'top': .08,
+            'right': 1.0,
+            'bottom': .13,
+            'confidence': .9,
+          },
+        ],
+      };
+    });
+    final result = await service.recognize(path);
+    expect(result.amountLines.single.text, '-10 000Р');
+    expect(result.amountLines.single.left, .67);
+    for (final bad in [
+      'x',
+      [
+        {
+          'text': '1',
+          'left': 2,
+          'top': 0,
+          'right': 1,
+          'bottom': 1,
+          'confidence': 1,
+        },
+      ],
+      [
+        {
+          'text': 'x' * 513,
+          'left': 0,
+          'top': 0,
+          'right': 1,
+          'bottom': 1,
+          'confidence': 1,
+        },
+      ],
+    ]) {
+      messenger.setMockMethodCallHandler(channel, (_) async {
+        return {'text': 'x', 'confidence': 0.8, 'amounts': bad};
+      });
+      await expectLater(
+        service.recognize(path),
+        throwsA(errorCode('OCR_INVALID_RESPONSE')),
+      );
+    }
+  });
 }

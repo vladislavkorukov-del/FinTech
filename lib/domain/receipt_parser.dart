@@ -240,7 +240,34 @@ abstract final class ReceiptParser {
         return RegExp(r'^к оплате$', caseSensitive: false).hasMatch(value)
             ? value
             : 'К ОПЛАТЕ';
-      });
+      })
+      .replaceAllMapped(_letterZeros, (m) {
+        // `-10 ОООР`, `+10 OOO P`: thin banking fonts read zero groups as
+        // the letter O. Only for a number ending its line (± a ruble glyph).
+        final groups = m.group(2)!;
+        if (!RegExp('[OОoо]').hasMatch(groups)) return m.group(0)!;
+        // Unsigned numbers need the ruble glyph as evidence of money.
+        if (!RegExp(r'^[+-]').hasMatch(m.group(1)!) &&
+            m.group(3)!.trim().isEmpty) {
+          return m.group(0)!;
+        }
+        return '${m.group(1)}${groups.replaceAll(RegExp('[OОoо]'), '0')}${m.group(3)}';
+      })
+      .replaceAllMapped(_detachedRubleTwo, (m) => '${m.group(1)} 2');
+
+  /// Signed amount (or one followed by a ruble glyph) whose 3-digit groups
+  /// contain O/О letters instead of zeros.
+  static final _letterZeros = RegExp(
+    r'((?:[+-]\s?|(?<![\dA-Za-zА-Яа-яЁё.,]))\d{1,3})((?:\s?[0-9OОoо]{3})+)([ \t]*[₽РPрp]?)(?=[ \t]*$)',
+    multiLine: true,
+  );
+
+  /// The ruble glyph read as a trailing `2` glued to a complete signed amount:
+  /// `-10 0002` → `-10 000 2`, `-82,902` → `-82,90 2`. [parseOcrAmount] then
+  /// drops the detached `2` and the caller warns about the artifact.
+  static final _detachedRubleTwo = RegExp(
+    r'([+-]\s?\d{1,3}(?:\s\d{3})+|[+-]\s?\d{1,3}(?:\s?\d{3})*[.,]\d{2})2(?=\s|[₽РPрp]|$)',
+  );
 
   static final _damagedTotal = RegExp(
     r'(?<![а-яёa-z0-9])и ?[тt] ?[оo0] ?г(?:[оo])?(?![а-яёa-z])',
@@ -288,7 +315,7 @@ abstract final class ReceiptParser {
     final strict = parseAmount(text);
     if (strict != null) return (minor: strict, hadCurrencyArtifact: false);
     final artifact = RegExp(
-      r'^([+-]?\s*\d[\d .,\x27’]*[.,]\s*\d{2})\s+2$',
+      r'^([+-]?\s*\d[\d .,\x27’]*[.,]\s*\d{2}|[+-]?\s*\d{1,3}(?:[ .]\d{3})+)\s+2$',
     ).firstMatch(normalizeText(text).trim());
     if (artifact == null) return null;
     final value = parseAmount(artifact[1]!);

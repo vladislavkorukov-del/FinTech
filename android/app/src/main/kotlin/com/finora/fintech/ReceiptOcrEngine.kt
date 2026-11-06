@@ -50,6 +50,7 @@ internal class ReceiptOcrEngine(private val context: Context) {
         private const val MAX_FOCUS_BANDS = 3
         private const val MAX_FOCUS_ROWS = 40
         private const val MAX_FOCUS_PIXELS = 4_000_000L
+        private const val MAX_AMOUNT_ROWS = 200
         private val MODELS = mapOf(
             "rus" to "e16e5e036cce1d9ec2b00063cf8b54472625b9e14d893a169e2b0dedeb4df225",
             "eng" to "7d4322bd2a7749724879683fc3912cb542f19906c83bcc1a52132556427170b2",
@@ -90,14 +91,22 @@ internal class ReceiptOcrEngine(private val context: Context) {
             } else first
             // Second, enlarged pass over the receipt's total band. It adds
             // evidence only; the main text/lines stay exactly as recognized.
-            val focus = if (RECEIPT_LIKE.containsMatchIn(chosen.text)) {
+            val receiptLike = RECEIPT_LIKE.containsMatchIn(chosen.text)
+            val focus = if (receiptLike) {
                 focusTotal(engine, bitmap, chosen, cancelled)
+            } else emptyList()
+            // Bank lists: re-read the amount column of every row, enlarged,
+            // binarized and digits-only. Thin fonts otherwise turn
+            // «-10 000 ₽» into «-10» plus «ОООР».
+            val amounts = if (!receiptLike) {
+                amountColumn(engine, bitmap, chosen, cancelled)
             } else emptyList()
             return mapOf(
                 "text" to chosen.text,
                 "confidence" to chosen.confidence,
                 "lines" to chosen.lines,
                 "focus" to focus,
+                "amounts" to amounts,
             )
         } finally {
             try {
@@ -238,6 +247,98 @@ internal class ReceiptOcrEngine(private val context: Context) {
             return emptyList()
         }
         return rows
+    }
+
+    /** One digits-only line per text row, read from the area right of that
+     * row's text. Returns normalized boxes; failures (other than
+     * cancellation) return no re-reads and keep the main result. */
+    private fun amountColumn(
+        engine: TessBaseAPI,
+        bitmap: Bitmap,
+        chosen: Pass,
+        cancelled: AtomicBoolean,
+    ): List<Map<String, Any>> {
+        val result = mutableListOf<Map<String, Any>>()
+        try {
+            engine.setVariable("tessedit_char_whitelist", "0123456789+-,.₽РP ")
+            engine.setPageSegMode(TessBaseAPI.PageSegMode.PSM_SINGLE_LINE)
+            for (line in chosen.lines) {
+                if (result.size >= MAX_AMOUNT_ROWS) break
+                checkCancellation(cancelled)
+                val text = line["text"] as String
+                val left = line["left"] as Double
+                val right = line["right"] as Double
+                if (left >= .5 || right >= .85 || text.none { it.isLetter() }) continue
+                val height = ((line["bottom"] as Double) - (line["top"] as Double)) * bitmap.height
+                if (height < 6) continue
+                val y0 = max(0, ((line["top"] as Double) * bitmap.height - .4 * height).roundToInt())
+                val y1 = min(bitmap.height, ((line["bottom"] as Double) * bitmap.height + .4 * height).roundToInt())
+                val x0 = (bitmap.width * max(.45, right + .015)).roundToInt()
+                if (bitmap.width - x0 < bitmap.width * .08 || y1 - y0 < 4) continue
+                val scale = (56.0 / height).coerceIn(1.2, 2.5)
+                val crop = Bitmap.createBitmap(bitmap, x0, y0, bitmap.width - x0, y1 - y0)
+                var scaled = crop
+                try {
+                    scaled = Bitmap.createScaledBitmap(
+                        crop,
+                        max(1, (crop.width * scale).roundToInt()),
+                        max(1, (crop.height * scale).roundToInt()),
+                        true,
+                    )
+                } finally {
+                    if (scaled !== crop && crop !== bitmap) crop.recycle()
+                }
+                if (!scaled.isMutable) {
+                    val copy = scaled.copy(Bitmap.Config.ARGB_8888, true)
+                    if (scaled !== bitmap) scaled.recycle()
+                    scaled = copy
+                }
+                try {
+                    flattenIllumination(scaled)
+                    binarize(scaled, 170)
+                    engine.setImage(scaled)
+                    val value = (engine.getUTF8Text() ?: "").trim().take(512)
+                    checkCancellation(cancelled)
+                    if (value.any { it.isDigit() }) {
+                        result.add(mapOf(
+                            "text" to value,
+                            "left" to (x0.toDouble() / bitmap.width).coerceIn(0.0, 1.0),
+                            "top" to (y0.toDouble() / bitmap.height).coerceIn(0.0, 1.0),
+                            "right" to 1.0,
+                            "bottom" to (y1.toDouble() / bitmap.height).coerceIn(0.0, 1.0),
+                            "confidence" to engine.meanConfidence().coerceIn(0, 100) / 100.0,
+                        ))
+                    }
+                } finally {
+                    if (scaled !== bitmap) scaled.recycle()
+                }
+            }
+        } catch (failure: ReceiptOcrFailure) {
+            if (failure.code == "OCR_CANCELLED") throw failure
+            return emptyList()
+        } catch (_: Exception) {
+            return emptyList()
+        } catch (_: OutOfMemoryError) {
+            return emptyList()
+        } finally {
+            try {
+                engine.setVariable("tessedit_char_whitelist", "")
+            } catch (_: Exception) {
+            }
+        }
+        return result
+    }
+
+    /** Black text on white: pixels brighter than [threshold] become white. */
+    private fun binarize(bitmap: Bitmap, threshold: Int) {
+        val row = IntArray(bitmap.width)
+        for (y in 0 until bitmap.height) {
+            bitmap.getPixels(row, 0, bitmap.width, 0, y, bitmap.width, 1)
+            for (x in row.indices) {
+                row[x] = if ((row[x] and 0xFF) > threshold) -0x1 else -0x1000000
+            }
+            bitmap.setPixels(row, 0, bitmap.width, 0, y, bitmap.width, 1)
+        }
     }
 
     /** OCR-tolerant total label: Latin look-alikes, one wrong letter. */

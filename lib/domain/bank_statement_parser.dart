@@ -15,10 +15,11 @@ abstract final class BankStatementParser {
     DateTime? now,
     String? defaultCurrency,
     List<String> focusRows = const [],
+    List<RecognizedLine> amountLines = const [],
   }) {
     final clock = now ?? DateTime.now();
     final source = ReceiptParser.normalizeText(text);
-    final visual = _visualRows(source, lines);
+    final visual = _visualRows(source, _withAmountLines(lines, amountLines));
     final heading = _historyHeading.hasMatch(source.toLowerCase());
     final signedRows = visual
         .where((r) => _amounts(r.text).any((a) => a.signed != 0))
@@ -476,6 +477,37 @@ abstract final class BankStatementParser {
     return null;
   }
 
+  /// Native re-reads of the amount column (one per row, digits only) replace
+  /// the weak first reading of that column in the same row. Rows without a
+  /// re-read keep their original text; nothing is added without geometry.
+  static List<RecognizedLine> _withAmountLines(
+    List<RecognizedLine> lines,
+    List<RecognizedLine> amounts,
+  ) {
+    bool ok(RecognizedLine l) =>
+        [
+          l.left,
+          l.top,
+          l.right,
+          l.bottom,
+          l.confidence,
+        ].every((v) => v.isFinite && v >= 0 && v <= 1) &&
+        l.right > l.left &&
+        l.bottom > l.top;
+    final useful = amounts
+        .where((a) => ok(a) && _amounts(a.text).any((m) => m.minor != 0))
+        .toList();
+    if (lines.isEmpty || useful.isEmpty) return lines;
+    bool replaced(RecognizedLine l) {
+      final center = (l.top + l.bottom) / 2;
+      return useful.any(
+        (a) => center >= a.top && center <= a.bottom && l.left >= a.left - .03,
+      );
+    }
+
+    return [...lines.where((l) => !replaced(l)), ...useful];
+  }
+
   static List<_VisualRow> _visualRows(
     String source,
     List<RecognizedLine> lines,
@@ -502,6 +534,17 @@ abstract final class BankStatementParser {
           .where((r) => r.text.isNotEmpty)
           .toList();
     }
+    // App icons and avatars become tiny or very tall OCR fragments («9»,
+    // «©», «® =» spanning three rows). They are not text of any row and must
+    // not pull a neighbour's amount into the wrong row.
+    final heights = [for (final l in valid) l.bottom - l.top]..sort();
+    final typical = heights[heights.length ~/ 2];
+    valid.removeWhere((l) {
+      if (_amounts(l.text).isNotEmpty) return false;
+      final meaningful = l.text.replaceAll(RegExp(r'[^0-9A-Za-zА-Яа-яЁё]'), '');
+      return meaningful.length <= 2 || (l.bottom - l.top) > typical * 3;
+    });
+    if (valid.isEmpty) return const [];
     valid.sort(
       (a, b) => ((a.top + a.bottom) / 2).compareTo((b.top + b.bottom) / 2),
     );

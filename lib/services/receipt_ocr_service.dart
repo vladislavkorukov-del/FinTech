@@ -13,11 +13,16 @@ class ReceiptOcrResult {
   /// (optional; empty for older native builds and non-receipt images).
   final List<String> focusRows;
 
+  /// Digits-only re-reads of the amount column of a bank list, one per row
+  /// (optional; empty for older native builds and for receipts).
+  final List<RecognizedLine> amountLines;
+
   const ReceiptOcrResult({
     required this.text,
     required this.confidence,
     this.lines = const [],
     this.focusRows = const [],
+    this.amountLines = const [],
   });
 }
 
@@ -86,41 +91,12 @@ class ReceiptOcrService {
           text.length > 100000) {
         throw _invalidResponse;
       }
-      final rawLines = response['lines'];
-      if (rawLines != null && (rawLines is! List || rawLines.length > 3000)) {
-        throw _invalidResponse;
-      }
-      final lines = <RecognizedLine>[];
-      var totalCharacters = 0;
-      for (final item in (rawLines as List? ?? const [])) {
-        if (item is! Map || item['text'] is! String) throw _invalidResponse;
-        final values = <double>[];
-        for (final field in ['left', 'top', 'right', 'bottom', 'confidence']) {
-          final value = item[field];
-          if (value is! num || !value.isFinite || value < 0 || value > 1) {
-            throw _invalidResponse;
-          }
-          values.add(value.toDouble());
-        }
-        final lineText = item['text'] as String;
-        totalCharacters += lineText.length;
-        if (lineText.length > 8192 ||
-            totalCharacters > 100000 ||
-            values[0] > values[2] ||
-            values[1] > values[3]) {
-          throw _invalidResponse;
-        }
-        lines.add(
-          RecognizedLine(
-            text: lineText,
-            left: values[0],
-            top: values[1],
-            right: values[2],
-            bottom: values[3],
-            confidence: values[4],
-          ),
-        );
-      }
+      final lines = _decodeLines(response['lines'], maxLines: 3000);
+      final amountLines = _decodeLines(
+        response['amounts'],
+        maxLines: 200,
+        maxText: 512,
+      );
       final rawFocus = response['focus'];
       if (rawFocus != null &&
           (rawFocus is! List ||
@@ -131,10 +107,11 @@ class ReceiptOcrService {
       return ReceiptOcrResult(
         text: text,
         confidence: confidence,
-        lines: List.unmodifiable(lines),
+        lines: lines,
         focusRows: List.unmodifiable(
           (rawFocus as List? ?? const []).cast<String>(),
         ),
+        amountLines: amountLines,
       );
     } on PlatformException catch (error) {
       if (request.cancelled) throw _cancelled;
@@ -147,6 +124,49 @@ class ReceiptOcrService {
     } finally {
       if (identical(_active, request)) _active = null;
     }
+  }
+
+  /// Validates native line geometry: text plus left/top/right/bottom and
+  /// confidence, all finite numbers in 0..1, bounded counts and sizes.
+  List<RecognizedLine> _decodeLines(
+    Object? raw, {
+    required int maxLines,
+    int maxText = 8192,
+  }) {
+    if (raw == null) return const [];
+    if (raw is! List || raw.length > maxLines) throw _invalidResponse;
+    final lines = <RecognizedLine>[];
+    var totalCharacters = 0;
+    for (final item in raw) {
+      if (item is! Map || item['text'] is! String) throw _invalidResponse;
+      final values = <double>[];
+      for (final field in ['left', 'top', 'right', 'bottom', 'confidence']) {
+        final value = item[field];
+        if (value is! num || !value.isFinite || value < 0 || value > 1) {
+          throw _invalidResponse;
+        }
+        values.add(value.toDouble());
+      }
+      final lineText = item['text'] as String;
+      totalCharacters += lineText.length;
+      if (lineText.length > maxText ||
+          totalCharacters > 100000 ||
+          values[0] > values[2] ||
+          values[1] > values[3]) {
+        throw _invalidResponse;
+      }
+      lines.add(
+        RecognizedLine(
+          text: lineText,
+          left: values[0],
+          top: values[1],
+          right: values[2],
+          bottom: values[3],
+          confidence: values[4],
+        ),
+      );
+    }
+    return List.unmodifiable(lines);
   }
 
   /// Cancels result delivery immediately on Android. An already running native

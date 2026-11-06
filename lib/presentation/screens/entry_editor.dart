@@ -244,6 +244,7 @@ class _EntryEditorState extends State<EntryEditor> {
         result.text,
         lines: result.lines,
         focusRows: result.focusRows,
+        amountLines: result.amountLines,
         categories: c.data.categories,
         history: c.data.entries,
         defaultCurrency: c.account(_account ?? '')?.currency ?? c.currency,

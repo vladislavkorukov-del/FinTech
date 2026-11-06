@@ -274,3 +274,32 @@ including the hard cases) and `test/receipt_ocr_v16_fixture_test.dart`. The
 native steps were emulated on the host with the same algorithm (Python +
 Tesseract CLI); the Kotlin code compiles and is packaged, but was **not run on
 a phone**, and real paper receipts were not available.
+
+## Bank history amounts in 1.6.2
+
+Field report: on a dark bank screen with thin amount digits «-10 000 ₽» became
+«-10 ₽» and «ОООР» was glued to the payee. Host reproduction with the same
+pipeline showed the amount column is the weak spot: thin light digits, a
+spaced minus and the ruble glyph («“10200 P» at 7 % confidence, «Ш А» for
+«-2 597 ₽», «=20,07» for «-26,97 ₽»), while names and categories read well.
+
+- **Native amount-column re-read** (bank lists only, not receipts): for each
+  text row the area right of that row's text is cropped, enlarged
+  (×1.2–2.5), illumination-flattened, binarized (threshold 170) and read as
+  one line with a digits/money whitelist (`PSM_SINGLE_LINE`). Returned as
+  optional `amounts` lines with boxes. Binarization was decisive: without it
+  the same crops gave «-2», «192.902».
+- **Parser**: a re-read replaces whatever the first pass found in the amount
+  column of that row. Icon fragments («9», «©», a «® =» fragment three rows
+  tall) no longer join rows or pull a neighbour's amount. OCR repairs, only
+  where unambiguous: zero groups read as the letter O after a signed number at
+  the end of a line (`-10 ОООР` → `-10 000 ₽`; `-500 ООО Ромашка` unchanged),
+  and the ruble glyph read as a trailing `2` (`-10 0002`, `-82,902`) with the
+  existing «лишний символ» warning.
+
+On the reported screenshot (host emulation, not committed: it contains
+personal data) all 8 amounts, signs and payees are now correct; before, two
+amounts were wrong and two rows missing. Committed evidence uses a synthetic
+screen in the same style: `test/fixtures/ocr/v162-bank-thin.json`,
+`test/bank_screen_v161_test.dart`, `tool/check_native_ocr_v16.py`. The 1.5
+bank fixtures are unchanged. Not run on a phone.

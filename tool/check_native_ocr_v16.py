@@ -5,11 +5,14 @@ Mirrors ReceiptOcrEngine.kt on the host (Tesseract CLI + bundled models):
 1. illumination flattening must keep the 1.5 bank-page result unchanged
    (dark and light, five operations);
 2. on a shadowed synthetic till-receipt photo the total must be missing from
-   plain OCR and present after flattening plus the focused total pass.
+   plain OCR and present after flattening plus the focused total pass;
+3. (1.6.2) on a synthetic dark bank screen with thin amount digits the
+   per-row amount re-read (binarized, digits only) returns every amount.
 Does not execute Android Bitmap/JNI code. Requires Tesseract, Pillow, NumPy.
 """
 import random
 import re
+import subprocess
 import tempfile
 from pathlib import Path
 
@@ -125,6 +128,58 @@ def focus_rows(gray, lines, folder):
     return rows
 
 
+ROBOTO = "/opt/tools/flutter/bin/cache/artifacts/material_fonts"
+THIN_ROWS = [("Анна Сергеевна П.", "-10 000 ₽"), ("Пётр Иванович Л.", "+10 000 ₽"),
+             ("AVITO", "-2 597 ₽"), ("Ольга Викторовна Д.", "+3 600 ₽"),
+             ("Пятёрочка", "-549,45 ₽"), ("Whoosh", "-82,90 ₽"), ("Whoosh", "-26,97 ₽"),
+             ("Магнит", "-249,68 ₽")]
+
+
+def thin_bank_screen(path, fonts):
+    regular = ImageFont.truetype(f"{fonts}/Roboto-Regular.ttf", 46)
+    light = ImageFont.truetype(f"{fonts}/Roboto-Light.ttf", 46)
+    small = ImageFont.truetype(f"{fonts}/Roboto-Regular.ttf", 34)
+    image = Image.new("RGB", (1080, 1720), "#1d2024")
+    draw = ImageDraw.Draw(image)
+    draw.text((48, 50), "Вчера", font=regular, fill="#9aa0a6")
+    y = 150
+    for name, amount in THIN_ROWS:
+        draw.rounded_rectangle((46, y, 170, y + 124), radius=34, fill="#6b5ce7")
+        draw.text((204, y + 6), name, font=regular, fill="#ffffff")
+        draw.text((204, y + 76), "Категория", font=small, fill="#9aa0a6")
+        width = light.getbbox(amount)[2]
+        draw.text((1034 - width, y + 6), amount, font=light,
+                  fill="#3ddc84" if amount.startswith("+") else "#ffffff")
+        y += 191
+    image.save(path)
+
+
+def amount_rereads(gray, lines, folder):
+    width, height = gray.size
+    found = []
+    for line in lines:
+        if line["left"] >= .5 or line["right"] >= .85 or not re.search(r"[A-Za-zА-Яа-я]", line["text"]):
+            continue
+        h = (line["bottom"] - line["top"]) * height
+        y0, y1 = max(0, int(line["top"] * height - .4 * h)), min(height, int(line["bottom"] * height + .4 * h))
+        x0 = int(width * max(.45, line["right"] + .015))
+        if width - x0 < width * .08:
+            continue
+        scale = max(1.2, min(2.5, 56 / h))
+        crop = gray.crop((x0, y0, width, y1))
+        crop = flatten(crop.resize((int(crop.width * scale), int(crop.height * scale)), Image.BICUBIC))
+        crop = crop.point(lambda v: 255 if v > 170 else 0)
+        path = folder / "amount.png"
+        crop.save(path)
+        text = subprocess.run(["tesseract", str(path), "stdout", "--tessdata-dir",
+                               str(v15.ROOT / "assets/ocr/tessdata"), "-l", "rus+eng", "--psm", "7",
+                               "--dpi", "300", "-c", "tessedit_char_whitelist=0123456789+-,.₽РP "],
+                              capture_output=True, text=True, check=True).stdout.strip()
+        if re.search(r"\d", text):
+            found.append(text)
+    return found
+
+
 def main():
     folder = Path(tempfile.mkdtemp(prefix="finance-native-v16-"))
     for dark in (True, False):
@@ -153,8 +208,19 @@ def main():
         found += total not in before["text"].replace(" ", "")
         print(seed, "total", total, "plain OCR:", total in before["text"].replace(" ", ""),
               "flatten+focus:", True)
+    thin = "unchecked (Roboto from the Flutter SDK not found)"
+    if Path(ROBOTO).is_dir():
+        screen = folder / "thin.png"
+        thin_bank_screen(screen, ROBOTO)
+        gray = flatten(ImageOps.invert(prepared(screen)))
+        gray.save(folder / "thin-prepared.png")
+        lines = v15.recognized(folder / "thin-prepared.png", 3)["lines"]
+        rereads = [re.sub(r"\s+", "", t).rstrip("₽РP2") for t in amount_rereads(gray, lines, folder)]
+        wanted = [re.sub(r"\s+", "", a).rstrip("₽") for _, a in THIN_ROWS]
+        assert rereads == wanted, (rereads, wanted)
+        thin = f"{len(rereads)}/{len(THIN_ROWS)} amounts re-read exactly"
     print({"bankUnchanged": True, "receipts": 3, "recoveredOnlyWithNewPipeline": found,
-           "fixtures": str(folder)})
+           "thinBankScreen": thin, "fixtures": str(folder)})
 
 
 if __name__ == "__main__":
