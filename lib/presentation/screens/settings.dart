@@ -645,7 +645,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 const Padding(
                   padding: EdgeInsets.symmetric(vertical: 16),
                   child: Text(
-                    'Finance · 1.21.0',
+                    'Finance · 1.22.0',
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 12),
                   ),
@@ -654,7 +654,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   onPressed: () => showLicensePage(
                     context: context,
                     applicationName: 'Finance',
-                    applicationVersion: '1.21.0',
+                    applicationVersion: '1.22.0',
                   ),
                   icon: const Icon(Icons.article_outlined, size: 18),
                   label: const Text('Лицензии'),
@@ -718,13 +718,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
     if (ok != true || !mounted) return;
     final c = FinanceScope.of(context);
+    final navigator = Navigator.of(context);
+    final messenger = ScaffoldMessenger.of(context);
     await c.resetAll();
     await UserFiles.wipe();
-    if (mounted) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Все данные сброшены.')));
-    }
+    messenger.showSnackBar(
+      const SnackBar(content: Text('Все данные сброшены.')),
+    );
+    // 1.22: back to the start, where the welcome screens open again.
+    navigator.popUntil((route) => route.isFirst);
   }
 
   Widget _backupAction(

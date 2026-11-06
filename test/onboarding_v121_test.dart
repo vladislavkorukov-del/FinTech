@@ -150,6 +150,60 @@ void main() {
     expect(find.byType(HomeShell), findsOneWidget);
   });
 
+  testWidgets('a reset opens it again, name filled in, example reloads', (
+    tester,
+  ) async {
+    // An app in use with a name, then «Сбросить всё».
+    await tester.runAsync(() async {
+      await controller.mutate(
+        (d) => d.copyWith(
+          preferences: d.preferences.copyWith(
+            onboarded: true,
+            userName: 'Влад',
+          ),
+        ),
+      );
+    });
+    await mount(tester);
+    expect(find.byType(OnboardingScreen), findsNothing);
+    await tester.runAsync(controller.resetAll);
+    await tester.pumpAndSettle();
+    expect(controller.data.preferences.onboarded, isFalse);
+    expect(find.byType(OnboardingScreen), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('onboarding-start')));
+    await tester.pumpAndSettle();
+    expect(
+      find.byWidgetPredicate(
+        (w) => w is EditableText && w.controller.text == 'Влад',
+      ),
+      findsOneWidget,
+    );
+    await tester.tap(find.byKey(const ValueKey('onboarding-Продолжить')).first);
+    await flush(
+      tester,
+      () => find.text('Светлое или тёмное?').evaluate().isNotEmpty,
+    );
+    await tester.tap(find.byKey(const ValueKey('onboarding-Продолжить')).last);
+    await tester.pumpAndSettle();
+    expect(controller.data.accounts, isEmpty);
+    await tester.tap(find.byKey(const ValueKey('onboarding-example')));
+    await flush(
+      tester,
+      () =>
+          find.byKey(const ValueKey('onboarding-done')).evaluate().isNotEmpty &&
+          controller.data.demo,
+    );
+    expect(controller.data.demo, isTrue);
+    expect(controller.data.entries, isNotEmpty);
+    expect(controller.data.preferences.userName, 'Влад');
+    expect(
+      controller.data.members.firstWhere((m) => m.id == 'me').name,
+      'Влад',
+    );
+    expect(find.text('Всё готово, Влад!'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
   test('people who already use the app never see it', () {
     // Settings saved by earlier versions have no «onboarded» field.
     expect(AppPreferences.fromJson({'theme': 'dark'}).onboarded, isTrue);

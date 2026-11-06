@@ -229,6 +229,9 @@ class FinanceController extends ChangeNotifier {
 
   /// Erases all the person's data (see [FinanceRepository.resetAll]).
   Future<void> resetAll() => _replace(repository.resetAll);
+
+  /// The demo ledger into an empty app (see [FinanceRepository.loadDemo]).
+  Future<void> loadDemo() => _replace(repository.loadDemo);
   Future<void> importJson(String content) =>
       _replace(() => repository.importJson(content));
   Future<void> restore(String path) =>

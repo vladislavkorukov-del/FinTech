@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -8,13 +9,36 @@ import '../controller.dart';
 import '../widgets/motion.dart';
 import 'account_import_screen.dart';
 
-/// Welcome screens on the first launch (Finance 1.21), in the spirit of
-/// setting up a new iPhone: «Привет» in many languages, the person's name,
-/// light or dark, where the data comes from, done.
+/// Welcome screens (Finance 1.21; Apple style since 1.22): on the first launch
+/// of a new install and after «Сбросить всё». Pure black or white, large
+/// bold titles, an icon tile per step, the Apple blue button, an inset
+/// grouped list for choices and a drawn check at the end.
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
   @override
   State<OnboardingScreen> createState() => _OnboardingScreenState();
+}
+
+/// iOS system colors.
+abstract final class _Apple {
+  static Color blue(bool dark) =>
+      dark ? const Color(0xFF0A84FF) : const Color(0xFF007AFF);
+  static Color green(bool dark) =>
+      dark ? const Color(0xFF30D158) : const Color(0xFF34C759);
+  static Color orange(bool dark) =>
+      dark ? const Color(0xFFFF9F0A) : const Color(0xFFFF9500);
+  static Color purple(bool dark) =>
+      dark ? const Color(0xFFBF5AF2) : const Color(0xFFAF52DE);
+  static Color indigo(bool dark) =>
+      dark ? const Color(0xFF5E5CE6) : const Color(0xFF5856D6);
+  static Color back(bool dark) => dark ? Colors.black : Colors.white;
+  static Color grouped(bool dark) =>
+      dark ? const Color(0xFF1C1C1E) : const Color(0xFFF2F2F7);
+  static Color label(bool dark) => dark ? Colors.white : Colors.black;
+  static Color secondary(bool dark) =>
+      dark ? const Color(0x99EBEBF5) : const Color(0x993C3C43);
+  static Color separator(bool dark) =>
+      dark ? const Color(0x5C545458) : const Color(0x4A3C3C43);
 }
 
 class _OnboardingScreenState extends State<OnboardingScreen> {
@@ -22,6 +46,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final _name = TextEditingController();
   int _page = 0;
   bool _busy = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // After a reset the name from last time is already filled in.
+    if (_name.text.isEmpty) {
+      _name.text = FinanceScope.of(context).data.preferences.userName;
+    }
+  }
 
   @override
   void dispose() {
@@ -32,14 +65,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   void _go(int page) {
     FocusScope.of(context).unfocus();
+    HapticFeedback.selectionClick();
     setState(() => _page = page);
     if (Motion.reduced(context)) {
       _pages.jumpToPage(page);
     } else {
       _pages.animateToPage(
         page,
-        duration: const Duration(milliseconds: 420),
-        curve: Motion.curve,
+        duration: const Duration(milliseconds: 520),
+        curve: const Cubic(.32, .72, 0, 1), // iOS sheet curve
       );
     }
   }
@@ -63,9 +97,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     final c = FinanceScope.of(context);
     setState(() => _busy = true);
     try {
-      if (choice != 'example') {
+      if (choice == 'example') {
+        // After a reset the example has to be loaded again.
+        if (!c.data.demo && c.data.entries.isEmpty && c.data.accounts.isEmpty) {
+          await c.loadDemo();
+        }
+      } else if (c.data.demo) {
         // Start clean: the demo ledger goes, the name and look stay.
-        if (c.data.demo) await c.resetAll();
+        await c.resetAll();
       }
       if (choice == 'import' && mounted) {
         await Navigator.push(
@@ -90,8 +129,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     final c = FinanceScope.of(context);
+    final dark = Theme.of(context).brightness == Brightness.dark;
     final name = c.data.preferences.userName;
     return Scaffold(
+      backgroundColor: _Apple.back(dark),
       body: SafeArea(
         child: Stack(
           children: [
@@ -101,6 +142,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               children: [
                 _Hello(onStart: () => _go(1)),
                 _Step(
+                  icon: Icons.person_rounded,
+                  tile: _Apple.blue(dark),
                   title: 'Как вас зовут?',
                   subtitle: 'Так Finance будет к вам обращаться.',
                   primary: 'Продолжить',
@@ -112,15 +155,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         },
                   secondary: 'Пропустить',
                   onSecondary: () => _go(2),
-                  child: TextField(
-                    key: const ValueKey('onboarding-name'),
+                  child: _NameField(
                     controller: _name,
-                    textAlign: TextAlign.center,
-                    textCapitalization: TextCapitalization.words,
-                    style: Theme.of(context).textTheme.headlineMedium,
-                    decoration: const InputDecoration(hintText: 'Имя'),
-                    onChanged: (_) => setState(() {}),
-                    onSubmitted: (_) async {
+                    onChanged: () => setState(() {}),
+                    onSubmitted: () async {
                       if (_name.text.trim().isEmpty) return;
                       await _saveName();
                       if (mounted) _go(2);
@@ -128,6 +166,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   ),
                 ),
                 _Step(
+                  icon: Icons.contrast_rounded,
+                  tile: _Apple.indigo(dark),
                   title: 'Светлое или тёмное?',
                   subtitle: 'Это можно поменять в настройках.',
                   primary: 'Продолжить',
@@ -140,29 +180,34 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   ),
                 ),
                 _Step(
+                  icon: Icons.swap_horiz_rounded,
+                  tile: _Apple.green(dark),
                   title: 'Перенести данные?',
                   subtitle:
                       'Счета из другой домашней бухгалтерии можно перенести '
                       'по скриншоту — с названиями и остатками.',
-                  child: Column(
+                  child: _Group(
                     children: [
                       _Choice(
                         key: const ValueKey('onboarding-import'),
-                        icon: Icons.add_photo_alternate_outlined,
+                        icon: Icons.photo_library_rounded,
+                        tile: _Apple.green(dark),
                         title: 'Перенести счета со скриншота',
-                        subtitle: 'Дзен-мани, CoinKeeper, Monefy, банк…',
+                        subtitle: 'Дзен-мани, CoinKeeper, Monefy, банк',
                         onTap: _busy ? null : () => _source('import'),
                       ),
                       _Choice(
                         key: const ValueKey('onboarding-clean'),
-                        icon: Icons.auto_awesome_outlined,
+                        icon: Icons.auto_awesome_rounded,
+                        tile: _Apple.blue(dark),
                         title: 'Начать с чистого листа',
                         subtitle: 'Добавите счета сами',
                         onTap: _busy ? null : () => _source('clean'),
                       ),
                       _Choice(
                         key: const ValueKey('onboarding-example'),
-                        icon: Icons.visibility_outlined,
+                        icon: Icons.visibility_rounded,
+                        tile: _Apple.orange(dark),
                         title: 'Посмотреть на примере',
                         subtitle: 'Демо-данные, потом их можно очистить',
                         onTap: _busy ? null : () => _source('example'),
@@ -175,12 +220,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             ),
             if (_page > 0 && _page < 4)
               Positioned(
-                left: 4,
-                top: 4,
+                left: 2,
+                top: 2,
                 child: TextButton.icon(
                   key: const ValueKey('onboarding-back'),
+                  style: TextButton.styleFrom(
+                    foregroundColor: _Apple.blue(dark),
+                  ),
                   onPressed: () => _go(_page - 1),
-                  icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 16),
+                  icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
                   label: const Text('Назад'),
                 ),
               ),
@@ -191,7 +239,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 }
 
-/// «Привет» that turns into hellos in other languages, softly.
+/// «Привет» in many languages, its letters filled with a slowly drifting
+/// gradient, as on the iPhone welcome screen.
 class _Hello extends StatefulWidget {
   const _Hello({required this.onStart});
   final VoidCallback onStart;
@@ -199,7 +248,7 @@ class _Hello extends StatefulWidget {
   State<_Hello> createState() => _HelloState();
 }
 
-class _HelloState extends State<_Hello> {
+class _HelloState extends State<_Hello> with SingleTickerProviderStateMixin {
   static const _words = [
     'Привет',
     'Hello',
@@ -215,18 +264,28 @@ class _HelloState extends State<_Hello> {
     'Привет',
   ];
   int _i = 0;
-  Timer? _timer;
+  Timer? _timer, _rest;
+  late final AnimationController _shine = AnimationController(
+    vsync: this,
+    duration: const Duration(seconds: 6),
+  );
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     _timer?.cancel();
     if (Motion.ambient(context)) {
-      _timer = Timer.periodic(const Duration(milliseconds: 1700), (_) {
+      if (!_shine.isAnimating) _shine.repeat();
+      _timer = Timer.periodic(const Duration(milliseconds: 1800), (_) {
         if (!mounted) return;
         setState(() => _i = (_i + 1) % _words.length);
         // One round, then it rests on «Привет».
-        if (_i == _words.length - 1) _timer?.cancel();
+        if (_i == _words.length - 1) {
+          _timer?.cancel();
+          _rest = Timer(const Duration(seconds: 3), () {
+            if (mounted) _shine.stop();
+          });
+        }
       });
     }
   }
@@ -234,66 +293,109 @@ class _HelloState extends State<_Hello> {
   @override
   void dispose() {
     _timer?.cancel();
+    _rest?.cancel();
+    _shine.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    final colors = [
+      _Apple.blue(dark),
+      _Apple.purple(dark),
+      const Color(0xFFFF375F),
+      _Apple.orange(dark),
+      _Apple.green(dark),
+      _Apple.blue(dark),
+    ];
     return Padding(
-      padding: const EdgeInsets.fromLTRB(28, 24, 28, 28),
+      padding: const EdgeInsets.fromLTRB(32, 24, 32, 28),
       child: Column(
         children: [
-          const Spacer(flex: 3),
+          const Spacer(flex: 5),
           SizedBox(
-            height: 110,
+            height: 120,
             child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 650),
-              switchInCurve: Motion.curve,
+              duration: const Duration(milliseconds: 900),
+              switchInCurve: Curves.easeOutCubic,
+              switchOutCurve: Curves.easeInCubic,
               transitionBuilder: (child, a) => FadeTransition(
                 opacity: a,
-                child: ScaleTransition(
-                  scale: Tween(begin: .94, end: 1.0).animate(a),
+                child: SlideTransition(
+                  position: Tween(
+                    begin: const Offset(0, .08),
+                    end: Offset.zero,
+                  ).animate(a),
                   child: child,
                 ),
               ),
-              child: FittedBox(
+              child: AnimatedBuilder(
                 key: ValueKey(_i),
-                fit: BoxFit.scaleDown,
-                child: Text(
-                  _words[_i],
-                  style: TextStyle(
-                    fontSize: 72,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: -1.5,
-                    color: scheme.onSurface,
+                animation: _shine,
+                builder: (context, child) => ShaderMask(
+                  blendMode: BlendMode.srcIn,
+                  shaderCallback: (rect) {
+                    final shift = _shine.value * 2;
+                    return LinearGradient(
+                      begin: Alignment(-1 - shift, -.3),
+                      end: Alignment(3 - shift, .3),
+                      colors: colors,
+                      tileMode: TileMode.mirror,
+                    ).createShader(rect);
+                  },
+                  child: child,
+                ),
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    _words[_i],
+                    style: const TextStyle(
+                      fontSize: 80,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: -2.5,
+                      height: 1,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ),
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 18),
           Text(
-            'Finance — ваши деньги под контролем',
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 15, color: scheme.onSurfaceVariant),
+            'Finance',
+            style: TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.w600,
+              color: _Apple.label(dark),
+            ),
           ),
-          const Spacer(flex: 4),
-          _PrimaryButton(
+          const SizedBox(height: 4),
+          Text(
+            'Ваши деньги — спокойно и под контролем',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 15, color: _Apple.secondary(dark)),
+          ),
+          const Spacer(flex: 6),
+          _AppleButton(
             key: const ValueKey('onboarding-start'),
             label: 'Начать',
             onPressed: widget.onStart,
           ),
+          const SizedBox(height: 8),
         ],
       ),
     );
   }
 }
 
-/// One setup step: a large title, a line of explanation, the content, and
-/// the main button at the bottom.
+/// One setup step: an icon tile, a large bold title, a line of explanation,
+/// the content, and the main button pinned to the bottom.
 class _Step extends StatelessWidget {
   const _Step({
+    required this.icon,
+    required this.tile,
     required this.title,
     required this.subtitle,
     required this.child,
@@ -302,201 +404,363 @@ class _Step extends StatelessWidget {
     this.secondary,
     this.onSecondary,
   });
+  final IconData icon;
+  final Color tile;
   final String title, subtitle;
   final Widget child;
   final String? primary, secondary;
   final VoidCallback? onPrimary, onSecondary;
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
+    final dark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(28, 64, 28, 28),
+      padding: const EdgeInsets.fromLTRB(24, 56, 24, 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          Center(
+            child: Container(
+              width: 64,
+              height: 64,
+              decoration: BoxDecoration(
+                color: tile,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Icon(icon, color: Colors.white, size: 36),
+            ),
+          ),
+          const SizedBox(height: 20),
           Text(
             title,
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 30,
+            style: TextStyle(
+              fontSize: 32,
               fontWeight: FontWeight.w700,
-              letterSpacing: -.5,
+              letterSpacing: -.8,
+              height: 1.1,
+              color: _Apple.label(dark),
             ),
           ),
           const SizedBox(height: 10),
           Text(
             subtitle,
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 15, color: scheme.onSurfaceVariant),
+            style: TextStyle(
+              fontSize: 16,
+              height: 1.35,
+              color: _Apple.secondary(dark),
+            ),
           ),
-          const SizedBox(height: 36),
+          const SizedBox(height: 32),
           Expanded(child: SingleChildScrollView(child: child)),
           if (primary != null)
-            _PrimaryButton(
+            _AppleButton(
               key: ValueKey('onboarding-$primary'),
               label: primary!,
               onPressed: onPrimary,
             ),
           if (secondary != null)
-            TextButton(onPressed: onSecondary, child: Text(secondary!)),
+            TextButton(
+              style: TextButton.styleFrom(foregroundColor: _Apple.blue(dark)),
+              onPressed: onSecondary,
+              child: Text(secondary!),
+            ),
         ],
       ),
     );
   }
 }
 
-class _PrimaryButton extends StatelessWidget {
-  const _PrimaryButton({super.key, required this.label, this.onPressed});
+/// The Apple blue, full-width, 14-radius button.
+class _AppleButton extends StatelessWidget {
+  const _AppleButton({super.key, required this.label, this.onPressed});
   final String label;
   final VoidCallback? onPressed;
   @override
-  Widget build(BuildContext context) => SizedBox(
-    width: double.infinity,
-    height: 54,
-    child: FilledButton(
-      onPressed: onPressed,
-      style: FilledButton.styleFrom(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        textStyle: Theme.of(context).textTheme.titleMedium?.copyWith(
-          fontSize: 17,
-          fontWeight: FontWeight.w600,
+  Widget build(BuildContext context) {
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    return SizedBox(
+      width: double.infinity,
+      height: 52,
+      child: FilledButton(
+        onPressed: onPressed,
+        style: FilledButton.styleFrom(
+          backgroundColor: _Apple.blue(dark),
+          foregroundColor: Colors.white,
+          disabledBackgroundColor: _Apple.grouped(dark),
+          disabledForegroundColor: _Apple.secondary(dark),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+          textStyle: Theme.of(context).textTheme.titleMedium?.copyWith(
+            fontSize: 17,
+            fontWeight: FontWeight.w600,
+          ),
         ),
+        child: Text(label),
       ),
-      child: Text(label),
-    ),
-  );
+    );
+  }
 }
 
-/// Light / dark / system, each with a small phone preview.
+/// A large borderless field on the grouped background, centered.
+class _NameField extends StatelessWidget {
+  const _NameField({
+    required this.controller,
+    required this.onChanged,
+    required this.onSubmitted,
+  });
+  final TextEditingController controller;
+  final VoidCallback onChanged;
+  final VoidCallback onSubmitted;
+  @override
+  Widget build(BuildContext context) {
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    return Container(
+      decoration: BoxDecoration(
+        color: _Apple.grouped(dark),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      child: TextField(
+        key: const ValueKey('onboarding-name'),
+        controller: controller,
+        textAlign: TextAlign.center,
+        textCapitalization: TextCapitalization.words,
+        cursorColor: _Apple.blue(dark),
+        style: TextStyle(
+          fontSize: 24,
+          fontWeight: FontWeight.w600,
+          color: _Apple.label(dark),
+        ),
+        decoration: InputDecoration(
+          hintText: 'Имя',
+          hintStyle: TextStyle(color: _Apple.secondary(dark)),
+          border: InputBorder.none,
+          enabledBorder: InputBorder.none,
+          focusedBorder: InputBorder.none,
+          filled: false,
+        ),
+        onChanged: (_) => onChanged(),
+        onSubmitted: (_) => onSubmitted(),
+      ),
+    );
+  }
+}
+
+/// Light / dark with phone previews and a round check under each, as in
+/// «Экран и яркость»; «Как в системе» below.
 class _Appearance extends StatelessWidget {
   const _Appearance({required this.value, required this.onChanged});
   final String value;
   final ValueChanged<String> onChanged;
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    Widget option(String id, String label, Color back, Color ink) => Expanded(
-      child: GestureDetector(
-        key: ValueKey('onboarding-theme-$id'),
-        onTap: () => onChanged(id),
-        child: Column(
-          children: [
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              height: 150,
-              margin: const EdgeInsets.symmetric(horizontal: 6),
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: back,
-                borderRadius: BorderRadius.circular(22),
-                border: Border.all(
-                  color: value == id ? scheme.primary : scheme.outlineVariant,
-                  width: value == id ? 2.5 : 1,
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    final blue = _Apple.blue(dark);
+    Widget option(String id, String label, Color back, Color ink) {
+      final on = value == id;
+      return Expanded(
+        child: GestureDetector(
+          key: ValueKey('onboarding-theme-$id'),
+          behavior: HitTestBehavior.opaque,
+          onTap: () {
+            HapticFeedback.selectionClick();
+            onChanged(id);
+          },
+          child: Column(
+            children: [
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 220),
+                width: 96,
+                height: 190,
+                padding: const EdgeInsets.fromLTRB(10, 18, 10, 10),
+                decoration: BoxDecoration(
+                  color: back,
+                  borderRadius: BorderRadius.circular(22),
+                  border: Border.all(
+                    color: on ? blue : _Apple.separator(dark),
+                    width: on ? 3 : 1,
+                  ),
                 ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  for (final w in [.7, .45, .9, .55])
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                     Container(
-                      margin: const EdgeInsets.only(bottom: 10),
-                      height: 9,
-                      width: 70 * w,
+                      height: 14,
+                      width: 46,
                       decoration: BoxDecoration(
-                        color: ink.withValues(alpha: .35),
-                        borderRadius: BorderRadius.circular(5),
+                        color: ink.withValues(alpha: .8),
+                        borderRadius: BorderRadius.circular(4),
                       ),
                     ),
-                ],
+                    const SizedBox(height: 12),
+                    for (final w in [1.0, .7, 1.0, .55])
+                      Container(
+                        margin: const EdgeInsets.only(bottom: 8),
+                        height: 18,
+                        width: 70 * w,
+                        decoration: BoxDecoration(
+                          color: ink.withValues(alpha: .12),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                      ),
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(height: 10),
-            Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
-            const SizedBox(height: 6),
-            Icon(
-              value == id ? Icons.check_circle_rounded : Icons.circle_outlined,
-              color: value == id ? scheme.primary : scheme.outlineVariant,
-            ),
-          ],
+              const SizedBox(height: 12),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                  color: _Apple.label(dark),
+                ),
+              ),
+              const SizedBox(height: 8),
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 180),
+                width: 24,
+                height: 24,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: on ? blue : Colors.transparent,
+                  border: Border.all(
+                    color: on ? blue : _Apple.separator(dark),
+                    width: 1.5,
+                  ),
+                ),
+                child: on
+                    ? const Icon(
+                        Icons.check_rounded,
+                        size: 16,
+                        color: Colors.white,
+                      )
+                    : null,
+              ),
+            ],
+          ),
         ),
-      ),
-    );
+      );
+    }
+
     return Column(
       children: [
         Row(
           children: [
-            option('light', 'Светлое', const Color(0xFFF6F6F2), Colors.black),
-            option('dark', 'Тёмное', const Color(0xFF1C1E21), Colors.white),
+            option('light', 'Светлое', Colors.white, Colors.black),
+            option('dark', 'Тёмное', const Color(0xFF1C1C1E), Colors.white),
           ],
         ),
-        const SizedBox(height: 18),
-        TextButton(
-          key: const ValueKey('onboarding-theme-system'),
-          onPressed: () => onChanged('system'),
-          child: Text(value == 'system' ? '✓ Как в системе' : 'Как в системе'),
+        const SizedBox(height: 22),
+        _Group(
+          children: [
+            _Toggle(
+              key: const ValueKey('onboarding-theme-system'),
+              title: 'Как в системе',
+              on: value == 'system',
+              onChanged: (on) =>
+                  onChanged(on ? 'system' : (dark ? 'dark' : 'light')),
+            ),
+          ],
         ),
       ],
     );
   }
 }
 
-/// A row of the data step, iOS settings style.
+/// An inset grouped list with hairline separators, iOS Settings style.
+class _Group extends StatelessWidget {
+  const _Group({required this.children});
+  final List<Widget> children;
+  @override
+  Widget build(BuildContext context) {
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(14),
+      child: ColoredBox(
+        color: _Apple.grouped(dark),
+        child: Column(
+          children: [
+            for (var i = 0; i < children.length; i++) ...[
+              if (i > 0)
+                Padding(
+                  padding: const EdgeInsets.only(left: 60),
+                  child: Divider(
+                    height: .5,
+                    thickness: .5,
+                    color: _Apple.separator(dark),
+                  ),
+                ),
+              children[i],
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// A row with an icon in a colored rounded square and a chevron.
 class _Choice extends StatelessWidget {
   const _Choice({
     super.key,
     required this.icon,
+    required this.tile,
     required this.title,
     required this.subtitle,
     this.onTap,
   });
   final IconData icon;
+  final Color tile;
   final String title, subtitle;
   final VoidCallback? onTap;
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: Material(
-        color: scheme.surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(18),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(18),
-          onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 14, 10, 14),
-            child: Row(
-              children: [
-                Icon(icon, color: scheme.primary),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        subtitle,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: scheme.onSurfaceVariant,
-                        ),
-                      ),
-                    ],
-                  ),
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    return Material(
+      type: MaterialType.transparency,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(14, 12, 10, 12),
+          child: Row(
+            children: [
+              Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: tile,
+                  borderRadius: BorderRadius.circular(8),
                 ),
-                Icon(
-                  Icons.chevron_right_rounded,
-                  color: scheme.onSurfaceVariant,
+                child: Icon(icon, color: Colors.white, size: 19),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: _Apple.label(dark),
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: _Apple.secondary(dark),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+              Icon(Icons.chevron_right_rounded, color: _Apple.separator(dark)),
+            ],
           ),
         ),
       ),
@@ -504,7 +768,48 @@ class _Choice extends StatelessWidget {
   }
 }
 
-/// «Всё готово»: a check that grows in, then the way into the app.
+/// A row with an iOS-like switch.
+class _Toggle extends StatelessWidget {
+  const _Toggle({
+    super.key,
+    required this.title,
+    required this.on,
+    required this.onChanged,
+  });
+  final String title;
+  final bool on;
+  final ValueChanged<bool> onChanged;
+  @override
+  Widget build(BuildContext context) {
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 6, 10, 6),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              title,
+              style: TextStyle(fontSize: 16, color: _Apple.label(dark)),
+            ),
+          ),
+          Switch(
+            value: on,
+            activeThumbColor: Colors.white,
+            activeTrackColor: _Apple.green(dark),
+            inactiveThumbColor: Colors.white,
+            inactiveTrackColor: dark
+                ? const Color(0xFF39393D)
+                : const Color(0xFFE9E9EA),
+            trackOutlineColor: const WidgetStatePropertyAll(Colors.transparent),
+            onChanged: onChanged,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// «Всё готово»: a check drawn stroke by stroke, then the way into the app.
 class _Done extends StatelessWidget {
   const _Done({
     required this.name,
@@ -516,52 +821,99 @@ class _Done extends StatelessWidget {
   final VoidCallback onFinish;
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
+    final dark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(28, 24, 28, 28),
+      padding: const EdgeInsets.fromLTRB(32, 24, 32, 28),
       child: Column(
         children: [
-          const Spacer(flex: 3),
+          const Spacer(flex: 4),
           TweenAnimationBuilder<double>(
             tween: Tween(begin: visible ? 0 : 1, end: 1),
             duration: Motion.reduced(context)
                 ? Duration.zero
-                : const Duration(milliseconds: 700),
-            curve: Curves.elasticOut,
-            builder: (_, t, child) =>
-                Transform.scale(scale: .4 + .6 * t, child: child),
-            child: Icon(
-              Icons.check_circle_rounded,
-              size: 96,
-              color: scheme.primary,
+                : const Duration(milliseconds: 1100),
+            curve: Curves.easeInOutCubic,
+            builder: (_, t, _) => CustomPaint(
+              size: const Size.square(110),
+              painter: _CheckPainter(t: t, color: _Apple.green(dark)),
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 28),
           Text(
             name.isEmpty ? 'Всё готово!' : 'Всё готово, $name!',
             key: const ValueKey('onboarding-done'),
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 30,
+            style: TextStyle(
+              fontSize: 32,
               fontWeight: FontWeight.w700,
-              letterSpacing: -.5,
+              letterSpacing: -.8,
+              color: _Apple.label(dark),
             ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           Text(
             'Нажмите на круг внизу экрана и скажите, например: '
             '«Пятёрочка 450 рублей».',
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 15, color: scheme.onSurfaceVariant),
+            style: TextStyle(
+              fontSize: 16,
+              height: 1.35,
+              color: _Apple.secondary(dark),
+            ),
           ),
-          const Spacer(flex: 4),
-          _PrimaryButton(
+          const Spacer(flex: 5),
+          _AppleButton(
             key: const ValueKey('onboarding-finish'),
             label: 'Начать пользоваться',
             onPressed: onFinish,
           ),
+          const SizedBox(height: 8),
         ],
       ),
     );
   }
+}
+
+/// A circle drawn first, then the tick, like a payment confirmation.
+class _CheckPainter extends CustomPainter {
+  const _CheckPainter({required this.t, required this.color});
+  final double t;
+  final Color color;
+  @override
+  void paint(Canvas canvas, Size size) {
+    final r = size.width / 2;
+    final c = Offset(r, r);
+    final stroke = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 6
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+    final circle = (t / .6).clamp(0.0, 1.0);
+    canvas.drawArc(
+      Rect.fromCircle(center: c, radius: r - 4),
+      -math.pi / 2,
+      2 * math.pi * circle,
+      false,
+      stroke,
+    );
+    final tick = ((t - .55) / .45).clamp(0.0, 1.0);
+    if (tick <= 0) return;
+    final a = Offset(size.width * .29, size.height * .52);
+    final b = Offset(size.width * .44, size.height * .67);
+    final d = Offset(size.width * .72, size.height * .37);
+    final path = Path()..moveTo(a.dx, a.dy);
+    if (tick < .4) {
+      final p = Offset.lerp(a, b, tick / .4)!;
+      path.lineTo(p.dx, p.dy);
+    } else {
+      path.lineTo(b.dx, b.dy);
+      final p = Offset.lerp(b, d, (tick - .4) / .6)!;
+      path.lineTo(p.dx, p.dy);
+    }
+    canvas.drawPath(path, stroke..strokeWidth = 7);
+  }
+
+  @override
+  bool shouldRepaint(_CheckPainter old) => old.t != t || old.color != color;
 }

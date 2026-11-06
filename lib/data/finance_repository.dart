@@ -206,9 +206,32 @@ class FinanceRepository {
           lockMinutes: old.preferences.lockMinutes,
           notifications: old.preferences.notifications,
           userName: old.preferences.userName,
-          onboarded: old.preferences.onboarded,
+          // 1.22: a reset starts over with the welcome screens.
+          onboarded: false,
         ),
         demo: false,
+      ),
+    );
+  }
+
+  /// The demo ledger again (welcome screens → «Посмотреть на примере»
+  /// after a reset). Only on an empty ledger; settings and the name stay.
+  Future<void> loadDemo() async {
+    final old = await load();
+    if (old.entries.isNotEmpty || old.accounts.isNotEmpty) {
+      throw const FormatException(
+        'Пример загружается только в пустое приложение',
+      );
+    }
+    final demo = createDemoData(_clock());
+    final name = old.preferences.userName;
+    await save(
+      demo.copyWith(
+        preferences: old.preferences,
+        members: [
+          for (final m in demo.members)
+            m.id == 'me' && name.isNotEmpty ? Member(id: 'me', name: name) : m,
+        ],
       ),
     );
   }
