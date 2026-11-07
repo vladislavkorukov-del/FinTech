@@ -160,9 +160,10 @@ void main() {
     expect(find.byType(EntryEditor), findsNothing);
     expect(controller.data.entries, isEmpty);
     // A long press adds by hand; the editor's own button listens again.
+    // 1.37: a long press opens the wheel of actions.
     await tester.longPress(find.byKey(const ValueKey('nav-voice')));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Поступление на счёт'));
+    await tester.tap(find.byKey(const ValueKey('wheel-income')));
     await tester.pumpAndSettle();
     expect(find.byType(EntryEditor), findsOneWidget);
     heard = ['зарплата 90 тысяч'];

@@ -27,6 +27,7 @@ import 'presentation/voice_commands.dart';
 import 'presentation/haptics.dart';
 import 'presentation/payment_prompt.dart';
 import 'presentation/whats_new.dart';
+import 'presentation/widgets/finora_wheel.dart';
 import 'presentation/finora_outside.dart';
 import 'presentation/widgets/finora_orb.dart';
 import 'services/finora_system.dart';
@@ -300,74 +301,34 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
     super.dispose();
   }
 
-  Future<void> _add() async {
-    final kind = await showModalBottomSheet<Object>(
-      context: context,
-      builder: (ctx) => SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  tr('Новая операция'),
-                  style: Theme.of(ctx).textTheme.headlineSmall,
-                ),
-                const SizedBox(height: 16),
-                for (final item in [
-                  (
-                    EntryKind.expense,
-                    tr('Расход'),
-                    tr('Покупка или платёж'),
-                    Icons.north_east_rounded,
-                  ),
-                  (
-                    EntryKind.income,
-                    tr('Доход'),
-                    tr('Поступление на счёт'),
-                    Icons.south_west_rounded,
-                  ),
-                  (
-                    EntryKind.transfer,
-                    tr('Перевод'),
-                    tr('Между своими счетами'),
-                    Icons.swap_horiz_rounded,
-                  ),
-                ])
-                  ListTile(
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 4,
-                      vertical: 6,
-                    ),
-                    leading: CategoryBadge(
-                      icon: item.$4,
-                      color: Theme.of(ctx).colorScheme.primary,
-                    ),
-                    title: Text(item.$2),
-                    subtitle: Text(item.$3),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () => Navigator.pop(ctx, item.$1),
-                  ),
-                ListTile(
-                  leading: const Icon(Icons.document_scanner_outlined),
-                  title: Text(tr('Скриншот из банка')),
-                  subtitle: Text(tr('Одна операция или список операций')),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () => Navigator.pop(ctx, 'scan'),
-                ),
-              ],
-            ),
-          ),
+  FinoraWheel? _openWheel;
+
+  void _wheel() {
+    _openWheel?.close();
+    _openWheel = FinoraWheel.show(
+      context,
+      actions: [
+        WheelAction(
+          'expense',
+          Icons.remove_circle_outline_rounded,
+          tr('Расход'),
         ),
-      ),
+        WheelAction('income', Icons.add_circle_outline_rounded, tr('Доход')),
+        WheelAction('transfer', Icons.swap_horiz_rounded, tr('Перевод')),
+        WheelAction('scan', Icons.document_scanner_outlined, tr('Скриншот')),
+        WheelAction('payments', Icons.event_repeat_rounded, tr('Платежи')),
+        WheelAction('voice', Icons.mic_none_rounded, tr('Голос')),
+      ],
+      onSelected: (id) {
+        _openWheel = null;
+        Haptics.success();
+        if (id == 'transfer') {
+          unawaited(showEntryEditor(context, kind: EntryKind.transfer));
+        } else {
+          unawaited(_action(id));
+        }
+      },
     );
-    if (kind == 'scan' && mounted) {
-      await showEntryEditor(context, startScan: true);
-    } else if (kind is EntryKind && mounted) {
-      await showEntryEditor(context, kind: kind);
-    }
   }
 
   StreamSubscription<String>? _actionSubscription;
@@ -539,7 +500,10 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
                       child: VoiceOrb(
                         size: 54,
                         onTap: _voice,
-                        onLongPress: _add,
+                        // 1.37: a ring of actions around Finora.
+                        onLongPress: _wheel,
+                        onLongPressMove: (p) => _openWheel?.move(p),
+                        onLongPressEnd: (p) => _openWheel?.release(p),
                       ),
                     ),
                   ),

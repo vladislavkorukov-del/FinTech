@@ -239,7 +239,14 @@ void main() {
     await start(tester);
     await tester.longPress(find.byKey(const ValueKey('nav-voice')));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Покупка или платёж'));
+    await tester.tap(find.byKey(const ValueKey('wheel-expense')));
+    await tester.pumpAndSettle();
+    for (final digit in ['2', '0', '0', '0']) {
+      await tester.tap(
+        find.descendant(of: find.byType(AmountPad), matching: find.text(digit)),
+      );
+      await tester.pump();
+    }
     await tester.pumpAndSettle();
     // 1.28: the editor is taller now; the payee field is further down.
     await tester.scrollUntilVisible(
@@ -260,13 +267,6 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Финора узнала: ChatGPT'), findsOneWidget);
     expect(find.text('Подписки'), findsWidgets);
-    for (final digit in ['2', '0', '0', '0']) {
-      await tester.tap(
-        find.descendant(of: find.byType(AmountPad), matching: find.text(digit)),
-      );
-      await tester.pump();
-    }
-    await tester.pumpAndSettle();
     final save = find.text('Сохранить операцию');
     await tester.scrollUntilVisible(
       save,

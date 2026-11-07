@@ -20,9 +20,14 @@ class VoiceOrb extends StatefulWidget {
     super.key,
     required this.onTap,
     required this.onLongPress,
+    this.onLongPressMove,
+    this.onLongPressEnd,
     this.size = 56,
   });
   final VoidCallback onTap, onLongPress;
+
+  /// 1.37: the finger slides / is lifted after a long press (the wheel).
+  final ValueChanged<Offset>? onLongPressMove, onLongPressEnd;
   final double size;
 
   /// Bumped by the app shell on every touch to wake her.
@@ -243,6 +248,10 @@ class _VoiceOrbState extends State<VoiceOrb> with TickerProviderStateMixin {
                 Haptics.medium();
                 widget.onLongPress();
               },
+              onLongPressMoveUpdate: (d) =>
+                  widget.onLongPressMove?.call(d.globalPosition),
+              onLongPressEnd: (d) =>
+                  widget.onLongPressEnd?.call(d.globalPosition),
               child: AnimatedScale(
                 scale: _pressed ? .92 : 1,
                 duration: const Duration(milliseconds: 140),
