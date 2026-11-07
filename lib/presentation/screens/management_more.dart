@@ -85,6 +85,16 @@ class MoreScreen extends StatelessWidget {
               const BudgetsScreen(),
               value: count(d.budgets.length),
             ),
+            // 1.38: what to buy.
+            row(
+              'shopping',
+              Icons.shopping_basket_rounded,
+              TileColors.orange,
+              tr('Список покупок'),
+              tr('Что купить и сколько это стоит'),
+              const ShoppingScreen(),
+              value: count(d.shopping.where((s) => !s.done).length),
+            ),
             row(
               'calendar',
               Icons.calendar_month_rounded,

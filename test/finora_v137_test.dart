@@ -10,7 +10,6 @@ import 'package:finora/presentation/i18n.dart';
 import 'package:finora/presentation/l10n_table.dart';
 import 'package:finora/presentation/l10n_widgets.dart' as l10n;
 import 'package:finora/presentation/theme/app_theme.dart';
-import 'package:finora/presentation/whats_new.dart';
 import 'package:finora/services/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -215,13 +214,5 @@ void main() {
       expect(bg.lightness, greaterThan(.8), reason: accent);
       expect(bg.saturation, greaterThan(.12), reason: accent);
     }
-  });
-
-  test('«Что нового» рассказывает о 1.37', () {
-    expect(WhatsNew.items.map((i) => i.$2), contains('Колесо действий'));
-    expect(
-      WhatsNew.items.map((i) => i.$2),
-      contains('Сколько откладывать на мечту'),
-    );
   });
 }

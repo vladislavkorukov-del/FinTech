@@ -903,6 +903,58 @@ class AppPreferences {
   }
 }
 
+/// 1.38: one line of the shopping list.
+class ShoppingItem {
+  final String id;
+  final String name;
+
+  /// «2 шт», «1 кг» — free text.
+  final String quantity;
+
+  /// Expected price, if the person wrote it.
+  final int? priceMinor;
+  final bool done;
+
+  const ShoppingItem({
+    required this.id,
+    required this.name,
+    this.quantity = '',
+    this.priceMinor,
+    this.done = false,
+  });
+
+  ShoppingItem copyWith({
+    String? name,
+    String? quantity,
+    Object? priceMinor = _absent,
+    bool? done,
+  }) => ShoppingItem(
+    id: id,
+    name: name ?? this.name,
+    quantity: quantity ?? this.quantity,
+    priceMinor: identical(priceMinor, _absent)
+        ? this.priceMinor
+        : priceMinor as int?,
+    done: done ?? this.done,
+  );
+
+  Map<String, Object?> toJson() => {
+    'id': id,
+    'name': name,
+    'quantity': quantity,
+    'priceMinor': priceMinor,
+    'done': done,
+  };
+
+  factory ShoppingItem.fromJson(Map<String, dynamic> json) => ShoppingItem(
+    id: json['id'] as String,
+    name: json['name'] as String,
+    quantity: json['quantity'] as String? ?? '',
+    priceMinor: (json['priceMinor'] as num?)?.toInt(),
+    done: json['done'] as bool? ?? false,
+  );
+}
+
 class FinanceData {
   final List<Account> accounts;
   final List<Category> categories;
@@ -914,6 +966,9 @@ class FinanceData {
   final AppPreferences preferences;
   final bool demo;
 
+  /// 1.38: the shopping list.
+  final List<ShoppingItem> shopping;
+
   const FinanceData({
     this.accounts = const [],
     this.categories = const [],
@@ -924,6 +979,7 @@ class FinanceData {
     this.members = const [],
     this.preferences = const AppPreferences(),
     this.demo = false,
+    this.shopping = const [],
   });
 
   factory FinanceData.empty() => const FinanceData();
@@ -938,6 +994,7 @@ class FinanceData {
     List<Member>? members,
     AppPreferences? preferences,
     bool? demo,
+    List<ShoppingItem>? shopping,
   }) => FinanceData(
     accounts: accounts ?? this.accounts,
     categories: categories ?? this.categories,
@@ -948,6 +1005,7 @@ class FinanceData {
     members: members ?? this.members,
     preferences: preferences ?? this.preferences,
     demo: demo ?? this.demo,
+    shopping: shopping ?? this.shopping,
   );
 
   Map<String, Object?> toJson() => {
@@ -960,6 +1018,7 @@ class FinanceData {
     'members': members.map((item) => item.toJson()).toList(),
     'preferences': preferences.toJson(),
     'demo': demo,
+    'shopping': shopping.map((item) => item.toJson()).toList(),
   };
 
   factory FinanceData.fromJson(Map<String, dynamic> json) => FinanceData(
@@ -998,5 +1057,11 @@ class FinanceData {
             Map<String, dynamic>.from(json['preferences'] as Map),
           ),
     demo: json['demo'] as bool? ?? false,
+    shopping: (json['shopping'] as List<dynamic>? ?? const [])
+        .map(
+          (item) =>
+              ShoppingItem.fromJson(Map<String, dynamic>.from(item as Map)),
+        )
+        .toList(),
   );
 }

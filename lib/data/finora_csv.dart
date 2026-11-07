@@ -38,7 +38,7 @@ abstract final class FinoraCsv {
     final out = StringBuffer('﻿');
     void line(List<String> cells) => out.write('${cells.join(',')}\r\n');
     line(['"$marker"', '"$formatVersion"']);
-    for (final name in tables) {
+    for (final name in [...tables, 'shopping']) {
       final rows = [
         for (final row in data[name] as List? ?? const [])
           Map<String, Object?>.from(row as Map),
@@ -190,6 +190,8 @@ abstract final class FinoraCsv {
       'schemaVersion': schema,
       'data': {
         for (final name in tables) name: sections[name],
+        // 1.38: optional — tables from 1.34–1.37 have no shopping list.
+        'shopping': sections['shopping'] ?? const <Map<String, Object?>>[],
         'preferences': prefs,
         'demo': meta['demo'] is bool ? meta['demo'] : false,
       },

@@ -844,6 +844,16 @@ class FinoraCharacterState extends State<FinoraCharacter>
   @override
   Widget build(BuildContext context) {
     final size = widget.size;
+    // 1.38: always her own size, centred — a dialog's icon slot stretched
+    // her canvas to the whole width and she covered the text.
+    return Align(
+      widthFactor: 1,
+      heightFactor: 1,
+      child: SizedBox.square(dimension: size, child: _body(size)),
+    );
+  }
+
+  Widget _body(double size) {
     return GestureDetector(
       onTap: cheer,
       child: AnimatedBuilder(

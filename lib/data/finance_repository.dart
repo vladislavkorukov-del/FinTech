@@ -737,6 +737,18 @@ class FinanceRepository {
     ids(data.goals.map((g) => g.id));
     ids(data.recurring.map((r) => r.id));
     ids(data.members.map((m) => m.id));
+    ids(data.shopping.map((s) => s.id));
+    for (final s in data.shopping) {
+      if (s.name.trim().isEmpty ||
+          s.name.length > 200 ||
+          s.quantity.length > 50) {
+        throw const FormatException('Некорректная строка списка покупок');
+      }
+      if (s.priceMinor != null &&
+          (s.priceMinor! < 0 || s.priceMinor! > FinanceEngine.maxMinor)) {
+        throw const FormatException('Недопустимая денежная сумма');
+      }
+    }
     final categoryMap = {for (final c in data.categories) c.id: c};
     final accountMap = {for (final a in data.accounts) a.id: a};
     final memberIds = data.members.map((m) => m.id).toSet();
@@ -944,6 +956,12 @@ class FinanceRepository {
           jsonDecode(settings['preferences'] ?? '{}') as Map<String, dynamic>,
         ),
         demo: settings['demo'] == 'true',
+        // 1.38: the shopping list lives in settings (no schema change).
+        shopping: [
+          for (final item
+              in jsonDecode(settings['shopping'] ?? '[]') as List<dynamic>)
+            ShoppingItem.fromJson(Map<String, dynamic>.from(item as Map)),
+        ],
       ),
     );
   }
@@ -1038,6 +1056,10 @@ class FinanceRepository {
     await db.insert('settings', {
       'key': 'preferences',
       'value': jsonEncode(data.preferences.toJson()),
+    });
+    await db.insert('settings', {
+      'key': 'shopping',
+      'value': jsonEncode([for (final s in data.shopping) s.toJson()]),
     });
   }
 

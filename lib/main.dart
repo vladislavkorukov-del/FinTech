@@ -322,12 +322,15 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
         WheelAction('scan', Icons.document_scanner_outlined, tr('Скриншот')),
         WheelAction('payments', Icons.event_repeat_rounded, tr('Платежи')),
         WheelAction('voice', Icons.mic_none_rounded, tr('Голос')),
+        WheelAction('shopping', Icons.shopping_basket_outlined, tr('Покупки')),
       ],
       onSelected: (id) {
         _openWheel = null;
         Haptics.success();
         if (id == 'transfer') {
           unawaited(showEntryEditor(context, kind: EntryKind.transfer));
+        } else if (id == 'shopping') {
+          openFinancePage(context, const ShoppingScreen());
         } else {
           unawaited(_action(id));
         }
