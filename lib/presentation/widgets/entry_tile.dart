@@ -22,13 +22,27 @@ class EntryTile extends StatelessWidget {
     final cat = c.category(entry.categoryId);
     final transfer = entry.kind == EntryKind.transfer;
     final income = entry.kind == EntryKind.income;
+    // 1.36: a payment's operation shows the payment's own icon.
+    final rule = transfer ? null : c.ruleOf(entry);
+    final ruleIcon =
+        rule != null &&
+        (rule.icon != null ||
+            rule.customIconPath != null ||
+            rule.serviceId != null);
     final tile = ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 5),
-      leading:
-          !transfer &&
-              (entry.serviceId != null ||
-                  entry.serviceIconPath != null ||
-                  ServiceCatalog.byName(entry.payee) != null)
+      leading: ruleIcon
+          ? ServiceBadge(
+              serviceId: rule.serviceId,
+              customIconPath: rule.customIconPath,
+              name: rule.name,
+              icon: rule.icon,
+              iconColor: rule.color,
+            )
+          : !transfer &&
+                (entry.serviceId != null ||
+                    entry.serviceIconPath != null ||
+                    ServiceCatalog.byName(entry.payee) != null)
           ? ServiceBadge(
               serviceId: entry.serviceId,
               customIconPath: entry.serviceIconPath,

@@ -36,8 +36,12 @@ class _RecurringScreenState extends State<RecurringScreen> {
   @override
   Widget build(BuildContext context) {
     final c = FinanceScope.of(context);
-    final rules = [...c.data.recurring]
-      ..sort((a, b) => a.nextDate.compareTo(b.nextDate));
+    // 1.36: the person's own order (dragged), otherwise by date.
+    final rules = AppPreferences.arrange(
+      [...c.data.recurring]..sort((a, b) => a.nextDate.compareTo(b.nextDate)),
+      c.data.preferences.paymentOrder,
+      (r) => r.id,
+    );
     final subscriptions = rules
         .where(
           (r) => r.kind == EntryKind.expense && r.paymentType == 'subscription',
@@ -131,17 +135,17 @@ class _RecurringScreenState extends State<RecurringScreen> {
           if ((filter == 'all' || filter == 'subscription') &&
               subscriptions.isNotEmpty) ...[
             const SectionTitle('Подписки'),
-            ...subscriptions.map((r) => _ruleCard(context, c, r)),
+            _section(context, c, subscriptions, rules),
           ],
           if ((filter == 'all' || filter == 'mandatory') &&
               mandatory.isNotEmpty) ...[
             const SectionTitle('Обязательные платежи'),
-            ...mandatory.map((r) => _ruleCard(context, c, r)),
+            _section(context, c, mandatory, rules),
           ],
           if ((filter == 'all' || filter == 'income') &&
               incomes.isNotEmpty) ...[
             const SectionTitle('Регулярные доходы'),
-            ...incomes.map((r) => _ruleCard(context, c, r)),
+            _section(context, c, incomes, rules),
           ],
         ],
       ),
@@ -198,7 +202,53 @@ class _RecurringScreenState extends State<RecurringScreen> {
     );
   }
 
-  // 1.28: swipe left to delete a subscription or payment.
+  /// 1.36: a section whose cards are dragged into a new order (long press).
+  Widget _section(
+    BuildContext context,
+    FinanceController c,
+    List<RecurringRule> items,
+    List<RecurringRule> all,
+  ) => ReorderableListView(
+    shrinkWrap: true,
+    physics: const NeverScrollableScrollPhysics(),
+    buildDefaultDragHandles: false,
+    proxyDecorator: (child, _, _) => Material(
+      color: Colors.transparent,
+      elevation: 6,
+      borderRadius: BorderRadius.circular(24),
+      child: child,
+    ),
+    onReorderItem: (from, to) {
+      final moved = [...items];
+      moved.insert(to, moved.removeAt(from));
+      // The whole order: this section's new order in its old places.
+      final slots = [
+        for (var i = 0; i < all.length; i++)
+          if (items.any((x) => x.id == all[i].id)) i,
+      ];
+      final order = [for (final r in all) r.id];
+      for (var i = 0; i < slots.length; i++) {
+        order[slots[i]] = moved[i].id;
+      }
+      Haptics.medium();
+      c.mutate(
+        (d) => d.copyWith(
+          preferences: d.preferences.copyWith(paymentOrder: order),
+        ),
+      );
+    },
+    children: [
+      for (var i = 0; i < items.length; i++)
+        ReorderableDelayedDragStartListener(
+          key: ValueKey('reorder-rule-${items[i].id}'),
+          index: i,
+          child: _ruleCard(context, c, items[i]),
+        ),
+    ],
+  );
+
+  // 1.28: swipe left to delete a subscription or payment; 1.36: to the right
+  // — paid ahead of time.
   Widget _ruleCard(
     BuildContext context,
     FinanceController c,
@@ -216,6 +266,10 @@ class _RecurringScreenState extends State<RecurringScreen> {
         ),
       );
     },
+    onSwipeRight: r.kind == EntryKind.expense && r.enabled
+        ? () => payEarly(context, r)
+        : null,
+    rightLabel: 'Оплачено',
     child: _ruleCardBody(context, c, r),
   );
 
@@ -223,85 +277,124 @@ class _RecurringScreenState extends State<RecurringScreen> {
     BuildContext context,
     FinanceController c,
     RecurringRule r,
-  ) => Padding(
-    key: ValueKey('payment-rule-${r.id}'),
-    padding: const EdgeInsets.only(bottom: 12),
-    child: SurfaceCard(
-      onTap: () => showRecurringEditor(context, rule: r),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              if (r.kind == EntryKind.expense &&
-                  (r.paymentType == 'subscription' ||
-                      r.icon != null ||
-                      r.serviceId != null ||
-                      r.customIconPath != null))
-                ServiceBadge(
-                  serviceId: r.serviceId,
-                  customIconPath: r.customIconPath,
-                  name: r.name,
-                  icon: r.icon,
-                  iconColor: r.color,
-                )
-              else
-                CategoryBadge(
-                  category: c.category(r.categoryId),
-                  icon: r.kind == EntryKind.income
-                      ? Icons.south_west_rounded
-                      : null,
+  ) {
+    final plan = PaymentPlan.of(r, c.data.entries);
+    final scheme = Theme.of(context).colorScheme;
+    return Padding(
+      key: ValueKey('payment-rule-${r.id}'),
+      padding: const EdgeInsets.only(bottom: 12),
+      child: SurfaceCard(
+        onTap: () => plan.hasTotal
+            ? openPaymentPlan(context, r.id)
+            : showRecurringEditor(context, rule: r),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                if (r.kind == EntryKind.expense &&
+                    (r.paymentType == 'subscription' ||
+                        r.icon != null ||
+                        r.serviceId != null ||
+                        r.customIconPath != null))
+                  ServiceBadge(
+                    serviceId: r.serviceId,
+                    customIconPath: r.customIconPath,
+                    name: r.name,
+                    icon: r.icon,
+                    iconColor: r.color,
+                  )
+                else
+                  CategoryBadge(
+                    category: c.category(r.categoryId),
+                    icon: r.kind == EntryKind.income
+                        ? Icons.south_west_rounded
+                        : null,
+                  ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        r.name,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      Text(
+                        plan.overdue
+                            ? 'Просрочен на ${plan.overdueDays} '
+                                  '${daysWord(plan.overdueDays)} · '
+                                  '${DateFormat('d MMM', 'ru').format(r.nextDate)}'
+                            : '${DateFormat('d MMM', 'ru').format(r.nextDate)} · ${frequencyNames[r.frequency] ?? r.frequency}',
+                        key: ValueKey('rule-date-${r.id}'),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: plan.overdue
+                            ? TextStyle(
+                                color: scheme.error,
+                                fontWeight: FontWeight.w600,
+                              )
+                            : null,
+                      ),
+                    ],
+                  ),
                 ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      r.name,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    Text(
-                      '${DateFormat('d MMM', 'ru').format(r.nextDate)} · ${frequencyNames[r.frequency] ?? r.frequency}',
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
+              ],
+            ),
+            const SizedBox(height: 14),
+            Text(
+              money(r.amountMinor, r.currency),
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                color: plan.overdue ? scheme.error : null,
+              ),
+            ),
+            if (plan.hasTotal) ...[
+              const SizedBox(height: 8),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: LinearProgressIndicator(
+                  value: plan.progress.clamp(0.0, 1.0),
+                  minHeight: 7,
                 ),
               ),
+              const SizedBox(height: 6),
+              Text(
+                plan.done
+                    ? 'Погашено полностью'
+                    : 'Осталось ${money(plan.leftMinor, r.currency)} из '
+                          '${money(r.totalMinor!, r.currency)} · '
+                          'платежей: ${plan.upcoming.length}',
+                key: ValueKey('rule-left-${r.id}'),
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
             ],
-          ),
-          const SizedBox(height: 14),
-          Text(
-            money(r.amountMinor, r.currency),
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
-          const SizedBox(height: 5),
-          Text(
-            r.enabled
-                ? (r.automatic
-                      ? 'Автоматическая операция при запуске'
-                      : 'Вручную')
-                : 'Приостановлен',
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
-          const SizedBox(height: 5),
-          Text(
-            !r.enabled
-                ? 'Напоминание приостановлено'
-                : r.reminderEnabled
-                ? c.data.preferences.notifications
-                      ? 'Напоминание: ${_reminderLeadNames[r.reminderDaysBefore] ?? 'в день платежа'}, ${r.reminderHour.toString().padLeft(2, '0')}:${r.reminderMinute.toString().padLeft(2, '0')}'
-                      : 'Напоминание отключено в настройках'
-                : 'Без напоминания',
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
-        ],
+            const SizedBox(height: 5),
+            Text(
+              r.enabled
+                  ? (r.automatic
+                        ? 'Автоматическая операция при запуске'
+                        : 'Вручную')
+                  : 'Приостановлен',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+            const SizedBox(height: 5),
+            Text(
+              !r.enabled
+                  ? 'Напоминание приостановлено'
+                  : r.reminderEnabled
+                  ? c.data.preferences.notifications
+                        ? 'Напоминание: ${_reminderLeadNames[r.reminderDaysBefore] ?? 'в день платежа'}, ${r.reminderHour.toString().padLeft(2, '0')}:${r.reminderMinute.toString().padLeft(2, '0')}'
+                        : 'Напоминание отключено в настройках'
+                  : 'Без напоминания',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ],
+        ),
       ),
-    ),
-  );
+    );
+  }
 }
 
 Future<void> showRecurringEditor(
@@ -319,6 +412,10 @@ Future<void> showRecurringEditor(
   final name = _text(rule?.name ?? '');
   final amount = _text(rule == null ? '' : _amount(rule.amountMinor));
   final interval = _text('${rule?.interval ?? 1}');
+  // 1.36: the whole sum of a loan or instalment plan (optional).
+  final total = _text(
+    rule?.totalMinor == null ? '' : _amount(rule!.totalMinor!),
+  );
   var serviceId = rule?.serviceId;
   var customIconPath = rule?.customIconPath;
   // 1.34: or an icon from the app's standard set.
@@ -358,7 +455,7 @@ Future<void> showRecurringEditor(
               ? 'Новая подписка'
               : 'Новая регулярная операция'
         : 'Регулярная операция',
-    controllers: [name, amount, interval],
+    controllers: [name, amount, interval, total],
     fields: (set) => [
       if (kind == EntryKind.expense)
         Builder(
@@ -488,6 +585,22 @@ Future<void> showRecurringEditor(
           (v) => set(() => selectedPaymentType = v),
         ),
       _field(amount, 'Сумма', amount: true),
+      if (kind == EntryKind.expense && selectedPaymentType == 'mandatory')
+        Padding(
+          padding: const EdgeInsets.only(bottom: 14),
+          child: TextFormField(
+            key: const ValueKey('recurring-total'),
+            controller: total,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            inputFormatters: const [AmountGroupingFormatter()],
+            decoration: const InputDecoration(
+              labelText: 'Полная сумма (кредит, рассрочка)',
+              helperText:
+                  'Финора посчитает, сколько осталось и сколько платежей',
+              helperMaxLines: 2,
+            ),
+          ),
+        ),
       _select('Счёт', account, {
         for (final a in c.data.accounts.where(
           (a) => !a.archived || a.id == account,
@@ -675,6 +788,17 @@ Future<void> showRecurringEditor(
       if (n == null || n < 1 || n > 3650 || m <= 0) {
         throw const FormatException('Проверьте сумму и интервал от 1 до 3650.');
       }
+      final whole =
+          kind == EntryKind.expense &&
+              selectedPaymentType == 'mandatory' &&
+              total.text.trim().isNotEmpty
+          ? FinanceEngine.parseMinor(total.text)
+          : null;
+      if (whole != null && whole < m) {
+        throw const FormatException(
+          'Полная сумма не может быть меньше одного платежа.',
+        );
+      }
       await c.saveRecurring(
         RecurringRule(
           id: rule?.id ?? c.id(),
@@ -683,6 +807,7 @@ Future<void> showRecurringEditor(
           customIconPath: kind == EntryKind.expense ? customIconPath : null,
           icon: kind == EntryKind.expense ? icon : null,
           color: kind == EntryKind.expense ? iconColor : null,
+          totalMinor: whole,
           reminderEnabled: reminderEnabled,
           reminderDaysBefore: reminderDaysBefore,
           reminderHour: reminderTime.hour,

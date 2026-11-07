@@ -355,44 +355,94 @@ class SwipeToDelete extends StatelessWidget {
     required this.message,
     required this.onDelete,
     this.margin = const EdgeInsets.only(bottom: 12),
+    this.onSwipeRight,
+    this.rightLabel = 'Оплатить',
+    this.rightIcon = Icons.check_circle_outline_rounded,
   });
   final Widget child;
   final EdgeInsets margin;
   final String title, message;
   final Future<void> Function() onDelete;
 
+  /// 1.36: a swipe to the right (e.g. «оплатить досрочно»); the row stays.
+  final Future<void> Function()? onSwipeRight;
+  final String rightLabel;
+  final IconData rightIcon;
+
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final right = onSwipeRight;
+    final delete = Container(
+      alignment: Alignment.centerRight,
+      padding: const EdgeInsets.only(right: 24),
+      margin: margin,
+      decoration: BoxDecoration(
+        color: scheme.error,
+        borderRadius: BorderRadius.circular(24),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            'Удалить',
+            style: TextStyle(
+              color: scheme.onError,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Icon(Icons.delete_outline_rounded, color: scheme.onError),
+        ],
+      ),
+    );
     return Dismissible(
       key: ObjectKey(key),
-      direction: DismissDirection.endToStart,
-      dismissThresholds: const {DismissDirection.endToStart: .35},
-      background: Container(
-        alignment: Alignment.centerRight,
-        padding: const EdgeInsets.only(right: 24),
-        margin: margin,
-        decoration: BoxDecoration(
-          color: scheme.error,
-          borderRadius: BorderRadius.circular(24),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              'Удалить',
-              style: TextStyle(
-                color: scheme.onError,
-                fontWeight: FontWeight.w600,
+      direction: right == null
+          ? DismissDirection.endToStart
+          : DismissDirection.horizontal,
+      dismissThresholds: const {
+        DismissDirection.endToStart: .35,
+        DismissDirection.startToEnd: .3,
+      },
+      background: right == null
+          ? delete
+          : Container(
+              alignment: Alignment.centerLeft,
+              padding: const EdgeInsets.only(left: 24),
+              margin: margin,
+              decoration: BoxDecoration(
+                color: scheme.primary,
+                borderRadius: BorderRadius.circular(24),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(rightIcon, color: scheme.onPrimary),
+                  const SizedBox(width: 8),
+                  Text(
+                    rightLabel,
+                    style: TextStyle(
+                      color: scheme.onPrimary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(width: 8),
-            Icon(Icons.delete_outline_rounded, color: scheme.onError),
-          ],
-        ),
-      ),
-      confirmDismiss: (_) async {
+      secondaryBackground: right == null ? null : delete,
+      confirmDismiss: (direction) async {
         HapticFeedback.mediumImpact();
+        if (direction == DismissDirection.startToEnd) {
+          if (right != null) {
+            try {
+              await right();
+            } catch (e) {
+              if (context.mounted) showError(context, e);
+            }
+          }
+          return false;
+        }
         final ok = await confirmWithFinora(
           context,
           title: title,

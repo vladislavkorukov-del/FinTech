@@ -166,6 +166,7 @@ void main() {
       final raw = await databaseFactoryFfi.openDatabase('${temp.path}/old.db');
       await raw.execute('ALTER TABLE recurring DROP COLUMN icon');
       await raw.execute('ALTER TABLE recurring DROP COLUMN color');
+      await raw.execute('ALTER TABLE recurring DROP COLUMN totalMinor');
       await raw.setVersion(3);
       await raw.close();
 

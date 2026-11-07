@@ -19,7 +19,7 @@ class FinanceRepository {
   final DatabaseFactory _factory;
   final String _path;
   final DateTime Function() _clock;
-  static const schemaVersion = 4;
+  static const schemaVersion = 5;
   static const maxBackupBytes = 50 * 1024 * 1024;
 
   static Future<FinanceRepository> open({
@@ -102,6 +102,12 @@ class FinanceRepository {
             // 1.34: standard icons for payments and subscriptions.
             await db.execute('ALTER TABLE recurring ADD COLUMN icon INTEGER');
             await db.execute('ALTER TABLE recurring ADD COLUMN color INTEGER');
+          }
+          if (oldVersion < 5) {
+            // 1.36: the whole sum of a loan or instalment plan.
+            await db.execute(
+              'ALTER TABLE recurring ADD COLUMN totalMinor INTEGER',
+            );
           }
         },
       ),
@@ -425,7 +431,7 @@ class FinanceRepository {
     try {
       final envelope = jsonDecode(content);
       if (envelope is! Map<String, dynamic> ||
-          ![1, 2, 3, schemaVersion].contains(envelope['schemaVersion']) ||
+          ![1, 2, 3, 4, schemaVersion].contains(envelope['schemaVersion']) ||
           envelope['data'] is! Map<String, dynamic>) {
         throw const FormatException('Неподдерживаемый формат резервной копии');
       }
@@ -617,7 +623,7 @@ class FinanceRepository {
         options: OpenDatabaseOptions(readOnly: true, singleInstance: false),
       );
       final version = await backup.getVersion();
-      if (![1, 2, 3, schemaVersion].contains(version)) {
+      if (![1, 2, 3, 4, schemaVersion].contains(version)) {
         throw const FormatException('Неподдерживаемая версия базы');
       }
       final check = await backup.rawQuery('PRAGMA integrity_check');
@@ -810,6 +816,7 @@ class FinanceRepository {
       name(r.name);
       currency(r.currency);
       amount(r.amountMinor, positive: true);
+      if (r.totalMinor != null) amount(r.totalMinor!, positive: true);
       date(r.nextDate);
       service(r.serviceId);
       if (![0, 1, 3, 7].contains(r.reminderDaysBefore) ||
@@ -1050,7 +1057,7 @@ class FinanceRepository {
     'CREATE TABLE attachments(entryId TEXT PRIMARY KEY REFERENCES entries(id), path TEXT NOT NULL)',
     'CREATE TABLE budgets(id TEXT PRIMARY KEY, name TEXT NOT NULL, currency TEXT NOT NULL REFERENCES currencies(code), categoryId TEXT REFERENCES categories(id), limitMinor INTEGER NOT NULL CHECK(limitMinor > 0))',
     'CREATE TABLE goals(id TEXT PRIMARY KEY, name TEXT NOT NULL, currency TEXT NOT NULL REFERENCES currencies(code), targetMinor INTEGER NOT NULL CHECK(targetMinor > 0), savedMinor INTEGER NOT NULL CHECK(savedMinor >= 0), color INTEGER NOT NULL, icon INTEGER NOT NULL, deadline TEXT)',
-    'CREATE TABLE recurring(id TEXT PRIMARY KEY, name TEXT NOT NULL, accountId TEXT NOT NULL REFERENCES accounts(id), currency TEXT NOT NULL REFERENCES currencies(code), categoryId TEXT REFERENCES categories(id), kind TEXT NOT NULL, amountMinor INTEGER NOT NULL CHECK(amountMinor > 0), interval INTEGER NOT NULL, anchorDay INTEGER NOT NULL, frequency TEXT NOT NULL, nextDate TEXT NOT NULL, automatic INTEGER NOT NULL, enabled INTEGER NOT NULL, paymentType TEXT NOT NULL DEFAULT \'mandatory\', serviceId TEXT, customIconPath TEXT, reminderEnabled INTEGER NOT NULL DEFAULT 0, reminderDaysBefore INTEGER NOT NULL DEFAULT 1, reminderHour INTEGER NOT NULL DEFAULT 10, reminderMinute INTEGER NOT NULL DEFAULT 0, icon INTEGER, color INTEGER)',
+    'CREATE TABLE recurring(id TEXT PRIMARY KEY, name TEXT NOT NULL, accountId TEXT NOT NULL REFERENCES accounts(id), currency TEXT NOT NULL REFERENCES currencies(code), categoryId TEXT REFERENCES categories(id), kind TEXT NOT NULL, amountMinor INTEGER NOT NULL CHECK(amountMinor > 0), interval INTEGER NOT NULL, anchorDay INTEGER NOT NULL, frequency TEXT NOT NULL, nextDate TEXT NOT NULL, automatic INTEGER NOT NULL, enabled INTEGER NOT NULL, paymentType TEXT NOT NULL DEFAULT \'mandatory\', serviceId TEXT, customIconPath TEXT, reminderEnabled INTEGER NOT NULL DEFAULT 0, reminderDaysBefore INTEGER NOT NULL DEFAULT 1, reminderHour INTEGER NOT NULL DEFAULT 10, reminderMinute INTEGER NOT NULL DEFAULT 0, icon INTEGER, color INTEGER, totalMinor INTEGER)',
     'CREATE TABLE settings(key TEXT PRIMARY KEY, value TEXT NOT NULL)',
   ];
 }

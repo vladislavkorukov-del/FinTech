@@ -3,6 +3,7 @@ import 'package:uuid/uuid.dart';
 
 import '../data/finance_repository.dart';
 import '../domain/models.dart';
+import '../domain/payment_plan.dart';
 import '../domain/finance_engine.dart';
 import '../domain/scan_import.dart';
 import '../services/notification_service.dart';
@@ -256,27 +257,71 @@ class FinanceController extends ChangeNotifier {
       ..sort((a, b) => a.nextDate.compareTo(b.nextDate));
   }
 
+  /// 1.36: the payment an operation came from (its id is
+  /// `recurring:<rule>:…`), or one with the same name — for its icon.
+  RecurringRule? ruleOf(FinanceEntry e) {
+    if (e.id.startsWith('recurring:')) {
+      final id = e.id.split(':')[1];
+      final rule = data.recurring.where((r) => r.id == id).firstOrNull;
+      if (rule != null) return rule;
+    }
+    if (e.payee.isEmpty || e.kind != EntryKind.expense) return null;
+    final name = e.payee.trim().toLowerCase();
+    return data.recurring
+        .where((r) => r.name.trim().toLowerCase() == name)
+        .firstOrNull;
+  }
+
   final _snoozed = <String, DateTime>{};
 
   void snoozePayment(String ruleId, {DateTime? now}) =>
       _snoozed[ruleId] = (now ?? DateTime.now()).add(const Duration(hours: 3));
 
   /// «Оплачено»: the expense goes into the ledger on its date, and the rule
-  /// moves to the next date.
-  Future<FinanceEntry?> confirmPayment(String ruleId) async {
+  /// moves to the next date. 1.36: [amountMinor] — what was actually paid
+  /// (a subscription's price changes); [remember] makes it the new price.
+  /// A loan whose whole sum is paid is switched off.
+  Future<FinanceEntry?> confirmPayment(
+    String ruleId, {
+    int? amountMinor,
+    bool remember = false,
+  }) => _pay(ruleId, amountMinor: amountMinor, remember: remember);
+
+  /// 1.36: paid ahead of time (a swipe to the right): the operation is
+  /// recorded today. A full payment moves the date on; a smaller one only
+  /// lowers what is left of a loan.
+  Future<FinanceEntry?> payEarly(
+    String ruleId, {
+    int? amountMinor,
+    DateTime? now,
+  }) => _pay(ruleId, amountMinor: amountMinor, early: now ?? DateTime.now());
+
+  Future<FinanceEntry?> _pay(
+    String ruleId, {
+    int? amountMinor,
+    bool remember = false,
+    DateTime? early,
+  }) async {
     FinanceEntry? posted;
     await mutate((d) {
       final r = d.recurring.where((x) => x.id == ruleId).firstOrNull;
       if (r == null) return d;
+      final sum = amountMinor ?? r.amountMinor;
+      if (sum <= 0) {
+        throw const FormatException('Введите сумму больше нуля');
+      }
       final entry = FinanceEntry(
-        id: 'recurring:${r.id}:${r.nextDate.toIso8601String()}',
+        id: early == null
+            ? 'recurring:${r.id}:${r.nextDate.toIso8601String()}'
+            : 'recurring:${r.id}:early:${early.microsecondsSinceEpoch}',
         kind: r.kind,
-        amountMinor: r.amountMinor,
+        amountMinor: sum,
         currency: r.currency,
         accountId: r.accountId,
         categoryId: r.categoryId,
-        date: r.nextDate,
+        date: early ?? r.nextDate,
         payee: r.name,
+        note: early == null ? '' : 'Досрочно',
         recurrence: r.frequency,
         serviceId: r.serviceId,
         serviceIconPath: r.customIconPath,
@@ -286,14 +331,20 @@ class FinanceController extends ChangeNotifier {
       );
       FinanceEngine.validateEntry(entry, d);
       posted = entry;
+      final entries = [...d.entries.where((e) => e.id != entry.id), entry];
+      var next = r;
+      if (early == null || sum >= r.amountMinor) {
+        next = next.copyWith(nextDate: FinanceEngine.nextOccurrence(r));
+      }
+      if (remember && sum != r.amountMinor) {
+        next = next.copyWith(amountMinor: sum);
+      }
+      if (PaymentPlan.of(next, entries).done) {
+        next = next.copyWith(enabled: false);
+      }
       return d.copyWith(
-        entries: [...d.entries.where((e) => e.id != entry.id), entry],
-        recurring: [
-          for (final x in d.recurring)
-            x.id == r.id
-                ? x.copyWith(nextDate: FinanceEngine.nextOccurrence(x))
-                : x,
-        ],
+        entries: entries,
+        recurring: [for (final x in d.recurring) x.id == r.id ? next : x],
       );
     });
     return posted;

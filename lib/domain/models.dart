@@ -460,6 +460,10 @@ class RecurringRule {
   /// its color, instead of a service logo or an own picture.
   final int? icon;
   final int? color;
+
+  /// 1.36: the whole sum to pay (a loan, an instalment plan); what is left
+  /// is this minus the payments recorded for the rule. Null — no end.
+  final int? totalMinor;
   final EntryKind kind;
   final int amountMinor;
   final int interval;
@@ -486,6 +490,7 @@ class RecurringRule {
     this.customIconPath,
     this.icon,
     this.color,
+    this.totalMinor,
     this.kind = EntryKind.expense,
     required this.amountMinor,
     this.interval = 1,
@@ -511,6 +516,7 @@ class RecurringRule {
     Object? customIconPath = _absent,
     Object? icon = _absent,
     Object? color = _absent,
+    Object? totalMinor = _absent,
     EntryKind? kind,
     int? amountMinor,
     int? interval,
@@ -534,6 +540,9 @@ class RecurringRule {
         : serviceId as String?,
     icon: identical(icon, _absent) ? this.icon : icon as int?,
     color: identical(color, _absent) ? this.color : color as int?,
+    totalMinor: identical(totalMinor, _absent)
+        ? this.totalMinor
+        : totalMinor as int?,
     name: name ?? this.name,
     accountId: accountId ?? this.accountId,
     currency: currency ?? this.currency,
@@ -565,6 +574,7 @@ class RecurringRule {
     'customIconPath': customIconPath,
     'icon': icon,
     'color': color,
+    'totalMinor': totalMinor,
     'kind': kind.name,
     'amountMinor': amountMinor,
     'interval': interval,
@@ -604,6 +614,7 @@ class RecurringRule {
     customIconPath: json['customIconPath'] as String?,
     icon: (json['icon'] as num?)?.toInt(),
     color: (json['color'] as num?)?.toInt(),
+    totalMinor: (json['totalMinor'] as num?)?.toInt(),
     kind: EntryKind.values.byName(
       json['kind'] as String? ?? EntryKind.expense.name,
     ),
@@ -693,6 +704,17 @@ class AppPreferences {
   /// 1.28: the app language, 'ru' or 'en'.
   final String language;
 
+  /// 1.36: the order of payments and subscriptions (dragged by the person).
+  final List<String> paymentOrder;
+
+  /// 1.36: the profile picture — `emoji:🦊`, `mood:happy` or `file:<path>`;
+  /// empty — the first letter of the name.
+  final String avatar;
+
+  /// 1.36: the version whose «Что нового» was shown. Null — a new install
+  /// (nothing to tell); `old` — a base from before 1.36.
+  final String? seenVersion;
+
   const AppPreferences({
     this.theme = 'dark',
     this.accent = 'coffee',
@@ -718,6 +740,9 @@ class AppPreferences {
     this.wakeWord = false,
     this.quietVoice = false,
     this.language = 'ru',
+    this.paymentOrder = const [],
+    this.avatar = '',
+    this.seenVersion,
   });
 
   AppPreferences copyWith({
@@ -745,6 +770,9 @@ class AppPreferences {
     bool? wakeWord,
     bool? quietVoice,
     String? language,
+    List<String>? paymentOrder,
+    String? avatar,
+    Object? seenVersion = _absent,
   }) => AppPreferences(
     theme: theme ?? this.theme,
     accent: accent ?? this.accent,
@@ -774,6 +802,11 @@ class AppPreferences {
     wakeWord: wakeWord ?? this.wakeWord,
     quietVoice: quietVoice ?? this.quietVoice,
     language: language ?? this.language,
+    paymentOrder: paymentOrder ?? this.paymentOrder,
+    avatar: avatar ?? this.avatar,
+    seenVersion: identical(seenVersion, _absent)
+        ? this.seenVersion
+        : seenVersion as String?,
   );
 
   Map<String, Object?> toJson() => {
@@ -801,6 +834,9 @@ class AppPreferences {
     'wakeWord2': wakeWord,
     'quietVoice': quietVoice,
     'language': language,
+    'paymentOrder': paymentOrder,
+    'avatar': avatar,
+    'seenVersion': seenVersion,
   };
 
   static List<String> _ids(Object? value) =>
@@ -833,6 +869,12 @@ class AppPreferences {
     wakeWord: json['wakeWord2'] as bool? ?? false,
     quietVoice: json['quietVoice'] as bool? ?? false,
     language: json['language'] as String? ?? 'ru',
+    paymentOrder: _ids(json['paymentOrder']),
+    avatar: json['avatar'] as String? ?? '',
+    // A base from before 1.36 has no such key: its owner updated the app.
+    seenVersion: json.containsKey('seenVersion')
+        ? json['seenVersion'] as String?
+        : 'old',
   );
 
   /// [items] in the person's [order] (by [id]); unknown items keep their

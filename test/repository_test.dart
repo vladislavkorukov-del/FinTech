@@ -363,7 +363,7 @@ void main() {
       expect((await repository.load()).toJson(), expected.toJson());
       final newArchive =
           jsonDecode(await repository.exportJson()) as Map<String, dynamic>;
-      expect(newArchive['schemaVersion'], 4);
+      expect(newArchive['schemaVersion'], FinanceRepository.schemaVersion);
       await repository.importJson(jsonEncode(newArchive));
       expect((await repository.load()).toJson(), expected.toJson());
       final newSnapshot = p.join(directory.path, 'migrated-snapshot.db');
@@ -1095,7 +1095,8 @@ Future<FinanceData> _createLegacyV1(
           ..remove('reminderHour')
           ..remove('reminderMinute')
           ..remove('icon')
-          ..remove('color'),
+          ..remove('color')
+          ..remove('totalMinor'),
       );
       if (version == 2) {
         row['paymentType'] = r.paymentType;

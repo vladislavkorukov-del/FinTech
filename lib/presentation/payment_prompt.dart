@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
+import '../domain/finance_engine.dart';
 import '../domain/models.dart';
 import 'controller.dart';
 import 'haptics.dart';
+import 'widgets/amount_format.dart';
 import 'widgets/common.dart';
 import 'widgets/finora_orb.dart';
 import 'widgets/service_badge.dart';
@@ -35,7 +37,7 @@ abstract final class PaymentPrompt {
             .inDays;
         Finora.react(late > 0 ? FinoraMood.angry : FinoraMood.attention);
         if (!context.mounted) break;
-        final answer = await showDialog<String>(
+        final answer = await showDialog<_Answer>(
           context: context,
           barrierDismissible: false,
           builder: (_) => FinanceScope(
@@ -44,13 +46,17 @@ abstract final class PaymentPrompt {
           ),
         );
         if (!context.mounted) break;
-        switch (answer) {
+        switch (answer?.action) {
           case 'paid':
-            await c.confirmPayment(rule.id);
+            final sum = answer!.amountMinor ?? rule.amountMinor;
+            await c.confirmPayment(
+              rule.id,
+              amountMinor: sum,
+              remember: answer.remember,
+            );
             Finora.react(
               FinoraMood.done,
-              text:
-                  'Записала: ${rule.name} −${money(rule.amountMinor, rule.currency)}',
+              text: 'Записала: ${rule.name} −${money(sum, rule.currency)}',
             );
           case 'skip':
             await c.skipPayment(rule.id);
@@ -68,10 +74,46 @@ abstract final class PaymentPrompt {
   }
 }
 
-class _PaymentDialog extends StatelessWidget {
+class _Answer {
+  const _Answer(this.action, {this.amountMinor, this.remember = false});
+  final String action;
+  final int? amountMinor;
+  final bool remember;
+}
+
+class _PaymentDialog extends StatefulWidget {
   const _PaymentDialog({required this.rule, required this.late});
   final RecurringRule rule;
   final int late;
+
+  @override
+  State<_PaymentDialog> createState() => _PaymentDialogState();
+}
+
+/// 1.36: the sum can be changed — a subscription's price floats.
+class _PaymentDialogState extends State<_PaymentDialog> {
+  RecurringRule get rule => widget.rule;
+  int get late => widget.late;
+  late final _amount = TextEditingController(
+    text: groupAmount(decimalMinor(widget.rule.amountMinor)),
+  );
+  late bool remember = widget.rule.paymentType == 'subscription';
+  String? error;
+
+  @override
+  void dispose() {
+    _amount.dispose();
+    super.dispose();
+  }
+
+  int? get _sum {
+    try {
+      final v = FinanceEngine.parseMinor(_amount.text);
+      return v > 0 ? v : null;
+    } on FormatException {
+      return null;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -150,19 +192,55 @@ class _PaymentDialog extends StatelessWidget {
                       ],
                     ),
                   ),
-                  Text(
-                    money(rule.amountMinor, rule.currency),
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
                 ],
               ),
             ),
-            const SizedBox(height: 18),
+            const SizedBox(height: 12),
+            TextField(
+              key: const ValueKey('payment-amount'),
+              controller: _amount,
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+              inputFormatters: const [AmountGroupingFormatter()],
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.headlineSmall,
+              decoration: InputDecoration(
+                labelText: 'Сколько списали, ${rule.currency}',
+                errorText: error,
+              ),
+              onChanged: (_) => setState(() => error = null),
+            ),
+            if (_sum != null && _sum != rule.amountMinor)
+              CheckboxListTile(
+                key: const ValueKey('payment-remember'),
+                contentPadding: EdgeInsets.zero,
+                controlAffinity: ListTileControlAffinity.leading,
+                value: remember,
+                onChanged: (v) => setState(() => remember = v ?? false),
+                title: const Text('Теперь платёж такой всегда'),
+                subtitle: Text(
+                  'Было ${money(rule.amountMinor, rule.currency)}',
+                ),
+              ),
+            const SizedBox(height: 14),
             FilledButton.icon(
               key: const ValueKey('payment-paid'),
               onPressed: () {
+                final sum = _sum;
+                if (sum == null) {
+                  setState(() => error = 'Введите сумму больше нуля');
+                  return;
+                }
                 Haptics.medium();
-                Navigator.pop(context, 'paid');
+                Navigator.pop(
+                  context,
+                  _Answer(
+                    'paid',
+                    amountMinor: sum,
+                    remember: remember && sum != rule.amountMinor,
+                  ),
+                );
               },
               icon: const Icon(Icons.check_rounded),
               label: const Text('Оплачено'),
@@ -170,12 +248,12 @@ class _PaymentDialog extends StatelessWidget {
             const SizedBox(height: 8),
             OutlinedButton(
               key: const ValueKey('payment-later'),
-              onPressed: () => Navigator.pop(context, 'later'),
+              onPressed: () => Navigator.pop(context, const _Answer('later')),
               child: const Text('Напомнить позже'),
             ),
             TextButton(
               key: const ValueKey('payment-skip'),
-              onPressed: () => Navigator.pop(context, 'skip'),
+              onPressed: () => Navigator.pop(context, const _Answer('skip')),
               child: const Text('В этот раз не платить'),
             ),
           ],
