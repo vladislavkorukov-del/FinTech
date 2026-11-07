@@ -1,0 +1,5 @@
+<!-- 1.39: the buddy widget's background for Finora's «attention» mood. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <gradient android:angle="300" android:startColor="#FFFF8F45" android:endColor="#FFE0582A" />
+    <corners android:radius="28dp" />
+</shape>

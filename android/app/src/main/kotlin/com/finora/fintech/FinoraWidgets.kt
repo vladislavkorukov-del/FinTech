@@ -19,6 +19,7 @@ object FinoraWidgets {
         FinoraWidgetSmall::class.java,
         FinoraWidgetWide::class.java,
         FinoraWidgetPayments::class.java,
+        FinoraWidgetBuddy::class.java,
     )
 
     fun refreshAll(context: Context) {
@@ -61,7 +62,7 @@ object FinoraWidgets {
             val f = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.ROOT)
             val a = f.parse(last)!!.time
             val b = f.parse(today)!!.time
-            ((b - a) / 86_400_000L).toInt()
+            Math.round((b - a) / 86_400_000.0).toInt()
         } catch (_: Exception) {
             -1
         }
@@ -72,6 +73,44 @@ object FinoraWidgets {
             hour < 20 -> "attention" to "Не забудьте записать расходы и доходы"
             else -> "angry" to "Сегодня ничего не записано! Я жду 😤"
         }
+    }
+
+    /** Days from [last] (yyyy-MM-dd) to today; -1 when unknown. */
+    private fun daysSince(last: String, now: java.util.Calendar): Int = try {
+        val f = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.ROOT)
+        val a = f.parse(last)!!.time
+        val today = f.parse(f.format(now.time))!!.time
+        Math.round((today - a) / 86_400_000.0).toInt()
+    } catch (_: Exception) {
+        -1
+    }
+
+    /**
+     * 1.39, the companion widget: the streak of days in a row with a record
+     * (it lives while today or yesterday has one) and Finora's line about
+     * it. Returns (mood, line, streak shown).
+     */
+    fun buddy(
+        prefs: android.content.SharedPreferences,
+        now: java.util.Calendar = java.util.Calendar.getInstance(),
+    ): Triple<String, String, Int> {
+        val (mood, line) = mood(prefs, now)
+        val last = prefs.getString("lastEntry", "") ?: ""
+        val streak = (prefs.getString("streak", "0") ?: "0").toIntOrNull() ?: 0
+        val days = daysSince(last, now)
+        val alive = if (days == 0 || days == 1) streak else 0
+        val hour = now.get(java.util.Calendar.HOUR_OF_DAY)
+        val text = when {
+            mood == "angry" && prefs.getString("alertMood", "") == "angry" -> line
+            mood == "sleep" -> line
+            days == 0 && alive >= 2 -> "Серия $alive ${daysWord(alive)}! Так держать 🔥"
+            days == 0 -> "Сегодня всё записано — умница!"
+            days == 1 && alive >= 2 && hour >= 18 ->
+                "Серия $alive ${daysWord(alive)} сгорит в полночь! Запишите хоть одну трату 😤"
+            days == 1 && alive >= 2 -> "Не потеряйте серию: $alive ${daysWord(alive)}. Что сегодня потратили?"
+            else -> line
+        }
+        return Triple(mood, text, alive)
     }
 
     private fun daysWord(n: Int): String {
@@ -110,6 +149,28 @@ object FinoraWidgets {
                 setOnClickPendingIntent(R.id.widget_add, FinoraBridge.launch(context, "expense", 40 + id))
                 setOnClickPendingIntent(R.id.widget_scan, FinoraBridge.launch(context, "scan", 50 + id))
             }
+            FinoraWidgetBuddy::class.java -> RemoteViews(context.packageName, R.layout.widget_buddy).apply {
+                val (buddyMood, say, streak) = buddy(prefs)
+                setTextViewText(R.id.widget_say, say)
+                setTextViewText(
+                    R.id.widget_streak,
+                    if (streak > 0) "🔥 $streak ${daysWord(streak)} подряд" else "🔥 Начните серию",
+                )
+                setInt(
+                    R.id.widget_root,
+                    "setBackgroundResource",
+                    when (buddyMood) {
+                        "happy" -> R.drawable.widget_mood_happy
+                        "attention" -> R.drawable.widget_mood_attention
+                        "angry" -> R.drawable.widget_mood_angry
+                        "sleep" -> R.drawable.widget_mood_sleep
+                        else -> R.drawable.widget_mood_thinking
+                    },
+                )
+                setOnClickPendingIntent(R.id.widget_root, FinoraBridge.launch(context, "open", 70 + id))
+                setOnClickPendingIntent(R.id.widget_say, FinoraBridge.launch(context, "voice", 80 + id))
+                setOnClickPendingIntent(R.id.widget_add, FinoraBridge.launch(context, "expense", 90 + id))
+            }
             else -> RemoteViews(context.packageName, R.layout.widget_payments).apply {
                 setTextViewText(R.id.widget_title, value("paymentsTitle", "Ближайшие платежи"))
                 setTextViewText(R.id.widget_payments, value("payments", "Платежей нет"))
@@ -146,6 +207,9 @@ class FinoraWidgetSmall : FinoraWidgetBase()
 
 /** 4×2: Finora, balance, the month, and «Сказать» / «Расход» / «Скриншот». */
 class FinoraWidgetWide : FinoraWidgetBase()
+
+/** 1.39, 4×2: Finora as a companion — big, with a line and a streak. */
+class FinoraWidgetBuddy : FinoraWidgetBase()
 
 /** 4×2: the next payments; Finora worries when one is due. */
 class FinoraWidgetPayments : FinoraWidgetBase()

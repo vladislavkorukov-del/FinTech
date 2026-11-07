@@ -10,6 +10,12 @@ import 'l10n_widgets.dart';
 abstract final class WhatsNew {
   static const items = <(IconData, String, String)>[
     (
+      Icons.local_fire_department_rounded,
+      'Финора-напарник на рабочем столе',
+      'Новый виджет: большая Финора с репликой и серией дней подряд. '
+          'Радуется записям, напоминает, сердится, если серия вот-вот сгорит.',
+    ),
+    (
       Icons.shopping_basket_outlined,
       'Список покупок',
       'Отмечайте купленное в магазине, а потом одним нажатием запишите '

@@ -67,6 +67,13 @@
             </intent-filter>
             <meta-data android:name="android.appwidget.provider" android:resource="@xml/finora_widget_wide" />
         </receiver>
+        <!-- 1.39: Finora as a companion with a streak of recorded days. -->
+        <receiver android:name=".FinoraWidgetBuddy" android:exported="false" android:label="Финора-напарник">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/finora_widget_buddy" />
+        </receiver>
         <receiver android:name=".FinoraWidgetPayments" android:exported="false" android:label="Финора: платежи">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />

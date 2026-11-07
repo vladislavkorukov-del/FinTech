@@ -77,6 +77,25 @@ abstract final class FinoraOutside {
     return (FinoraMood.idle, 'Нажмите и скажите');
   }
 
+  /// 1.39: days in a row with at least one record, ending on the last
+  /// day that has one (the widget decides whether it is still alive).
+  static int streak(List<FinanceEntry> entries, {DateTime? now}) {
+    final clock = now ?? DateTime.now();
+    final days = {
+      for (final e in entries)
+        if (!e.date.isAfter(clock))
+          DateTime(e.date.year, e.date.month, e.date.day),
+    };
+    if (days.isEmpty) return 0;
+    var day = days.reduce((a, b) => a.isAfter(b) ? a : b);
+    var n = 0;
+    while (days.contains(day) && n < 3650) {
+      n++;
+      day = DateTime(day.year, day.month, day.day - 1);
+    }
+    return n;
+  }
+
   /// Up to four next payments, «12.11 · Netflix · 799 ₽».
   static List<String> payments(FinanceController c) {
     final rules =
@@ -115,11 +134,13 @@ abstract final class FinoraOutside {
         .map((e) => e.date)
         .fold<DateTime?>(null, (a, b) => a == null || b.isAfter(a) ? b : a);
     final lastEntry = past == null ? '' : DateFormat('yyyy-MM-dd').format(past);
+    final days = streak(c.data.entries, now: today);
     final alert = mood == FinoraMood.angry || mood == FinoraMood.attention
         ? say
         : '';
     final key = [
       lastEntry,
+      days,
       FinoraOrbPainter.theme.toARGB32(),
       balance,
       totals.income,
@@ -160,6 +181,7 @@ abstract final class FinoraOutside {
       'image': image,
       ...moods,
       'lastEntry': lastEntry,
+      'streak': '$days',
       'alert': alert,
       'alertMood': alert.isEmpty ? '' : mood.name,
       'paymentsImage': paymentsImage,

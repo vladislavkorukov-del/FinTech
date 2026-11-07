@@ -167,6 +167,6 @@ void main() {
   });
 
   test('«Что нового» в 1.38', () {
-    expect(WhatsNew.items.first.$2, 'Список покупок');
+    expect(WhatsNew.items.map((i) => i.$2), contains('Список покупок'));
   });
 }
