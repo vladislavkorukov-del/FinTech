@@ -87,30 +87,52 @@ object FinoraWidgets {
         fun value(key: String) = prefs.getString(key, "") ?: ""
         val hour = now.get(java.util.Calendar.HOUR_OF_DAY)
         val days = daysSince(value("lastEntry"), now)
+        val dayOfYear = now.get(java.util.Calendar.DAY_OF_YEAR)
         val name = when {
-            value("payState") == "overdue" -> "debts"
+            value("payState") == "overdue" -> "pay_dont_forget"
             value("payState") == "today" -> "payment_today"
             hour >= 23 || hour < 7 -> "calm"
-            days != 0 && hour >= 11 -> "record"
+            // 1.41: nothing recorded today — four pictures in turn; in the
+            // evening the louder one.
+            days != 0 && hour >= 19 -> "record_due_blue"
+            days != 0 && hour >= 11 -> listOf(
+                "record_expense",
+                "record_expense_lilac",
+                "record_due_groceries",
+            )[dayOfYear % 3]
+            value("payState") == "soon" -> "payment_reminder"
             else -> value("tile").ifEmpty { "check" }
         }
-        return when (name) {
-            "forward" -> R.drawable.finora_mood_forward
-            "record" -> R.drawable.finora_mood_record
-            "income" -> R.drawable.finora_mood_income
-            "payment_today" -> R.drawable.finora_mood_payment_today
-            "limit" -> R.drawable.finora_mood_limit
-            "plus" -> R.drawable.finora_mood_plus
-            "piggy" -> R.drawable.finora_mood_piggy
-            "saving" -> R.drawable.finora_mood_saving
-            "growing" -> R.drawable.finora_mood_growing
-            "goal_near" -> R.drawable.finora_mood_goal_near
-            "budget_ok" -> R.drawable.finora_mood_budget_ok
-            "report" -> R.drawable.finora_mood_report
-            "debts" -> R.drawable.finora_mood_debts
-            "calm" -> R.drawable.finora_mood_calm
-            else -> R.drawable.finora_mood_check
-        }
+        return resource(name)
+    }
+
+    /** 1.41: the owner's 25 pictures of Finora. */
+    fun resource(name: String): Int = when (name) {
+        "budget_month" -> R.drawable.finora_mood_budget_month
+        "budget_month_pink" -> R.drawable.finora_mood_budget_month_pink
+        "budget_topup" -> R.drawable.finora_mood_budget_topup
+        "calm" -> R.drawable.finora_mood_calm
+        "dream_savings" -> R.drawable.finora_mood_dream_savings
+        "expenses_today" -> R.drawable.finora_mood_expenses_today
+        "forward" -> R.drawable.finora_mood_forward
+        "goal_month" -> R.drawable.finora_mood_goal_month
+        "growing" -> R.drawable.finora_mood_growing
+        "income" -> R.drawable.finora_mood_income
+        "income_tracking" -> R.drawable.finora_mood_income_tracking
+        "limit" -> R.drawable.finora_mood_limit
+        "limit_today" -> R.drawable.finora_mood_limit_today
+        "pay_dont_forget" -> R.drawable.finora_mood_pay_dont_forget
+        "payment_reminder" -> R.drawable.finora_mood_payment_reminder
+        "payment_today" -> R.drawable.finora_mood_payment_today
+        "piggy" -> R.drawable.finora_mood_piggy
+        "plan_budget" -> R.drawable.finora_mood_plan_budget
+        "plus" -> R.drawable.finora_mood_plus
+        "record_due_blue" -> R.drawable.finora_mood_record_due_blue
+        "record_due_groceries" -> R.drawable.finora_mood_record_due_groceries
+        "record_expense" -> R.drawable.finora_mood_record_expense
+        "record_expense_lilac" -> R.drawable.finora_mood_record_expense_lilac
+        "saving" -> R.drawable.finora_mood_saving
+        else -> R.drawable.finora_mood_check
     }
 
     /** Days from [last] (yyyy-MM-dd) to today; -1 when unknown. */
@@ -141,7 +163,10 @@ object FinoraWidgets {
         val text = when {
             mood == "angry" && prefs.getString("alertMood", "") == "angry" -> line
             mood == "sleep" -> line
-            days == 0 && alive >= 2 -> "Серия $alive ${daysWord(alive)}! Так держать 🔥"
+            days == 0 && alive >= 2 && (prefs.getString("tileSay", "") ?: "").isEmpty() ->
+                "Серия $alive ${daysWord(alive)}! Так держать 🔥"
+            days == 0 && (prefs.getString("tileSay", "") ?: "").isNotEmpty() ->
+                prefs.getString("tileSay", "") ?: ""
             days == 0 -> "Сегодня всё записано — умница!"
             days == 1 && alive >= 2 && hour >= 18 ->
                 "Серия $alive ${daysWord(alive)} сгорит в полночь! Запишите хоть одну трату 😤"

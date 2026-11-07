@@ -10,5 +10,5 @@
     android:updatePeriodMillis="1800000"
     android:initialLayout="@layout/widget_buddy"
     android:previewLayout="@layout/widget_buddy"
-    android:previewImage="@drawable/finora_mood_record"
+    android:previewImage="@drawable/finora_mood_record_expense"
     android:description="@string/widget_buddy" />
