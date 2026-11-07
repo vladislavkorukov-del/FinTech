@@ -665,6 +665,10 @@ class AppPreferences {
   /// 1.28: the money tips card on the main screen (can be swiped away).
   final bool tips;
 
+  /// 1.30: the tips card stays at the bottom of the main screen until the
+  /// person drags it somewhere else.
+  final bool tipsMoved;
+
   /// 1.28: the app language, 'ru' or 'en'.
   final String language;
 
@@ -689,6 +693,7 @@ class AppPreferences {
     this.haptics = true,
     this.shadeControls = false,
     this.tips = true,
+    this.tipsMoved = false,
     this.language = 'ru',
   });
 
@@ -713,6 +718,7 @@ class AppPreferences {
     bool? haptics,
     bool? shadeControls,
     bool? tips,
+    bool? tipsMoved,
     String? language,
   }) => AppPreferences(
     theme: theme ?? this.theme,
@@ -739,6 +745,7 @@ class AppPreferences {
     haptics: haptics ?? this.haptics,
     shadeControls: shadeControls ?? this.shadeControls,
     tips: tips ?? this.tips,
+    tipsMoved: tipsMoved ?? this.tipsMoved,
     language: language ?? this.language,
   );
 
@@ -763,6 +770,7 @@ class AppPreferences {
     'haptics': haptics,
     'shadeControls': shadeControls,
     'tips': tips,
+    'tipsMoved': tipsMoved,
     'language': language,
   };
 
@@ -790,6 +798,7 @@ class AppPreferences {
     haptics: json['haptics'] as bool? ?? true,
     shadeControls: json['shadeControls'] as bool? ?? false,
     tips: json['tips'] as bool? ?? true,
+    tipsMoved: json['tipsMoved'] as bool? ?? false,
     language: json['language'] as String? ?? 'ru',
   );
 

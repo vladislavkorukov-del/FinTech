@@ -124,8 +124,6 @@ class Dashboard extends StatelessWidget {
         ),
       ),
       'quick': const FinanceQuickActions(),
-      // 1.28: a money tip from Finora; swipe it away or turn it off.
-      if (prefs.tips) 'tips': const MoneyTipsCard(),
       'accounts': block([
         SectionTitle(
           'Все счета',
@@ -346,13 +344,24 @@ class Dashboard extends StatelessWidget {
               ),
             ),
       ]),
+      // 1.28: a money tip from Finora; swipe it away or turn it off.
+      // 1.30: at the very bottom unless the person drags it elsewhere.
+      if (prefs.tips) 'tips': const MoneyTipsCard(),
     };
     // 1.14: every block can be dragged to a new place with a long press;
     // accounts and goals inside their blocks too. The order is saved.
     return _Reorderable(
       listKey: 'dashboard',
-      ids: prefs.dashboardOrder,
-      onSave: save((p, ids) => p.copyWith(dashboardOrder: ids)),
+      ids: prefs.tipsMoved
+          ? prefs.dashboardOrder
+          : prefs.dashboardOrder.where((id) => id != 'tips').toList(),
+      onSave: save(
+        (p, ids) => p.copyWith(
+          dashboardOrder: ids,
+          tipsMoved:
+              p.tipsMoved || (ids.contains('tips') && ids.last != 'tips'),
+        ),
+      ),
       nested: false,
       header: const Reveal(index: 0, child: FinanceHeader()),
       // 1.26: no hint here any more — the tour explains dragging.

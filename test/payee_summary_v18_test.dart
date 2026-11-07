@@ -207,6 +207,8 @@ void main() {
       await tester.drag(find.byType(Scrollable).first, const Offset(0, -200));
       await tester.pumpAndSettle();
       final tile = find.text('Whoosh').first;
+      await tester.ensureVisible(tile);
+      await tester.pumpAndSettle();
       await tester.tap(tile);
       await tester.pumpAndSettle();
       expect(find.byType(PayeeSummaryScreen), findsOneWidget);

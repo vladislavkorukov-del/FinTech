@@ -155,6 +155,32 @@ void main() {
       expect(find.byKey(const ValueKey('currency-sheet')), findsNothing);
     });
 
+    testWidgets('1.30: the tips card is the last block by default', (
+      tester,
+    ) async {
+      // Even if an earlier order put it near the top.
+      await tester.runAsync(
+        () => controller.preferences(
+          controller.data.preferences.copyWith(
+            dashboardOrder: const ['summary', 'tips', 'accounts', 'goals'],
+          ),
+        ),
+      );
+      await start(tester);
+      // A very tall screen: every block is built at once.
+      tester.view.physicalSize = const Size(420, 6000);
+      await tester.pumpAndSettle();
+      final tips = find.byKey(const ValueKey('money-tips'));
+      final scroll = find.byType(Scrollable).first;
+      final goal = find.byKey(const ValueKey('swipe-dash-goal-car'));
+      expect(goal, findsOneWidget);
+      expect(tester.getTopLeft(goal).dy, lessThan(tester.getTopLeft(tips).dy));
+      // Nothing else below it.
+      await tester.drag(scroll, const Offset(0, -3000));
+      await tester.pumpAndSettle();
+      expect(tips, findsOneWidget);
+    });
+
     testWidgets('English labels after choosing the language', (tester) async {
       await tester.runAsync(
         () => controller.preferences(
