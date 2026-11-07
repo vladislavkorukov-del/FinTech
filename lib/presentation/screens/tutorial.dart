@@ -80,6 +80,15 @@ final _pages = <_Page>[
         'Сервисы можно называть по-русски: «чат гпт», «нетфликс»',
       ),
       (Icons.front_hand_outlined, 'Удержание кругляша — ручной ввод'),
+      (Icons.hearing_rounded, 'Финора слышит сама — без звука и без интернета'),
+      (
+        Icons.record_voice_over_rounded,
+        '«Финора, …» — пока приложение открыто (включите в настройках)',
+      ),
+      (
+        Icons.power_settings_new_rounded,
+        'По кнопке питания — сделайте Финору помощником телефона',
+      ),
     ],
     picture: (context, dark) => const _VoicePicture(),
   ),

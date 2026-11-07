@@ -31,6 +31,12 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        // 1.31: 64-bit ARM only (all current phones, the owner's Samsung
+        // A56 included): the offline speech model makes a universal APK too
+        // big for one release file.
+        ndk {
+            abiFilters += listOf("arm64-v8a")
+        }
     }
     signingConfigs {
         if (signingPropertiesFile.exists()) {
@@ -40,6 +46,12 @@ android {
                 keyAlias = signingProperties.getProperty("keyAlias")
                 keyPassword = signingProperties.getProperty("keyPassword")
             }
+        }
+    }
+    // 1.31: only 64-bit ARM native libraries go into the APK.
+    packaging {
+        jniLibs {
+            excludes += listOf("lib/armeabi-v7a/**", "lib/x86_64/**", "lib/x86/**")
         }
     }
     buildTypes {
@@ -65,6 +77,10 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.7.1")
     implementation("cz.adaptech.tesseract4android:tesseract4android:4.9.0")
     implementation("androidx.exifinterface:exifinterface:1.4.1")
+    // 1.31: Finora's own offline, silent speech recognition (Vosk, Apache-2.0;
+    // Russian small model in assets/model-ru).
+    implementation("com.alphacephei:vosk-android:0.3.47")
+    implementation("net.java.dev.jna:jna:5.13.0@aar")
     // Developer-only on-device OCR check (not part of the release APK).
     androidTestImplementation("androidx.test:runner:1.6.2")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")

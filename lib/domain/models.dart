@@ -669,6 +669,12 @@ class AppPreferences {
   /// person drags it somewhere else.
   final bool tipsMoved;
 
+  /// 1.31: Finora answers to her name while the app is on screen (off by
+  /// default), and the system speech dialog may be used instead of her own
+  /// silent ear.
+  final bool wakeWord;
+  final bool googleVoice;
+
   /// 1.28: the app language, 'ru' or 'en'.
   final String language;
 
@@ -694,6 +700,8 @@ class AppPreferences {
     this.shadeControls = false,
     this.tips = true,
     this.tipsMoved = false,
+    this.wakeWord = false,
+    this.googleVoice = false,
     this.language = 'ru',
   });
 
@@ -719,6 +727,8 @@ class AppPreferences {
     bool? shadeControls,
     bool? tips,
     bool? tipsMoved,
+    bool? wakeWord,
+    bool? googleVoice,
     String? language,
   }) => AppPreferences(
     theme: theme ?? this.theme,
@@ -746,6 +756,8 @@ class AppPreferences {
     shadeControls: shadeControls ?? this.shadeControls,
     tips: tips ?? this.tips,
     tipsMoved: tipsMoved ?? this.tipsMoved,
+    wakeWord: wakeWord ?? this.wakeWord,
+    googleVoice: googleVoice ?? this.googleVoice,
     language: language ?? this.language,
   );
 
@@ -771,6 +783,8 @@ class AppPreferences {
     'shadeControls': shadeControls,
     'tips': tips,
     'tipsMoved': tipsMoved,
+    'wakeWord2': wakeWord,
+    'googleVoice': googleVoice,
     'language': language,
   };
 
@@ -799,6 +813,10 @@ class AppPreferences {
     shadeControls: json['shadeControls'] as bool? ?? false,
     tips: json['tips'] as bool? ?? true,
     tipsMoved: json['tipsMoved'] as bool? ?? false,
+    // 1.27–1.28 stored a «wakeWord» for the old system recognizer; it is
+    // not carried over — the new ear is turned on again by the person.
+    wakeWord: json['wakeWord2'] as bool? ?? false,
+    googleVoice: json['googleVoice'] as bool? ?? false,
     language: json['language'] as String? ?? 'ru',
   );
 

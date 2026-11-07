@@ -16,6 +16,9 @@ import '../theme/app_theme.dart';
 import '../widgets/common.dart';
 import 'account_import_screen.dart';
 import 'tutorial.dart';
+import '../finora_vocabulary.dart';
+import '../../services/finora_ear.dart';
+import '../../services/finora_system.dart';
 import '../finora_outside.dart';
 import '../widgets/grouped_list.dart';
 import '../widgets/finora_orb.dart';
@@ -246,7 +249,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-  static const version = '1.30.0';
+  static const version = '1.31.0';
 
   /// One settings page: a section of the root list.
   Widget _page(String title, List<Widget> children) => Scaffold(
@@ -805,6 +808,51 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       'Виджеты: удерживайте рабочий стол → «Виджеты» → Finora. '
                       'Плитка: опустите шторку → карандаш → «Финора».',
                   children: [
+                    // 1.31: her own silent ear.
+                    GroupedRow(
+                      key: const ValueKey('settings-wake'),
+                      icon: Icons.record_voice_over_rounded,
+                      color: TileColors.teal,
+                      title: 'Отзываться на «Финора»',
+                      subtitle:
+                          'Только пока приложение открыто. Без звука, '
+                          'без интернета',
+                      trailing: Switch.adaptive(
+                        value: p.wakeWord,
+                        onChanged: (v) => _run(() => _setWake(v)),
+                      ),
+                      onTap: () => _run(() => _setWake(!p.wakeWord)),
+                    ),
+                    GroupedRow(
+                      key: const ValueKey('settings-assistant'),
+                      icon: Icons.power_settings_new_rounded,
+                      color: TileColors.indigo,
+                      title: 'Финора по кнопке питания',
+                      subtitle: 'Сделать Финору помощником телефона',
+                      onTap: () => _run(_assistantHelp),
+                    ),
+                    GroupedRow(
+                      key: const ValueKey('settings-google-voice'),
+                      icon: Icons.mic_external_on_rounded,
+                      color: TileColors.gray,
+                      title: 'Распознавание Google',
+                      subtitle: 'Вместо слуха Финоры: со звуком, иногда точнее',
+                      trailing: Switch.adaptive(
+                        value: p.googleVoice,
+                        onChanged: (v) => _run(
+                          () => c.preferences(
+                            c.data.preferences.copyWith(googleVoice: v),
+                          ),
+                        ),
+                      ),
+                      onTap: () => _run(
+                        () => c.preferences(
+                          c.data.preferences.copyWith(
+                            googleVoice: !p.googleVoice,
+                          ),
+                        ),
+                      ),
+                    ),
                     GroupedRow(
                       key: const ValueKey('settings-shade'),
                       icon: Icons.notifications_active_rounded,
@@ -916,6 +964,40 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ],
       ),
     );
+  }
+
+  /// «Отзываться на «Финора»»: needs the microphone; only while the app is
+  /// on screen.
+  Future<void> _setWake(bool on) async {
+    final c = FinanceScope.of(context);
+    if (on && !await FinoraEar.requestMic()) {
+      throw const FormatException(
+        'Разрешите микрофон для Finora, чтобы Финора слышала своё имя.',
+      );
+    }
+    await c.preferences(c.data.preferences.copyWith(wakeWord: on));
+    if (on) {
+      await FinoraEar.prepare();
+      await FinoraEar.wakeStart(FinoraVocabulary.build(c.data));
+    } else {
+      await FinoraEar.stop();
+    }
+  }
+
+  /// How to put Finora on the power button.
+  Future<void> _assistantHelp() async {
+    final open = await confirmWithFinora(
+      context,
+      title: 'Финора по кнопке питания',
+      message:
+          'В настройках Android выберите «Помощник по умолчанию» (или '
+          '«Цифровой помощник») → Finora. На Samsung затем: Настройки → '
+          'Дополнительные функции → Боковая кнопка → «Нажатие и '
+          'удержание» → «Цифровой помощник». Когда приложение закрыто, '
+          'Финора слушает только после этого жеста.',
+      action: 'Открыть настройки',
+    );
+    if (open) await FinoraSystem.assistantSettings();
   }
 
   /// «Финора в шторке»: an ongoing notification with her buttons.

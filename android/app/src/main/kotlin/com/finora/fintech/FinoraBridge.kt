@@ -68,6 +68,22 @@ class FinoraBridge(
                     result.success(true)
                 }
                 "ping" -> result.success(true)
+                "assistantSettings" -> {
+                    // «Помощник по умолчанию» in Android settings.
+                    val opened = listOf(
+                        android.provider.Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS,
+                        android.provider.Settings.ACTION_VOICE_INPUT_SETTINGS,
+                        android.provider.Settings.ACTION_SETTINGS,
+                    ).any { action ->
+                        try {
+                            activity.startActivity(Intent(action))
+                            true
+                        } catch (_: Exception) {
+                            false
+                        }
+                    }
+                    result.success(opened)
+                }
                 else -> result.notImplemented()
             }
         }
@@ -75,6 +91,13 @@ class FinoraBridge(
 
     /** An Intent from a widget, the tile or the shade. */
     fun accept(intent: Intent?) {
+        // 1.31: Finora as the phone's assistant (power button / gesture).
+        if (intent?.action == Intent.ACTION_ASSIST ||
+            intent?.action == Intent.ACTION_VOICE_COMMAND
+        ) {
+            intent.action = Intent.ACTION_MAIN
+            intent.putExtra(EXTRA_ACTION, "voice")
+        }
         val action = intent?.getStringExtra(EXTRA_ACTION) ?: return
         intent.removeExtra(EXTRA_ACTION)
         pendingAction = action

@@ -231,7 +231,9 @@ abstract final class VoiceCommandParser {
   ) {
     // 1.26: «Финора, покажи расходы» — the name is a greeting, not a word.
     final t = _norm(heard).replaceFirst(
-      RegExp(r'^(?:эй |слушай |привет |ну )?(?:финора|финор|finora) ?'),
+      RegExp(
+        r'^(?:эй |слушай |привет |ну )?(?:финора|финор|finora|фигура|фигуры) ?',
+      ),
       '',
     );
     if (t.isEmpty) return null;

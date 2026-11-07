@@ -29,6 +29,9 @@ import 'presentation/payment_prompt.dart';
 import 'presentation/finora_outside.dart';
 import 'presentation/widgets/finora_orb.dart';
 import 'services/finora_system.dart';
+import 'services/finora_ear.dart';
+import 'presentation/finora_listening.dart';
+import 'presentation/finora_vocabulary.dart';
 import 'domain/voice_command_parser.dart';
 import 'services/voice_input_service.dart';
 import 'domain/models.dart';
@@ -212,6 +215,14 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
     _actionSubscription = FinoraSystem.actions.listen(
       (a) => unawaited(_action(a)),
     );
+    _wakeSubscription = FinoraEar.wakes.listen((h) => unawaited(_woken(h)));
+    // The speech model is unpacked early, so the first tap is quick.
+    unawaited(
+      FinoraEar.available.then((yes) async {
+        if (yes) await FinoraEar.prepare();
+        unawaited(_listenForName());
+      }),
+    );
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final action = await FinoraSystem.takeAction();
       if (action != null) await _action(action);
@@ -249,6 +260,7 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       _askPayments();
+      unawaited(_listenForName());
     }
   }
 
@@ -274,6 +286,7 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
     WidgetsBinding.instance.removeObserver(this);
     _paymentsTimer?.cancel();
     unawaited(_actionSubscription?.cancel());
+    unawaited(_wakeSubscription?.cancel());
     _watched?.removeListener(_dataChanged);
     final subscription = _shareSubscription;
     if (subscription != null) unawaited(subscription.cancel());
@@ -381,16 +394,80 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
   /// opens the editor filled from the phrase.
   Future<void> _voice() async {
     List<String> heard;
+    final prefs = FinanceScope.of(context).data.preferences;
     try {
-      heard = await const VoiceInputService().listen(
-        prompt: VoiceCommands.prompt,
-      );
+      // 1.31: Finora's own silent ear; the system dialog only when chosen
+      // in Settings or where her ear is unavailable.
+      if (!prefs.googleVoice && await FinoraEar.available) {
+        if (!await FinoraEar.micAllowed() && !await FinoraEar.requestMic()) {
+          if (mounted) {
+            showError(
+              context,
+              const FormatException(
+                'Разрешите микрофон для Finora, чтобы Финора вас слышала.',
+              ),
+            );
+          }
+          return;
+        }
+        if (!mounted) return;
+        heard = await listenWithFinora(context);
+      } else {
+        heard = await const VoiceInputService().listen(
+          prompt: VoiceCommands.prompt,
+        );
+      }
     } catch (error) {
       if (mounted) showError(context, error);
+      unawaited(_listenForName());
       return;
     }
-    if (heard.isEmpty || !mounted) return;
+    if (heard.isEmpty || !mounted) {
+      unawaited(_listenForName());
+      return;
+    }
     await _heard(heard);
+    unawaited(_listenForName());
+  }
+
+  StreamSubscription<List<String>>? _wakeSubscription;
+
+  /// 1.31: «Финора» while the app is on screen, when turned on in Settings.
+  /// Never in the background (the ear stops when the app is paused).
+  Future<void> _listenForName() async {
+    if (!mounted) return;
+    final c = FinanceScope.of(context);
+    if (!c.data.preferences.wakeWord ||
+        !await FinoraEar.available ||
+        !await FinoraEar.micAllowed() ||
+        !mounted) {
+      return;
+    }
+    await FinoraEar.wakeStart(FinoraVocabulary.build(c.data));
+  }
+
+  Future<void> _woken(List<String> heard) async {
+    if (!mounted) return;
+    Finora.react(FinoraMood.greeting, text: 'Слушаю!');
+    // «Финора, покажи расходы за июнь» — the rest is the request.
+    final rest = [
+      for (final h in heard)
+        h
+            .replaceFirst(
+              RegExp(
+                r'^\S*?(фигур|финор|финал)\S*[,.!]?\s*',
+                caseSensitive: false,
+              ),
+              '',
+            )
+            .trim(),
+    ].where((h) => h.isNotEmpty).toList();
+    if (rest.isEmpty) {
+      await _voice();
+    } else {
+      await _heard(rest);
+      unawaited(_listenForName());
+    }
   }
 
   /// A phrase heard by the speech dialog.

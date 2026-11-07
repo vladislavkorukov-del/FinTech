@@ -58,6 +58,10 @@ abstract final class FinoraSystem {
     return _call<String>('takeAction');
   }
 
+  /// Opens Android's «Помощник по умолчанию» settings (1.31).
+  static Future<bool> assistantSettings() async =>
+      await _call<bool>('assistantSettings') ?? false;
+
   static Future<void> updateWidgets(Map<String, String> data) =>
       _call<bool>('updateWidgets', data);
 

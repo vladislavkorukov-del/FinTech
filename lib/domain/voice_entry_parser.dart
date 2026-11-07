@@ -188,6 +188,8 @@ abstract final class VoiceEntryParser {
   static const _filler = {
     'финора',
     'finora',
+    // 1.31: how Finora's own ear hears her name.
+    'фигура',
     'на',
     'в',
     'во',

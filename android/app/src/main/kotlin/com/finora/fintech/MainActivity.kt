@@ -13,6 +13,7 @@ class MainActivity : FlutterFragmentActivity() {
     private var receiptShare: ReceiptShareBridge? = null
     private var voiceInput: VoiceInputBridge? = null
     private var finora: FinoraBridge? = null
+    private var ear: FinoraEar? = null
     private var dispatchedShareIntent: Intent? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,6 +38,8 @@ class MainActivity : FlutterFragmentActivity() {
         receiptShare = ReceiptShareBridge(this, flutterEngine.dartExecutor.binaryMessenger)
         voiceInput?.close()
         voiceInput = VoiceInputBridge(this, flutterEngine.dartExecutor.binaryMessenger)
+        ear?.close()
+        ear = FinoraEar(this, flutterEngine.dartExecutor.binaryMessenger)
         finora?.close()
         finora = FinoraBridge(this, flutterEngine.dartExecutor.binaryMessenger)
         finora?.accept(intent)
@@ -66,7 +69,24 @@ class MainActivity : FlutterFragmentActivity() {
         super.onActivityResult(requestCode, resultCode, data)
     }
 
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray,
+    ) {
+        if (ear?.onPermissionResult(requestCode) == true) return
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    }
+
+    override fun onPause() {
+        // 1.31: Finora never listens while the app is in the background.
+        ear?.stop()
+        super.onPause()
+    }
+
     override fun onDestroy() {
+        ear?.close()
+        ear = null
         finora?.close()
         finora = null
         voiceInput?.close()

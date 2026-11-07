@@ -4,6 +4,9 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <!-- 1.31: Finora's own silent ear; only while the app is on screen,
+         asked for on first use. -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <application
         android:name="${applicationName}"
         android:label="Finora"
@@ -25,6 +28,15 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <!-- 1.31: Finora can be the phone's assistant (power button). -->
+            <intent-filter>
+                <action android:name="android.intent.action.ASSIST" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VOICE_COMMAND" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
             <intent-filter android:label="Скриншот в Finora">
                 <action android:name="android.intent.action.SEND" />

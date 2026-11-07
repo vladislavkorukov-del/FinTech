@@ -1,0 +1,4 @@
+vosk-model-small-ru-0.22 — Alpha Cephei Inc., Apache License 2.0.
+https://alphacephei.com/vosk/models  (SHA-256 of the original zip:
+961d5ff98a17f4aa6de69864d0aa71fa5bac682301d2b5d17a3f24c5c99a46d4)
+Used offline by Finora 1.31 for silent on-device speech recognition.
