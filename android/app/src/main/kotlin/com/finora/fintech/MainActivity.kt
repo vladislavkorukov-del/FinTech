@@ -12,6 +12,7 @@ class MainActivity : FlutterFragmentActivity() {
     private var receiptOcr: ReceiptOcrBridge? = null
     private var receiptShare: ReceiptShareBridge? = null
     private var voiceInput: VoiceInputBridge? = null
+    private var finora: FinoraBridge? = null
     private var dispatchedShareIntent: Intent? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -23,6 +24,7 @@ class MainActivity : FlutterFragmentActivity() {
         super.onNewIntent(intent)
         setIntent(intent)
         dispatchShareIntent(intent)
+        finora?.accept(intent)
     }
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
@@ -35,6 +37,9 @@ class MainActivity : FlutterFragmentActivity() {
         receiptShare = ReceiptShareBridge(this, flutterEngine.dartExecutor.binaryMessenger)
         voiceInput?.close()
         voiceInput = VoiceInputBridge(this, flutterEngine.dartExecutor.binaryMessenger)
+        finora?.close()
+        finora = FinoraBridge(this, flutterEngine.dartExecutor.binaryMessenger)
+        finora?.accept(intent)
         // FlutterFragment may attach after Activity.onCreate has returned.
         // Dispatch here too, once per Intent, so cold-start shares cannot vanish.
         dispatchShareIntent(intent)
@@ -61,7 +66,24 @@ class MainActivity : FlutterFragmentActivity() {
         super.onActivityResult(requestCode, resultCode, data)
     }
 
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray,
+    ) {
+        if (finora?.onPermissionResult(requestCode) == true) return
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    }
+
+    override fun onPause() {
+        // Finora does not listen while the app is in the background.
+        finora?.stopWake()
+        super.onPause()
+    }
+
     override fun onDestroy() {
+        finora?.close()
+        finora = null
         voiceInput?.close()
         voiceInput = null
         receiptOcr?.close()

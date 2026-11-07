@@ -1,0 +1,5 @@
+<resources>
+    <string name="widget_small">Финора и баланс. Нажмите — и скажите операцию.</string>
+    <string name="widget_wide">Финора, баланс за месяц и быстрые действия.</string>
+    <string name="widget_payments">Ближайшие платежи и подписки.</string>
+</resources>

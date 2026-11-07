@@ -537,6 +537,14 @@ Future<void> showRecurringEditor(
       ),
     ],
     save: () async {
+      // 1.27: «чат гпт» typed as the name is ChatGPT, with its logo.
+      if (serviceId == null && customIconPath == null) {
+        final spoken = ServiceRecognizer.find(name.text, whole: true);
+        if (spoken != null && !ServiceCatalog.banks.contains(spoken)) {
+          serviceId = spoken.id;
+          name.text = spoken.name;
+        }
+      }
       final n = int.tryParse(interval.text);
       final m = FinanceEngine.parseMinor(amount.text);
       if (category.isEmpty) {

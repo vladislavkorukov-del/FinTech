@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'service_catalog.dart';
 import 'store_catalog.dart';
 
@@ -188,7 +190,10 @@ abstract final class ServiceRecognizer {
 
   /// The service or store [text] names, or null. The longest, closest name
   /// wins; two different services equally close give null.
-  static SubscriptionService? find(String? text) {
+  ///
+  /// With [whole], the name must be all of [text] («чат гпт» yes, «чат гпт
+  /// за май» no) — then the text may be replaced with the proper name.
+  static SubscriptionService? find(String? text, {bool whole = false}) {
     if (text == null) return null;
     final words = text
         .toLowerCase()
@@ -198,9 +203,13 @@ abstract final class ServiceRecognizer {
         .toList();
     if (words.isEmpty) return null;
     final latin = RegExp('[a-z]').hasMatch(words.join());
-    final whole = key(words.join());
+    final all = key(words.join());
     final windows = <String>{};
-    for (var n = 1; n <= 4 && n <= words.length; n++) {
+    for (
+      var n = whole ? words.length : 1;
+      n <= math.max(4, whole ? words.length : 4) && n <= words.length;
+      n++
+    ) {
       for (var i = 0; i + n <= words.length; i++) {
         windows.add(key(words.sublist(i, i + n).join()));
       }
@@ -221,7 +230,7 @@ abstract final class ServiceRecognizer {
     for (final (service, k) in _keys) {
       if (!latin && _ordinary.contains(k)) continue;
       if (k.length < 5) {
-        if (whole == k) offer(service, 100 + k.length * 2);
+        if (all == k) offer(service, 100 + k.length * 2);
         continue;
       }
       for (final w in windows) {

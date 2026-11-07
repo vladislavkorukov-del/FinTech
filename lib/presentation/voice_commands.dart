@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../domain/models.dart';
 import '../domain/voice_command_parser.dart';
 import 'widgets/common.dart';
+import 'widgets/finora_orb.dart';
 import 'controller.dart';
 import 'screens/account_import_screen.dart';
 import 'screens/management.dart';
@@ -91,6 +92,7 @@ abstract final class VoiceCommands {
       case CreateGoalCommand():
         final target = command.targetMinor;
         if (target == null || target <= 0) {
+          Finora.react(FinoraMood.thinking);
           say(
             'Сколько стоит «${command.name}»? Скажите, например: «хочу '
             'машину за 2 миллиона».',
@@ -198,6 +200,7 @@ abstract final class VoiceCommands {
       case CreateRecurringCommand():
         final amount = command.amountMinor;
         if (amount == null || amount <= 0) {
+          Finora.react(FinoraMood.thinking);
           say(
             'Сколько стоит «${command.name}»? Скажите, например: «подписка '
             'Яндекс Плюс 399 в месяц».',
@@ -255,11 +258,21 @@ abstract final class VoiceCommands {
         );
         await push(const RecurringScreen());
       case UnknownCommand():
-        say(
-          'Не понял «${command.heard}». Скажите, например: «покажи расходы '
-          'за июнь», «открой настройки», «сделай тему синей».',
+        // 1.27: Finora herself says she did not get it.
+        Finora.react(
+          FinoraMood.doubt,
+          text:
+              'Не поняла «${command.heard}». Скажите, например: «покажи '
+              'расходы за июнь» или «хочу машину за 2 млн».',
+          hold: const Duration(seconds: 5),
         );
+        return;
     }
+    // 1.27: her face says it is done.
+    Finora.react(switch (command) {
+      ThemeCommand() || CreateGoalCommand() => FinoraMood.pleasure,
+      _ => FinoraMood.done,
+    });
   }
 
   static String _date(DateTime d) =>

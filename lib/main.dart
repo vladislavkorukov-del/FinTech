@@ -21,9 +21,13 @@ import 'presentation/screens/entry_editor.dart';
 import 'presentation/screens/onboarding.dart';
 import 'presentation/widgets/common.dart';
 import 'presentation/widgets/finance_background.dart';
-import 'presentation/widgets/finance_header.dart';
 import 'presentation/widgets/voice_orb.dart';
 import 'presentation/voice_commands.dart';
+import 'presentation/haptics.dart';
+import 'presentation/payment_prompt.dart';
+import 'presentation/finora_outside.dart';
+import 'presentation/widgets/finora_orb.dart';
+import 'services/finora_system.dart';
 import 'domain/voice_command_parser.dart';
 import 'services/voice_input_service.dart';
 import 'domain/models.dart';
@@ -96,21 +100,35 @@ class _BootstrapState extends State<Bootstrap> {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.build(Brightness.dark, 'coffee'),
       home: Scaffold(
+        // 1.27: the same dark sky as the system splash; Finora greets.
+        backgroundColor: const Color(0xFF040A12),
         body: Center(
           child: Padding(
             padding: const EdgeInsets.all(28),
             child: _error == null
                 ? const Column(
+                    key: ValueKey('loading-finora'),
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      SizedBox(width: 64, height: 64, child: FinanceBrand()),
-                      SizedBox(height: 20),
-                      Text(
-                        'FINANCE',
-                        style: TextStyle(fontSize: 22, letterSpacing: 4),
+                      FinoraCharacter(
+                        size: 120,
+                        moods: [FinoraMood.delight, FinoraMood.greeting],
+                        step: Duration(milliseconds: 900),
                       ),
-                      SizedBox(height: 24),
-                      CircularProgressIndicator(),
+                      SizedBox(height: 26),
+                      Text(
+                        'Привет! Я Финора',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                      SizedBox(height: 6),
+                      Text(
+                        'Открываю ваши финансы…',
+                        style: TextStyle(color: Color(0x99DFFFF8)),
+                      ),
                     ],
                   )
                 : Column(
@@ -158,14 +176,16 @@ class FinoraApp extends StatelessWidget {
         final p = controller.data.preferences;
         FinanceFormat.numberPattern = p.numberFormat;
         FinanceFormat.datePattern = p.dateFormat;
+        Haptics.enabled = p.haptics;
         return MaterialApp(
           title: 'Finora — личные финансы',
           debugShowCheckedModeBanner: false,
           locale: const Locale('ru'),
           supportedLocales: const [Locale('ru'), Locale('en')],
           localizationsDelegates: GlobalMaterialLocalizations.delegates,
-          theme: AppTheme.app(Brightness.light, p.accent),
-          darkTheme: AppTheme.app(Brightness.dark, p.accent),
+          // 1.27: every tap answers with a light tick.
+          theme: withHaptics(AppTheme.app(Brightness.light, p.accent)),
+          darkTheme: withHaptics(AppTheme.app(Brightness.dark, p.accent)),
           themeMode: switch (p.theme) {
             'light' => ThemeMode.light,
             'dark' => ThemeMode.dark,
@@ -188,7 +208,7 @@ class HomeShell extends StatefulWidget {
   State<HomeShell> createState() => _HomeShellState();
 }
 
-class _HomeShellState extends State<HomeShell> {
+class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
   int _tab = 0;
   final _receiptShares = ReceiptShareService();
   StreamSubscription<void>? _shareSubscription;
@@ -204,6 +224,53 @@ class _HomeShellState extends State<HomeShell> {
     WidgetsBinding.instance.addPostFrameCallback(
       (_) => unawaited(_takeSharedImage()),
     );
+    // 1.27: Finora asks about today's payments.
+    WidgetsBinding.instance.addObserver(this);
+    _askPayments();
+    _actionSubscription = FinoraSystem.actions.listen(
+      (a) => unawaited(_action(a)),
+    );
+    _wakeSubscription = FinoraSystem.wakes.listen((h) => unawaited(_woken(h)));
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final action = await FinoraSystem.takeAction();
+      if (action != null) await _action(action);
+      _listenForName();
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Widgets and the shade follow the data.
+    final c = FinanceScope.of(context);
+    if (!identical(c, _watched)) {
+      _watched?.removeListener(_dataChanged);
+      FinoraOutside.cancel();
+      _watched = c..addListener(_dataChanged);
+      FinoraOutside.schedule(c);
+    }
+  }
+
+  void _dataChanged() {
+    final c = _watched;
+    if (c != null) FinoraOutside.schedule(c);
+  }
+
+  Timer? _paymentsTimer;
+
+  void _askPayments() {
+    _paymentsTimer?.cancel();
+    _paymentsTimer = Timer(const Duration(milliseconds: 900), () {
+      if (mounted) unawaited(PaymentPrompt.check(context));
+    });
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _askPayments();
+      _listenForName();
+    }
   }
 
   Future<void> _takeSharedImage() async {
@@ -225,6 +292,11 @@ class _HomeShellState extends State<HomeShell> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _paymentsTimer?.cancel();
+    unawaited(_actionSubscription?.cancel());
+    unawaited(_wakeSubscription?.cancel());
+    _watched?.removeListener(_dataChanged);
     final subscription = _shareSubscription;
     if (subscription != null) unawaited(subscription.cancel());
     unawaited(_receiptShares.dispose());
@@ -301,21 +373,93 @@ class _HomeShellState extends State<HomeShell> {
     }
   }
 
+  StreamSubscription<String>? _actionSubscription;
+  StreamSubscription<List<String>>? _wakeSubscription;
+  FinanceController? _watched;
+
+  /// 1.27: widgets, the Quick Settings tile and the shade open the app
+  /// with an action.
+  Future<void> _action(String action) async {
+    if (!mounted) return;
+    Navigator.of(context).popUntil((route) => route.isFirst);
+    switch (action) {
+      case 'voice':
+        await _voice();
+      case 'expense':
+        await showEntryEditor(context, kind: EntryKind.expense);
+      case 'income':
+        await showEntryEditor(context, kind: EntryKind.income);
+      case 'scan':
+        await showEntryEditor(context, startScan: true);
+      case 'payments':
+        await PaymentPrompt.check(context);
+        if (mounted) {
+          openFinancePage(context, const RecurringScreen());
+        }
+    }
+  }
+
+  /// 1.27: «Финора» while the app is open (when turned on in Settings).
+  void _listenForName() {
+    if (!mounted) return;
+    if (FinanceScope.of(context).data.preferences.wakeWord) {
+      unawaited(FinoraSystem.wakeStart());
+    } else {
+      unawaited(FinoraSystem.wakeStop());
+    }
+  }
+
+  Future<void> _woken(List<String> heard) async {
+    if (!mounted) return;
+    Finora.react(FinoraMood.greeting, text: 'Слушаю!');
+    // «Финора, покажи расходы за июнь» — the rest is the request.
+    final rest = [
+      for (final h in heard)
+        h
+            .replaceFirst(
+              RegExp(
+                r'^.*?(финор|фенор|финар|финур|винор|finor|fenor)\S*[,.!]?\s*',
+                caseSensitive: false,
+              ),
+              '',
+            )
+            .trim(),
+    ].where((h) => h.isNotEmpty).toList();
+    if (rest.isEmpty) {
+      await _voice();
+    } else {
+      await _heard(rest);
+      _listenForName();
+    }
+  }
+
   /// The voice orb (1.23): a command («покажи расходы за июнь», «поменяй
   /// тему на зелёную») is carried out; anything else is an operation and
   /// opens the editor filled from the phrase.
   Future<void> _voice() async {
-    final c = FinanceScope.of(context);
     List<String> heard;
+    // The system dialog needs the microphone: «Финора» rests meanwhile.
+    await FinoraSystem.wakeStop();
     try {
       heard = await const VoiceInputService().listen(
         prompt: VoiceCommands.prompt,
       );
     } catch (error) {
       if (mounted) showError(context, error);
+      _listenForName();
       return;
     }
-    if (heard.isEmpty || !mounted) return;
+    if (heard.isEmpty || !mounted) {
+      _listenForName();
+      return;
+    }
+    await _heard(heard);
+    _listenForName();
+  }
+
+  /// A phrase heard by the dialog or after «Финора, …».
+  Future<void> _heard(List<String> heard) async {
+    final c = FinanceScope.of(context);
     final command = VoiceCommandParser.parse(
       heard,
       categories: c.data.categories,

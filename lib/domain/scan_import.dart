@@ -3,6 +3,7 @@ import 'models.dart';
 import 'scan_document.dart';
 import 'scan_draft.dart';
 import 'service_catalog.dart';
+import 'service_recognizer.dart';
 
 const _keep = Object();
 
@@ -162,12 +163,13 @@ abstract final class ScanImport {
                     : item.destinationMinor)
               : null,
           date: d.date!,
-          payee: d.payee ?? '',
+          // 1.27: a name in Cyrillic becomes the proper one.
+          payee: _proper(d.payee, d.kind),
           note: d.comment,
           attachmentPath: attachmentPath,
           serviceId: d.kind == EntryKind.transfer
               ? null
-              : ServiceCatalog.byName(d.payee)?.id,
+              : (ServiceCatalog.byName(d.payee) ?? _spoken(d.payee))?.id,
           memberId: data.members.any((m) => m.id == 'me')
               ? 'me'
               : data.members.first.id,
@@ -180,4 +182,15 @@ abstract final class ScanImport {
     }
     return result;
   }
+}
+
+SubscriptionService? _spoken(String? payee) {
+  final s = ServiceRecognizer.find(payee, whole: true);
+  return s == null || ServiceCatalog.banks.contains(s) ? null : s;
+}
+
+String _proper(String? payee, EntryKind? kind) {
+  if (payee == null) return '';
+  if (kind == EntryKind.transfer) return payee;
+  return _spoken(payee)?.name ?? payee;
 }

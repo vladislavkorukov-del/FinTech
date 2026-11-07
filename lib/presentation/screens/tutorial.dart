@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../widgets/finora_orb.dart';
 import '../widgets/motion.dart';
 import '../widgets/voice_orb.dart';
 import 'onboarding.dart';
@@ -79,9 +80,57 @@ final _pages = <_Page>[
         'Сервисы можно называть по-русски: «чат гпт», «нетфликс»',
       ),
       (Icons.front_hand_outlined, 'Удержание кругляша — ручной ввод'),
-      (Icons.check_circle_outline, 'Сохраняется только после вашего нажатия'),
+      (
+        Icons.hearing_rounded,
+        'Можно позвать по имени: «Финора, …» — включите в настройках',
+      ),
     ],
     picture: (context, dark) => const _VoicePicture(),
+  ),
+  _Page(
+    icon: Icons.emoji_emotions_rounded,
+    color: AppleUi.orange,
+    eyebrow: 'Эмоции',
+    title: 'Финора живая',
+    text:
+        'Она радуется зарплате, удивляется большим тратам и сердится, '
+        'когда бюджет превышен или платёж просрочен. Без касаний — засыпает.',
+    tips: [
+      (Icons.vibration_rounded, 'Каждое нажатие и реакция — с лёгкой отдачей'),
+      (Icons.touch_app_outlined, 'Нажмите на Финору — она обрадуется'),
+    ],
+    picture: (context, dark) => const _MoodsPicture(),
+  ),
+  _Page(
+    icon: Icons.notifications_active_rounded,
+    color: AppleUi.green,
+    eyebrow: 'Платежи',
+    title: 'Сначала — подтверждение',
+    text:
+        'Подписка или обязательный платёж попадают в расходы только после '
+        '«Оплачено». В день платежа Финора сама спросит.',
+    tips: [
+      (Icons.schedule_rounded, '«Напомнить позже» — спросит через пару часов'),
+      (Icons.skip_next_rounded, '«В этот раз не платить» — без записи'),
+    ],
+    picture: (context, dark) => const _PaymentPicture(),
+  ),
+  _Page(
+    icon: Icons.widgets_rounded,
+    color: AppleUi.purple,
+    eyebrow: 'Виджеты и шторка',
+    title: 'Финора на рабочем столе',
+    text:
+        'Виджеты с балансом, кнопками и ближайшими платежами. Плитка «Финора» '
+        'в шторке открывает голос одним нажатием.',
+    tips: [
+      (
+        Icons.add_to_home_screen_rounded,
+        'Рабочий стол → удерживайте → «Виджеты» → Finora',
+      ),
+      (Icons.edit_rounded, 'Шторка → карандаш → перетащите плитку «Финора»'),
+    ],
+    picture: (context, dark) => const _WidgetsPicture(),
   ),
   _Page(
     icon: Icons.assistant_navigation,
@@ -1027,6 +1076,143 @@ class _SafePicture extends StatelessWidget {
                 Icons.restart_alt_rounded,
                 'Сброс в настройках',
                 AppleUi.indigo(dark),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _MoodsPicture extends StatelessWidget {
+  const _MoodsPicture();
+  @override
+  Widget build(BuildContext context) {
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    const moods = [
+      (FinoraMood.happy, 'Зарплата'),
+      (FinoraMood.surprised, '−12 000 ₽'),
+      (FinoraMood.angry, 'Лимит'),
+      (FinoraMood.done, 'Записала'),
+      (FinoraMood.attention, 'Платёж'),
+      (FinoraMood.sleep, 'Тишина'),
+    ];
+    return Wrap(
+      spacing: 22,
+      runSpacing: 12,
+      alignment: WrapAlignment.center,
+      children: [
+        for (final (mood, label) in moods)
+          SizedBox(
+            width: 72,
+            child: Column(
+              children: [
+                FinoraMark(size: 48, mood: mood),
+                const SizedBox(height: 8),
+                Text(label, style: _small(dark)),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _PaymentPicture extends StatelessWidget {
+  const _PaymentPicture();
+  @override
+  Widget build(BuildContext context) {
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    return _Card(
+      width: 240,
+      padding: const EdgeInsets.all(14),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const FinoraMark(size: 46, mood: FinoraMood.attention),
+          const SizedBox(height: 8),
+          Text('Сегодня списание подписки', style: _strong(dark, 13)),
+          const SizedBox(height: 4),
+          Text('Netflix · 799 ₽', style: _small(dark)),
+          const SizedBox(height: 10),
+          Container(
+            height: 30,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: AppleUi.blue(dark),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: const Text(
+              'Оплачено',
+              style: TextStyle(color: Colors.white, fontSize: 12),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _WidgetsPicture extends StatelessWidget {
+  const _WidgetsPicture();
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 120,
+          height: 120,
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [Color(0xFF0E2A33), Color(0xFF123B44)],
+            ),
+            borderRadius: BorderRadius.circular(24),
+          ),
+          child: const Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              FinoraMark(size: 52, mood: FinoraMood.happy),
+              SizedBox(height: 6),
+              Text(
+                '184 250 ₽',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 13,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(width: 16),
+        Container(
+          width: 120,
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: const Color(0xFF2C2C2E),
+            borderRadius: BorderRadius.circular(18),
+          ),
+          child: const Row(
+            children: [
+              CircleAvatar(
+                radius: 15,
+                backgroundColor: Color(0xFF3FE0C2),
+                child: Icon(
+                  Icons.mic_rounded,
+                  size: 17,
+                  color: Color(0xFF0A2730),
+                ),
+              ),
+              SizedBox(width: 8),
+              Flexible(
+                child: Text(
+                  'Финора',
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(color: Colors.white, fontSize: 12),
+                ),
               ),
             ],
           ),

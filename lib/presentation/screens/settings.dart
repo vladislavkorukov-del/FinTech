@@ -15,6 +15,8 @@ import '../theme/app_theme.dart';
 import '../widgets/common.dart';
 import 'account_import_screen.dart';
 import 'tutorial.dart';
+import '../finora_outside.dart';
+import '../../services/finora_system.dart';
 import '../widgets/grouped_list.dart';
 import '../widgets/finora_orb.dart';
 
@@ -244,7 +246,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-  static const version = '1.26.0';
+  static const version = '1.27.0';
 
   /// One settings page: a section of the root list.
   Widget _page(String title, List<Widget> children) => Scaffold(
@@ -787,6 +789,59 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                   ],
                 ),
+                // 1.27: Finora herself.
+                GroupedSection(
+                  title: 'Финора',
+                  footer:
+                      'Виджеты: удерживайте рабочий стол → «Виджеты» → Finora. '
+                      'Плитка: опустите шторку → карандаш → «Финора».',
+                  children: [
+                    GroupedRow(
+                      key: const ValueKey('settings-wake'),
+                      icon: Icons.record_voice_over_rounded,
+                      color: TileColors.teal,
+                      title: 'Отзываться на «Финора»',
+                      subtitle: 'Пока приложение открыто на экране',
+                      trailing: Switch.adaptive(
+                        value: p.wakeWord,
+                        onChanged: (v) => _run(() => _setWake(v)),
+                      ),
+                      onTap: () => _run(() => _setWake(!p.wakeWord)),
+                    ),
+                    GroupedRow(
+                      key: const ValueKey('settings-shade'),
+                      icon: Icons.notifications_active_rounded,
+                      color: TileColors.indigo,
+                      title: 'Финора в шторке',
+                      subtitle: 'Кнопки «Сказать», «Расход», «Скриншот»',
+                      trailing: Switch.adaptive(
+                        value: p.shadeControls,
+                        onChanged: (v) => _run(() => _setShade(v)),
+                      ),
+                      onTap: () => _run(() => _setShade(!p.shadeControls)),
+                    ),
+                    GroupedRow(
+                      key: const ValueKey('settings-haptics'),
+                      icon: Icons.vibration_rounded,
+                      color: TileColors.pink,
+                      title: 'Тактильный отклик',
+                      subtitle: 'Лёгкая отдача на нажатия и реакции',
+                      trailing: Switch.adaptive(
+                        value: p.haptics,
+                        onChanged: (v) => _run(
+                          () => c.preferences(
+                            c.data.preferences.copyWith(haptics: v),
+                          ),
+                        ),
+                      ),
+                      onTap: () => _run(
+                        () => c.preferences(
+                          c.data.preferences.copyWith(haptics: !p.haptics),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
                 GroupedSection(
                   title: 'Finora',
                   children: [
@@ -844,6 +899,34 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ],
       ),
     );
+  }
+
+  /// «Отзываться на «Финора»»: needs the microphone.
+  Future<void> _setWake(bool on) async {
+    final c = FinanceScope.of(context);
+    if (on && !await FinoraSystem.requestMic()) {
+      throw const FormatException(
+        'Разрешите микрофон для Finora, чтобы Финора слышала своё имя.',
+      );
+    }
+    await c.preferences(c.data.preferences.copyWith(wakeWord: on));
+    if (on) {
+      await FinoraSystem.wakeStart();
+    } else {
+      await FinoraSystem.wakeStop();
+    }
+  }
+
+  /// «Финора в шторке»: an ongoing notification with her buttons.
+  Future<void> _setShade(bool on) async {
+    final c = FinanceScope.of(context);
+    if (on && !await c.notifications.requestPermission()) {
+      throw const FormatException(
+        'Разрешите уведомления для Finora в настройках Android.',
+      );
+    }
+    await c.preferences(c.data.preferences.copyWith(shadeControls: on));
+    await FinoraOutside.push(c);
   }
 
   Future<void> _clearDemo() async {

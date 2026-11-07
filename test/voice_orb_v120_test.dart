@@ -97,7 +97,7 @@ void main() {
         .map((p) => p.painter)
         .whereType<FinoraOrbPainter>()
         .single;
-    expect(painter.mood, FinoraMood.happy);
+    expect(painter.mood, FinoraMood.delight);
     expect(painter.joy, greaterThan(0));
     expect(taps, 0);
     await tester.pump(const Duration(milliseconds: 300));
@@ -110,7 +110,7 @@ void main() {
         .map((p) => p.painter)
         .whereType<FinoraOrbPainter>()
         .single;
-    expect(after.mood, FinoraMood.calm);
+    expect(after.mood, FinoraMood.idle);
     expect(tester.getRect(orb), rest);
     await tester.pump(VoiceOrb.idle);
     await tester.pump(const Duration(seconds: 8));

@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 
 import '../../domain/models.dart';
 import '../../domain/service_catalog.dart';
+import '../../domain/service_recognizer.dart';
 import '../widgets/bank_picker.dart';
 import '../widgets/service_badge.dart';
 import '../../domain/finance_engine.dart';

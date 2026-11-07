@@ -656,6 +656,13 @@ class AppPreferences {
   /// person turns it on per account in the account editor.
   final List<String> bankLogos;
 
+  /// Finora 1.27: a light tap under the finger (on by default), Finora
+  /// waking on her name (off until the person turns it on and allows the
+  /// microphone) and her controls in the notification shade (off).
+  final bool haptics;
+  final bool wakeWord;
+  final bool shadeControls;
+
   const AppPreferences({
     this.theme = 'dark',
     this.accent = 'coffee',
@@ -674,6 +681,9 @@ class AppPreferences {
     this.userName = '',
     this.onboarded = true,
     this.bankLogos = const [],
+    this.haptics = true,
+    this.wakeWord = false,
+    this.shadeControls = false,
   });
 
   AppPreferences copyWith({
@@ -694,6 +704,9 @@ class AppPreferences {
     String? userName,
     bool? onboarded,
     List<String>? bankLogos,
+    bool? haptics,
+    bool? wakeWord,
+    bool? shadeControls,
   }) => AppPreferences(
     theme: theme ?? this.theme,
     accent: accent ?? this.accent,
@@ -716,6 +729,9 @@ class AppPreferences {
     userName: userName ?? this.userName,
     onboarded: onboarded ?? this.onboarded,
     bankLogos: bankLogos ?? this.bankLogos,
+    haptics: haptics ?? this.haptics,
+    wakeWord: wakeWord ?? this.wakeWord,
+    shadeControls: shadeControls ?? this.shadeControls,
   );
 
   Map<String, Object?> toJson() => {
@@ -736,6 +752,9 @@ class AppPreferences {
     'userName': userName,
     'onboarded': onboarded,
     'bankLogos': bankLogos,
+    'haptics': haptics,
+    'wakeWord': wakeWord,
+    'shadeControls': shadeControls,
   };
 
   static List<String> _ids(Object? value) =>
@@ -759,6 +778,9 @@ class AppPreferences {
     userName: json['userName'] as String? ?? '',
     onboarded: json['onboarded'] as bool? ?? true,
     bankLogos: _ids(json['bankLogos']),
+    haptics: json['haptics'] as bool? ?? true,
+    wakeWord: json['wakeWord'] as bool? ?? false,
+    shadeControls: json['shadeControls'] as bool? ?? false,
   );
 
   /// [items] in the person's [order] (by [id]); unknown items keep their

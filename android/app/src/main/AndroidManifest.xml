@@ -4,6 +4,9 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <!-- 1.27: Finora answers to her name while the app is open; asked for
+         only when the person turns this on in Settings. -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <application
         android:name="${applicationName}"
         android:label="Finora"
@@ -41,12 +44,44 @@
                 <action android:name="com.htc.intent.action.QUICKBOOT_POWERON" />
             </intent-filter>
         </receiver>
+        <!-- 1.27: Finora on the home screen and in the shade. -->
+        <receiver android:name=".FinoraWidgetSmall" android:exported="false" android:label="Финора">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/finora_widget_small" />
+        </receiver>
+        <receiver android:name=".FinoraWidgetWide" android:exported="false" android:label="Финора: баланс и действия">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/finora_widget_wide" />
+        </receiver>
+        <receiver android:name=".FinoraWidgetPayments" android:exported="false" android:label="Финора: платежи">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/finora_widget_payments" />
+        </receiver>
+        <service
+            android:name=".FinoraTileService"
+            android:exported="true"
+            android:icon="@drawable/ic_finora_tile"
+            android:label="Финора"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
         <meta-data android:name="flutterEmbedding" android:value="2" />
     </application>
     <queries>
         <!-- 1.19: voice entry opens the system speech dialog. -->
         <intent>
             <action android:name="android.speech.action.RECOGNIZE_SPEECH" />
+        </intent>
+        <intent>
+            <action android:name="android.speech.RecognitionService" />
         </intent>
         <intent>
             <action android:name="android.intent.action.PROCESS_TEXT" />

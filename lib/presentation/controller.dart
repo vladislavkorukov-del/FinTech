@@ -236,6 +236,79 @@ class FinanceController extends ChangeNotifier {
       _replace(() => repository.importJson(content));
   Future<void> restore(String path) =>
       _replace(() => repository.restoreDatabase(path));
+
+  /// Payments due today or overdue that the person has not answered yet
+  /// (1.27), oldest first. «Напомнить позже» hides one for three hours.
+  List<RecurringRule> duePayments({DateTime? now}) {
+    final clock = now ?? DateTime.now();
+    final today = DateTime(clock.year, clock.month, clock.day + 1);
+    return data.recurring
+        .where(
+          (r) =>
+              r.enabled &&
+              r.kind == EntryKind.expense &&
+              r.nextDate.isBefore(today) &&
+              !(_snoozed[r.id]?.isAfter(clock) ?? false),
+        )
+        .toList()
+      ..sort((a, b) => a.nextDate.compareTo(b.nextDate));
+  }
+
+  final _snoozed = <String, DateTime>{};
+
+  void snoozePayment(String ruleId, {DateTime? now}) =>
+      _snoozed[ruleId] = (now ?? DateTime.now()).add(const Duration(hours: 3));
+
+  /// «Оплачено»: the expense goes into the ledger on its date, and the rule
+  /// moves to the next date.
+  Future<FinanceEntry?> confirmPayment(String ruleId) async {
+    FinanceEntry? posted;
+    await mutate((d) {
+      final r = d.recurring.where((x) => x.id == ruleId).firstOrNull;
+      if (r == null) return d;
+      final entry = FinanceEntry(
+        id: 'recurring:${r.id}:${r.nextDate.toIso8601String()}',
+        kind: r.kind,
+        amountMinor: r.amountMinor,
+        currency: r.currency,
+        accountId: r.accountId,
+        categoryId: r.categoryId,
+        date: r.nextDate,
+        payee: r.name,
+        recurrence: r.frequency,
+        serviceId: r.serviceId,
+        serviceIconPath: r.customIconPath,
+        memberId: d.members.any((m) => m.id == 'me')
+            ? 'me'
+            : d.members.first.id,
+      );
+      FinanceEngine.validateEntry(entry, d);
+      posted = entry;
+      return d.copyWith(
+        entries: [...d.entries.where((e) => e.id != entry.id), entry],
+        recurring: [
+          for (final x in d.recurring)
+            x.id == r.id
+                ? x.copyWith(nextDate: FinanceEngine.nextOccurrence(x))
+                : x,
+        ],
+      );
+    });
+    return posted;
+  }
+
+  /// «Не платить в этот раз»: the date moves on, nothing is posted.
+  Future<void> skipPayment(String ruleId) => mutate(
+    (d) => d.copyWith(
+      recurring: [
+        for (final x in d.recurring)
+          x.id == ruleId
+              ? x.copyWith(nextDate: FinanceEngine.nextOccurrence(x))
+              : x,
+      ],
+    ),
+  );
+
   Future<void> processRecurring() => mutate((d) {
     final now = DateTime.now();
     final entries = [...d.entries];
@@ -243,8 +316,11 @@ class FinanceController extends ChangeNotifier {
     for (final original in d.recurring) {
       var r = original;
       var generated = 0;
+      // 1.27: payments (expenses) are never posted by themselves — the
+      // person confirms each one when Finora asks ([duePayments]).
       while (r.enabled &&
           r.automatic &&
+          r.kind != EntryKind.expense &&
           !r.nextDate.isAfter(now) &&
           generated < 1000) {
         final entry = FinanceEntry(

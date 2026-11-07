@@ -355,11 +355,11 @@ class _HelloState extends State<_Hello> with SingleTickerProviderStateMixin {
             key: ValueKey('onboarding-finora'),
             size: 112,
             moods: [
-              FinoraMood.surprised,
+              FinoraMood.greeting,
               FinoraMood.happy,
               FinoraMood.wink,
-              FinoraMood.happy,
-              FinoraMood.calm,
+              FinoraMood.delight,
+              FinoraMood.idle,
             ],
             step: Duration(milliseconds: 1300),
           ),
@@ -889,7 +889,11 @@ class _Done extends StatelessWidget {
           FinoraCharacter(
             key: ValueKey('onboarding-done-finora-$visible'),
             size: 110,
-            moods: const [FinoraMood.happy, FinoraMood.wink, FinoraMood.happy],
+            moods: const [
+              FinoraMood.done,
+              FinoraMood.delight,
+              FinoraMood.pleasure,
+            ],
           ),
           const SizedBox(height: 28),
           Text(

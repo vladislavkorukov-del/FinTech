@@ -181,7 +181,7 @@ void main() {
     expect(find.byType(TransactionsScreen), findsOneWidget);
     expect(find.text('Операции'), findsWidgets);
     await say(tester, ['покажи что-нибудь интересное']);
-    expect(find.textContaining('Не понял'), findsOneWidget);
+    expect(find.textContaining('Не поняла'), findsOneWidget);
     // An operation still opens the editor, filled, without listening twice.
     await say(tester, ['пятерочка 450 рублей']);
     expect(find.byType(EntryEditor), findsOneWidget);

@@ -21,6 +21,8 @@ import '../../domain/scan_document.dart';
 import '../../services/receipt_image_store.dart';
 import '../../services/receipt_ocr_service.dart';
 import '../controller.dart';
+import '../finora_reactions.dart';
+import '../haptics.dart';
 import '../widgets/common.dart';
 import '../widgets/amount_pad.dart';
 import '../widgets/service_badge.dart';
@@ -543,6 +545,8 @@ class _EntryEditorState extends State<EntryEditor> {
           preferences: c.rememberCategory(data, entry),
         );
       });
+      // 1.27: Finora reacts in the bottom bar.
+      FinoraReactions.afterEntry(c, entry);
       if (mounted) {
         Navigator.pop(context);
       }
@@ -570,6 +574,19 @@ class _EntryEditorState extends State<EntryEditor> {
     final service = found == null || ServiceCatalog.banks.contains(found)
         ? null
         : found;
+    // 1.27: a name written in Cyrillic becomes the proper one («чат гпт» →
+    // «ChatGPT») as soon as it is complete.
+    final exact = ServiceRecognizer.find(text, whole: true);
+    if (exact != null &&
+        exact.id == service?.id &&
+        text.trim() != exact.name &&
+        !ServiceCatalog.banks.contains(exact)) {
+      _payee.value = TextEditingValue(
+        text: exact.name,
+        selection: TextSelection.collapsed(offset: exact.name.length),
+      );
+      Haptics.light();
+    }
     if (service?.id == _typedService) return;
     setState(() {
       _typedService = service?.id;

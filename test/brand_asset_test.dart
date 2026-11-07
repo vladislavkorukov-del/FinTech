@@ -83,11 +83,18 @@ void main() {
         'android/app/src/main/res/drawable-nodpi/finance_brand.png',
       ).readAsBytes();
       expect(sha256.convert(native).toString(), approvedDigest);
+      // 1.27: the launcher shows the owner's new Finora icon (adaptive on
+      // Android 8+); the approved F stays in the app as before.
       final launcher = await File(
         'android/app/src/main/res/drawable/ic_launcher.xml',
       ).readAsString();
-      expect(launcher, contains('@drawable/finance_brand'));
+      expect(launcher, contains('@drawable/finora_icon'));
       expect(launcher, isNot(contains('<vector')));
+      final adaptive = await File(
+        'android/app/src/main/res/drawable-v26/ic_launcher.xml',
+      ).readAsString();
+      expect(adaptive, contains('<adaptive-icon'));
+      expect(adaptive, contains('@drawable/finora_icon_fg'));
     },
   );
 
