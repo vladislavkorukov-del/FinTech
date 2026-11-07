@@ -4,12 +4,10 @@ import 'package:flutter/services.dart';
 
 /// Finora outside the app screen (1.27, see FinoraBridge.kt): widgets, the
 /// Quick Settings tile and shade controls send actions in; the app sends
-/// widget data and the shade text out; «Финора» heard while the app is open
-/// arrives as [wakes].
+/// widget data and the shade text out.
 abstract final class FinoraSystem {
   static const _channel = MethodChannel('finora/system');
   static final _actions = StreamController<String>.broadcast();
-  static final _wakes = StreamController<List<String>>.broadcast();
   static bool _ready = false;
   static bool? _available;
 
@@ -17,11 +15,6 @@ abstract final class FinoraSystem {
   static Stream<String> get actions {
     _init();
     return _actions.stream;
-  }
-
-  static Stream<List<String>> get wakes {
-    _init();
-    return _wakes.stream;
   }
 
   static void _init() {
@@ -33,10 +26,6 @@ abstract final class FinoraSystem {
           final action = call.arguments as String?;
           if (action == null || !_actions.hasListener) return false;
           _actions.add(action);
-          return true;
-        case 'wake':
-          final heard = (call.arguments as List?)?.whereType<String>().toList();
-          _wakes.add(heard ?? const []);
           return true;
       }
       return null;
@@ -59,7 +48,7 @@ abstract final class FinoraSystem {
 
   /// False in tests and on platforms without the bridge.
   static Future<bool> get available async {
-    if (_available == null) await _call<bool>('micAllowed');
+    if (_available == null) await _call<bool>('ping');
     return _available ?? false;
   }
 
@@ -77,14 +66,4 @@ abstract final class FinoraSystem {
     String title = 'Финора',
     String text = '',
   }) => _call<bool>('shade', {'on': on, 'title': title, 'text': text});
-
-  static Future<bool> requestMic() async =>
-      await _call<bool>('requestMic') ?? false;
-
-  static Future<bool> wakeStart() async {
-    _init();
-    return await _call<bool>('wakeStart') ?? false;
-  }
-
-  static Future<void> wakeStop() => _call<bool>('wakeStop');
 }

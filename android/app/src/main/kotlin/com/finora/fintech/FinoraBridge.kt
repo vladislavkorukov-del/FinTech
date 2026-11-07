@@ -1,6 +1,5 @@
 package com.finora.fintech
 
-import android.Manifest
 import android.app.Activity
 import android.app.Notification
 import android.app.NotificationChannel
@@ -8,22 +7,14 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.graphics.drawable.Icon
 import android.os.Build
-import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.speech.RecognitionListener
-import android.speech.RecognizerIntent
-import android.speech.SpeechRecognizer
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodChannel
 
 /**
  * Finora outside the app screen (1.27): home-screen widgets, the Quick
- * Settings tile and the shade controls open the app with an action; and,
- * when the person turns it on, she answers to her name while the app is open.
+ * Settings tile and the shade controls open the app with an action.
  */
 class FinoraBridge(
     private val activity: Activity,
@@ -31,7 +22,6 @@ class FinoraBridge(
 ) {
     companion object {
         const val EXTRA_ACTION = "finora_action"
-        const val MIC_REQUEST = 4712
         const val SHADE_CHANNEL = "finora_shade"
         const val SHADE_ID = 7301
         const val PREFS = "finora_widgets"
@@ -49,22 +39,10 @@ class FinoraBridge(
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
             )
         }
-
-        /** Words that sound like her name in Russian and English. */
-        private val names = listOf("финор", "фенор", "финар", "финур", "винор", "finor", "fenor", "phinor")
-
-        fun hears(text: String): Boolean {
-            val t = text.lowercase().replace('ё', 'е')
-            return names.any { t.contains(it) }
-        }
     }
 
     private val channel = MethodChannel(messenger, "finora/system")
-    private val main = Handler(Looper.getMainLooper())
     private var pendingAction: String? = null
-    private var recognizer: SpeechRecognizer? = null
-    private var wakeOn = false
-    private var micResult: MethodChannel.Result? = null
 
     init {
         channel.setMethodCallHandler { call, result ->
@@ -89,17 +67,7 @@ class FinoraBridge(
                     }
                     result.success(true)
                 }
-                "micAllowed" -> result.success(micAllowed())
-                "requestMic" -> requestMic(result)
-                "wakeStart" -> {
-                    wakeOn = true
-                    startWake()
-                    result.success(micAllowed())
-                }
-                "wakeStop" -> {
-                    stopWake()
-                    result.success(true)
-                }
+                "ping" -> result.success(true)
                 else -> result.notImplemented()
             }
         }
@@ -183,113 +151,7 @@ class FinoraBridge(
         activity.getSystemService(NotificationManager::class.java)?.cancel(SHADE_ID)
     }
 
-    // ── «Финора» ───────────────────────────────────────────────────────────
-
-    private fun micAllowed() = Build.VERSION.SDK_INT < 23 ||
-        activity.checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
-
-    private fun requestMic(result: MethodChannel.Result) {
-        if (micAllowed()) {
-            result.success(true)
-            return
-        }
-        micResult?.success(false)
-        micResult = result
-        activity.requestPermissions(arrayOf(Manifest.permission.RECORD_AUDIO), MIC_REQUEST)
-    }
-
-    /** Returns true when the answer was about the microphone. */
-    fun onPermissionResult(requestCode: Int): Boolean {
-        if (requestCode != MIC_REQUEST) return false
-        micResult?.success(micAllowed())
-        micResult = null
-        return true
-    }
-
-    private fun startWake() {
-        if (!wakeOn || !micAllowed() || recognizer != null) return
-        if (!SpeechRecognizer.isRecognitionAvailable(activity)) return
-        val r = if (Build.VERSION.SDK_INT >= 33 &&
-            SpeechRecognizer.isOnDeviceRecognitionAvailable(activity)
-        ) {
-            SpeechRecognizer.createOnDeviceSpeechRecognizer(activity)
-        } else {
-            SpeechRecognizer.createSpeechRecognizer(activity)
-        }
-        recognizer = r
-        r.setRecognitionListener(object : RecognitionListener {
-            override fun onReadyForSpeech(params: Bundle?) {}
-            override fun onBeginningOfSpeech() {}
-            override fun onRmsChanged(rmsdB: Float) {}
-            override fun onBufferReceived(buffer: ByteArray?) {}
-            override fun onEndOfSpeech() {}
-            override fun onEvent(eventType: Int, params: Bundle?) {}
-            // The whole phrase is waited for: «Финора, покажи расходы».
-            override fun onPartialResults(partialResults: Bundle?) {}
-            override fun onResults(results: Bundle?) {
-                val heard = results
-                    ?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
-                    ?: arrayListOf()
-                val match = heard.firstOrNull { hears(it) }
-                release()
-                if (match != null && wakeOn) {
-                    wakeOn = false
-                    channel.invokeMethod("wake", heard.filter { it.isNotBlank() })
-                } else {
-                    again(300)
-                }
-            }
-            override fun onError(error: Int) {
-                release()
-                when (error) {
-                    SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS -> wakeOn = false
-                    SpeechRecognizer.ERROR_RECOGNIZER_BUSY -> again(1500)
-                    else -> again(400)
-                }
-            }
-        })
-        val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
-            putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-            putExtra(RecognizerIntent.EXTRA_LANGUAGE, "ru-RU")
-            putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
-            putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, true)
-            putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 5)
-            putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, activity.packageName)
-        }
-        try {
-            r.startListening(intent)
-        } catch (_: Exception) {
-            release()
-            again(1500)
-        }
-    }
-
-    private fun again(delay: Long) {
-        if (!wakeOn) return
-        main.postDelayed({ startWake() }, delay)
-    }
-
-    private fun release() {
-        recognizer?.let {
-            try {
-                it.cancel()
-                it.destroy()
-            } catch (_: Exception) {
-            }
-        }
-        recognizer = null
-    }
-
-    fun stopWake() {
-        wakeOn = false
-        main.removeCallbacksAndMessages(null)
-        release()
-    }
-
     fun close() {
-        stopWake()
         channel.setMethodCallHandler(null)
-        micResult?.success(false)
-        micResult = null
     }
 }

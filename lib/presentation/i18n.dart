@@ -93,8 +93,6 @@ abstract final class AppLanguage {
     'Между своими счетами': 'Between your accounts',
     'Скриншот из банка': 'Bank screenshot',
     'Одна операция или список операций': 'One transaction or a list',
-    // Currency sheet.
-    'Показать в валюте': 'Show in currency',
     'Открыть счета': 'Open accounts',
   };
 

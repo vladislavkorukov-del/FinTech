@@ -6,7 +6,6 @@ import '../controller.dart';
 import '../screens/management.dart';
 import '../screens/settings.dart';
 import 'common.dart' show money;
-import 'currency_sheet.dart';
 import 'glass.dart';
 import 'motion.dart';
 
@@ -126,15 +125,12 @@ class FinanceHeader extends StatelessWidget {
           Expanded(
             child: Semantics(
               button: true,
-              label:
-                  'Общий баланс ${money(c.data.preferences.toDisplay(c.balance), c.data.preferences.shownCurrency)}',
+              label: 'Общий баланс ${money(c.balance, c.currency)}',
               excludeSemantics: true,
               child: InkWell(
                 key: const ValueKey('header-balance'),
                 borderRadius: BorderRadius.circular(16),
-                // 1.28: the balance in another currency.
-                onTap: () => showCurrencySheet(context),
-                onLongPress: () => open(const AccountsScreen()),
+                onTap: () => open(const AccountsScreen()),
                 // 1.16: no halo behind the balance.
                 child: Ink(
                   child: Padding(
@@ -148,9 +144,7 @@ class FinanceHeader extends StatelessWidget {
                         FittedBox(
                           fit: BoxFit.scaleDown,
                           child: Text(
-                            c.data.preferences.shownCurrency == c.currency
-                                ? '${tr('Общий баланс')} · ${c.currency}'
-                                : '${tr('Общий баланс')} · ≈ ${c.data.preferences.shownCurrency}',
+                            '${tr('Общий баланс')} · ${c.currency}',
                             maxLines: 1,
                             style: TextStyle(
                               fontSize: 11,
@@ -163,8 +157,8 @@ class FinanceHeader extends StatelessWidget {
                         FittedBox(
                           fit: BoxFit.scaleDown,
                           child: AnimatedMoney(
-                            c.data.preferences.toDisplay(c.balance),
-                            currency: c.data.preferences.shownCurrency,
+                            c.balance,
+                            currency: c.currency,
                             textKey: const ValueKey('header-balance-amount'),
                             style: TextStyle(
                               fontSize: 22,

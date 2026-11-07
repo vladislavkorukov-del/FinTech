@@ -52,7 +52,7 @@ class _VoiceOrbState extends State<VoiceOrb> with TickerProviderStateMixin {
   FinoraReaction? _reaction;
 
   /// Time the hop is seen before the speech dialog covers the screen.
-  static const _lead = Duration(milliseconds: 380);
+  static const _lead = Duration(milliseconds: 220);
 
   @override
   void initState() {

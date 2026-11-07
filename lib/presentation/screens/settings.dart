@@ -17,7 +17,6 @@ import '../widgets/common.dart';
 import 'account_import_screen.dart';
 import 'tutorial.dart';
 import '../finora_outside.dart';
-import '../../services/finora_system.dart';
 import '../widgets/grouped_list.dart';
 import '../widgets/finora_orb.dart';
 
@@ -247,7 +246,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-  static const version = '1.28.0';
+  static const version = '1.29.0';
 
   /// One settings page: a section of the root list.
   Widget _page(String title, List<Widget> children) => Scaffold(
@@ -807,18 +806,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       'Плитка: опустите шторку → карандаш → «Финора».',
                   children: [
                     GroupedRow(
-                      key: const ValueKey('settings-wake'),
-                      icon: Icons.record_voice_over_rounded,
-                      color: TileColors.teal,
-                      title: tr('Отзываться на «Финора»'),
-                      subtitle: tr('Пока приложение открыто на экране'),
-                      trailing: Switch.adaptive(
-                        value: p.wakeWord,
-                        onChanged: (v) => _run(() => _setWake(v)),
-                      ),
-                      onTap: () => _run(() => _setWake(!p.wakeWord)),
-                    ),
-                    GroupedRow(
                       key: const ValueKey('settings-shade'),
                       icon: Icons.notifications_active_rounded,
                       color: TileColors.indigo,
@@ -929,22 +916,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ],
       ),
     );
-  }
-
-  /// «Отзываться на «Финора»»: needs the microphone.
-  Future<void> _setWake(bool on) async {
-    final c = FinanceScope.of(context);
-    if (on && !await FinoraSystem.requestMic()) {
-      throw const FormatException(
-        'Разрешите микрофон для Finora, чтобы Финора слышала своё имя.',
-      );
-    }
-    await c.preferences(c.data.preferences.copyWith(wakeWord: on));
-    if (on) {
-      await FinoraSystem.wakeStart();
-    } else {
-      await FinoraSystem.wakeStop();
-    }
   }
 
   /// «Финора в шторке»: an ongoing notification with her buttons.

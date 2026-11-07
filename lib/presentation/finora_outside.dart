@@ -73,10 +73,7 @@ abstract final class FinoraOutside {
     if (totals.income > 0 && totals.net >= 0) {
       return (FinoraMood.happy, 'Месяц в плюсе');
     }
-    return (
-      FinoraMood.idle,
-      c.data.preferences.wakeWord ? 'Скажите «Финора»' : 'Нажмите и скажите',
-    );
+    return (FinoraMood.idle, 'Нажмите и скажите');
   }
 
   /// Up to four next payments, «12.11 · Netflix · 799 ₽».

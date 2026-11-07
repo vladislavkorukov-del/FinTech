@@ -69,6 +69,8 @@ class _BootstrapState extends State<Bootstrap> {
 
   Future<void> _load() async {
     setState(() => _error = null);
+    // 1.29: Finora gets a moment to say hello, however fast the data opens.
+    final hello = Future<void>.delayed(const Duration(milliseconds: 1600));
     FinanceRepository? repository;
     try {
       repository = await FinanceRepository.open();
@@ -78,6 +80,7 @@ class _BootstrapState extends State<Bootstrap> {
         await repository.load(),
       );
       await controller.processRecurring();
+      await hello;
       if (mounted) {
         setState(() => _controller = controller);
       } else {
@@ -107,31 +110,7 @@ class _BootstrapState extends State<Bootstrap> {
           child: Padding(
             padding: const EdgeInsets.all(28),
             child: _error == null
-                ? const Column(
-                    key: ValueKey('loading-finora'),
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      FinoraCharacter(
-                        size: 120,
-                        moods: [FinoraMood.delight, FinoraMood.greeting],
-                        step: Duration(milliseconds: 900),
-                      ),
-                      SizedBox(height: 26),
-                      Text(
-                        'Привет! Я Финора',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
-                        ),
-                      ),
-                      SizedBox(height: 6),
-                      Text(
-                        'Открываю ваши финансы…',
-                        style: TextStyle(color: Color(0x99DFFFF8)),
-                      ),
-                    ],
-                  )
+                ? const _HelloFinora()
                 : Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -233,11 +212,9 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
     _actionSubscription = FinoraSystem.actions.listen(
       (a) => unawaited(_action(a)),
     );
-    _wakeSubscription = FinoraSystem.wakes.listen((h) => unawaited(_woken(h)));
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final action = await FinoraSystem.takeAction();
       if (action != null) await _action(action);
-      _listenForName();
     });
   }
 
@@ -272,7 +249,6 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       _askPayments();
-      _listenForName();
     }
   }
 
@@ -298,7 +274,6 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
     WidgetsBinding.instance.removeObserver(this);
     _paymentsTimer?.cancel();
     unawaited(_actionSubscription?.cancel());
-    unawaited(_wakeSubscription?.cancel());
     _watched?.removeListener(_dataChanged);
     final subscription = _shareSubscription;
     if (subscription != null) unawaited(subscription.cancel());
@@ -377,7 +352,6 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
   }
 
   StreamSubscription<String>? _actionSubscription;
-  StreamSubscription<List<String>>? _wakeSubscription;
   FinanceController? _watched;
 
   /// 1.27: widgets, the Quick Settings tile and the shade open the app
@@ -402,65 +376,24 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
     }
   }
 
-  /// 1.27: «Финора» while the app is open (when turned on in Settings).
-  void _listenForName() {
-    if (!mounted) return;
-    if (FinanceScope.of(context).data.preferences.wakeWord) {
-      unawaited(FinoraSystem.wakeStart());
-    } else {
-      unawaited(FinoraSystem.wakeStop());
-    }
-  }
-
-  Future<void> _woken(List<String> heard) async {
-    if (!mounted) return;
-    Finora.react(FinoraMood.greeting, text: 'Слушаю!');
-    // «Финора, покажи расходы за июнь» — the rest is the request.
-    final rest = [
-      for (final h in heard)
-        h
-            .replaceFirst(
-              RegExp(
-                r'^.*?(финор|фенор|финар|финур|винор|finor|fenor)\S*[,.!]?\s*',
-                caseSensitive: false,
-              ),
-              '',
-            )
-            .trim(),
-    ].where((h) => h.isNotEmpty).toList();
-    if (rest.isEmpty) {
-      await _voice();
-    } else {
-      await _heard(rest);
-      _listenForName();
-    }
-  }
-
   /// The voice orb (1.23): a command («покажи расходы за июнь», «поменяй
   /// тему на зелёную») is carried out; anything else is an operation and
   /// opens the editor filled from the phrase.
   Future<void> _voice() async {
     List<String> heard;
-    // The system dialog needs the microphone: «Финора» rests meanwhile.
-    await FinoraSystem.wakeStop();
     try {
       heard = await const VoiceInputService().listen(
         prompt: VoiceCommands.prompt,
       );
     } catch (error) {
       if (mounted) showError(context, error);
-      _listenForName();
       return;
     }
-    if (heard.isEmpty || !mounted) {
-      _listenForName();
-      return;
-    }
+    if (heard.isEmpty || !mounted) return;
     await _heard(heard);
-    _listenForName();
   }
 
-  /// A phrase heard by the dialog or after «Финора, …».
+  /// A phrase heard by the speech dialog.
   Future<void> _heard(List<String> heard) async {
     final c = FinanceScope.of(context);
     final command = VoiceCommandParser.parse(
@@ -885,4 +818,53 @@ class _SecurityGateState extends State<SecurityGate>
       ),
     );
   }
+}
+
+/// The loading screen (1.29): Finora stands exactly where she was on the
+/// system splash and comes alive — hops for joy, beams, sparkles, waves
+/// rings — while the data opens.
+class _HelloFinora extends StatelessWidget {
+  const _HelloFinora();
+  @override
+  Widget build(BuildContext context) => const Stack(
+    key: ValueKey('loading-finora'),
+    alignment: Alignment.center,
+    children: [
+      // The splash draws her 146 dp wide in the middle of the screen.
+      FinoraCharacter(
+        size: 146,
+        moods: [
+          FinoraMood.delight,
+          FinoraMood.happy,
+          FinoraMood.greeting,
+          FinoraMood.delight,
+        ],
+        step: Duration(milliseconds: 650),
+        loop: true,
+      ),
+      Positioned.fill(
+        child: Align(
+          alignment: Alignment(0, .42),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Привет! Я Финора',
+                style: TextStyle(
+                  fontSize: 21,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
+              ),
+              SizedBox(height: 6),
+              Text(
+                'Открываю ваши финансы…',
+                style: TextStyle(color: Color(0x99DFFFF8)),
+              ),
+            ],
+          ),
+        ),
+      ),
+    ],
+  );
 }

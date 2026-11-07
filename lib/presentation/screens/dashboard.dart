@@ -102,8 +102,8 @@ class Dashboard extends StatelessWidget {
             Expanded(
               child: _SummaryTile(
                 title: tr('Доходы'),
-                amount: prefs.toDisplay(totals.income),
-                currency: prefs.shownCurrency,
+                amount: totals.income,
+                currency: c.currency,
                 icon: Icons.south_west_rounded,
                 tone: colors.income,
                 onTap: () => operations(EntryKind.income),
@@ -113,8 +113,8 @@ class Dashboard extends StatelessWidget {
             Expanded(
               child: _SummaryTile(
                 title: tr('Расходы'),
-                amount: prefs.toDisplay(totals.expense),
-                currency: prefs.shownCurrency,
+                amount: totals.expense,
+                currency: c.currency,
                 icon: Icons.north_east_rounded,
                 tone: colors.expense,
                 onTap: () => operations(EntryKind.expense),

@@ -25,17 +25,21 @@ void main() {
   late FinanceRepository repository;
   late FinanceController controller;
 
-  test('balance in another currency at a set rate', () {
-    const p = AppPreferences(baseCurrency: 'RUB');
-    expect(p.toDisplay(9000000), 9000000);
-    final usd = p.copyWith(displayCurrency: 'USD', rates: {'USD': 90});
-    expect(usd.toDisplay(9000000), 100000); // 90 000 ₽ = 1 000 $
-    expect(usd.shownCurrency, 'USD');
-    final back = AppPreferences.fromJson(usd.toJson());
-    expect(back.displayCurrency, 'USD');
-    expect(back.rates['USD'], 90);
+  test('settings round trip; no currency view or name listening', () {
+    const p = AppPreferences();
+    final back = AppPreferences.fromJson(p.toJson());
     expect(back.tips, isTrue);
     expect(back.language, 'ru');
+    expect(p.toJson().containsKey('displayCurrency'), isFalse);
+    expect(p.toJson().containsKey('wakeWord'), isFalse);
+    // Settings saved by 1.27/1.28 still load.
+    final old = AppPreferences.fromJson({
+      ...p.toJson(),
+      'wakeWord': true,
+      'displayCurrency': 'USD',
+      'rates': {'USD': 90},
+    });
+    expect(old.language, 'ru');
   });
 
   test('English for the main labels, Russian otherwise', () {
@@ -141,22 +145,14 @@ void main() {
       expect(find.byKey(const ValueKey('money-tips')), findsNothing);
     });
 
-    testWidgets('tap the balance: show it in dollars', (tester) async {
+    testWidgets('1.29: tapping the balance opens the accounts again', (
+      tester,
+    ) async {
       await start(tester);
       await tester.tap(find.byKey(const ValueKey('header-balance')));
       await tester.pumpAndSettle();
-      expect(find.byKey(const ValueKey('currency-sheet')), findsOneWidget);
-      await tester.tap(find.text('Доллар США'));
-      for (var i = 0; i < 100; i++) {
-        await tester.runAsync(
-          () => Future<void>.delayed(const Duration(milliseconds: 20)),
-        );
-        await tester.pump(const Duration(milliseconds: 50));
-        if (controller.data.preferences.displayCurrency == 'USD') break;
-      }
-      await tester.pumpAndSettle();
-      expect(controller.data.preferences.displayCurrency, 'USD');
-      expect(find.textContaining('≈ USD'), findsOneWidget);
+      expect(find.byType(AccountsScreen), findsOneWidget);
+      expect(find.byKey(const ValueKey('currency-sheet')), findsNothing);
     });
 
     testWidgets('English labels after choosing the language', (tester) async {

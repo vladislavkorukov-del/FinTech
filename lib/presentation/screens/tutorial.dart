@@ -58,10 +58,6 @@ final _pages = <_Page>[
         Icons.donut_large_rounded,
         'В «Обзоре месяца» нажмите на часть круга — увидите долю категории',
       ),
-      (
-        Icons.currency_exchange_rounded,
-        'Нажмите на баланс — покажет его в другой валюте',
-      ),
     ],
     picture: (context, dark) => const _DashboardPicture(),
   ),
@@ -84,10 +80,6 @@ final _pages = <_Page>[
         'Сервисы можно называть по-русски: «чат гпт», «нетфликс»',
       ),
       (Icons.front_hand_outlined, 'Удержание кругляша — ручной ввод'),
-      (
-        Icons.hearing_rounded,
-        'Можно позвать по имени: «Финора, …» — включите в настройках',
-      ),
     ],
     picture: (context, dark) => const _VoicePicture(),
   ),

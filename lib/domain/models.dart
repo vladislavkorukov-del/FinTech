@@ -656,52 +656,17 @@ class AppPreferences {
   /// person turns it on per account in the account editor.
   final List<String> bankLogos;
 
-  /// Finora 1.27: a light tap under the finger (on by default), Finora
-  /// waking on her name (off until the person turns it on and allows the
-  /// microphone) and her controls in the notification shade (off).
+  /// Finora 1.27: a light tap under the finger (on by default) and her
+  /// controls in the notification shade (off). (1.29: listening for her name
+  /// was removed — Android's recognizer cannot listen silently.)
   final bool haptics;
-  final bool wakeWord;
   final bool shadeControls;
 
   /// 1.28: the money tips card on the main screen (can be swiped away).
   final bool tips;
 
-  /// 1.28: the currency the header and month tiles are shown in ('' — the
-  /// base currency) and the person's own rates: rubles per one unit.
-  final String displayCurrency;
-  final Map<String, double> rates;
-
   /// 1.28: the app language, 'ru' or 'en'.
   final String language;
-
-  /// Rough starting rates (rubles per unit). Finora never goes online, so the
-  /// person corrects them in the currency sheet.
-  static const defaultRates = <String, double>{
-    'RUB': 1,
-    'USD': 90,
-    'EUR': 98,
-    'CNY': 12.5,
-    'TRY': 2.3,
-    'GEL': 33,
-    'GBP': 115,
-    'AED': 24.5,
-    'KZT': .18,
-    'CHF': 102,
-  };
-
-  /// Rubles per one unit of [currency].
-  double rubles(String currency) =>
-      rates[currency] ?? defaultRates[currency] ?? 1;
-
-  /// [minor] of the base currency in the display currency (minor units).
-  int toDisplay(int minor) {
-    final to = displayCurrency.isEmpty ? baseCurrency : displayCurrency;
-    if (to == baseCurrency) return minor;
-    return (minor * rubles(baseCurrency) / rubles(to)).round();
-  }
-
-  String get shownCurrency =>
-      displayCurrency.isEmpty ? baseCurrency : displayCurrency;
 
   const AppPreferences({
     this.theme = 'dark',
@@ -722,11 +687,8 @@ class AppPreferences {
     this.onboarded = true,
     this.bankLogos = const [],
     this.haptics = true,
-    this.wakeWord = false,
     this.shadeControls = false,
     this.tips = true,
-    this.displayCurrency = '',
-    this.rates = const {},
     this.language = 'ru',
   });
 
@@ -749,11 +711,8 @@ class AppPreferences {
     bool? onboarded,
     List<String>? bankLogos,
     bool? haptics,
-    bool? wakeWord,
     bool? shadeControls,
     bool? tips,
-    String? displayCurrency,
-    Map<String, double>? rates,
     String? language,
   }) => AppPreferences(
     theme: theme ?? this.theme,
@@ -778,11 +737,8 @@ class AppPreferences {
     onboarded: onboarded ?? this.onboarded,
     bankLogos: bankLogos ?? this.bankLogos,
     haptics: haptics ?? this.haptics,
-    wakeWord: wakeWord ?? this.wakeWord,
     shadeControls: shadeControls ?? this.shadeControls,
     tips: tips ?? this.tips,
-    displayCurrency: displayCurrency ?? this.displayCurrency,
-    rates: rates ?? this.rates,
     language: language ?? this.language,
   );
 
@@ -805,11 +761,8 @@ class AppPreferences {
     'onboarded': onboarded,
     'bankLogos': bankLogos,
     'haptics': haptics,
-    'wakeWord': wakeWord,
     'shadeControls': shadeControls,
     'tips': tips,
-    'displayCurrency': displayCurrency,
-    'rates': rates,
     'language': language,
   };
 
@@ -835,17 +788,9 @@ class AppPreferences {
     onboarded: json['onboarded'] as bool? ?? true,
     bankLogos: _ids(json['bankLogos']),
     haptics: json['haptics'] as bool? ?? true,
-    wakeWord: json['wakeWord'] as bool? ?? false,
     shadeControls: json['shadeControls'] as bool? ?? false,
     tips: json['tips'] as bool? ?? true,
-    displayCurrency: json['displayCurrency'] as String? ?? '',
     language: json['language'] as String? ?? 'ru',
-    rates: {
-      if (json['rates'] is Map)
-        for (final e in (json['rates'] as Map).entries)
-          if (e.key is String && e.value is num && (e.value as num) > 0)
-            e.key as String: (e.value as num).toDouble(),
-    },
   );
 
   /// [items] in the person's [order] (by [id]); unknown items keep their

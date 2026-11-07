@@ -66,21 +66,6 @@ class MainActivity : FlutterFragmentActivity() {
         super.onActivityResult(requestCode, resultCode, data)
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray,
-    ) {
-        if (finora?.onPermissionResult(requestCode) == true) return
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-    }
-
-    override fun onPause() {
-        // Finora does not listen while the app is in the background.
-        finora?.stopWake()
-        super.onPause()
-    }
-
     override fun onDestroy() {
         finora?.close()
         finora = null
