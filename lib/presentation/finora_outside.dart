@@ -106,7 +106,20 @@ abstract final class FinoraOutside {
         mood == FinoraMood.angry || mood == FinoraMood.attention
         ? mood
         : (list.isEmpty ? FinoraMood.calm : FinoraMood.idle);
+    // 1.36: the main widgets choose her mood by the clock (see
+    // FinoraWidgets.mood): the day of the last record and a payment alert.
+    final today = DateTime.now();
+    final past = c.data.entries
+        .where((e) => !e.date.isAfter(today))
+        .map((e) => e.date)
+        .fold<DateTime?>(null, (a, b) => a == null || b.isAfter(a) ? b : a);
+    final lastEntry = past == null ? '' : DateFormat('yyyy-MM-dd').format(past);
+    final alert = mood == FinoraMood.angry || mood == FinoraMood.attention
+        ? say
+        : '';
     final key = [
+      lastEntry,
+      FinoraOrbPainter.theme.toARGB32(),
       balance,
       totals.income,
       totals.expense,
@@ -123,6 +136,19 @@ abstract final class FinoraOutside {
       paymentsMood,
       '${dir.path}/finora_widget_payments.png',
     );
+    final moods = <String, String>{};
+    for (final (name, m) in const [
+      ('happy', FinoraMood.happy),
+      ('thinking', FinoraMood.thinking),
+      ('attention', FinoraMood.attention),
+      ('angry', FinoraMood.angry),
+      ('sleep', FinoraMood.sleep),
+    ]) {
+      moods['image_$name'] = await _picture(
+        m,
+        '${dir.path}/finora_widget_$name.png',
+      );
+    }
     final month = DateFormat('LLLL', 'ru').format(DateTime.now());
     await FinoraSystem.updateWidgets({
       'balance': balance,
@@ -131,6 +157,10 @@ abstract final class FinoraOutside {
       'expense': '−${money(totals.expense, c.currency)}',
       'say': say,
       'image': image,
+      ...moods,
+      'lastEntry': lastEntry,
+      'alert': alert,
+      'alertMood': alert.isEmpty ? '' : mood.name,
       'paymentsImage': paymentsImage,
       'paymentsTitle': list.isEmpty ? 'Платежей нет' : 'Ближайшие платежи',
       'payments': list.isEmpty

@@ -36,8 +36,15 @@ class FinoraEar(
         const val MIC_REQUEST = 4712
         private const val RATE = 16000
 
-        /** How the model hears «Финора» (the word is not in its dictionary). */
-        val wakeWords = setOf("фигура", "фигуры", "финал", "финора")
+        /**
+         * How the model hears «Финора» (the word is not in its dictionary).
+         * 1.36: «финал» and «фигуры» are gone — everyday words woke her.
+         */
+        val wakeWords = setOf("фигура", "финора")
+
+        /** 1.36: how sure the model must be that it was her name. */
+        const val WAKE_CONFIDENCE = 0.9
+
     }
 
     private val channel = MethodChannel(messenger, "finora/ear")
@@ -200,6 +207,19 @@ class FinoraEar(
         micResult = null
     }
 
+    /** (word, confidence) from a result with words switched on. */
+    private fun words(json: String): List<Pair<String, Double>> =
+        try {
+            val array = JSONObject(json).optJSONArray("result")
+                ?: return emptyList()
+            (0 until array.length()).map { i ->
+                val o = array.getJSONObject(i)
+                o.optString("word", "") to o.optDouble("conf", 0.0)
+            }
+        } catch (_: Exception) {
+            emptyList()
+        }
+
     private fun text(json: String, key: String = "text") =
         try {
             JSONObject(json).optString(key, "").trim()
@@ -234,6 +254,8 @@ class FinoraEar(
             var record: AudioRecord? = null
             try {
                 exact = Recognizer(model, RATE.toFloat(), grammar)
+                // Word confidences, to tell her name from a near miss (1.36).
+                if (wake) exact.setWords(true)
                 if (useFree) free = Recognizer(model, RATE.toFloat())
                 val min = AudioRecord.getMinBufferSize(
                     RATE,
@@ -267,8 +289,17 @@ class FinoraEar(
                         val said = text(exact.result)
                         val loose = free?.let { text(it.finalResult) } ?: ""
                         if (wake) {
-                            val first = said.split(' ').firstOrNull() ?: ""
-                            if (first in wakeWords) {
+                            // 1.36: only a short phrase that starts with her
+                            // name, heard with confidence, after the first
+                            // second (the mic settles).
+                            val words = words(exact.result)
+                            val first = words.firstOrNull()
+                            val settled = now - started > 1000
+                            if (settled && first != null &&
+                                first.first in wakeWords &&
+                                first.second >= WAKE_CONFIDENCE &&
+                                words.size <= 3
+                            ) {
                                 deliver(listOf(said, loose))
                                 return
                             }
