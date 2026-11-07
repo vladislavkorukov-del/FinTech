@@ -170,7 +170,7 @@ Future<void> showAccountEditor(BuildContext context, {Account? account}) async {
     title: a == null ? 'Новый счёт' : 'Настройка счёта',
     controllers: [name, opening, limit, bank, last],
     fields: (set) => [
-      _field(name, 'Название', maxLength: 80),
+      _field(name, 'Название', maxLength: 80, hint: 'Например: Т-Банк Black'),
       _select('Тип счёта', type, types, (v) => set(() => type = v)),
       _select(
         'Валюта',
@@ -186,8 +186,18 @@ Future<void> showAccountEditor(BuildContext context, {Account? account}) async {
             'Валюта фиксируется после первой операции или регулярного платежа.',
           ),
         ),
-      _field(opening, 'Начальный баланс', amount: true),
-      _field(limit, 'Кредитный лимит', amount: true),
+      _field(
+        opening,
+        'Начальный баланс',
+        amount: true,
+        hint: 'Сколько сейчас на счёте, например 25 000',
+      ),
+      _field(
+        limit,
+        'Кредитный лимит',
+        amount: true,
+        hint: '0 — если это не кредитка',
+      ),
       _BankField(controller: bank),
       Padding(
         padding: const EdgeInsets.only(bottom: 14),

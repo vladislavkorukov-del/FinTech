@@ -559,7 +559,12 @@ Future<void> showRecurringEditor(
             ],
           ),
         ),
-      _field(name, 'Название', maxLength: 80),
+      _field(
+        name,
+        'Название',
+        maxLength: 80,
+        hint: 'Например: Netflix, Кредит, Аренда',
+      ),
       _select(
         'Тип',
         kind,
@@ -584,7 +589,12 @@ Future<void> showRecurringEditor(
           paymentTypeNames,
           (v) => set(() => selectedPaymentType = v),
         ),
-      _field(amount, 'Сумма', amount: true),
+      _field(
+        amount,
+        'Сумма',
+        amount: true,
+        hint: 'Сколько списывают, например 799',
+      ),
       if (kind == EntryKind.expense && selectedPaymentType == 'mandatory')
         Padding(
           padding: const EdgeInsets.only(bottom: 14),
@@ -595,6 +605,7 @@ Future<void> showRecurringEditor(
             inputFormatters: const [AmountGroupingFormatter()],
             decoration: const InputDecoration(
               labelText: 'Полная сумма (кредит, рассрочка)',
+              hintText: 'Например: 46 000 — можно оставить пустым',
               helperText:
                   'Финора посчитает, сколько осталось и сколько платежей',
               helperMaxLines: 2,

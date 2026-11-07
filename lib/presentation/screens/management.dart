@@ -61,12 +61,16 @@ Widget _field(
   bool amount = false,
   int? maxLength,
   String? help,
+  String? hint,
 }) => Padding(
   padding: const EdgeInsets.only(bottom: 14),
   child: TextFormField(
     controller: controller,
     decoration: InputDecoration(
       labelText: label,
+      // 1.37: an example of what to write.
+      hintText: hint,
+      floatingLabelBehavior: hint == null ? null : FloatingLabelBehavior.always,
       helperText: help,
       counterText: '',
     ),
@@ -113,11 +117,17 @@ Widget _optional(
   TextEditingController controller,
   String label, {
   int? maxLength,
+  String? hint,
 }) => Padding(
   padding: const EdgeInsets.only(bottom: 14),
   child: TextFormField(
     controller: controller,
-    decoration: InputDecoration(labelText: label, counterText: ''),
+    decoration: InputDecoration(
+      labelText: label,
+      hintText: hint,
+      floatingLabelBehavior: hint == null ? null : FloatingLabelBehavior.always,
+      counterText: '',
+    ),
     maxLength: maxLength,
   ),
 );

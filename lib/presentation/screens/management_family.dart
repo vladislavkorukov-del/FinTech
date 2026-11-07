@@ -12,7 +12,7 @@ class MembersScreen extends StatelessWidget {
         title: member == null ? 'Новый участник' : 'Участник семьи',
         controllers: [name],
         fields: (_) => [
-          _field(name, 'Имя', maxLength: 80),
+          _field(name, 'Имя', maxLength: 80, hint: 'Например: Аня'),
           if (member?.id == 'me')
             const Text(
               'Основной профиль можно переименовать. Удалить его нельзя: он используется по умолчанию для новых операций.',

@@ -738,6 +738,23 @@ class _EntryEditorState extends State<EntryEditor> {
       appBar: AppBar(
         title: Text(editingHistory ? 'Редактирование' : tr('Новая операция')),
         actions: [
+          // 1.37: a screenshot or the voice — two compact buttons.
+          if (widget.entry == null) ...[
+            IconButton.filledTonal(
+              key: const ValueKey('scan-receipt'),
+              tooltip: 'Распознать скриншот из банка',
+              onPressed: _busy ? null : () => _scan(),
+              icon: const Icon(Icons.document_scanner_outlined),
+            ),
+            const SizedBox(width: 6),
+            IconButton.filledTonal(
+              key: const ValueKey('voice-entry'),
+              tooltip: 'Сказать голосом',
+              onPressed: _busy ? null : () => _voice(),
+              icon: const Icon(Icons.mic_none_rounded),
+            ),
+            const SizedBox(width: 10),
+          ],
           if (widget.entry != null)
             IconButton(
               tooltip: 'Дублировать',
@@ -755,22 +772,6 @@ class _EntryEditorState extends State<EntryEditor> {
           child: ListView(
             padding: const EdgeInsets.fromLTRB(20, 4, 20, 32),
             children: [
-              if (widget.entry == null) ...[
-                OutlinedButton.icon(
-                  key: const ValueKey('scan-receipt'),
-                  onPressed: _busy ? null : () => _scan(),
-                  icon: const Icon(Icons.document_scanner_outlined),
-                  label: const Text('Распознать скриншот из банка'),
-                ),
-                const SizedBox(height: 8),
-                OutlinedButton.icon(
-                  key: const ValueKey('voice-entry'),
-                  onPressed: _busy ? null : () => _voice(),
-                  icon: const Icon(Icons.mic_none_rounded),
-                  label: const Text('Сказать голосом'),
-                ),
-                const SizedBox(height: 16),
-              ],
               if (_heard != null) ...[
                 SurfaceCard(
                   key: const ValueKey('voice-heard'),
@@ -1228,7 +1229,7 @@ class _EntryEditorState extends State<EntryEditor> {
                   spacing: 8,
                   runSpacing: 8,
                   children: categories
-                      .map(
+                      .map<Widget>(
                         (cat) => ChoiceChip(
                           label: Text(cat.name),
                           showCheckmark: false,
@@ -1268,6 +1269,29 @@ class _EntryEditorState extends State<EntryEditor> {
                           }),
                         ),
                       )
+                      .followedBy([
+                        // 1.37: a new category without leaving the editor.
+                        ActionChip(
+                          key: const ValueKey('entry-new-category'),
+                          avatar: const Icon(Icons.add_rounded, size: 18),
+                          label: const Text('Новая'),
+                          shape: StadiumBorder(
+                            side: BorderSide(
+                              color: scheme.primary.withValues(alpha: .5),
+                            ),
+                          ),
+                          onPressed: () async {
+                            final id = await createCategory(context, _kind);
+                            if (id != null && mounted) {
+                              setState(() {
+                                _category = id;
+                                _categoryFromPayee = false;
+                                _subcategory = null;
+                              });
+                            }
+                          },
+                        ),
+                      ])
                       .toList(),
                 ),
                 if (sub.isNotEmpty)
@@ -1297,6 +1321,7 @@ class _EntryEditorState extends State<EntryEditor> {
                 onChanged: _payeeTyped,
                 decoration: InputDecoration(
                   labelText: tr('Получатель / магазин'),
+                  hintText: 'Например: Пятёрочка, Яндекс Такси',
                   prefixIcon: _typedService == null
                       ? const Icon(Icons.storefront_outlined)
                       : Padding(
@@ -1375,6 +1400,7 @@ class _EntryEditorState extends State<EntryEditor> {
                             maxLines: 3,
                             decoration: InputDecoration(
                               labelText: tr('Комментарий'),
+                              hintText: 'Например: продукты на неделю',
                             ),
                           ),
                           const SizedBox(height: 12),
@@ -1382,6 +1408,7 @@ class _EntryEditorState extends State<EntryEditor> {
                             controller: _tags,
                             decoration: const InputDecoration(
                               labelText: 'Теги через запятую',
+                              hintText: 'Например: отпуск, дача',
                             ),
                           ),
                           const SizedBox(height: 12),

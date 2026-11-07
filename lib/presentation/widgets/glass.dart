@@ -93,6 +93,16 @@ class GlassPanePainter extends CustomPainter {
       Offset.zero & size,
       Radius.circular(radius),
     );
+    // 1.37: a soft shadow under light cards lifts them off the tinted
+    // backdrop (one blurred rect — no extra layer).
+    if (!dark) {
+      canvas.drawRRect(
+        body.shift(const Offset(0, 3)),
+        Paint()
+          ..color = Colors.black.withValues(alpha: .05)
+          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8),
+      );
+    }
     // 1.16: one flat fill; no bands or gradients.
     canvas.drawRRect(body, Paint()..color = color);
   }
@@ -110,16 +120,26 @@ class GlassRimPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    // 1.16: one even hairline, no highlights.
+    // 1.37: the hairline catches light at the top edge, like glass.
+    final rect = Offset.zero & size;
     canvas.drawRRect(
-      RRect.fromRectAndRadius(
-        Offset.zero & size,
-        Radius.circular(radius),
-      ).deflate(.5),
+      RRect.fromRectAndRadius(rect, Radius.circular(radius)).deflate(.5),
       Paint()
         ..style = PaintingStyle.stroke
         ..strokeWidth = 1
-        ..color = (dark ? Colors.white : Colors.black).withValues(alpha: .07),
+        ..shader = LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: dark
+              ? [
+                  Colors.white.withValues(alpha: .16),
+                  Colors.white.withValues(alpha: .04),
+                ]
+              : [
+                  Colors.white.withValues(alpha: .9),
+                  Colors.black.withValues(alpha: .06),
+                ],
+        ).createShader(rect),
     );
   }
 

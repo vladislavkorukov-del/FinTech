@@ -109,11 +109,13 @@ class FinanceBackdrop extends ThemeExtension<FinanceBackdrop> {
   }) => FinanceBackdrop(
     // 1.16: calm — a light wash of the theme color at the top, the rest
     // close to the plain base; glows barely there.
-    top: Color.lerp(base, tint, (dark ? .18 : .14) * strength)!,
-    middle: Color.lerp(base, tint, (dark ? .04 : .03) * strength)!,
-    bottom: Color.lerp(base, second, (dark ? .05 : .04) * strength)!,
-    glowA: glow.withValues(alpha: (dark ? .07 : .08) * strength),
-    glowB: second.withValues(alpha: (dark ? .05 : .06) * strength),
+    // 1.37: the light mode shows the theme clearly — a rich wash at the
+    // top fading down, and stronger glows — instead of near-white.
+    top: Color.lerp(base, tint, (dark ? .18 : .34) * strength)!,
+    middle: Color.lerp(base, tint, (dark ? .04 : .12) * strength)!,
+    bottom: Color.lerp(base, second, (dark ? .05 : .16) * strength)!,
+    glowA: glow.withValues(alpha: (dark ? .07 : .18) * strength),
+    glowB: second.withValues(alpha: (dark ? .05 : .14) * strength),
   );
 
   @override
@@ -458,15 +460,25 @@ abstract final class AppTheme {
   static ThemeData _reference(Brightness brightness, ReferencePalette palette) {
     final dark = brightness == Brightness.dark;
     final inherited = build(brightness, 'lime');
+    // 1.37: the light mode is tinted with the theme's accent, so switching
+    // to it changes the whole screen, not just its brightness.
     final base = dark
         ? palette.base
-        : Color.lerp(palette.ink, Colors.white, .84)!;
+        : Color.lerp(
+            Color.lerp(palette.ink, Colors.white, .84)!,
+            palette.accent,
+            .1,
+          )!;
     final card = dark
         ? palette.card
         : Color.lerp(palette.ink, Colors.white, .95)!;
     final panel = dark
         ? palette.panel
-        : Color.lerp(palette.panel, Colors.white, .88)!;
+        : Color.lerp(
+            Color.lerp(palette.panel, Colors.white, .84)!,
+            palette.accent,
+            .12,
+          )!;
     final ink = dark ? palette.ink : palette.base;
     final inputFill = dark ? Color.lerp(panel, card, .6)! : panel;
     final surfaces = [base, card];

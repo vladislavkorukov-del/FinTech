@@ -135,8 +135,8 @@ Future<void> _budgetEditor(BuildContext context, {Budget? budget}) async {
     title: budget == null ? 'Новый бюджет' : 'Бюджет',
     controllers: [name, amount],
     fields: (set) => [
-      _field(name, 'Название', maxLength: 80),
-      _field(amount, 'Месячный лимит', amount: true),
+      _field(name, 'Название', maxLength: 80, hint: 'Например: Еда и кафе'),
+      _field(amount, 'Месячный лимит', amount: true, hint: 'Например: 30 000'),
       _select('Валюта', currency, {
         for (final v in currencies) v: v,
       }, (v) => set(() => currency = v)),

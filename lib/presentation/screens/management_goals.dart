@@ -167,9 +167,14 @@ Future<void> _goalEditor(BuildContext context, {Goal? goal}) async {
     title: goal == null ? 'Новая мечта' : 'Настроить мечту',
     controllers: [name, target, saved],
     fields: (set) => [
-      _field(name, 'Название', maxLength: 80),
-      _field(target, 'Хочу накопить', amount: true),
-      _field(saved, 'Начальный резерв', amount: true),
+      _field(name, 'Название', maxLength: 80, hint: 'Например: Отпуск на море'),
+      _field(target, 'Хочу накопить', amount: true, hint: 'Например: 150 000'),
+      _field(
+        saved,
+        'Начальный резерв',
+        amount: true,
+        hint: 'Сколько уже отложено, можно 0',
+      ),
       const Padding(
         padding: EdgeInsets.only(bottom: 14),
         child: Text(

@@ -431,6 +431,18 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   }
 }
 
+/// 1.37: a new category straight from the operation editor; its id, or
+/// null when nothing was created.
+Future<String?> createCategory(BuildContext context, EntryKind kind) async {
+  final c = FinanceScope.of(context);
+  final before = {for (final x in c.data.categories) x.id};
+  await _categoryEditor(context, kind: kind);
+  return c.data.categories
+      .where((x) => !before.contains(x.id) && x.kind == kind)
+      .firstOrNull
+      ?.id;
+}
+
 Future<void> _categoryEditor(
   BuildContext context, {
   required EntryKind kind,
@@ -480,7 +492,12 @@ Future<void> _categoryEditor(
         ),
         const SizedBox(height: 18),
       ],
-      _field(name, 'Название', maxLength: 80),
+      _field(
+        name,
+        'Название',
+        maxLength: 80,
+        hint: 'Например: Кафе, Такси, Подарки',
+      ),
       ListTile(
         contentPadding: EdgeInsets.zero,
         leading: CategoryBadge(
@@ -556,7 +573,11 @@ Future<void> _categoryEditor(
                 .toList(),
       ),
       const SizedBox(height: 18),
-      _optional(subs, 'Подкатегории через запятую'),
+      _optional(
+        subs,
+        'Подкатегории через запятую',
+        hint: 'Например: Кофе, Обеды, Доставка',
+      ),
       if (category != null) ...[
         const SizedBox(height: 16),
         if (category.archived)
