@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart' hide InputDecoration, Text;
@@ -21,6 +22,7 @@ import '../widgets/common.dart';
 import '../widgets/finora_orb.dart';
 import '../widgets/grouped_list.dart';
 import 'account_import_screen.dart';
+import 'achievements_screen.dart';
 import 'entry_editor.dart';
 import 'settings.dart';
 import '../l10n_widgets.dart';

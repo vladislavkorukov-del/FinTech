@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart' hide InputDecoration, Text;
 import 'package:intl/intl.dart';
 
@@ -23,6 +25,23 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
   EntryKind _kind = EntryKind.expense;
   DateTimeRange? _custom;
   String? _currency;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _seen());
+  }
+
+  /// 1.44: a period looked at counts for «Аналитик».
+  void _seen() {
+    if (!mounted) return;
+    final c = FinanceScope.of(context);
+    final (start, _) = range(c);
+    unawaited(
+      c.noteAnalytics('$_period:${start.toIso8601String().substring(0, 10)}'),
+    );
+  }
+
   (DateTime, DateTime) range(FinanceController c) {
     final n = DateUtils.dateOnly(DateTime.now());
     return switch (_period) {
@@ -180,9 +199,11 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                                 _custom = r;
                                 _period = p;
                               });
+                              _seen();
                             }
                           } else {
                             setState(() => _period = p);
+                            _seen();
                           }
                         },
                       ),

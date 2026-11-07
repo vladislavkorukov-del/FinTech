@@ -1,7 +1,21 @@
 part of 'management.dart';
 
-class BudgetsScreen extends StatelessWidget {
+class BudgetsScreen extends StatefulWidget {
   const BudgetsScreen({super.key});
+  @override
+  State<BudgetsScreen> createState() => _BudgetsScreenState();
+}
+
+class _BudgetsScreenState extends State<BudgetsScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // 1.44: looking at the budgets is a day of keeping the books.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) unawaited(FinanceScope.of(context).noteActivity());
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final c = FinanceScope.of(context);

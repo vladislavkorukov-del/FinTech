@@ -1,5 +1,7 @@
 // Domain models contain no Flutter or persistence dependencies.
 // Amounts are minor currency units (kopecks/cents), never floating point.
+import 'achievements.dart' show AchievementState;
+
 enum EntryKind { expense, income, transfer }
 
 const _absent = Object();
@@ -969,6 +971,9 @@ class FinanceData {
   /// 1.38: the shopping list.
   final List<ShoppingItem> shopping;
 
+  /// 1.44: what was received and what the ledger alone cannot tell again.
+  final AchievementState achievements;
+
   const FinanceData({
     this.accounts = const [],
     this.categories = const [],
@@ -980,6 +985,7 @@ class FinanceData {
     this.preferences = const AppPreferences(),
     this.demo = false,
     this.shopping = const [],
+    this.achievements = const AchievementState(),
   });
 
   factory FinanceData.empty() => const FinanceData();
@@ -995,6 +1001,7 @@ class FinanceData {
     AppPreferences? preferences,
     bool? demo,
     List<ShoppingItem>? shopping,
+    AchievementState? achievements,
   }) => FinanceData(
     accounts: accounts ?? this.accounts,
     categories: categories ?? this.categories,
@@ -1006,6 +1013,7 @@ class FinanceData {
     preferences: preferences ?? this.preferences,
     demo: demo ?? this.demo,
     shopping: shopping ?? this.shopping,
+    achievements: achievements ?? this.achievements,
   );
 
   Map<String, Object?> toJson() => {
@@ -1019,6 +1027,7 @@ class FinanceData {
     'preferences': preferences.toJson(),
     'demo': demo,
     'shopping': shopping.map((item) => item.toJson()).toList(),
+    'achievements': achievements.toJson(),
   };
 
   factory FinanceData.fromJson(Map<String, dynamic> json) => FinanceData(
@@ -1063,5 +1072,10 @@ class FinanceData {
               ShoppingItem.fromJson(Map<String, dynamic>.from(item as Map)),
         )
         .toList(),
+    achievements: json['achievements'] is Map
+        ? AchievementState.fromJson(
+            Map<String, dynamic>.from(json['achievements'] as Map),
+          )
+        : const AchievementState(),
   );
 }

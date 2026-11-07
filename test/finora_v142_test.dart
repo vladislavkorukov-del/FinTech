@@ -70,6 +70,6 @@ void main() {
         reason: layout,
       );
     }
-    expect(WhatsNew.items.first.$2, 'Яркие виджеты');
+    expect(WhatsNew.items.map((i) => i.$2), contains('Яркие виджеты'));
   });
 }

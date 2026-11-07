@@ -117,6 +117,16 @@ class MoreScreen extends StatelessWidget {
         GroupedSection(
           title: tr('Общее'),
           children: [
+            // 1.44: achievements.
+            row(
+              'achievements',
+              Icons.emoji_events_rounded,
+              TileColors.orange,
+              tr('Достижения'),
+              tr('Награды за порядок в деньгах'),
+              const AchievementsScreen(),
+              value: '${c.achievements.unlockedCount}/${c.achievements.total}',
+            ),
             row(
               'members',
               Icons.people_alt_rounded,

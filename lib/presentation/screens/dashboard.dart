@@ -11,6 +11,7 @@ import '../widgets/savings_pace.dart';
 import '../widgets/grouped_list.dart';
 import '../widgets/money_tips.dart';
 import '../widgets/entry_tile.dart';
+import 'achievements_screen.dart';
 import 'management.dart';
 import 'entry_editor.dart';
 import 'payee_summary_screen.dart';
@@ -341,6 +342,8 @@ class Dashboard extends StatelessWidget {
               ),
             ),
       ]),
+      // 1.44: achievements — the series, what was received and what is next.
+      'achievements': const AchievementsCard(),
       // 1.28: a money tip from Finora; swipe it away or turn it off.
       // 1.30: at the very bottom unless the person drags it elsewhere.
       if (prefs.tips) 'tips': const MoneyTipsCard(),

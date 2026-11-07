@@ -7,6 +7,7 @@ import 'package:sqflite/sqflite.dart';
 
 import '../domain/finance_engine.dart';
 import '../domain/models.dart';
+import '../domain/achievements.dart';
 import '../domain/style_ids.dart';
 import 'demo_data.dart';
 import 'finora_csv.dart';
@@ -962,8 +963,22 @@ class FinanceRepository {
               in jsonDecode(settings['shopping'] ?? '[]') as List<dynamic>)
             ShoppingItem.fromJson(Map<String, dynamic>.from(item as Map)),
         ],
+        // 1.44: achievements live in settings too.
+        achievements: _achievements(settings['achievements']),
       ),
     );
+  }
+
+  static AchievementState _achievements(String? raw) {
+    if (raw == null) return const AchievementState();
+    try {
+      return AchievementState.fromJson(
+        Map<String, dynamic>.from(jsonDecode(raw) as Map),
+      );
+    } on Object {
+      // A damaged record must not stop the app from opening.
+      return const AchievementState();
+    }
   }
 
   static Future<void> _write(DatabaseExecutor db, FinanceData data) async {
@@ -1060,6 +1075,10 @@ class FinanceRepository {
     await db.insert('settings', {
       'key': 'shopping',
       'value': jsonEncode([for (final s in data.shopping) s.toJson()]),
+    });
+    await db.insert('settings', {
+      'key': 'achievements',
+      'value': jsonEncode(data.achievements.toJson()),
     });
   }
 

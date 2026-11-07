@@ -1,7 +1,11 @@
+import 'dart:async';
+import 'dart:io' show Platform;
+
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
 import '../data/finance_repository.dart';
+import '../domain/achievements.dart';
 import '../domain/models.dart';
 import '../domain/payment_plan.dart';
 import '../domain/finance_engine.dart';
@@ -72,8 +76,93 @@ class FinanceController extends ChangeNotifier {
   @override
   void dispose() {
     _disposed = true;
+    _unlocks.close();
     super.dispose();
   }
+
+  // ── 1.44: achievements ─────────────────────────────────────────────────
+
+  final _unlocks = StreamController<List<AchievementDefinition>>.broadcast();
+
+  /// Achievements received by a change, in the order received.
+  Stream<List<AchievementDefinition>> get achievementUnlocks => _unlocks.stream;
+
+  /// The clock of the achievement engine (tests set it).
+  DateTime Function() achievementClock = DateTime.now;
+
+  AchievementReport get achievements => AchievementEngine.report(
+    data,
+    data.achievements,
+    now: achievementClock(),
+  );
+
+  FinanceData _withAchievements(
+    FinanceData before,
+    FinanceData next, {
+    bool activity = false,
+    bool events = true,
+    List<PaymentMark> payments = const [],
+  }) {
+    var state = AchievementEngine.merge(next.achievements, before.achievements);
+    if (payments.isNotEmpty) {
+      state = state.copyWith(payments: [...state.payments, ...payments]);
+    }
+    final (updated, fresh) = AchievementEngine.update(
+      before,
+      next,
+      state,
+      now: achievementClock(),
+      activity: activity,
+      events: events,
+    );
+    if (fresh.isNotEmpty && !_unlocks.isClosed) {
+      scheduleMicrotask(() {
+        if (!_unlocks.isClosed) _unlocks.add(fresh);
+      });
+    }
+    return next.copyWith(achievements: updated);
+  }
+
+  /// Only the achievement state changes (a screen was opened).
+  Future<void> _noteAchievements(
+    AchievementState Function(AchievementState) change, {
+    bool activity = false,
+  }) => _mutate(
+    (d) => d.copyWith(achievements: change(d.achievements)),
+    activity: activity,
+  );
+
+  /// Whether looking at screens is written down (analytics periods, a day
+  /// of activity, «seen»). Off in widget tests that do not test it: such a
+  /// write would otherwise run in the test's fake time.
+  static bool screenNotes = !Platform.environment.containsKey('FLUTTER_TEST');
+
+  /// A period of analytics was looked at («Аналитик»).
+  Future<void> noteAnalytics(String period, {DateTime? now}) {
+    if (!screenNotes) return Future.value();
+    final clock = now ?? achievementClock();
+    final key = '$period:${AchievementState.day(clock)}';
+    if (data.achievements.analyticsPeriods.contains(key)) {
+      return Future.value();
+    }
+    return _noteAchievements(
+      (s) => s.copyWith(analyticsPeriods: {...s.analyticsPeriods, key}),
+      activity: true,
+    );
+  }
+
+  /// The budgets were looked at: a day of activity for the series.
+  Future<void> noteActivity() {
+    if (!screenNotes) return Future.value();
+    final day = AchievementState.day(achievementClock());
+    if (data.achievements.activityDays.contains(day)) return Future.value();
+    return _noteAchievements((s) => s, activity: true);
+  }
+
+  /// The achievements screen was opened: nothing is «Новое» any more.
+  Future<void> markAchievementsSeen() => screenNotes
+      ? _noteAchievements((s) => s.copyWith(seenAt: achievementClock()))
+      : Future.value();
 
   String id() => const Uuid().v4();
   DateTime get periodStart {
@@ -100,10 +189,21 @@ class FinanceController extends ChangeNotifier {
     currency,
     data.goals,
   );
-  Future<void> mutate(FinanceData Function(FinanceData) transform) {
+  Future<void> mutate(FinanceData Function(FinanceData) transform) =>
+      _mutate(transform);
+
+  Future<void> _mutate(
+    FinanceData Function(FinanceData) transform, {
+    bool activity = false,
+    List<PaymentMark> Function()? payments,
+  }) {
     final result = _tail.then((_) async {
-      final next = FinanceRepository.normalizeCategoryPreferences(
-        transform(data),
+      final before = data;
+      final next = _withAchievements(
+        before,
+        FinanceRepository.normalizeCategoryPreferences(transform(before)),
+        activity: activity,
+        payments: payments?.call() ?? const [],
       );
       await repository.save(next);
       data = next;
@@ -217,8 +317,16 @@ class FinanceController extends ChangeNotifier {
   });
   Future<void> _replace(Future<void> Function() action) {
     final result = _tail.then((_) async {
+      final before = data;
       await action();
-      data = await repository.load();
+      final loaded = await repository.load();
+      // An import, a restore or a reset never takes achievements away.
+      final next = _withAchievements(before, loaded, events: false);
+      if (next.achievements.toJson().toString() !=
+          loaded.achievements.toJson().toString()) {
+        await repository.save(next);
+      }
+      data = next;
       _queueNotificationSync(data);
       notifyListeners();
     });
@@ -303,9 +411,17 @@ class FinanceController extends ChangeNotifier {
     DateTime? early,
   }) async {
     FinanceEntry? posted;
-    await mutate((d) {
+    PaymentMark? mark;
+    await _mutate((d) {
       final r = d.recurring.where((x) => x.id == ruleId).firstOrNull;
       if (r == null) return d;
+      if (r.kind == EntryKind.expense) {
+        mark = PaymentMark(
+          ruleId: r.id,
+          due: r.nextDate,
+          paid: early ?? achievementClock(),
+        );
+      }
       final sum = amountMinor ?? r.amountMinor;
       if (sum <= 0) {
         throw const FormatException('Введите сумму больше нуля');
@@ -346,7 +462,7 @@ class FinanceController extends ChangeNotifier {
         entries: entries,
         recurring: [for (final x in d.recurring) x.id == r.id ? next : x],
       );
-    });
+    }, payments: () => [?mark]);
     return posted;
   }
 

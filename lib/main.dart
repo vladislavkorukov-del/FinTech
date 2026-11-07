@@ -37,6 +37,8 @@ import 'presentation/finora_listening.dart';
 import 'domain/voice_command_parser.dart';
 import 'services/voice_input_service.dart';
 import 'domain/models.dart';
+import 'domain/achievements.dart';
+import 'presentation/screens/achievements_screen.dart';
 import 'presentation/l10n_widgets.dart';
 
 Future<void> main() async {
@@ -253,8 +255,15 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
       FinoraOutside.cancel();
       _watched = c..addListener(_dataChanged);
       FinoraOutside.schedule(c);
+      // 1.44: «Достижение получено».
+      _unlockSubscription?.cancel();
+      _unlockSubscription = c.achievementUnlocks.listen((got) {
+        if (mounted) AchievementPopup.show(context, got);
+      });
     }
   }
+
+  StreamSubscription<List<AchievementDefinition>>? _unlockSubscription;
 
   void _dataChanged() {
     final c = _watched;
@@ -302,6 +311,7 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
     WidgetsBinding.instance.removeObserver(this);
     _paymentsTimer?.cancel();
     unawaited(_actionSubscription?.cancel());
+    unawaited(_unlockSubscription?.cancel());
     unawaited(_wakeSubscription?.cancel());
     _watched?.removeListener(_dataChanged);
     final subscription = _shareSubscription;

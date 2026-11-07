@@ -134,6 +134,9 @@ void main() {
         300,
         scrollable: find.byType(Scrollable).first,
       );
+      // 1.44: the achievements card is above; bring the tips fully into view.
+      await tester.drag(find.byType(Scrollable).first, const Offset(0, -300));
+      await tester.pumpAndSettle();
       expect(find.text('ФИНАНСОВАЯ ГРАМОТНОСТЬ'), findsOneWidget);
       await tester.tap(find.byKey(const ValueKey('money-tips-next')));
       await tester.pumpAndSettle();
