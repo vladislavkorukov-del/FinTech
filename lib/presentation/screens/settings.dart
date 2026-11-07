@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../../domain/foreign_csv.dart';
 import '../../domain/models.dart';
 import '../../services/security_service.dart';
 import '../../services/user_files.dart';
@@ -15,6 +16,7 @@ import '../controller.dart';
 import '../theme/app_theme.dart';
 import '../widgets/common.dart';
 import 'account_import_screen.dart';
+import 'foreign_import_screen.dart';
 import 'tutorial.dart';
 import 'voice_help.dart';
 import '../../services/finora_ear.dart';
@@ -205,11 +207,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Future<void> _import(String type) async {
-    final pick = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: [type == 'base' ? 'csv' : type],
-      withData: false,
-    );
+    // CSV files often come with a MIME type Android does not tie to «.csv»
+    // (text/comma-separated-values, text/plain): any file is offered.
+    final pick = type == 'base'
+        ? await FilePicker.platform.pickFiles(withData: false)
+        : await FilePicker.platform.pickFiles(
+            type: FileType.custom,
+            allowedExtensions: [type],
+            withData: false,
+          );
     if (pick == null || pick.files.isEmpty) {
       return;
     }
@@ -263,7 +269,33 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-  static const version = '1.34.0';
+  /// 1.35: operations from another app's or a bank's CSV, added to the base.
+  Future<void> _importForeign() async {
+    final pick = await FilePicker.platform.pickFiles(withData: false);
+    if (pick == null || pick.files.isEmpty) {
+      return;
+    }
+    final file = pick.files.single;
+    final path = file.path;
+    if (path == null) {
+      throw const FormatException('Не удалось получить доступ к файлу.');
+    }
+    if (file.size > ForeignCsv.maxBytes) {
+      throw const FormatException('Файл превышает 20 МБ.');
+    }
+    final text = ForeignCsv.decode(await File(path).readAsBytes());
+    ForeignCsv.read(text); // an unreadable file stops here, with a reason
+    if (!mounted) {
+      return;
+    }
+    await Navigator.of(context).push(
+      MaterialPageRoute<int>(
+        builder: (_) => ForeignImportScreen(text: text, fileName: file.name),
+      ),
+    );
+  }
+
+  static const version = '1.35.0';
 
   /// One settings page: a section of the root list.
   Widget _page(String title, List<Widget> children) => Scaffold(
@@ -610,6 +642,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 title: 'Снимок базы',
                 subtitle: 'Файл SQLite целиком',
                 onTap: () => _run(() => _export('db')),
+              ),
+            ],
+          ),
+          GroupedSection(
+            title: 'Из других приложений',
+            footer:
+                'Операции добавляются к вашим — ничего не удаляется. Столбцы '
+                'определяются сами, их можно поправить перед загрузкой.',
+            children: [
+              GroupedRow(
+                key: const ValueKey('import-foreign-csv'),
+                icon: Icons.move_down_rounded,
+                color: TileColors.purple,
+                title: 'Операции из CSV',
+                subtitle:
+                    'Дзен-мани, CoinKeeper, Money Manager, Monefy, Wallet, '
+                    'Toshl, выписки банков и любые таблицы',
+                onTap: () => _run(_importForeign),
               ),
             ],
           ),
