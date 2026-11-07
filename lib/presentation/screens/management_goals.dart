@@ -115,6 +115,10 @@ class GoalCard extends StatelessWidget {
                 style: Theme.of(context).textTheme.bodySmall,
               ),
             ),
+          Padding(
+            padding: const EdgeInsets.only(top: 12),
+            child: SavingsPace(goal: goal, saved: saved),
+          ),
           if (contributed > 0)
             Padding(
               padding: const EdgeInsets.only(top: 12),

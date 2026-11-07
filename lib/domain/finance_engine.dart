@@ -270,6 +270,35 @@ abstract final class FinanceEngine {
   /// Advance on the calendar rather than adding a fixed 30-day duration.
   /// The original anchor day survives short months and leap years.
   /// Custom recurrence intervals are measured in calendar days.
+  /// 1.37: how much to put aside to reach [goal] by its deadline — per
+  /// day, week and month (rounded up to whole units). Null without a
+  /// deadline or when it is reached; `days` ≤ 0 — the date has passed.
+  static ({int day, int week, int month, int days, int left})? savingsPace(
+    Goal goal,
+    int saved, {
+    DateTime? now,
+  }) {
+    final deadline = goal.deadline;
+    final left = goal.targetMinor - saved;
+    if (deadline == null || left <= 0) return null;
+    final clock = now ?? DateTime.now();
+    final today = DateTime(clock.year, clock.month, clock.day);
+    final end = DateTime(deadline.year, deadline.month, deadline.day);
+    final days = end.difference(today).inDays;
+    if (days <= 0) {
+      return (day: left, week: left, month: left, days: days, left: left);
+    }
+    int up(double v) => ((v / 100).ceil()) * 100;
+    final perDay = left / days;
+    return (
+      day: up(perDay),
+      week: days < 7 ? up(left.toDouble()) : up(perDay * 7),
+      month: days < 30 ? up(left.toDouble()) : up(perDay * 30.4375),
+      days: days,
+      left: left,
+    );
+  }
+
   static DateTime nextOccurrence(RecurringRule rule) {
     if (rule.anchorDay < 1 || rule.anchorDay > 31) {
       throw const FormatException('Некорректный день повторения');

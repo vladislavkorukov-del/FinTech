@@ -7,6 +7,7 @@ import '../../domain/finance_engine.dart';
 import '../../domain/models.dart';
 import '../controller.dart';
 import '../widgets/common.dart';
+import '../widgets/savings_pace.dart';
 import '../widgets/grouped_list.dart';
 import '../widgets/money_tips.dart';
 import '../widgets/entry_tile.dart';
@@ -639,6 +640,10 @@ class _DreamRow extends StatelessWidget {
             '${money(saved, goal.currency)} · $percent% накоплено',
             style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant),
           ),
+          if (goal.deadline != null && saved < goal.targetMinor) ...[
+            const SizedBox(height: 8),
+            SavingsPace(goal: goal, saved: saved, compact: true),
+          ],
         ],
       ),
     );

@@ -9,6 +9,7 @@ import '../../domain/payment_plan.dart';
 import '../../domain/service_catalog.dart';
 import '../../domain/service_recognizer.dart';
 import '../widgets/bank_picker.dart';
+import '../widgets/savings_pace.dart';
 import '../widgets/service_badge.dart';
 import '../../domain/finance_engine.dart';
 import '../controller.dart';
