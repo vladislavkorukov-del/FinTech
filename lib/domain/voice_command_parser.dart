@@ -406,12 +406,30 @@ abstract final class VoiceCommandParser {
     if (dream && !looking) return _goal(heard, t, today);
 
     final frequency = _showVerb.hasMatch(t) ? null : _frequency(t);
-    if ((verb && !opens || frequency != null) &&
-        (has('подписк') ||
-            has('регулярн') ||
-            has('автоплат') ||
-            has('абонемент') ||
-            frequency != null && !has('бюджет') && !has('лимит'))) {
+    // 1.33: «обязательный платёж …», «платёж по кредиту 15 000 25 числа»,
+    // «ипотека 32 000 каждый месяц» — required payments as well as
+    // subscriptions; «N числа» always means a regular payment.
+    final mandatory = has('обязательн');
+    final onDay = _dayOfMonth.hasMatch(t);
+    final payment = has('платеж') || has('взнос');
+    final looksRegular =
+        mandatory ||
+        // «Подписка Т2 695 рублей» — said as the thing to add.
+        RegExp(r'^(?:новая |новую )?подписк').hasMatch(t) ||
+        onDay ||
+        frequency != null ||
+        payment && (has('кредит') || has('ипотек') || has('рассрочк'));
+    if (!_showVerb.hasMatch(t) &&
+        !has('бюджет') &&
+        !has('лимит') &&
+        (looksRegular ||
+            verb &&
+                !opens &&
+                (has('подписк') ||
+                    has('регулярн') ||
+                    has('автоплат') ||
+                    has('абонемент') ||
+                    payment))) {
       return _recurring(heard, t, frequency, categories, accounts, today);
     }
 
@@ -648,6 +666,34 @@ abstract final class VoiceCommandParser {
     );
   }
 
+  /// «10 числа», «10-го числа», «каждое 25-е число», «числа 5».
+  static final _dayOfMonth = RegExp(
+    r'(?:каждое |кажд\S* )?(\d{1,2}) ?(?:го |е |ое )?(?:числа|число)',
+  );
+
+  /// Required payments named by what they are, in the nominative.
+  static const _paymentNames = <(String, String)>[
+    ('ипотек', 'Ипотека'),
+    ('кредитк', 'Кредитная карта'),
+    ('кредит', 'Кредит'),
+    ('рассрочк', 'Рассрочка'),
+    ('аренд', 'Аренда'),
+    ('квартплат', 'Квартплата'),
+    ('коммунал', 'Коммунальные'),
+    ('жкх', 'Коммунальные'),
+    ('страховк', 'Страховка'),
+    ('страхов', 'Страховка'),
+    ('налог', 'Налоги'),
+    ('алимент', 'Алименты'),
+    ('садик', 'Детский сад'),
+    ('школ', 'Школа'),
+    ('репетитор', 'Репетитор'),
+    ('спортзал', 'Спортзал'),
+    ('интернет', 'Интернет'),
+    ('связь', 'Связь'),
+    ('телефон', 'Связь'),
+  ];
+
   static CreateRecurringCommand _recurring(
     String heard,
     String t,
@@ -671,12 +717,33 @@ abstract final class VoiceCommandParser {
     // «10 числа», «каждое 10 число».
     var text = t;
     int? day;
-    final dayMatch = RegExp(
-      r'(?:каждое |кажд\S* )?(\d{1,2})(?:-?го)? (?:числа|число)',
-    ).firstMatch(text);
+    final dayMatch = _dayOfMonth.firstMatch(text);
     if (dayMatch != null) {
       day = int.parse(dayMatch.group(1)!);
       text = text.replaceRange(dayMatch.start, dayMatch.end, ' ');
+    }
+    // «25 ноября» — a date of its own.
+    DateTime? onDate;
+    if (dayMatch == null) {
+      final m = RegExp(
+        r'(?:^| )(\d{1,2}) (январ|феврал|март|апрел|ма[яйе]|июн|июл|август|'
+        r'сентябр|октябр|ноябр|декабр)\S*',
+      ).firstMatch(text);
+      if (m != null) {
+        final d = int.parse(m.group(1)!);
+        final stem = m.group(2)!;
+        final month =
+            _months.indexWhere(
+              (x) => stem.startsWith(x) || (x == 'ма' && stem.startsWith('ма')),
+            ) +
+            1;
+        if (d >= 1 && d <= 31 && month > 0) {
+          var date = DateTime(today.year, month, d);
+          if (date.isBefore(today)) date = DateTime(today.year + 1, month, d);
+          onDate = date;
+          text = text.replaceRange(m.start, m.end, ' ');
+        }
+      }
     }
     text = text.replaceAll(
       RegExp(
@@ -721,7 +788,20 @@ abstract final class VoiceCommandParser {
           'регулярно',
           'платеж',
           'платежа',
+          'платежи',
           'автоплатеж',
+          'обязательный',
+          'обязательную',
+          'обязательная',
+          'обязательные',
+          'ежемесячный',
+          'ежемесячная',
+          'ежемесячную',
+          'взнос',
+          'взноса',
+          'го',
+          'е',
+          'ое',
           'по',
           'за',
           'на',
@@ -733,11 +813,39 @@ abstract final class VoiceCommandParser {
           'числа',
           'число',
         });
+    // «по кредиту» → «Кредит», «ипотеку» → «Ипотека».
+    if (service == null && kind == EntryKind.expense) {
+      final lower = _norm(name);
+      for (final (stem, proper) in _paymentNames) {
+        final words = lower.split(' ');
+        final at = words.indexWhere((w) => w.startsWith(stem));
+        if (at < 0) continue;
+        final shown = name.split(' ');
+        final same = shown.length == words.length;
+        final others = [
+          for (var i = 0; i < words.length; i++)
+            if (i != at && words[i].isNotEmpty) same ? shown[i] : words[i],
+        ];
+        name = [proper, ...others].join(' ');
+        break;
+      }
+    }
+    final mandatoryWords =
+        has('обязательн') ||
+        _paymentNames.any(
+          (p) => p.$1 != 'интернет' && p.$1 != 'связь' && has(p.$1),
+        );
     if (name.isEmpty) {
-      name = kind == EntryKind.income ? 'Регулярный доход' : 'Подписка';
+      name = kind == EntryKind.income
+          ? 'Регулярный доход'
+          : mandatoryWords
+          ? 'Обязательный платёж'
+          : 'Подписка';
     }
     final subscription =
-        kind == EntryKind.expense && (has('подписк') || service != null);
+        kind == EntryKind.expense &&
+        !mandatoryWords &&
+        (has('подписк') || service != null);
     String? category = VoiceEntryParser.categoryFor(
       _norm(name),
       kind,
@@ -755,7 +863,9 @@ abstract final class VoiceCommandParser {
           ?.id;
     }
     DateTime next;
-    if (day != null && day >= 1 && day <= 31) {
+    if (onDate != null) {
+      next = onDate;
+    } else if (day != null && day >= 1 && day <= 31) {
       final thisMonth = DateTime(today.year, today.month, day);
       next = thisMonth.isBefore(today)
           ? DateTime(today.year, today.month + 1, day)

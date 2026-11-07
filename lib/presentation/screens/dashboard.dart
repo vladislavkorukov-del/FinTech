@@ -239,15 +239,10 @@ class Dashboard extends StatelessWidget {
             },
           ),
       ]),
+      // 1.33: subscriptions and required payments (loans, rent…) together.
       'subscriptions': _PaymentSection(
-        paymentType: 'subscription',
-        title: tr('Подписки'),
-        icon: Icons.subscriptions_outlined,
-      ),
-      'mandatory': _PaymentSection(
-        paymentType: 'mandatory',
-        title: tr('Обязательные платежи'),
-        icon: Icons.receipt_long_outlined,
+        title: tr('Платежи и подписки'),
+        icon: Icons.event_repeat_outlined,
       ),
       'recent': block([
         SectionTitle(
@@ -651,12 +646,8 @@ class _DreamRow extends StatelessWidget {
 }
 
 class _PaymentSection extends StatelessWidget {
-  const _PaymentSection({
-    required this.paymentType,
-    required this.title,
-    required this.icon,
-  });
-  final String paymentType, title;
+  const _PaymentSection({required this.title, required this.icon});
+  final String title;
   final IconData icon;
   @override
   Widget build(BuildContext context) {
@@ -664,12 +655,7 @@ class _PaymentSection extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final rules =
         c.data.recurring
-            .where(
-              (r) =>
-                  r.enabled &&
-                  r.kind == EntryKind.expense &&
-                  r.paymentType == paymentType,
-            )
+            .where((r) => r.enabled && r.kind == EntryKind.expense)
             .toList()
           ..sort((a, b) => a.nextDate.compareTo(b.nextDate));
     return Column(
@@ -680,35 +666,45 @@ class _PaymentSection extends StatelessWidget {
           action: tr('Все'),
           onTap: () => Navigator.push(
             context,
-            MaterialPageRoute<void>(
-              builder: (_) => RecurringScreen(initialPaymentType: paymentType),
-            ),
+            MaterialPageRoute<void>(builder: (_) => const RecurringScreen()),
           ),
         ),
         SurfaceCard(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
           child: Column(
             children: [
-              if (rules.isEmpty)
+              if (rules.isEmpty) ...[
                 ListTile(
                   contentPadding: EdgeInsets.zero,
-                  leading: Icon(icon),
-                  title: Text(
-                    paymentType == 'subscription'
-                        ? 'Добавить подписку'
-                        : 'Добавить обязательный платёж',
-                  ),
-                  subtitle: Text(
-                    paymentType == 'subscription'
-                        ? 'Сервисы, музыка, связь'
-                        : 'Кредит, ипотека, аренда',
-                  ),
+                  leading: const Icon(Icons.subscriptions_outlined),
+                  title: const Text('Добавить подписку'),
+                  subtitle: const Text('Сервисы, музыка, связь'),
                   trailing: const Icon(Icons.add_rounded),
                   onTap: () =>
-                      showRecurringEditor(context, paymentType: paymentType),
-                )
-              else
-                for (final r in rules.take(3))
+                      showRecurringEditor(context, paymentType: 'subscription'),
+                ),
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.receipt_long_outlined),
+                  title: const Text('Добавить обязательный платёж'),
+                  subtitle: const Text('Кредит, ипотека, аренда, коммуналка'),
+                  trailing: const Icon(Icons.add_rounded),
+                  onTap: () =>
+                      showRecurringEditor(context, paymentType: 'mandatory'),
+                ),
+              ] else ...[
+                Padding(
+                  padding: const EdgeInsets.only(top: 10, bottom: 2),
+                  child: Text(
+                    'В месяц ≈ ${money(_monthly(rules, c.currency), c.currency)}',
+                    key: const ValueKey('payments-monthly'),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: scheme.onSurfaceVariant,
+                    ),
+                  ),
+                ),
+                for (final r in rules.take(5))
                   SwipeToDelete(
                     key: ValueKey('swipe-dash-rule-${r.id}'),
                     margin: const EdgeInsets.symmetric(vertical: 2),
@@ -737,8 +733,8 @@ class _PaymentSection extends StatelessWidget {
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
                       subtitle: Text(
-                        '${DateFormat('d MMM', 'ru').format(r.nextDate)} · ${r.kind == EntryKind.expense
-                            ? 'спрошу об оплате'
+                        '${DateFormat('d MMM', 'ru').format(r.nextDate)} · ${r.paymentType == 'subscription' ? 'подписка' : 'обязательный'}${r.kind == EntryKind.expense
+                            ? ''
                             : r.automatic
                             ? 'автозапись'
                             : 'напоминание'}',
@@ -764,17 +760,33 @@ class _PaymentSection extends StatelessWidget {
                       onTap: () => showRecurringEditor(context, rule: r),
                     ),
                   ),
-              if (rules.isNotEmpty)
-                TextButton.icon(
-                  onPressed: () =>
-                      showRecurringEditor(context, paymentType: paymentType),
-                  icon: const Icon(Icons.add_rounded, size: 17),
-                  label: Text(
-                    paymentType == 'subscription'
-                        ? 'Добавить подписку'
-                        : 'Добавить платёж',
-                  ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextButton.icon(
+                        key: const ValueKey('payments-add-subscription'),
+                        onPressed: () => showRecurringEditor(
+                          context,
+                          paymentType: 'subscription',
+                        ),
+                        icon: const Icon(Icons.add_rounded, size: 17),
+                        label: const Text('Подписка'),
+                      ),
+                    ),
+                    Expanded(
+                      child: TextButton.icon(
+                        key: const ValueKey('payments-add-mandatory'),
+                        onPressed: () => showRecurringEditor(
+                          context,
+                          paymentType: 'mandatory',
+                        ),
+                        icon: const Icon(Icons.add_rounded, size: 17),
+                        label: const Text('Платёж'),
+                      ),
+                    ),
+                  ],
                 ),
+              ],
             ],
           ),
         ),
@@ -926,4 +938,20 @@ class _ExpenseOverview extends StatelessWidget {
       ),
     );
   }
+}
+
+/// What the expense payments come to in a month (1.33), in [currency].
+int _monthly(List<RecurringRule> rules, String currency) {
+  var total = 0.0;
+  for (final r in rules) {
+    if (r.currency != currency) continue;
+    final per = switch (r.frequency) {
+      'daily' => 30.4 / r.interval,
+      'weekly' => 4.35 / r.interval,
+      'yearly' => 1 / (12 * r.interval),
+      _ => 1 / r.interval,
+    };
+    total += r.amountMinor * per;
+  }
+  return total.round();
 }

@@ -158,15 +158,61 @@ abstract final class VoiceEntryParser {
         _byWords(phrase, kind, categories);
   }
 
-  static String _norm(String value) => value
-      .toLowerCase()
-      .replaceAll('ё', 'е')
-      .replaceAll(RegExp(r'[«»"“”!?;:]'), ' ')
-      // Thousands separators as speech services write them: «1.300»,
-      // «1 300», «12.500.000», «1,300» (a group of exactly three digits).
-      .replaceAll(RegExp('(?<=\\d)[\\s.,\u00a0\u202f](?=\\d{3}(?!\\d))'), '')
-      .replaceAll(RegExp(r'\s+'), ' ')
-      .trim();
+  static String _norm(String value) =>
+      _glue(
+            value
+                .toLowerCase()
+                .replaceAll('ё', 'е')
+                .replaceAll(RegExp(r'[«»"“”!?;:]'), ' ')
+                .replaceAll(RegExp('[  ]'), ' '),
+          )
+          // Thousands separators as speech services write them: «1.300»,
+          // «1 300», «12.500.000», «1,300» (a group of exactly three digits).
+          // 1.33: only inside a number of its own — the «2» of «т2 695» is part
+          // of a name, not thousands.
+          .replaceAll(
+            RegExp(
+              r'(?<=(?:^|\s)\d{1,3}(?:[\s.,]\d{3})*)[\s.,](?=\d{3}(?!\d))',
+            ),
+            '',
+          )
+          .replaceAll(RegExp(r'\s+'), ' ')
+          .trim();
+
+  /// Names with digits, as speech services write them: «теле 2», «т 2»,
+  /// «яндекс 360», «microsoft 365», «аптека 36,6».
+  static final List<(RegExp, String)> _brands = () {
+    final names = <String>{};
+    for (final s in [...ServiceCatalog.entries, ...StoreCatalog.entries]) {
+      for (final n in [s.name, ...s.aliases]) {
+        final v = n.toLowerCase().replaceAll('ё', 'е');
+        if (RegExp(r'\d').hasMatch(v) && RegExp(r'[a-zа-я]').hasMatch(v)) {
+          names.add(v);
+        }
+      }
+    }
+    // Longest first: «s7 airlines» before «s7».
+    final sorted = names.toList()..sort((a, b) => b.length.compareTo(a.length));
+    return [
+      for (final n in sorted)
+        (
+          RegExp(
+            '(?<![a-zа-я0-9])${n.replaceAllMapped(RegExp(r'(?<=[a-zа-я])\s*(?=\d)|(?<=\d)\s*(?=[a-zа-я])|[\s,.]+'), (m) => r'[\s,.-]*')}(?![0-9])',
+          ),
+          n.replaceAll(RegExp(r'[\s,.]+'), ''),
+        ),
+    ];
+  }();
+
+  /// Glues a name with digits into one word, so its digits are never read
+  /// as (part of) the amount: «теле 2 695» → «теле2 695».
+  static String _glue(String text) {
+    var out = text;
+    for (final (pattern, glued) in _brands) {
+      out = out.replaceAll(pattern, glued);
+    }
+    return out;
+  }
 
   static String _capitalize(String value) =>
       value.isEmpty ? value : value[0].toUpperCase() + value.substring(1);

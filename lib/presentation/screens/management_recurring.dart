@@ -59,11 +59,12 @@ class _RecurringScreenState extends State<RecurringScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
+          // 1.33: one place for subscriptions, loans and other payments.
           filter == 'subscription'
               ? 'Подписки'
               : filter == 'mandatory'
               ? 'Обязательные платежи'
-              : 'Регулярные операции',
+              : 'Платежи и подписки',
         ),
         actions: [
           IconButton(
@@ -72,15 +73,18 @@ class _RecurringScreenState extends State<RecurringScreen> {
                 : filter == 'income'
                 ? 'Добавить регулярный доход'
                 : 'Добавить платёж',
-            onPressed: () => showRecurringEditor(
-              context,
-              paymentType: filter == 'subscription'
-                  ? 'subscription'
-                  : 'mandatory',
-              initialKind: filter == 'income'
-                  ? EntryKind.income
-                  : EntryKind.expense,
-            ),
+            key: const ValueKey('payments-add'),
+            onPressed: () => filter == 'all'
+                ? _chooseAndAdd(context)
+                : showRecurringEditor(
+                    context,
+                    paymentType: filter == 'subscription'
+                        ? 'subscription'
+                        : 'mandatory',
+                    initialKind: filter == 'income'
+                        ? EntryKind.income
+                        : EntryKind.expense,
+                  ),
             icon: const Icon(Icons.add),
           ),
         ],
@@ -141,6 +145,56 @@ class _RecurringScreenState extends State<RecurringScreen> {
           ],
         ],
       ),
+    );
+  }
+
+  /// «+» on the common list: which kind to add.
+  Future<void> _chooseAndAdd(BuildContext context) async {
+    final choice = await showModalBottomSheet<String>(
+      context: context,
+      showDragHandle: true,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (final (id, icon, title, subtitle) in const [
+              (
+                'subscription',
+                Icons.subscriptions_outlined,
+                'Подписка',
+                'Сервисы, музыка, связь, кино',
+              ),
+              (
+                'mandatory',
+                Icons.receipt_long_outlined,
+                'Обязательный платёж',
+                'Кредит, ипотека, аренда, коммуналка',
+              ),
+              (
+                'income',
+                Icons.south_west_rounded,
+                'Регулярный доход',
+                'Зарплата, аванс, проценты',
+              ),
+            ])
+              ListTile(
+                key: ValueKey('payments-add-$id'),
+                leading: Icon(icon),
+                title: Text(title),
+                subtitle: Text(subtitle),
+                trailing: const Icon(Icons.chevron_right_rounded),
+                onTap: () => Navigator.pop(ctx, id),
+              ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+    if (choice == null || !context.mounted) return;
+    await showRecurringEditor(
+      context,
+      paymentType: choice == 'income' ? 'mandatory' : choice,
+      initialKind: choice == 'income' ? EntryKind.income : EntryKind.expense,
     );
   }
 

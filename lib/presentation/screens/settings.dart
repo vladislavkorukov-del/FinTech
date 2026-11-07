@@ -16,6 +16,7 @@ import '../theme/app_theme.dart';
 import '../widgets/common.dart';
 import 'account_import_screen.dart';
 import 'tutorial.dart';
+import 'voice_help.dart';
 import '../../services/finora_ear.dart';
 import '../../services/finora_system.dart';
 import '../finora_outside.dart';
@@ -248,7 +249,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-  static const version = '1.32.0';
+  static const version = '1.33.0';
 
   /// One settings page: a section of the root list.
   Widget _page(String title, List<Widget> children) => Scaffold(
@@ -807,6 +808,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       'Виджеты: удерживайте рабочий стол → «Виджеты» → Finora. '
                       'Плитка: опустите шторку → карандаш → «Финора».',
                   children: [
+                    // 1.33: everything she understands.
+                    GroupedRow(
+                      key: const ValueKey('settings-voice-help'),
+                      icon: Icons.record_voice_over_outlined,
+                      color: TileColors.green,
+                      title: 'Голосовые команды',
+                      subtitle: 'Что можно сказать Финоре',
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute<void>(
+                          builder: (_) => const VoiceHelpScreen(),
+                        ),
+                      ),
+                    ),
                     // 1.31: her own silent ear.
                     GroupedRow(
                       key: const ValueKey('settings-wake'),

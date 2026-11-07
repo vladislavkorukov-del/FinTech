@@ -158,6 +158,28 @@ final _pages = <_Page>[
     ]),
   ),
   _Page(
+    icon: Icons.record_voice_over_rounded,
+    color: AppleUi.green,
+    eyebrow: 'Голосовые команды',
+    title: 'Что сказать Финоре',
+    text:
+        'Записать: «Пятёрочка 450», «Т2 695 рублей». Показать: «расходы за '
+        'июнь». Платежи: «обязательный платёж кредит 15 000 25 числа», '
+        '«подписка Яндекс Плюс 399 в месяц».',
+    tips: [
+      (Icons.auto_awesome_outlined, 'Мечты: «хочу машину за 2 миллиона»'),
+      (Icons.palette_outlined, 'Тема: «поменяй тему на зелёную»'),
+      (
+        Icons.list_alt_rounded,
+        'Полный список — Настройки → Финора → «Голосовые команды»',
+      ),
+    ],
+    picture: (context, dark) => const _Chat([
+      ('Т2 695 рублей', 'Записала: Т2 −695 ₽'),
+      ('Обязательный платёж кредит 15 000 25 числа', 'Кредит · 25-го'),
+    ]),
+  ),
+  _Page(
     icon: Icons.auto_awesome_rounded,
     color: AppleUi.orange,
     eyebrow: 'Создание голосом',
