@@ -160,6 +160,10 @@ class FinoraApp extends StatelessWidget {
         FinanceFormat.datePattern = p.dateFormat;
         Haptics.enabled = p.haptics;
         AppLanguage.code = p.language;
+        // 1.36: Finora in the theme's color.
+        FinoraOrbPainter.theme = p.finoraThemed
+            ? AppTheme.app(Brightness.dark, p.accent).colorScheme.primary
+            : FinoraOrbPainter.original;
         return MaterialApp(
           title: 'Finora — личные финансы',
           debugShowCheckedModeBanner: false,

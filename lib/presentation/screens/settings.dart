@@ -990,7 +990,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       icon: Icons.vibration_rounded,
                       color: TileColors.pink,
                       title: tr('Тактильный отклик'),
-                      subtitle: tr('Лёгкая отдача на нажатия и реакции'),
+                      subtitle: tr('Вибрация на нажатия и реакции'),
                       trailing: Switch.adaptive(
                         value: p.haptics,
                         onChanged: (v) => _run(
@@ -1002,6 +1002,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       onTap: () => _run(
                         () => c.preferences(
                           c.data.preferences.copyWith(haptics: !p.haptics),
+                        ),
+                      ),
+                    ),
+                    GroupedRow(
+                      key: const ValueKey('settings-finora-color'),
+                      icon: Icons.palette_outlined,
+                      color: TileColors.teal,
+                      title: tr('Финора в цвет темы'),
+                      subtitle: tr('Иначе — её родной мятный'),
+                      trailing: Switch.adaptive(
+                        value: p.finoraThemed,
+                        onChanged: (v) => _run(
+                          () => c.preferences(
+                            c.data.preferences.copyWith(finoraThemed: v),
+                          ),
+                        ),
+                      ),
+                      onTap: () => _run(
+                        () => c.preferences(
+                          c.data.preferences.copyWith(
+                            finoraThemed: !p.finoraThemed,
+                          ),
                         ),
                       ),
                     ),

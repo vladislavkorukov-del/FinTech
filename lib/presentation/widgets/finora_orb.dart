@@ -88,18 +88,21 @@ const finoraMoodNames = <FinoraMood, String>{
 
 /// Finora herself: the same mint bubble on every theme.
 class FinoraOrbPainter extends CustomPainter {
-  const FinoraOrbPainter({
+  FinoraOrbPainter({
     required this.t,
     this.mood = FinoraMood.idle,
     this.blink = 0,
     this.joy = 0,
     this.face = true,
     this.sign = true,
-    // Kept for callers from 1.26; Finora no longer follows the theme.
+    // Kept for callers from 1.26; the theme color is [theme] (1.36).
     Color? base,
     Color? accent,
     bool? dark,
-  });
+  }) : _painted = _theme;
+
+  /// The theme color this painter draws with.
+  final Color _painted;
 
   /// Position in the drift loop, 0…1.
   final double t;
@@ -115,9 +118,38 @@ class FinoraOrbPainter extends CustomPainter {
   /// The small sign beside her (heart, «?», «Zzz»…).
   final bool sign;
 
-  static const mint = Color(0xFF3FE0C2);
-  static const _deep = Color(0xFF169C88);
-  static const _light = Color(0xFFC8FFF2);
+  /// Her own color: mint.
+  static const original = Color(0xFF3FE0C2);
+
+  /// 1.36: Finora takes the theme's color (set by the app from the accent;
+  /// [original] when the person keeps her mint).
+  static Color get theme => _theme;
+  static set theme(Color value) {
+    if (value == _theme) return;
+    _theme = value;
+    _palette = _derive(value);
+  }
+
+  static Color _theme = original;
+  static _Palette _palette = _derive(original);
+
+  static _Palette _derive(Color base) {
+    final h = HSLColor.fromColor(base);
+    final s = h.saturation.clamp(.5, .9);
+    HSLColor at(double sat, double light) =>
+        HSLColor.fromAHSL(1, h.hue, sat.clamp(0.0, 1.0), light);
+    return _Palette(
+      mint: at(s, .56).toColor(),
+      deep: at(s, .35).toColor(),
+      light: at(s, .9).toColor(),
+      mid: at(s, .68).toColor(),
+      shade: at(s, .3).toColor(),
+    );
+  }
+
+  static Color get mint => _palette.mint;
+  static Color get _deep => _palette.deep;
+  static Color get _light => _palette.light;
   static const _pink = Color(0xFFFF7FB0);
   static const _ink = Color(0xFF0A2730);
 
@@ -163,10 +195,10 @@ class FinoraOrbPainter extends CustomPainter {
       c,
       r,
       Paint()
-        ..shader = const RadialGradient(
-          center: Alignment(.3, -.35),
+        ..shader = RadialGradient(
+          center: const Alignment(.3, -.35),
           radius: 1.05,
-          colors: [_light, Color(0xFF6CF0D6), mint, _deep],
+          colors: [_light, _palette.mid, mint, _deep],
           stops: [0, .32, .7, 1],
         ).createShader(rect),
     );
@@ -193,7 +225,7 @@ class FinoraOrbPainter extends CustomPainter {
       const Color(0xFFC6A4FF),
       .35,
     );
-    cloud(c + Offset(r * .35, r * .55), r * .7, const Color(0xFF0E8C7A), .35);
+    cloud(c + Offset(r * .35, r * .55), r * .7, _palette.shade, .35);
     // Gloss.
     final gloss = Rect.fromCenter(
       center: c + Offset(r * .08, -r * .6),
@@ -675,6 +707,7 @@ class FinoraOrbPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(FinoraOrbPainter old) =>
+      old._painted != _theme ||
       old.t != t ||
       old.mood != mood ||
       old.blink != blink ||
@@ -890,4 +923,15 @@ abstract final class Finora {
         Haptics.light();
     }
   }
+}
+
+class _Palette {
+  const _Palette({
+    required this.mint,
+    required this.deep,
+    required this.light,
+    required this.mid,
+    required this.shade,
+  });
+  final Color mint, deep, light, mid, shade;
 }
