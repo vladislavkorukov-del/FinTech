@@ -24,6 +24,7 @@ import '../../services/finora_system.dart';
 import '../finora_outside.dart';
 import '../widgets/grouped_list.dart';
 import '../widgets/finora_orb.dart';
+import '../widgets/profile_avatar.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key, this.section});
@@ -335,6 +336,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
           SurfaceCard(
             child: Column(
               children: [
+                Center(
+                  child: GestureDetector(
+                    key: const ValueKey('general-avatar'),
+                    onTap: () => _run(() => showAvatarPicker(context)),
+                    child: const ProfileAvatar(size: 84),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () => _run(() => showAvatarPicker(context)),
+                  child: const Text('Сменить аватар'),
+                ),
                 // 1.21: the name from the welcome screens.
                 TextFormField(
                   key: const ValueKey('settings-name'),
@@ -756,19 +768,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   onTap: () => _open('general'),
                   child: Row(
                     children: [
-                      CircleAvatar(
-                        radius: 28,
-                        backgroundColor: Theme.of(context).colorScheme.primary,
-                        foregroundColor: Theme.of(
-                          context,
-                        ).colorScheme.onPrimary,
-                        child: Text(
-                          name.isEmpty ? 'F' : name[0].toUpperCase(),
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
+                      // 1.36: a picture of one's own; a tap changes it.
+                      GestureDetector(
+                        key: const ValueKey('settings-avatar'),
+                        onTap: () => _run(() => showAvatarPicker(context)),
+                        child: const ProfileAvatar(size: 56),
                       ),
                       const SizedBox(width: 14),
                       Expanded(

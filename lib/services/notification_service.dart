@@ -172,6 +172,37 @@ class NotificationService {
       );
     }
 
+    // 1.36: a late payment is recalled every day for three days.
+    final today = DateTime(now.year, now.month, now.day);
+    for (final rule in data.recurring.where(
+      (r) => r.enabled && r.kind == EntryKind.expense,
+    )) {
+      final due = DateTime(
+        rule.nextDate.year,
+        rule.nextDate.month,
+        rule.nextDate.day,
+      );
+      if (!due.isBefore(today)) continue;
+      for (var k = 0; k < 3; k++) {
+        final at = tz.TZDateTime(
+          tz.local,
+          today.year,
+          today.month,
+          today.day + k,
+          rule.reminderHour,
+          rule.reminderMinute,
+        );
+        if (!at.isAfter(now)) continue;
+        await _schedule(
+          identifier('overdue:${rule.id}:${_formatDate(due)}:$k'),
+          'Просрочен платёж',
+          '${rule.name} · ${_formatAmount(rule.amountMinor)} ${rule.currency}\n'
+              'Нужно было оплатить ${_formatDate(due)}',
+          at,
+        );
+      }
+    }
+
     final startDay = data.preferences.monthStart.clamp(1, 28).toInt();
     final start = tz.TZDateTime(tz.local, now.year, now.month, startDay);
     final monthStart = now.isBefore(start)

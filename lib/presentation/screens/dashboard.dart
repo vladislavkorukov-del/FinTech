@@ -653,11 +653,16 @@ class _PaymentSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = FinanceScope.of(context);
     final scheme = Theme.of(context).colorScheme;
-    final rules =
-        c.data.recurring
-            .where((r) => r.enabled && r.kind == EntryKind.expense)
-            .toList()
-          ..sort((a, b) => a.nextDate.compareTo(b.nextDate));
+    // 1.36: the order dragged on «Платежи и подписки», otherwise by date.
+    final rules = AppPreferences.arrange(
+      c.data.recurring
+          .where((r) => r.enabled && r.kind == EntryKind.expense)
+          .toList()
+        ..sort((a, b) => a.nextDate.compareTo(b.nextDate)),
+      c.data.preferences.paymentOrder,
+      (r) => r.id,
+    );
+    final today = DateUtils.dateOnly(DateTime.now());
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -719,7 +724,12 @@ class _PaymentSection extends StatelessWidget {
                             .toList(),
                       ),
                     ),
+                    onSwipeRight: () => payEarly(context, r),
+                    rightLabel: 'Оплачено',
                     child: ListTile(
+                      onTap: r.totalMinor != null
+                          ? () => openPaymentPlan(context, r.id)
+                          : () => showRecurringEditor(context, rule: r),
                       contentPadding: const EdgeInsets.symmetric(vertical: 2),
                       leading: ServiceBadge(
                         serviceId: r.serviceId,
@@ -735,14 +745,19 @@ class _PaymentSection extends StatelessWidget {
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
                       subtitle: Text(
-                        '${DateFormat('d MMM', 'ru').format(r.nextDate)} · ${r.paymentType == 'subscription' ? 'подписка' : 'обязательный'}${r.kind == EntryKind.expense
+                        '${r.nextDate.isBefore(today) ? 'просрочен · ' : ''}${DateFormat('d MMM', 'ru').format(r.nextDate)} · ${r.paymentType == 'subscription' ? 'подписка' : 'обязательный'}${r.kind == EntryKind.expense
                             ? ''
                             : r.automatic
                             ? 'автозапись'
                             : 'напоминание'}',
                         style: TextStyle(
                           fontSize: 11,
-                          color: scheme.onSurfaceVariant,
+                          color: r.nextDate.isBefore(today)
+                              ? scheme.error
+                              : scheme.onSurfaceVariant,
+                          fontWeight: r.nextDate.isBefore(today)
+                              ? FontWeight.w700
+                              : null,
                         ),
                       ),
                       trailing: ConstrainedBox(
@@ -759,7 +774,6 @@ class _PaymentSection extends StatelessWidget {
                           ),
                         ),
                       ),
-                      onTap: () => showRecurringEditor(context, rule: r),
                     ),
                   ),
                 Row(
