@@ -65,7 +65,7 @@ void main() {
     expect(p.wakeWord, isFalse);
     final on = const AppPreferences().copyWith(wakeWord: true);
     expect(AppPreferences.fromJson(on.toJson()).wakeWord, isTrue);
-    expect(on.googleVoice, isFalse);
+    expect(on.quietVoice, isFalse);
   });
 
   test('without the native ear (tests), it reports unavailable', () async {

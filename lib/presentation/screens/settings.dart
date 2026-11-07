@@ -16,7 +16,6 @@ import '../theme/app_theme.dart';
 import '../widgets/common.dart';
 import 'account_import_screen.dart';
 import 'tutorial.dart';
-import '../finora_vocabulary.dart';
 import '../../services/finora_ear.dart';
 import '../../services/finora_system.dart';
 import '../finora_outside.dart';
@@ -249,7 +248,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-  static const version = '1.31.0';
+  static const version = '1.32.0';
 
   /// One settings page: a section of the root list.
   Widget _page(String title, List<Widget> children) => Scaffold(
@@ -815,8 +814,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       color: TileColors.teal,
                       title: 'Отзываться на «Финора»',
                       subtitle:
-                          'Только пока приложение открыто. Без звука, '
-                          'без интернета',
+                          'Только пока приложение открыто: слышит своё имя '
+                          'без звука',
                       trailing: Switch.adaptive(
                         value: p.wakeWord,
                         onChanged: (v) => _run(() => _setWake(v)),
@@ -832,23 +831,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       onTap: () => _run(_assistantHelp),
                     ),
                     GroupedRow(
-                      key: const ValueKey('settings-google-voice'),
-                      icon: Icons.mic_external_on_rounded,
+                      key: const ValueKey('settings-quiet-voice'),
+                      icon: Icons.volume_off_rounded,
                       color: TileColors.gray,
-                      title: 'Распознавание Google',
-                      subtitle: 'Вместо слуха Финоры: со звуком, иногда точнее',
+                      title: 'Тихое распознавание',
+                      subtitle: 'Без звука и офлайн, но хуже понимает слова',
                       trailing: Switch.adaptive(
-                        value: p.googleVoice,
+                        value: p.quietVoice,
                         onChanged: (v) => _run(
                           () => c.preferences(
-                            c.data.preferences.copyWith(googleVoice: v),
+                            c.data.preferences.copyWith(quietVoice: v),
                           ),
                         ),
                       ),
                       onTap: () => _run(
                         () => c.preferences(
                           c.data.preferences.copyWith(
-                            googleVoice: !p.googleVoice,
+                            quietVoice: !p.quietVoice,
                           ),
                         ),
                       ),
@@ -978,7 +977,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     await c.preferences(c.data.preferences.copyWith(wakeWord: on));
     if (on) {
       await FinoraEar.prepare();
-      await FinoraEar.wakeStart(FinoraVocabulary.build(c.data));
+      await FinoraEar.wakeStart(const []);
     } else {
       await FinoraEar.stop();
     }

@@ -31,7 +31,6 @@ import 'presentation/widgets/finora_orb.dart';
 import 'services/finora_system.dart';
 import 'services/finora_ear.dart';
 import 'presentation/finora_listening.dart';
-import 'presentation/finora_vocabulary.dart';
 import 'domain/voice_command_parser.dart';
 import 'services/voice_input_service.dart';
 import 'domain/models.dart';
@@ -396,9 +395,9 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
     List<String> heard;
     final prefs = FinanceScope.of(context).data.preferences;
     try {
-      // 1.31: Finora's own silent ear; the system dialog only when chosen
-      // in Settings or where her ear is unavailable.
-      if (!prefs.googleVoice && await FinoraEar.available) {
+      // 1.32: the accurate system recognizer; Finora's own silent ear only
+      // when chosen in Settings («Тихое распознавание»).
+      if (prefs.quietVoice && await FinoraEar.available) {
         if (!await FinoraEar.micAllowed() && !await FinoraEar.requestMic()) {
           if (mounted) {
             showError(
@@ -443,31 +442,15 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
         !mounted) {
       return;
     }
-    await FinoraEar.wakeStart(FinoraVocabulary.build(c.data));
+    await FinoraEar.wakeStart(const []);
   }
 
   Future<void> _woken(List<String> heard) async {
     if (!mounted) return;
+    // 1.32: her name only; the request itself goes to the accurate
+    // recognizer.
     Finora.react(FinoraMood.greeting, text: 'Слушаю!');
-    // «Финора, покажи расходы за июнь» — the rest is the request.
-    final rest = [
-      for (final h in heard)
-        h
-            .replaceFirst(
-              RegExp(
-                r'^\S*?(фигур|финор|финал)\S*[,.!]?\s*',
-                caseSensitive: false,
-              ),
-              '',
-            )
-            .trim(),
-    ].where((h) => h.isNotEmpty).toList();
-    if (rest.isEmpty) {
-      await _voice();
-    } else {
-      await _heard(rest);
-      unawaited(_listenForName());
-    }
+    await _voice();
   }
 
   /// A phrase heard by the speech dialog.

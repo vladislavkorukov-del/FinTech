@@ -154,7 +154,7 @@ class FinoraEar(
             }
             stop()
             var mine: Session? = null
-            mine = Session(m, grammar(vocab), wake = false) { heard ->
+            mine = Session(m, grammar(vocab), wake = false, useFree = true) { heard ->
                 main.post {
                     if (session === mine) session = null
                     result.success(heard)
@@ -165,13 +165,21 @@ class FinoraEar(
         }
     }
 
-    /** Waits for «Финора, …»; the app restarts it after each wake. */
+    /**
+     * Waits for «Финора» only (1.32): a tiny vocabulary — her name or
+     * nothing — so other speech never turns into words; the app restarts it
+     * after each wake and asks for the request with the accurate recognizer.
+     */
+    @Suppress("UNUSED_PARAMETER")
     private fun wakeStart(vocab: List<String>) {
         if (!micAllowed()) return
         prepare { ready ->
             val m = model ?: return@prepare
             if (!ready || session != null) return@prepare
-            session = Session(m, grammar(vocab), wake = true) { heard ->
+            val names = org.json.JSONArray()
+            wakeWords.forEach { names.put(it) }
+            names.put("[unk]")
+            session = Session(m, names.toString(), wake = true, useFree = false) { heard ->
                 main.post {
                     session = null
                     channel.invokeMethod("wake", heard)
@@ -203,6 +211,7 @@ class FinoraEar(
         private val model: Model,
         private val grammar: String,
         private val wake: Boolean,
+        private val useFree: Boolean,
         private val done: (List<String>) -> Unit,
     ) : Thread("finora-ear") {
         @Volatile
@@ -225,7 +234,7 @@ class FinoraEar(
             var record: AudioRecord? = null
             try {
                 exact = Recognizer(model, RATE.toFloat(), grammar)
-                free = Recognizer(model, RATE.toFloat())
+                if (useFree) free = Recognizer(model, RATE.toFloat())
                 val min = AudioRecord.getMinBufferSize(
                     RATE,
                     AudioFormat.CHANNEL_IN_MONO,
@@ -252,11 +261,11 @@ class FinoraEar(
                     val n = record.read(buffer, 0, buffer.size)
                     if (n <= 0) continue
                     val ended = exact.acceptWaveForm(buffer, n)
-                    free.acceptWaveForm(buffer, n)
+                    free?.acceptWaveForm(buffer, n)
                     val now = System.currentTimeMillis()
                     if (ended) {
                         val said = text(exact.result)
-                        val loose = text(free.finalResult)
+                        val loose = free?.let { text(it.finalResult) } ?: ""
                         if (wake) {
                             val first = said.split(' ').firstOrNull() ?: ""
                             if (first in wakeWords) {
@@ -266,7 +275,7 @@ class FinoraEar(
                             continue
                         }
                         if (said.isNotEmpty() || loose.isNotEmpty()) {
-                            deliver(listOf(said, loose).filter { it.isNotEmpty() })
+                            deliver(listOf(loose, said).filter { it.isNotEmpty() })
                             return
                         }
                         continue
@@ -281,8 +290,8 @@ class FinoraEar(
                         // Nothing said for 6 s, or a phrase longer than 15 s.
                         if ((heardAt == 0L && now - started > 6000) || now - started > 15000) {
                             val said = text(exact.finalResult)
-                            val loose = text(free.finalResult)
-                            deliver(listOf(said, loose).filter { it.isNotEmpty() })
+                            val loose = free?.let { text(it.finalResult) } ?: ""
+                            deliver(listOf(loose, said).filter { it.isNotEmpty() })
                             return
                         }
                     }
