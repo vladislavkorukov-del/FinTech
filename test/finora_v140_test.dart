@@ -147,7 +147,8 @@ void main() {
     }
     expect(
       File('android/app/src/main/AndroidManifest.xml').readAsStringSync(),
-      contains('.FinoraWidgetSticker'),
+      // 1.43: the 2×2 picture-only widget was removed at the owner's wish.
+      isNot(contains('.FinoraWidgetSticker')),
     );
   });
 }

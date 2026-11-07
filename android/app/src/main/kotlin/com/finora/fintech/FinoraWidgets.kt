@@ -18,7 +18,6 @@ object FinoraWidgets {
         FinoraWidgetWide::class.java,
         FinoraWidgetPayments::class.java,
         FinoraWidgetBuddy::class.java,
-        FinoraWidgetSticker::class.java,
         FinoraWidgetMini::class.java,
     )
 
@@ -244,9 +243,6 @@ object FinoraWidgets {
                 setOnClickPendingIntent(R.id.widget_say, FinoraBridge.launch(context, "voice", 80 + id))
                 setOnClickPendingIntent(R.id.widget_add, FinoraBridge.launch(context, "expense", 90 + id))
             }
-            FinoraWidgetSticker::class.java -> RemoteViews(context.packageName, R.layout.widget_sticker).apply {
-                setOnClickPendingIntent(R.id.widget_root, FinoraBridge.launch(context, "expense", 100 + id))
-            }
             FinoraWidgetMini::class.java -> RemoteViews(context.packageName, R.layout.widget_mini).apply {
                 setOnClickPendingIntent(R.id.widget_root, FinoraBridge.launch(context, "expense", 110 + id))
             }
@@ -268,7 +264,7 @@ object FinoraWidgets {
             views.setInt(R.id.widget_root, "setBackgroundResource", background(payName))
         } else {
             views.setImageViewResource(R.id.widget_finora, picture)
-            if (kind != FinoraWidgetSticker::class.java && kind != FinoraWidgetMini::class.java) {
+            if (kind != FinoraWidgetMini::class.java) {
                 views.setInt(R.id.widget_root, "setBackgroundResource", background(name))
             }
         }
@@ -290,9 +286,6 @@ class FinoraWidgetWide : FinoraWidgetBase()
 
 /** 1.39, 4×2: Finora as a companion — big, with a line and a streak. */
 class FinoraWidgetBuddy : FinoraWidgetBase()
-
-/** 1.40, 2×2: just Finora's picture for the moment; a tap — add an expense. */
-class FinoraWidgetSticker : FinoraWidgetBase()
 
 /** 1.42, 1×1: the smallest Finora — just her picture. */
 class FinoraWidgetMini : FinoraWidgetBase()
