@@ -1,7 +1,7 @@
 import 'presentation/i18n.dart';
 import 'dart:async';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide InputDecoration, Text;
 import 'package:flutter/foundation.dart'
     show LicenseRegistry, LicenseEntryWithLineBreaks;
 import 'package:flutter/services.dart' show rootBundle;
@@ -36,10 +36,12 @@ import 'presentation/finora_listening.dart';
 import 'domain/voice_command_parser.dart';
 import 'services/voice_input_service.dart';
 import 'domain/models.dart';
+import 'presentation/l10n_widgets.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await initializeDateFormatting('ru');
+  // 1.37: month and day names in every app language.
+  await initializeDateFormatting();
   LicenseRegistry.addLicense(() async* {
     final text = await rootBundle.loadString(
       'assets/ocr/THIRD_PARTY_NOTICES.txt',
@@ -171,7 +173,9 @@ class FinoraApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           // 1.28: the app language from Settings.
           locale: Locale(p.language),
-          supportedLocales: const [Locale('ru'), Locale('en')],
+          supportedLocales: [
+            for (final code in AppLanguage.names.keys) Locale(code),
+          ],
           localizationsDelegates: GlobalMaterialLocalizations.delegates,
           // 1.27: every tap answers with a light tick.
           theme: withHaptics(AppTheme.app(Brightness.light, p.accent)),

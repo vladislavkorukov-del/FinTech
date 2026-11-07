@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide InputDecoration, Text;
 import 'package:image_picker/image_picker.dart';
 
 import '../../domain/account_import_parser.dart';
@@ -8,6 +8,7 @@ import '../../services/receipt_image_store.dart';
 import '../../services/receipt_ocr_service.dart';
 import '../controller.dart';
 import '../widgets/common.dart';
+import '../l10n_widgets.dart';
 
 /// Moves accounts over from another finance app (Finance 1.21): a screenshot
 /// of its account list → names and balances → reviewed → added as accounts

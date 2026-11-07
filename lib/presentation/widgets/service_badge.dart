@@ -3,7 +3,7 @@ import 'dart:io';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide InputDecoration, Text;
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
@@ -13,6 +13,7 @@ import '../../domain/bank_catalog.dart';
 import '../../domain/service_catalog.dart';
 import 'common.dart';
 import 'service_logo_image.dart';
+import '../l10n_widgets.dart';
 
 class ServiceSelection {
   const ServiceSelection({

@@ -1,7 +1,8 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide InputDecoration, Text;
 import '../../domain/models.dart';
 import '../screens/entry_editor.dart';
 import 'common.dart';
+import '../l10n_widgets.dart';
 
 class FinanceQuickActions extends StatelessWidget {
   const FinanceQuickActions({super.key});

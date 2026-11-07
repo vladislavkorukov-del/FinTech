@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide InputDecoration, Text;
 import 'package:flutter/services.dart';
 
 import '../../domain/models.dart';
@@ -9,6 +9,7 @@ import '../widgets/finora_orb.dart';
 import '../widgets/motion.dart';
 import 'account_import_screen.dart';
 import 'tutorial.dart';
+import '../l10n_widgets.dart';
 
 /// Welcome screens (Finance 1.21; Apple style since 1.22): on the first launch
 /// of a new install and after «Сбросить всё». Pure black or white, large

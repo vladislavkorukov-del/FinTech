@@ -1,8 +1,9 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide InputDecoration, Text;
 
 import '../../domain/finance_engine.dart';
 import '../../domain/models.dart';
 import 'common.dart';
+import '../l10n_widgets.dart';
 
 /// 1.37: «Откладывайте: 340 ₽ в день · 2 400 ₽ в неделю · 10 300 ₽ в месяц»
 /// to reach a dream by its date.

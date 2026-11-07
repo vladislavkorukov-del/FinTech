@@ -1,7 +1,9 @@
 import 'dart:math' as math;
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide InputDecoration, Text;
 import 'package:intl/intl.dart';
 import 'common.dart';
+import '../l10n_widgets.dart';
+import '../i18n.dart';
 
 class MonthFlow {
   const MonthFlow({
@@ -40,7 +42,7 @@ class _HalfYearChartState extends State<HalfYearChart> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              DateFormat('LLLL yyyy', 'ru').format(month.month),
+              DateFormat('LLLL yyyy', AppLanguage.intl).format(month.month),
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 18),
@@ -121,7 +123,7 @@ class _HalfYearChartState extends State<HalfYearChart> {
                   child: Semantics(
                     button: true,
                     label:
-                        '${DateFormat('MMMM yyyy', 'ru').format(widget.months[i].month)}: доходы ${money(widget.months[i].income, widget.currency)}, расходы ${money(widget.months[i].expense, widget.currency)}',
+                        '${DateFormat('MMMM yyyy', AppLanguage.intl).format(widget.months[i].month)}: доходы ${money(widget.months[i].income, widget.currency)}, расходы ${money(widget.months[i].expense, widget.currency)}',
                     child: InkWell(
                       key: ValueKey('month-flow-$i'),
                       onTap: () => _show(i),
@@ -161,7 +163,7 @@ class _HalfYearChartState extends State<HalfYearChart> {
                             Text(
                               DateFormat(
                                 'MMM',
-                                'ru',
+                                AppLanguage.intl,
                               ).format(widget.months[i].month),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,

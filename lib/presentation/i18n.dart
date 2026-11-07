@@ -1,10 +1,22 @@
+import 'l10n_table.dart';
+
 /// App languages (Finora 1.28). Russian is the source; other languages map
 /// each Russian line to its translation, and anything not translated yet
 /// stays in Russian. Voice commands and money tips are Russian-only for now.
 abstract final class AppLanguage {
   static String code = 'ru';
 
-  static const names = <String, String>{'ru': 'Русский', 'en': 'English'};
+  static const names = <String, String>{
+    'ru': 'Русский',
+    'en': 'English',
+    'es': 'Español',
+    'pt': 'Português',
+    'fr': 'Français',
+    'de': 'Deutsch',
+    'zh': '中文',
+    'hi': 'हिन्दी',
+    'ar': 'العربية',
+  };
 
   static const _en = <String, String>{
     // Bottom bar and header.
@@ -96,8 +108,76 @@ abstract final class AppLanguage {
     'Открыть счета': 'Open accounts',
   };
 
-  /// [ru] in the current language.
-  static String t(String ru) => code == 'en' ? (_en[ru] ?? ru) : ru;
+  /// The `intl` locale for dates and months.
+  static String get intl => code;
+
+  /// RTL languages.
+  static bool get rtl => code == 'ar';
+
+  static Map<String, String>? _exactFor;
+  static String? _exactCode;
+  static List<(RegExp, String)> _patterns = const [];
+
+  static Map<String, String> _exact() {
+    if (_exactCode == code && _exactFor != null) return _exactFor!;
+    final i = l10nLanguages.indexOf(code);
+    final map = <String, String>{if (code == 'en') ..._en};
+    final patterns = <(RegExp, String, int)>[];
+    if (i >= 0) {
+      for (final e in l10nTable.entries) {
+        final value = e.value[i];
+        if (e.key.contains('{1}')) {
+          final literal = e.key.replaceAll(RegExp(r'\{\d\}'), '');
+          final source = e.key
+              .split(RegExp(r'(\{\d\})'))
+              .map(RegExp.escape)
+              .join('(.+?)');
+          // Keep which placeholder each group is.
+          final order = RegExp(
+            r'\{(\d)\}',
+          ).allMatches(e.key).map((m) => m[1]).join(',');
+          patterns.add((
+            RegExp('^$source\$', dotAll: true),
+            '$order|$value',
+            literal.length,
+          ));
+        } else {
+          map[e.key] = value;
+        }
+      }
+    }
+    // The most specific patterns first.
+    patterns.sort((x, y) => y.$3.compareTo(x.$3));
+    _patterns = [for (final p in patterns) (p.$1, p.$2)];
+    _exactFor = map;
+    _exactCode = code;
+    return map;
+  }
+
+  static final _cyrillic = RegExp('[А-Яа-яЁё]');
+
+  /// [ru] in the current language (1.37: nine languages). Lines with values
+  /// inside («Осталось 5 000 ₽») are matched by their patterns.
+  static String t(String ru) {
+    if (code == 'ru' || ru.isEmpty) return ru;
+    final exact = _exact();
+    final hit = exact[ru];
+    if (hit != null) return hit;
+    if (!_cyrillic.hasMatch(ru)) return ru;
+    for (final (re, template) in _patterns) {
+      final m = re.firstMatch(ru);
+      if (m == null) continue;
+      final bar = template.indexOf('|');
+      final order = template.substring(0, bar).split(',');
+      var out = template.substring(bar + 1);
+      for (var g = 0; g < order.length; g++) {
+        final value = m.group(g + 1)!;
+        out = out.replaceAll('{${order[g]}}', exact[value] ?? value);
+      }
+      return out;
+    }
+    return ru;
+  }
 }
 
 /// Shorthand for [AppLanguage.t].

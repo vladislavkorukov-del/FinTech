@@ -1,10 +1,12 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide InputDecoration, Text;
 import 'package:flutter/services.dart';
 
 import '../widgets/finora_orb.dart';
 import '../widgets/motion.dart';
 import '../widgets/voice_orb.dart';
 import 'onboarding.dart';
+import '../i18n.dart';
+import '../l10n_widgets.dart';
 
 /// A short tour of the whole app (Finance 1.25), offered at the end of the
 /// welcome screens and kept in Settings. Swipe or «Далее»; «Пропустить» is
@@ -79,7 +81,7 @@ final _pages = <_Page>[
         Icons.translate_rounded,
         'Сервисы можно называть по-русски: «чат гпт», «нетфликс»',
       ),
-      (Icons.front_hand_outlined, 'Удержание кругляша — ручной ввод'),
+      (Icons.front_hand_outlined, 'Удержание кругляша — колесо действий'),
 
       (
         Icons.record_voice_over_rounded,
@@ -263,7 +265,7 @@ final _pages = <_Page>[
       ),
       (Icons.swipe_right_alt_rounded, 'Сброс данных подтверждается свайпом'),
       (Icons.school_outlined, 'Обучение можно открыть снова в настройках'),
-      (Icons.translate_rounded, 'Язык приложения — русский или английский'),
+      (Icons.translate_rounded, 'Язык приложения — на выбор из девяти'),
     ],
     picture: (context, dark) => const _SafePicture(),
   ),
@@ -448,7 +450,7 @@ class _PageView extends StatelessWidget {
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      '${page.eyebrow.toUpperCase()} · ${index + 1} из '
+                      '${tr(page.eyebrow).toUpperCase()} · ${index + 1} из '
                       '${_pages.length}',
                       style: TextStyle(
                         fontSize: 12,

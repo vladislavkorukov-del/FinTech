@@ -1,10 +1,11 @@
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide InputDecoration, Text;
 
 import '../haptics.dart';
 import 'finora_orb.dart';
+import '../l10n_widgets.dart';
 
 /// One choice on the wheel.
 class WheelAction {

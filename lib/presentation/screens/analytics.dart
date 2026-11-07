@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide InputDecoration, Text;
 import 'package:intl/intl.dart';
 
 import '../../domain/finance_engine.dart';
@@ -9,6 +9,8 @@ import '../widgets/charts.dart';
 import '../widgets/category_orbit_chart.dart';
 import '../widgets/half_year_chart.dart';
 import 'transactions.dart';
+import '../l10n_widgets.dart';
+import '../i18n.dart';
 
 class AnalyticsScreen extends StatefulWidget {
   const AnalyticsScreen({super.key});
@@ -191,7 +193,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
           ),
           const SizedBox(height: 20),
           Text(
-            '${DateFormat('d MMM yyyy', 'ru').format(start)} — ${DateFormat('d MMM yyyy', 'ru').format(DateTime(end.year, end.month, end.day - 1))}',
+            '${DateFormat('d MMM yyyy', AppLanguage.intl).format(start)} — ${DateFormat('d MMM yyyy', AppLanguage.intl).format(DateTime(end.year, end.month, end.day - 1))}',
             style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant),
           ),
           const SizedBox(height: 18),

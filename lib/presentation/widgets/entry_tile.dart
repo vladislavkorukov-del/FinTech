@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide InputDecoration, Text;
 import 'package:intl/intl.dart';
 
 import '../../domain/models.dart';
@@ -7,6 +7,8 @@ import '../screens/entry_editor.dart';
 import 'common.dart';
 import 'service_badge.dart';
 import '../../domain/service_catalog.dart';
+import '../l10n_widgets.dart';
+import '../i18n.dart';
 
 class EntryTile extends StatelessWidget {
   const EntryTile(this.entry, {super.key, this.swipe = true, this.onTap});
@@ -59,7 +61,7 @@ class EntryTile extends StatelessWidget {
         style: Theme.of(context).textTheme.titleMedium,
       ),
       subtitle: Text(
-        '${transfer ? '${c.account(entry.accountId)?.name} → ${c.destinationName(entry)}' : cat?.name ?? ''} · ${DateFormat('d MMM', 'ru').format(entry.date)}${entry.status == 'posted'
+        '${transfer ? '${c.account(entry.accountId)?.name} → ${c.destinationName(entry)}' : cat?.name ?? ''} · ${DateFormat('d MMM', AppLanguage.intl).format(entry.date)}${entry.status == 'posted'
             ? ''
             : entry.status == 'pending'
             ? ' · ожидает'

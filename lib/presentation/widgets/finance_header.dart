@@ -1,13 +1,14 @@
 import '../i18n.dart';
 import 'dart:async';
 import 'dart:math' as math;
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide InputDecoration, Text;
 import '../controller.dart';
 import '../screens/management.dart';
 import '../screens/settings.dart';
 import 'common.dart' show money;
 import 'glass.dart';
 import 'motion.dart';
+import '../l10n_widgets.dart';
 
 class FinanceBrand extends StatefulWidget {
   const FinanceBrand({super.key, this.animated = true});

@@ -42,7 +42,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
                     ),
                     Expanded(
                       child: Text(
-                        DateFormat('LLLL yyyy', 'ru').format(selected),
+                        DateFormat(
+                          'LLLL yyyy',
+                          AppLanguage.intl,
+                        ).format(selected),
                         style: Theme.of(context).textTheme.titleLarge,
                         textAlign: TextAlign.center,
                       ),
@@ -136,7 +139,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                               ),
                             if (income > 0)
                               Text(
-                                '+${NumberFormat.compact(locale: 'ru').format(income / 100)}',
+                                '+${NumberFormat.compact(locale: AppLanguage.intl).format(income / 100)}',
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
@@ -146,7 +149,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                               ),
                             if (expense > 0)
                               Text(
-                                '−${NumberFormat.compact(locale: 'ru').format(expense / 100)}',
+                                '−${NumberFormat.compact(locale: AppLanguage.intl).format(expense / 100)}',
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
@@ -163,7 +166,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
               ],
             ),
           ),
-          SectionTitle(DateFormat('d MMMM', 'ru').format(selected)),
+          SectionTitle(DateFormat('d MMMM', AppLanguage.intl).format(selected)),
           Text(
             'Суммы календаря в ${c.currency}. Список ниже включает все валюты.',
             style: Theme.of(context).textTheme.bodySmall,

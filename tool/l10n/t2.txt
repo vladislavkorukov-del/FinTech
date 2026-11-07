@@ -1,0 +1,126 @@
+131¦Currency¦Moneda¦Moeda¦Devise¦Währung¦货币¦मुद्रा¦العملة
+132¦Currency is locked: transfers are already linked to the dream.¦La moneda está fijada: ya hay transferencias al sueño.¦A moeda está fixada: já há transferências para o sonho.¦Devise verrouillée : des virements sont déjà liés au rêve.¦Währung gesperrt: Es gibt bereits Überweisungen zum Traum.¦货币已锁定：该梦想已有转账。¦मुद्रा तय है: सपने से ट्रांसफ़र जुड़े हैं।¦العملة مثبتة: توجد تحويلات مرتبطة بالحلم.
+133¦Set a date¦Fijar fecha¦Definir prazo¦Fixer une date¦Datum festlegen¦设置期限¦तारीख़ तय करें¦حدد موعداً
+134¦No deadline¦Sin plazo¦Sem prazo¦Sans échéance¦Ohne Frist¦无期限¦कोई समय-सीमा नहीं¦بلا موعد
+135¦Icon¦Icono¦Ícone¦Icône¦Symbol¦图标¦आइकन¦أيقونة
+136¦The goal must be above zero and savings non-negative.¦La meta debe ser mayor que cero y el ahorro no negativo.¦A meta deve ser maior que zero e a reserva não negativa.¦L'objectif doit être positif et l'épargne non négative.¦Das Ziel muss über null liegen, Ersparnisse nicht negativ.¦目标必须大于零，储蓄不能为负。¦लक्ष्य शून्य से अधिक और बचत ऋणात्मक नहीं होनी चाहिए।¦يجب أن يكون الهدف أكبر من صفر والادخار غير سالب.
+137¦Income¦Ingresos¦Receitas¦Revenus¦Einnahmen¦收入¦आय¦الدخل
+138¦Expenses¦Gastos¦Despesas¦Dépenses¦Ausgaben¦支出¦खर्च¦المصاريف
+139¦All accounts¦Todas las cuentas¦Todas as contas¦Tous les comptes¦Alle Konten¦所有账户¦सभी खाते¦كل الحسابات
+140¦+ Account¦+ Cuenta¦+ Conta¦+ Compte¦+ Konto¦+ 账户¦+ खाता¦+ حساب
+141¦Add an account¦Añade una cuenta¦Adicione uma conta¦Ajoutez un compte¦Konto hinzufügen¦添加账户¦खाता जोड़ें¦أضف حساباً
+142¦A card, cash, deposit or wallet.¦Tarjeta, efectivo, depósito o monedero.¦Cartão, dinheiro, depósito ou carteira.¦Carte, espèces, dépôt ou portefeuille.¦Karte, Bargeld, Einlage oder Geldbörse.¦银行卡、现金、存款或钱包。¦कार्ड, नकद, जमा या वॉलेट।¦بطاقة أو نقد أو وديعة أو محفظة.
+143¦Delete account «{1}»?¦¿Borrar la cuenta «{1}»?¦Excluir a conta «{1}»?¦Supprimer le compte « {1} » ?¦Konto «{1}» löschen?¦删除账户「{1}」？¦खाता «{1}» हटाएँ?¦حذف الحساب «{1}»؟
+144¦An account with transactions can't be deleted — you can archive it in the account editor.¦Una cuenta con operaciones no se puede borrar: puedes archivarla en su editor.¦Uma conta com transações não pode ser excluída — arquive-a no editor da conta.¦Un compte avec des opérations ne peut pas être supprimé — archivez-le dans son éditeur.¦Ein Konto mit Buchungen kann nicht gelöscht werden — archiviere es im Konto-Editor.¦有交易的账户无法删除——可在账户编辑中归档。¦लेन-देन वाला खाता हटाया नहीं जा सकता — खाता संपादक में संग्रहित करें।¦لا يمكن حذف حساب فيه عمليات — يمكنك أرشفته من محرر الحساب.
+145¦Archived accounts · {1}¦Cuentas archivadas · {1}¦Contas arquivadas · {1}¦Comptes archivés · {1}¦Archivierte Konten · {1}¦已归档账户 · {1}¦संग्रहित खाते · {1}¦حسابات مؤرشفة · {1}
+146¦Month overview¦Resumen del mes¦Resumo do mês¦Aperçu du mois¦Monatsübersicht¦本月概览¦महीने का सारांश¦نظرة على الشهر
+147¦Dreams & savings¦Sueños y ahorros¦Sonhos e economias¦Rêves et épargne¦Träume & Ersparnisse¦梦想与储蓄¦सपने और बचत¦الأحلام والمدخرات
+148¦All¦Todo¦Tudo¦Tout¦Alle¦全部¦सभी¦الكل
+149¦No savings goals¦Sin metas de ahorro¦Sem metas de economia¦Aucun objectif d'épargne¦Keine Sparziele¦没有储蓄目标¦कोई बचत लक्ष्य नहीं¦لا أهداف ادخار
+150¦Add a goal, an amount and a date.¦Añade una meta, un importe y una fecha.¦Adicione uma meta, um valor e um prazo.¦Ajoutez un objectif, un montant et une date.¦Füge Ziel, Betrag und Datum hinzu.¦添加目标、金额和日期。¦लक्ष्य, राशि और तारीख़ जोड़ें।¦أضف هدفاً ومبلغاً وموعداً.
+151¦A dream with top-ups can't be deleted — remove the top-ups first.¦Un sueño con aportes no se puede borrar: quita antes los aportes.¦Um sonho com aportes não pode ser excluído — remova-os antes.¦Un rêve avec des versements ne peut pas être supprimé — retirez-les d'abord.¦Ein Traum mit Einzahlungen kann nicht gelöscht werden — entferne sie zuerst.¦已有存入的梦想无法删除——请先移除存入。¦जमा वाले सपने को नहीं हटा सकते — पहले जमा हटाएँ।¦لا يمكن حذف حلم فيه إيداعات — احذفها أولاً.
+152¦Recent transactions¦Últimas operaciones¦Últimas transações¦Dernières opérations¦Letzte Buchungen¦最近交易¦हाल के लेन-देन¦آخر العمليات
+153¦No transactions¦Sin operaciones¦Sem transações¦Aucune opération¦Keine Buchungen¦没有交易¦कोई लेन-देन नहीं¦لا توجد عمليات
+154¦Add income, an expense or a transfer.¦Añade un ingreso, un gasto o una transferencia.¦Adicione receita, despesa ou transferência.¦Ajoutez un revenu, une dépense ou un virement.¦Füge Einnahme, Ausgabe oder Umbuchung hinzu.¦添加收入、支出或转账。¦आय, खर्च या ट्रांसफ़र जोड़ें।¦أضف دخلاً أو مصروفاً أو تحويلاً.
+155¦No budget set¦Sin presupuesto¦Orçamento não definido¦Aucun budget défini¦Kein Budget festgelegt¦未设置预算¦कोई बजट तय नहीं¦لم تُحدَّد ميزانية
+156¦Set an overall limit or category limits.¦Fija un límite general o por categorías.¦Defina um limite geral ou por categoria.¦Fixez une limite globale ou par catégorie.¦Lege ein Gesamt- oder Kategorienlimit fest.¦设置总额度或分类额度。¦कुल सीमा या श्रेणी सीमाएँ तय करें।¦حدد حداً عاماً أو حدوداً للفئات.
+157¦{1} of {2}¦{1} de {2}¦{1} de {2}¦{1} sur {2}¦{1} von {2}¦{1} / {2}¦{2} में से {1}¦{1} من {2}
+158¦Outside the total balance¦Fuera del saldo total¦Fora do saldo total¦Hors solde total¦Außerhalb des Gesamtsaldos¦不计入总余额¦कुल बैलेंस से बाहर¦خارج الرصيد الإجمالي
+159¦Edit account {1}¦Editar cuenta {1}¦Editar conta {1}¦Modifier le compte {1}¦Konto {1} bearbeiten¦编辑账户 {1}¦खाता {1} संपादित करें¦تعديل الحساب {1}
+160¦Top up the dream {1}¦Aportar al sueño {1}¦Reforçar o sonho {1}¦Alimenter le rêve {1}¦Traum {1} aufstocken¦为梦想 {1} 存钱¦सपने {1} में जोड़ें¦أضف إلى الحلم {1}
+161¦{1} · {2}% saved¦{1} · {2}% ahorrado¦{1} · {2}% guardado¦{1} · {2}% épargné¦{1} · {2}% gespart¦{1} · 已存 {2}%¦{1} · {2}% जमा¦{1} · تم ادخار {2}%
+162¦Add a subscription¦Añadir suscripción¦Adicionar assinatura¦Ajouter un abonnement¦Abo hinzufügen¦添加订阅¦सदस्यता जोड़ें¦إضافة اشتراك
+163¦Services, music, phone¦Servicios, música, telefonía¦Serviços, música, telefonia¦Services, musique, téléphone¦Dienste, Musik, Mobilfunk¦服务、音乐、通讯¦सेवाएँ, संगीत, फ़ोन¦خدمات وموسيقى واتصالات
+164¦Add a required payment¦Añadir pago obligatorio¦Adicionar pagamento obrigatório¦Ajouter un paiement obligatoire¦Pflichtzahlung hinzufügen¦添加必付款项¦ज़रूरी भुगतान जोड़ें¦إضافة دفعة إلزامية
+165¦Loan, mortgage, rent, utilities¦Préstamo, hipoteca, alquiler, suministros¦Empréstimo, financiamento, aluguel, contas¦Crédit, prêt immobilier, loyer, charges¦Kredit, Hypothek, Miete, Nebenkosten¦贷款、房贷、房租、水电¦ऋण, गृह ऋण, किराया, बिल¦قرض، رهن، إيجار، فواتير
+166¦Per month ≈ {1}¦Al mes ≈ {1}¦Por mês ≈ {1}¦Par mois ≈ {1}¦Pro Monat ≈ {1}¦每月 ≈ {1}¦प्रति माह ≈ {1}¦شهرياً ≈ {1}
+167¦Delete «{1}»?¦¿Borrar «{1}»?¦Excluir «{1}»?¦Supprimer « {1} » ?¦«{1}» löschen?¦删除「{1}」？¦«{1}» हटाएँ?¦حذف «{1}»؟
+168¦The payment will no longer remind you. Recorded transactions stay.¦El pago ya no te avisará. Las operaciones anotadas se quedan.¦O pagamento não vai mais lembrar. As transações registradas ficam.¦Le paiement ne vous rappellera plus. Les opérations notées restent.¦Die Zahlung erinnert nicht mehr. Erfasste Buchungen bleiben.¦该付款将不再提醒。已记录的交易保留。¦भुगतान अब याद नहीं दिलाएगा। दर्ज लेन-देन बने रहेंगे।¦لن تذكّرك الدفعة بعد الآن. تبقى العمليات المسجلة.
+169¦auto-record¦anotación automática¦registro automático¦saisie auto¦Autobuchung¦自动记账¦स्वतः दर्ज¦تسجيل تلقائي
+170¦reminder¦aviso¦lembrete¦rappel¦Erinnerung¦提醒¦रिमाइंडर¦تذكير
+171¦Subscription¦Suscripción¦Assinatura¦Abonnement¦Abo¦订阅¦सदस्यता¦اشتراك
+172¦Payment¦Pago¦Pagamento¦Paiement¦Zahlung¦付款¦भुगतान¦دفعة
+173¦Other¦Otros¦Outros¦Autre¦Sonstiges¦其他¦अन्य¦أخرى
+176¦Analytics¦Análisis¦Análises¦Analyses¦Analysen¦分析¦विश्लेषण¦التحليلات
+177¦7 days¦7 días¦7 dias¦7 jours¦7 Tage¦7 天¦7 दिन¦7 أيام
+178¦Month¦Mes¦Mês¦Mois¦Monat¦月¦महीना¦شهر
+179¦3 months¦3 meses¦3 meses¦3 mois¦3 Monate¦3 个月¦3 महीने¦3 أشهر
+180¦Year¦Año¦Ano¦Année¦Jahr¦年¦वर्ष¦سنة
+181¦All time¦Todo el tiempo¦Todo o período¦Depuis toujours¦Gesamter Zeitraum¦全部时间¦पूरा समय¦كل الوقت
+182¦Custom period¦Periodo propio¦Período personalizado¦Période personnalisée¦Eigener Zeitraum¦自定义时段¦अपनी अवधि¦فترة مخصصة
+183¦Edit this transaction¦Editar esta operación¦Editar esta transação¦Modifier cette opération¦Diese Buchung bearbeiten¦编辑此交易¦यह लेन-देन संपादित करें¦تعديل هذه العملية
+184¦Income · {1}¦Ingresos · {1}¦Receitas · {1}¦Revenus · {1}¦Einnahmen · {1}¦收入 · {1}¦आय · {1}¦الدخل · {1}
+185¦Expenses · {1}¦Gastos · {1}¦Despesas · {1}¦Dépenses · {1}¦Ausgaben · {1}¦支出 · {1}¦खर्च · {1}¦المصاريف · {1}
+186¦Transactions¦Operaciones¦Transações¦Opérations¦Buchungen¦交易笔数¦लेन-देन¦العمليات
+187¦On average¦De media¦Em média¦En moyenne¦Im Schnitt¦平均¦औसतन¦في المتوسط
+188¦Latest¦Última¦Última¦Dernière¦Letzte¦最近一笔¦नवीनतम¦الأخيرة
+189¦Transactions in the period¦Operaciones del periodo¦Transações do período¦Opérations de la période¦Buchungen im Zeitraum¦该时段的交易¦अवधि के लेन-देन¦عمليات الفترة
+190¦Choose another period.¦Elige otro periodo.¦Escolha outro período.¦Choisissez une autre période.¦Wähle einen anderen Zeitraum.¦请选择其他时段。¦दूसरी अवधि चुनें।¦اختر فترة أخرى.
+193¦Current PIN¦PIN actual¦PIN atual¦PIN actuel¦Aktuelle PIN¦当前 PIN¦वर्तमान PIN¦رمز PIN الحالي
+194¦Wrong PIN.¦PIN incorrecto.¦PIN incorreto.¦PIN incorrect.¦Falsche PIN.¦PIN 错误。¦गलत PIN।¦رمز PIN خاطئ.
+195¦New PIN¦Nuevo PIN¦Novo PIN¦Nouveau PIN¦Neue PIN¦新 PIN¦नया PIN¦رمز PIN جديد
+196¦PIN set. Remember it: a PIN can't be recovered without erasing the data.¦PIN establecido. Recuérdalo: no se puede recuperar sin borrar los datos.¦PIN definido. Memorize-o: não é possível recuperá-lo sem apagar os dados.¦PIN défini. Retenez-le : impossible de le récupérer sans effacer les données.¦PIN gesetzt. Merke sie dir: Ohne Löschen der Daten lässt sie sich nicht wiederherstellen.¦PIN 已设置。请记住：不清除数据就无法找回 PIN。¦PIN सेट हो गया। याद रखें: डेटा मिटाए बिना PIN वापस नहीं मिल सकता।¦تم تعيين PIN. احفظه: لا يمكن استعادته دون مسح البيانات.
+197¦Turn off protection?¦¿Desactivar la protección?¦Desativar a proteção?¦Désactiver la protection ?¦Schutz ausschalten?¦关闭保护？¦सुरक्षा बंद करें?¦إيقاف الحماية؟
+198¦Opening the app will no longer ask for a PIN or biometrics.¦Abrir la app ya no pedirá PIN ni biometría.¦Abrir o app não vai mais pedir PIN nem biometria.¦L'ouverture ne demandera plus de PIN ni de biométrie.¦Beim Öffnen wird keine PIN oder Biometrie mehr verlangt.¦打开应用将不再需要 PIN 或生物识别。¦ऐप खोलने पर अब PIN या बायोमेट्रिक नहीं माँगा जाएगा।¦لن يطلب فتح التطبيق PIN أو المصادقة الحيوية بعد الآن.
+199¦Biometrics unavailable. Add a fingerprint or face in Android settings.¦Biometría no disponible. Añade una huella o tu rostro en los ajustes de Android.¦Biometria indisponível. Adicione digital ou rosto nas configurações do Android.¦Biométrie indisponible. Ajoutez une empreinte ou un visage dans les réglages Android.¦Biometrie nicht verfügbar. Füge in den Android-Einstellungen Fingerabdruck oder Gesicht hinzu.¦生物识别不可用。请在 Android 设置中添加指纹或面容。¦बायोमेट्रिक उपलब्ध नहीं। Android सेटिंग्स में फ़िंगरप्रिंट या चेहरा जोड़ें।¦المصادقة الحيوية غير متاحة. أضف بصمة أو وجهاً في إعدادات Android.
+200¦Biometric check not completed.¦Verificación biométrica no completada.¦Verificação biométrica não concluída.¦Vérification biométrique non terminée.¦Biometrische Prüfung nicht abgeschlossen.¦生物识别验证未完成。¦बायोमेट्रिक जाँच पूरी नहीं हुई।¦لم يكتمل التحقق الحيوي.
+201¦Export financial data¦Exportar datos financieros¦Exportar dados financeiros¦Exporter les données financières¦Finanzdaten exportieren¦导出财务数据¦वित्तीय डेटा निर्यात करें¦تصدير البيانات المالية
+202¦The file contains amounts, accounts and history without encryption. Keep it somewhere safe. The PIN isn't included.¦El archivo contiene importes, cuentas e historial sin cifrar. Guárdalo en un lugar seguro. El PIN no se incluye.¦O arquivo contém valores, contas e histórico sem criptografia. Guarde em local seguro. O PIN não é incluído.¦Le fichier contient montants, comptes et historique non chiffrés. Gardez-le en lieu sûr. Le PIN n'y est pas.¦Die Datei enthält Beträge, Konten und Verlauf unverschlüsselt. Bewahre sie sicher auf. Die PIN ist nicht enthalten.¦文件包含未加密的金额、账户和历史记录。请妥善保管。PIN 不会包含在内。¦फ़ाइल में राशियाँ, खाते और इतिहास बिना एन्क्रिप्शन के हैं। सुरक्षित रखें। PIN शामिल नहीं है।¦يحتوي الملف على المبالغ والحسابات والسجل دون تشفير. احفظه في مكان آمن. لا يتضمن PIN.
+203¦Finora backup¦Copia de Finora¦Backup do Finora¦Sauvegarde Finora¦Finora-Backup¦Finora 备份¦Finora बैकअप¦نسخة Finora الاحتياطية
+204¦Finora transactions¦Operaciones de Finora¦Transações do Finora¦Opérations Finora¦Finora-Buchungen¦Finora 交易¦Finora लेन-देन¦عمليات Finora
+205¦The whole Finora base as CSV. Keep the file somewhere safe.¦Toda la base de Finora en CSV. Guarda el archivo en un lugar seguro.¦Toda a base do Finora em CSV. Guarde o arquivo em local seguro.¦Toute la base Finora en CSV. Gardez le fichier en lieu sûr.¦Die ganze Finora-Datenbank als CSV. Bewahre die Datei sicher auf.¦Finora 全部数据（CSV）。请妥善保管文件。¦पूरा Finora डेटा CSV में। फ़ाइल सुरक्षित रखें।¦قاعدة Finora كاملة بصيغة CSV. احفظ الملف في مكان آمن.
+206¦Finora backup. Keep the file somewhere safe.¦Copia de Finora. Guarda el archivo en un lugar seguro.¦Backup do Finora. Guarde o arquivo em local seguro.¦Sauvegarde Finora. Gardez le fichier en lieu sûr.¦Finora-Backup. Bewahre die Datei sicher auf.¦Finora 备份。请妥善保管文件。¦Finora बैकअप। फ़ाइल सुरक्षित रखें।¦نسخة Finora الاحتياطية. احفظ الملف في مكان آمن.
+207¦The file is larger than 50 MB.¦El archivo supera los 50 MB.¦O arquivo excede 50 MB.¦Le fichier dépasse 50 Mo.¦Die Datei ist größer als 50 MB.¦文件超过 50 MB。¦फ़ाइल 50 MB से बड़ी है।¦الملف أكبر من 50 ميغابايت.
+208¦Replace current data?¦¿Reemplazar los datos actuales?¦Substituir os dados atuais?¦Remplacer les données actuelles ?¦Aktuelle Daten ersetzen?¦替换当前数据？¦मौजूदा डेटा बदलें?¦استبدال البيانات الحالية؟
+209¦Import fully replaces accounts, transactions, budgets, goals and settings. Export a backup first. A damaged file is rejected without changing data.¦La importación reemplaza por completo cuentas, operaciones, presupuestos, metas y ajustes. Exporta antes una copia. Un archivo dañado se rechaza sin cambiar nada.¦A importação substitui contas, transações, orçamentos, metas e configurações. Exporte um backup antes. Um arquivo danificado é recusado sem alterar dados.¦L'import remplace comptes, opérations, budgets, objectifs et réglages. Exportez d'abord une sauvegarde. Un fichier abîmé est refusé sans rien changer.¦Der Import ersetzt Konten, Buchungen, Budgets, Ziele und Einstellungen vollständig. Exportiere zuerst ein Backup. Eine beschädigte Datei wird ohne Änderungen abgelehnt.¦导入会完全替换账户、交易、预算、目标和设置。请先导出备份。损坏的文件会被拒绝且不改动数据。¦आयात खाते, लेन-देन, बजट, लक्ष्य और सेटिंग्स पूरी तरह बदल देगा। पहले बैकअप निर्यात करें। खराब फ़ाइल बिना बदलाव के अस्वीकार होगी।¦يستبدل الاستيراد الحسابات والعمليات والميزانيات والأهداف والإعدادات بالكامل. صدّر نسخة أولاً. يُرفض الملف التالف دون تغيير البيانات.
+210¦Couldn't access the file.¦No se pudo acceder al archivo.¦Não foi possível acessar o arquivo.¦Impossible d'accéder au fichier.¦Kein Zugriff auf die Datei.¦无法访问文件。¦फ़ाइल तक पहुँच नहीं हुई।¦تعذّر الوصول إلى الملف.
+211¦Data restored. PIN settings stay on this device.¦Datos restaurados. Los ajustes de PIN siguen en este dispositivo.¦Dados restaurados. As configurações de PIN ficam neste aparelho.¦Données restaurées. Les réglages du PIN restent sur cet appareil.¦Daten wiederhergestellt. PIN-Einstellungen bleiben auf diesem Gerät.¦数据已恢复。PIN 设置保留在本设备。¦डेटा बहाल हुआ। PIN सेटिंग्स इसी डिवाइस पर रहेंगी।¦تمت استعادة البيانات. تبقى إعدادات PIN على هذا الجهاز.
+212¦The file is larger than 20 MB.¦El archivo supera los 20 MB.¦O arquivo excede 20 MB.¦Le fichier dépasse 20 Mo.¦Die Datei ist größer als 20 MB.¦文件超过 20 MB。¦फ़ाइल 20 MB से बड़ी है।¦الملف أكبر من 20 ميغابايت.
+213¦Basics¦Básico¦Básico¦Essentiel¦Grundlegendes¦基本¦मूल बातें¦الأساسيات
+214¦Change avatar¦Cambiar avatar¦Trocar avatar¦Changer d'avatar¦Avatar ändern¦更换头像¦अवतार बदलें¦تغيير الصورة الرمزية
+215¦Your name¦Tu nombre¦Seu nome¦Votre nom¦Dein Name¦你的名字¦आपका नाम¦اسمك
+216¦Main currency¦Moneda principal¦Moeda principal¦Devise principale¦Hauptwährung¦主要货币¦मुख्य मुद्रा¦العملة الرئيسية
+217¦Balance and analytics use the chosen currency. Money in other currencies is counted separately — no hidden conversion.¦El saldo y el análisis usan la moneda elegida. Lo que está en otras monedas se cuenta aparte, sin conversión oculta.¦Saldo e análises usam a moeda escolhida. Valores em outras moedas contam à parte — sem conversão oculta.¦Solde et analyses utilisent la devise choisie. Les autres devises sont comptées à part — sans conversion cachée.¦Saldo und Analysen nutzen die gewählte Währung. Andere Währungen zählen separat — ohne versteckte Umrechnung.¦余额和分析使用所选货币。其他货币单独统计——不做隐性换算。¦बैलेंस और विश्लेषण चुनी गई मुद्रा में दिखते हैं। अन्य मुद्राओं की राशि अलग गिनी जाती है — बिना छिपे रूपांतरण के।¦يعرض الرصيد والتحليلات العملة المختارة. تُحتسب العملات الأخرى منفصلة — دون تحويل خفي.
+218¦First day of the week¦Primer día de la semana¦Primeiro dia da semana¦Premier jour de la semaine¦Erster Wochentag¦每周第一天¦सप्ताह का पहला दिन¦أول يوم في الأسبوع
+219¦Monday¦Lunes¦Segunda-feira¦Lundi¦Montag¦星期一¦सोमवार¦الإثنين
+220¦Sunday¦Domingo¦Domingo¦Dimanche¦Sonntag¦星期日¦रविवार¦الأحد
+221¦Start of the financial month¦Inicio del mes financiero¦Início do mês financeiro¦Début du mois financier¦Beginn des Finanzmonats¦财务月起始日¦वित्तीय महीने की शुरुआत¦بداية الشهر المالي
+222¦Day {1}¦Día {1}¦Dia {1}¦Le {1}¦Am {1}.¦{1} 日¦{1} तारीख़¦اليوم {1}
+223¦Number format¦Formato de números¦Formato de números¦Format des nombres¦Zahlenformat¦数字格式¦संख्या प्रारूप¦تنسيق الأرقام
+224¦Date format¦Formato de fecha¦Formato de data¦Format de date¦Datumsformat¦日期格式¦तारीख़ प्रारूप¦تنسيق التاريخ
+225¦Appearance¦Apariencia¦Aparência¦Apparence¦Aussehen¦外观¦रूप¦المظهر
+226¦Theme¦Tema¦Tema¦Thème¦Design¦主题¦थीम¦السمة
+227¦System¦Como el sistema¦Igual ao sistema¦Comme le système¦Wie System¦跟随系统¦सिस्टम जैसा¦مثل النظام
+228¦Dark¦Oscuro¦Escuro¦Sombre¦Dunkel¦深色¦गहरा¦داكن
+229¦Light¦Claro¦Claro¦Clair¦Hell¦浅色¦हल्का¦فاتح
+230¦Visual style¦Estilo visual¦Estilo visual¦Style visuel¦Visueller Stil¦视觉风格¦दृश्य शैली¦النمط المرئي
+231¦Notifications¦Notificaciones¦Notificações¦Notifications¦Benachrichtigungen¦通知¦सूचनाएँ¦الإشعارات
+232¦Financial reminders¦Recordatorios financieros¦Lembretes financeiros¦Rappels financiers¦Finanzerinnerungen¦财务提醒¦वित्तीय रिमाइंडर¦تذكيرات مالية
+233¦Payments, budgets, goals and reports¦Pagos, presupuestos, metas e informes¦Pagamentos, orçamentos, metas e relatórios¦Paiements, budgets, objectifs et rapports¦Zahlungen, Budgets, Ziele und Berichte¦付款、预算、目标和报告¦भुगतान, बजट, लक्ष्य और रिपोर्ट¦دفعات وميزانيات وأهداف وتقارير
+234¦Allow notifications for Finora in Android settings.¦Permite las notificaciones de Finora en los ajustes de Android.¦Permita notificações do Finora nas configurações do Android.¦Autorisez les notifications de Finora dans les réglages Android.¦Erlaube Benachrichtigungen für Finora in den Android-Einstellungen.¦请在 Android 设置中允许 Finora 通知。¦Android सेटिंग्स में Finora की सूचनाएँ चालू करें।¦اسمح بإشعارات Finora في إعدادات Android.
+235¦Updating notifications…¦Actualizando notificaciones…¦Atualizando notificações…¦Mise à jour des notifications…¦Benachrichtigungen werden aktualisiert…¦正在更新通知…¦सूचनाएँ अपडेट हो रही हैं…¦جارٍ تحديث الإشعارات…
+236¦Notifications updated.¦Notificaciones actualizadas.¦Notificações atualizadas.¦Notifications mises à jour.¦Benachrichtigungen aktualisiert.¦通知已更新。¦सूचनाएँ अपडेट हुईं।¦تم تحديث الإشعارات.
+237¦Retry updating notifications¦Reintentar actualizar notificaciones¦Tentar atualizar notificações de novo¦Réessayer la mise à jour¦Aktualisierung erneut versuchen¦重试更新通知¦सूचनाएँ फिर से अपडेट करें¦إعادة محاولة تحديث الإشعارات
+238¦Update notifications¦Actualizar notificaciones¦Atualizar notificações¦Mettre à jour les notifications¦Benachrichtigungen aktualisieren¦更新通知¦सूचनाएँ अपडेट करें¦تحديث الإشعارات
+239¦Android may delay notifications to save battery. Automatic transactions are created when the app starts.¦Android puede retrasar las notificaciones para ahorrar batería. Las operaciones automáticas se crean al abrir la app.¦O Android pode atrasar notificações para poupar bateria. Transações automáticas são criadas ao abrir o app.¦Android peut retarder les notifications pour économiser la batterie. Les opérations automatiques sont créées au lancement.¦Android kann Benachrichtigungen zum Akkusparen verzögern. Automatische Buchungen entstehen beim App-Start.¦Android 可能为省电延迟通知。自动交易在打开应用时创建。¦Android बैटरी बचाने के लिए सूचनाएँ देर से दे सकता है। स्वचालित लेन-देन ऐप खुलने पर बनते हैं।¦قد يؤخر Android الإشعارات لتوفير البطارية. تُنشأ العمليات التلقائية عند فتح التطبيق.
+240¦Security¦Seguridad¦Segurança¦Sécurité¦Sicherheit¦安全¦सुरक्षा¦الأمان
+241¦Check if protection is available¦Comprobar la protección¦Verificar proteção disponível¦Vérifier la protection¦Schutz prüfen¦检查保护是否可用¦सुरक्षा उपलब्धता जाँचें¦التحقق من توفر الحماية
+242¦Change PIN¦Cambiar PIN¦Alterar PIN¦Modifier le PIN¦PIN ändern¦更改 PIN¦PIN बदलें¦تغيير PIN
+243¦Set PIN¦Establecer PIN¦Definir PIN¦Définir un PIN¦PIN festlegen¦设置 PIN¦PIN सेट करें¦تعيين PIN
+244¦4 to 6 digits¦De 4 a 6 cifras¦De 4 a 6 dígitos¦De 4 à 6 chiffres¦4 bis 6 Ziffern¦4 到 6 位数字¦4 से 6 अंक¦من 4 إلى 6 أرقام
+245¦Biometric unlock¦Acceso biométrico¦Acesso biométrico¦Déverrouillage biométrique¦Biometrische Entsperrung¦生物识别解锁¦बायोमेट्रिक लॉगिन¦الدخول بالمصادقة الحيوية
+246¦Auto-lock¦Bloqueo automático¦Bloqueio automático¦Verrouillage auto¦Automatische Sperre¦自动锁定¦स्वतः लॉक¦القفل التلقائي
+247¦Immediately¦Al instante¦Imediatamente¦Immédiatement¦Sofort¦立即¦तुरंत¦فوراً
+248¦After a minute¦Tras un minuto¦Após um minuto¦Après une minute¦Nach einer Minute¦1 分钟后¦एक मिनट बाद¦بعد دقيقة
+249¦After 5 minutes¦Tras 5 minutos¦Após 5 minutos¦Après 5 minutes¦Nach 5 Minuten¦5 分钟后¦5 मिनट बाद¦بعد 5 دقائق
+250¦After 15 minutes¦Tras 15 minutos¦Após 15 minutos¦Après 15 minutes¦Nach 15 Minuten¦15 分钟后¦15 मिनट बाद¦بعد 15 دقيقة
+251¦Turn off PIN¦Desactivar PIN¦Desativar PIN¦Désactiver le PIN¦PIN deaktivieren¦关闭 PIN¦PIN बंद करें¦إيقاف PIN
+252¦The PIN protects opening the app. Exported files and the local database aren't encrypted separately. Device protection and safe storage of backups still matter.¦El PIN protege el acceso a la app. Los archivos exportados y la base local no se cifran aparte. La protección del dispositivo y guardar bien las copias siguen siendo importantes.¦O PIN protege a entrada no app. Arquivos exportados e a base local não são criptografados à parte. Proteger o aparelho e guardar bem os backups continua importante.¦Le PIN protège l'ouverture de l'app. Les fichiers exportés et la base locale ne sont pas chiffrés à part. La protection de l'appareil et des sauvegardes reste importante.¦Die PIN schützt den App-Zugang. Exportierte Dateien und die lokale Datenbank werden nicht separat verschlüsselt. Geräteschutz und sichere Backups bleiben wichtig.¦PIN 保护应用的打开。导出文件和本地数据库不会单独加密。设备保护和备份的安全存放依然重要。¦PIN ऐप खोलने को सुरक्षित करता है। निर्यात फ़ाइलें और स्थानीय डेटाबेस अलग से एन्क्रिप्ट नहीं होते। डिवाइस सुरक्षा और बैकअप को सुरक्षित रखना ज़रूरी है।¦يحمي PIN فتح التطبيق. لا تُشفَّر الملفات المصدّرة والقاعدة المحلية بشكل منفصل. تظل حماية الجهاز وحفظ النسخ بأمان مهمة.
+253¦Backups¦Copias de seguridad¦Backups¦Sauvegardes¦Backups¦备份¦बैकअप¦النسخ الاحتياطية
+254¦Save¦Guardar¦Salvar¦Enregistrer¦Speichern¦保存¦सहेजें¦حفظ
+255¦Files aren't encrypted: keep them somewhere safe. The PIN isn't included in the backup.¦Los archivos no se cifran: guárdalos en un lugar seguro. El PIN no va en la copia.¦Os arquivos não são criptografados: guarde em local seguro. O PIN não vai no backup.¦Les fichiers ne sont pas chiffrés : gardez-les en lieu sûr. Le PIN n'est pas inclus.¦Dateien sind nicht verschlüsselt: sicher aufbewahren. Die PIN ist nicht enthalten.¦文件未加密：请妥善保管。备份中不含 PIN。¦फ़ाइलें एन्क्रिप्ट नहीं हैं: सुरक्षित रखें। बैकअप में PIN नहीं होता।¦الملفات غير مشفرة: احفظها بأمان. لا يتضمن النسخ PIN.
+256¦Full backup¦Copia completa¦Backup completo¦Sauvegarde complète¦Vollständiges Backup¦完整备份¦पूरा बैकअप¦نسخة كاملة
+257¦JSON — to move to another phone¦JSON — para pasar a otro teléfono¦JSON — para levar a outro celular¦JSON — pour changer de téléphone¦JSON — für ein anderes Handy¦JSON——用于迁移到另一部手机¦JSON — दूसरे फ़ोन पर ले जाने के लिए¦JSON — للنقل إلى هاتف آخر
+258¦Whole base (CSV)¦Toda la base (CSV)¦Base inteira (CSV)¦Base complète (CSV)¦Gesamte Datenbank (CSV)¦全部数据（CSV）¦पूरा डेटा (CSV)¦القاعدة كاملة (CSV)
+259¦Accounts, transactions, payments, goals, settings — in one table¦Cuentas, operaciones, pagos, metas y ajustes en una tabla¦Contas, transações, pagamentos, metas, configurações — numa tabela¦Comptes, opérations, paiements, objectifs, réglages — en un tableau¦Konten, Buchungen, Zahlungen, Ziele, Einstellungen — in einer Tabelle¦账户、交易、付款、目标、设置——一张表¦खाते, लेन-देन, भुगतान, लक्ष्य, सेटिंग्स — एक तालिका में¦الحسابات والعمليات والدفعات والأهداف والإعدادات — في جدول واحد
+260¦Transactions table¦Tabla de operaciones¦Tabela de transações¦Tableau des opérations¦Buchungstabelle¦交易表¦लेन-देन तालिका¦جدول العمليات

@@ -1,0 +1,137 @@
+401¦Note¦Comentario¦Comentário¦Commentaire¦Notiz¦备注¦टिप्पणी¦ملاحظة
+402¦Text on the image¦Texto de la imagen¦Texto da imagem¦Texte de l'image¦Text auf dem Bild¦图片中的文字¦छवि पर पाठ¦النص في الصورة
+403¦Apply¦Aplicar¦Aplicar¦Appliquer¦Übernehmen¦应用¦लागू करें¦تطبيق
+404¦A transaction needs at least one active account. Open accounts?¦La operación necesita al menos una cuenta activa. ¿Abrir cuentas?¦A transação precisa de ao menos uma conta ativa. Abrir contas?¦Il faut au moins un compte actif. Ouvrir les comptes ?¦Für eine Buchung braucht es mindestens ein aktives Konto. Konten öffnen?¦交易至少需要一个可用账户。打开账户？¦लेन-देन के लिए कम से कम एक सक्रिय खाता चाहिए। खाते खोलें?¦تحتاج العملية إلى حساب نشط واحد على الأقل. فتح الحسابات؟
+405¦No text found in the image. Try a sharper picture.¦No se encontró texto en la imagen. Prueba con una más nítida.¦Nenhum texto na imagem. Tente uma mais nítida.¦Aucun texte trouvé. Essayez une image plus nette.¦Kein Text im Bild gefunden. Versuche ein schärferes Bild.¦图片中未找到文字。请换一张更清晰的。¦छवि में पाठ नहीं मिला। साफ़ तस्वीर आज़माएँ।¦لم يُعثر على نص في الصورة. جرّب صورة أوضح.
+406¦Recognition quality is low. Check all fields.¦La calidad del reconocimiento es baja. Revisa todos los campos.¦A qualidade do reconhecimento é baixa. Confira todos os campos.¦Reconnaissance de faible qualité. Vérifiez tous les champs.¦Erkennungsqualität ist niedrig. Prüfe alle Felder.¦识别质量不高，请检查所有字段。¦पहचान की गुणवत्ता कम है। सभी फ़ील्ड जाँचें।¦جودة التعرف منخفضة. تحقق من كل الحقول.
+407¦A similar transaction already exists. Make sure you're not adding it twice.¦Ya hay una operación parecida. Comprueba que no la añades dos veces.¦Já existe uma transação parecida. Verifique se não está duplicando.¦Une opération similaire existe. Vérifiez que ce n'est pas un doublon.¦Eine ähnliche Buchung existiert. Prüfe, ob du sie doppelt anlegst.¦已有类似交易。请确认没有重复添加。¦ऐसा ही लेन-देन पहले से है। जाँचें कि दोबारा तो नहीं जोड़ रहे।¦توجد عملية مشابهة. تأكد أنك لا تضيفها مرتين.
+408¦Turn on location on the device.¦Activa la ubicación en el dispositivo.¦Ative a localização no aparelho.¦Activez la localisation sur l'appareil.¦Aktiviere den Standort auf dem Gerät.¦请在设备上开启定位。¦डिवाइस पर लोकेशन चालू करें।¦فعّل الموقع على الجهاز.
+409¦Location access not granted.¦Acceso a la ubicación denegado.¦Acesso à localização negado.¦Accès à la localisation refusé.¦Standortzugriff nicht erteilt.¦未授予定位权限。¦लोकेशन की अनुमति नहीं दी गई।¦لم يُمنح الوصول إلى الموقع.
+410¦Choose the type of the recognised transaction.¦Elige el tipo de la operación reconocida.¦Escolha o tipo da transação reconhecida.¦Choisissez le type de l'opération reconnue.¦Wähle den Typ der erkannten Buchung.¦请选择识别出的交易类型。¦पहचाने गए लेन-देन का प्रकार चुनें।¦اختر نوع العملية المُتعرَّف عليها.
+411¦The image shows {1}. Choose an account in that currency or fix the recognised currency.¦La imagen muestra {1}. Elige una cuenta en esa moneda o corrige la moneda reconocida.¦A imagem mostra {1}. Escolha uma conta nessa moeda ou corrija a moeda reconhecida.¦L'image indique {1}. Choisissez un compte dans cette devise ou corrigez-la.¦Das Bild zeigt {1}. Wähle ein Konto in dieser Währung oder korrigiere sie.¦图片显示 {1}。请选择该货币的账户或修正识别的货币。¦छवि में {1} है। इस मुद्रा का खाता चुनें या पहचानी गई मुद्रा सुधारें।¦تُظهر الصورة {1}. اختر حساباً بهذه العملة أو صحّح العملة.
+412¦The category is archived. Choose an active one.¦La categoría está archivada. Elige una activa.¦A categoria está arquivada. Escolha uma ativa.¦La catégorie est archivée. Choisissez-en une active.¦Die Kategorie ist archiviert. Wähle eine aktive.¦该分类已归档。请选择可用分类。¦श्रेणी संग्रहित है। सक्रिय श्रेणी चुनें।¦الفئة مؤرشفة. اختر فئة نشطة.
+413¦Recurring transaction¦Operación periódica¦Transação recorrente¦Opération récurrente¦Wiederkehrende Buchung¦周期交易¦नियमित लेन-देन¦عملية متكررة
+415¦Didn't catch the amount in «{1}». Enter it.¦No entendí el importe en «{1}». Escríbelo.¦Não ouvi o valor em «{1}». Digite-o.¦Montant non compris dans « {1} ». Saisissez-le.¦Betrag in «{1}» nicht verstanden. Bitte eingeben.¦没听清「{1}」中的金额，请手动输入。¦«{1}» में राशि सुनाई नहीं दी। दर्ज करें।¦لم أسمع المبلغ في «{1}». أدخله.
+416¦Recognition¦Reconocimiento¦Reconhecimento¦Reconnaissance¦Erkennung¦识别¦पहचान¦التعرّف
+417¦Reading the screenshot¦Leyendo la captura¦Lendo a captura¦Lecture de la capture¦Screenshot wird gelesen¦正在读取截图¦स्क्रीनशॉट पढ़ रही हूँ¦جارٍ قراءة اللقطة
+418¦The image is processed on the device.¦La imagen se procesa en el dispositivo.¦A imagem é processada no aparelho.¦L'image est traitée sur l'appareil.¦Das Bild wird auf dem Gerät verarbeitet.¦图片在本机处理。¦छवि डिवाइस पर ही प्रोसेस होती है।¦تُعالَج الصورة على الجهاز.
+419¦Editing¦Edición¦Edição¦Modification¦Bearbeiten¦编辑¦संपादन¦تعديل
+420¦New transaction¦Nueva operación¦Nova transação¦Nouvelle opération¦Neue Buchung¦新交易¦नया लेन-देन¦عملية جديدة
+421¦Read a bank screenshot¦Leer captura del banco¦Ler captura do banco¦Lire une capture bancaire¦Bank-Screenshot erkennen¦识别银行截图¦बैंक स्क्रीनशॉट पढ़ें¦قراءة لقطة البنك
+422¦Say it¦Decirlo con la voz¦Falar¦Le dire¦Sprechen¦语音输入¦बोलकर बताएँ¦قلها بصوتك
+423¦Duplicate¦Duplicar¦Duplicar¦Dupliquer¦Duplizieren¦复制¦प्रतिलिपि बनाएँ¦تكرار
+424¦Heard: «{1}». Check and save.¦Oí: «{1}». Revisa y guarda.¦Ouvi: «{1}». Confira e salve.¦Entendu : « {1} ». Vérifiez et enregistrez.¦Gehört: «{1}». Prüfen und speichern.¦听到：「{1}」。请核对并保存。¦सुना: «{1}»। जाँचें और सहेजें।¦سمعت: «{1}». تحقق واحفظ.
+425¦Check the recognised data before saving.¦Revisa los datos reconocidos antes de guardar.¦Confira os dados reconhecidos antes de salvar.¦Vérifiez les données reconnues avant d'enregistrer.¦Prüfe die erkannten Daten vor dem Speichern.¦保存前请核对识别的数据。¦सहेजने से पहले पहचाना गया डेटा जाँचें।¦تحقق من البيانات قبل الحفظ.
+426¦Choose the transaction type below.¦Elige abajo el tipo de operación.¦Escolha o tipo de transação abaixo.¦Choisissez le type d'opération ci-dessous.¦Wähle unten den Buchungstyp.¦请在下方选择交易类型。¦नीचे लेन-देन का प्रकार चुनें।¦اختر نوع العملية أدناه.
+427¦Currency in the image: {1}. Account currency: {2}.¦Moneda en la imagen: {1}. Moneda de la cuenta: {2}.¦Moeda na imagem: {1}. Moeda da conta: {2}.¦Devise de l'image : {1}. Devise du compte : {2}.¦Währung im Bild: {1}. Kontowährung: {2}.¦图片货币：{1}。账户货币：{2}。¦छवि में मुद्रा: {1}। खाते की मुद्रा: {2}।¦العملة في الصورة: {1}. عملة الحساب: {2}.
+428¦Change currency to {1}¦Cambiar moneda a {1}¦Mudar moeda para {1}¦Passer la devise en {1}¦Währung auf {1} ändern¦将货币改为 {1}¦मुद्रा {1} करें¦تغيير العملة إلى {1}
+429¦Open accounts¦Abrir cuentas¦Abrir contas¦Ouvrir les comptes¦Konten öffnen¦打开账户¦खाते खोलें¦فتح الحسابات
+430¦AMOUNT¦IMPORTE¦VALOR¦MONTANT¦BETRAG¦金额¦राशि¦المبلغ
+431¦System keyboard¦Teclado del sistema¦Teclado do sistema¦Clavier du système¦Systemtastatur¦系统键盘¦सिस्टम कीबोर्ड¦لوحة مفاتيح النظام
+432¦Number pad¦Teclado numérico¦Teclado numérico¦Pavé numérique¦Ziffernblock¦数字键盘¦अंक पैड¦لوحة الأرقام
+433¦Enter an amount above zero¦Indica un importe mayor que cero¦Informe um valor maior que zero¦Indiquez un montant positif¦Gib einen Betrag über null an¦请填写大于零的金额¦शून्य से अधिक राशि बताएँ¦أدخل مبلغاً أكبر من صفر
+434¦Enter an amount with at most two decimal places¦Introduce un importe con dos decimales como máximo¦Digite um valor com no máximo duas casas decimais¦Saisissez un montant avec au plus deux décimales¦Betrag mit höchstens zwei Nachkommastellen¦金额最多保留两位小数¦अधिकतम दो दशमलव अंकों वाली राशि दर्ज करें¦أدخل مبلغاً بمنزلتين عشريتين كحد أقصى
+435¦From and to¦Desde y hacia¦De onde e para onde¦D'où et vers où¦Von und nach¦转出与转入¦कहाँ से और कहाँ¦من وإلى
+436¦From account¦Desde la cuenta¦Da conta¦Depuis le compte¦Vom Konto¦从账户¦खाते से¦من الحساب
+437¦To account¦A la cuenta¦Para a conta¦Vers le compte¦Auf Konto¦到账户¦खाते में¦إلى الحساب
+438¦To a dream¦A un sueño¦Para um sonho¦Vers un rêve¦In einen Traum¦存入梦想¦सपने में¦إلى حلم
+439¦Create the first dream¦Crear el primer sueño¦Criar o primeiro sonho¦Créer le premier rêve¦Ersten Traum anlegen¦创建第一个梦想¦पहला सपना बनाएँ¦أنشئ أول حلم
+440¦Dream¦Sueño¦Sonho¦Rêve¦Traum¦梦想¦सपना¦حلم
+441¦Choose a dream¦Elige un sueño¦Escolha um sonho¦Choisissez un rêve¦Traum wählen¦选择梦想¦सपना चुनें¦اختر حلماً
+442¦Money moves from the account to the dream's reserve. It's a transfer between your own money, not an expense.¦El dinero pasa de la cuenta a la reserva del sueño. Es una transferencia entre tu dinero, no un gasto.¦O dinheiro vai da conta para a reserva do sonho. É uma transferência do seu próprio dinheiro, não uma despesa.¦L'argent passe du compte à la réserve du rêve. C'est un virement entre vos fonds, pas une dépense.¦Das Geld geht vom Konto in die Traum-Reserve. Eine Umbuchung deines Geldes, keine Ausgabe.¦资金从账户转入梦想储备。这是你自己资金间的转账，不是支出。¦पैसे खाते से सपने की बचत में जाएँगे। यह आपके अपने पैसों का ट्रांसफ़र है, खर्च नहीं।¦يُنقل المال من الحساب إلى احتياطي الحلم. إنه تحويل بين أموالك وليس مصروفاً.
+443¦Choose the receiving account¦Elige la cuenta de destino¦Escolha a conta de destino¦Choisissez le compte bénéficiaire¦Empfängerkonto wählen¦选择收款账户¦प्राप्तकर्ता खाता चुनें¦اختر الحساب المستلم
+444¦Credited amount · {1}¦Importe abonado · {1}¦Valor creditado · {1}¦Montant crédité · {1}¦Gutschrift · {1}¦入账金额 · {1}¦जमा राशि · {1}¦المبلغ المودع · {1}
+445¦Enter a positive amount¦Introduce un importe positivo¦Digite um valor positivo¦Saisissez un montant positif¦Positiven Betrag eingeben¦请输入正数金额¦धनात्मक राशि दर्ज करें¦أدخل مبلغاً موجباً
+446¦Invalid amount¦Importe no válido¦Valor inválido¦Montant invalide¦Ungültiger Betrag¦金额无效¦अमान्य राशि¦مبلغ غير صالح
+447¦Enter the actual amount credited in the receiver's currency.¦Indica el importe real abonado en la moneda de destino.¦Informe o valor real creditado na moeda de destino.¦Indiquez le montant réellement crédité dans la devise du bénéficiaire.¦Gib den tatsächlich gutgeschriebenen Betrag in Zielwährung an.¦请填写以收款方货币实际入账的金额。¦प्राप्तकर्ता की मुद्रा में वास्तविक जमा राशि बताएँ।¦أدخل المبلغ المودع فعلياً بعملة المستلم.
+448¦Last: {1}¦Última: {1}¦Última: {1}¦Dernière : {1}¦Zuletzt: {1}¦上次：{1}¦पिछली: {1}¦الأخيرة: {1}
+449¦Category · picked by Finora¦Categoría · elegida por Finora¦Categoria · escolhida pela Finora¦Catégorie · choisie par Finora¦Kategorie · von Finora gewählt¦分类 · Finora 推荐¦श्रेणी · Finora ने चुनी¦الفئة · اختارتها Finora
+450¦Create a category¦Crear categoría¦Criar categoria¦Créer une catégorie¦Kategorie anlegen¦创建分类¦श्रेणी बनाएँ¦إنشاء فئة
+451¦New¦Nueva¦Nova¦Nouvelle¦Neu¦新建¦नई¦جديدة
+452¦Subcategory¦Subcategoría¦Subcategoria¦Sous-catégorie¦Unterkategorie¦子分类¦उपश्रेणी¦فئة فرعية
+453¦Details¦Detalles¦Detalhes¦Détails¦Details¦详情¦विवरण¦التفاصيل
+454¦Payee / store¦Destinatario / tienda¦Favorecido / loja¦Bénéficiaire / magasin¦Empfänger / Geschäft¦收款方 / 商家¦प्राप्तकर्ता / दुकान¦المستفيد / المتجر
+455¦E.g.: Walmart, Uber¦Ej.: Mercadona, Uber¦Ex.: Pão de Açúcar, Uber¦Ex. : Carrefour, Uber¦Z. B.: Rewe, Uber¦例如：沃尔玛、滴滴¦उदाहरण: बिग बाज़ार, Uber¦مثال: كارفور، أوبر
+456¦Finora recognised: {1}¦Finora reconoció: {1}¦Finora reconheceu: {1}¦Finora a reconnu : {1}¦Finora erkannte: {1}¦Finora 识别出：{1}¦Finora ने पहचाना: {1}¦تعرّفت Finora على: {1}
+457¦Change¦Cambiar¦Alterar¦Modifier¦Ändern¦更改¦बदलें¦تغيير
+458¦More fields¦Más campos¦Mais campos¦Plus de champs¦Weitere Felder¦更多字段¦अधिक फ़ील्ड¦حقول إضافية
+459¦E.g.: groceries for the week¦Ej.: compra de la semana¦Ex.: compras da semana¦Ex. : courses de la semaine¦Z. B.: Wocheneinkauf¦例如：一周的食材¦उदाहरण: हफ़्ते का राशन¦مثال: مشتريات الأسبوع
+460¦Tags, comma-separated¦Etiquetas separadas por comas¦Tags separadas por vírgula¦Étiquettes séparées par des virgules¦Tags, durch Komma getrennt¦标签，用逗号分隔¦टैग, अल्पविराम से अलग¦وسوم مفصولة بفواصل
+461¦E.g.: holiday, country house¦Ej.: vacaciones, casa de campo¦Ex.: férias, sítio¦Ex. : vacances, maison de campagne¦Z. B.: Urlaub, Datsche¦例如：度假、别墅¦उदाहरण: छुट्टी, फ़ार्महाउस¦مثال: عطلة، بيت ريفي
+462¦Status¦Estado¦Status¦Statut¦Status¦状态¦स्थिति¦الحالة
+463¦Completed¦Realizada¦Concluída¦Effectuée¦Ausgeführt¦已完成¦पूर्ण¦منفذة
+464¦Pending¦Pendiente¦Pendente¦En attente¦Ausstehend¦待处理¦लंबित¦معلقة
+465¦Cancelled¦Cancelada¦Cancelada¦Annulée¦Storniert¦已取消¦रद्द¦ملغاة
+466¦Member¦Miembro¦Membro¦Membre¦Mitglied¦成员¦सदस्य¦العضو
+467¦Repeat automatically¦Repetir automáticamente¦Repetir automaticamente¦Répéter automatiquement¦Automatisch wiederholen¦自动重复¦अपने-आप दोहराएँ¦تكرار تلقائي
+468¦Don't repeat¦No repetir¦Não repetir¦Ne pas répéter¦Nicht wiederholen¦不重复¦दोहराएँ नहीं¦بلا تكرار
+469¦Daily¦Diario¦Diário¦Quotidien¦Täglich¦每天¦रोज़¦يومياً
+470¦Weekly¦Semanal¦Semanal¦Hebdomadaire¦Wöchentlich¦每周¦साप्ताहिक¦أسبوعياً
+471¦Monthly¦Mensual¦Mensal¦Mensuel¦Monatlich¦每月¦मासिक¦شهرياً
+472¦Yearly¦Anual¦Anual¦Annuel¦Jährlich¦每年¦वार्षिक¦سنوياً
+473¦Add a receipt¦Añadir ticket¦Adicionar recibo¦Ajouter un ticket¦Beleg hinzufügen¦添加小票¦रसीद जोड़ें¦إضافة إيصال
+474¦Replace receipt¦Cambiar ticket¦Trocar recibo¦Remplacer le ticket¦Beleg ersetzen¦替换小票¦रसीद बदलें¦استبدال الإيصال
+475¦Delete receipt¦Borrar ticket¦Excluir recibo¦Supprimer le ticket¦Beleg löschen¦删除小票¦रसीद हटाएँ¦حذف الإيصال
+476¦Location¦Ubicación¦Localização¦Localisation¦Standort¦位置¦लोकेशन¦الموقع
+477¦Place added¦Lugar añadido¦Local adicionado¦Lieu ajouté¦Ort hinzugefügt¦已添加地点¦जगह जोड़ी गई¦تمت إضافة المكان
+478¦Remove location¦Quitar ubicación¦Remover localização¦Retirer la localisation¦Standort entfernen¦移除位置¦लोकेशन हटाएँ¦إزالة الموقع
+479¦Save transaction¦Guardar operación¦Salvar transação¦Enregistrer l'opération¦Buchung speichern¦保存交易¦लेन-देन सहेजें¦حفظ العملية
+480¦Mo¦Lu¦Seg¦Lu¦Mo¦一¦सोम¦ن
+481¦Tu¦Ma¦Ter¦Ma¦Di¦二¦मंगल¦ث
+482¦We¦Mi¦Qua¦Me¦Mi¦三¦बुध¦ر
+483¦Th¦Ju¦Qui¦Je¦Do¦四¦गुरु¦خ
+484¦Fr¦Vi¦Sex¦Ve¦Fr¦五¦शुक्र¦ج
+485¦Sa¦Sá¦Sáb¦Sa¦Sa¦六¦शनि¦س
+486¦Su¦Do¦Dom¦Di¦So¦日¦रवि¦ح
+487¦Finance calendar¦Calendario financiero¦Calendário financeiro¦Calendrier financier¦Finanzkalender¦财务日历¦वित्तीय कैलेंडर¦التقويم المالي
+488¦Previous month¦Mes anterior¦Mês anterior¦Mois précédent¦Vormonat¦上个月¦पिछला महीना¦الشهر السابق
+489¦Next month¦Mes siguiente¦Próximo mês¦Mois suivant¦Nächster Monat¦下个月¦अगला महीना¦الشهر التالي
+490¦{1} tx.¦{1} op.¦{1} trans.¦{1} op.¦{1} Buch.¦{1} 笔¦{1} लेन-देन¦{1} عملية
+491¦Calendar amounts in {1}. The list below includes all currencies.¦Importes del calendario en {1}. La lista de abajo incluye todas las monedas.¦Valores do calendário em {1}. A lista abaixo inclui todas as moedas.¦Montants du calendrier en {1}. La liste inclut toutes les devises.¦Kalenderbeträge in {1}. Die Liste unten enthält alle Währungen.¦日历金额以 {1} 显示。下方列表包含所有货币。¦कैलेंडर की राशियाँ {1} में। नीचे की सूची में सभी मुद्राएँ हैं।¦مبالغ التقويم بـ {1}. تشمل القائمة أدناه كل العملات.
+492¦A free day¦Día libre¦Dia livre¦Journée libre¦Freier Tag¦空闲的一天¦खाली दिन¦يوم حر
+493¦No transactions on this date.¦No hay operaciones en esta fecha.¦Sem transações nesta data.¦Aucune opération à cette date.¦Keine Buchungen an diesem Tag.¦这天没有交易。¦इस तारीख़ को कोई लेन-देन नहीं।¦لا عمليات في هذا التاريخ.
+494¦Pay «{1}» early?¦¿Pagar «{1}» por adelantado?¦Pagar «{1}» antecipado?¦Payer « {1} » en avance ?¦«{1}» vorzeitig zahlen?¦提前支付「{1}」？¦«{1}» पहले चुकाएँ?¦دفع «{1}» مبكراً؟
+495¦The expense is recorded today. Left: {1}. A full payment moves the date to the next period; a smaller amount lowers what's left.¦El gasto se anota hoy. Queda {1}. Un pago completo pasa la fecha al siguiente periodo; uno menor reduce lo pendiente.¦A despesa é registrada hoje. Faltam {1}. Um pagamento completo passa a data para o próximo período; um menor reduz o saldo.¦La dépense est notée aujourd'hui. Reste {1}. Un paiement complet décale la date ; un montant moindre réduit le reste.¦Die Ausgabe wird heute gebucht. Rest: {1}. Eine volle Zahlung verschiebt das Datum; weniger senkt den Rest.¦支出将记为今天。剩余 {1}。全额支付会顺延到下一期，金额较少则减少剩余。¦खर्च आज दर्ज होगा। बाकी: {1}। पूरा भुगतान तारीख़ अगली अवधि पर ले जाएगा, कम राशि बाकी घटाएगी।¦يُسجَّل المصروف اليوم. المتبقي {1}. الدفعة الكاملة تنقل الموعد للفترة التالية، والأقل تُنقص المتبقي.
+496¦The expense is recorded today, and the next payment moves one period ahead.¦El gasto se anota hoy y el próximo pago se mueve un periodo.¦A despesa é registrada hoje e o próximo pagamento avança um período.¦La dépense est notée aujourd'hui, le prochain paiement avance d'une période.¦Die Ausgabe wird heute gebucht, die nächste Zahlung rückt eine Periode weiter.¦支出记为今天，下一次付款顺延一期。¦खर्च आज दर्ज होगा और अगला भुगतान एक अवधि आगे जाएगा।¦يُسجَّل المصروف اليوم وتتقدم الدفعة التالية فترة واحدة.
+497¦Amount, {1}¦Importe, {1}¦Valor, {1}¦Montant, {1}¦Betrag, {1}¦金额，{1}¦राशि, {1}¦المبلغ، {1}
+498¦Recorded early: {1} −{2}¦Anotado por adelantado: {1} −{2}¦Registrado antecipado: {1} −{2}¦Noté en avance : {1} −{2}¦Vorzeitig gebucht: {1} −{2}¦已提前记录：{1} −{2}¦पहले दर्ज: {1} −{2}¦سُجّل مبكراً: {1} −{2}
+499¦Payment deleted¦Pago borrado¦Pagamento excluído¦Paiement supprimé¦Zahlung gelöscht¦付款已删除¦भुगतान हटाया गया¦حُذفت الدفعة
+500¦Upcoming payments¦Próximos pagos¦Pagamentos futuros¦Paiements à venir¦Künftige Zahlungen¦未来付款¦आगामी भुगतान¦الدفعات المستقبلية
+501¦Fully paid off¦Pagado por completo¦Quitado totalmente¦Entièrement remboursé¦Vollständig getilgt¦已全部还清¦पूरा चुका दिया¦سُدد بالكامل
+502¦Left {1}¦Quedan {1}¦Faltam {1}¦Reste {1}¦Rest {1}¦剩余 {1}¦बाकी {1}¦المتبقي {1}
+503¦of {1} · paid {2}¦de {1} · pagado {2}¦de {1} · pago {2}¦sur {1} · payé {2}¦von {1} · bezahlt {2}¦共 {1} · 已付 {2}¦{1} में से · चुकाया {2}¦من {1} · مدفوع {2}
+504¦Overdue by {1} {2}¦Vencido hace {1} {2}¦Atrasado há {1} {2}¦En retard de {1} {2}¦Seit {1} {2} überfällig¦已逾期 {1} {2}¦{1} {2} से बकाया¦متأخر {1} {2}
+505¦Pay early¦Pagar por adelantado¦Pagar antecipado¦Payer en avance¦Vorzeitig zahlen¦提前支付¦पहले चुकाएँ¦ادفع مبكراً
+506¦overdue¦vencido¦atrasado¦en retard¦überfällig¦已逾期¦बकाया¦متأخر
+507¦payment {1} of {2}¦pago {1} de {2}¦parcela {1} de {2}¦paiement {1} sur {2}¦Rate {1} von {2}¦第 {1}/{2} 期¦किस्त {1} / {2}¦الدفعة {1} من {2}
+508¦payment {1}¦pago {1}¦pagamento {1}¦paiement {1}¦Zahlung {1}¦第 {1} 期¦भुगतान {1}¦الدفعة {1}
+509¦Custom interval in days¦Intervalo propio en días¦Intervalo próprio em dias¦Intervalle personnalisé en jours¦Eigenes Intervall in Tagen¦自定义间隔（天）¦दिनों में अपना अंतराल¦فاصل مخصص بالأيام
+510¦On the payment day¦El día del pago¦No dia do pagamento¦Le jour du paiement¦Am Zahltag¦付款当天¦भुगतान के दिन¦يوم الدفع
+511¦1 day before¦1 día antes¦1 dia antes¦1 jour avant¦1 Tag vorher¦提前 1 天¦1 दिन पहले¦قبل يوم
+512¦3 days before¦3 días antes¦3 dias antes¦3 jours avant¦3 Tage vorher¦提前 3 天¦3 दिन पहले¦قبل 3 أيام
+513¦7 days before¦7 días antes¦7 dias antes¦7 jours avant¦7 Tage vorher¦提前 7 天¦7 दिन पहले¦قبل 7 أيام
+514¦Required payment¦Pago obligatorio¦Pagamento obrigatório¦Paiement obligatoire¦Pflichtzahlung¦必付款项¦ज़रूरी भुगतान¦دفعة إلزامية
+515¦Subscriptions¦Suscripciones¦Assinaturas¦Abonnements¦Abos¦订阅¦सदस्यताएँ¦الاشتراكات
+516¦Required payments¦Pagos obligatorios¦Pagamentos obrigatórios¦Paiements obligatoires¦Pflichtzahlungen¦必付款项¦ज़रूरी भुगतान¦الدفعات الإلزامية
+517¦Add regular income¦Añadir ingreso periódico¦Adicionar renda recorrente¦Ajouter un revenu régulier¦Regelmäßige Einnahme hinzufügen¦添加固定收入¦नियमित आय जोड़ें¦إضافة دخل منتظم
+518¦Add a payment¦Añadir pago¦Adicionar pagamento¦Ajouter un paiement¦Zahlung hinzufügen¦添加付款¦भुगतान जोड़ें¦إضافة دفعة
+519¦Required¦Obligatorios¦Obrigatórios¦Obligatoires¦Pflicht¦必付¦ज़रूरी¦إلزامية
+520¦No subscriptions yet¦Aún no hay suscripciones¦Ainda sem assinaturas¦Pas encore d'abonnements¦Noch keine Abos¦还没有订阅¦अभी कोई सदस्यता नहीं¦لا اشتراكات بعد
+521¦No required payments¦Sin pagos obligatorios¦Sem pagamentos obrigatórios¦Aucun paiement obligatoire¦Keine Pflichtzahlungen¦没有必付款项¦कोई ज़रूरी भुगतान नहीं¦لا دفعات إلزامية
+522¦Plan your income¦Planifica tus ingresos¦Planeje sua renda¦Planifiez vos revenus¦Einnahmen planen¦规划收入¦अपनी आय की योजना बनाएँ¦خطّط لدخلك
+523¦No recurring transactions¦Sin operaciones periódicas¦Sem transações recorrentes¦Aucune opération récurrente¦Keine wiederkehrenden Buchungen¦没有周期交易¦कोई नियमित लेन-देन नहीं¦لا عمليات متكررة
+524¦Add a service, choose the amount and the next renewal date.¦Añade un servicio, el importe y la próxima renovación.¦Adicione um serviço, escolha o valor e a próxima renovação.¦Ajoutez un service, le montant et la prochaine échéance.¦Füge einen Dienst, Betrag und nächste Verlängerung hinzu.¦添加服务，选择金额和下次续费日期。¦सेवा जोड़ें, राशि और अगली नवीनीकरण तारीख़ चुनें।¦أضف خدمة واختر المبلغ وموعد التجديد التالي.
+525¦Add salary, interest or other regular income.¦Añade el sueldo, intereses u otro ingreso periódico.¦Adicione salário, juros ou outra renda recorrente.¦Ajoutez salaire, intérêts ou autre revenu régulier.¦Füge Gehalt, Zinsen oder andere regelmäßige Einnahmen hinzu.¦添加工资、利息或其他固定收入。¦वेतन, ब्याज या अन्य नियमित आय जोड़ें।¦أضف الراتب أو الفوائد أو دخلاً منتظماً آخر.
+526¦Add a payment, the amount and the date.¦Añade un pago, el importe y la fecha.¦Adicione um pagamento, o valor e a data.¦Ajoutez un paiement, le montant et la date.¦Füge Zahlung, Betrag und Datum hinzu.¦添加付款、金额和日期。¦भुगतान, राशि और तारीख़ जोड़ें।¦أضف دفعة ومبلغاً وتاريخاً.
+527¦Regular income¦Ingresos periódicos¦Rendas recorrentes¦Revenus réguliers¦Regelmäßige Einnahmen¦固定收入¦नियमित आय¦الدخل المنتظم
+528¦Services, music, phone, films¦Servicios, música, telefonía, cine¦Serviços, música, telefonia, filmes¦Services, musique, téléphone, films¦Dienste, Musik, Mobilfunk, Filme¦服务、音乐、通讯、影视¦सेवाएँ, संगीत, फ़ोन, फ़िल्में¦خدمات وموسيقى واتصالات وأفلام
+529¦Regular income¦Ingreso periódico¦Renda recorrente¦Revenu régulier¦Regelmäßige Einnahme¦固定收入¦नियमित आय¦دخل منتظم
+530¦Salary, advance, interest¦Sueldo, anticipo, intereses¦Salário, adiantamento, juros¦Salaire, acompte, intérêts¦Gehalt, Vorschuss, Zinsen¦工资、预支、利息¦वेतन, अग्रिम, ब्याज¦راتب، سلفة، فوائد
+531¦The payment will no longer remind you. Already recorded transactions stay.¦El pago ya no te avisará. Las operaciones ya anotadas se quedan.¦O pagamento não vai mais lembrar. As transações já registradas ficam.¦Le paiement ne vous rappellera plus. Les opérations déjà notées restent.¦Die Zahlung erinnert nicht mehr. Bereits gebuchte Buchungen bleiben.¦该付款将不再提醒。已记录的交易保留。¦भुगतान अब याद नहीं दिलाएगा। पहले दर्ज लेन-देन बने रहेंगे।¦لن تذكّرك الدفعة بعد الآن. تبقى العمليات المسجلة سابقاً.
+533¦Left {1} of {2} · payments: {3}¦Quedan {1} de {2} · pagos: {3}¦Faltam {1} de {2} · parcelas: {3}¦Reste {1} sur {2} · paiements : {3}¦Rest {1} von {2} · Raten: {3}¦剩余 {1} / {2} · 期数：{3}¦{2} में से {1} बाकी · किस्तें: {3}¦المتبقي {1} من {2} · الدفعات: {3}
+534¦Automatic transaction on launch¦Operación automática al abrir¦Transação automática ao abrir¦Opération automatique au lancement¦Automatische Buchung beim Start¦启动时自动记账¦लॉन्च पर स्वचालित लेन-देन¦عملية تلقائية عند التشغيل
+535¦Manually¦Manual¦Manual¦Manuellement¦Manuell¦手动¦मैन्युअल¦يدوياً
+536¦Paused¦En pausa¦Pausado¦En pause¦Pausiert¦已暂停¦रुका हुआ¦متوقف مؤقتاً
+537¦Reminder paused¦Aviso en pausa¦Lembrete pausado¦Rappel en pause¦Erinnerung pausiert¦提醒已暂停¦रिमाइंडर रुका है¦التذكير متوقف
+539¦Reminder off in settings¦Aviso desactivado en ajustes¦Lembrete desativado nas configurações¦Rappel désactivé dans les réglages¦Erinnerung in Einstellungen aus¦提醒已在设置中关闭¦सेटिंग्स में रिमाइंडर बंद¦التذكير معطّل في الإعدادات
+540¦No reminder¦Sin aviso¦Sem lembrete¦Sans rappel¦Ohne Erinnerung¦无提醒¦कोई रिमाइंडर नहीं¦بلا تذكير

@@ -1,7 +1,8 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide InputDecoration, Text;
 import 'package:flutter/services.dart';
 
 import 'amount_format.dart';
+import '../l10n_widgets.dart';
 
 /// Compact, accessible amount entry; text is kept decimal until domain parsing.
 class AmountPad extends StatelessWidget {

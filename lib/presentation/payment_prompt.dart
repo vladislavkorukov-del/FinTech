@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide InputDecoration, Text;
 
 import '../domain/finance_engine.dart';
 import '../domain/models.dart';
@@ -8,6 +8,7 @@ import 'widgets/amount_format.dart';
 import 'widgets/common.dart';
 import 'widgets/finora_orb.dart';
 import 'widgets/service_badge.dart';
+import 'l10n_widgets.dart';
 
 /// Finora asks about the day's payments (1.27): a subscription or a
 /// required payment reaches the expenses only after «Оплачено».

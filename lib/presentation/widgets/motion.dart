@@ -1,9 +1,10 @@
 import 'dart:io';
 import 'dart:math' as math;
 
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide InputDecoration, Text;
 
 import 'common.dart' show money;
+import '../l10n_widgets.dart';
 
 /// Motion rules for Finance 1.9: short, eased, never blocking input, and off
 /// when the system asks to reduce motion. Endless ambient loops stay off in widget

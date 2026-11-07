@@ -245,7 +245,7 @@ class _PlanRow extends StatelessWidget {
                 Text(
                   DateFormat(
                     'MMM',
-                    'ru',
+                    AppLanguage.intl,
                   ).format(payment.date).replaceAll('.', ''),
                   style: TextStyle(
                     fontSize: 12,

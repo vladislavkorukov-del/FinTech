@@ -1,11 +1,12 @@
 import 'dart:async';
 import 'dart:math' as math;
 
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide InputDecoration, Text;
 
 import '../haptics.dart';
 import 'finora_orb.dart';
 import 'motion.dart';
+import '../l10n_widgets.dart';
 
 /// Finora in the middle of the bottom bar (1.20; her own face since 1.26,
 /// her own look and moods since 1.27).
@@ -165,10 +166,10 @@ class _VoiceOrbState extends State<VoiceOrb> with TickerProviderStateMixin {
     final scheme = Theme.of(context).colorScheme;
     return Semantics(
       label: 'Финора: голосовой ввод операции',
-      hint: 'Удерживайте, чтобы добавить операцию вручную',
+      hint: 'Удерживайте, чтобы открыть колесо действий',
       button: true,
       child: Tooltip(
-        message: 'Финора · удерживайте для ручного ввода',
+        message: 'Финора · удерживайте для колеса действий',
         child: OverlayPortal(
           controller: _bubble,
           overlayChildBuilder: (context) {

@@ -1,8 +1,10 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide InputDecoration, Text;
 import 'package:flutter/services.dart';
 
 import 'common.dart';
 import 'finora_orb.dart';
+import '../i18n.dart';
+import '../l10n_widgets.dart';
 
 /// Tile colors for grouped lists (Finora 1.26), iOS-like but a little
 /// quieter so they sit well on every theme.
@@ -56,7 +58,7 @@ class GroupedSection extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.fromLTRB(6, 0, 6, 8),
               child: Text(
-                title!.toUpperCase(),
+                tr(title!).toUpperCase(),
                 style: TextStyle(
                   fontSize: 12,
                   letterSpacing: .6,

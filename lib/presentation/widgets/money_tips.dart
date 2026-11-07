@@ -1,10 +1,11 @@
 import '../i18n.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide InputDecoration, Text;
 
 import '../controller.dart';
 import 'common.dart';
 import 'finora_orb.dart';
 import 'grouped_list.dart';
+import '../l10n_widgets.dart';
 
 /// Money basics from Finora (1.28): one short, practical tip a day on the
 /// main screen. «Ещё совет» shows the next; swipe left (with a question)

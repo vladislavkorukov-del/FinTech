@@ -1,8 +1,10 @@
 import 'dart:math' as math;
 
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide InputDecoration, Text;
 import 'package:intl/intl.dart';
 import 'common.dart';
+import '../l10n_widgets.dart';
+import '../i18n.dart';
 
 class DonutChart extends StatelessWidget {
   const DonutChart({
@@ -298,7 +300,7 @@ class DailyExpenseChart extends StatelessWidget {
                         ),
                         const SizedBox(height: 10),
                         Text(
-                          DateFormat('dd MMM', 'ru').format(date),
+                          DateFormat('dd MMM', AppLanguage.intl).format(date),
                           maxLines: 1,
                           style: TextStyle(
                             fontSize: 11,

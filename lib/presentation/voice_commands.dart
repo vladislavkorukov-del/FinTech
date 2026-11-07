@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide InputDecoration, Text;
 
 import '../domain/models.dart';
 import '../domain/voice_command_parser.dart';
@@ -10,6 +10,7 @@ import 'screens/management.dart';
 import 'screens/settings.dart';
 import 'screens/transactions.dart';
 import 'theme/app_theme.dart';
+import 'l10n_widgets.dart';
 
 /// Carries out a spoken command (Finance 1.23). [onTab] switches the main
 /// screen's tab: 0 home, 1 operations, 3 analytics, 4 more.

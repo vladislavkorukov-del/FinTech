@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide InputDecoration, Text;
 import '../../domain/models.dart';
 import '../../domain/finance_engine.dart';
 import '../../domain/scan_document.dart';
@@ -7,6 +7,7 @@ import '../controller.dart';
 import '../widgets/amount_format.dart';
 import '../widgets/common.dart';
 import '../widgets/service_badge.dart';
+import '../l10n_widgets.dart';
 
 class ScanImportScreen extends StatefulWidget {
   const ScanImportScreen({

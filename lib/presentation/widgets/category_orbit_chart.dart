@@ -1,10 +1,11 @@
 import 'dart:math' as math;
 
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide InputDecoration, Text;
 import 'package:flutter/services.dart';
 
 import '../../domain/models.dart';
 import 'common.dart';
+import '../l10n_widgets.dart';
 
 class CategorySlice {
   const CategorySlice({

@@ -2,7 +2,7 @@ import '../i18n.dart';
 import 'dart:async';
 import 'dart:io';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide InputDecoration, Text;
 
 import '../../domain/category_hints.dart';
 import '../../domain/service_catalog.dart';
@@ -30,6 +30,7 @@ import '../widgets/amount_pad.dart';
 import '../widgets/service_badge.dart';
 import 'management.dart';
 import 'scan_import_screen.dart';
+import '../l10n_widgets.dart';
 
 Future<void> showEntryEditor(
   BuildContext context, {
@@ -1582,7 +1583,7 @@ class _EditorLabel extends StatelessWidget {
           const SizedBox(width: 8),
           Flexible(
             child: Text(
-              text.toUpperCase(),
+              tr(text).toUpperCase(),
               style: TextStyle(
                 fontSize: 11.5,
                 letterSpacing: .6,

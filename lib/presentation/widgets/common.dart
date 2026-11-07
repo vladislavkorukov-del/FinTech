@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide InputDecoration, Text;
 import 'package:intl/intl.dart';
 
 import '../../domain/models.dart';
@@ -8,6 +8,8 @@ export '../theme/app_theme.dart' show FinanceColors;
 export '../theme/icon_catalog.dart';
 import 'glass.dart';
 import 'motion.dart';
+import '../l10n_widgets.dart';
+import '../i18n.dart';
 export 'glass.dart';
 
 abstract final class FinanceFormat {
@@ -18,7 +20,7 @@ abstract final class FinanceFormat {
 String decimalMinor(int value) =>
     '${value < 0 ? '-' : ''}${value.abs() ~/ 100}.${(value.abs() % 100).toString().padLeft(2, '0')}';
 String displayDate(DateTime value) =>
-    DateFormat(FinanceFormat.datePattern, 'ru').format(value);
+    DateFormat(FinanceFormat.datePattern, AppLanguage.intl).format(value);
 
 String money(int value, [String currency = 'RUB']) {
   final symbol = switch (currency) {

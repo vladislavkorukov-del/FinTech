@@ -1,55 +1,44 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide InputDecoration, Text;
 
 import '../domain/app_version.dart';
 import 'controller.dart';
 import 'haptics.dart';
 import 'widgets/finora_orb.dart';
+import 'l10n_widgets.dart';
 
 /// «Что нового» (1.36): after an update Finora tells, once, what changed.
 abstract final class WhatsNew {
   static const items = <(IconData, String, String)>[
     (
-      Icons.event_repeat_rounded,
-      'Кредиты и рассрочки',
-      'Впишите полную сумму — Финора покажет, сколько осталось, и график '
-          '«платёж 7 из 12». Просроченные — красным и с напоминаниями.',
+      Icons.savings_outlined,
+      'Сколько откладывать на мечту',
+      'Укажите дату — Финора посчитает сумму в день, неделю и месяц.',
     ),
     (
-      Icons.swipe_right_rounded,
-      'Свайп вправо — оплачено досрочно',
-      'В платежах и подписках. Финора спросит сумму и запишет расход.',
+      Icons.donut_large_rounded,
+      'Колесо действий',
+      'Удерживайте Финору внизу и ведите палец к нужному действию.',
     ),
     (
-      Icons.edit_note_rounded,
-      'Сумма подписки поменялась?',
-      'При подтверждении оплаты сумму можно исправить и запомнить.',
+      Icons.translate_rounded,
+      'Девять языков',
+      'Английский, испанский, португальский, французский, немецкий, '
+          'китайский, хинди и арабский — Настройки → Язык.',
     ),
     (
-      Icons.drag_indicator_rounded,
-      'Свой порядок платежей',
-      'Удерживайте карточку и перетаскивайте.',
+      Icons.light_mode_outlined,
+      'Светлая тема ярче',
+      'Цвет темы теперь виден на всём экране, карточки — с мягкой тенью.',
     ),
     (
-      Icons.space_bar_rounded,
-      'Суммы с пробелами',
-      '1 250 000 читается сразу — разряды разделяются при вводе.',
+      Icons.add_circle_outline_rounded,
+      'Категория прямо из операции',
+      'Кнопка «Новая» в списке категорий редактора.',
     ),
     (
-      Icons.face_retouching_natural_rounded,
-      'Аватар и Финора в цвет темы',
-      'Настройки → профиль. Цвет Финоры — в разделе «Финора».',
-    ),
-    (
-      Icons.widgets_outlined,
-      'Виджет с характером',
-      'Финора на виджете радуется записям, напоминает днём и сердится, '
-          'если вы забыли о расходах.',
-    ),
-    (
-      Icons.record_voice_over_rounded,
-      'Голос и импорт точнее',
-      '«пятнадцатого числа» понимается; «Финора» не срабатывает от '
-          'похожих слов; переводы между своими счетами при импорте — не траты.',
+      Icons.tips_and_updates_outlined,
+      'Подсказки в полях',
+      'В пустых полях — примеры, что написать.',
     ),
   ];
 

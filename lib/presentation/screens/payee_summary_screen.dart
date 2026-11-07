@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide InputDecoration, Text;
 import 'package:intl/intl.dart';
 
 import '../../domain/models.dart';
@@ -9,6 +9,8 @@ import '../widgets/common.dart';
 import '../widgets/entry_tile.dart';
 import '../widgets/service_badge.dart';
 import 'entry_editor.dart';
+import '../l10n_widgets.dart';
+import '../i18n.dart';
 
 enum PayeePeriod { week, month, quarter, year, all, custom }
 
@@ -118,7 +120,7 @@ class _PayeeSummaryScreenState extends State<PayeeSummaryScreen> {
     final colors = FinanceColors.of(context);
     final scheme = Theme.of(context).colorScheme;
     final tone = income ? colors.income : colors.expense;
-    final date = DateFormat('d MMM yyyy', 'ru');
+    final date = DateFormat('d MMM yyyy', AppLanguage.intl);
     final service =
         ServiceCatalog.byId(entry.serviceId) ??
         ServiceCatalog.byName(entry.payee);
@@ -258,7 +260,7 @@ class _PayeeSummaryScreenState extends State<PayeeSummaryScreen> {
                       ? '—'
                       : DateFormat(
                           'd MMM',
-                          'ru',
+                          AppLanguage.intl,
                         ).format(summary.entries.first.date),
                 ),
               ),
@@ -348,7 +350,7 @@ class _Bars extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final max = buckets.fold<int>(0, (m, b) => b.minor > m ? b.minor : m);
-    final label = DateFormat(daily ? 'd' : 'LLL', 'ru');
+    final label = DateFormat(daily ? 'd' : 'LLL', AppLanguage.intl);
     final step = buckets.length > 12 ? (buckets.length / 8).ceil() : 1;
     return Semantics(
       label:

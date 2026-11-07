@@ -1,12 +1,13 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide InputDecoration, Text;
 
 import '../services/finora_ear.dart';
 import 'controller.dart';
 import 'finora_vocabulary.dart';
 import 'haptics.dart';
 import 'widgets/finora_orb.dart';
+import 'l10n_widgets.dart';
 
 /// «Финора слушает» (1.31): a sheet with Finora and what she hears, word by
 /// word, while her own ear listens silently. Returns the hypotheses, empty

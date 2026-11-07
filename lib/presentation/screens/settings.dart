@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide InputDecoration, Text;
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -26,6 +26,7 @@ import '../finora_outside.dart';
 import '../widgets/grouped_list.dart';
 import '../widgets/finora_orb.dart';
 import '../widgets/profile_avatar.dart';
+import '../l10n_widgets.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key, this.section});
@@ -1140,33 +1141,35 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final code = await showModalBottomSheet<String>(
       context: context,
       showDragHandle: true,
+      isScrollControlled: true,
       builder: (ctx) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            for (final e in AppLanguage.names.entries)
-              ListTile(
-                key: ValueKey('language-${e.key}'),
-                leading: Icon(
-                  e.key == c.data.preferences.language
-                      ? Icons.radio_button_checked_rounded
-                      : Icons.radio_button_off_rounded,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (final e in AppLanguage.names.entries)
+                ListTile(
+                  key: ValueKey('language-${e.key}'),
+                  leading: Icon(
+                    e.key == c.data.preferences.language
+                        ? Icons.radio_button_checked_rounded
+                        : Icons.radio_button_off_rounded,
+                  ),
+                  title: Text(e.value),
+                  onTap: () => Navigator.pop(ctx, e.key),
                 ),
-                title: Text(e.value),
-                onTap: () => Navigator.pop(ctx, e.key),
-              ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 4, 20, 16),
-              child: Text(
-                'English covers the main screens; voice commands and tips '
-                'stay in Russian for now.',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Theme.of(ctx).colorScheme.onSurfaceVariant,
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 4, 20, 16),
+                child: Text(
+                  'Голосовые команды пока понимаются только на русском.',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Theme.of(ctx).colorScheme.onSurfaceVariant,
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

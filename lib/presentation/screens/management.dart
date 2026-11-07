@@ -1,6 +1,6 @@
 import 'dart:math' as math;
 
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide InputDecoration, Text;
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
@@ -22,6 +22,7 @@ import '../widgets/grouped_list.dart';
 import 'account_import_screen.dart';
 import 'entry_editor.dart';
 import 'settings.dart';
+import '../l10n_widgets.dart';
 
 part 'management_accounts.dart';
 part 'management_categories.dart';
@@ -50,8 +51,10 @@ Future<void> _attempt(
 
 TextEditingController _text([String value = '']) =>
     TextEditingController(text: value);
-String _date(DateTime date, FinanceController c) =>
-    DateFormat(c.data.preferences.dateFormat, 'ru').format(date.toLocal());
+String _date(DateTime date, FinanceController c) => DateFormat(
+  c.data.preferences.dateFormat,
+  AppLanguage.intl,
+).format(date.toLocal());
 String _amount(int value) => groupAmount(
   '${value < 0 ? '-' : ''}${value.abs() ~/ 100}.${(value.abs() % 100).toString().padLeft(2, '0')}',
 );

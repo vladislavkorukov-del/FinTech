@@ -25,7 +25,7 @@ class BudgetsScreen extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            '${DateFormat('d MMMM', 'ru').format(c.periodStart)} — ${DateFormat('d MMMM', 'ru').format(c.periodEnd.subtract(const Duration(days: 1)))}',
+            '${DateFormat('d MMMM', AppLanguage.intl).format(c.periodStart)} — ${DateFormat('d MMMM', AppLanguage.intl).format(c.periodEnd.subtract(const Duration(days: 1)))}',
           ),
           const SizedBox(height: 20),
           if (c.data.budgets.isEmpty)

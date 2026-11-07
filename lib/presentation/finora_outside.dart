@@ -12,6 +12,7 @@ import '../services/finora_system.dart';
 import 'controller.dart';
 import 'widgets/common.dart';
 import 'widgets/finora_orb.dart';
+import 'i18n.dart';
 
 /// Keeps Finora's widgets and shade controls up to date (1.27): numbers,
 /// her mood and a picture of her in that mood.
@@ -149,7 +150,7 @@ abstract final class FinoraOutside {
         '${dir.path}/finora_widget_$name.png',
       );
     }
-    final month = DateFormat('LLLL', 'ru').format(DateTime.now());
+    final month = DateFormat('LLLL', AppLanguage.intl).format(DateTime.now());
     await FinoraSystem.updateWidgets({
       'balance': balance,
       'month': '${month[0].toUpperCase()}${month.substring(1)}',

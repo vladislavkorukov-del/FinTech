@@ -1,0 +1,129 @@
+811¦Light¦Claro¦Claro¦Clair¦Hell¦浅色¦हल्का¦فاتح
+812¦Dark¦Oscuro¦Escuro¦Sombre¦Dunkel¦深色¦गहरा¦داكن
+813¦All set!¦¡Todo listo!¦Tudo pronto!¦Tout est prêt !¦Alles bereit!¦一切就绪！¦सब तैयार!¦كل شيء جاهز!
+814¦All set, {1}!¦¡Todo listo, {1}!¦Tudo pronto, {1}!¦Tout est prêt, {1} !¦Alles bereit, {1}!¦一切就绪，{1}！¦सब तैयार, {1}!¦كل شيء جاهز يا {1}!
+815¦Want a short tour of the app? Eight cards — about a minute. You can skip it any time.¦¿Quieres un breve recorrido por la app? Ocho tarjetas, un minuto. Puedes saltarlo cuando quieras.¦Quer um tour rápido pelo app? Oito cartões — cerca de um minuto. Dá para pular a qualquer momento.¦Une courte visite de l'app ? Huit cartes — environ une minute. Vous pouvez la passer à tout moment.¦Kurze Tour durch die App? Acht Karten — etwa eine Minute. Jederzeit überspringbar.¦想快速了解一下应用吗？八张卡片，大约一分钟，随时可以跳过。¦ऐप का छोटा परिचय चाहिए? आठ कार्ड — करीब एक मिनट। कभी भी छोड़ सकते हैं।¦هل تريد جولة قصيرة في التطبيق؟ ثماني بطاقات — نحو دقيقة. يمكنك تخطيها في أي وقت.
+816¦Show what Finora can do¦Ver qué sabe hacer Finora¦Mostrar o que a Finora faz¦Montrer ce que sait faire Finora¦Zeigen, was Finora kann¦看看 Finora 能做什么¦दिखाएँ Finora क्या कर सकती है¦اعرض ما تستطيعه Finora
+817¦Skip the tour¦Saltar la guía¦Pular o tour¦Passer la visite¦Tour überspringen¦跳过引导¦परिचय छोड़ें¦تخطي الجولة
+818¦Filters¦Filtros¦Filtros¦Filtres¦Filter¦筛选¦फ़िल्टर¦عوامل التصفية
+819¦Reset¦Restablecer¦Redefinir¦Réinitialiser¦Zurücksetzen¦重置¦रीसेट¦إعادة ضبط
+820¦All transactions¦Todas las operaciones¦Todas as transações¦Toutes les opérations¦Alle Buchungen¦所有交易¦सभी लेन-देन¦كل العمليات
+821¦Transfers¦Transferencias¦Transferências¦Virements¦Umbuchungen¦转账¦ट्रांसफ़र¦التحويلات
+822¦All categories¦Todas las categorías¦Todas as categorias¦Toutes les catégories¦Alle Kategorien¦所有分类¦सभी श्रेणियाँ¦كل الفئات
+823¦Tag¦Etiqueta¦Tag¦Étiquette¦Tag¦标签¦टैग¦وسم
+824¦All tags¦Todas las etiquetas¦Todas as tags¦Toutes les étiquettes¦Alle Tags¦所有标签¦सभी टैग¦كل الوسوم
+825¦All time¦Todo el tiempo¦Todo o período¦Depuis toujours¦Gesamter Zeitraum¦全部时间¦पूरा समय¦كل الوقت
+826¦Amount in the transaction currency; to compare currencies, choose an account.¦Importe en la moneda de la operación; para comparar monedas, elige una cuenta.¦Valor na moeda da transação; para comparar moedas, escolha uma conta.¦Montant dans la devise de l'opération ; pour comparer, choisissez un compte.¦Betrag in Buchungswährung; zum Vergleich verschiedener Währungen ein Konto wählen.¦金额为交易货币；比较不同货币请选择账户。¦लेन-देन की मुद्रा में राशि; मुद्राओं की तुलना के लिए खाता चुनें।¦المبلغ بعملة العملية؛ لمقارنة العملات اختر حساباً.
+827¦Min amount¦Desde¦A partir de¦Montant min.¦Ab Betrag¦最低金额¦न्यूनतम राशि¦من مبلغ
+828¦Max amount¦Hasta¦Até¦Montant max.¦Bis Betrag¦最高金额¦अधिकतम राशि¦إلى مبلغ
+829¦Check the amount range¦Revisa el rango de importes¦Confira a faixa de valores¦Vérifiez la plage de montants¦Prüfe den Betragsbereich¦请检查金额范围¦राशि सीमा जाँचें¦تحقق من نطاق المبالغ
+830¦Show transactions¦Mostrar operaciones¦Mostrar transações¦Afficher les opérations¦Buchungen anzeigen¦显示交易¦लेन-देन दिखाएँ¦عرض العمليات
+832¦Add a transaction¦Añadir operación¦Adicionar transação¦Ajouter une opération¦Buchung hinzufügen¦添加交易¦लेन-देन जोड़ें¦إضافة عملية
+833¦Store, category, note¦Tienda, categoría, comentario¦Loja, categoria, comentário¦Magasin, catégorie, commentaire¦Geschäft, Kategorie, Notiz¦商家、分类、备注¦दुकान, श्रेणी, टिप्पणी¦متجر، فئة، ملاحظة
+834¦{1} transactions¦{1} operaciones¦{1} transações¦{1} opérations¦{1} Buchungen¦{1} 笔交易¦{1} लेन-देन¦{1} عملية
+835¦{1} transactions · {2}¦{1} operaciones · {2}¦{1} transações · {2}¦{1} opérations · {2}¦{1} Buchungen · {2}¦{1} 笔交易 · {2}¦{1} लेन-देन · {2}¦{1} عملية · {2}
+836¦Reset filters¦Quitar filtros¦Limpar filtros¦Réinitialiser les filtres¦Filter zurücksetzen¦重置筛选¦फ़िल्टर रीसेट करें¦إعادة ضبط التصفية
+837¦Quiet here for now¦Por ahora, nada¦Por enquanto, nada¦Rien pour l'instant¦Noch ist es ruhig hier¦这里暂时很安静¦अभी यहाँ शांति है¦لا شيء هنا بعد
+838¦Change the filters or add your first transaction.¦Cambia los filtros o añade tu primera operación.¦Mude os filtros ou adicione sua primeira transação.¦Modifiez les filtres ou ajoutez votre première opération.¦Ändere die Filter oder füge deine erste Buchung hinzu.¦更改筛选或添加第一笔交易。¦फ़िल्टर बदलें या पहला लेन-देन जोड़ें।¦غيّر عوامل التصفية أو أضف أول عملية.
+839¦No accounts found on the screenshot. You need a screen with a list of accounts and amounts, e.g. «Cash 12 500».¦No se encontraron cuentas en la captura. Hace falta una pantalla con la lista de cuentas e importes, p. ej. «Efectivo 12 500».¦Nenhuma conta na captura. É preciso uma tela com a lista de contas e valores, ex. «Dinheiro 12 500».¦Aucun compte sur la capture. Il faut un écran avec la liste des comptes et montants, ex. « Espèces 12 500 ».¦Keine Konten im Screenshot. Nötig ist ein Bildschirm mit Kontenliste und Beträgen, z. B. «Bargeld 12 500».¦截图中未找到账户。需要带账户列表和金额的界面，例如「现金 12 500」。¦स्क्रीनशॉट में खाते नहीं मिले। खातों और राशियों की सूची वाली स्क्रीन चाहिए, जैसे «नकद 12 500»।¦لم يُعثر على حسابات في اللقطة. يلزم شاشة بقائمة الحسابات والمبالغ، مثل «نقد 12 500».
+840¦Check the amount of the account «{1}».¦Revisa el importe de la cuenta «{1}».¦Confira o valor da conta «{1}».¦Vérifiez le montant du compte « {1} ».¦Prüfe den Betrag des Kontos «{1}».¦请检查账户「{1}」的金额。¦खाते «{1}» की राशि जाँचें।¦تحقق من مبلغ الحساب «{1}».
+841¦Accounts added: {1}.¦Cuentas añadidas: {1}.¦Contas adicionadas: {1}.¦Comptes ajoutés : {1}.¦Hinzugefügte Konten: {1}.¦已添加账户：{1}。¦जोड़े गए खाते: {1}।¦الحسابات المضافة: {1}.
+842¦Take a screenshot of the account list in another app — ZenMoney, CoinKeeper, Monefy, a bank. We'll take names and balances.¦Haz una captura de la lista de cuentas en otra app: ZenMoney, CoinKeeper, Monefy, un banco. Tomaremos nombres y saldos.¦Tire uma captura da lista de contas em outro app — ZenMoney, CoinKeeper, Monefy, um banco. Pegamos nomes e saldos.¦Faites une capture de la liste des comptes d'une autre app — ZenMoney, CoinKeeper, Monefy, une banque. On récupère noms et soldes.¦Mach einen Screenshot der Kontenliste einer anderen App — ZenMoney, CoinKeeper, Monefy, Bank. Wir übernehmen Namen und Salden.¦在其他应用中截取账户列表——ZenMoney、CoinKeeper、Monefy、银行。我们会读取名称和余额。¦दूसरे ऐप में खातों की सूची का स्क्रीनशॉट लें — ZenMoney, CoinKeeper, Monefy, बैंक। हम नाम और बैलेंस ले लेंगे।¦التقط صورة لقائمة الحسابات في تطبيق آخر — ZenMoney وCoinKeeper وMonefy وبنك. سنأخذ الأسماء والأرصدة.
+843¦Add another screenshot¦Añadir otra captura¦Adicionar outra captura¦Ajouter une autre capture¦Weiteren Screenshot hinzufügen¦再添加一张截图¦एक और स्क्रीनशॉट जोड़ें¦إضافة لقطة أخرى
+844¦Choose a screenshot¦Elegir captura¦Escolher captura¦Choisir une capture¦Screenshot wählen¦选择截图¦स्क्रीनशॉट चुनें¦اختر لقطة
+845¦Balance, {1}¦Saldo, {1}¦Saldo, {1}¦Solde, {1}¦Saldo, {1}¦余额，{1}¦बैलेंस, {1}¦الرصيد، {1}
+846¦This account already exists¦Esta cuenta ya existe¦Esta conta já existe¦Ce compte existe déjà¦Dieses Konto gibt es schon¦该账户已存在¦यह खाता पहले से है¦هذا الحساب موجود
+847¦Add accounts: {1}¦Añadir cuentas: {1}¦Adicionar contas: {1}¦Ajouter les comptes : {1}¦Konten hinzufügen: {1}¦添加账户：{1}¦खाते जोड़ें: {1}¦إضافة الحسابات: {1}
+848¦Service¦Servicio¦Serviço¦Service¦Dienst¦服务¦सेवा¦الخدمة
+849¦Choose an image up to 2 MB.¦Elige una imagen de hasta 2 MB.¦Escolha uma imagem de até 2 MB.¦Choisissez une image de 2 Mo max.¦Wähle ein Bild bis 2 MB.¦请选择不超过 2 MB 的图片。¦2 MB तक की छवि चुनें।¦اختر صورة حتى 2 ميغابايت.
+850¦PNG, JPEG and WebP are supported.¦Se admiten PNG, JPEG y WebP.¦PNG, JPEG e WebP são aceitos.¦PNG, JPEG et WebP sont pris en charge.¦Unterstützt: PNG, JPEG und WebP.¦支持 PNG、JPEG 和 WebP。¦PNG, JPEG और WebP समर्थित हैं।¦الصيغ المدعومة: PNG وJPEG وWebP.
+851¦The image is too large. Choose an icon up to 16 megapixels.¦La imagen es demasiado grande. Elige un icono de hasta 16 megapíxeles.¦A imagem é grande demais. Escolha um ícone de até 16 megapixels.¦Image trop grande. Choisissez une icône de 16 mégapixels max.¦Bild zu groß. Wähle ein Symbol bis 16 Megapixel.¦图片太大。请选择不超过 1600 万像素的图标。¦छवि बहुत बड़ी है। 16 मेगापिक्सेल तक का आइकन चुनें।¦الصورة كبيرة جداً. اختر أيقونة حتى 16 ميغابكسل.
+852¦Choose a service¦Elige un servicio¦Escolha um serviço¦Choisissez un service¦Dienst wählen¦选择服务¦सेवा चुनें¦اختر خدمة
+853¦Name in any language¦Nombre en cualquier idioma¦Nome em qualquer idioma¦Nom dans n'importe quelle langue¦Name in beliebiger Sprache¦任意语言的名称¦किसी भी भाषा में नाम¦الاسم بأي لغة
+854¦{1} banks from the Bank of Russia register¦{1} bancos del registro del Banco de Rusia¦{1} bancos do registro do Banco da Rússia¦{1} banques du registre de la Banque de Russie¦{1} Banken aus dem Register der Bank von Russland¦俄罗斯央行登记的 {1} 家银行¦बैंक ऑफ़ रशिया रजिस्टर के {1} बैंक¦{1} بنكاً من سجل بنك روسيا
+855¦{1} in the catalogue¦{1} en el catálogo¦{1} no catálogo¦{1} dans le catalogue¦{1} im Katalog¦目录中共 {1} 个¦सूची में {1}¦{1} في الدليل
+856¦Own service¦Servicio propio¦Serviço próprio¦Service perso¦Eigener Dienst¦自定义服务¦अपनी सेवा¦خدمة خاصة
+857¦Service not found¦Servicio no encontrado¦Serviço não encontrado¦Service introuvable¦Dienst nicht gefunden¦未找到服务¦सेवा नहीं मिली¦لم يُعثر على الخدمة
+858¦Add your own service with a name and an icon.¦Añade tu servicio con nombre e icono.¦Adicione seu serviço com nome e ícone.¦Ajoutez votre service avec un nom et une icône.¦Füge deinen Dienst mit Name und Symbol hinzu.¦添加自定义服务，填写名称并上传图标。¦नाम और आइकन के साथ अपनी सेवा जोड़ें।¦أضف خدمتك باسم وأيقونة.
+859¦Service name¦Nombre del servicio¦Nome do serviço¦Nom du service¦Name des Dienstes¦服务名称¦सेवा का नाम¦اسم الخدمة
+860¦Enter a name¦Introduce un nombre¦Digite um nome¦Saisissez un nom¦Namen eingeben¦请输入名称¦नाम दर्ज करें¦أدخل اسماً
+861¦Loading…¦Cargando…¦Carregando…¦Chargement…¦Lädt…¦加载中…¦लोड हो रहा है…¦جارٍ التحميل…
+862¦Upload an icon¦Subir icono¦Enviar ícone¦Importer une icône¦Symbol hochladen¦上传图标¦आइकन अपलोड करें¦رفع أيقونة
+864¦Set a date — Finora will count how much to save¦Fija una fecha: Finora calculará cuánto ahorrar¦Defina uma data — a Finora calcula quanto guardar¦Fixez une date — Finora calculera combien épargner¦Lege ein Datum fest — Finora berechnet die Sparrate¦设定日期——Finora 会算出每期该存多少¦तारीख़ तय करें — Finora बताएगी कितना बचाना है¦حدد موعداً — ستحسب Finora كم تدّخر
+865¦The date has passed — {1} short¦El plazo pasó: faltan {1}¦O prazo passou — faltam {1}¦Échéance passée — il manque {1}¦Frist vorbei — es fehlen {1}¦期限已过——还差 {1}¦समय निकल गया — {1} कम है¦انتهى الموعد — ينقص {1}
+866¦a day¦al día¦por dia¦par jour¦pro Tag¦每天¦प्रति दिन¦يومياً
+867¦a week¦a la semana¦por semana¦par semaine¦pro Woche¦每周¦प्रति सप्ताह¦أسبوعياً
+868¦a month¦al mes¦por mês¦par mois¦pro Monat¦每月¦प्रति माह¦شهرياً
+869¦Save this to make it in {1} days¦Aparta esto para llegar en {1} días¦Guarde isto para chegar em {1} dias¦Épargnez ceci pour y arriver en {1} jours¦So viel sparen, um es in {1} Tagen zu schaffen¦按此存钱，{1} 天内达成¦{1} दिनों में पाने के लिए इतना बचाएँ¦ادّخر هذا لتصل خلال {1} يوماً
+870¦NPO¦ENL¦IPL¦OBNL¦NBFI¦非银行机构¦NBFC¦مؤسسة غير مصرفية
+871¦reg. no. {1}¦reg. n.º {1}¦reg. nº {1}¦n° d'enr. {1}¦Reg.-Nr. {1}¦注册号 {1}¦पंजी. सं. {1}¦رقم التسجيل {1}
+872¦BIC {1}¦BIC {1}¦BIC {1}¦BIC {1}¦BIC {1}¦BIC {1}¦BIC {1}¦BIC {1}
+873¦Name, BIC or reg. number¦Nombre, BIC o n.º de registro¦Nome, BIC ou nº de registro¦Nom, BIC ou n° d'enregistrement¦Name, BIC oder Reg.-Nr.¦名称、BIC 或注册号¦नाम, BIC या पंजीकरण संख्या¦الاسم أو BIC أو رقم التسجيل
+875¦Not found¦No encontrado¦Não encontrado¦Introuvable¦Nicht gefunden¦未找到¦नहीं मिला¦غير موجود
+876¦Check the name or enter the bank manually.¦Revisa el nombre o escribe el banco a mano.¦Confira o nome ou digite o banco manualmente.¦Vérifiez le nom ou saisissez la banque à la main.¦Prüfe den Namen oder gib die Bank manuell ein.¦请检查名称或手动输入银行。¦नाम जाँचें या बैंक हाथ से लिखें।¦تحقق من الاسم أو أدخل البنك يدوياً.
+877¦Total balance {1}¦Saldo total {1}¦Saldo total {1}¦Solde total {1}¦Gesamtsaldo {1}¦总余额 {1}¦कुल बैलेंस {1}¦الرصيد الإجمالي {1}
+878¦My family¦Mi familia¦Minha família¦Ma famille¦Meine Familie¦我的家庭¦मेरा परिवार¦عائلتي
+879¦Donut chart by category. Choose a category in the list below the chart.¦Gráfico circular por categorías. Elige una categoría en la lista de abajo.¦Gráfico de rosca por categoria. Escolha uma categoria na lista abaixo.¦Graphique en anneau par catégorie. Choisissez une catégorie dans la liste.¦Ringdiagramm nach Kategorien. Wähle eine Kategorie in der Liste darunter.¦按分类的环形图。在图表下方的列表中选择分类。¦श्रेणियों का डोनट चार्ट। चार्ट के नीचे की सूची से श्रेणी चुनें।¦مخطط دائري حسب الفئات. اختر فئة من القائمة أسفله.
+880¦Bar chart¦Gráfico de barras¦Gráfico de barras¦Graphique en barres¦Balkendiagramm¦柱状图¦बार चार्ट¦مخطط أعمدة
+881¦Trend chart¦Gráfico de evolución¦Gráfico de evolução¦Graphique d'évolution¦Verlaufsdiagramm¦趋势图¦रुझान चार्ट¦مخطط الاتجاه
+882¦{1}, spent {2}¦{1}, gasto {2}¦{1}, gasto {2}¦{1}, dépensé {2}¦{1}, ausgegeben {2}¦{1}，支出 {2}¦{1}, खर्च {2}¦{1}، إنفاق {2}
+883¦Finora: voice entry¦Finora: entrada por voz¦Finora: entrada por voz¦Finora : saisie vocale¦Finora: Spracheingabe¦Finora：语音记账¦Finora: आवाज़ से प्रविष्टि¦Finora: إدخال صوتي
+884¦Hold to open the action wheel¦Mantén para abrir la rueda de acciones¦Segure para abrir a roda de ações¦Maintenez pour ouvrir la roue d'actions¦Halten, um das Aktionsrad zu öffnen¦长按打开操作轮盘¦एक्शन व्हील खोलने के लिए दबाकर रखें¦اضغط مطولاً لفتح عجلة الإجراءات
+885¦Finora · hold for the action wheel¦Finora · mantén para la rueda de acciones¦Finora · segure para a roda de ações¦Finora · maintenez pour la roue d'actions¦Finora · halten für das Aktionsrad¦Finora · 长按打开操作轮盘¦Finora · एक्शन व्हील के लिए दबाकर रखें¦Finora · اضغط مطولاً لعجلة الإجراءات
+886¦Delete digit¦Borrar cifra¦Apagar dígito¦Effacer le chiffre¦Ziffer löschen¦删除数字¦अंक हटाएँ¦حذف الرقم
+887¦Decimal separator¦Separador decimal¦Separador decimal¦Séparateur décimal¦Dezimaltrennzeichen¦小数点¦दशमलव विभाजक¦الفاصلة العشرية
+888¦What to do?¦¿Qué hacemos?¦O que fazer?¦Que faire ?¦Was tun?¦要做什么？¦क्या करें?¦ماذا نفعل؟
+889¦No income in the period¦Sin ingresos en el periodo¦Sem receitas no período¦Aucun revenu sur la période¦Keine Einnahmen im Zeitraum¦该时段无收入¦अवधि में कोई आय नहीं¦لا دخل في الفترة
+890¦No expenses in the period¦Sin gastos en el periodo¦Sem despesas no período¦Aucune dépense sur la période¦Keine Ausgaben im Zeitraum¦该时段无支出¦अवधि में कोई खर्च नहीं¦لا مصاريف في الفترة
+891¦Add income or choose another period.¦Añade un ingreso o elige otro periodo.¦Adicione uma receita ou escolha outro período.¦Ajoutez un revenu ou choisissez une autre période.¦Füge eine Einnahme hinzu oder wähle einen anderen Zeitraum.¦添加收入或选择其他时段。¦आय जोड़ें या दूसरी अवधि चुनें।¦أضف دخلاً أو اختر فترة أخرى.
+892¦Add an expense or choose another period.¦Añade un gasto o elige otro periodo.¦Adicione uma despesa ou escolha outro período.¦Ajoutez une dépense ou choisissez une autre période.¦Füge eine Ausgabe hinzu oder wähle einen anderen Zeitraum.¦添加支出或选择其他时段。¦खर्च जोड़ें या दूसरी अवधि चुनें।¦أضف مصروفاً أو اختر فترة أخرى.
+893¦Transactions: {1}¦Operaciones: {1}¦Transações: {1}¦Opérations : {1}¦Buchungen: {1}¦交易：{1}¦लेन-देन: {1}¦العمليات: {1}
+894¦Category {1}¦Categoría {1}¦Categoria {1}¦Catégorie {1}¦Kategorie {1}¦分类 {1}¦श्रेणी {1}¦الفئة {1}
+895¦category¦categoría¦categoria¦catégorie¦Kategorie¦个分类¦श्रेणी¦فئة
+896¦categories¦categorías¦categorias¦catégories¦Kategorien¦个分类¦श्रेणियाँ¦فئات
+897¦categories¦categorías¦categorias¦catégories¦Kategorien¦个分类¦श्रेणियाँ¦فئة
+898¦Difference¦Diferencia¦Diferença¦Différence¦Differenz¦差额¦अंतर¦الفرق
+900¦Normal¦Normal¦Normal¦Normal¦Normal¦平常¦सामान्य¦عادي
+901¦Greeting¦Saludo¦Saudação¦Salut¦Begrüßung¦打招呼¦अभिवादन¦تحية
+902¦Joy¦Alegría¦Alegria¦Joie¦Freude¦开心¦ख़ुशी¦فرح
+903¦Pleasure¦Placer¦Prazer¦Plaisir¦Vergnügen¦愉悦¦आनंद¦سرور
+904¦Confidence¦Confianza¦Confiança¦Assurance¦Zuversicht¦自信¦आत्मविश्वास¦ثقة
+905¦Delight¦Entusiasmo¦Encanto¦Ravissement¦Begeisterung¦欣喜¦उल्लास¦بهجة
+906¦Thinking¦Reflexión¦Reflexão¦Réflexion¦Nachdenken¦思考¦विचार¦تفكير
+907¦Doubt¦Duda¦Dúvida¦Doute¦Zweifel¦怀疑¦संदेह¦شك
+908¦Processing¦Procesando¦Processando¦Traitement¦Verarbeitung¦处理中¦प्रोसेसिंग¦معالجة
+909¦Idea¦Idea¦Ideia¦Idée¦Idee¦灵感¦विचार आया¦فكرة
+910¦Done¦Listo¦Pronto¦Fait¦Fertig¦完成¦हो गया¦تم
+911¦Calm¦Calma¦Calma¦Calme¦Ruhe¦平静¦शांति¦هدوء
+912¦Support¦Apoyo¦Apoio¦Soutien¦Unterstützung¦支持¦सहारा¦دعم
+913¦Attention¦Atención¦Atenção¦Attention¦Achtung¦注意¦ध्यान¦انتباه
+914¦Error¦Error¦Erro¦Erreur¦Fehler¦错误¦त्रुटि¦خطأ
+915¦Waiting¦Espera¦Espera¦Attente¦Warten¦等待¦प्रतीक्षा¦انتظار
+916¦Surprise¦Sorpresa¦Surpresa¦Surprise¦Überraschung¦惊讶¦आश्चर्य¦مفاجأة
+917¦Anger¦Enfado¦Raiva¦Colère¦Ärger¦生气¦गुस्सा¦غضب
+918¦Avatar¦Avatar¦Avatar¦Avatar¦Avatar¦头像¦अवतार¦الصورة الرمزية
+919¦Photo from the gallery¦Foto de la galería¦Foto da galeria¦Photo de la galerie¦Foto aus der Galerie¦相册中的照片¦गैलरी से फ़ोटो¦صورة من المعرض
+920¦First letter of the name¦Primera letra del nombre¦Primeira letra do nome¦Première lettre du nom¦Erster Buchstabe des Namens¦名字首字母¦नाम का पहला अक्षर¦أول حرف من الاسم
+921¦Pay¦Pagar¦Pagar¦Payer¦Zahlen¦支付¦चुकाएँ¦ادفع
+922¦Yes¦Sí¦Sim¦Oui¦Ja¦是¦हाँ¦نعم
+923¦Couldn't complete the action. {1}¦No se pudo completar la acción. {1}¦Não foi possível concluir a ação. {1}¦Action impossible. {1}¦Aktion fehlgeschlagen. {1}¦操作未能完成。{1}¦कार्य पूरा नहीं हुआ। {1}¦تعذّر تنفيذ الإجراء. {1}
+926¦Transaction deleted¦Operación borrada¦Transação excluída¦Opération supprimée¦Buchung gelöscht¦交易已删除¦लेन-देन हटाया गया¦حُذفت العملية
+927¦Couldn't open the data¦No se pudieron abrir los datos¦Não foi possível abrir os dados¦Impossible d'ouvrir les données¦Daten konnten nicht geöffnet werden¦无法打开数据¦डेटा नहीं खुल सका¦تعذّر فتح البيانات
+928¦Data is not deleted. Check free space and restart.\n{1}¦Los datos no se han borrado. Revisa el espacio libre y vuelve a abrir.\n{1}¦Os dados não foram apagados. Verifique o espaço livre e abra de novo.\n{1}¦Les données ne sont pas supprimées. Vérifiez l'espace libre et relancez.\n{1}¦Die Daten sind nicht gelöscht. Prüfe den freien Speicher und starte neu.\n{1}¦数据未删除。请检查剩余空间后重新启动。\n{1}¦डेटा नहीं हटा है। खाली जगह जाँचें और फिर से खोलें।\n{1}¦لم تُحذف البيانات. تحقق من المساحة الفارغة وأعد التشغيل.\n{1}
+929¦Retry¦Reintentar¦Tentar de novo¦Réessayer¦Erneut versuchen¦重试¦फिर कोशिश करें¦إعادة المحاولة
+930¦Finora — personal finance¦Finora — finanzas personales¦Finora — finanças pessoais¦Finora — finances personnelles¦Finora — persönliche Finanzen¦Finora——个人理财¦Finora — निजी वित्त¦Finora — الأموال الشخصية
+931¦Screenshot¦Captura¦Captura¦Capture¦Screenshot¦截图¦स्क्रीनशॉट¦لقطة
+932¦Voice¦Voz¦Voz¦Voix¦Stimme¦语音¦आवाज़¦الصوت
+933¦Allow the microphone for Finora so she can hear you.¦Permite el micrófono a Finora para que te oiga.¦Permita o microfone para a Finora ouvir você.¦Autorisez le micro pour que Finora vous entende.¦Erlaube Finora das Mikrofon, damit sie dich hört.¦请允许 Finora 使用麦克风，以便听到你。¦Finora को माइक्रोफ़ोन की अनुमति दें ताकि वह आपको सुन सके।¦اسمح لـ Finora باستخدام الميكروفون لتسمعك.
+934¦Listening!¦¡Te escucho!¦Ouvindo!¦Je vous écoute !¦Ich höre!¦我在听！¦सुन रही हूँ!¦أنا أسمعك!
+935¦Secure storage unavailable. Restart the app.¦Almacenamiento seguro no disponible. Vuelve a abrir la app.¦Armazenamento seguro indisponível. Abra o app de novo.¦Stockage sécurisé indisponible. Relancez l'app.¦Sicherer Speicher nicht verfügbar. Starte die App neu.¦安全存储不可用。请重新启动。¦सुरक्षित स्टोरेज उपलब्ध नहीं। फिर से खोलें।¦التخزين الآمن غير متاح. أعد التشغيل.
+936¦Couldn't confirm login. Check the PIN.¦No se pudo confirmar el acceso. Revisa el PIN.¦Não foi possível confirmar a entrada. Confira o PIN.¦Connexion non confirmée. Vérifiez le PIN.¦Anmeldung nicht bestätigt. Prüfe die PIN.¦无法确认登录。请检查 PIN。¦लॉगिन की पुष्टि नहीं हुई। PIN जाँचें।¦تعذّر تأكيد الدخول. تحقق من PIN.
+937¦Couldn't check device protection.¦No se pudo comprobar la protección del dispositivo.¦Não foi possível verificar a proteção do aparelho.¦Impossible de vérifier la protection de l'appareil.¦Geräteschutz konnte nicht geprüft werden.¦无法检查设备保护。¦डिवाइस सुरक्षा जाँची नहीं जा सकी।¦تعذّر التحقق من حماية الجهاز.
+938¦Your finances\nare protected¦Tus finanzas\nestán protegidas¦Suas finanças\nestão protegidas¦Vos finances\nsont protégées¦Deine Finanzen\nsind geschützt¦你的财务\n受到保护¦आपका वित्त\nसुरक्षित है¦أموالك\nفي أمان
+939¦Enter the PIN to open Finora¦Introduce el PIN para entrar en Finora¦Digite o PIN para entrar no Finora¦Saisissez le PIN pour ouvrir Finora¦PIN eingeben, um Finora zu öffnen¦输入 PIN 以打开 Finora¦Finora खोलने के लिए PIN दर्ज करें¦أدخل PIN لفتح Finora
+940¦PIN code¦Código PIN¦Código PIN¦Code PIN¦PIN-Code¦PIN 码¦PIN कोड¦رمز PIN
+941¦Checking…¦Comprobando…¦Verificando…¦Vérification…¦Prüfe…¦正在验证…¦जाँच रहे हैं…¦جارٍ التحقق…
+942¦Log in¦Entrar¦Entrar¦Se connecter¦Anmelden¦登录¦प्रवेश करें¦دخول
+943¦Log in with biometrics¦Entrar con biometría¦Entrar com biometria¦Connexion biométrique¦Mit Biometrie anmelden¦生物识别登录¦बायोमेट्रिक से प्रवेश¦الدخول بالمصادقة الحيوية
+944¦Hi! I'm Finora¦¡Hola! Soy Finora¦Oi! Eu sou a Finora¦Salut ! Je suis Finora¦Hallo! Ich bin Finora¦嗨！我是 Finora¦नमस्ते! मैं Finora हूँ¦مرحباً! أنا Finora
+945¦Opening your finances…¦Abriendo tus finanzas…¦Abrindo suas finanças…¦Ouverture de vos finances…¦Deine Finanzen werden geöffnet…¦正在打开你的财务数据…¦आपका वित्त खुल रहा है…¦جارٍ فتح أموالك…

@@ -1,12 +1,13 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide InputDecoration, Text;
 import 'package:image_picker/image_picker.dart';
 
 import '../controller.dart';
 import '../haptics.dart';
 import 'finora_orb.dart';
 import 'service_badge.dart';
+import '../l10n_widgets.dart';
 
 /// 1.36: the person's picture — an emoji, Finora in a mood, a photo, or the
 /// first letter of the name.

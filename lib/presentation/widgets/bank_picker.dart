@@ -1,12 +1,13 @@
 import 'dart:math' as math;
 
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide InputDecoration, Text;
 
 import '../../domain/bank_catalog.dart';
 import '../../domain/models.dart';
 import '../controller.dart';
 import 'common.dart';
 import 'service_badge.dart';
+import '../l10n_widgets.dart';
 
 /// Bank of Russia registration number and BIC, shown so a person can tell
 /// similarly named institutions apart.

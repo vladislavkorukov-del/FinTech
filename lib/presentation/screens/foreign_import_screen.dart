@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide InputDecoration, Text;
 import 'package:intl/intl.dart';
 
 import '../../domain/foreign_csv.dart';
@@ -6,6 +6,7 @@ import '../../domain/models.dart';
 import '../controller.dart';
 import '../haptics.dart';
 import '../widgets/common.dart';
+import '../l10n_widgets.dart';
 
 /// Operations from another app's or a bank's CSV (Finora 1.35): the columns
 /// are recognised, the person checks them, chooses where the accounts go,

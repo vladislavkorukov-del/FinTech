@@ -211,7 +211,12 @@ void main() {
       final button = find.byKey(ValueKey(key)).first;
       final box = tester.getRect(button);
       final label = tester.getRect(
-        find.descendant(of: button, matching: find.byType(Text)).first,
+        find
+            .descendant(
+              of: button,
+              matching: find.byWidgetPredicate((w) => w is Text),
+            )
+            .first,
       );
       expect(label.top, greaterThanOrEqualTo(box.top), reason: key);
       expect(label.bottom, lessThanOrEqualTo(box.bottom), reason: key);
@@ -230,7 +235,12 @@ void main() {
     final button = find.byKey(const ValueKey('onboarding-start'));
     final box = tester.getRect(button);
     final label = tester.getRect(
-      find.descendant(of: button, matching: find.byType(Text)).first,
+      find
+          .descendant(
+            of: button,
+            matching: find.byWidgetPredicate((w) => w is Text),
+          )
+          .first,
     );
     expect(label.top, greaterThanOrEqualTo(box.top));
     expect(label.bottom, lessThanOrEqualTo(box.bottom));

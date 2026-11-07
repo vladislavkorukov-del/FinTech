@@ -326,8 +326,8 @@ class _RecurringScreenState extends State<RecurringScreen> {
                         plan.overdue
                             ? 'Просрочен на ${plan.overdueDays} '
                                   '${daysWord(plan.overdueDays)} · '
-                                  '${DateFormat('d MMM', 'ru').format(r.nextDate)}'
-                            : '${DateFormat('d MMM', 'ru').format(r.nextDate)} · ${frequencyNames[r.frequency] ?? r.frequency}',
+                                  '${DateFormat('d MMM', AppLanguage.intl).format(r.nextDate)}'
+                            : '${DateFormat('d MMM', AppLanguage.intl).format(r.nextDate)} · ${frequencyNames[r.frequency] ?? r.frequency}',
                         key: ValueKey('rule-date-${r.id}'),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,

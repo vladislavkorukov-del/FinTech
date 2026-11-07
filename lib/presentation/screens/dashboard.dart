@@ -1,5 +1,5 @@
 import '../i18n.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide InputDecoration, Text;
 import 'package:flutter/foundation.dart' show listEquals;
 import 'package:intl/intl.dart';
 
@@ -21,6 +21,7 @@ import '../widgets/motion.dart';
 import '../widgets/bank_picker.dart';
 import '../widgets/category_orbit_chart.dart';
 import '../widgets/service_badge.dart';
+import '../l10n_widgets.dart';
 
 class Dashboard extends StatelessWidget {
   const Dashboard({
@@ -750,7 +751,7 @@ class _PaymentSection extends StatelessWidget {
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
                       subtitle: Text(
-                        '${r.nextDate.isBefore(today) ? 'просрочен · ' : ''}${DateFormat('d MMM', 'ru').format(r.nextDate)} · ${r.paymentType == 'subscription' ? 'подписка' : 'обязательный'}${r.kind == EntryKind.expense
+                        '${r.nextDate.isBefore(today) ? 'просрочен · ' : ''}${DateFormat('d MMM', AppLanguage.intl).format(r.nextDate)} · ${r.paymentType == 'subscription' ? 'подписка' : 'обязательный'}${r.kind == EntryKind.expense
                             ? ''
                             : r.automatic
                             ? 'автозапись'
@@ -908,7 +909,7 @@ class _ExpenseOverview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = FinanceScope.of(context);
-    final month = DateFormat('LLLL', 'ru').format(DateTime.now());
+    final month = DateFormat('LLLL', AppLanguage.intl).format(DateTime.now());
     final scheme = Theme.of(context).colorScheme;
     // 1.26: one compact ring, the month in the middle.
     return SurfaceCard(

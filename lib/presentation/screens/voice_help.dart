@@ -1,7 +1,8 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide InputDecoration, Text;
 
 import '../widgets/finora_orb.dart';
 import '../widgets/grouped_list.dart';
+import '../l10n_widgets.dart';
 
 /// What Finora understands (1.33): every kind of voice command with
 /// examples. Opened from Settings → Финора → «Голосовые команды» and

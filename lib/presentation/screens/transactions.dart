@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide InputDecoration, Text;
 import 'package:intl/intl.dart';
 
 import '../../domain/models.dart';
@@ -8,6 +8,8 @@ import '../widgets/amount_format.dart';
 import '../widgets/common.dart';
 import '../widgets/entry_tile.dart';
 import 'entry_editor.dart';
+import '../l10n_widgets.dart';
+import '../i18n.dart';
 
 class TransactionsScreen extends StatefulWidget {
   const TransactionsScreen({
@@ -426,7 +428,10 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                                 bottom: 8,
                               ),
                               child: Text(
-                                DateFormat('d MMMM, EEEE', 'ru').format(e.date),
+                                DateFormat(
+                                  'd MMMM, EEEE',
+                                  AppLanguage.intl,
+                                ).format(e.date),
                                 style: Theme.of(context).textTheme.labelSmall,
                               ),
                             ),
