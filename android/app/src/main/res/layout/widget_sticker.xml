@@ -1,0 +1,12 @@
+<!-- 1.40: Finora's picture for the moment, nothing else. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:padding="4dp">
+    <ImageView android:id="@+id/widget_finora"
+        android:layout_width="match_parent" android:layout_height="match_parent"
+        android:adjustViewBounds="true"
+        android:contentDescription="Финора"
+        android:scaleType="fitCenter"
+        android:src="@drawable/finora_mood_check" />
+</FrameLayout>

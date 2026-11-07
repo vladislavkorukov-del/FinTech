@@ -42,7 +42,10 @@ void main() {
   });
 
   test('«Что нового» в 1.39', () {
-    expect(WhatsNew.items.first.$2, 'Финора-напарник на рабочем столе');
+    expect(
+      WhatsNew.items.map((i) => i.$2),
+      contains('Финора-напарник на рабочем столе'),
+    );
   });
 
   test('виджет описан в Android-ресурсах', () {

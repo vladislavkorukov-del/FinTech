@@ -74,6 +74,13 @@
             </intent-filter>
             <meta-data android:name="android.appwidget.provider" android:resource="@xml/finora_widget_buddy" />
         </receiver>
+        <!-- 1.40: Finora's picture for the moment. -->
+        <receiver android:name=".FinoraWidgetSticker" android:exported="false" android:label="Финора-стикер">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/finora_widget_sticker" />
+        </receiver>
         <receiver android:name=".FinoraWidgetPayments" android:exported="false" android:label="Финора: платежи">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />

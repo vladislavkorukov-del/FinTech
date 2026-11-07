@@ -10,6 +10,13 @@ import 'l10n_widgets.dart';
 abstract final class WhatsNew {
   static const items = <(IconData, String, String)>[
     (
+      Icons.emoji_emotions_outlined,
+      'Пятнадцать картинок Финоры',
+      'Виджеты показывают Финору под ситуацию: «Запиши расход», «Доход '
+          'пришёл», «Лимит почти всё», «Цель близко», «Всё спокойно» и другие. '
+          'Новый виджет «Финора-стикер» 2×2.',
+    ),
+    (
       Icons.local_fire_department_rounded,
       'Финора-напарник на рабочем столе',
       'Новый виджет: большая Финора с репликой и серией дней подряд. '

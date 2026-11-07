@@ -20,6 +20,7 @@ object FinoraWidgets {
         FinoraWidgetWide::class.java,
         FinoraWidgetPayments::class.java,
         FinoraWidgetBuddy::class.java,
+        FinoraWidgetSticker::class.java,
     )
 
     fun refreshAll(context: Context) {
@@ -72,6 +73,43 @@ object FinoraWidgets {
             hour < 14 -> "thinking" to "Что сегодня потратили?"
             hour < 20 -> "attention" to "Не забудьте записать расходы и доходы"
             else -> "angry" to "Сегодня ничего не записано! Я жду 😤"
+        }
+    }
+
+    /**
+     * 1.40: which of Finora's pictures to show. The app passes the picture
+     * for the data («tile»); here the clock and payments come first.
+     */
+    fun picture(
+        prefs: android.content.SharedPreferences,
+        now: java.util.Calendar = java.util.Calendar.getInstance(),
+    ): Int {
+        fun value(key: String) = prefs.getString(key, "") ?: ""
+        val hour = now.get(java.util.Calendar.HOUR_OF_DAY)
+        val days = daysSince(value("lastEntry"), now)
+        val name = when {
+            value("payState") == "overdue" -> "debts"
+            value("payState") == "today" -> "payment_today"
+            hour >= 23 || hour < 7 -> "calm"
+            days != 0 && hour >= 11 -> "record"
+            else -> value("tile").ifEmpty { "check" }
+        }
+        return when (name) {
+            "forward" -> R.drawable.finora_mood_forward
+            "record" -> R.drawable.finora_mood_record
+            "income" -> R.drawable.finora_mood_income
+            "payment_today" -> R.drawable.finora_mood_payment_today
+            "limit" -> R.drawable.finora_mood_limit
+            "plus" -> R.drawable.finora_mood_plus
+            "piggy" -> R.drawable.finora_mood_piggy
+            "saving" -> R.drawable.finora_mood_saving
+            "growing" -> R.drawable.finora_mood_growing
+            "goal_near" -> R.drawable.finora_mood_goal_near
+            "budget_ok" -> R.drawable.finora_mood_budget_ok
+            "report" -> R.drawable.finora_mood_report
+            "debts" -> R.drawable.finora_mood_debts
+            "calm" -> R.drawable.finora_mood_calm
+            else -> R.drawable.finora_mood_check
         }
     }
 
@@ -167,15 +205,25 @@ object FinoraWidgets {
                         else -> R.drawable.widget_mood_thinking
                     },
                 )
+                // 1.40: Finora's own picture for the moment.
+                setImageViewResource(R.id.widget_finora, picture(prefs))
                 setOnClickPendingIntent(R.id.widget_root, FinoraBridge.launch(context, "open", 70 + id))
                 setOnClickPendingIntent(R.id.widget_say, FinoraBridge.launch(context, "voice", 80 + id))
                 setOnClickPendingIntent(R.id.widget_add, FinoraBridge.launch(context, "expense", 90 + id))
+            }
+            FinoraWidgetSticker::class.java -> RemoteViews(context.packageName, R.layout.widget_sticker).apply {
+                setImageViewResource(R.id.widget_finora, picture(prefs))
+                setOnClickPendingIntent(R.id.widget_root, FinoraBridge.launch(context, "expense", 100 + id))
             }
             else -> RemoteViews(context.packageName, R.layout.widget_payments).apply {
                 setTextViewText(R.id.widget_title, value("paymentsTitle", "Ближайшие платежи"))
                 setTextViewText(R.id.widget_payments, value("payments", "Платежей нет"))
                 setOnClickPendingIntent(R.id.widget_root, FinoraBridge.launch(context, "payments", 60 + id))
             }
+        }
+        if (kind == FinoraWidgetBuddy::class.java || kind == FinoraWidgetSticker::class.java) {
+            manager.updateAppWidget(id, views)
+            return
         }
         val moodImage = value("image_$mood")
         val image = File(
@@ -210,6 +258,9 @@ class FinoraWidgetWide : FinoraWidgetBase()
 
 /** 1.39, 4×2: Finora as a companion — big, with a line and a streak. */
 class FinoraWidgetBuddy : FinoraWidgetBase()
+
+/** 1.40, 2×2: just Finora's picture for the moment; a tap — add an expense. */
+class FinoraWidgetSticker : FinoraWidgetBase()
 
 /** 4×2: the next payments; Finora worries when one is due. */
 class FinoraWidgetPayments : FinoraWidgetBase()

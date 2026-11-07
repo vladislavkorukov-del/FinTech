@@ -2,5 +2,6 @@
     <string name="widget_small">Финора и баланс. Нажмите — и скажите операцию.</string>
     <string name="widget_wide">Финора, баланс за месяц и быстрые действия.</string>
     <string name="widget_buddy">Финора-напарник: радуется записям, напоминает и сердится, если вы забыли о расходах. Серия дней подряд.</string>
+    <string name="widget_sticker">Финора-стикер: картинка Финоры под ситуацию. Нажмите — запишите расход.</string>
     <string name="widget_payments">Ближайшие платежи и подписки.</string>
 </resources>

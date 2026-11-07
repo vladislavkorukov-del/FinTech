@@ -77,6 +77,74 @@ abstract final class FinoraOutside {
     return (FinoraMood.idle, 'Нажмите и скажите');
   }
 
+  /// 1.40: which of Finora's pictures the widget shows for the data (the
+  /// widget itself adds the clock: night, nothing recorded yet, payments).
+  static String tile(FinanceController c, {DateTime? now}) {
+    final clock = now ?? DateTime.now();
+    final today = DateTime(clock.year, clock.month, clock.day);
+    final d = c.data;
+    bool sameDay(DateTime x) =>
+        x.year == today.year && x.month == today.month && x.day == today.day;
+    final start = c.periodStart, end = c.periodEnd;
+    final spentNow = FinanceEngine.totals(
+      d.entries,
+      start,
+      clock,
+      c.currency,
+    ).expense;
+    // The same stretch of the previous period.
+    final prevStart = DateTime(start.year, start.month - 1, start.day);
+    final prevNow = prevStart.add(clock.difference(start));
+    final spentBefore = FinanceEngine.totals(
+      d.entries,
+      prevStart,
+      prevNow,
+      c.currency,
+    ).expense;
+    final budgets = [
+      for (final b in d.budgets)
+        (b, FinanceEngine.budgetSpent(b, d.entries, start, end)),
+    ];
+    if (budgets.any(
+      (x) => x.$1.limitMinor > 0 && x.$2 * 10 >= x.$1.limitMinor * 9,
+    )) {
+      return 'limit';
+    }
+    if (d.entries.any((e) => e.kind == EntryKind.income && sameDay(e.date))) {
+      return 'income';
+    }
+    if (d.goals.any((g) {
+      final saved = FinanceEngine.goalSaved(g, d.entries);
+      return g.targetMinor > 0 &&
+          saved * 10 >= g.targetMinor * 8 &&
+          saved < g.targetMinor;
+    })) {
+      return 'goal_near';
+    }
+    if (spentBefore > 0 && clock.difference(start).inDays >= 5) {
+      if (spentNow * 10 > spentBefore * 11) return 'growing';
+      if (spentNow * 10 < spentBefore * 9) return 'saving';
+    }
+    if (clock.difference(start).inDays < 3 && d.entries.isNotEmpty) {
+      return 'report';
+    }
+    final totals = FinanceEngine.totals(d.entries, start, end, c.currency);
+    if (totals.income > 0 && totals.net >= 0) return 'plus';
+    if (budgets.isNotEmpty) return 'budget_ok';
+    if (d.entries.any(
+      (e) =>
+          e.toGoalId != null &&
+          today
+                  .difference(DateTime(e.date.year, e.date.month, e.date.day))
+                  .inDays <
+              7,
+    )) {
+      return 'piggy';
+    }
+    if (d.entries.any((e) => sameDay(e.date))) return 'forward';
+    return 'check';
+  }
+
   /// 1.39: days in a row with at least one record, ending on the last
   /// day that has one (the widget decides whether it is still alive).
   static int streak(List<FinanceEntry> entries, {DateTime? now}) {
@@ -138,7 +206,17 @@ abstract final class FinoraOutside {
     final alert = mood == FinoraMood.angry || mood == FinoraMood.attention
         ? say
         : '';
+    final picture = tile(c, now: today);
+    final due = c.duePayments(now: today);
+    final day = DateTime(today.year, today.month, today.day);
+    final payState = due.any((r) => r.nextDate.isBefore(day))
+        ? 'overdue'
+        : due.isNotEmpty
+        ? 'today'
+        : '';
     final key = [
+      picture,
+      payState,
       lastEntry,
       days,
       FinoraOrbPainter.theme.toARGB32(),
@@ -182,6 +260,8 @@ abstract final class FinoraOutside {
       ...moods,
       'lastEntry': lastEntry,
       'streak': '$days',
+      'tile': picture,
+      'payState': payState,
       'alert': alert,
       'alertMood': alert.isEmpty ? '' : mood.name,
       'paymentsImage': paymentsImage,
