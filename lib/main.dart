@@ -914,6 +914,7 @@ class HelloFinora extends StatelessWidget {
                 ],
                 step: Duration(milliseconds: 650),
                 loop: true,
+                rings: false,
               ),
             ),
             Positioned(

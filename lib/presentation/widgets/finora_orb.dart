@@ -739,6 +739,7 @@ class FinoraCharacter extends StatefulWidget {
     this.moods = const [FinoraMood.idle],
     this.step = const Duration(milliseconds: 1600),
     this.loop = false,
+    this.rings = true,
   });
   final double size;
 
@@ -746,6 +747,9 @@ class FinoraCharacter extends StatefulWidget {
   final List<FinoraMood> moods;
   final Duration step;
   final bool loop;
+
+  /// 1.36: the rings of joy around her on a hop (off on the loading screen).
+  final bool rings;
 
   @override
   State<FinoraCharacter> createState() => FinoraCharacterState();
@@ -859,7 +863,7 @@ class FinoraCharacterState extends State<FinoraCharacter>
                     t: _flow.value,
                     mood: mood,
                     blink: _blink.value,
-                    joy: h == 0 ? 0 : h,
+                    joy: h == 0 || !widget.rings ? 0 : h,
                   ),
                 ),
               ),
