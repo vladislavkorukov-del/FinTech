@@ -3,7 +3,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/widget_root"
     android:layout_width="match_parent" android:layout_height="match_parent"
-    android:background="@drawable/widget_bg"
+    android:background="@drawable/widget_vivid_teal"
     android:gravity="center_vertical"
     android:orientation="horizontal"
     android:padding="12dp">
@@ -33,17 +33,20 @@
             android:gravity="center_vertical"
             android:orientation="horizontal">
             <TextView android:id="@+id/widget_streak"
-                android:layout_width="0dp" android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:background="@drawable/widget_pill_yellow"
+                android:paddingStart="10dp" android:paddingEnd="10dp"
+                android:paddingTop="5dp" android:paddingBottom="5dp"
                 android:maxLines="1" android:ellipsize="end"
-                android:textColor="#FFFFFFFF" android:textSize="15sp" android:textStyle="bold"
+                android:textColor="#FF1B2430" android:textSize="13sp" android:textStyle="bold"
                 android:text="🔥 0" />
+            <View android:layout_width="0dp" android:layout_height="1dp" android:layout_weight="1" />
             <TextView android:id="@+id/widget_add"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:background="@drawable/widget_pill"
+                android:background="@drawable/widget_pill_white"
                 android:paddingStart="12dp" android:paddingEnd="12dp"
                 android:paddingTop="6dp" android:paddingBottom="6dp"
-                android:textColor="#FFFFFFFF" android:textSize="13sp" android:textStyle="bold"
+                android:textColor="#FF1B2430" android:textSize="13sp" android:textStyle="bold"
                 android:text="＋ Записать" />
         </LinearLayout>
     </LinearLayout>

@@ -10,6 +10,16 @@ import 'l10n_widgets.dart';
 abstract final class WhatsNew {
   static const items = <(IconData, String, String)>[
     (
+      Icons.palette_rounded,
+      'Яркие виджеты',
+      'Все виджеты — сочные, в цвет картинки Финоры. Новый «Финора-мини» 1×1.',
+    ),
+    (
+      Icons.swipe_left_rounded,
+      'Плавные переходы',
+      'Страницы въезжают сбоку и больше не накладываются друг на друга.',
+    ),
+    (
       Icons.emoji_emotions_outlined,
       'Двадцать пять картинок Финоры',
       'Виджеты показывают Финору под ситуацию: «Лимит на сегодня», «Не '

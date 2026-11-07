@@ -1,28 +1,33 @@
+<!-- 1.42: bright: Finora's picture and the next payments on a white card. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/widget_root"
     android:layout_width="match_parent" android:layout_height="match_parent"
-    android:background="@drawable/widget_bg"
+    android:background="@drawable/widget_vivid_blue"
     android:gravity="center_vertical"
     android:orientation="horizontal"
     android:padding="12dp">
     <ImageView android:id="@+id/widget_finora"
-        android:layout_width="64dp" android:layout_height="64dp"
+        android:layout_width="0dp" android:layout_height="match_parent"
+        android:layout_weight="4"
+        android:adjustViewBounds="true"
         android:contentDescription="Финора"
-        android:src="@drawable/ic_finora_tile"
-        android:scaleType="fitCenter" />
+        android:scaleType="fitCenter"
+        android:src="@drawable/finora_mood_payment_reminder" />
     <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
-        android:layout_weight="1" android:layout_marginStart="10dp"
+        android:layout_weight="6" android:layout_marginStart="10dp"
+        android:background="@drawable/widget_card"
+        android:padding="10dp"
         android:orientation="vertical">
         <TextView android:id="@+id/widget_title"
             android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:textColor="#FFFFFFFF" android:textSize="15sp" android:textStyle="bold"
+            android:textColor="#FF1B2430" android:textSize="14sp" android:textStyle="bold"
             android:text="Ближайшие платежи" />
         <TextView android:id="@+id/widget_payments"
             android:layout_width="match_parent" android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:maxLines="4" android:ellipsize="end"
             android:lineSpacingExtra="2dp"
-            android:textColor="#DDDFFFF8" android:textSize="12sp"
+            android:textColor="#FF3A4656" android:textSize="12sp"
             android:text="Платежей нет" />
     </LinearLayout>
 </LinearLayout>

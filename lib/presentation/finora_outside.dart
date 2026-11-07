@@ -307,19 +307,6 @@ abstract final class FinoraOutside {
       paymentsMood,
       '${dir.path}/finora_widget_payments.png',
     );
-    final moods = <String, String>{};
-    for (final (name, m) in const [
-      ('happy', FinoraMood.happy),
-      ('thinking', FinoraMood.thinking),
-      ('attention', FinoraMood.attention),
-      ('angry', FinoraMood.angry),
-      ('sleep', FinoraMood.sleep),
-    ]) {
-      moods['image_$name'] = await _picture(
-        m,
-        '${dir.path}/finora_widget_$name.png',
-      );
-    }
     final month = DateFormat('LLLL', AppLanguage.intl).format(DateTime.now());
     await FinoraSystem.updateWidgets({
       'balance': balance,
@@ -328,7 +315,6 @@ abstract final class FinoraOutside {
       'expense': '−${money(totals.expense, c.currency)}',
       'say': say,
       'image': image,
-      ...moods,
       'lastEntry': lastEntry,
       'streak': '$days',
       'tile': picture,

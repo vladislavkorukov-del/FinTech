@@ -26,6 +26,7 @@ import 'presentation/widgets/voice_orb.dart';
 import 'presentation/voice_commands.dart';
 import 'presentation/haptics.dart';
 import 'presentation/payment_prompt.dart';
+import 'presentation/page_transitions.dart';
 import 'presentation/whats_new.dart';
 import 'presentation/widgets/finora_wheel.dart';
 import 'presentation/finora_outside.dart';
@@ -178,8 +179,12 @@ class FinoraApp extends StatelessWidget {
           ],
           localizationsDelegates: GlobalMaterialLocalizations.delegates,
           // 1.27: every tap answers with a light tick.
-          theme: withHaptics(AppTheme.app(Brightness.light, p.accent)),
-          darkTheme: withHaptics(AppTheme.app(Brightness.dark, p.accent)),
+          theme: withFinoraTransitions(
+            withHaptics(AppTheme.app(Brightness.light, p.accent)),
+          ),
+          darkTheme: withFinoraTransitions(
+            withHaptics(AppTheme.app(Brightness.dark, p.accent)),
+          ),
           themeMode: switch (p.theme) {
             'light' => ThemeMode.light,
             'dark' => ThemeMode.dark,

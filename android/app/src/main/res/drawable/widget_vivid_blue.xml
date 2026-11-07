@@ -1,0 +1,21 @@
+<!-- 1.42: a juicy widget background (blue) with a glossy top and a light rim. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <gradient android:angle="315" android:startColor="#FF4C9BFF" android:endColor="#FF2E4FD8" />
+            <corners android:radius="28dp" />
+        </shape>
+    </item>
+    <item android:bottom="40dp">
+        <shape android:shape="rectangle">
+            <gradient android:angle="270" android:startColor="#38FFFFFF" android:endColor="#00FFFFFF" />
+            <corners android:topLeftRadius="28dp" android:topRightRadius="28dp" />
+        </shape>
+    </item>
+    <item>
+        <shape android:shape="rectangle">
+            <stroke android:width="1.5dp" android:color="#4DFFFFFF" />
+            <corners android:radius="28dp" />
+        </shape>
+    </item>
+</layer-list>
