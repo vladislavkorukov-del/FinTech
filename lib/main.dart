@@ -1,3 +1,4 @@
+import 'presentation/i18n.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -177,10 +178,12 @@ class FinoraApp extends StatelessWidget {
         FinanceFormat.numberPattern = p.numberFormat;
         FinanceFormat.datePattern = p.dateFormat;
         Haptics.enabled = p.haptics;
+        AppLanguage.code = p.language;
         return MaterialApp(
           title: 'Finora — личные финансы',
           debugShowCheckedModeBanner: false,
-          locale: const Locale('ru'),
+          // 1.28: the app language from Settings.
+          locale: Locale(p.language),
           supportedLocales: const [Locale('ru'), Locale('en')],
           localizationsDelegates: GlobalMaterialLocalizations.delegates,
           // 1.27: every tap answers with a light tick.
@@ -315,27 +318,27 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Новая операция',
+                  tr('Новая операция'),
                   style: Theme.of(ctx).textTheme.headlineSmall,
                 ),
                 const SizedBox(height: 16),
                 for (final item in [
                   (
                     EntryKind.expense,
-                    'Расход',
-                    'Покупка или платёж',
+                    tr('Расход'),
+                    tr('Покупка или платёж'),
                     Icons.north_east_rounded,
                   ),
                   (
                     EntryKind.income,
-                    'Доход',
-                    'Поступление на счёт',
+                    tr('Доход'),
+                    tr('Поступление на счёт'),
                     Icons.south_west_rounded,
                   ),
                   (
                     EntryKind.transfer,
-                    'Перевод',
-                    'Между своими счетами',
+                    tr('Перевод'),
+                    tr('Между своими счетами'),
                     Icons.swap_horiz_rounded,
                   ),
                 ])
@@ -355,8 +358,8 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
                   ),
                 ListTile(
                   leading: const Icon(Icons.document_scanner_outlined),
-                  title: const Text('Скриншот из банка'),
-                  subtitle: const Text('Одна операция или список операций'),
+                  title: Text(tr('Скриншот из банка')),
+                  subtitle: Text(tr('Одна операция или список операций')),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () => Navigator.pop(ctx, 'scan'),
                 ),
@@ -526,8 +529,8 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
               padding: const EdgeInsets.only(top: 8, left: 6, right: 6),
               child: Row(
                 children: [
-                  _nav(0, Icons.space_dashboard_outlined, 'Главная'),
-                  _nav(1, Icons.receipt_long_outlined, 'Операции'),
+                  _nav(0, Icons.space_dashboard_outlined, tr('Главная')),
+                  _nav(1, Icons.receipt_long_outlined, tr('Операции')),
                   // 1.20: the living voice orb replaces «+»; a long press
                   // still adds an operation by hand.
                   Expanded(
@@ -540,8 +543,8 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
                       ),
                     ),
                   ),
-                  _nav(3, Icons.bar_chart_rounded, 'Аналитика'),
-                  _nav(4, Icons.grid_view_rounded, 'Ещё'),
+                  _nav(3, Icons.bar_chart_rounded, tr('Аналитика')),
+                  _nav(4, Icons.grid_view_rounded, tr('Ещё')),
                 ],
               ),
             ),

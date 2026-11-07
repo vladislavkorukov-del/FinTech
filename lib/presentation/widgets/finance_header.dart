@@ -1,3 +1,4 @@
+import '../i18n.dart';
 import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
@@ -5,6 +6,7 @@ import '../controller.dart';
 import '../screens/management.dart';
 import '../screens/settings.dart';
 import 'common.dart' show money;
+import 'currency_sheet.dart';
 import 'glass.dart';
 import 'motion.dart';
 
@@ -115,7 +117,7 @@ class FinanceHeader extends StatelessWidget {
       child: Row(
         children: [
           IconButton.filledTonal(
-            tooltip: 'Настройки',
+            tooltip: tr('Настройки'),
             onPressed: () => open(const SettingsScreen()),
             style: buttonStyle,
             icon: const Icon(Icons.tune_rounded, size: 21),
@@ -124,12 +126,15 @@ class FinanceHeader extends StatelessWidget {
           Expanded(
             child: Semantics(
               button: true,
-              label: 'Общий баланс ${money(c.balance, c.currency)}',
+              label:
+                  'Общий баланс ${money(c.data.preferences.toDisplay(c.balance), c.data.preferences.shownCurrency)}',
               excludeSemantics: true,
               child: InkWell(
                 key: const ValueKey('header-balance'),
                 borderRadius: BorderRadius.circular(16),
-                onTap: () => open(const AccountsScreen()),
+                // 1.28: the balance in another currency.
+                onTap: () => showCurrencySheet(context),
+                onLongPress: () => open(const AccountsScreen()),
                 // 1.16: no halo behind the balance.
                 child: Ink(
                   child: Padding(
@@ -143,7 +148,9 @@ class FinanceHeader extends StatelessWidget {
                         FittedBox(
                           fit: BoxFit.scaleDown,
                           child: Text(
-                            'Общий баланс · ${c.currency}',
+                            c.data.preferences.shownCurrency == c.currency
+                                ? '${tr('Общий баланс')} · ${c.currency}'
+                                : '${tr('Общий баланс')} · ≈ ${c.data.preferences.shownCurrency}',
                             maxLines: 1,
                             style: TextStyle(
                               fontSize: 11,
@@ -156,8 +163,8 @@ class FinanceHeader extends StatelessWidget {
                         FittedBox(
                           fit: BoxFit.scaleDown,
                           child: AnimatedMoney(
-                            c.balance,
-                            currency: c.currency,
+                            c.data.preferences.toDisplay(c.balance),
+                            currency: c.data.preferences.shownCurrency,
                             textKey: const ValueKey('header-balance-amount'),
                             style: TextStyle(
                               fontSize: 22,
@@ -176,7 +183,7 @@ class FinanceHeader extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           IconButton.filledTonal(
-            tooltip: 'Моя семья',
+            tooltip: tr('Моя семья'),
             onPressed: () => open(const MembersScreen()),
             style: buttonStyle,
             icon: const Icon(Icons.family_restroom_outlined, size: 22),

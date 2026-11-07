@@ -143,13 +143,17 @@ class FinoraOrbPainter extends CustomPainter {
       }
     }
 
-    // Glow.
+    // 1.28: a soft glow that pulses with her breath (three times a loop).
+    final pulse = .5 + .5 * math.sin(a * 3);
     canvas.drawCircle(
       c,
-      r * 1.04,
+      r * (1.06 + .1 * pulse),
       Paint()
-        ..color = mint.withValues(alpha: .42)
-        ..maskFilter = MaskFilter.blur(BlurStyle.normal, r * .22),
+        ..color = mint.withValues(alpha: .28 + .24 * pulse)
+        ..maskFilter = MaskFilter.blur(
+          BlurStyle.normal,
+          r * (.22 + .12 * pulse),
+        ),
     );
     final rect = Rect.fromCircle(center: c, radius: r);
     canvas.save();

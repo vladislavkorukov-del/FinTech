@@ -241,6 +241,18 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Покупка или платёж'));
     await tester.pumpAndSettle();
+    // 1.28: the editor is taller now; the payee field is further down.
+    await tester.scrollUntilVisible(
+      find.byKey(const ValueKey('entry-payee')),
+      300,
+      scrollable: find
+          .descendant(
+            of: find.byType(EntryEditor),
+            matching: find.byType(Scrollable),
+          )
+          .first,
+    );
+    await tester.pumpAndSettle();
     await tester.enterText(
       find.byKey(const ValueKey('entry-payee')),
       'чат гпт',

@@ -46,76 +46,90 @@ class AccountsScreen extends StatelessWidget {
     );
   }
 
+  // 1.28: swipe left to delete (an account with operations is refused —
+  // archive it instead).
   Widget _accountCard(BuildContext context, FinanceController c, Account a) =>
-      Padding(
-        padding: const EdgeInsets.only(bottom: 14),
-        child: SurfaceCard(
-          onTap: () => showAccountEditor(context, account: a),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+      SwipeToDelete(
+        key: ValueKey('swipe-account-${a.id}'),
+        title: 'Удалить счёт «${a.name}»?',
+        message:
+            'Счёт исчезнет из списка. Операции по нему не удаляются — '
+            'счёт с операциями лучше отправить в архив.',
+        onDelete: () => c.deleteAccount(a.id),
+        child: _accountCardBody(context, c, a),
+      );
+
+  Widget _accountCardBody(
+    BuildContext context,
+    FinanceController c,
+    Account a,
+  ) => Padding(
+    padding: const EdgeInsets.only(bottom: 14),
+    child: SurfaceCard(
+      onTap: () => showAccountEditor(context, account: a),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             children: [
-              Row(
-                children: [
-                  accountBankLogo(context, a) ??
-                      CategoryBadge(
-                        icon: categoryIcon(a.icon),
-                        color: Color(a.color),
-                      ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          a.name,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                        Text(
-                          [
-                            a.bank,
-                            if (a.lastFour.isNotEmpty) '•• ${a.lastFour}',
-                            if (a.archived) 'Архив',
-                          ].where((e) => e.isNotEmpty).join(' · '),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                      ],
+              accountBankLogo(context, a) ??
+                  CategoryBadge(
+                    icon: categoryIcon(a.icon),
+                    color: Color(a.color),
+                  ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      a.name,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.titleMedium,
                     ),
-                  ),
-                  const Icon(Icons.north_east_rounded, size: 19),
-                ],
-              ),
-              const SizedBox(height: 24),
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(
-                  money(FinanceEngine.balance(a, c.data.entries), a.currency),
-                  style: Theme.of(context).textTheme.headlineLarge,
+                    Text(
+                      [
+                        a.bank,
+                        if (a.lastFour.isNotEmpty) '•• ${a.lastFour}',
+                        if (a.archived) 'Архив',
+                      ].where((e) => e.isNotEmpty).join(' · '),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              if (a.excluded)
-                const Padding(
-                  padding: EdgeInsets.only(top: 8),
-                  child: Text('Не включён в общий баланс'),
-                ),
-              if (a.creditLimitMinor > 0)
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: Text(
-                    'Кредитный лимит ${money(a.creditLimitMinor, a.currency)}',
-                  ),
-                ),
+              const Icon(Icons.north_east_rounded, size: 19),
             ],
           ),
-        ),
-      );
+          const SizedBox(height: 24),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              money(FinanceEngine.balance(a, c.data.entries), a.currency),
+              style: Theme.of(context).textTheme.headlineLarge,
+            ),
+          ),
+          if (a.excluded)
+            const Padding(
+              padding: EdgeInsets.only(top: 8),
+              child: Text('Не включён в общий баланс'),
+            ),
+          if (a.creditLimitMinor > 0)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Text(
+                'Кредитный лимит ${money(a.creditLimitMinor, a.currency)}',
+              ),
+            ),
+        ],
+      ),
+    ),
+  );
 }
 
 Future<void> showAccountEditor(BuildContext context, {Account? account}) async {

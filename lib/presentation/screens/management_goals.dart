@@ -33,12 +33,21 @@ class GoalsScreen extends StatelessWidget {
               'На что копим?',
               'Отпуск, подушка безопасности или большая мечта.',
             ),
+          // 1.28: swipe left to delete a dream.
           ...c.data.goals.map(
-            (g) => Padding(
-              padding: const EdgeInsets.only(bottom: 14),
-              child: GoalCard(
-                goal: g,
-                onTap: () => _goalEditor(context, goal: g),
+            (g) => SwipeToDelete(
+              key: ValueKey('swipe-goal-${g.id}'),
+              title: 'Удалить мечту «${g.name}»?',
+              message:
+                  'Мечта и её цель исчезнут. Мечту с пополнениями '
+                  'удалить нельзя — сначала уберите пополнения.',
+              onDelete: () => c.deleteGoal(g.id),
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 14),
+                child: GoalCard(
+                  goal: g,
+                  onTap: () => _goalEditor(context, goal: g),
+                ),
               ),
             ),
           ),

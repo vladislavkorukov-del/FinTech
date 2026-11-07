@@ -1,3 +1,4 @@
+import '../i18n.dart';
 import 'dart:convert';
 import 'dart:io';
 
@@ -246,7 +247,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-  static const version = '1.27.0';
+  static const version = '1.28.0';
 
   /// One settings page: a section of the root list.
   Widget _page(String title, List<Widget> children) => Scaffold(
@@ -282,7 +283,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final p = c.data.preferences;
     switch (widget.section) {
       case 'general':
-        return _page('Основные', [
+        return _page(tr('Основные'), [
           SurfaceCard(
             child: Column(
               children: [
@@ -291,7 +292,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   key: const ValueKey('settings-name'),
                   initialValue: p.userName,
                   textCapitalization: TextCapitalization.words,
-                  decoration: const InputDecoration(labelText: 'Ваше имя'),
+                  decoration: InputDecoration(labelText: tr('Ваше имя')),
                   onFieldSubmitted: (value) => _run(() async {
                     final name = value.trim();
                     await c.mutate(
@@ -376,7 +377,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
         ]);
       case 'appearance':
-        return _page('Внешний вид', [
+        return _page(tr('Внешний вид'), [
           SurfaceCard(
             child: Column(
               children: [
@@ -416,7 +417,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
         ]);
       case 'notifications':
-        return _page('Уведомления', [
+        return _page(tr('Уведомления'), [
           SurfaceCard(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -496,7 +497,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
         ]);
       case 'security':
-        return _page('Защита', [
+        return _page(tr('Защита'), [
           SurfaceCard(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -555,7 +556,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
         ]);
       case 'backups':
-        return _page('Резервные копии', [
+        return _page(tr('Резервные копии'), [
           GroupedSection(
             title: 'Сохранить',
             footer:
@@ -608,7 +609,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
         ]);
       case 'about':
-        return _page('О приложении', [
+        return _page(tr('О приложении'), [
           const SizedBox(height: 12),
           const Center(child: FinoraMark(size: 72)),
           const SizedBox(height: 12),
@@ -656,7 +657,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         .split(' · ')
         .first;
     return Scaffold(
-      appBar: AppBar(title: const Text('Настройки')),
+      appBar: AppBar(title: Text(tr('Настройки'))),
       body: Stack(
         children: [
           AbsorbPointer(
@@ -696,7 +697,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              'Имя, валюта, форматы',
+                              tr('Имя, валюта, форматы'),
                               style: TextStyle(
                                 fontSize: 13,
                                 color: Theme.of(
@@ -713,21 +714,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 const SizedBox(height: 22),
                 GroupedSection(
-                  title: 'Основное',
+                  title: tr('Основное'),
                   children: [
                     GroupedRow(
                       key: const ValueKey('settings-appearance'),
                       icon: Icons.palette_rounded,
                       color: TileColors.purple,
-                      title: 'Внешний вид',
+                      title: tr('Внешний вид'),
                       value: '$themeName · $style',
                       onTap: () => _open('appearance'),
+                    ),
+                    // 1.28: the app language.
+                    GroupedRow(
+                      key: const ValueKey('settings-language'),
+                      icon: Icons.translate_rounded,
+                      color: TileColors.teal,
+                      title: tr('Язык'),
+                      value: AppLanguage.names[p.language] ?? p.language,
+                      onTap: () => _run(_chooseLanguage),
                     ),
                     GroupedRow(
                       key: const ValueKey('settings-general'),
                       icon: Icons.tune_rounded,
                       color: TileColors.blue,
-                      title: 'Валюта и форматы',
+                      title: tr('Валюта и форматы'),
                       value: p.baseCurrency,
                       onTap: () => _open('general'),
                     ),
@@ -735,7 +745,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       key: const ValueKey('settings-notifications'),
                       icon: Icons.notifications_rounded,
                       color: TileColors.red,
-                      title: 'Уведомления',
+                      title: tr('Уведомления'),
                       value: p.notifications ? 'Вкл.' : 'Выкл.',
                       onTap: () => _open('notifications'),
                     ),
@@ -743,7 +753,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       key: const ValueKey('settings-security'),
                       icon: Icons.lock_rounded,
                       color: TileColors.green,
-                      title: 'Защита',
+                      title: tr('Защита'),
                       value: !securityLoaded
                           ? null
                           : hasPin
@@ -754,14 +764,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ],
                 ),
                 GroupedSection(
-                  title: 'Данные',
+                  title: tr('Данные'),
                   children: [
                     GroupedRow(
                       key: const ValueKey('settings-backups'),
                       icon: Icons.cloud_upload_rounded,
                       color: TileColors.indigo,
-                      title: 'Резервные копии',
-                      subtitle: 'Сохранить и восстановить',
+                      title: tr('Резервные копии'),
+                      subtitle: tr('Сохранить и восстановить'),
                       onTap: () => _open('backups'),
                     ),
                     // 1.22.1: accounts from another finance app.
@@ -769,8 +779,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       key: const ValueKey('settings-import'),
                       icon: Icons.move_down_rounded,
                       color: TileColors.teal,
-                      title: 'Перенести счета со скриншота',
-                      subtitle: 'Из другого приложения или банка',
+                      title: tr('Перенести счета со скриншота'),
+                      subtitle: tr('Из другого приложения или банка'),
                       onTap: () => Navigator.push(
                         context,
                         MaterialPageRoute<void>(
@@ -791,7 +801,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 // 1.27: Finora herself.
                 GroupedSection(
-                  title: 'Финора',
+                  title: tr('Финора'),
                   footer:
                       'Виджеты: удерживайте рабочий стол → «Виджеты» → Finora. '
                       'Плитка: опустите шторку → карандаш → «Финора».',
@@ -800,8 +810,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       key: const ValueKey('settings-wake'),
                       icon: Icons.record_voice_over_rounded,
                       color: TileColors.teal,
-                      title: 'Отзываться на «Финора»',
-                      subtitle: 'Пока приложение открыто на экране',
+                      title: tr('Отзываться на «Финора»'),
+                      subtitle: tr('Пока приложение открыто на экране'),
                       trailing: Switch.adaptive(
                         value: p.wakeWord,
                         onChanged: (v) => _run(() => _setWake(v)),
@@ -812,7 +822,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       key: const ValueKey('settings-shade'),
                       icon: Icons.notifications_active_rounded,
                       color: TileColors.indigo,
-                      title: 'Финора в шторке',
+                      title: tr('Финора в шторке'),
                       subtitle: 'Кнопки «Сказать», «Расход», «Скриншот»',
                       trailing: Switch.adaptive(
                         value: p.shadeControls,
@@ -821,11 +831,31 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       onTap: () => _run(() => _setShade(!p.shadeControls)),
                     ),
                     GroupedRow(
+                      key: const ValueKey('settings-tips'),
+                      icon: Icons.lightbulb_rounded,
+                      color: TileColors.orange,
+                      title: tr('Советы по финансам'),
+                      subtitle: tr('Карточка Финоры на главной'),
+                      trailing: Switch.adaptive(
+                        value: p.tips,
+                        onChanged: (v) => _run(
+                          () => c.preferences(
+                            c.data.preferences.copyWith(tips: v),
+                          ),
+                        ),
+                      ),
+                      onTap: () => _run(
+                        () => c.preferences(
+                          c.data.preferences.copyWith(tips: !p.tips),
+                        ),
+                      ),
+                    ),
+                    GroupedRow(
                       key: const ValueKey('settings-haptics'),
                       icon: Icons.vibration_rounded,
                       color: TileColors.pink,
-                      title: 'Тактильный отклик',
-                      subtitle: 'Лёгкая отдача на нажатия и реакции',
+                      title: tr('Тактильный отклик'),
+                      subtitle: tr('Лёгкая отдача на нажатия и реакции'),
                       trailing: Switch.adaptive(
                         value: p.haptics,
                         onChanged: (v) => _run(
@@ -850,8 +880,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       key: const ValueKey('settings-tutorial'),
                       icon: Icons.school_rounded,
                       color: TileColors.orange,
-                      title: 'Что умеет Finora',
-                      subtitle: 'Короткое обучение',
+                      title: tr('Что умеет Finora'),
+                      subtitle: tr('Короткое обучение'),
                       onTap: () => Navigator.push(
                         context,
                         MaterialPageRoute<bool>(
@@ -864,7 +894,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       key: const ValueKey('settings-about'),
                       icon: Icons.info_rounded,
                       color: TileColors.gray,
-                      title: 'О приложении',
+                      title: tr('О приложении'),
                       value: version,
                       onTap: () => _open('about'),
                     ),
@@ -880,7 +910,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       key: const ValueKey('reset-all'),
                       icon: Icons.restart_alt_rounded,
                       color: TileColors.red,
-                      title: 'Сбросить все данные',
+                      title: tr('Сбросить все данные'),
                       destructive: true,
                       onTap: () => _run(_resetAll),
                     ),
@@ -927,6 +957,45 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
     await c.preferences(c.data.preferences.copyWith(shadeControls: on));
     await FinoraOutside.push(c);
+  }
+
+  Future<void> _chooseLanguage() async {
+    final c = FinanceScope.of(context);
+    final code = await showModalBottomSheet<String>(
+      context: context,
+      showDragHandle: true,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (final e in AppLanguage.names.entries)
+              ListTile(
+                key: ValueKey('language-${e.key}'),
+                leading: Icon(
+                  e.key == c.data.preferences.language
+                      ? Icons.radio_button_checked_rounded
+                      : Icons.radio_button_off_rounded,
+                ),
+                title: Text(e.value),
+                onTap: () => Navigator.pop(ctx, e.key),
+              ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 4, 20, 16),
+              child: Text(
+                'English covers the main screens; voice commands and tips '
+                'stay in Russian for now.',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Theme.of(ctx).colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (code == null) return;
+    await c.preferences(c.data.preferences.copyWith(language: code));
   }
 
   Future<void> _clearDemo() async {

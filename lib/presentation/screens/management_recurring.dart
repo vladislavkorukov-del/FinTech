@@ -144,7 +144,28 @@ class _RecurringScreenState extends State<RecurringScreen> {
     );
   }
 
+  // 1.28: swipe left to delete a subscription or payment.
   Widget _ruleCard(
+    BuildContext context,
+    FinanceController c,
+    RecurringRule r,
+  ) => SwipeToDelete(
+    key: ValueKey('swipe-rule-${r.id}'),
+    title: 'Удалить «${r.name}»?',
+    message:
+        'Платёж больше не будет напоминать о себе. Уже записанные '
+        'операции останутся.',
+    onDelete: () async {
+      await c.mutate(
+        (d) => d.copyWith(
+          recurring: d.recurring.where((x) => x.id != r.id).toList(),
+        ),
+      );
+    },
+    child: _ruleCardBody(context, c, r),
+  );
+
+  Widget _ruleCardBody(
     BuildContext context,
     FinanceController c,
     RecurringRule r,

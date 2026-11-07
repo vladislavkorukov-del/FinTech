@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'common.dart';
+import 'finora_orb.dart';
 
 /// Tile colors for grouped lists (Finora 1.26), iOS-like but a little
 /// quieter so they sit well on every theme.
@@ -246,7 +247,7 @@ class _SwipeToConfirmState extends State<SwipeToConfirm>
     final scheme = Theme.of(context).colorScheme;
     final color = widget.color ?? scheme.error;
     const height = 60.0, pad = 5.0;
-    final knob = height - pad * 2;
+    const knob = height - pad * 2;
     return LayoutBuilder(
       builder: (context, box) {
         final max = box.maxWidth - knob - pad * 2;
@@ -266,7 +267,10 @@ class _SwipeToConfirmState extends State<SwipeToConfirm>
             children: [
               Positioned.fill(
                 child: Padding(
-                  padding: EdgeInsets.only(left: knob + pad * 2, right: 16),
+                  padding: const EdgeInsets.only(
+                    left: knob + pad * 2,
+                    right: 16,
+                  ),
                   child: Center(
                     child: Opacity(
                       opacity: (1 - t * 1.6).clamp(0.0, 1.0),
@@ -338,4 +342,138 @@ class _SwipeToConfirmState extends State<SwipeToConfirm>
       },
     );
   }
+}
+
+/// Swipe left to delete (Finora 1.28): a red strip with a bin follows the
+/// finger; Finora asks before anything goes. [onDelete] may refuse with a
+/// FormatException (an account with operations) — then nothing is removed.
+class SwipeToDelete extends StatelessWidget {
+  const SwipeToDelete({
+    required super.key,
+    required this.child,
+    required this.title,
+    required this.message,
+    required this.onDelete,
+    this.margin = const EdgeInsets.only(bottom: 12),
+  });
+  final Widget child;
+  final EdgeInsets margin;
+  final String title, message;
+  final Future<void> Function() onDelete;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Dismissible(
+      key: ObjectKey(key),
+      direction: DismissDirection.endToStart,
+      dismissThresholds: const {DismissDirection.endToStart: .35},
+      background: Container(
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 24),
+        margin: margin,
+        decoration: BoxDecoration(
+          color: scheme.error,
+          borderRadius: BorderRadius.circular(24),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Удалить',
+              style: TextStyle(
+                color: scheme.onError,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Icon(Icons.delete_outline_rounded, color: scheme.onError),
+          ],
+        ),
+      ),
+      confirmDismiss: (_) async {
+        HapticFeedback.mediumImpact();
+        final ok = await confirmWithFinora(
+          context,
+          title: title,
+          message: message,
+          action: 'Удалить',
+          destructive: true,
+        );
+        if (!ok || !context.mounted) return false;
+        try {
+          await onDelete();
+          HapticFeedback.heavyImpact();
+          return true;
+        } catch (e) {
+          if (context.mounted) showError(context, e);
+          return false;
+        }
+      },
+      child: child,
+    );
+  }
+}
+
+/// A question from Finora (1.28): her face, a title, a line and two buttons.
+Future<bool> confirmWithFinora(
+  BuildContext context, {
+  required String title,
+  required String message,
+  String action = 'Да',
+  String cancel = 'Отмена',
+  bool destructive = false,
+}) async {
+  final scheme = Theme.of(context).colorScheme;
+  final ok = await showDialog<bool>(
+    context: context,
+    builder: (ctx) => Dialog(
+      key: const ValueKey('finora-confirm'),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(22, 22, 22, 12),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Center(
+              child: FinoraMark(
+                size: 72,
+                mood: destructive ? FinoraMood.doubt : FinoraMood.thinking,
+              ),
+            ),
+            const SizedBox(height: 14),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: Theme.of(ctx).textTheme.titleLarge,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: TextStyle(color: scheme.onSurfaceVariant),
+            ),
+            const SizedBox(height: 18),
+            FilledButton(
+              key: const ValueKey('finora-confirm-yes'),
+              style: destructive
+                  ? FilledButton.styleFrom(
+                      backgroundColor: scheme.error,
+                      foregroundColor: scheme.onError,
+                    )
+                  : null,
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text(action),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text(cancel),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+  return ok == true;
 }

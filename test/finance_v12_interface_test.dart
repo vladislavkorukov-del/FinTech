@@ -197,7 +197,13 @@ void main() {
       expect(find.text('Внешний вид'), findsWidgets);
       tester.state<NavigatorState>(find.byType(Navigator).first).pop();
       await tester.pumpAndSettle();
+      // 1.28: a tap shows other currencies, a long press opens accounts.
       await tester.tap(find.byKey(const ValueKey('header-balance')));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const ValueKey('currency-sheet')), findsOneWidget);
+      tester.state<NavigatorState>(find.byType(Navigator).first).pop();
+      await tester.pumpAndSettle();
+      await tester.longPress(find.byKey(const ValueKey('header-balance')));
       await tester.pumpAndSettle();
       expect(find.byType(AccountsScreen), findsOneWidget);
     },

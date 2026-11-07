@@ -1,3 +1,4 @@
+import '../i18n.dart';
 import 'dart:async';
 import 'dart:io';
 
@@ -661,6 +662,12 @@ class _EntryEditorState extends State<EntryEditor> {
   Widget build(BuildContext context) {
     final c = FinanceScope.of(context);
     final scheme = Theme.of(context).colorScheme;
+    // 1.28: each type has its color: expense, income, transfer.
+    final kindColor = switch (_kind) {
+      EntryKind.expense => FinanceColors.of(context).expense,
+      EntryKind.income => FinanceColors.of(context).income,
+      EntryKind.transfer => scheme.primary,
+    };
     if (_scanning) {
       return Scaffold(
         appBar: AppBar(
@@ -726,7 +733,7 @@ class _EntryEditorState extends State<EntryEditor> {
     final sub = c.category(_category)?.subcategories ?? [];
     return Scaffold(
       appBar: AppBar(
-        title: Text(editingHistory ? 'Редактирование' : 'Новая операция'),
+        title: Text(editingHistory ? 'Редактирование' : tr('Новая операция')),
         actions: [
           if (widget.entry != null)
             IconButton(
@@ -843,7 +850,7 @@ class _EntryEditorState extends State<EntryEditor> {
                               setState(() => _account = found.id);
                             }
                           },
-                          child: const Text('Открыть счета'),
+                          child: Text(tr('Открыть счета')),
                         ),
                       ],
                     ],
@@ -851,16 +858,45 @@ class _EntryEditorState extends State<EntryEditor> {
                 ),
                 const SizedBox(height: 16),
               ],
+              // 1.28: the type in its own color, with an arrow.
               SegmentedButton<EntryKind>(
-                segments: const [
+                showSelectedIcon: false,
+                style: ButtonStyle(
+                  visualDensity: VisualDensity.standard,
+                  padding: const WidgetStatePropertyAll(
+                    EdgeInsets.symmetric(vertical: 12),
+                  ),
+                  backgroundColor: WidgetStateProperty.resolveWith(
+                    (states) => states.contains(WidgetState.selected)
+                        ? kindColor.withValues(alpha: .18)
+                        : null,
+                  ),
+                  foregroundColor: WidgetStateProperty.resolveWith(
+                    (states) => states.contains(WidgetState.selected)
+                        ? kindColor
+                        : scheme.onSurfaceVariant,
+                  ),
+                  side: WidgetStatePropertyAll(
+                    BorderSide(
+                      color: scheme.outlineVariant.withValues(alpha: .4),
+                    ),
+                  ),
+                ),
+                segments: [
                   ButtonSegment(
                     value: EntryKind.expense,
-                    label: Text('Расход'),
+                    icon: const Icon(Icons.north_east_rounded, size: 18),
+                    label: Text(tr('Расход')),
                   ),
-                  ButtonSegment(value: EntryKind.income, label: Text('Доход')),
+                  ButtonSegment(
+                    value: EntryKind.income,
+                    icon: const Icon(Icons.south_west_rounded, size: 18),
+                    label: Text(tr('Доход')),
+                  ),
                   ButtonSegment(
                     value: EntryKind.transfer,
-                    label: Text('Перевод'),
+                    icon: const Icon(Icons.swap_horiz_rounded, size: 18),
+                    label: Text(tr('Перевод')),
                   ),
                 ],
                 emptySelectionAllowed: _needsKindChoice,
@@ -874,51 +910,100 @@ class _EntryEditorState extends State<EntryEditor> {
                   _recurrence = 'none';
                 }),
               ),
-              const SizedBox(height: 28),
-              Text(
-                'СУММА · ${a?.currency ?? 'RUB'}',
-                style: Theme.of(context).textTheme.labelSmall,
-              ),
-              TextFormField(
-                controller: _amount,
-                readOnly: _customPad,
-                showCursor: true,
-                autofocus: false,
-                style: Theme.of(context).textTheme.displayLarge,
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true,
-                ),
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
-                ],
-                decoration: InputDecoration(
-                  hintText: '0',
-                  filled: false,
-                  suffixIcon: IconButton(
-                    tooltip: _customPad
-                        ? 'Системная клавиатура'
-                        : 'Цифровая панель',
-                    onPressed: () {
-                      FocusManager.instance.primaryFocus?.unfocus();
-                      setState(() => _customPad = !_customPad);
-                    },
-                    icon: Icon(
-                      _customPad
-                          ? Icons.keyboard_outlined
-                          : Icons.dialpad_rounded,
-                    ),
+              const SizedBox(height: 18),
+              // 1.28: the amount on a card tinted with the type's color.
+              Container(
+                key: const ValueKey('entry-amount-card'),
+                padding: const EdgeInsets.fromLTRB(18, 14, 8, 4),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      kindColor.withValues(alpha: .16),
+                      kindColor.withValues(alpha: .05),
+                    ],
                   ),
+                  borderRadius: BorderRadius.circular(26),
+                  border: Border.all(color: kindColor.withValues(alpha: .25)),
                 ),
-                validator: (s) {
-                  try {
-                    if (FinanceEngine.parseMinor(s ?? '') <= 0) {
-                      return 'Укажите сумму больше нуля';
-                    }
-                    return null;
-                  } catch (_) {
-                    return 'Введите сумму, не более двух знаков после запятой';
-                  }
-                },
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          tr('СУММА'),
+                          style: Theme.of(context).textTheme.labelSmall
+                              ?.copyWith(color: kindColor, letterSpacing: .8),
+                        ),
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: kindColor.withValues(alpha: .15),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            a?.currency ?? 'RUB',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              color: kindColor,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    TextFormField(
+                      controller: _amount,
+                      readOnly: _customPad,
+                      showCursor: true,
+                      autofocus: false,
+                      style: Theme.of(context).textTheme.displayLarge,
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
+                      ],
+                      decoration: InputDecoration(
+                        hintText: '0',
+                        filled: false,
+                        border: InputBorder.none,
+                        enabledBorder: InputBorder.none,
+                        focusedBorder: InputBorder.none,
+                        suffixIcon: IconButton(
+                          tooltip: _customPad
+                              ? 'Системная клавиатура'
+                              : 'Цифровая панель',
+                          onPressed: () {
+                            FocusManager.instance.primaryFocus?.unfocus();
+                            setState(() => _customPad = !_customPad);
+                          },
+                          icon: Icon(
+                            _customPad
+                                ? Icons.keyboard_outlined
+                                : Icons.dialpad_rounded,
+                          ),
+                        ),
+                      ),
+                      validator: (s) {
+                        try {
+                          if (FinanceEngine.parseMinor(s ?? '') <= 0) {
+                            return 'Укажите сумму больше нуля';
+                          }
+                          return null;
+                        } catch (_) {
+                          return 'Введите сумму, не более двух знаков после запятой';
+                        }
+                      },
+                    ),
+                  ],
+                ),
               ),
               AnimatedSize(
                 duration: const Duration(milliseconds: 220),
@@ -931,12 +1016,20 @@ class _EntryEditorState extends State<EntryEditor> {
                     : const SizedBox.shrink(),
               ),
               const SizedBox(height: 20),
+              _EditorLabel(
+                icon: Icons.account_balance_wallet_outlined,
+                text: _kind == EntryKind.transfer
+                    ? 'Откуда и куда'
+                    : tr('Счёт'),
+              ),
               DropdownButtonFormField<String>(
                 key: ValueKey('source-account-$_account'),
                 initialValue: _account,
                 isExpanded: true,
                 decoration: InputDecoration(
-                  labelText: _kind == EntryKind.transfer ? 'Со счёта' : 'Счёт',
+                  labelText: _kind == EntryKind.transfer
+                      ? 'Со счёта'
+                      : tr('Счёт'),
                 ),
                 items: active
                     .map(
@@ -1107,7 +1200,13 @@ class _EntryEditorState extends State<EntryEditor> {
                       );
                     },
                   ),
-                const SectionTitle('Категория'),
+                const SizedBox(height: 20),
+                _EditorLabel(
+                  icon: Icons.category_outlined,
+                  text: _categoryFromPayee
+                      ? 'Категория · подобрала Финора'
+                      : tr('Категория'),
+                ),
                 if (categories.isEmpty)
                   TextButton(
                     onPressed: () => Navigator.push(
@@ -1125,10 +1224,34 @@ class _EntryEditorState extends State<EntryEditor> {
                       .map(
                         (cat) => ChoiceChip(
                           label: Text(cat.name),
-                          avatar: Icon(
-                            categoryIcon(cat.icon),
-                            size: 17,
-                            color: Color(cat.color),
+                          showCheckmark: false,
+                          shape: StadiumBorder(
+                            side: BorderSide(
+                              color: _category == cat.id
+                                  ? Color(cat.color)
+                                  : scheme.outlineVariant.withValues(
+                                      alpha: .35,
+                                    ),
+                              width: _category == cat.id ? 1.6 : 1,
+                            ),
+                          ),
+                          selectedColor: Color(
+                            cat.color,
+                          ).withValues(alpha: .22),
+                          labelStyle: TextStyle(
+                            fontWeight: _category == cat.id
+                                ? FontWeight.w600
+                                : FontWeight.w400,
+                          ),
+                          avatar: CircleAvatar(
+                            backgroundColor: Color(
+                              cat.color,
+                            ).withValues(alpha: .18),
+                            child: Icon(
+                              categoryIcon(cat.icon),
+                              size: 15,
+                              color: Color(cat.color),
+                            ),
                           ),
                           selected: _category == cat.id,
                           onSelected: (_) => setState(() {
@@ -1160,12 +1283,13 @@ class _EntryEditorState extends State<EntryEditor> {
                   ),
               ],
               const SizedBox(height: 20),
+              _EditorLabel(icon: Icons.notes_rounded, text: tr('Подробности')),
               TextFormField(
                 key: const ValueKey('entry-payee'),
                 controller: _payee,
                 onChanged: _payeeTyped,
                 decoration: InputDecoration(
-                  labelText: 'Получатель / магазин',
+                  labelText: tr('Получатель / магазин'),
                   prefixIcon: _typedService == null
                       ? const Icon(Icons.storefront_outlined)
                       : Padding(
@@ -1223,7 +1347,7 @@ class _EntryEditorState extends State<EntryEditor> {
                           );
                         }
                       },
-                      child: const Text('Изменить'),
+                      child: Text(tr('Изменить')),
                     ),
                   ],
                 ),
@@ -1231,7 +1355,7 @@ class _EntryEditorState extends State<EntryEditor> {
               TextButton.icon(
                 onPressed: () => setState(() => _advanced = !_advanced),
                 icon: Icon(_advanced ? Icons.expand_less : Icons.expand_more),
-                label: const Text('Дополнительные поля'),
+                label: Text(tr('Дополнительные поля')),
               ),
               AnimatedSize(
                 duration: const Duration(milliseconds: 240),
@@ -1242,8 +1366,8 @@ class _EntryEditorState extends State<EntryEditor> {
                           TextFormField(
                             controller: _note,
                             maxLines: 3,
-                            decoration: const InputDecoration(
-                              labelText: 'Комментарий',
+                            decoration: InputDecoration(
+                              labelText: tr('Комментарий'),
                             ),
                           ),
                           const SizedBox(height: 12),
@@ -1398,11 +1522,42 @@ class _EntryEditorState extends State<EntryEditor> {
                         width: 20,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : const Text('Сохранить операцию'),
+                    : Text(tr('Сохранить операцию')),
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// A small section caption in the editor (1.28): an icon and a word.
+class _EditorLabel extends StatelessWidget {
+  const _EditorLabel({required this.icon, required this.text});
+  final IconData icon;
+  final String text;
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(4, 0, 4, 10),
+      child: Row(
+        children: [
+          Icon(icon, size: 17, color: scheme.onSurfaceVariant),
+          const SizedBox(width: 8),
+          Flexible(
+            child: Text(
+              text.toUpperCase(),
+              style: TextStyle(
+                fontSize: 11.5,
+                letterSpacing: .6,
+                fontWeight: FontWeight.w600,
+                color: scheme.onSurfaceVariant,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

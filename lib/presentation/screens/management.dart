@@ -11,6 +11,7 @@ import '../widgets/bank_picker.dart';
 import '../widgets/service_badge.dart';
 import '../../domain/finance_engine.dart';
 import '../controller.dart';
+import '../i18n.dart';
 import '../widgets/common.dart';
 import '../widgets/grouped_list.dart';
 import 'account_import_screen.dart';

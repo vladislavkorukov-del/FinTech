@@ -1,3 +1,4 @@
+import '../i18n.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show listEquals;
 import 'package:intl/intl.dart';
@@ -6,6 +7,8 @@ import '../../domain/finance_engine.dart';
 import '../../domain/models.dart';
 import '../controller.dart';
 import '../widgets/common.dart';
+import '../widgets/grouped_list.dart';
+import '../widgets/money_tips.dart';
 import '../widgets/entry_tile.dart';
 import 'management.dart';
 import 'entry_editor.dart';
@@ -98,9 +101,9 @@ class Dashboard extends StatelessWidget {
           children: [
             Expanded(
               child: _SummaryTile(
-                title: 'Доходы',
-                amount: totals.income,
-                currency: c.currency,
+                title: tr('Доходы'),
+                amount: prefs.toDisplay(totals.income),
+                currency: prefs.shownCurrency,
                 icon: Icons.south_west_rounded,
                 tone: colors.income,
                 onTap: () => operations(EntryKind.income),
@@ -109,9 +112,9 @@ class Dashboard extends StatelessWidget {
             const SizedBox(width: 8),
             Expanded(
               child: _SummaryTile(
-                title: 'Расходы',
-                amount: totals.expense,
-                currency: c.currency,
+                title: tr('Расходы'),
+                amount: prefs.toDisplay(totals.expense),
+                currency: prefs.shownCurrency,
                 icon: Icons.north_east_rounded,
                 tone: colors.expense,
                 onTap: () => operations(EntryKind.expense),
@@ -121,6 +124,8 @@ class Dashboard extends StatelessWidget {
         ),
       ),
       'quick': const FinanceQuickActions(),
+      // 1.28: a money tip from Finora; swipe it away or turn it off.
+      if (prefs.tips) 'tips': const MoneyTipsCard(),
       'accounts': block([
         SectionTitle(
           'Все счета',
@@ -142,9 +147,19 @@ class Dashboard extends StatelessWidget {
           onSave: save((p, ids) => p.copyWith(accountOrder: ids)),
           items: {
             for (final account in accounts)
-              account.id: Padding(
-                padding: const EdgeInsets.only(bottom: 6),
-                child: _AccountRow(account: account),
+              // 1.28: swipe left to delete.
+              account.id: SwipeToDelete(
+                key: ValueKey('swipe-dash-account-${account.id}'),
+                margin: const EdgeInsets.only(bottom: 6),
+                title: 'Удалить счёт «${account.name}»?',
+                message:
+                    'Счёт с операциями удалить нельзя — его можно '
+                    'отправить в архив в редакторе счёта.',
+                onDelete: () => c.deleteAccount(account.id),
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 6),
+                  child: _AccountRow(account: account),
+                ),
               ),
           },
         ),
@@ -173,8 +188,8 @@ class Dashboard extends StatelessWidget {
       ]),
       'overview': block([
         SectionTitle(
-          'Обзор месяца',
-          action: 'Календарь',
+          tr('Обзор месяца'),
+          action: tr('Календарь'),
           onTap: () => _open(context, const CalendarScreen()),
         ),
         _ExpenseOverview(
@@ -190,8 +205,8 @@ class Dashboard extends StatelessWidget {
       ]),
       'goals': block([
         SectionTitle(
-          'Мечты и накопления',
-          action: 'Все',
+          tr('Мечты и накопления'),
+          action: tr('Все'),
           onTap: () => _open(context, const GoalsScreen()),
         ),
         if (goals.isEmpty)
@@ -210,27 +225,36 @@ class Dashboard extends StatelessWidget {
             onSave: save((p, ids) => p.copyWith(goalOrder: ids)),
             items: {
               for (final goal in goals)
-                goal.id: Padding(
-                  padding: const EdgeInsets.only(bottom: 6),
-                  child: _DreamRow(goal: goal),
+                goal.id: SwipeToDelete(
+                  key: ValueKey('swipe-dash-goal-${goal.id}'),
+                  margin: const EdgeInsets.only(bottom: 6),
+                  title: 'Удалить мечту «${goal.name}»?',
+                  message:
+                      'Мечту с пополнениями удалить нельзя — сначала '
+                      'уберите пополнения.',
+                  onDelete: () => c.deleteGoal(goal.id),
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 6),
+                    child: _DreamRow(goal: goal),
+                  ),
                 ),
             },
           ),
       ]),
-      'subscriptions': const _PaymentSection(
+      'subscriptions': _PaymentSection(
         paymentType: 'subscription',
-        title: 'Подписки',
+        title: tr('Подписки'),
         icon: Icons.subscriptions_outlined,
       ),
-      'mandatory': const _PaymentSection(
+      'mandatory': _PaymentSection(
         paymentType: 'mandatory',
-        title: 'Обязательные платежи',
+        title: tr('Обязательные платежи'),
         icon: Icons.receipt_long_outlined,
       ),
       'recent': block([
         SectionTitle(
-          'Последние операции',
-          action: 'Все',
+          tr('Последние операции'),
+          action: tr('Все'),
           onTap: onTransactions,
         ),
         SurfaceCard(
@@ -264,8 +288,8 @@ class Dashboard extends StatelessWidget {
       ]),
       'budgets': block([
         SectionTitle(
-          'Бюджеты',
-          action: 'Все',
+          tr('Бюджеты'),
+          action: tr('Все'),
           onTap: () => _open(context, const BudgetsScreen()),
         ),
         if (c.data.budgets.isEmpty)
@@ -644,7 +668,7 @@ class _PaymentSection extends StatelessWidget {
       children: [
         SectionTitle(
           title,
-          action: 'Все',
+          action: tr('Все'),
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute<void>(
@@ -676,41 +700,60 @@ class _PaymentSection extends StatelessWidget {
                 )
               else
                 for (final r in rules.take(3))
-                  ListTile(
-                    contentPadding: const EdgeInsets.symmetric(vertical: 2),
-                    leading: ServiceBadge(
-                      serviceId: r.serviceId,
-                      customIconPath: r.customIconPath,
-                      name: r.name,
-                    ),
-                    title: Text(
-                      r.name,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    subtitle: Text(
-                      '${DateFormat('d MMM', 'ru').format(r.nextDate)} · ${r.automatic ? 'автозапись' : 'напоминание'}',
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: scheme.onSurfaceVariant,
+                  SwipeToDelete(
+                    key: ValueKey('swipe-dash-rule-${r.id}'),
+                    margin: const EdgeInsets.symmetric(vertical: 2),
+                    title: 'Удалить «${r.name}»?',
+                    message:
+                        'Платёж больше не будет напоминать о себе. '
+                        'Записанные операции останутся.',
+                    onDelete: () => FinanceScope.of(context).mutate(
+                      (d) => d.copyWith(
+                        recurring: d.recurring
+                            .where((x) => x.id != r.id)
+                            .toList(),
                       ),
                     ),
-                    trailing: ConstrainedBox(
-                      constraints: BoxConstraints(
-                        maxWidth: MediaQuery.sizeOf(context).width * .3,
+                    child: ListTile(
+                      contentPadding: const EdgeInsets.symmetric(vertical: 2),
+                      leading: ServiceBadge(
+                        serviceId: r.serviceId,
+                        customIconPath: r.customIconPath,
+                        name: r.name,
                       ),
-                      child: Text(
-                        money(r.amountMinor, r.currency),
+                      title: Text(
+                        r.name,
                         maxLines: 2,
-                        textAlign: TextAlign.end,
-                        style: const TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      subtitle: Text(
+                        '${DateFormat('d MMM', 'ru').format(r.nextDate)} · ${r.kind == EntryKind.expense
+                            ? 'спрошу об оплате'
+                            : r.automatic
+                            ? 'автозапись'
+                            : 'напоминание'}',
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: scheme.onSurfaceVariant,
                         ),
                       ),
+                      trailing: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxWidth: MediaQuery.sizeOf(context).width * .3,
+                        ),
+                        child: Text(
+                          money(r.amountMinor, r.currency),
+                          maxLines: 2,
+                          textAlign: TextAlign.end,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                      onTap: () => showRecurringEditor(context, rule: r),
                     ),
-                    onTap: () => showRecurringEditor(context, rule: r),
                   ),
               if (rules.isNotEmpty)
                 TextButton.icon(
@@ -867,10 +910,7 @@ class _ExpenseOverview extends StatelessWidget {
                         ),
                       ),
               ),
-              TextButton(
-                onPressed: onAnalytics,
-                child: const Text('Аналитика'),
-              ),
+              TextButton(onPressed: onAnalytics, child: Text(tr('Аналитика'))),
             ],
           ),
         ],
