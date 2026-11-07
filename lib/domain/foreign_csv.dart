@@ -104,8 +104,17 @@ class ForeignRow {
 }
 
 class ForeignParse {
-  ForeignParse(this.rows, this.skipped, {required this.signed});
+  ForeignParse(
+    this.rows,
+    this.skipped, {
+    required this.signed,
+    this.merged = 0,
+  });
   final List<ForeignRow> rows;
+
+  /// 1.36: transfers between the person's own accounts found among
+  /// expenses and incomes (pairs merged, single ones turned into transfers).
+  final int merged;
 
   /// Why lines were left out → how many.
   final Map<String, int> skipped;
@@ -495,6 +504,7 @@ abstract final class ForeignCsv {
     ForeignTable table,
     List<CsvRole> roles, {
     EntryKind unsignedAs = EntryKind.expense,
+    Iterable<String> accountNames = const [],
   }) {
     int col(CsvRole r) => roles.indexOf(r);
     final iDate = col(CsvRole.date), iTime = col(CsvRole.time);
@@ -666,7 +676,139 @@ abstract final class ForeignCsv {
         ),
       );
     }
-    return ForeignParse(out, skipped, signed: signed);
+    final own = ownTransfers(out, {
+      ...accountNames,
+      for (final r in out) r.account,
+    });
+    return ForeignParse(own.$1, skipped, signed: signed, merged: own.$2);
+  }
+
+  static final _selfText = RegExp(
+    r'между (своими|собственными|моими) сч|между сч|своих сч|свой сч|своего сч|'
+    r'на свою карту|со своей карты|собственн(ый|ого) сч|перевод себе|'
+    r'на накопител|с накопител|копилк|вклад|own account|between (own |my )?accounts|'
+    r'to my account|transfer to self|self.?transfer',
+  );
+
+  static String _low(String s) => s.toLowerCase().replaceAll('ё', 'е').trim();
+
+  /// 1.36: money moved between one's own accounts is not spending or
+  /// income. An expense and an income of the same sum on two accounts within
+  /// a day (marked as such, or named by the other account) become one
+  /// transfer; a single line «между своими счетами» or naming one of the
+  /// accounts becomes a transfer to / from that account (or «Свой счёт»).
+  static (List<ForeignRow>, int) ownTransfers(
+    List<ForeignRow> rows,
+    Set<String> accounts,
+  ) {
+    final names = {
+      for (final a in accounts)
+        if (a.trim().length >= 3) _low(a): a,
+    };
+    String text(ForeignRow r) => _low('${r.payee} ${r.category} ${r.note}');
+    String? named(ForeignRow r) {
+      // The payee or category is exactly an account's name; a note may
+      // mention a longer one («Перевод на Сбер Вклад»).
+      final fields = [_low(r.payee), _low(r.category)];
+      final note = _low(r.note);
+      for (final e in names.entries) {
+        if (e.key == _low(r.account)) continue;
+        if (fields.contains(e.key) ||
+            e.key.length >= 5 && note.contains(e.key)) {
+          return e.value;
+        }
+      }
+      return null;
+    }
+
+    bool self(ForeignRow r) => _selfText.hasMatch(text(r));
+    final used = <int>{};
+    final out = <ForeignRow>[];
+    var merged = 0;
+    ForeignRow transfer(ForeignRow from, String to, {int? toSum}) => ForeignRow(
+      line: from.line,
+      date: from.date,
+      kind: EntryKind.transfer,
+      amountMinor: from.amountMinor,
+      toAmountMinor: toSum ?? from.amountMinor,
+      account: from.account,
+      toAccount: to,
+      currency: from.currency,
+      payee: from.payee,
+      note: from.note.isEmpty ? from.category : from.note,
+      tags: from.tags,
+    );
+    for (var i = 0; i < rows.length; i++) {
+      if (used.contains(i)) continue;
+      final r = rows[i];
+      if (r.kind == EntryKind.transfer) {
+        out.add(r);
+        continue;
+      }
+      // A pair: the other half on another account, same sum, ±1 day.
+      if (r.account.isNotEmpty) {
+        int? pair;
+        for (var j = 0; j < rows.length; j++) {
+          if (j == i || used.contains(j)) continue;
+          final o = rows[j];
+          if (o.kind == EntryKind.transfer ||
+              o.kind == r.kind ||
+              o.amountMinor != r.amountMinor ||
+              o.account.isEmpty ||
+              _low(o.account) == _low(r.account) ||
+              o.date.difference(r.date).inHours.abs() > 36) {
+            continue;
+          }
+          final marked =
+              self(r) ||
+              self(o) ||
+              named(r) == o.account ||
+              named(o) == r.account ||
+              o.date == r.date && r.date.hour != 12;
+          if (marked) {
+            pair = j;
+            break;
+          }
+        }
+        if (pair != null) {
+          final o = rows[pair];
+          final (from, to) = r.kind == EntryKind.expense ? (r, o) : (o, r);
+          used
+            ..add(i)
+            ..add(pair);
+          out.add(transfer(from, to.account));
+          merged++;
+          continue;
+        }
+      }
+      final target = named(r);
+      if (target != null || self(r)) {
+        final other = target ?? 'Свой счёт';
+        if (_low(other) != _low(r.account)) {
+          out.add(
+            r.kind == EntryKind.expense
+                ? transfer(r, other)
+                : ForeignRow(
+                    line: r.line,
+                    date: r.date,
+                    kind: EntryKind.transfer,
+                    amountMinor: r.amountMinor,
+                    account: other,
+                    toAccount: r.account,
+                    currency: r.currency,
+                    payee: r.payee,
+                    note: r.note.isEmpty ? r.category : r.note,
+                    tags: r.tags,
+                  ),
+          );
+          merged++;
+          continue;
+        }
+      }
+      out.add(r);
+    }
+    out.sort((a, b) => a.line.compareTo(b.line));
+    return (out, merged);
   }
 
   static EntryKind? _kindOf(String t) {

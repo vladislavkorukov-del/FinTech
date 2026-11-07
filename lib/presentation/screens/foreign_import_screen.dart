@@ -34,17 +34,33 @@ class _ForeignImportScreenState extends State<ForeignImportScreen> {
   final accountMap = <String, String?>{};
   String? defaultAccountId;
   late ForeignParse parse;
-  bool _mapped = false, _busy = false, _showColumns = false;
+  List<String> _accountNames = const [];
+  bool _mapped = false, _busy = false, _showColumns = false, _counted = false;
 
   @override
   void initState() {
     super.initState();
     _showColumns = !roles.contains(CsvRole.date);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_counted) return;
+    _counted = true;
+    _accountNames = [
+      for (final a in FinanceScope.of(context).data.accounts) a.name,
+    ];
     _recount();
   }
 
   void _recount() {
-    parse = ForeignCsv.rows(table, roles, unsignedAs: unsignedAs);
+    parse = ForeignCsv.rows(
+      table,
+      roles,
+      unsignedAs: unsignedAs,
+      accountNames: _accountNames,
+    );
   }
 
   /// File account names to existing accounts with the same name.
@@ -160,6 +176,12 @@ class _ForeignImportScreenState extends State<ForeignImportScreen> {
                     'переводов: ${parse.count(EntryKind.transfer)}',
                     key: const ValueKey('foreign-counts'),
                   ),
+                  if (parse.merged > 0)
+                    Text(
+                      'Переводов между своими счетами найдено: '
+                      '${parse.merged} — они не попадут в расходы и доходы',
+                      key: const ValueKey('foreign-merged'),
+                    ),
                   for (final s in parse.skipped.entries)
                     Text(
                       'Пропущено — ${s.key.toLowerCase()}: ${s.value}',
