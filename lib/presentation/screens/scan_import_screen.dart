@@ -4,6 +4,7 @@ import '../../domain/finance_engine.dart';
 import '../../domain/scan_document.dart';
 import '../../domain/scan_import.dart';
 import '../controller.dart';
+import '../widgets/amount_format.dart';
 import '../widgets/common.dart';
 import '../widgets/service_badge.dart';
 
@@ -534,6 +535,7 @@ class _ScannedOperationEditorState extends State<_ScannedOperationEditor> {
                 keyboardType: const TextInputType.numberWithOptions(
                   decimal: true,
                 ),
+                inputFormatters: const [AmountGroupingFormatter()],
                 decoration: const InputDecoration(labelText: 'Сумма'),
                 validator: (value) {
                   try {
@@ -672,6 +674,7 @@ class _ScannedOperationEditorState extends State<_ScannedOperationEditor> {
                     keyboardType: const TextInputType.numberWithOptions(
                       decimal: true,
                     ),
+                    inputFormatters: const [AmountGroupingFormatter()],
                     decoration: InputDecoration(
                       labelText: 'Будет зачислено, ${to.currency}',
                     ),

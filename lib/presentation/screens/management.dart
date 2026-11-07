@@ -12,6 +12,7 @@ import '../widgets/service_badge.dart';
 import '../../domain/finance_engine.dart';
 import '../controller.dart';
 import '../i18n.dart';
+import '../widgets/amount_format.dart';
 import '../widgets/common.dart';
 import '../widgets/grouped_list.dart';
 import 'account_import_screen.dart';
@@ -46,8 +47,9 @@ TextEditingController _text([String value = '']) =>
     TextEditingController(text: value);
 String _date(DateTime date, FinanceController c) =>
     DateFormat(c.data.preferences.dateFormat, 'ru').format(date.toLocal());
-String _amount(int value) =>
-    '${value < 0 ? '-' : ''}${value.abs() ~/ 100}.${(value.abs() % 100).toString().padLeft(2, '0')}';
+String _amount(int value) => groupAmount(
+  '${value < 0 ? '-' : ''}${value.abs() ~/ 100}.${(value.abs() % 100).toString().padLeft(2, '0')}',
+);
 Widget _field(
   TextEditingController controller,
   String label, {
@@ -67,6 +69,7 @@ Widget _field(
     keyboardType: amount
         ? const TextInputType.numberWithOptions(decimal: true, signed: true)
         : TextInputType.text,
+    inputFormatters: amount ? const [AmountGroupingFormatter()] : null,
     validator: (v) => v == null || v.trim().isEmpty ? 'Заполните поле' : null,
   ),
 );

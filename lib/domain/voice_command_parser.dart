@@ -230,11 +230,13 @@ abstract final class VoiceCommandParser {
     int weekStart,
   ) {
     // 1.26: «Финора, покажи расходы» — the name is a greeting, not a word.
-    final t = _norm(heard).replaceFirst(
-      RegExp(
-        r'^(?:эй |слушай |привет |ну )?(?:финора|финор|finora|фигура|фигуры) ?',
+    final t = ordinalDays(
+      _norm(heard).replaceFirst(
+        RegExp(
+          r'^(?:эй |слушай |привет |ну )?(?:финора|финор|finora|фигура|фигуры) ?',
+        ),
+        '',
       ),
-      '',
     );
     if (t.isEmpty) return null;
     if (!_amount(t) &&
@@ -667,8 +669,47 @@ abstract final class VoiceCommandParser {
   }
 
   /// «10 числа», «10-го числа», «каждое 25-е число», «числа 5».
+  static const _ordinals = [
+    'перв', 'втор', 'трет', 'четверт', 'пят', 'шест', 'седьм', 'восьм', //
+    'девят', 'десят', 'одиннадцат', 'двенадцат', 'тринадцат', //
+    'четырнадцат', 'пятнадцат', 'шестнадцат', 'семнадцат', 'восемнадцат',
+    'девятнадцат', 'двадцат',
+  ];
+
+  /// 1.36: «пятнадцатого числа», «двадцать пятое число», «до 15 числа»
+  /// → «15 числа» (Google often writes the day in words).
+  static String ordinalDays(String t) {
+    final stems = _ordinals.join('|');
+    var out = t.replaceAllMapped(
+      RegExp(
+        '(?:^| )(?:(двадцать|тридцать) )?($stems|тридцат)'
+        r'(?:ого|ое|ье|ьего|ий|ый|ой|ему|ьему)? (числа|число|числу)',
+      ),
+      (m) {
+        final tens = switch (m[1]) {
+          'двадцать' => 20,
+          'тридцать' => 30,
+          _ => 0,
+        };
+        final stem = m[2]!;
+        final unit = stem == 'тридцат' ? 30 : _ordinals.indexOf(stem) + 1;
+        final day = tens + (tens > 0 && unit >= 10 ? 0 : unit);
+        if (day < 1 || day > 31) return m[0]!;
+        return '${m[0]!.startsWith(' ') ? ' ' : ''}$day числа';
+      },
+    );
+    // «до 15 числа», «к 15 числу».
+    out = out.replaceAll(
+      RegExp(r'(?:^| )(?:до|к|на) (?=\d{1,2} (?:числа|число|числу))'),
+      ' ',
+    );
+    return out
+        .replaceAllMapped(RegExp(r'(\d{1,2}) числу'), (m) => '${m[1]} числа')
+        .trim();
+  }
+
   static final _dayOfMonth = RegExp(
-    r'(?:каждое |кажд\S* )?(\d{1,2}) ?(?:го |е |ое )?(?:числа|число)',
+    r'(?:каждое |кажд\S* )?(\d{1,2}) ?(?:го |е |ое |ого |ый |ой )?(?:числа|число)',
   );
 
   /// Required payments named by what they are, in the nominative.
@@ -812,6 +853,12 @@ abstract final class VoiceCommandParser {
           'каждую',
           'числа',
           'число',
+          'сумма',
+          'суммой',
+          'сумму',
+          'размере',
+          'размер',
+          'рублей',
         });
     // «по кредиту» → «Кредит», «ипотеку» → «Ипотека».
     if (service == null && kind == EntryKind.expense) {

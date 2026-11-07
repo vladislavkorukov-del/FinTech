@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../../domain/models.dart';
 import '../../domain/finance_engine.dart';
 import '../controller.dart';
+import '../widgets/amount_format.dart';
 import '../widgets/common.dart';
 import '../widgets/entry_tile.dart';
 import 'entry_editor.dart';
@@ -213,6 +214,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                           keyboardType: const TextInputType.numberWithOptions(
                             decimal: true,
                           ),
+                          inputFormatters: const [AmountGroupingFormatter()],
                           decoration: const InputDecoration(
                             labelText: 'От суммы',
                           ),
@@ -225,6 +227,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                           keyboardType: const TextInputType.numberWithOptions(
                             decimal: true,
                           ),
+                          inputFormatters: const [AmountGroupingFormatter()],
                           decoration: const InputDecoration(
                             labelText: 'До суммы',
                           ),
@@ -310,7 +313,12 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                 c.destinationName(e),
               ].join(' ').toLowerCase().contains(query));
     }).toList()..sort((a, b) => b.date.compareTo(a.date));
+    // 1.36: the list is never squeezed by the keyboard (on some phones its
+    // height stayed after it closed and cut the list in half); it scrolls
+    // under it instead, with room at the end while it is open.
+    final keyboard = MediaQuery.viewInsetsOf(context).bottom;
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: Text(
           widget.goalId != null
@@ -397,7 +405,10 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                     ),
                   )
                 : ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    key: const ValueKey('transactions-list'),
+                    keyboardDismissBehavior:
+                        ScrollViewKeyboardDismissBehavior.onDrag,
+                    padding: EdgeInsets.fromLTRB(20, 0, 20, 24 + keyboard),
                     itemCount: entries.length,
                     itemBuilder: (ctx, i) {
                       final e = entries[i];

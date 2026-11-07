@@ -24,6 +24,7 @@ import '../../services/receipt_ocr_service.dart';
 import '../controller.dart';
 import '../finora_reactions.dart';
 import '../haptics.dart';
+import '../widgets/amount_format.dart';
 import '../widgets/common.dart';
 import '../widgets/amount_pad.dart';
 import '../widgets/service_badge.dart';
@@ -132,12 +133,12 @@ class _EntryEditorState extends State<EntryEditor> {
     final e = widget.entry;
     _kind = e?.kind ?? widget.kind;
     _amount = TextEditingController(
-      text: e == null ? '' : decimalMinor(e.amountMinor),
+      text: e == null ? '' : groupAmount(decimalMinor(e.amountMinor)),
     );
     _destination = TextEditingController(
       text: e?.destinationMinor == null
           ? ''
-          : decimalMinor(e!.destinationMinor!),
+          : groupAmount(decimalMinor(e!.destinationMinor!)),
     );
     _payee = TextEditingController(text: e?.payee ?? '');
     _note = TextEditingController(text: e?.note ?? '');
@@ -324,7 +325,7 @@ class _EntryEditorState extends State<EntryEditor> {
         }
         _amount.text = draft.amountMinor == null
             ? ''
-            : decimalMinor(draft.amountMinor!);
+            : groupAmount(decimalMinor(draft.amountMinor!));
         _payee.text = draft.payee ?? '';
         _category = draft.categoryId;
         _subcategory = null;
@@ -625,7 +626,9 @@ class _EntryEditorState extends State<EntryEditor> {
     setState(() {
       _heard = d.heard;
       _kind = d.kind;
-      if (d.amountMinor != null) _amount.text = decimalMinor(d.amountMinor!);
+      if (d.amountMinor != null) {
+        _amount.text = groupAmount(decimalMinor(d.amountMinor!));
+      }
       if (d.payee.isNotEmpty) _payee.text = d.payee;
       _serviceId = d.serviceId;
       _category = d.categoryId;
@@ -968,7 +971,10 @@ class _EntryEditorState extends State<EntryEditor> {
                         decimal: true,
                       ),
                       inputFormatters: [
-                        FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
+                        FilteringTextInputFormatter.allow(
+                          RegExp('[0-9., \u00A0\u202F]'),
+                        ),
+                        const AmountGroupingFormatter(),
                       ],
                       decoration: InputDecoration(
                         hintText: '0',
@@ -1153,6 +1159,7 @@ class _EntryEditorState extends State<EntryEditor> {
                     keyboardType: const TextInputType.numberWithOptions(
                       decimal: true,
                     ),
+                    inputFormatters: const [AmountGroupingFormatter()],
                     decoration: InputDecoration(
                       labelText: 'Сумма зачисления · $targetCurrency',
                     ),

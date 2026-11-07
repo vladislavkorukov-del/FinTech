@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'amount_format.dart';
+
 /// Compact, accessible amount entry; text is kept decimal until domain parsing.
 class AmountPad extends StatelessWidget {
   const AmountPad({super.key, required this.controller});
   final TextEditingController controller;
   void _input(String key) {
-    var value = controller.text;
+    var value = controller.text.replaceAll(RegExp('[ \u00A0\u202F]'), '');
     if (key == '⌫') {
       value = value.isEmpty ? '' : value.substring(0, value.length - 1);
     } else if (key == ',') {
@@ -22,9 +24,10 @@ class AmountPad extends StatelessWidget {
       value = value == '0' ? key : candidate;
     }
     HapticFeedback.selectionClick();
+    final shown = groupAmount(value);
     controller.value = TextEditingValue(
-      text: value,
-      selection: TextSelection.collapsed(offset: value.length),
+      text: shown,
+      selection: TextSelection.collapsed(offset: shown.length),
     );
   }
 

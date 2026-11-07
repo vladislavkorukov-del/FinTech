@@ -132,6 +132,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
       ),
     );
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: const Text('Аналитика'),
         actions: [

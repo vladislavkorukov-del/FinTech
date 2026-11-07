@@ -172,7 +172,7 @@ void main() {
       () => find.byKey(const ValueKey('voice-heard')).evaluate().isNotEmpty,
     );
     await tester.pumpAndSettle();
-    expect(field('90000.00'), findsOneWidget);
+    expect(field('90\u202F000.00'), findsOneWidget);
     expect(find.text('Зарплата'), findsWidgets);
     expect(tester.takeException(), isNull);
   });
