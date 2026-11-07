@@ -7,6 +7,7 @@
     <!-- 1.31: Finora's own silent ear; only while the app is on screen,
          asked for on first use. -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.VIBRATE" />
     <application
         android:name="${applicationName}"
         android:label="Finora"

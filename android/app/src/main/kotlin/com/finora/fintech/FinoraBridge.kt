@@ -68,6 +68,15 @@ class FinoraBridge(
                     result.success(true)
                 }
                 "ping" -> result.success(true)
+                "vibrate" -> {
+                    // 1.34: a firm tick straight from the motor, not the
+                    // system's faint «touch feedback».
+                    vibrate(
+                        (call.argument<Int>("ms") ?: 20).toLong(),
+                        call.argument<Int>("amplitude") ?: 160,
+                    )
+                    result.success(true)
+                }
                 "assistantSettings" -> {
                     // «Помощник по умолчанию» in Android settings.
                     val opened = listOf(
@@ -114,6 +123,30 @@ class FinoraBridge(
                 override fun notImplemented() {}
             },
         )
+    }
+
+    private fun vibrate(ms: Long, amplitude: Int) {
+        try {
+            val vibrator = if (Build.VERSION.SDK_INT >= 31) {
+                activity.getSystemService(android.os.VibratorManager::class.java)?.defaultVibrator
+            } else {
+                @Suppress("DEPRECATION")
+                activity.getSystemService(Context.VIBRATOR_SERVICE) as? android.os.Vibrator
+            } ?: return
+            if (!vibrator.hasVibrator()) return
+            if (Build.VERSION.SDK_INT >= 26) {
+                val strength = if (vibrator.hasAmplitudeControl()) {
+                    amplitude.coerceIn(1, 255)
+                } else {
+                    android.os.VibrationEffect.DEFAULT_AMPLITUDE
+                }
+                vibrator.vibrate(android.os.VibrationEffect.createOneShot(ms, strength))
+            } else {
+                @Suppress("DEPRECATION")
+                vibrator.vibrate(ms)
+            }
+        } catch (_: Exception) {
+        }
     }
 
     // ── Widgets ────────────────────────────────────────────────────────────

@@ -725,6 +725,8 @@ class _PaymentSection extends StatelessWidget {
                         serviceId: r.serviceId,
                         customIconPath: r.customIconPath,
                         name: r.name,
+                        icon: r.icon,
+                        iconColor: r.color,
                       ),
                       title: Text(
                         r.name,

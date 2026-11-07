@@ -455,6 +455,11 @@ class RecurringRule {
   final String? categoryId;
   final String? serviceId;
   final String? customIconPath;
+
+  /// 1.34: an icon from the app's standard set ([categoryIcon] index) and
+  /// its color, instead of a service logo or an own picture.
+  final int? icon;
+  final int? color;
   final EntryKind kind;
   final int amountMinor;
   final int interval;
@@ -479,6 +484,8 @@ class RecurringRule {
     this.categoryId,
     this.serviceId,
     this.customIconPath,
+    this.icon,
+    this.color,
     this.kind = EntryKind.expense,
     required this.amountMinor,
     this.interval = 1,
@@ -502,6 +509,8 @@ class RecurringRule {
     Object? categoryId = _absent,
     Object? serviceId = _absent,
     Object? customIconPath = _absent,
+    Object? icon = _absent,
+    Object? color = _absent,
     EntryKind? kind,
     int? amountMinor,
     int? interval,
@@ -523,6 +532,8 @@ class RecurringRule {
     serviceId: identical(serviceId, _absent)
         ? this.serviceId
         : serviceId as String?,
+    icon: identical(icon, _absent) ? this.icon : icon as int?,
+    color: identical(color, _absent) ? this.color : color as int?,
     name: name ?? this.name,
     accountId: accountId ?? this.accountId,
     currency: currency ?? this.currency,
@@ -552,6 +563,8 @@ class RecurringRule {
     'categoryId': categoryId,
     'serviceId': serviceId,
     'customIconPath': customIconPath,
+    'icon': icon,
+    'color': color,
     'kind': kind.name,
     'amountMinor': amountMinor,
     'interval': interval,
@@ -589,6 +602,8 @@ class RecurringRule {
     categoryId: json['categoryId'] as String?,
     serviceId: json['serviceId'] as String?,
     customIconPath: json['customIconPath'] as String?,
+    icon: (json['icon'] as num?)?.toInt(),
+    color: (json['color'] as num?)?.toInt(),
     kind: EntryKind.values.byName(
       json['kind'] as String? ?? EntryKind.expense.name,
     ),

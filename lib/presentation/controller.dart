@@ -234,6 +234,8 @@ class FinanceController extends ChangeNotifier {
   Future<void> loadDemo() => _replace(repository.loadDemo);
   Future<void> importJson(String content) =>
       _replace(() => repository.importJson(content));
+  Future<void> importCsv(String content) =>
+      _replace(() => repository.importCsv(content));
   Future<void> restore(String path) =>
       _replace(() => repository.restoreDatabase(path));
 

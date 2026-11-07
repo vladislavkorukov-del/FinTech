@@ -126,6 +126,8 @@ class _PaymentDialog extends StatelessWidget {
                     serviceId: rule.serviceId,
                     customIconPath: rule.customIconPath,
                     name: rule.name,
+                    icon: rule.icon,
+                    iconColor: rule.color,
                     size: 42,
                   ),
                   const SizedBox(width: 12),

@@ -79,7 +79,7 @@ void main() {
           path,
           options: OpenDatabaseOptions(readOnly: true, singleInstance: false),
         );
-        expect(await reader.getVersion(), 3);
+        expect(await reader.getVersion(), FinanceRepository.schemaVersion);
         final preferences =
             jsonDecode(
                   (await reader.query(
@@ -334,7 +334,7 @@ void main() {
           legacyPath,
           options: OpenDatabaseOptions(readOnly: true, singleInstance: false),
         );
-        expect(await reader.getVersion(), 3);
+        expect(await reader.getVersion(), FinanceRepository.schemaVersion);
         expect(await reader.rawQuery('PRAGMA foreign_key_check'), isEmpty);
         await reader.close();
       } finally {
@@ -363,7 +363,7 @@ void main() {
       expect((await repository.load()).toJson(), expected.toJson());
       final newArchive =
           jsonDecode(await repository.exportJson()) as Map<String, dynamic>;
-      expect(newArchive['schemaVersion'], 3);
+      expect(newArchive['schemaVersion'], 4);
       await repository.importJson(jsonEncode(newArchive));
       expect((await repository.load()).toJson(), expected.toJson());
       final newSnapshot = p.join(directory.path, 'migrated-snapshot.db');
@@ -1093,7 +1093,9 @@ Future<FinanceData> _createLegacyV1(
           ..remove('reminderEnabled')
           ..remove('reminderDaysBefore')
           ..remove('reminderHour')
-          ..remove('reminderMinute'),
+          ..remove('reminderMinute')
+          ..remove('icon')
+          ..remove('color'),
       );
       if (version == 2) {
         row['paymentType'] = r.paymentType;

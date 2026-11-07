@@ -112,7 +112,7 @@ class _BootstrapState extends State<Bootstrap> {
           child: Padding(
             padding: const EdgeInsets.all(28),
             child: _error == null
-                ? const _HelloFinora()
+                ? const HelloFinora()
                 : Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -883,48 +883,64 @@ class _SecurityGateState extends State<SecurityGate>
 /// The loading screen (1.29): Finora stands exactly where she was on the
 /// system splash and comes alive — hops for joy, beams, sparkles, waves
 /// rings — while the data opens.
-class _HelloFinora extends StatelessWidget {
-  const _HelloFinora();
+class HelloFinora extends StatelessWidget {
+  const HelloFinora({super.key});
+  static const _size = 146.0;
   @override
-  Widget build(BuildContext context) => const Stack(
-    key: ValueKey('loading-finora'),
-    alignment: Alignment.center,
-    children: [
-      // The splash draws her 146 dp wide in the middle of the screen.
-      FinoraCharacter(
-        size: 146,
-        moods: [
-          FinoraMood.delight,
-          FinoraMood.happy,
-          FinoraMood.greeting,
-          FinoraMood.delight,
-        ],
-        step: Duration(milliseconds: 650),
-        loop: true,
-      ),
-      Positioned.fill(
-        child: Align(
-          alignment: Alignment(0, .42),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Привет! Я Финора',
-                style: TextStyle(
-                  fontSize: 21,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                ),
+  Widget build(BuildContext context) => LayoutBuilder(
+    // 1.34: the whole screen, not the orb's own box — the words sit below
+    // her and never cover her face.
+    builder: (context, box) {
+      final h = box.maxHeight.isFinite ? box.maxHeight : 640.0;
+      return SizedBox(
+        key: const ValueKey('loading-finora'),
+        width: box.maxWidth.isFinite ? box.maxWidth : 360,
+        height: h,
+        child: Stack(
+          children: [
+            // The splash draws her 146 dp wide in the middle of the screen.
+            const Center(
+              child: FinoraCharacter(
+                size: _size,
+                moods: [
+                  FinoraMood.delight,
+                  FinoraMood.happy,
+                  FinoraMood.greeting,
+                  FinoraMood.delight,
+                ],
+                step: Duration(milliseconds: 650),
+                loop: true,
               ),
-              SizedBox(height: 6),
-              Text(
-                'Открываю ваши финансы…',
-                style: TextStyle(color: Color(0x99DFFFF8)),
+            ),
+            Positioned(
+              left: 0,
+              right: 0,
+              top: h / 2 + _size / 2 + 44,
+              child: const Column(
+                key: ValueKey('loading-finora-text'),
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Привет! Я Финора',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 21,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
+                  SizedBox(height: 6),
+                  Text(
+                    'Открываю ваши финансы…',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Color(0x99DFFFF8)),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
-      ),
-    ],
+      );
+    },
   );
 }

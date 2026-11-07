@@ -34,9 +34,16 @@ class ServiceBadge extends StatefulWidget {
     this.customIconPath,
     this.name,
     this.size = 44,
+    this.icon,
+    this.iconColor,
   });
   final String? serviceId, customIconPath, name;
   final double size;
+
+  /// 1.34: a standard app icon ([categoryIcon] index) chosen for a payment;
+  /// wins over a logo guessed from the name.
+  final int? icon;
+  final int? iconColor;
 
   @override
   State<ServiceBadge> createState() => _ServiceBadgeState();
@@ -69,6 +76,14 @@ class _ServiceBadgeState extends State<ServiceBadge> {
     final uploaded =
         (customIconPath?.isNotEmpty ?? false) &&
         customIconPath != _failedCustomPath;
+    if (!uploaded && widget.icon != null) {
+      return CategoryBadge(
+        key: const ValueKey('service-badge-icon'),
+        icon: categoryIcon(widget.icon!),
+        color: widget.iconColor == null ? null : Color(widget.iconColor!),
+        size: size,
+      );
+    }
     final asset = service?.renderAssetPath;
     // Banks without a bundled original mark get a neutral, unbranded glyph.
     final fallback = Icon(

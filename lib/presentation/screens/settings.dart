@@ -177,22 +177,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final c = FinanceScope.of(context);
     final dir = await getTemporaryDirectory();
     final stamp = DateTime.now().toIso8601String().replaceAll(':', '-');
-    final path = '${dir.path}/finora-$stamp.$type';
+    // 1.34: «base» is the whole base as a CSV table.
+    final ext = type == 'base' ? 'csv' : type;
+    final name = type == 'base' ? 'finora-base' : 'finora';
+    final path = '${dir.path}/$name-$stamp.$ext';
     if (type == 'db') {
       await c.repository.backupDatabase(path);
     } else {
-      final content = type == 'csv'
-          ? await c.repository.exportCsv()
-          : await c.repository.exportJson();
+      final content = switch (type) {
+        'csv' => await c.repository.exportCsv(),
+        'base' => await c.repository.exportFullCsv(),
+        _ => await c.repository.exportJson(),
+      };
       await File(path).writeAsString(content, flush: true);
     }
     await SharePlus.instance.share(
       ShareParams(
         files: [XFile(path)],
         subject: 'Резервная копия Finora',
-        text: type == 'csv'
-            ? 'Операции Finora'
-            : 'Резервная копия Finora. Храните файл в безопасном месте.',
+        text: switch (type) {
+          'csv' => 'Операции Finora',
+          'base' => 'Вся база Finora в CSV. Храните файл в безопасном месте.',
+          _ => 'Резервная копия Finora. Храните файл в безопасном месте.',
+        },
       ),
     );
   }
@@ -200,7 +207,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> _import(String type) async {
     final pick = await FilePicker.platform.pickFiles(
       type: FileType.custom,
-      allowedExtensions: [type],
+      allowedExtensions: [type == 'base' ? 'csv' : type],
       withData: false,
     );
     if (pick == null || pick.files.isEmpty) {
@@ -231,6 +238,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
       }
       final bytes = await File(path).readAsBytes();
       await c.importJson(utf8.decode(bytes));
+    } else if (type == 'base') {
+      final path = file.path;
+      if (path == null) {
+        throw const FormatException('Не удалось получить доступ к файлу.');
+      }
+      final bytes = await File(path).readAsBytes();
+      await c.importCsv(utf8.decode(bytes, allowMalformed: false));
     } else {
       final path = file.path;
       if (path == null) {
@@ -249,7 +263,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-  static const version = '1.33.0';
+  static const version = '1.34.0';
 
   /// One settings page: a section of the root list.
   Widget _page(String title, List<Widget> children) => Scaffold(
@@ -574,6 +588,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 onTap: () => _run(() => _export('json')),
               ),
               GroupedRow(
+                key: const ValueKey('backup-base-csv'),
+                icon: Icons.grid_on_rounded,
+                color: TileColors.teal,
+                title: 'Вся база (CSV)',
+                subtitle:
+                    'Счета, операции, платежи, цели, настройки — '
+                    'одной таблицей',
+                onTap: () => _run(() => _export('base')),
+              ),
+              GroupedRow(
                 icon: Icons.table_chart_rounded,
                 color: TileColors.green,
                 title: 'Таблица операций',
@@ -599,6 +623,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 title: 'Из полной копии',
                 subtitle: 'Файл JSON',
                 onTap: () => _run(() => _import('json')),
+              ),
+              GroupedRow(
+                key: const ValueKey('restore-base-csv'),
+                icon: Icons.grid_on_rounded,
+                color: TileColors.teal,
+                title: 'Из таблицы CSV',
+                subtitle: 'Файл «Вся база (CSV)»',
+                onTap: () => _run(() => _import('base')),
               ),
               GroupedRow(
                 icon: Icons.restore_rounded,

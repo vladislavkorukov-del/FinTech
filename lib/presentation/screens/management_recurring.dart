@@ -233,12 +233,17 @@ class _RecurringScreenState extends State<RecurringScreen> {
         children: [
           Row(
             children: [
-              if (r.paymentType == 'subscription' &&
-                  r.kind == EntryKind.expense)
+              if (r.kind == EntryKind.expense &&
+                  (r.paymentType == 'subscription' ||
+                      r.icon != null ||
+                      r.serviceId != null ||
+                      r.customIconPath != null))
                 ServiceBadge(
                   serviceId: r.serviceId,
                   customIconPath: r.customIconPath,
                   name: r.name,
+                  icon: r.icon,
+                  iconColor: r.color,
                 )
               else
                 CategoryBadge(
@@ -316,6 +321,9 @@ Future<void> showRecurringEditor(
   final interval = _text('${rule?.interval ?? 1}');
   var serviceId = rule?.serviceId;
   var customIconPath = rule?.customIconPath;
+  // 1.34: or an icon from the app's standard set.
+  var icon = rule?.icon;
+  var iconColor = rule?.color;
   var reminderEnabled = rule?.reminderEnabled ?? false;
   var reminderDaysBefore = rule?.reminderDaysBefore ?? 1;
   var reminderTime = TimeOfDay(
@@ -364,12 +372,16 @@ Future<void> showRecurringEditor(
                   serviceId: serviceId,
                   customIconPath: customIconPath,
                   name: name.text,
+                  icon: icon,
+                  iconColor: iconColor,
                 ),
                 title: Text(
-                  ServiceCatalog.byId(serviceId)?.name ??
-                      (customIconPath != null
-                          ? 'Своя иконка'
-                          : 'Выбрать сервис'),
+                  customIconPath != null
+                      ? 'Своя иконка'
+                      : icon != null
+                      ? 'Иконка из набора'
+                      : ServiceCatalog.byId(serviceId)?.name ??
+                            'Выбрать сервис',
                 ),
                 trailing: const Icon(Icons.chevron_right_rounded),
                 onTap: () async {
@@ -378,6 +390,8 @@ Future<void> showRecurringEditor(
                     set(() {
                       serviceId = choice.serviceId;
                       customIconPath = choice.customIconPath;
+                      icon = null;
+                      iconColor = null;
                       name.text = choice.name;
                     });
                   }
@@ -387,6 +401,29 @@ Future<void> showRecurringEditor(
                 spacing: 8,
                 children: [
                   TextButton.icon(
+                    key: const ValueKey('recurring-standard-icon'),
+                    icon: const Icon(Icons.category_outlined),
+                    label: const Text('Из набора'),
+                    onPressed: () async {
+                      final picked = await showIconPicker(
+                        serviceContext,
+                        icon: icon ?? 26,
+                        color:
+                            iconColor ??
+                            c.category(category)?.color ??
+                            categoryColors.first,
+                      );
+                      if (picked != null && serviceContext.mounted) {
+                        set(() {
+                          icon = picked.$1;
+                          iconColor = picked.$2;
+                          customIconPath = null;
+                          serviceId = null;
+                        });
+                      }
+                    },
+                  ),
+                  TextButton.icon(
                     key: const ValueKey('upload-recurring-icon'),
                     icon: const Icon(Icons.photo_library_outlined),
                     label: const Text('Своя иконка'),
@@ -394,7 +431,11 @@ Future<void> showRecurringEditor(
                       try {
                         final path = await pickServiceIcon();
                         if (path != null && serviceContext.mounted) {
-                          set(() => customIconPath = path);
+                          set(() {
+                            customIconPath = path;
+                            icon = null;
+                            iconColor = null;
+                          });
                         }
                       } catch (e) {
                         if (serviceContext.mounted) {
@@ -403,11 +444,15 @@ Future<void> showRecurringEditor(
                       }
                     },
                   ),
-                  if (serviceId != null || customIconPath != null)
+                  if (serviceId != null ||
+                      customIconPath != null ||
+                      icon != null)
                     TextButton(
                       onPressed: () => set(() {
                         serviceId = null;
                         customIconPath = null;
+                        icon = null;
+                        iconColor = null;
                       }),
                       child: const Text('Убрать иконку'),
                     ),
@@ -613,7 +658,7 @@ Future<void> showRecurringEditor(
     ],
     save: () async {
       // 1.27: «чат гпт» typed as the name is ChatGPT, with its logo.
-      if (serviceId == null && customIconPath == null) {
+      if (serviceId == null && customIconPath == null && icon == null) {
         final spoken = ServiceRecognizer.find(name.text, whole: true);
         if (spoken != null && !ServiceCatalog.banks.contains(spoken)) {
           serviceId = spoken.id;
@@ -636,6 +681,8 @@ Future<void> showRecurringEditor(
           name: name.text.trim(),
           serviceId: kind == EntryKind.expense ? serviceId : null,
           customIconPath: kind == EntryKind.expense ? customIconPath : null,
+          icon: kind == EntryKind.expense ? icon : null,
+          color: kind == EntryKind.expense ? iconColor : null,
           reminderEnabled: reminderEnabled,
           reminderDaysBefore: reminderDaysBefore,
           reminderHour: reminderTime.hour,
