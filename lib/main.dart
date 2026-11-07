@@ -26,6 +26,7 @@ import 'presentation/widgets/voice_orb.dart';
 import 'presentation/voice_commands.dart';
 import 'presentation/haptics.dart';
 import 'presentation/payment_prompt.dart';
+import 'presentation/whats_new.dart';
 import 'presentation/finora_outside.dart';
 import 'presentation/widgets/finora_orb.dart';
 import 'services/finora_system.dart';
@@ -254,7 +255,9 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
 
   void _askPayments() {
     _paymentsTimer?.cancel();
-    _paymentsTimer = Timer(const Duration(milliseconds: 900), () {
+    _paymentsTimer = Timer(const Duration(milliseconds: 900), () async {
+      // 1.36: after an update — «Что нового» first, then the payments.
+      if (mounted) await WhatsNew.check(context);
       if (mounted) unawaited(PaymentPrompt.check(context));
     });
   }

@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../../domain/app_version.dart';
 import '../../domain/foreign_csv.dart';
 import '../../domain/models.dart';
 import '../../services/security_service.dart';
@@ -296,7 +297,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  static const version = '1.35.0';
+  static const version = appVersion;
 
   /// One settings page: a section of the root list.
   Widget _page(String title, List<Widget> children) => Scaffold(

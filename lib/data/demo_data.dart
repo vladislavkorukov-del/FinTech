@@ -1,3 +1,4 @@
+import '../domain/app_version.dart';
 import '../domain/models.dart';
 
 /// A local demonstration ledger. Dates move with first launch, never with reload.
@@ -272,7 +273,8 @@ FinanceData createDemoData(DateTime now) {
       Member(id: 'me', name: 'Я'),
       Member(id: 'family', name: 'Семья'),
     ],
-    preferences: const AppPreferences(),
+    // A new install has nothing «new» to be told about (1.36).
+    preferences: const AppPreferences(seenVersion: appVersion),
     demo: true,
   );
 }
