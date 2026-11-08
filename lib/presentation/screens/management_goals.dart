@@ -1,7 +1,26 @@
 part of 'management.dart';
 
-class GoalsScreen extends StatelessWidget {
-  const GoalsScreen({super.key});
+class GoalsScreen extends StatefulWidget {
+  const GoalsScreen({super.key, this.initialGoalId});
+  final String? initialGoalId;
+
+  @override
+  State<GoalsScreen> createState() => _GoalsScreenState();
+}
+
+class _GoalsScreenState extends State<GoalsScreen> {
+  @override
+  void initState() {
+    super.initState();
+    if (widget.initialGoalId != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        final goal = FinanceScope.of(context).goal(widget.initialGoalId);
+        if (goal != null) _goalEditor(context, goal: goal);
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final c = FinanceScope.of(context);

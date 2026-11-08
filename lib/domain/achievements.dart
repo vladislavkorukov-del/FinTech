@@ -547,16 +547,23 @@ const achievementLevels = [
 
 /// The whole picture for the screens.
 class AchievementReport {
-  const AchievementReport(this.statuses, this.metrics);
+  const AchievementReport(
+    this.statuses,
+    this.metrics, {
+    this.worldExperience = 0,
+  });
   final List<AchievementStatus> statuses;
   final AchievementMetrics metrics;
+  final int worldExperience;
 
   int get unlockedCount => statuses.where((s) => s.unlocked).length;
   int get total => statuses.length;
   double get share => total == 0 ? 0 : unlockedCount / total;
-  int get points => statuses
-      .where((s) => s.unlocked)
-      .fold(0, (p, s) => p + s.definition.rarity.points);
+  int get points =>
+      worldExperience +
+      statuses
+          .where((s) => s.unlocked)
+          .fold(0, (p, s) => p + s.definition.rarity.points);
   AchievementLevel get level =>
       achievementLevels.lastWhere((l) => points >= l.from);
   int get rareCount => statuses
@@ -598,14 +605,18 @@ abstract final class AchievementEngine {
   }) {
     final clock = now ?? DateTime.now();
     final m = AchievementMetrics.of(data, state, clock);
-    return AchievementReport([
-      for (final d in definitions ?? achievementDefinitions)
-        AchievementStatus(
-          definition: d,
-          current: math.max(0, d.value(m)),
-          unlockedAt: state.unlocked[d.id],
-        ),
-    ], m);
+    return AchievementReport(
+      [
+        for (final d in definitions ?? achievementDefinitions)
+          AchievementStatus(
+            definition: d,
+            current: math.max(0, d.value(m)),
+            unlockedAt: state.unlocked[d.id],
+          ),
+      ],
+      m,
+      worldExperience: data.world.experience,
+    );
   }
 
   /// After a change of the ledger ([before] → [after]): records what only

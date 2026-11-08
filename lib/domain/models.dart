@@ -2,6 +2,7 @@
 // Amounts are minor currency units (kopecks/cents), never floating point.
 import 'achievements.dart' show AchievementState;
 import 'wardrobe.dart' show WardrobeState;
+import 'finora_world.dart' show WorldState;
 
 enum EntryKind { expense, income, transfer }
 
@@ -978,6 +979,9 @@ class FinanceData {
   /// 1.46: Finora's wardrobe — received and worn items.
   final WardrobeState wardrobe;
 
+  /// Additive, versioned world progress; never part of the financial ledger.
+  final WorldState world;
+
   const FinanceData({
     this.accounts = const [],
     this.categories = const [],
@@ -991,6 +995,7 @@ class FinanceData {
     this.shopping = const [],
     this.achievements = const AchievementState(),
     this.wardrobe = const WardrobeState(),
+    this.world = const WorldState(),
   });
 
   factory FinanceData.empty() => const FinanceData();
@@ -1008,6 +1013,7 @@ class FinanceData {
     List<ShoppingItem>? shopping,
     AchievementState? achievements,
     WardrobeState? wardrobe,
+    WorldState? world,
   }) => FinanceData(
     accounts: accounts ?? this.accounts,
     categories: categories ?? this.categories,
@@ -1021,6 +1027,7 @@ class FinanceData {
     shopping: shopping ?? this.shopping,
     achievements: achievements ?? this.achievements,
     wardrobe: wardrobe ?? this.wardrobe,
+    world: world ?? this.world,
   );
 
   Map<String, Object?> toJson() => {
@@ -1036,6 +1043,7 @@ class FinanceData {
     'shopping': shopping.map((item) => item.toJson()).toList(),
     'achievements': achievements.toJson(),
     'wardrobe': wardrobe.toJson(),
+    'world': world.toJson(),
   };
 
   factory FinanceData.fromJson(Map<String, dynamic> json) => FinanceData(
@@ -1090,5 +1098,8 @@ class FinanceData {
             Map<String, dynamic>.from(json['wardrobe'] as Map),
           )
         : const WardrobeState(),
+    world: json['world'] is Map
+        ? WorldState.fromJson(Map<String, dynamic>.from(json['world'] as Map))
+        : const WorldState(),
   );
 }

@@ -7,6 +7,8 @@ import '../widgets/voice_orb.dart';
 import 'onboarding.dart';
 import '../i18n.dart';
 import '../l10n_widgets.dart';
+import '../controller.dart';
+import '../widgets/common.dart' show showError;
 
 /// A short tour of the whole app (Finance 1.25), offered at the end of the
 /// welcome screens and kept in Settings. Swipe or «Далее»; «Пропустить» is
@@ -274,6 +276,7 @@ final _pages = <_Page>[
 class _TutorialScreenState extends State<TutorialScreen> {
   final _controller = PageController();
   int _page = 0;
+  bool _finishing = false;
 
   @override
   void dispose() {
@@ -299,6 +302,21 @@ class _TutorialScreenState extends State<TutorialScreen> {
   void _close() {
     HapticFeedback.lightImpact();
     Navigator.pop(context, true);
+  }
+
+  Future<void> _finish() async {
+    if (_finishing) return;
+    setState(() => _finishing = true);
+    try {
+      // The same tour also runs standalone in accessibility tests.
+      final c = context.getInheritedWidgetOfExactType<FinanceScope>()?.notifier;
+      if (c != null) await c.completeWorldTutorial();
+      if (mounted) _close();
+    } catch (error) {
+      if (mounted) showError(context, error);
+    } finally {
+      if (mounted) setState(() => _finishing = false);
+    }
   }
 
   @override
@@ -382,7 +400,11 @@ class _TutorialScreenState extends State<TutorialScreen> {
                     child: AppleButton(
                       key: ValueKey(_last ? 'tutorial-done' : 'tutorial-next'),
                       label: _last ? 'Начать пользоваться' : 'Далее',
-                      onPressed: _last ? _close : () => _go(_page + 1),
+                      onPressed: _finishing
+                          ? null
+                          : _last
+                          ? _finish
+                          : () => _go(_page + 1),
                     ),
                   ),
                 ],

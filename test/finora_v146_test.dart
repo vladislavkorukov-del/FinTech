@@ -260,6 +260,9 @@ void main() {
   });
 
   test('«Что нового» describes both independent wardrobe slots', () {
-    expect(WhatsNew.items.first.$2, 'Компаньоны и плащи');
+    expect(
+      WhatsNew.items.map((item) => item.$2),
+      contains('Компаньоны и плащи'),
+    );
   });
 }

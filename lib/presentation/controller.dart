@@ -8,6 +8,8 @@ import '../data/finance_repository.dart';
 import '../domain/achievements.dart';
 import '../domain/models.dart';
 import '../domain/wardrobe.dart';
+import '../domain/finora_world.dart';
+import '../domain/world_games.dart';
 import '../domain/payment_plan.dart';
 import '../domain/finance_engine.dart';
 import '../domain/scan_import.dart';
@@ -132,7 +134,15 @@ class FinanceController extends ChangeNotifier {
       );
     }
     wardrobe = Wardrobe.sync(wardrobe, updated, now: achievementClock());
-    return next.copyWith(achievements: updated, wardrobe: wardrobe);
+    final enriched = next.copyWith(achievements: updated, wardrobe: wardrobe);
+    final world = WorldEngine.sync(
+      events ? next.world : WorldEngine.merge(before.world, next.world),
+      before,
+      enriched,
+      now: achievementClock(),
+      events: events,
+    );
+    return enriched.copyWith(world: world);
   }
 
   /// Items received for achievements reached before 1.46 (once, at start).
@@ -148,6 +158,112 @@ class FinanceController extends ChangeNotifier {
 
   Future<void> takeOff(WardrobeSlot slot) =>
       _mutate((d) => d.copyWith(wardrobe: Wardrobe.takeOff(d.wardrobe, slot)));
+
+  // The world uses the same serialized commit queue as the ledger. Rewards,
+  // purchases and scene changes either all commit or leave progress untouched.
+  int get worldPoints => achievements.points;
+
+  Future<void> _world(WorldState Function(FinanceData) change) => _mutate(
+    (d) => d.copyWith(world: change(d)),
+    synchronizeNotifications: false,
+  );
+
+  Future<void> syncWorld() => _world((d) => d.world);
+
+  Future<void> configureWorld(String background, Map<String, String> decor) =>
+      _world(
+        (d) => WorldEngine.configure(
+          d.world,
+          background: background,
+          decor: Map.of(decor),
+          now: achievementClock(),
+        ),
+      );
+
+  Future<void> purchaseWorldCosmetic(String id) => _world(
+    (d) => WorldEngine.purchase(
+      d.world,
+      id,
+      points: AchievementEngine.report(
+        d,
+        d.achievements,
+        now: achievementClock(),
+      ).points,
+    ),
+  );
+
+  Future<void> saveWorldOutfit(String name) => _world(
+    (d) => WorldEngine.saveOutfit(
+      d.world,
+      WorldOutfit(
+        id: id(),
+        name: name.trim(),
+        equipped: Map.of(d.wardrobe.equipped),
+        date: achievementClock(),
+      ),
+    ),
+  );
+
+  Future<void> applyWorldOutfit(String id) => _mutate((d) {
+    final look = d.world.outfits.where((o) => o.id == id).firstOrNull;
+    if (look == null) throw const FormatException('Образ не найден');
+    var wardrobe = d.wardrobe.copyWith(equipped: {});
+    for (final e in look.equipped.entries) {
+      final item = Wardrobe.item(e.value);
+      if (item == null ||
+          item.slot != e.key ||
+          !Wardrobe.open(item, d.achievements, wardrobe)) {
+        throw const FormatException('Предмет образа недоступен');
+      }
+      wardrobe = Wardrobe.wear(wardrobe, item.id);
+    }
+    return d.copyWith(wardrobe: wardrobe);
+  }, synchronizeNotifications: false);
+
+  Future<void> deleteWorldOutfit(String id) =>
+      _world((d) => WorldEngine.removeOutfit(d.world, id));
+
+  Future<void> worldSettings({
+    bool? reducedMotion,
+    bool? remarks,
+    bool? hidePrivate,
+  }) => _world(
+    (d) => d.world.copyWith(
+      reducedMotion: reducedMotion,
+      remarks: remarks,
+      hidePrivate: hidePrivate,
+    ),
+  );
+
+  Future<void> confirmWorldReview(String period) => _world((d) {
+    final now = achievementClock();
+    if (d.demo) throw const FormatException('Обзор доступен для ваших данных');
+    final event = switch (period) {
+      'week' => 'review:week:${WorldCatalog.weekKey(now)}',
+      'month' => 'review:month:${WorldCatalog.monthKey(now)}',
+      _ => throw const FormatException('Неизвестный период'),
+    };
+    return WorldEngine.reward(d.world, event, now: now);
+  });
+
+  Future<void> completeWorldTutorial() => _world(
+    (d) => WorldEngine.reward(d.world, 'tutorial', now: achievementClock()),
+  );
+
+  Future<void> saveWorldGame(String key, List<int> moves) {
+    // Copy before enqueue: a caller cannot change a validated move later.
+    final sequence = List<int>.of(moves);
+    return _world((d) {
+      if (!WorldGames.validKey(key) || !WorldGames.validate(key, sequence)) {
+        throw const FormatException('Некорректный ход');
+      }
+      var world = d.world.copyWith(games: {...d.world.games, key: sequence});
+      if (WorldGames.complete(key, sequence)) {
+        world = WorldEngine.reward(world, 'game:$key', now: achievementClock());
+      }
+      return world;
+    });
+  }
 
   /// Only the achievement state changes (a screen was opened).
   Future<void> _noteAchievements(
@@ -222,6 +338,7 @@ class FinanceController extends ChangeNotifier {
     FinanceData Function(FinanceData) transform, {
     bool activity = false,
     List<PaymentMark> Function()? payments,
+    bool synchronizeNotifications = true,
   }) {
     final result = _tail.then((_) async {
       final before = data;
@@ -235,7 +352,7 @@ class FinanceController extends ChangeNotifier {
       data = next;
       // Commit first. Ordinary ledger actions stay nonblocking, while explicit
       // reminder editors can wait for this same result and surface failures.
-      _queueNotificationSync(data);
+      if (synchronizeNotifications) _queueNotificationSync(data);
       notifyListeners();
     });
     _tail = result.catchError((Object _) {});
@@ -341,18 +458,17 @@ class FinanceController extends ChangeNotifier {
       preferences: preferences,
     );
   });
-  Future<void> _replace(Future<void> Function() action) {
+  Future<void> _replace(
+    Future<void> Function(FinanceSnapshotTransform) action,
+  ) {
     final result = _tail.then((_) async {
       final before = data;
-      await action();
-      final loaded = await repository.load();
-      // An import, a restore or a reset never takes achievements away.
-      final next = _withAchievements(before, loaded, events: false);
-      if (next.achievements.toJson().toString() !=
-          loaded.achievements.toJson().toString()) {
-        await repository.save(next);
-      }
-      data = next;
+      // Merge receipts before the repository's single commit. A failed restore
+      // cannot leave a stale reward ledger on disk between two writes.
+      await action(
+        (loaded) => _withAchievements(before, loaded, events: false),
+      );
+      data = await repository.load();
       _queueNotificationSync(data);
       notifyListeners();
     });
@@ -360,19 +476,22 @@ class FinanceController extends ChangeNotifier {
     return result;
   }
 
-  Future<void> clearDemo() => _replace(repository.clearDemo);
+  Future<void> clearDemo() =>
+      _replace((merge) => repository.clearDemo(transform: merge));
 
   /// Erases all the person's data (see [FinanceRepository.resetAll]).
-  Future<void> resetAll() => _replace(repository.resetAll);
+  Future<void> resetAll() =>
+      _replace((merge) => repository.resetAll(transform: merge));
 
   /// The demo ledger into an empty app (see [FinanceRepository.loadDemo]).
-  Future<void> loadDemo() => _replace(repository.loadDemo);
+  Future<void> loadDemo() =>
+      _replace((merge) => repository.loadDemo(transform: merge));
   Future<void> importJson(String content) =>
-      _replace(() => repository.importJson(content));
+      _replace((merge) => repository.importJson(content, transform: merge));
   Future<void> importCsv(String content) =>
-      _replace(() => repository.importCsv(content));
+      _replace((merge) => repository.importCsv(content, transform: merge));
   Future<void> restore(String path) =>
-      _replace(() => repository.restoreDatabase(path));
+      _replace((merge) => repository.restoreDatabase(path, transform: merge));
 
   /// Payments due today or overdue that the person has not answered yet
   /// (1.27), oldest first. «Напомнить позже» hides one for three hours.

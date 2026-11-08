@@ -9,9 +9,13 @@ import '../domain/finance_engine.dart';
 import '../domain/models.dart';
 import '../domain/achievements.dart';
 import '../domain/wardrobe.dart';
+import '../domain/finora_world.dart';
+import '../domain/world_games.dart';
 import '../domain/style_ids.dart';
 import 'demo_data.dart';
 import 'finora_csv.dart';
+
+typedef FinanceSnapshotTransform = FinanceData Function(FinanceData);
 
 /// The persistence boundary. Every ledger replacement is validated and committed
 /// atomically; account balances remain derived from posted ledger entries.
@@ -137,8 +141,14 @@ class FinanceRepository {
 
   Future<FinanceData> load() => _read(_db);
 
-  Future<void> save(FinanceData data) async {
-    final normalized = normalizeCategoryPreferences(data);
+  Future<void> save(
+    FinanceData data, {
+    FinanceSnapshotTransform? transform,
+  }) async {
+    var normalized = normalizeCategoryPreferences(data);
+    if (transform != null) {
+      normalized = normalizeCategoryPreferences(transform(normalized));
+    }
     validateData(normalized);
     await _db.transaction((txn) => _write(txn, normalized));
   }
@@ -148,7 +158,7 @@ class FinanceRepository {
   /// Remove seeded records only. Personal records created while exploring the
   /// demo survive; referenced sample accounts remain with zero opening balance.
   /// The initialized flag prevents reseeding after reopening.
-  Future<void> clearDemo() async {
+  Future<void> clearDemo({FinanceSnapshotTransform? transform}) async {
     final old = await load();
     if (!old.demo) {
       throw const FormatException('Демонстрационные данные уже очищены');
@@ -187,6 +197,7 @@ class FinanceRepository {
         ],
         demo: false,
       ),
+      transform: transform,
     );
   }
 
@@ -195,7 +206,7 @@ class FinanceRepository {
   /// to the standard set; appearance and formats (theme, style, currency,
   /// number/date format, week and month start, lock) are kept. The demo is
   /// not seeded again.
-  Future<void> resetAll() async {
+  Future<void> resetAll({FinanceSnapshotTransform? transform}) async {
     final old = await load();
     final fresh = createDemoData(_clock());
     await save(
@@ -225,12 +236,13 @@ class FinanceRepository {
         ),
         demo: false,
       ),
+      transform: transform,
     );
   }
 
   /// The demo ledger again (welcome screens → «Посмотреть на примере»
   /// after a reset). Only on an empty ledger; settings and the name stay.
-  Future<void> loadDemo() async {
+  Future<void> loadDemo({FinanceSnapshotTransform? transform}) async {
     final old = await load();
     if (old.entries.isNotEmpty || old.accounts.isNotEmpty) {
       throw const FormatException(
@@ -247,6 +259,7 @@ class FinanceRepository {
             m.id == 'me' && name.isNotEmpty ? Member(id: 'me', name: name) : m,
         ],
       ),
+      transform: transform,
     );
   }
 
@@ -313,7 +326,10 @@ class FinanceRepository {
     return result;
   }
 
-  Future<void> importJson(String content) async {
+  Future<void> importJson(
+    String content, {
+    FinanceSnapshotTransform? transform,
+  }) async {
     var data = decodeBackup(content);
     final envelope = jsonDecode(content) as Map<String, dynamic>;
     var totalBytes = 0;
@@ -384,7 +400,7 @@ class FinanceRepository {
             rule.copyWith(customIconPath: iconPaths['recurring:${rule.id}']),
         ],
       );
-      await save(data);
+      await save(data, transform: transform);
     } on Object {
       for (final directory in staged) {
         if (await directory.exists()) {
@@ -541,12 +557,15 @@ class FinanceRepository {
 
   /// Replaces the base with a table from [exportFullCsv], validated like a
   /// JSON copy: a damaged file changes nothing.
-  Future<void> importCsv(String content) async {
+  Future<void> importCsv(
+    String content, {
+    FinanceSnapshotTransform? transform,
+  }) async {
     if (utf8.encode(content).length > maxBackupBytes) {
       throw const FormatException('Файл превышает 50 МБ');
     }
     final envelope = FinoraCsv.decode(content, schema: schemaVersion);
-    await importJson(jsonEncode(envelope));
+    await importJson(jsonEncode(envelope), transform: transform);
   }
 
   /// A read transaction captures one consistent ledger version. A separate
@@ -610,7 +629,10 @@ class FinanceRepository {
 
   /// Restores validated logical data from an isolated read-only database. The
   /// live database remains open and is modified in one transaction only.
-  Future<void> restoreDatabase(String sourcePath) async {
+  Future<void> restoreDatabase(
+    String sourcePath, {
+    FinanceSnapshotTransform? transform,
+  }) async {
     if (!await File(sourcePath).exists()) {
       throw const FormatException('Файл не найден');
     }
@@ -686,10 +708,18 @@ class FinanceRepository {
     } finally {
       await backup?.close();
     }
-    await save(data);
+    await save(data, transform: transform);
   }
 
   static void validateData(FinanceData data) {
+    // Validate cosmetic receipts before starting the ledger replacement. A bad
+    // world backup must never partially overwrite otherwise valid finances.
+    WorldState.fromJson(data.world.toJson());
+    for (final e in data.world.games.entries) {
+      if (!WorldGames.validate(e.key, e.value)) {
+        throw const FormatException('Некорректное сохранение игры');
+      }
+    }
     void ids(Iterable<String> values) {
       final seen = <String>{};
       for (final value in values) {
@@ -968,6 +998,15 @@ class FinanceRepository {
         achievements: _achievements(settings['achievements']),
         // 1.46: the wardrobe too.
         wardrobe: _wardrobe(settings['wardrobe']),
+        // An absent key is the additive migration from all earlier versions.
+        // The existing SQLite schema and all ledger/wardrobe rows stay intact.
+        world: settings['finora_world'] == null
+            ? const WorldState()
+            : WorldState.fromJson(
+                Map<String, dynamic>.from(
+                  jsonDecode(settings['finora_world']!) as Map,
+                ),
+              ),
       ),
     );
   }
@@ -1097,6 +1136,10 @@ class FinanceRepository {
     await db.insert('settings', {
       'key': 'wardrobe',
       'value': jsonEncode(data.wardrobe.toJson()),
+    });
+    await db.insert('settings', {
+      'key': 'finora_world',
+      'value': jsonEncode(data.world.toJson()),
     });
   }
 

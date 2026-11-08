@@ -910,9 +910,20 @@ class FinoraCharacterState extends State<FinoraCharacter>
 /// One worn picture placed on Finora by its [WardrobeFit] (r — her radius;
 /// the stack is her own square, her centre at (r, r)).
 class WardrobePiece extends StatelessWidget {
-  const WardrobePiece(this.item, this.r, {super.key});
+  const WardrobePiece(
+    this.item,
+    this.r, {
+    super.key,
+    this.scale = 1,
+    this.tilt = 0,
+    this.sleeping = false,
+    this.onTap,
+  });
   final WardrobeItem item;
   final double r;
+  final double scale, tilt;
+  final bool sleeping;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -934,12 +945,57 @@ class WardrobePiece extends StatelessWidget {
       excludeFromSemantics: true,
       errorBuilder: (_, _, _) => const SizedBox.shrink(),
     );
+    Widget content = Transform.rotate(angle: fit.rotation, child: image);
+    final touchWidth = onTap == null ? w : math.max(48.0, w);
+    final touchHeight = onTap == null ? hgt : math.max(48.0, hgt);
+    // Only the world's pet adds a reaction and a touch target. The existing
+    // wardrobe and all financial-screen compositions retain their exact layers.
+    if (onTap != null) {
+      final duration = Motion.reduced(context)
+          ? Duration.zero
+          : const Duration(milliseconds: 280);
+      content = Semantics(
+        button: true,
+        label: '${item.name}${sleeping ? ", сон" : ""}',
+        child: GestureDetector(
+          key: const ValueKey('world-companion-touch'),
+          behavior: HitTestBehavior.opaque,
+          onTap: onTap,
+          child: Center(
+            child: SizedBox(
+              width: w,
+              height: hgt,
+              child: AnimatedScale(
+                scale: scale,
+                duration: duration,
+                child: AnimatedRotation(
+                  turns: tilt / (2 * math.pi),
+                  duration: duration,
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Positioned.fill(child: content),
+                      if (sleeping)
+                        const Positioned(
+                          top: 0,
+                          right: 0,
+                          child: Text('z z', style: TextStyle(fontSize: 12)),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
     return Positioned(
-      left: left,
-      top: top,
-      width: w,
-      height: hgt,
-      child: Transform.rotate(angle: fit.rotation, child: image),
+      left: left - (touchWidth - w) / 2,
+      top: top - (touchHeight - hgt) / 2,
+      width: touchWidth,
+      height: touchHeight,
+      child: content,
     );
   }
 }

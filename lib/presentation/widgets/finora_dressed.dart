@@ -141,12 +141,19 @@ class FinoraDressed extends StatelessWidget {
     this.size = 120,
     this.moods = const [FinoraMood.idle],
     this.rings = true,
+    this.companionScale = 1,
+    this.companionTilt = 0,
+    this.companionSleeping = false,
+    this.onCompanionTap,
   });
 
   final List<WardrobeItem> outfit;
   final double size;
   final List<FinoraMood> moods;
   final bool rings;
+  final double companionScale, companionTilt;
+  final bool companionSleeping;
+  final VoidCallback? onCompanionTap;
 
   static const widthFactor = FinoraOutfitGeometry.widthFactor;
   static const heightFactor = FinoraOutfitGeometry.heightFactor;
@@ -202,7 +209,16 @@ class FinoraDressed extends StatelessWidget {
                   amplitude: math.min(4.0, diameter * .035),
                   child: Stack(
                     clipBehavior: Clip.none,
-                    children: [WardrobePiece(item, diameter / 2)],
+                    children: [
+                      WardrobePiece(
+                        item,
+                        diameter / 2,
+                        scale: companionScale,
+                        tilt: companionTilt,
+                        sleeping: companionSleeping,
+                        onTap: onCompanionTap,
+                      ),
+                    ],
                   ),
                 ),
               ),
