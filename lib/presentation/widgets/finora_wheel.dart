@@ -3,7 +3,6 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart' hide InputDecoration, Text;
 
-import '../controller.dart';
 import '../haptics.dart';
 import 'finora_orb.dart';
 import '../l10n_widgets.dart';
@@ -195,13 +194,6 @@ class _WheelState extends State<_Wheel> with SingleTickerProviderStateMixin {
                               children: [
                                 FinoraCharacter(
                                   size: 62,
-                                  // 1.46: in what she wears.
-                                  capeSpread: .8,
-                                  outfit:
-                                      FinanceScope.maybeOf(
-                                        context,
-                                      )?.wornOutfit ??
-                                      const [],
                                   moods: [
                                     _hovered == null
                                         ? FinoraMood.thinking

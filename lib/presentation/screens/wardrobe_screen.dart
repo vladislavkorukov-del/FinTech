@@ -11,16 +11,6 @@ import '../widgets/finora_dressed.dart';
 import '../widgets/finora_orb.dart';
 import 'achievements_screen.dart';
 
-/// Filters of the wardrobe, in order.
-const wardrobeFilters = <(String, String)>[
-  ('all', 'Все'),
-  ('headwear', 'Шапки'),
-  ('crown', 'Короны'),
-  ('cape', 'Плащи'),
-  ('companion', 'Companions'),
-  ('legendary', 'Легендарные'),
-];
-
 /// Where an item comes from, as the person reads it.
 String wardrobeSourceText(WardrobeItem item, {required bool open}) {
   if (item.secret && !open) return '???';
@@ -31,7 +21,6 @@ String wardrobeSourceText(WardrobeItem item, {required bool open}) {
           .firstOrNull;
       return d == null ? '' : '${tr('За достижение')} «${tr(d.title)}»';
     }(),
-    EventReward(eventId: 'new_year') => tr('Новогоднее событие'),
     EventReward() => tr('Особое событие'),
   };
 }
@@ -39,9 +28,6 @@ String wardrobeSourceText(WardrobeItem item, {required bool open}) {
 /// What to do to open a closed item (none for a secret one).
 String? wardrobeCondition(WardrobeItem item) {
   if (item.secret) return null;
-  if (item.source case final EventReward e) {
-    return e.condition == null ? null : tr(e.condition!);
-  }
   final id = item.achievementId;
   final d = achievementDefinitions.where((a) => a.id == id).firstOrNull;
   return d == null ? null : tr(d.description);
@@ -56,14 +42,6 @@ class WardrobeScreen extends StatefulWidget {
 }
 
 class _WardrobeScreenState extends State<WardrobeScreen> {
-  String _filter = 'all';
-
-  bool _shown(WardrobeItem i) => switch (_filter) {
-    'all' => true,
-    'legendary' => i.rarity == AchievementRarity.legendary,
-    final name => i.category.name == name,
-  };
-
   Future<void> _toggle(FinanceController c, WardrobeItem item) async {
     final worn = c.data.wardrobe.equipped[item.slot] == item.id;
     Haptics.tap();
@@ -89,7 +67,7 @@ class _WardrobeScreenState extends State<WardrobeScreen> {
       for (final i in wardrobeItems)
         if (Wardrobe.open(i, achievements, state)) i.id,
     };
-    final list = wardrobeItems.where(_shown).toList();
+    const list = wardrobeItems;
     final worn = Wardrobe.worn(state);
     final textScale = MediaQuery.textScalerOf(context).scale(1).clamp(1.0, 2.0);
     return Scaffold(
@@ -138,8 +116,8 @@ class _WardrobeScreenState extends State<WardrobeScreen> {
                     const SizedBox(height: 4),
                     Text(
                       worn.isEmpty
-                          ? 'Нажмите «Надеть» на открытом предмете'
-                          : 'Нажмите на Финору — она порадуется обновке',
+                          ? 'Нажмите «Надеть» на открытом компаньоне'
+                          : 'Компаньон парит рядом с Финорой',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 13,
@@ -148,31 +126,6 @@ class _WardrobeScreenState extends State<WardrobeScreen> {
                     ),
                   ],
                 ),
-              ),
-            ),
-          ),
-          SliverToBoxAdapter(
-            child: SizedBox(
-              height: 40 + 8 * (textScale - 1),
-              child: ListView(
-                key: const ValueKey('wardrobe-filters'),
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                children: [
-                  for (final (id, title) in wardrobeFilters)
-                    Padding(
-                      padding: const EdgeInsets.only(right: 8),
-                      child: ChoiceChip(
-                        key: ValueKey('wardrobe-filter-$id'),
-                        label: Text(title),
-                        selected: _filter == id,
-                        onSelected: (_) {
-                          Haptics.tap();
-                          setState(() => _filter = id);
-                        },
-                      ),
-                    ),
-                ],
               ),
             ),
           ),
