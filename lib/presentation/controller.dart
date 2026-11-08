@@ -137,10 +137,17 @@ class FinanceController extends ChangeNotifier {
 
   /// Items received for achievements reached before 1.46 (once, at start).
   Future<void> syncWardrobe() {
-    final synced = Wardrobe.sync(data.wardrobe, data.achievements);
+    final synced = Wardrobe.sync(
+      data.wardrobe,
+      data.achievements,
+      now: achievementClock(),
+    );
     if (identical(synced, data.wardrobe)) return Future.value();
     return _mutate((d) => d);
   }
+
+  /// 1.46: what Finora wears, back to front (for her in the menu).
+  List<WardrobeItem> get wornOutfit => Wardrobe.worn(data.wardrobe);
 
   /// Puts an item on (the one in its slot comes off).
   Future<void> wear(String itemId) =>
@@ -555,4 +562,8 @@ class FinanceScope extends InheritedNotifier<FinanceController> {
   }) : super(notifier: controller);
   static FinanceController of(BuildContext context) =>
       context.dependOnInheritedWidgetOfExactType<FinanceScope>()!.notifier!;
+
+  /// The controller when there is one above (a widget shown anywhere).
+  static FinanceController? maybeOf(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<FinanceScope>()?.notifier;
 }

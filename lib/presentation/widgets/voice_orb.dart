@@ -3,6 +3,8 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart' hide InputDecoration, Text;
 
+import '../../domain/wardrobe.dart';
+import '../controller.dart';
 import '../haptics.dart';
 import 'finora_orb.dart';
 import 'motion.dart';
@@ -163,6 +165,7 @@ class _VoiceOrbState extends State<VoiceOrb> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final size = widget.size;
+    final outfit = FinanceScope.maybeOf(context)?.wornOutfit ?? const [];
     final scheme = Theme.of(context).colorScheme;
     return Semantics(
       label: 'Финора: голосовой ввод операции',
@@ -279,13 +282,22 @@ class _VoiceOrbState extends State<VoiceOrb> with TickerProviderStateMixin {
                           angle: angry ? 0 : wiggle(j) * .16,
                           child: Transform.scale(
                             scale: bounce(j),
-                            child: CustomPaint(
-                              size: Size.square(size),
-                              painter: FinoraOrbPainter(
-                                t: _flow.value,
-                                mood: _mood,
-                                blink: hopping ? 0 : blink,
-                                joy: _called && hopping ? j : 0,
+                            // 1.46: in what she wears from the wardrobe.
+                            child: FinoraOutfit(
+                              size: size,
+                              outfit: outfit,
+                              capeSpread: .72,
+                              child: CustomPaint(
+                                size: Size.square(size),
+                                painter: FinoraOrbPainter(
+                                  t: _flow.value,
+                                  mood: _mood,
+                                  blink: hopping ? 0 : blink,
+                                  joy: _called && hopping ? j : 0,
+                                  sign: !outfit.any(
+                                    (i) => i.slot == WardrobeSlot.top,
+                                  ),
+                                ),
                               ),
                             ),
                           ),

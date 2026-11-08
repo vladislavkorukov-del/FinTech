@@ -1,18 +1,19 @@
 import 'achievements.dart';
 
 /// Finora 1.46: the wardrobe — things for Finora to wear, received for
-/// achievements (and, later, for events and mini-games).
+/// achievements and events (and, later, mini-games). 1.47: hats, crowns,
+/// capes and companions.
 ///
 /// The catalog is data; what the person has is [WardrobeState], stored with
 /// the rest of the ledger. An item is open when its source is reached:
 /// for an achievement — once that achievement is received (it is never
 /// taken away, so neither is the item).
 
-enum WardrobeCategory { headwear, glasses, headphones, crown, cape, companion }
+enum WardrobeCategory { headwear, crown, cape, companion }
 
-/// Where an item is worn; one item per slot. Hats, crowns and headphones
-/// share «top» so they never overlap.
-enum WardrobeSlot { top, eyes, cape, companion }
+/// Where an item is worn; one item per slot. Hats and crowns share «top»
+/// so they never overlap.
+enum WardrobeSlot { top, cape, companion }
 
 /// Drawing order around Finora, back to front.
 enum WardrobeLayer {
@@ -42,6 +43,22 @@ class EventReward extends WardrobeSource {
   const EventReward(this.eventId, {this.live = false});
   final String eventId;
   final bool live;
+
+  /// Whether the event is on at [now] (opening the app then gives its item).
+  bool activeAt(DateTime now) => switch (eventId) {
+    // New Year: 15 December … 15 January.
+    'new_year' =>
+      live &&
+          ((now.month == 12 && now.day >= 15) ||
+              (now.month == 1 && now.day <= 15)),
+    _ => false,
+  };
+
+  /// What to do to receive it.
+  String? get condition => switch (eventId) {
+    'new_year' => 'Загляните в Finora с 15 декабря по 15 января',
+    _ => null,
+  };
 }
 
 /// How a picture sits on Finora. Units: Finora's radius r, from the centre
@@ -91,20 +108,16 @@ class WardrobeItem {
   double get ratio => wardrobeRatios[id] ?? 1;
 
   WardrobeSlot get slot => switch (category) {
-    WardrobeCategory.headwear ||
-    WardrobeCategory.headphones ||
-    WardrobeCategory.crown => WardrobeSlot.top,
-    WardrobeCategory.glasses => WardrobeSlot.eyes,
+    WardrobeCategory.headwear || WardrobeCategory.crown => WardrobeSlot.top,
     WardrobeCategory.cape => WardrobeSlot.cape,
     WardrobeCategory.companion => WardrobeSlot.companion,
   };
 
   WardrobeLayer get layer => switch (category) {
     WardrobeCategory.headwear ||
-    WardrobeCategory.headphones ||
     WardrobeCategory.crown => WardrobeLayer.headwear,
-    WardrobeCategory.glasses => WardrobeLayer.eyesAccessory,
-    WardrobeCategory.cape => WardrobeLayer.cape,
+    // 1.47: capes hang behind her; the cut-out follows her sphere.
+    WardrobeCategory.cape => WardrobeLayer.behindCharacter,
     WardrobeCategory.companion => WardrobeLayer.frontAccessory,
   };
 
@@ -187,10 +200,22 @@ abstract final class Wardrobe {
     DateTime? now,
   }) {
     Map<String, DateTime>? received;
+    final clock = now ?? DateTime.now();
+    // Items taken out of the catalog (1.47: glasses, headphones, old capes)
+    // are forgotten.
+    if (state.received.keys.any((id) => item(id) == null)) {
+      received = {
+        for (final e in state.received.entries)
+          if (item(e.key) != null) e.key: e.value,
+      };
+    }
     for (final i in wardrobeItems) {
       if (state.received.containsKey(i.id)) continue;
-      final id = i.achievementId;
-      final at = id == null ? null : achievements.unlocked[id];
+      final at = switch (i.source) {
+        AchievementReward(:final achievementId) =>
+          achievements.unlocked[achievementId],
+        final EventReward e => e.activeAt(clock) ? clock : null,
+      };
       if (at == null) continue;
       (received ??= {...state.received})[i.id] = at;
     }
@@ -235,7 +260,7 @@ abstract final class Wardrobe {
 
 const _top = -1.0; // the top of her sphere, in r
 
-/// The 30 items, each with its own fit (see [WardrobeFit]).
+/// The 33 items, each with its own fit (see [WardrobeFit]).
 const wardrobeItems = <WardrobeItem>[
   // ── Шапки ─────────────────────────────────────────────────────────────
   WardrobeItem(
@@ -319,81 +344,6 @@ const wardrobeItems = <WardrobeItem>[
     source: AchievementReward('streak_100'),
     fit: WardrobeFit(width: 1.04, y: _top + .5, anchorY: 1),
   ),
-  // ── Очки ──────────────────────────────────────────────────────────────
-  WardrobeItem(
-    id: 'round_accounting_glasses',
-    name: 'Круглые очки бухгалтера',
-    category: WardrobeCategory.glasses,
-    rarity: AchievementRarity.common,
-    source: AchievementReward('ten_records'),
-    fit: WardrobeFit(width: .82, y: -.07),
-  ),
-  WardrobeItem(
-    id: 'analyst_glasses',
-    name: 'Очки аналитика',
-    category: WardrobeCategory.glasses,
-    rarity: AchievementRarity.rare,
-    source: AchievementReward('analyst_10'),
-    fit: WardrobeFit(width: .84, y: -.07),
-  ),
-  WardrobeItem(
-    id: 'fintech_visor',
-    name: 'Финтех-визор',
-    category: WardrobeCategory.glasses,
-    rarity: AchievementRarity.uncommon,
-    source: AchievementReward('full_picture'),
-    fit: WardrobeFit(width: .96, y: -.1),
-  ),
-  WardrobeItem(
-    id: 'heart_glasses',
-    name: 'Очки-сердечки',
-    category: WardrobeCategory.glasses,
-    rarity: AchievementRarity.epic,
-    source: EventReward('valentine'),
-    secret: true,
-    fit: WardrobeFit(width: .84, y: -.06),
-  ),
-  WardrobeItem(
-    id: 'golden_perspective_glasses',
-    name: 'Золотые очки перспективы',
-    category: WardrobeCategory.glasses,
-    rarity: AchievementRarity.legendary,
-    source: AchievementReward('budget_12'),
-    fit: WardrobeFit(width: .84, y: -.07),
-  ),
-  // ── Наушники ──────────────────────────────────────────────────────────
-  WardrobeItem(
-    id: 'mint_buds',
-    name: 'Мятные наушники-капли',
-    category: WardrobeCategory.headphones,
-    rarity: AchievementRarity.common,
-    source: AchievementReward('first_account'),
-    fit: WardrobeFit(width: 1.06, y: .1),
-  ),
-  WardrobeItem(
-    id: 'weekly_rhythm_headphones',
-    name: 'Наушники недельного ритма',
-    category: WardrobeCategory.headphones,
-    rarity: AchievementRarity.uncommon,
-    source: AchievementReward('streak_7'),
-    fit: WardrobeFit(width: 1.2, y: .2, anchorY: 1),
-  ),
-  WardrobeItem(
-    id: 'cyan_pulse_headphones',
-    name: 'Наушники «Бирюзовый пульс»',
-    category: WardrobeCategory.headphones,
-    rarity: AchievementRarity.epic,
-    source: AchievementReward('streak_30'),
-    fit: WardrobeFit(width: 1.2, y: .22, anchorY: 1),
-  ),
-  WardrobeItem(
-    id: 'champagne_sound_headphones',
-    name: 'Наушники «Шампань»',
-    category: WardrobeCategory.headphones,
-    rarity: AchievementRarity.legendary,
-    source: AchievementReward('veteran'),
-    fit: WardrobeFit(width: 1.2, y: .2, anchorY: 1),
-  ),
   // ── Короны ────────────────────────────────────────────────────────────
   WardrobeItem(
     id: 'silver_spark_crown',
@@ -427,30 +377,126 @@ const wardrobeItems = <WardrobeItem>[
     source: AchievementReward('legend'),
     fit: WardrobeFit(width: .78, y: _top + .26, anchorY: 1),
   ),
-  // ── Накидки ───────────────────────────────────────────────────────────
+  // ── Плащи (1.47: сзади, вырез — по её сфере) ────────────────────────
   WardrobeItem(
-    id: 'reserve_scarf',
-    name: 'Шарф запаса',
+    id: 'cape_new_year',
+    name: 'Новогодний плащ',
     category: WardrobeCategory.cape,
     rarity: AchievementRarity.epic,
-    source: AchievementReward('cushion_3'),
-    fit: WardrobeFit(width: 1.22, y: .28, anchorY: -1, front: .34),
+    source: EventReward('new_year', live: true),
+    fit: WardrobeFit(width: 2.086, x: 0.003, y: -0.021),
   ),
   WardrobeItem(
-    id: 'punctuality_shield_cape',
-    name: 'Плащ пунктуальности',
+    id: 'cape_star_wanderer',
+    name: 'Плащ звёздного странника',
+    category: WardrobeCategory.cape,
+    rarity: AchievementRarity.common,
+    source: AchievementReward('ten_records'),
+    fit: WardrobeFit(width: 2.074, x: 0.004, y: 0.017),
+  ),
+  WardrobeItem(
+    id: 'cape_pirate_tides',
+    name: 'Плащ морских приливов',
+    category: WardrobeCategory.cape,
+    rarity: AchievementRarity.common,
+    source: AchievementReward('first_account'),
+    fit: WardrobeFit(width: 2.102, x: 0.002, y: -0.014),
+  ),
+  WardrobeItem(
+    id: 'cape_emerald_wood',
+    name: 'Плащ изумрудного леса',
+    category: WardrobeCategory.cape,
+    rarity: AchievementRarity.common,
+    source: AchievementReward('first_topup'),
+    fit: WardrobeFit(width: 2.218, x: 0.004, y: -0.116),
+  ),
+  WardrobeItem(
+    id: 'cape_sand_prophecy',
+    name: 'Плащ песчаного пророчества',
+    category: WardrobeCategory.cape,
+    rarity: AchievementRarity.uncommon,
+    source: AchievementReward('full_picture'),
+    fit: WardrobeFit(width: 2.153, x: 0.015, y: 0.001),
+  ),
+  WardrobeItem(
+    id: 'cape_scarlet_flight',
+    name: 'Плащ алого полёта',
+    category: WardrobeCategory.cape,
+    rarity: AchievementRarity.uncommon,
+    source: AchievementReward('economy'),
+    fit: WardrobeFit(width: 2.208, x: 0.003, y: 0.002),
+  ),
+  WardrobeItem(
+    id: 'cape_emerald_city',
+    name: 'Плащ изумрудного города',
     category: WardrobeCategory.cape,
     rarity: AchievementRarity.uncommon,
     source: AchievementReward('no_overdue'),
-    fit: WardrobeFit(width: 1.42, y: .22, anchorY: -1, front: .26),
+    fit: WardrobeFit(width: 2.083, x: 0.005, y: -0.012),
   ),
   WardrobeItem(
-    id: 'veteran_mantle',
-    name: 'Мантия ветерана',
+    id: 'cape_starlit_academy',
+    name: 'Плащ звёздной академии',
+    category: WardrobeCategory.cape,
+    rarity: AchievementRarity.rare,
+    source: AchievementReward('analyst_10'),
+    fit: WardrobeFit(width: 2.103, x: 0.005, y: -0.013),
+  ),
+  WardrobeItem(
+    id: 'cape_digital_grid',
+    name: 'Плащ цифровой сетки',
+    category: WardrobeCategory.cape,
+    rarity: AchievementRarity.rare,
+    source: AchievementReward('order'),
+    fit: WardrobeFit(width: 2.121, x: 0.003, y: -0.013),
+  ),
+  WardrobeItem(
+    id: 'cape_neon_noir',
+    name: 'Плащ «Неоновая ночь»',
+    category: WardrobeCategory.cape,
+    rarity: AchievementRarity.epic,
+    source: AchievementReward('streak_30'),
+    fit: WardrobeFit(width: 2.024, x: 0.004, y: 0.010),
+  ),
+  WardrobeItem(
+    id: 'cape_midnight_vigil',
+    name: 'Плащ полуночного дозора',
+    category: WardrobeCategory.cape,
+    rarity: AchievementRarity.epic,
+    source: AchievementReward('cushion_3'),
+    fit: WardrobeFit(width: 2.125, x: 0.001, y: -0.033),
+  ),
+  WardrobeItem(
+    id: 'cape_frost_queen',
+    name: 'Плащ снежной королевы',
+    category: WardrobeCategory.cape,
+    rarity: AchievementRarity.legendary,
+    source: AchievementReward('budget_12'),
+    fit: WardrobeFit(width: 2.020, x: 0.009, y: 0.011),
+  ),
+  WardrobeItem(
+    id: 'cape_firebird_rebel',
+    name: 'Плащ огненной птицы',
+    category: WardrobeCategory.cape,
+    rarity: AchievementRarity.legendary,
+    source: AchievementReward('ideal_year'),
+    fit: WardrobeFit(width: 2.068, x: 0.002, y: 0.054),
+  ),
+  WardrobeItem(
+    id: 'cape_royal_panther',
+    name: 'Плащ королевской пантеры',
     category: WardrobeCategory.cape,
     rarity: AchievementRarity.legendary,
     source: AchievementReward('veteran'),
-    fit: WardrobeFit(width: 1.5, y: -.2, anchorY: -1),
+    fit: WardrobeFit(width: 2.080, x: 0.002, y: 0.007),
+  ),
+  WardrobeItem(
+    id: 'cape_mystic_portal',
+    name: 'Плащ мистического портала',
+    category: WardrobeCategory.cape,
+    rarity: AchievementRarity.legendary,
+    source: AchievementReward('perfectionist'),
+    fit: WardrobeFit(width: 2.114, x: 0.007, y: -0.199),
   ),
   // ── Компаньоны ────────────────────────────────────────────────────────
   WardrobeItem(
@@ -489,34 +535,37 @@ const wardrobeItems = <WardrobeItem>[
 
 /// Picture proportions (pixel sizes of the trimmed PNGs).
 const wardrobeRatios = <String, double>{
-  'analyst_glasses': 1024 / 365,
   'anniversary_party_cap': 980 / 886,
   'budget_master_cap': 1024 / 620,
-  'champagne_sound_headphones': 1024 / 759,
+  'cape_digital_grid': 1024 / 479,
+  'cape_emerald_city': 1024 / 479,
+  'cape_emerald_wood': 1024 / 518,
+  'cape_firebird_rebel': 1024 / 502,
+  'cape_frost_queen': 1024 / 464,
+  'cape_midnight_vigil': 1024 / 470,
+  'cape_mystic_portal': 1024 / 502,
+  'cape_neon_noir': 1024 / 498,
+  'cape_new_year': 1024 / 487,
+  'cape_pirate_tides': 1024 / 470,
+  'cape_royal_panther': 1024 / 517,
+  'cape_sand_prophecy': 1024 / 471,
+  'cape_scarlet_flight': 1024 / 466,
+  'cape_star_wanderer': 1024 / 478,
+  'cape_starlit_academy': 1024 / 488,
   'cushion_sleep_cap': 1024 / 638,
-  'cyan_pulse_headphones': 1024 / 792,
   'dream_crystal_crown': 768 / 386,
   'dream_trophy': 930 / 831,
   'finora_legend_crown': 1024 / 616,
-  'fintech_visor': 1024 / 217,
   'first_coin': 667 / 671,
   'first_step_cap': 1024 / 608,
-  'golden_perspective_glasses': 1024 / 382,
   'habit_flame_cap': 1024 / 615,
-  'heart_glasses': 1024 / 350,
   'marathon_headband': 1024 / 403,
   'mini_piggy_bank': 751 / 734,
-  'mint_buds': 1024 / 283,
   'night_cap': 882 / 467,
   'order_robot': 770 / 998,
   'organizer_helmet': 1024 / 678,
   'perfect_month_wreath': 1024 / 653,
-  'punctuality_shield_cape': 1024 / 564,
-  'reserve_scarf': 1024 / 681,
-  'round_accounting_glasses': 1024 / 350,
   'savings_piggy_cap': 1024 / 525,
   'silver_spark_crown': 833 / 432,
   'steady_plus_top_hat': 968 / 532,
-  'veteran_mantle': 1024 / 452,
-  'weekly_rhythm_headphones': 1024 / 718,
 };

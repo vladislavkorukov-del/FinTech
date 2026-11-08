@@ -751,8 +751,12 @@ class FinoraCharacter extends StatefulWidget {
     this.loop = false,
     this.rings = true,
     this.outfit = const [],
+    this.capeSpread = 1,
   });
   final double size;
+
+  /// See [FinoraOutfit.capeSpread].
+  final double capeSpread;
 
   /// 1.46: what she wears (see [Wardrobe.worn]), back to front. Drawn past
   /// her own square — leave room around her ([FinoraDressed] does).
@@ -903,44 +907,65 @@ class FinoraCharacterState extends State<FinoraCharacter>
 }
 
 extension on FinoraCharacterState {
-  /// Her sphere with the worn items in their layers:
-  /// behind → body → cape → headwear → eyes → face again (over glasses).
-  Widget _dressed(double size, double h) {
-    final outfit = widget.outfit
-        .where((i) => i.category != WardrobeCategory.companion)
-        .toList();
-    final glasses = outfit.any((i) => i.layer == WardrobeLayer.eyesAccessory);
-    final hat = outfit.any((i) => i.slot == WardrobeSlot.top);
-    final r = size / 2;
-    Widget painter({bool body = true, bool face = true}) => CustomPaint(
+  Widget _dressed(double size, double h) => FinoraOutfit(
+    size: size,
+    outfit: widget.outfit,
+    capeSpread: widget.capeSpread,
+    child: CustomPaint(
       size: Size.square(size),
       painter: FinoraOrbPainter(
         t: _flow.value,
         mood: mood,
         blink: _blink.value,
-        joy: h == 0 || !widget.rings || !body ? 0 : h,
-        body: body,
-        face: face,
+        joy: h == 0 || !widget.rings ? 0 : h,
         // Her little sign would sit on a hat.
-        sign: body && !hat,
+        sign: !widget.outfit.any((i) => i.slot == WardrobeSlot.top),
       ),
-    );
+    ),
+  );
+}
+
+/// 1.46: Finora's own square ([child] — her painted sphere) with the worn
+/// items in their layers, back to front: a cape behind her → her body and
+/// face → a hat or a crown on top. Drawn past the square: leave room.
+/// [capeSpread] < 1 draws capes narrower (the bottom bar, where tabs sit
+/// on both sides; the cut-out then just hides more of the cape behind her)
+/// and brings a companion closer, a little smaller.
+class FinoraOutfit extends StatelessWidget {
+  const FinoraOutfit({
+    super.key,
+    required this.size,
+    required this.outfit,
+    required this.child,
+    this.capeSpread = 1,
+  });
+  final double size;
+  final List<WardrobeItem> outfit;
+  final Widget child;
+  final double capeSpread;
+
+  @override
+  Widget build(BuildContext context) {
+    final r = size / 2;
     return SizedBox.square(
       dimension: size,
       child: Stack(
         clipBehavior: Clip.none,
         children: [
           for (final i in outfit)
-            if (i.layer == WardrobeLayer.cape) WardrobePiece(i, r, back: true),
-          painter(face: !glasses),
+            if (i.layer.index < WardrobeLayer.body.index)
+              WardrobePiece(i, r, spread: capeSpread),
+          child,
           for (final i in outfit)
-            if (i.layer == WardrobeLayer.cape && i.fit.front != null)
-              WardrobePiece(i, r, back: false),
-          for (final i in outfit)
-            if (i.layer == WardrobeLayer.headwear) WardrobePiece(i, r),
-          for (final i in outfit)
-            if (i.layer == WardrobeLayer.eyesAccessory) WardrobePiece(i, r),
-          if (glasses) painter(body: false),
+            if (i.layer.index > WardrobeLayer.body.index)
+              WardrobePiece(
+                i,
+                r,
+                // A companion moves in closer where room is short.
+                spread: i.slot == WardrobeSlot.companion
+                    ? math.min(1.0, capeSpread + .08)
+                    : 1,
+              ),
         ],
       ),
     );
@@ -950,9 +975,18 @@ extension on FinoraCharacterState {
 /// One worn picture placed on Finora by its [WardrobeFit] (r — her radius;
 /// the stack is her own square, her centre at (r, r)).
 class WardrobePiece extends StatelessWidget {
-  const WardrobePiece(this.item, this.r, {super.key, this.back});
+  const WardrobePiece(
+    this.item,
+    this.r, {
+    super.key,
+    this.back,
+    this.spread = 1,
+  });
   final WardrobeItem item;
   final double r;
+
+  /// Width factor around her centre (see [FinoraOutfit.capeSpread]).
+  final double spread;
 
   /// Capes: true — the part behind her, false — the collar in front.
   final bool? back;
@@ -960,9 +994,9 @@ class WardrobePiece extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final fit = item.fit;
-    final w = fit.width * r * 2;
+    final w = fit.width * r * 2 * spread;
     final hgt = w / item.ratio;
-    final left = r + fit.x * r - w * (fit.anchorX + 1) / 2;
+    final left = r + fit.x * r * spread - w * (fit.anchorX + 1) / 2;
     final top = r + fit.y * r - hgt * (fit.anchorY + 1) / 2;
     Widget image = Image.asset(
       item.asset,

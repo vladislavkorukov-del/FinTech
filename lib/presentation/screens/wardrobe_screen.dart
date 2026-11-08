@@ -15,10 +15,8 @@ import 'achievements_screen.dart';
 const wardrobeFilters = <(String, String)>[
   ('all', 'Все'),
   ('headwear', 'Шапки'),
-  ('glasses', 'Очки'),
-  ('headphones', 'Наушники'),
   ('crown', 'Короны'),
-  ('cape', 'Аксессуары'),
+  ('cape', 'Плащи'),
   ('companion', 'Companions'),
   ('legendary', 'Легендарные'),
 ];
@@ -33,6 +31,7 @@ String wardrobeSourceText(WardrobeItem item, {required bool open}) {
           .firstOrNull;
       return d == null ? '' : '${tr('За достижение')} «${tr(d.title)}»';
     }(),
+    EventReward(eventId: 'new_year') => tr('Новогоднее событие'),
     EventReward() => tr('Особое событие'),
   };
 }
@@ -40,6 +39,9 @@ String wardrobeSourceText(WardrobeItem item, {required bool open}) {
 /// What to do to open a closed item (none for a secret one).
 String? wardrobeCondition(WardrobeItem item) {
   if (item.secret) return null;
+  if (item.source case final EventReward e) {
+    return e.condition == null ? null : tr(e.condition!);
+  }
   final id = item.achievementId;
   final d = achievementDefinitions.where((a) => a.id == id).firstOrNull;
   return d == null ? null : tr(d.description);

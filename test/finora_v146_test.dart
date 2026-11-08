@@ -10,6 +10,7 @@ import 'package:finora/presentation/screens/wardrobe_screen.dart';
 import 'package:finora/presentation/whats_new.dart';
 import 'package:finora/presentation/widgets/finora_dressed.dart';
 import 'package:finora/presentation/widgets/finora_orb.dart';
+import 'package:finora/presentation/widgets/voice_orb.dart';
 import 'package:finora/services/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -38,9 +39,30 @@ int pngColorType(Uint8List b) => b[25];
 void main() {
   setUpAll(() => initializeDateFormatting('ru'));
 
-  test('каталог: 30 предметов, связи с настоящими достижениями', () {
-    expect(wardrobeItems.length, 30);
-    expect(wardrobeItems.map((i) => i.id).toSet().length, 30);
+  test('каталог 1.47: 33 вещи — шапки, короны, плащи, компаньоны', () {
+    expect(wardrobeItems.length, 33);
+    expect(wardrobeItems.map((i) => i.id).toSet().length, 33);
+    final count = <WardrobeCategory, int>{};
+    for (final i in wardrobeItems) {
+      count[i.category] = (count[i.category] ?? 0) + 1;
+    }
+    expect(count, {
+      WardrobeCategory.headwear: 10,
+      WardrobeCategory.crown: 4,
+      WardrobeCategory.cape: 15,
+      WardrobeCategory.companion: 4,
+    });
+    // Glasses, headphones and the old capes are gone.
+    for (final id in [
+      'mint_buds',
+      'cyan_pulse_headphones',
+      'analyst_glasses',
+      'heart_glasses',
+      'reserve_scarf',
+      'veteran_mantle',
+    ]) {
+      expect(Wardrobe.item(id), isNull, reason: id);
+    }
     final ids = {for (final d in achievementDefinitions) d.id};
     const expected = {
       'first_step_cap': 'first_step',
@@ -53,21 +75,10 @@ void main() {
       'steady_plus_top_hat': 'plus_3',
       'savings_piggy_cap': 'saved_10000',
       'marathon_headband': 'streak_100',
-      'round_accounting_glasses': 'ten_records',
-      'analyst_glasses': 'analyst_10',
-      'fintech_visor': 'full_picture',
-      'golden_perspective_glasses': 'budget_12',
-      'mint_buds': 'first_account',
-      'weekly_rhythm_headphones': 'streak_7',
-      'cyan_pulse_headphones': 'streak_30',
-      'champagne_sound_headphones': 'veteran',
       'silver_spark_crown': 'goal_done',
       'dream_crystal_crown': 'goals_3',
       'perfect_month_wreath': 'perfect_month',
       'finora_legend_crown': 'legend',
-      'reserve_scarf': 'cushion_3',
-      'punctuality_shield_cape': 'no_overdue',
-      'veteran_mantle': 'veteran',
       'first_coin': 'first_topup',
       'dream_trophy': 'goal_done',
       'mini_piggy_bank': 'saved_10000',
@@ -77,10 +88,23 @@ void main() {
       expect(Wardrobe.item(e.key)!.achievementId, e.value, reason: e.key);
       expect(ids, contains(e.value));
     }
-    final heart = Wardrobe.item('heart_glasses')!;
-    expect(heart.source, isA<EventReward>());
-    expect((heart.source as EventReward).live, isFalse);
-    expect(heart.secret && Wardrobe.item('night_cap')!.secret, isTrue);
+    // Every cape: a real achievement or the New Year event; drawn behind.
+    for (final i in wardrobeItems.where(
+      (i) => i.category == WardrobeCategory.cape,
+    )) {
+      expect(i.layer, WardrobeLayer.behindCharacter);
+      expect(i.slot, WardrobeSlot.cape);
+      final id = i.achievementId;
+      if (id == null) {
+        expect(i.id, 'cape_new_year');
+      } else {
+        expect(ids, contains(id), reason: i.id);
+      }
+      // Its own fit: about twice her width, centred on her.
+      expect(i.fit.width, inInclusiveRange(1.9, 2.4), reason: i.id);
+      expect(i.fit.x.abs(), lessThan(.05), reason: i.id);
+    }
+    expect(Wardrobe.item('night_cap')!.secret, isTrue);
     for (final i in wardrobeItems) {
       final file = File(i.asset);
       expect(file.existsSync(), isTrue, reason: i.id);
@@ -89,12 +113,8 @@ void main() {
       expect(i.ratio, greaterThan(.5));
       expect(i.fit.width, greaterThan(.2));
     }
-    // Slots: hats, crowns and headphones share «top».
-    for (final c in [
-      WardrobeCategory.headwear,
-      WardrobeCategory.crown,
-      WardrobeCategory.headphones,
-    ]) {
+    // Slots: hats and crowns share «top».
+    for (final c in [WardrobeCategory.headwear, WardrobeCategory.crown]) {
       expect(
         wardrobeItems
             .where((i) => i.category == c)
@@ -121,48 +141,99 @@ void main() {
 
   test('награды: открываются с достижением, без дублей, и за старые', () {
     var w = Wardrobe.sync(const WardrobeState(), got(['streak_7']));
-    expect(w.received.keys, {'habit_flame_cap', 'weekly_rhythm_headphones'});
+    expect(w.received.keys, {'habit_flame_cap'});
     expect(w.received['habit_flame_cap'], now);
     // Again — the same state, the same dates.
     final again = Wardrobe.sync(w, got(['streak_7']));
     expect(identical(again, w), isTrue);
-    // Event items are not opened by achievements.
-    w = Wardrobe.sync(w, got([for (final d in achievementDefinitions) d.id]));
-    expect(w.received.length, 29);
-    expect(w.received, isNot(contains('heart_glasses')));
+    // The New Year cape is not opened by achievements.
+    w = Wardrobe.sync(
+      w,
+      got([for (final d in achievementDefinitions) d.id]),
+      now: now,
+    );
+    expect(w.received.length, 32);
+    expect(w.received, isNot(contains('cape_new_year')));
   });
 
-  test('слоты: одна вещь сверху, очки и компаньон отдельно', () {
+  test('новогодний плащ: с 15 декабря по 15 января', () {
+    for (final (day, open) in [
+      (DateTime(2026, 12, 14), false),
+      (DateTime(2026, 12, 15), true),
+      (DateTime(2026, 12, 31, 23), true),
+      (DateTime(2027, 1, 15), true),
+      (DateTime(2027, 1, 16), false),
+      (DateTime(2027, 7, 1), false),
+    ]) {
+      final w = Wardrobe.sync(
+        const WardrobeState(),
+        const AchievementState(),
+        now: day,
+      );
+      expect(w.received.containsKey('cape_new_year'), open, reason: '$day');
+    }
+    // Once received it stays after the holidays.
+    final got = Wardrobe.sync(
+      const WardrobeState(),
+      const AchievementState(),
+      now: DateTime(2026, 12, 20),
+    );
+    final later = Wardrobe.sync(
+      got,
+      const AchievementState(),
+      now: DateTime(2027, 3, 1),
+    );
+    expect(later.received, contains('cape_new_year'));
+    expect(
+      wardrobeCondition(Wardrobe.item('cape_new_year')!),
+      'Загляните в Finora с 15 декабря по 15 января',
+    );
+  });
+
+  test('слоты: одна вещь сверху, плащ и компаньон отдельно', () {
     var w = Wardrobe.sync(
       const WardrobeState(),
       got(['first_step', 'goal_done', 'ten_records', 'first_topup']),
+      now: now,
     );
     w = Wardrobe.wear(w, 'first_step_cap');
-    w = Wardrobe.wear(w, 'round_accounting_glasses');
+    w = Wardrobe.wear(w, 'cape_star_wanderer');
     w = Wardrobe.wear(w, 'first_coin');
     expect(w.equipped.length, 3);
     // A crown in «top» takes the cap off.
     w = Wardrobe.wear(w, 'silver_spark_crown');
     expect(w.equipped[WardrobeSlot.top], 'silver_spark_crown');
     expect(w.equipped.values, isNot(contains('first_step_cap')));
-    expect(w.equipped[WardrobeSlot.eyes], 'round_accounting_glasses');
-    // A companion in its slot replaces the coin.
+    // Another cape replaces the first one.
+    w = Wardrobe.wear(w, 'cape_emerald_wood');
+    expect(w.equipped[WardrobeSlot.cape], 'cape_emerald_wood');
     w = Wardrobe.wear(w, 'dream_trophy');
     expect(w.equipped[WardrobeSlot.companion], 'dream_trophy');
-    w = Wardrobe.takeOff(w, WardrobeSlot.eyes);
-    expect(w.equipped.containsKey(WardrobeSlot.eyes), isFalse);
     expect(
       () => Wardrobe.wear(w, 'finora_legend_crown'),
       throwsFormatException,
     );
+    // Back to front: cape, crown, companion.
     expect(Wardrobe.worn(w).map((i) => i.layer).toList(), [
+      WardrobeLayer.behindCharacter,
       WardrobeLayer.headwear,
       WardrobeLayer.frontAccessory,
     ]);
-    // JSON keeps both parts.
+    w = Wardrobe.takeOff(w, WardrobeSlot.cape);
+    expect(w.equipped.containsKey(WardrobeSlot.cape), isFalse);
     final back = WardrobeState.fromJson(w.toJson());
     expect(back.equipped, w.equipped);
     expect(back.received, w.received);
+    // A saved «eyes» slot from 1.46 is ignored, its glasses forgotten.
+    final old = WardrobeState.fromJson({
+      'received': {'analyst_glasses': now.toIso8601String()},
+      'equipped': {'eyes': 'analyst_glasses'},
+    });
+    expect(old.equipped, isEmpty);
+    expect(
+      Wardrobe.sync(old, const AchievementState(), now: now).received,
+      isEmpty,
+    );
   });
 
   test('хранение: достижение → предмет, надетое после перезапуска', () async {
@@ -174,12 +245,16 @@ void main() {
       path: path,
     );
     // Before 1.46: achievements are there, the wardrobe is empty.
-    await repo.save(base.copyWith(achievements: got(['first_account'])));
+    await repo.save(base.copyWith(achievements: got(['goal_done'])));
     var c = FinanceController(repo, _Quiet(), await repo.load())
       ..achievementClock = () => now;
     expect(c.data.wardrobe.received, isEmpty);
     await c.syncWardrobe();
-    expect(c.data.wardrobe.received.keys, ['mint_buds']);
+    // goal_done → crown and trophy; «Мои деньги» (the account) → a cape.
+    expect(
+      c.data.wardrobe.received.keys,
+      containsAll(['silver_spark_crown', 'dream_trophy', 'cape_pirate_tides']),
+    );
     // A new achievement brings its item at once.
     await c.saveEntry(
       FinanceEntry(
@@ -195,8 +270,8 @@ void main() {
     expect(c.data.achievements.unlocked, contains('first_step'));
     expect(c.data.wardrobe.received, contains('first_step_cap'));
     await c.wear('first_step_cap');
-    await c.wear('mint_buds'); // the same «top» slot
-    expect(c.data.wardrobe.equipped, {WardrobeSlot.top: 'mint_buds'});
+    await c.wear('silver_spark_crown'); // the same «top» slot
+    expect(c.data.wardrobe.equipped, {WardrobeSlot.top: 'silver_spark_crown'});
     await expectLater(c.wear('finora_legend_crown'), throwsFormatException);
     c.dispose();
     await repo.close();
@@ -206,14 +281,14 @@ void main() {
       path: path,
     );
     c = FinanceController(repo, _Quiet(), await repo.load());
-    expect(c.data.wardrobe.equipped, {WardrobeSlot.top: 'mint_buds'});
-    expect(c.data.wardrobe.received.length, 2);
+    expect(c.data.wardrobe.equipped, {WardrobeSlot.top: 'silver_spark_crown'});
+    expect(c.data.wardrobe.received.length, 4);
     // Deleting the operation takes nothing away; a JSON import keeps it.
     await c.deleteEntry('e1');
     expect(c.data.wardrobe.received, contains('first_step_cap'));
     final json = await repo.exportJson();
     await c.importJson(json);
-    expect(c.data.wardrobe.equipped, {WardrobeSlot.top: 'mint_buds'});
+    expect(c.data.wardrobe.equipped, {WardrobeSlot.top: 'silver_spark_crown'});
     await c.resetAll();
     expect(c.data.wardrobe.received, contains('first_step_cap'));
     c.dispose();
@@ -221,36 +296,110 @@ void main() {
     await temp.delete(recursive: true);
   });
 
-  testWidgets('очки не закрывают глаза: лицо рисуется поверх', (tester) async {
-    final glasses = Wardrobe.item('golden_perspective_glasses')!;
-    final cap = Wardrobe.item('first_step_cap')!;
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Center(child: FinoraDressed(size: 100, outfit: [cap, glasses])),
+  testWidgets('слои: плащ за Финорой, корона и компаньон перед ней', (
+    tester,
+  ) async {
+    final outfit = Wardrobe.worn(
+      Wardrobe.wear(
+        Wardrobe.wear(
+          Wardrobe.wear(
+            WardrobeState(
+              received: {
+                for (final id in [
+                  'cape_royal_panther',
+                  'finora_legend_crown',
+                  'order_robot',
+                ])
+                  id: now,
+              },
+            ),
+            'cape_royal_panther',
+          ),
+          'finora_legend_crown',
+        ),
+        'order_robot',
       ),
     );
-    final painters = tester
-        .widgetList<CustomPaint>(find.byType(CustomPaint))
-        .map((p) => p.painter)
-        .whereType<FinoraOrbPainter>()
-        .toList();
-    // The body without the face, then the face alone over the glasses.
-    expect(painters.where((p) => p.body && !p.face), hasLength(1));
-    expect(painters.where((p) => !p.body && p.face), hasLength(1));
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Center(child: FinoraDressed(size: 100, outfit: outfit)),
+      ),
+    );
+    final stack = tester.widget<Stack>(
+      find
+          .descendant(
+            of: find.byType(FinoraOutfit),
+            matching: find.byType(Stack),
+          )
+          .first,
+    );
+    String name(Widget w) => switch (w) {
+      WardrobePiece(:final item) => item.id,
+      CustomPaint(:final painter) when painter is FinoraOrbPainter => 'finora',
+      _ => '?',
+    };
+    expect(stack.children.map(name).toList(), [
+      'cape_royal_panther',
+      'finora',
+      'finora_legend_crown',
+      'order_robot',
+    ]);
+  });
+
+  testWidgets('Финора в меню одета: нижняя панель', (tester) async {
+    sqfliteFfiInit();
+    late Directory temp;
+    late FinanceRepository repo;
+    late FinanceController c;
+    await tester.runAsync(() async {
+      temp = await Directory.systemTemp.createTemp('finora-v147-bar-');
+      repo = await FinanceRepository.open(
+        factory: databaseFactoryFfi,
+        path: '${temp.path}/db',
+      );
+      final a = got(['legend', 'veteran']);
+      var w = Wardrobe.sync(const WardrobeState(), a, now: now);
+      w = Wardrobe.wear(
+        Wardrobe.wear(w, 'finora_legend_crown'),
+        'cape_royal_panther',
+      );
+      await repo.save(base.copyWith(achievements: a, wardrobe: w));
+      c = FinanceController(repo, _Quiet(), await repo.load());
+    });
+    await tester.pumpWidget(
+      FinanceScope(
+        controller: c,
+        child: MaterialApp(
+          home: Scaffold(
+            body: Center(
+              child: VoiceOrb(size: 54, onTap: () {}, onLongPress: () {}),
+            ),
+          ),
+        ),
+      ),
+    );
     final pieces = tester.widgetList<WardrobePiece>(find.byType(WardrobePiece));
-    expect(pieces.map((p) => p.item.id), ['first_step_cap', glasses.id]);
-    // Without glasses — one painter with the face.
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Center(child: FinoraDressed(size: 100, outfit: [cap])),
-      ),
+    expect(pieces.map((p) => p.item.id), [
+      'cape_royal_panther',
+      'finora_legend_crown',
+    ]);
+    // Narrower in the bar: the tabs are on both sides.
+    expect(pieces.first.spread, lessThan(1));
+    // Taken off — gone from the menu too.
+    await tester.runAsync(() => c.takeOff(WardrobeSlot.cape));
+    await tester.pump();
+    expect(
+      tester
+          .widgetList<WardrobePiece>(find.byType(WardrobePiece))
+          .map((p) => p.item.id),
+      ['finora_legend_crown'],
     );
-    final one = tester
-        .widgetList<CustomPaint>(find.byType(CustomPaint))
-        .map((p) => p.painter)
-        .whereType<FinoraOrbPainter>()
-        .toList();
-    expect(one.single.face && one.single.body, isTrue);
+    await tester.pumpWidget(const SizedBox());
+    await tester.runAsync(() async {
+      c.dispose();
+      await repo.close();
+      await temp.delete(recursive: true);
+    });
   });
 
   testWidgets('экран «Гардероб Finora»: фильтры, надеть, снять, ???', (
@@ -294,7 +443,7 @@ void main() {
       ),
     );
     await settle();
-    expect(find.text('Открыто 4 из 30'), findsOneWidget);
+    expect(find.text('Открыто 4 из 33'), findsOneWidget);
     expect(find.byKey(const ValueKey('wardrobe-preview')), findsOneWidget);
 
     // Wear the cap.
@@ -354,7 +503,7 @@ void main() {
 
     // Secrets stay «???».
     expect(wardrobeSourceText(Wardrobe.item('night_cap')!, open: false), '???');
-    expect(wardrobeCondition(Wardrobe.item('heart_glasses')!), isNull);
+    expect(wardrobeCondition(Wardrobe.item('night_cap')!), isNull);
     expect(
       wardrobeCondition(Wardrobe.item('marathon_headband')!),
       '100 дней подряд с финансовыми делами',
@@ -403,7 +552,9 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  test('«Что нового» 1.46 — гардероб', () {
-    expect(WhatsNew.items.first.$2, 'Гардероб Финоры');
+  test('«Что нового» 1.47 — меню и плащи', () {
+    final titles = WhatsNew.items.map((i) => i.$2).toList();
+    expect(titles.first, 'Финора одета и в меню');
+    expect(titles, containsAll(['15 плащей', 'Гардероб Финоры']));
   });
 }
