@@ -1,0 +1,31 @@
+{
+  "canvas": {
+    "width": 1536,
+    "height": 1024
+  },
+  "layer": "behind_character",
+  "finora_body_rect_on_canvas": {
+    "x": 390,
+    "y": 130,
+    "width": 756,
+    "height": 756
+  },
+  "compositing": "Draw cape at full canvas size, then Finora within body rect above it. If Finora has a translucent body, mask the cape by the opaque circular body silhouette before drawing Finora.",
+  "items": [
+    "01_new_year.png",
+    "02_star_wanderer.png",
+    "03_emerald_wood.png",
+    "04_starlit_academy.png",
+    "05_neon_noir.png",
+    "06_sand_prophecy.png",
+    "07_midnight_vigil.png",
+    "08_scarlet_flight.png",
+    "09_frost_queen.png",
+    "10_mystic_portal.png",
+    "11_royal_panther.png",
+    "12_pirate_tides.png",
+    "13_digital_grid.png",
+    "14_emerald_city.png",
+    "15_firebird_rebel.png"
+  ]
+}

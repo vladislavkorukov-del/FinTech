@@ -1,18 +1,19 @@
 import 'achievements.dart';
 
-/// Finora 1.46: the wardrobe — received for achievements (and, later, for
-/// events and mini-games). 1.48: companions only — a coin, a trophy, a
-/// piggy bank and a robot floating beside her.
+part 'wardrobe_imported.dart';
+
+/// The existing wardrobe, extended with the supplied companion and cape pack.
+/// Legacy items and their rewards remain unchanged.
 ///
 /// The catalog is data; what the person has is [WardrobeState], stored with
 /// the rest of the ledger. An item is open when its source is reached:
 /// for an achievement — once that achievement is received (it is never
 /// taken away, so neither is the item).
 
-enum WardrobeCategory { companion }
+enum WardrobeCategory { companion, cape }
 
 /// Where an item goes; one item per slot.
-enum WardrobeSlot { companion }
+enum WardrobeSlot { companion, cape }
 
 /// Drawing order around Finora, back to front.
 enum WardrobeLayer {
@@ -42,6 +43,20 @@ class EventReward extends WardrobeSource {
   const EventReward(this.eventId, {this.live = false});
   final String eventId;
   final bool live;
+
+  /// Existing 1.47 event policy; no new event or reward condition is added.
+  bool activeAt(DateTime now) => switch (eventId) {
+    'new_year' =>
+      live &&
+          ((now.month == 12 && now.day >= 15) ||
+              (now.month == 1 && now.day <= 15)),
+    _ => false,
+  };
+
+  String? get condition => switch (eventId) {
+    'new_year' => 'Загляните в Finora с 15 декабря по 15 января',
+    _ => null,
+  };
 }
 
 /// How a picture sits on Finora. Units: Finora's radius r, from the centre
@@ -69,6 +84,8 @@ class WardrobeItem {
     required this.source,
     required this.fit,
     this.secret = false,
+    this.assetPath,
+    this.aspectRatio,
   });
 
   final String id, name;
@@ -79,15 +96,21 @@ class WardrobeItem {
 
   /// Shown as «???» until received (a secret achievement or a future event).
   final bool secret;
+  final String? assetPath;
+  final double? aspectRatio;
 
-  String get asset => 'assets/finora/wardrobe/$id.png';
+  String get asset => assetPath ?? 'assets/finora/wardrobe/$id.png';
 
   /// Width ÷ height of the picture (its transparent margins trimmed).
-  double get ratio => wardrobeRatios[id] ?? 1;
+  double get ratio => aspectRatio ?? wardrobeRatios[id] ?? 1;
 
-  WardrobeSlot get slot => WardrobeSlot.companion;
+  WardrobeSlot get slot => category == WardrobeCategory.cape
+      ? WardrobeSlot.cape
+      : WardrobeSlot.companion;
 
-  WardrobeLayer get layer => WardrobeLayer.frontAccessory;
+  WardrobeLayer get layer => category == WardrobeCategory.cape
+      ? WardrobeLayer.behindCharacter
+      : WardrobeLayer.frontAccessory;
 
   String? get achievementId => switch (source) {
     AchievementReward(:final achievementId) => achievementId,
@@ -124,22 +147,30 @@ class WardrobeState {
     final received = <String, DateTime>{};
     for (final e in (j['received'] as Map? ?? const {}).entries) {
       final at = DateTime.tryParse('${e.value}');
-      if (at != null) received['${e.key}'] = at;
+      if (at != null) {
+        final id = Wardrobe.canonicalId('${e.key}');
+        final previous = received[id];
+        if (previous == null || at.isBefore(previous)) received[id] = at;
+      }
     }
     final equipped = <WardrobeSlot, String>{};
     for (final e in (j['equipped'] as Map? ?? const {}).entries) {
       final slot = WardrobeSlot.values
           .where((s) => s.name == e.key)
           .firstOrNull;
-      if (slot != null && e.value is String) equipped[slot] = e.value as String;
+      if (slot != null && e.value is String) {
+        equipped[slot] = Wardrobe.canonicalId(e.value as String);
+      }
     }
     return WardrobeState(received: received, equipped: equipped);
   }
 }
 
 abstract final class Wardrobe {
+  static String canonicalId(String id) => legacyCapeAliases[id] ?? id;
+
   static WardrobeItem? item(String id) =>
-      wardrobeItems.where((i) => i.id == id).firstOrNull;
+      wardrobeItems.where((i) => i.id == canonicalId(id)).firstOrNull;
 
   /// Whether [item]'s source is reached by [achievements] (or it was given).
   static bool open(
@@ -167,32 +198,45 @@ abstract final class Wardrobe {
     AchievementState achievements, {
     DateTime? now,
   }) {
-    Map<String, DateTime>? received;
-    // Items taken out of the catalog (1.48: all but companions) are
-    // forgotten.
-    if (state.received.keys.any((id) => item(id) == null)) {
-      received = {
-        for (final e in state.received.entries)
-          if (item(e.key) != null) e.key: e.value,
-      };
+    final normalized = <String, DateTime>{};
+    var receivedChanged = false;
+    for (final e in state.received.entries) {
+      final id = canonicalId(e.key);
+      if (item(id) == null) {
+        receivedChanged = true;
+        continue;
+      }
+      final previous = normalized[id];
+      if (previous == null || e.value.isBefore(previous)) {
+        normalized[id] = e.value;
+      }
+      if (id != e.key || previous != null) receivedChanged = true;
     }
+    Map<String, DateTime>? received = receivedChanged ? normalized : null;
+    final clock = now ?? DateTime.now();
     for (final i in wardrobeItems) {
-      if (state.received.containsKey(i.id)) continue;
-      final id = i.achievementId;
-      final at = id == null ? null : achievements.unlocked[id];
+      if ((received ?? state.received).containsKey(i.id)) continue;
+      final at = switch (i.source) {
+        AchievementReward(:final achievementId) =>
+          achievements.unlocked[achievementId],
+        final EventReward e => e.activeAt(clock) ? clock : null,
+      };
       if (at == null) continue;
       (received ??= {...state.received})[i.id] = at;
     }
-    // Only received items can be worn.
-    final equipped = {
-      for (final e in state.equipped.entries)
-        if ((received ?? state.received).containsKey(e.value) &&
-            item(e.value)?.slot == e.key)
-          e.key: e.value,
-    };
-    if (received == null && equipped.length == state.equipped.length) {
-      return state;
+    // Canonicalize historical cape IDs; one received item per matching slot.
+    final equipped = <WardrobeSlot, String>{};
+    for (final e in state.equipped.entries) {
+      final id = canonicalId(e.value);
+      if ((received ?? state.received).containsKey(id) &&
+          item(id)?.slot == e.key) {
+        equipped[e.key] = id;
+      }
     }
+    final equippedChanged =
+        equipped.length != state.equipped.length ||
+        equipped.entries.any((e) => state.equipped[e.key] != e.value);
+    if (received == null && !equippedChanged) return state;
     return WardrobeState(
       received: received ?? state.received,
       equipped: equipped,
@@ -202,10 +246,10 @@ abstract final class Wardrobe {
   /// Puts [itemId] on, taking off whatever was in its slot.
   static WardrobeState wear(WardrobeState state, String itemId) {
     final i = item(itemId);
-    if (i == null || !state.received.containsKey(itemId)) {
+    if (i == null || !state.received.containsKey(i.id)) {
       throw const FormatException('Этот предмет ещё не открыт');
     }
-    return state.copyWith(equipped: {...state.equipped, i.slot: itemId});
+    return state.copyWith(equipped: {...state.equipped, i.slot: i.id});
   }
 
   static WardrobeState takeOff(WardrobeState state, WardrobeSlot slot) =>
@@ -217,12 +261,13 @@ abstract final class Wardrobe {
       );
 
   /// What is worn, back to front.
-  static List<WardrobeItem> worn(WardrobeState state) =>
-      [for (final id in state.equipped.values) ?item(id)]
-        ..sort((a, b) => a.layer.index.compareTo(b.layer.index));
+  static List<WardrobeItem> worn(WardrobeState state) => [
+    for (final e in state.equipped.entries)
+      if (item(e.value)?.slot == e.key) ?item(e.value),
+  ]..sort((a, b) => a.layer.index.compareTo(b.layer.index));
 }
 
-/// The 4 companions, each with its own place beside her.
+/// Legacy companions remain owned and usable; the supplied pack is additive.
 const wardrobeItems = <WardrobeItem>[
   // ── Компаньоны ────────────────────────────────────────────────────────
   WardrobeItem(
@@ -257,6 +302,7 @@ const wardrobeItems = <WardrobeItem>[
     source: AchievementReward('order'),
     fit: WardrobeFit(width: .4, x: 1.38, y: .5),
   ),
+  ...importedWardrobeItems,
 ];
 
 /// Picture proportions (pixel sizes of the trimmed PNGs).

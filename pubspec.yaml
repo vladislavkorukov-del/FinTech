@@ -1,7 +1,7 @@
 name: finora
 description: Offline-first personal and family finance for Android.
 publish_to: none
-version: 1.48.0+60
+version: 1.49.0+61
 
 environment:
   sdk: '>=3.8.0 <4.0.0'
@@ -45,3 +45,6 @@ flutter:
     - assets/ocr/tessdata/
     - assets/finora/achievements/
     - assets/finora/wardrobe/
+    - assets/companions/
+    - assets/capes/
+    - assets/finora/wardrobe_pack/

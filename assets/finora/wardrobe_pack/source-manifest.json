@@ -1,0 +1,224 @@
+{
+  "archives": [
+    {
+      "name": "Finora_Codex_part_01_pets_01-06.zip",
+      "sha256": "ed39a1fd063d840f3352b05d1539d780333dbc95563ccaafac1319fd76af1629"
+    },
+    {
+      "name": "Finora_Codex_part_02_pets_07-13.zip",
+      "sha256": "7025d362aedc88c18ed60cc366b8dd1218618d5d93d06d520d58a2f1f06f2fb7"
+    },
+    {
+      "name": "Finora_Codex_part_03_capes_01-05.zip",
+      "sha256": "20382892da0bb6343d341dc8f20243646430a67c1aeaa160826b68779ad19b8e"
+    },
+    {
+      "name": "Finora_Codex_part_04_capes_06-10.zip",
+      "sha256": "6f0438ba63116e7a5e2793898a37fba85f5454563239919c199db26822d6d143"
+    },
+    {
+      "name": "Finora_Codex_part_05_capes_11-15.zip",
+      "sha256": "45612781814852053173d8d8f2365566956c4a98c34737cec7809cfb7cfc0875"
+    }
+  ],
+  "companions": 13,
+  "capes": 15,
+  "items": [
+    {
+      "asset": "assets/companions/01_lilac_ghost.png",
+      "archive": "Finora_Codex_part_01_pets_01-06.zip",
+      "bytes": 645808,
+      "sha256": "0dbaf141fb1206730014e96aa8cb5cac6ddd4d22dc3eb553278f22316305518c",
+      "modifications": "none; exact uploaded PNG"
+    },
+    {
+      "asset": "assets/companions/02_moon_cat.png",
+      "archive": "Finora_Codex_part_01_pets_01-06.zip",
+      "bytes": 1137955,
+      "sha256": "81cf40e2492265eca5cbf809c276444da686bab857aabb2b97202d17cf023014",
+      "modifications": "none; exact uploaded PNG"
+    },
+    {
+      "asset": "assets/companions/03_pearl_owl.png",
+      "archive": "Finora_Codex_part_01_pets_01-06.zip",
+      "bytes": 989829,
+      "sha256": "a89dc2c39d70d72b81502cef1a5e3d4606913afbc3fcb191666141a25bc4d7c8",
+      "modifications": "none; exact uploaded PNG"
+    },
+    {
+      "asset": "assets/companions/04_investment_sprout.png",
+      "archive": "Finora_Codex_part_01_pets_01-06.zip",
+      "bytes": 931158,
+      "sha256": "49f3c5ca1367ac31bfa406fd67d13ea98152d959cb1ad0bfea52d7db3ff0ac44",
+      "modifications": "none; exact uploaded PNG"
+    },
+    {
+      "asset": "assets/companions/05_midnight_raven.png",
+      "archive": "Finora_Codex_part_01_pets_01-06.zip",
+      "bytes": 1079344,
+      "sha256": "407bb6f509ab8bd7b72c361445a2e4a1177940f665c1f864d46d02cfaa541b3e",
+      "modifications": "none; exact uploaded PNG"
+    },
+    {
+      "asset": "assets/companions/06_moon_rabbit.png",
+      "archive": "Finora_Codex_part_01_pets_01-06.zip",
+      "bytes": 1043979,
+      "sha256": "1d48f1efd63bd31e38cc58a949141931318b44365fb300629e0cf95b0b7225e9",
+      "modifications": "none; exact uploaded PNG"
+    },
+    {
+      "asset": "assets/companions/07_pink_mushroom.png",
+      "archive": "Finora_Codex_part_02_pets_07-13.zip",
+      "bytes": 1078017,
+      "sha256": "f9248fab30f0432e30c98103c1ef0835ad42603fb0d3f60a7235a798c6f96441",
+      "modifications": "none; exact uploaded PNG"
+    },
+    {
+      "asset": "assets/companions/08_pearl_crab.png",
+      "archive": "Finora_Codex_part_02_pets_07-13.zip",
+      "bytes": 1328256,
+      "sha256": "e9350fdcadc980e08243e750eccc5cdbbd277f2432eda9d4bf11105be73e949a",
+      "modifications": "none; exact uploaded PNG"
+    },
+    {
+      "asset": "assets/companions/09_red_panda.png",
+      "archive": "Finora_Codex_part_02_pets_07-13.zip",
+      "bytes": 1440672,
+      "sha256": "008cae6b6cc89a9c59ebbb8bff53d372d800e0b4ed019c9410c606222c6b7474",
+      "modifications": "none; exact uploaded PNG"
+    },
+    {
+      "asset": "assets/companions/10_amethyst_jellyfish.png",
+      "archive": "Finora_Codex_part_02_pets_07-13.zip",
+      "bytes": 1002867,
+      "sha256": "5bac86ad16210e6d64ab569ab30c97efdb348c11750ea1a10a019378e96546dc",
+      "modifications": "none; exact uploaded PNG"
+    },
+    {
+      "asset": "assets/companions/11_forest_frog.png",
+      "archive": "Finora_Codex_part_02_pets_07-13.zip",
+      "bytes": 1067758,
+      "sha256": "b0e6a5f3c1f41be75f06eaa9a4afac188d14900a86fd6c1861a645089179a099",
+      "modifications": "none; exact uploaded PNG"
+    },
+    {
+      "asset": "assets/companions/12_aviator_octopus.png",
+      "archive": "Finora_Codex_part_02_pets_07-13.zip",
+      "bytes": 1311002,
+      "sha256": "3e5119f56bcdf852b704840b1e4565bf28dd12d8c4993a44843d660cbe597cc8",
+      "modifications": "none; exact uploaded PNG"
+    },
+    {
+      "asset": "assets/companions/13_pearl_koi.png",
+      "archive": "Finora_Codex_part_02_pets_07-13.zip",
+      "bytes": 2080734,
+      "sha256": "83772d3df82fcf0c7f94819bedff54a6488324a4b9ab7468102eef55aef41911",
+      "modifications": "none; exact uploaded PNG"
+    },
+    {
+      "asset": "assets/capes/01_new_year.png",
+      "archive": "Finora_Codex_part_03_capes_01-05.zip",
+      "bytes": 1482189,
+      "sha256": "972917b98565c68a45a239d8f077dd13d838f357f76800e909a6350eccbdd23b",
+      "modifications": "none; exact uploaded PNG"
+    },
+    {
+      "asset": "assets/capes/02_star_wanderer.png",
+      "archive": "Finora_Codex_part_03_capes_01-05.zip",
+      "bytes": 1542975,
+      "sha256": "45a5c5fcb0d696178e8dba42f15087c36d3703c4aaa930c8f7e04f39315b64c7",
+      "modifications": "none; exact uploaded PNG"
+    },
+    {
+      "asset": "assets/capes/03_emerald_wood.png",
+      "archive": "Finora_Codex_part_03_capes_01-05.zip",
+      "bytes": 1572202,
+      "sha256": "73f3d37deb55a2a1ddf1a29fc01689a54a1beb76b81f7758542879ce05df9986",
+      "modifications": "none; exact uploaded PNG"
+    },
+    {
+      "asset": "assets/capes/04_starlit_academy.png",
+      "archive": "Finora_Codex_part_03_capes_01-05.zip",
+      "bytes": 1498176,
+      "sha256": "752db17f8031f6c67cdacb817312b7ab60c7d1c294a4a3282592859ada2ae6ef",
+      "modifications": "none; exact uploaded PNG"
+    },
+    {
+      "asset": "assets/capes/05_neon_noir.png",
+      "archive": "Finora_Codex_part_03_capes_01-05.zip",
+      "bytes": 1470331,
+      "sha256": "64657403e530347f2d37ef966af751c390076895181e0cd683e959e6db696550",
+      "modifications": "none; exact uploaded PNG"
+    },
+    {
+      "asset": "assets/capes/06_sand_prophecy.png",
+      "archive": "Finora_Codex_part_04_capes_06-10.zip",
+      "bytes": 1622125,
+      "sha256": "3b8adb1f697b17b2ba51bafd9dfc762b197789f718b30822efc101a276d28b68",
+      "modifications": "none; exact uploaded PNG"
+    },
+    {
+      "asset": "assets/capes/07_midnight_vigil.png",
+      "archive": "Finora_Codex_part_04_capes_06-10.zip",
+      "bytes": 1504917,
+      "sha256": "dba1af4dc85e8e874a37a3da3af0361db2491e3de0dfcb4016437afb3314dc12",
+      "modifications": "none; exact uploaded PNG"
+    },
+    {
+      "asset": "assets/capes/08_scarlet_flight.png",
+      "archive": "Finora_Codex_part_04_capes_06-10.zip",
+      "bytes": 1560459,
+      "sha256": "9e4238d30654afc805d51785f4eb38a6d74c8760f10eb6d159e698c7e94fe47c",
+      "modifications": "none; exact uploaded PNG"
+    },
+    {
+      "asset": "assets/capes/09_frost_queen.png",
+      "archive": "Finora_Codex_part_04_capes_06-10.zip",
+      "bytes": 1427130,
+      "sha256": "4bcd514b229a147638f5edef618a06c8f2037e84041a5e7710ed95d3038ab873",
+      "modifications": "none; exact uploaded PNG"
+    },
+    {
+      "asset": "assets/capes/10_mystic_portal.png",
+      "archive": "Finora_Codex_part_04_capes_06-10.zip",
+      "bytes": 1490717,
+      "sha256": "28e4bb233f651437a402cdbb005f58fb1929d985e6b7272c38948c008384a892",
+      "modifications": "none; exact uploaded PNG"
+    },
+    {
+      "asset": "assets/capes/11_royal_panther.png",
+      "archive": "Finora_Codex_part_05_capes_11-15.zip",
+      "bytes": 1571871,
+      "sha256": "2aae1765fe753ea115dff1e314714063e688959c490b35d116d7a93759228723",
+      "modifications": "none; exact uploaded PNG"
+    },
+    {
+      "asset": "assets/capes/12_pirate_tides.png",
+      "archive": "Finora_Codex_part_05_capes_11-15.zip",
+      "bytes": 1626163,
+      "sha256": "1c125d4414c1aa6ca253d18bf34ee00f2f76a3add0f907be68d8328259a07066",
+      "modifications": "none; exact uploaded PNG"
+    },
+    {
+      "asset": "assets/capes/13_digital_grid.png",
+      "archive": "Finora_Codex_part_05_capes_11-15.zip",
+      "bytes": 1397208,
+      "sha256": "8eee21608dd2a433c5acc87cfcf222bd1ac35d10113cc912be459ec5a6cac2ce",
+      "modifications": "none; exact uploaded PNG"
+    },
+    {
+      "asset": "assets/capes/14_emerald_city.png",
+      "archive": "Finora_Codex_part_05_capes_11-15.zip",
+      "bytes": 1455183,
+      "sha256": "73051ec70d6672566897baecbd532e195a32a24a8093e8815acdb6764b0f3350",
+      "modifications": "none; exact uploaded PNG"
+    },
+    {
+      "asset": "assets/capes/15_firebird_rebel.png",
+      "archive": "Finora_Codex_part_05_capes_11-15.zip",
+      "bytes": 1472146,
+      "sha256": "aa172debacb6c58dbd1d0b7d4a670a53a57ccd0cdc11c335aead192d12f73418",
+      "modifications": "none; exact uploaded PNG"
+    }
+  ]
+}

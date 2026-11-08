@@ -1,0 +1,122 @@
+[
+  {
+    "id": "new_year",
+    "name_ru": "Новогодний плащ",
+    "file": "assets/capes/01_new_year.png",
+    "layer": "behind_character",
+    "width": 1536,
+    "height": 1024
+  },
+  {
+    "id": "star_wanderer",
+    "name_ru": "Звёздный странник",
+    "file": "assets/capes/02_star_wanderer.png",
+    "layer": "behind_character",
+    "width": 1536,
+    "height": 1024
+  },
+  {
+    "id": "emerald_wood",
+    "name_ru": "Изумрудный лес",
+    "file": "assets/capes/03_emerald_wood.png",
+    "layer": "behind_character",
+    "width": 1536,
+    "height": 1024
+  },
+  {
+    "id": "starlit_academy",
+    "name_ru": "Звёздная академия",
+    "file": "assets/capes/04_starlit_academy.png",
+    "layer": "behind_character",
+    "width": 1536,
+    "height": 1024
+  },
+  {
+    "id": "neon_noir",
+    "name_ru": "Неоновый нуар",
+    "file": "assets/capes/05_neon_noir.png",
+    "layer": "behind_character",
+    "width": 1536,
+    "height": 1024
+  },
+  {
+    "id": "sand_prophecy",
+    "name_ru": "Песчаное пророчество",
+    "file": "assets/capes/06_sand_prophecy.png",
+    "layer": "behind_character",
+    "width": 1536,
+    "height": 1024
+  },
+  {
+    "id": "midnight_vigil",
+    "name_ru": "Полуночный страж",
+    "file": "assets/capes/07_midnight_vigil.png",
+    "layer": "behind_character",
+    "width": 1536,
+    "height": 1024
+  },
+  {
+    "id": "scarlet_flight",
+    "name_ru": "Алый полёт",
+    "file": "assets/capes/08_scarlet_flight.png",
+    "layer": "behind_character",
+    "width": 1536,
+    "height": 1024
+  },
+  {
+    "id": "frost_queen",
+    "name_ru": "Снежная королева",
+    "file": "assets/capes/09_frost_queen.png",
+    "layer": "behind_character",
+    "width": 1536,
+    "height": 1024
+  },
+  {
+    "id": "mystic_portal",
+    "name_ru": "Мистический портал",
+    "file": "assets/capes/10_mystic_portal.png",
+    "layer": "behind_character",
+    "width": 1536,
+    "height": 1024
+  },
+  {
+    "id": "royal_panther",
+    "name_ru": "Королевская пантера",
+    "file": "assets/capes/11_royal_panther.png",
+    "layer": "behind_character",
+    "width": 1536,
+    "height": 1024
+  },
+  {
+    "id": "pirate_tides",
+    "name_ru": "Пиратские приливы",
+    "file": "assets/capes/12_pirate_tides.png",
+    "layer": "behind_character",
+    "width": 1536,
+    "height": 1024
+  },
+  {
+    "id": "digital_grid",
+    "name_ru": "Цифровая сетка",
+    "file": "assets/capes/13_digital_grid.png",
+    "layer": "behind_character",
+    "width": 1536,
+    "height": 1024
+  },
+  {
+    "id": "emerald_city",
+    "name_ru": "Изумрудный город",
+    "file": "assets/capes/14_emerald_city.png",
+    "layer": "behind_character",
+    "width": 1536,
+    "height": 1024
+  },
+  {
+    "id": "firebird_rebel",
+    "name_ru": "Мятежная жар-птица",
+    "file": "assets/capes/15_firebird_rebel.png",
+    "layer": "behind_character",
+    "width": 1536,
+    "height": 1024
+  }
+]

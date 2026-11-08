@@ -28,6 +28,9 @@ String wardrobeSourceText(WardrobeItem item, {required bool open}) {
 /// What to do to open a closed item (none for a secret one).
 String? wardrobeCondition(WardrobeItem item) {
   if (item.secret) return null;
+  if (item.source case EventReward(:final condition)) {
+    return condition == null ? tr('Особое событие') : tr(condition);
+  }
   final id = item.achievementId;
   final d = achievementDefinitions.where((a) => a.id == id).firstOrNull;
   return d == null ? null : tr(d.description);
@@ -42,6 +45,7 @@ class WardrobeScreen extends StatefulWidget {
 }
 
 class _WardrobeScreenState extends State<WardrobeScreen> {
+  WardrobeCategory? _category;
   Future<void> _toggle(FinanceController c, WardrobeItem item) async {
     final worn = c.data.wardrobe.equipped[item.slot] == item.id;
     Haptics.tap();
@@ -67,7 +71,9 @@ class _WardrobeScreenState extends State<WardrobeScreen> {
       for (final i in wardrobeItems)
         if (Wardrobe.open(i, achievements, state)) i.id,
     };
-    const list = wardrobeItems;
+    final list = wardrobeItems
+        .where((i) => _category == null || i.category == _category)
+        .toList();
     final worn = Wardrobe.worn(state);
     final textScale = MediaQuery.textScalerOf(context).scale(1).clamp(1.0, 2.0);
     return Scaffold(
@@ -116,8 +122,8 @@ class _WardrobeScreenState extends State<WardrobeScreen> {
                     const SizedBox(height: 4),
                     Text(
                       worn.isEmpty
-                          ? 'Нажмите «Надеть» на открытом компаньоне'
-                          : 'Компаньон парит рядом с Финорой',
+                          ? 'Выберите открытого компаньона или плащ'
+                          : 'Один компаньон и один плащ могут быть надеты одновременно',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 13,
@@ -126,6 +132,33 @@ class _WardrobeScreenState extends State<WardrobeScreen> {
                     ),
                   ],
                 ),
+              ),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              child: Row(
+                children: [
+                  for (final filter in <(WardrobeCategory?, String)>[
+                    (null, 'Все'),
+                    (WardrobeCategory.companion, 'Компаньоны'),
+                    (WardrobeCategory.cape, 'Плащи'),
+                  ])
+                    Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: ChoiceChip(
+                        key: ValueKey(
+                          'wardrobe-filter-${filter.$1?.name ?? "all"}',
+                        ),
+                        label: Text(filter.$2),
+                        selected: _category == filter.$1,
+                        onSelected: (_) =>
+                            setState(() => _category = filter.$1),
+                      ),
+                    ),
+                ],
               ),
             ),
           ),
@@ -185,7 +218,12 @@ class WardrobeCard extends StatelessWidget {
     Widget picture = Image.asset(
       item.asset,
       fit: BoxFit.contain,
-      filterQuality: FilterQuality.medium,
+      filterQuality: FilterQuality.high,
+      isAntiAlias: true,
+      cacheWidth: (MediaQuery.devicePixelRatioOf(context) * 192).ceil().clamp(
+        128,
+        768,
+      ),
       excludeFromSemantics: true,
     );
     if (!open) {

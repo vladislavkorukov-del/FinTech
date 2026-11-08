@@ -154,12 +154,17 @@ class FinoraOrbPainter extends CustomPainter {
   static const _pink = Color(0xFFFF7FB0);
   static const _ink = Color(0xFF0A2730);
 
+  /// Shared with the attached cape's exclusion mask so breathing cannot reveal
+  /// any cloth through a translucent body.
+  static double bodyRadiusScale(double t) =>
+      1 + .025 * math.sin(t * math.pi * 4);
+
   @override
   void paint(Canvas canvas, Size size) {
     final r0 = size.width / 2;
     final c = Offset(r0, r0);
     final a = t * 2 * math.pi;
-    final r = r0 * (1 + .025 * math.sin(a * 2));
+    final r = r0 * bodyRadiusScale(t);
 
     if (joy > 0 && joy < 1) {
       for (final delay in [0.0, .22]) {
@@ -741,6 +746,7 @@ class FinoraCharacter extends StatefulWidget {
     this.step = const Duration(milliseconds: 1600),
     this.loop = false,
     this.rings = true,
+    this.behindBodyBuilder,
   });
   final double size;
 
@@ -751,6 +757,10 @@ class FinoraCharacter extends StatefulWidget {
 
   /// 1.36: the rings of joy around her on a hop (off on the loading screen).
   final bool rings;
+
+  /// Optional attached background in the body's coordinate space. It is below
+  /// the painter and shares its hop/turn/scale; receives the breathing radius.
+  final Widget Function(double radiusScale)? behindBodyBuilder;
 
   @override
   State<FinoraCharacter> createState() => FinoraCharacterState();
@@ -868,14 +878,25 @@ class FinoraCharacterState extends State<FinoraCharacter>
               angle: wiggle(h) * .14,
               child: Transform.scale(
                 scale: bounce(h),
-                child: CustomPaint(
-                  size: Size.square(size),
-                  painter: FinoraOrbPainter(
-                    t: _flow.value,
-                    mood: mood,
-                    blink: _blink.value,
-                    joy: h == 0 || !widget.rings ? 0 : h,
-                  ),
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    if (widget.behindBodyBuilder != null)
+                      Positioned.fill(
+                        child: widget.behindBodyBuilder!(
+                          FinoraOrbPainter.bodyRadiusScale(_flow.value),
+                        ),
+                      ),
+                    CustomPaint(
+                      size: Size.square(size),
+                      painter: FinoraOrbPainter(
+                        t: _flow.value,
+                        mood: mood,
+                        blink: _blink.value,
+                        joy: h == 0 || !widget.rings ? 0 : h,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -902,10 +923,14 @@ class WardrobePiece extends StatelessWidget {
     final top = r + fit.y * r - hgt * (fit.anchorY + 1) / 2;
     final image = Image.asset(
       item.asset,
+      cacheWidth: (w * MediaQuery.devicePixelRatioOf(context) * 2).ceil().clamp(
+        1,
+        1536,
+      ),
       width: w,
       height: hgt,
       fit: BoxFit.contain,
-      filterQuality: FilterQuality.medium,
+      filterQuality: FilterQuality.high,
       excludeFromSemantics: true,
       errorBuilder: (_, _, _) => const SizedBox.shrink(),
     );

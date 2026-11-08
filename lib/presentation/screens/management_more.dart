@@ -133,7 +133,7 @@ class MoreScreen extends StatelessWidget {
               Icons.checkroom_rounded,
               TileColors.purple,
               tr('Гардероб Finora'),
-              tr('Компаньоны Финоры за достижения'),
+              tr('Компаньоны и плащи Финоры'),
               const WardrobeScreen(),
               value:
                   '${wardrobeItems.where((i) => Wardrobe.open(i, d.achievements, d.wardrobe)).length}/${wardrobeItems.length}',

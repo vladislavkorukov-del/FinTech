@@ -1,0 +1,119 @@
+[
+  {
+    "id": "lilac_ghost",
+    "name_ru": "Лавандовый призрак",
+    "file": "assets/companions/01_lilac_ghost.png",
+    "width": 1254,
+    "height": 1254,
+    "side_default": "right",
+    "source_filename": "01-15803.png"
+  },
+  {
+    "id": "moon_cat",
+    "name_ru": "Лунный котик",
+    "file": "assets/companions/02_moon_cat.png",
+    "width": 1254,
+    "height": 1254,
+    "side_default": "left",
+    "source_filename": "02-15802.png"
+  },
+  {
+    "id": "pearl_owl",
+    "name_ru": "Жемчужная сова",
+    "file": "assets/companions/03_pearl_owl.png",
+    "width": 1312,
+    "height": 1199,
+    "side_default": "right",
+    "source_filename": "03-15805.png"
+  },
+  {
+    "id": "investment_sprout",
+    "name_ru": "Росток удачи",
+    "file": "assets/companions/04_investment_sprout.png",
+    "width": 1254,
+    "height": 1254,
+    "side_default": "left",
+    "source_filename": "04-15807.png"
+  },
+  {
+    "id": "midnight_raven",
+    "name_ru": "Полуночный ворон",
+    "file": "assets/companions/05_midnight_raven.png",
+    "width": 1254,
+    "height": 1254,
+    "side_default": "right",
+    "source_filename": "05-15813.png"
+  },
+  {
+    "id": "moon_rabbit",
+    "name_ru": "Лунный кролик",
+    "file": "assets/companions/06_moon_rabbit.png",
+    "width": 1254,
+    "height": 1254,
+    "side_default": "left",
+    "source_filename": "06-15812.png"
+  },
+  {
+    "id": "pink_mushroom",
+    "name_ru": "Розовый грибочек",
+    "file": "assets/companions/07_pink_mushroom.png",
+    "width": 1254,
+    "height": 1254,
+    "side_default": "right",
+    "source_filename": "07-15817.png"
+  },
+  {
+    "id": "pearl_crab",
+    "name_ru": "Коралловый краб",
+    "file": "assets/companions/08_pearl_crab.png",
+    "width": 1254,
+    "height": 1254,
+    "side_default": "left",
+    "source_filename": "08-15814.png"
+  },
+  {
+    "id": "red_panda",
+    "name_ru": "Красная панда",
+    "file": "assets/companions/09_red_panda.png",
+    "width": 1254,
+    "height": 1254,
+    "side_default": "right",
+    "source_filename": "09-15815.png"
+  },
+  {
+    "id": "amethyst_jellyfish",
+    "name_ru": "Аметистовая медуза",
+    "file": "assets/companions/10_amethyst_jellyfish.png",
+    "width": 1254,
+    "height": 1254,
+    "side_default": "left",
+    "source_filename": "10-15818.png"
+  },
+  {
+    "id": "forest_frog",
+    "name_ru": "Лесной лягушонок",
+    "file": "assets/companions/11_forest_frog.png",
+    "width": 1254,
+    "height": 1254,
+    "side_default": "right",
+    "source_filename": "01-15827.png"
+  },
+  {
+    "id": "aviator_octopus",
+    "name_ru": "Осьминог-пилот",
+    "file": "assets/companions/12_aviator_octopus.png",
+    "width": 1254,
+    "height": 1254,
+    "side_default": "left",
+    "source_filename": "02-15828.png"
+  },
+  {
+    "id": "pearl_koi",
+    "name_ru": "Жемчужный кои",
+    "file": "assets/companions/13_pearl_koi.png",
+    "width": 1536,
+    "height": 1024,
+    "side_default": "right",
+    "source_filename": "03-15833.png"
+  }
+]
