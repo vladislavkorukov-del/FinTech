@@ -24,7 +24,8 @@ void main() {
   });
 
   test('«Что нового» 1.45 — карточки на весь экран', () {
-    expect(WhatsNew.items.first.$2, 'Новые карточки достижений');
-    expect(WhatsNew.items[1].$2, 'Достижение — на весь экран');
+    final titles = WhatsNew.items.map((i) => i.$2);
+    expect(titles, contains('Новые карточки достижений'));
+    expect(titles, contains('Достижение — на весь экран'));
   });
 }

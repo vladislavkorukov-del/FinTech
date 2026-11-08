@@ -127,6 +127,17 @@ class MoreScreen extends StatelessWidget {
               const AchievementsScreen(),
               value: '${c.achievements.unlockedCount}/${c.achievements.total}',
             ),
+            // 1.46: what Finora wears.
+            row(
+              'wardrobe',
+              Icons.checkroom_rounded,
+              TileColors.purple,
+              tr('Гардероб Finora'),
+              tr('Шапки, очки и другое за достижения'),
+              const WardrobeScreen(),
+              value:
+                  '${wardrobeItems.where((i) => Wardrobe.open(i, d.achievements, d.wardrobe)).length}/${wardrobeItems.length}',
+            ),
             row(
               'members',
               Icons.people_alt_rounded,

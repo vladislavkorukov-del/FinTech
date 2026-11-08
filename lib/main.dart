@@ -260,6 +260,8 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
       _unlockSubscription = c.achievementUnlocks.listen((got) {
         if (mounted) AchievementPopup.show(context, got);
       });
+      // 1.46: items for achievements received before the wardrobe existed.
+      unawaited(c.syncWardrobe());
     }
   }
 

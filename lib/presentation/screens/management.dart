@@ -23,6 +23,8 @@ import '../widgets/finora_orb.dart';
 import '../widgets/grouped_list.dart';
 import 'account_import_screen.dart';
 import 'achievements_screen.dart';
+import 'wardrobe_screen.dart';
+import '../../domain/wardrobe.dart';
 import 'entry_editor.dart';
 import 'settings.dart';
 import '../l10n_widgets.dart';

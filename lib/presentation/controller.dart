@@ -7,6 +7,7 @@ import 'package:uuid/uuid.dart';
 import '../data/finance_repository.dart';
 import '../domain/achievements.dart';
 import '../domain/models.dart';
+import '../domain/wardrobe.dart';
 import '../domain/payment_plan.dart';
 import '../domain/finance_engine.dart';
 import '../domain/scan_import.dart';
@@ -120,8 +121,33 @@ class FinanceController extends ChangeNotifier {
         if (!_unlocks.isClosed) _unlocks.add(fresh);
       });
     }
-    return next.copyWith(achievements: updated);
+    // 1.46: items for the achievements; an import keeps what was there.
+    var wardrobe = next.wardrobe;
+    if (!events) {
+      wardrobe = WardrobeState(
+        received: {...before.wardrobe.received, ...wardrobe.received},
+        equipped: wardrobe.equipped.isEmpty
+            ? before.wardrobe.equipped
+            : wardrobe.equipped,
+      );
+    }
+    wardrobe = Wardrobe.sync(wardrobe, updated, now: achievementClock());
+    return next.copyWith(achievements: updated, wardrobe: wardrobe);
   }
+
+  /// Items received for achievements reached before 1.46 (once, at start).
+  Future<void> syncWardrobe() {
+    final synced = Wardrobe.sync(data.wardrobe, data.achievements);
+    if (identical(synced, data.wardrobe)) return Future.value();
+    return _mutate((d) => d);
+  }
+
+  /// Puts an item on (the one in its slot comes off).
+  Future<void> wear(String itemId) =>
+      _mutate((d) => d.copyWith(wardrobe: Wardrobe.wear(d.wardrobe, itemId)));
+
+  Future<void> takeOff(WardrobeSlot slot) =>
+      _mutate((d) => d.copyWith(wardrobe: Wardrobe.takeOff(d.wardrobe, slot)));
 
   /// Only the achievement state changes (a screen was opened).
   Future<void> _noteAchievements(

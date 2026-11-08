@@ -8,6 +8,7 @@ import 'package:sqflite/sqflite.dart';
 import '../domain/finance_engine.dart';
 import '../domain/models.dart';
 import '../domain/achievements.dart';
+import '../domain/wardrobe.dart';
 import '../domain/style_ids.dart';
 import 'demo_data.dart';
 import 'finora_csv.dart';
@@ -965,6 +966,8 @@ class FinanceRepository {
         ],
         // 1.44: achievements live in settings too.
         achievements: _achievements(settings['achievements']),
+        // 1.46: the wardrobe too.
+        wardrobe: _wardrobe(settings['wardrobe']),
       ),
     );
   }
@@ -978,6 +981,17 @@ class FinanceRepository {
     } on Object {
       // A damaged record must not stop the app from opening.
       return const AchievementState();
+    }
+  }
+
+  static WardrobeState _wardrobe(String? raw) {
+    if (raw == null) return const WardrobeState();
+    try {
+      return WardrobeState.fromJson(
+        Map<String, dynamic>.from(jsonDecode(raw) as Map),
+      );
+    } on Object {
+      return const WardrobeState();
     }
   }
 
@@ -1079,6 +1093,10 @@ class FinanceRepository {
     await db.insert('settings', {
       'key': 'achievements',
       'value': jsonEncode(data.achievements.toJson()),
+    });
+    await db.insert('settings', {
+      'key': 'wardrobe',
+      'value': jsonEncode(data.wardrobe.toJson()),
     });
   }
 

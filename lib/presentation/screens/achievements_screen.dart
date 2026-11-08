@@ -6,6 +6,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart' hide InputDecoration, Text;
 
 import '../../domain/achievements.dart';
+import '../../domain/wardrobe.dart';
 import '../controller.dart';
 import '../finora_assets.dart';
 import '../haptics.dart';
@@ -13,6 +14,7 @@ import '../i18n.dart';
 import '../l10n_widgets.dart';
 import '../widgets/common.dart';
 import '../widgets/finora_orb.dart';
+import 'wardrobe_screen.dart';
 
 /// 1.44: the colours and signs of the rarities (never colour alone: the
 /// name and the icon are always shown too).
@@ -118,7 +120,18 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
     final width = MediaQuery.sizeOf(context).width;
     final columns = width >= 900 ? 4 : (width >= 600 ? 3 : 2);
     return Scaffold(
-      appBar: AppBar(title: const Text('Достижения')),
+      appBar: AppBar(
+        title: const Text('Достижения'),
+        actions: [
+          // 1.46: what the achievements gave Finora to wear.
+          IconButton(
+            key: const ValueKey('achievements-wardrobe'),
+            tooltip: tr('Гардероб Finora'),
+            onPressed: () => openWardrobe(context),
+            icon: const Icon(Icons.checkroom_rounded),
+          ),
+        ],
+      ),
       body: CustomScrollView(
         key: const ValueKey('achievements-list'),
         slivers: [
@@ -1206,6 +1219,33 @@ class _UnlockStageState extends State<_UnlockStage>
                         const SizedBox(height: 10),
                         RarityPill(rarity: d.rarity),
                         const SizedBox(height: 12),
+                        if (wardrobeRewardLine(d) case final line?) ...[
+                          Row(
+                            key: const ValueKey('achievement-popup-reward'),
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              for (final i in Wardrobe.rewardsOf(d.id))
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 6),
+                                  child: Image.asset(
+                                    i.asset,
+                                    height: 34,
+                                    excludeFromSemantics: true,
+                                  ),
+                                ),
+                              Flexible(
+                                child: Text(
+                                  line,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+                        ],
                         Text(
                           '«$_quote»',
                           textAlign: TextAlign.center,

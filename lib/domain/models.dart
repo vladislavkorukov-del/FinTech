@@ -1,6 +1,7 @@
 // Domain models contain no Flutter or persistence dependencies.
 // Amounts are minor currency units (kopecks/cents), never floating point.
 import 'achievements.dart' show AchievementState;
+import 'wardrobe.dart' show WardrobeState;
 
 enum EntryKind { expense, income, transfer }
 
@@ -974,6 +975,9 @@ class FinanceData {
   /// 1.44: what was received and what the ledger alone cannot tell again.
   final AchievementState achievements;
 
+  /// 1.46: Finora's wardrobe — received and worn items.
+  final WardrobeState wardrobe;
+
   const FinanceData({
     this.accounts = const [],
     this.categories = const [],
@@ -986,6 +990,7 @@ class FinanceData {
     this.demo = false,
     this.shopping = const [],
     this.achievements = const AchievementState(),
+    this.wardrobe = const WardrobeState(),
   });
 
   factory FinanceData.empty() => const FinanceData();
@@ -1002,6 +1007,7 @@ class FinanceData {
     bool? demo,
     List<ShoppingItem>? shopping,
     AchievementState? achievements,
+    WardrobeState? wardrobe,
   }) => FinanceData(
     accounts: accounts ?? this.accounts,
     categories: categories ?? this.categories,
@@ -1014,6 +1020,7 @@ class FinanceData {
     demo: demo ?? this.demo,
     shopping: shopping ?? this.shopping,
     achievements: achievements ?? this.achievements,
+    wardrobe: wardrobe ?? this.wardrobe,
   );
 
   Map<String, Object?> toJson() => {
@@ -1028,6 +1035,7 @@ class FinanceData {
     'demo': demo,
     'shopping': shopping.map((item) => item.toJson()).toList(),
     'achievements': achievements.toJson(),
+    'wardrobe': wardrobe.toJson(),
   };
 
   factory FinanceData.fromJson(Map<String, dynamic> json) => FinanceData(
@@ -1077,5 +1085,10 @@ class FinanceData {
             Map<String, dynamic>.from(json['achievements'] as Map),
           )
         : const AchievementState(),
+    wardrobe: json['wardrobe'] is Map
+        ? WardrobeState.fromJson(
+            Map<String, dynamic>.from(json['wardrobe'] as Map),
+          )
+        : const WardrobeState(),
   );
 }
