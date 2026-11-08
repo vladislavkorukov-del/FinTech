@@ -12,54 +12,81 @@ import 'widgets/finora_orb.dart';
 abstract final class FinoraAssets {
   static const folder = 'assets/finora/achievements';
 
-  /// Every illustration that ships with the app (file names without
-  /// the extension).
+  /// 1.45: every achievement has its own card (1706×922 from the owner,
+  /// shipped as 1024×553 WebP), named by the achievement's id.
   static const art = {
-    'accounts_added',
-    'analyst',
-    'balance_plus',
-    'budget_created',
-    'budget_master',
-    'cashback',
-    'categories_set',
-    'category_master',
-    'debt_closed',
-    'expenses_control',
-    'finance_zen',
-    'first_expense',
-    'first_income',
-    'first_record',
+    'analyst_10',
+    'analytics_open',
+    'archaeologist',
+    'archive',
+    'balance_6',
+    'big_check',
+    'budget_12',
+    'budget_3',
+    'budget_6',
+    'budget_month',
+    'cash',
+    'categorized_100',
+    'categorized_95',
+    'cushion_1',
+    'cushion_3',
+    'cushion_6',
+    'economy',
+    'fifty_records',
+    'first_account',
+    'first_budget',
     'first_step',
+    'first_topup',
+    'first_transfer',
+    'full_picture',
+    'goal_90',
     'goal_done',
+    'goal_half',
     'goal_set',
-    'income_grows',
-    'invest_started',
-    'limit_kept',
-    'month_discipline',
-    'month_plan',
-    'no_spend_day',
-    'payment_on_time',
-    'piggy_opened',
-    'report_ready',
-    'safety_cushion',
-    'seven_days',
-    'subs_control',
-    'week_tracking',
+    'goals_10',
+    'goals_3',
+    'ideal_year',
+    'legend',
+    'night',
+    'no_overdue',
+    'on_time',
+    'order',
+    'organizer',
+    'own_category',
+    'perfect_month',
+    'perfectionist',
+    'plus_3',
+    'plus_month',
+    'reserve_80',
+    'reserve_90',
+    'saved_1000',
+    'saved_10000',
+    'streak_100',
+    'streak_3',
+    'streak_30',
+    'streak_7',
+    'ten_records',
+    'tiny',
+    'veteran',
+    'year',
   };
 
-  /// The illustration of each reaction, where there is one.
+  /// Width to height of a card.
+  static const cardRatio = 1024 / 553;
+
+  /// The card of each reaction.
   static const reactionArt = <FinoraReactionType, String>{
     FinoraReactionType.neutral: 'first_step',
-    FinoraReactionType.happy: 'balance_plus',
-    FinoraReactionType.proud: 'budget_master',
-    FinoraReactionType.excited: 'seven_days',
+    FinoraReactionType.happy: 'plus_month',
+    FinoraReactionType.proud: 'budget_6',
+    FinoraReactionType.excited: 'streak_7',
     FinoraReactionType.celebrating: 'goal_done',
-    FinoraReactionType.thinking: 'analyst',
-    FinoraReactionType.focused: 'month_plan',
-    FinoraReactionType.calm: 'finance_zen',
-    FinoraReactionType.supportive: 'no_spend_day',
-    FinoraReactionType.love: 'piggy_opened',
-    FinoraReactionType.success: 'limit_kept',
+    FinoraReactionType.thinking: 'analyst_10',
+    FinoraReactionType.focused: 'budget_month',
+    FinoraReactionType.calm: 'budget_12',
+    FinoraReactionType.supportive: 'cushion_1',
+    FinoraReactionType.love: 'first_topup',
+    FinoraReactionType.success: 'on_time',
   };
 
   /// What to show instead when a reaction has nothing of its own.
@@ -132,9 +159,9 @@ abstract final class FinoraAssets {
 
   static String path(String name) => '$folder/$name.webp';
 
-  /// An achievement's own picture; a missing one falls back to its reaction.
+  /// An achievement's own card; a missing one falls back to its reaction.
   static String? achievementArt(AchievementDefinition d) =>
-      art.contains(d.art) ? d.art : artFor(d.reaction);
+      art.contains(d.id) ? d.id : artFor(d.reaction);
 }
 
 /// A picture of Finora: an illustration, or the drawn Finora when the file
@@ -147,6 +174,7 @@ class FinoraArt extends StatelessWidget {
     this.fit = BoxFit.cover,
     this.locked = false,
     this.semanticLabel,
+    this.frame = true,
   });
 
   final String? name;
@@ -156,6 +184,10 @@ class FinoraArt extends StatelessWidget {
   /// Not received yet: no colour, dimmed.
   final bool locked;
   final String? semanticLabel;
+
+  /// False: the card's own glowing frame is cut off (small pictures in
+  /// lists, where the app draws its own border).
+  final bool frame;
 
   static const _grey = ColorFilter.matrix([
     0.2126, 0.7152, 0.0722, 0, 0, //
@@ -184,6 +216,9 @@ class FinoraArt extends StatelessWidget {
             excludeFromSemantics: semanticLabel == null,
             errorBuilder: (_, _, _) => drawn,
           );
+    if (!frame && name != null) {
+      child = ClipRect(child: Transform.scale(scale: 1.09, child: child));
+    }
     if (locked) {
       child = Opacity(
         opacity: .45,

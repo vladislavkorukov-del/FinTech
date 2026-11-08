@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io' show Platform;
 import 'dart:math' as math;
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart' hide InputDecoration, Text;
 
@@ -472,6 +473,7 @@ class _Thumb extends StatelessWidget {
                 name: FinoraAssets.achievementArt(d),
                 reaction: d.reaction,
                 locked: !status.unlocked,
+                frame: false,
               ),
       ),
     );
@@ -571,6 +573,7 @@ class AchievementCard extends StatelessWidget {
                               name: FinoraAssets.achievementArt(d),
                               reaction: d.reaction,
                               locked: !status.unlocked,
+                              frame: false,
                             ),
                       if (!status.unlocked)
                         Positioned(
@@ -715,7 +718,7 @@ Future<void> showAchievement(BuildContext context, AchievementStatus s) {
               ClipRRect(
                 borderRadius: BorderRadius.circular(22),
                 child: AspectRatio(
-                  aspectRatio: 1.85,
+                  aspectRatio: FinoraAssets.cardRatio,
                   child: hidden
                       ? const _Mystery(size: 180)
                       : FinoraArt(
@@ -841,6 +844,7 @@ class AchievementsCard extends StatelessWidget {
                     : FinoraArt(
                         name: FinoraAssets.achievementArt(last.definition),
                         reaction: last.definition.reaction,
+                        frame: false,
                       ),
               ),
             ),
@@ -948,18 +952,21 @@ class AchievementsCard extends StatelessWidget {
   }
 }
 
-/// 1.44: «Достижение получено» — one card at the top, never a stack of
-/// windows: several at once become one message.
+/// 1.45: «Достижение получено» — the achievement's card pops up over the
+/// whole screen. Several at once come one after another in the same window
+/// («1 / 3»), never as a stack of windows.
 abstract final class AchievementPopup {
   /// Off in widget tests unless a test turns it on.
   static bool enabled = !Platform.environment.containsKey('FLUTTER_TEST');
 
   static OverlayEntry? _entry;
-  static final _pending = <AchievementDefinition>[];
+  static final _queue = <AchievementDefinition>[];
+
+  static bool get showing => _entry != null;
 
   static void show(BuildContext context, List<AchievementDefinition> got) {
     if (!enabled || got.isEmpty) return;
-    _pending.addAll(got);
+    _queue.addAll(got);
     if (_entry != null) {
       _entry!.markNeedsBuild();
       return;
@@ -968,18 +975,9 @@ abstract final class AchievementPopup {
     if (overlay == null) return;
     final navigator = Navigator.of(context);
     final scope = context.findAncestorWidgetOfExactType<FinanceScope>();
-    final best = _pending.reduce(
-      (a, b) => b.rarity.index > a.rarity.index ? b : a,
-    );
-    if (best.rarity == AchievementRarity.legendary ||
-        best.rarity == AchievementRarity.epic) {
-      unawaited(Haptics.success());
-    } else {
-      Haptics.medium();
-    }
     _entry = OverlayEntry(
-      builder: (_) => _PopupCard(
-        items: List.of(_pending),
+      builder: (_) => _UnlockStage(
+        queue: _queue,
         onOpen: () {
           close();
           final page = MaterialPageRoute<void>(
@@ -1001,210 +999,333 @@ abstract final class AchievementPopup {
   static void close() {
     _entry?.remove();
     _entry = null;
-    _pending.clear();
+    _queue.clear();
   }
 }
 
-class _PopupCard extends StatefulWidget {
-  const _PopupCard({
-    required this.items,
+class _UnlockStage extends StatefulWidget {
+  const _UnlockStage({
+    required this.queue,
     required this.onOpen,
     required this.onClose,
   });
-  final List<AchievementDefinition> items;
+  final List<AchievementDefinition> queue;
   final VoidCallback onOpen, onClose;
 
   @override
-  State<_PopupCard> createState() => _PopupCardState();
+  State<_UnlockStage> createState() => _UnlockStageState();
 }
 
-class _PopupCardState extends State<_PopupCard> with TickerProviderStateMixin {
-  late final _in = AnimationController(
+class _UnlockStageState extends State<_UnlockStage>
+    with TickerProviderStateMixin {
+  /// The dimmed, blurred screen behind.
+  late final _back = AnimationController(
     vsync: this,
-    duration: const Duration(milliseconds: 420),
+    duration: const Duration(milliseconds: 280),
   )..forward();
-  late final _sparkle = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 2400),
-  );
-  Timer? _timer;
-  late final String _quote;
 
-  AchievementDefinition get _best =>
-      widget.items.reduce((a, b) => b.rarity.index > a.rarity.index ? b : a);
+  /// The card popping up (again for each next one).
+  late final _pop = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 900),
+  );
+
+  /// A gleam running over the card and the confetti.
+  late final _shine = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 2200),
+  );
+
+  int _index = 0;
+  String _quote = '';
+  bool _leaving = false;
+
+  AchievementDefinition get _current => widget.queue[_index];
 
   @override
   void initState() {
     super.initState();
-    _quote = tr(AchievementEngine.quote(_best));
-    if (_best.rarity.index >= AchievementRarity.epic.index) _sparkle.forward();
-    final legendary = _best.rarity == AchievementRarity.legendary;
-    _timer = Timer(Duration(seconds: legendary ? 7 : 5), _hide);
+    _enter();
   }
 
-  Future<void> _hide() async {
-    _timer?.cancel();
-    if (!mounted) return;
-    await _in.reverse();
+  void _enter() {
+    final d = _current;
+    _quote = tr(AchievementEngine.quote(d));
+    switch (d.rarity) {
+      case AchievementRarity.legendary || AchievementRarity.epic:
+        unawaited(Haptics.success());
+      case AchievementRarity.rare:
+        Haptics.heavy();
+      default:
+        Haptics.medium();
+    }
+    _pop.forward(from: 0);
+    _shine.forward(from: 0);
+  }
+
+  Future<void> _next() async {
+    if (_leaving) return;
+    if (_index + 1 < widget.queue.length) {
+      Haptics.tap();
+      await _pop.reverse();
+      if (!mounted) return;
+      setState(() => _index++);
+      _enter();
+      return;
+    }
+    _leaving = true;
+    await Future.wait([_pop.reverse(), _back.reverse()]);
     widget.onClose();
   }
 
   @override
   void dispose() {
-    _timer?.cancel();
-    _in.dispose();
-    _sparkle.dispose();
+    _back.dispose();
+    _pop.dispose();
+    _shine.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
-    final best = _best;
-    final many = widget.items.length > 1;
-    final color = best.rarity.color;
-    final top = MediaQuery.paddingOf(context).top + 10;
-    return Positioned(
-      left: 12,
-      right: 12,
-      top: top,
-      child: SlideTransition(
-        position: Tween(
-          begin: const Offset(0, -1.3),
-          end: Offset.zero,
-        ).animate(CurvedAnimation(parent: _in, curve: Curves.easeOutBack)),
-        child: FadeTransition(
-          opacity: _in,
-          child: Dismissible(
-            key: const ValueKey('achievement-popup'),
-            direction: DismissDirection.up,
-            onDismissed: (_) => widget.onClose(),
-            child: Material(
-              color: Colors.transparent,
-              child: Semantics(
-                liveRegion: true,
-                child: Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(
-                        color: scheme.surface,
-                        borderRadius: BorderRadius.circular(24),
-                        border: Border.all(color: color, width: 1.6),
-                        boxShadow: [
-                          BoxShadow(
-                            color: color.withValues(
-                              alpha:
-                                  best.rarity.index >=
-                                      AchievementRarity.rare.index
-                                  ? .55
-                                  : .25,
-                            ),
-                            blurRadius:
-                                best.rarity == AchievementRarity.legendary
-                                ? 34
-                                : 18,
-                          ),
-                        ],
-                      ),
-                      child: Row(
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(16),
-                            child: SizedBox(
-                              width: 76,
-                              height: 76,
-                              child: FinoraArt(
-                                name: FinoraAssets.achievementArt(best),
-                                reaction: best.reaction,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  many
-                                      ? 'Получено ${widget.items.length} новых достижений'
-                                      : 'ДОСТИЖЕНИЕ ПОЛУЧЕНО',
-                                  style: TextStyle(
-                                    color: color,
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w800,
-                                    letterSpacing: many ? 0 : 1.2,
-                                  ),
-                                ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  many
-                                      ? widget.items
-                                            .map((d) => tr(d.title))
-                                            .join(', ')
-                                      : best.title,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: theme.textTheme.titleMedium?.copyWith(
-                                    fontWeight: FontWeight.w800,
-                                  ),
-                                ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  '«$_quote»',
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: scheme.onSurfaceVariant,
-                                  ),
-                                ),
-                                Align(
-                                  alignment: AlignmentDirectional.centerEnd,
-                                  child: TextButton(
-                                    key: const ValueKey(
-                                      'achievement-popup-open',
-                                    ),
-                                    onPressed: widget.onOpen,
-                                    child: const Text('Посмотреть'),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    if (best.rarity.index >= AchievementRarity.epic.index)
-                      Positioned.fill(
-                        child: IgnorePointer(
-                          child: AnimatedBuilder(
-                            animation: _sparkle,
-                            builder: (context, _) => CustomPaint(
-                              painter: _Confetti(
-                                t: _sparkle.value,
-                                gold:
-                                    best.rarity == AchievementRarity.legendary,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                  ],
+    final d = _current;
+    final color = d.rarity.color;
+    final total = widget.queue.length;
+    final size = MediaQuery.sizeOf(context);
+    final width = math.min(size.width - 40, 520.0);
+    final high = d.rarity.index >= AchievementRarity.epic.index;
+    return Material(
+      type: MaterialType.transparency,
+      child: Stack(
+        key: const ValueKey('achievement-popup'),
+        children: [
+          Positioned.fill(
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: _next,
+              child: AnimatedBuilder(
+                animation: _back,
+                builder: (context, _) => BackdropFilter(
+                  filter: ui.ImageFilter.blur(
+                    sigmaX: 8 * _back.value,
+                    sigmaY: 8 * _back.value,
+                  ),
+                  child: ColoredBox(
+                    color: Colors.black.withValues(alpha: .62 * _back.value),
+                  ),
                 ),
               ),
             ),
           ),
-        ),
+          if (high)
+            Positioned.fill(
+              child: IgnorePointer(
+                child: AnimatedBuilder(
+                  animation: _shine,
+                  builder: (context, _) => CustomPaint(
+                    painter: _Confetti(
+                      t: _shine.value,
+                      gold: d.rarity == AchievementRarity.legendary,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          Center(
+            child: SafeArea(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(vertical: 24),
+                child: AnimatedBuilder(
+                  animation: _pop,
+                  builder: (context, child) {
+                    final v = _pop.value;
+                    final scale = .35 + .65 * Curves.elasticOut.transform(v);
+                    return Opacity(
+                      opacity: Curves.easeOut.transform(
+                        (v * 2.5).clamp(0.0, 1.0),
+                      ),
+                      child: Transform.rotate(
+                        angle: (1 - Curves.easeOutBack.transform(v)) * -.12,
+                        child: Transform.scale(scale: scale, child: child),
+                      ),
+                    );
+                  },
+                  child: SizedBox(
+                    width: width,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'ДОСТИЖЕНИЕ ПОЛУЧЕНО',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: color,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 2,
+                            shadows: [Shadow(color: color, blurRadius: 12)],
+                          ),
+                        ),
+                        if (total > 1)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 4),
+                            child: Text(
+                              '${_index + 1} / $total',
+                              key: const ValueKey('achievement-popup-count'),
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                        const SizedBox(height: 14),
+                        GestureDetector(
+                          onTap: _next,
+                          child: _ShiningCard(
+                            definition: d,
+                            shine: _shine,
+                            color: color,
+                          ),
+                        ),
+                        const SizedBox(height: 18),
+                        Text(
+                          d.title,
+                          textAlign: TextAlign.center,
+                          style: theme.textTheme.headlineSmall?.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          d.description,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(color: Colors.white70),
+                        ),
+                        const SizedBox(height: 10),
+                        RarityPill(rarity: d.rarity),
+                        const SizedBox(height: 12),
+                        Text(
+                          '«$_quote»',
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontStyle: FontStyle.italic,
+                            fontSize: 15,
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: OutlinedButton(
+                                key: const ValueKey('achievement-popup-open'),
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: Colors.white,
+                                  side: const BorderSide(color: Colors.white54),
+                                  minimumSize: const Size.fromHeight(48),
+                                ),
+                                onPressed: widget.onOpen,
+                                child: const Text('Посмотреть'),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: FilledButton(
+                                key: const ValueKey('achievement-popup-next'),
+                                style: FilledButton.styleFrom(
+                                  backgroundColor: color,
+                                  foregroundColor: Colors.black,
+                                  minimumSize: const Size.fromHeight(48),
+                                ),
+                                onPressed: _next,
+                                child: Text(
+                                  _index + 1 < total ? 'Далее' : 'Отлично!',
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 }
 
-/// Bits of colour flying out of the card (epic and legendary only).
+/// The achievement's own card with its glow and a gleam running over it.
+class _ShiningCard extends StatelessWidget {
+  const _ShiningCard({
+    required this.definition,
+    required this.shine,
+    required this.color,
+  });
+  final AchievementDefinition definition;
+  final Animation<double> shine;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) => DecoratedBox(
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(26),
+      boxShadow: [
+        BoxShadow(
+          color: color.withValues(alpha: .7),
+          blurRadius: definition.rarity == AchievementRarity.legendary
+              ? 46
+              : 28,
+          spreadRadius: 2,
+        ),
+      ],
+    ),
+    child: ClipRRect(
+      borderRadius: BorderRadius.circular(26),
+      child: AspectRatio(
+        aspectRatio: FinoraAssets.cardRatio,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            FinoraArt(
+              name: FinoraAssets.achievementArt(definition),
+              reaction: definition.reaction,
+              semanticLabel: tr(definition.title),
+            ),
+            IgnorePointer(
+              child: AnimatedBuilder(
+                animation: shine,
+                builder: (context, _) {
+                  final t = Curves.easeInOut.transform(shine.value);
+                  return DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment(-2.2 + 4 * t, -1),
+                        end: Alignment(-1.2 + 4 * t, 1),
+                        colors: [
+                          Colors.white.withValues(alpha: 0),
+                          Colors.white.withValues(alpha: .35),
+                          Colors.white.withValues(alpha: 0),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
+/// Bits of colour flying over the screen (epic and legendary only).
 class _Confetti extends CustomPainter {
   const _Confetti({required this.t, required this.gold});
   final double t;
@@ -1222,29 +1343,26 @@ class _Confetti extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     if (t <= 0 || t >= 1) return;
     final random = math.Random(7);
-    final count = gold ? 36 : 20;
+    final count = gold ? 90 : 50;
     final fade = 1 - t;
+    final center = Offset(size.width / 2, size.height * .42);
     for (var i = 0; i < count; i++) {
-      final start = Offset(
-        size.width * random.nextDouble(),
-        size.height * (.3 + .4 * random.nextDouble()),
-      );
       final angle = random.nextDouble() * math.pi * 2;
-      final speed = 40 + random.nextDouble() * 90;
+      final speed = size.shortestSide * (.25 + random.nextDouble() * .55);
       final p =
-          start +
+          center +
           Offset(math.cos(angle), math.sin(angle)) * speed * t +
-          Offset(0, 60 * t * t);
+          Offset(0, size.height * .35 * t * t);
       final color = gold && i.isEven
           ? _colors.first
           : _colors[i % _colors.length];
       canvas.save();
       canvas.translate(p.dx, p.dy);
-      canvas.rotate(angle + t * 6);
+      canvas.rotate(angle + t * 8);
       canvas.drawRRect(
         RRect.fromRectAndRadius(
-          const Rect.fromLTWH(-3, -1.5, 6, 3),
-          const Radius.circular(1),
+          const Rect.fromLTWH(-5, -2.5, 10, 5),
+          const Radius.circular(1.5),
         ),
         Paint()..color = color.withValues(alpha: fade),
       );

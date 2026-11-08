@@ -98,7 +98,12 @@ class AchievementDefinition {
     this.secret = false,
   });
 
-  final String id, title, description, art;
+  final String id, title, description;
+
+  /// 1.44: a related picture from the first sheets. Since 1.45 every
+  /// achievement has its own card, named by [id]; this one is only kept as
+  /// the theme of the achievement.
+  final String art;
   final AchievementCategory category;
   final AchievementRarity rarity;
   final FinoraReactionType reaction;

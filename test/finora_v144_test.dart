@@ -82,7 +82,7 @@ void main() {
     final ids = achievementDefinitions.map((d) => d.id).toSet();
     expect(ids.length, achievementDefinitions.length);
     for (final d in achievementDefinitions) {
-      expect(FinoraAssets.art, contains(d.art), reason: d.id);
+      expect(FinoraAssets.art, contains(d.id), reason: d.id);
       expect(d.quotes.length, greaterThanOrEqualTo(3), reason: d.id);
       expect(d.target, greaterThan(0), reason: d.id);
     }
@@ -308,21 +308,21 @@ void main() {
 
   test('реакции Финоры: картинки, рисунки и запасные варианты', () {
     expect(FinoraAssets.artFor(FinoraReactionType.celebrating), 'goal_done');
-    expect(FinoraAssets.artFor(FinoraReactionType.proud), 'budget_master');
-    expect(FinoraAssets.artFor(FinoraReactionType.success), 'limit_kept');
+    expect(FinoraAssets.artFor(FinoraReactionType.proud), 'budget_6');
+    expect(FinoraAssets.artFor(FinoraReactionType.success), 'on_time');
     // celebrating → happy, proud → happy, focused → neutral, supportive → calm.
     const only = {
-      FinoraReactionType.happy: 'balance_plus',
+      FinoraReactionType.happy: 'plus_month',
       FinoraReactionType.neutral: 'first_step',
-      FinoraReactionType.calm: 'finance_zen',
+      FinoraReactionType.calm: 'budget_12',
     };
     expect(
       FinoraAssets.artFor(FinoraReactionType.celebrating, available: only),
-      'balance_plus',
+      'plus_month',
     );
     expect(
       FinoraAssets.artFor(FinoraReactionType.proud, available: only),
-      'balance_plus',
+      'plus_month',
     );
     expect(
       FinoraAssets.artFor(FinoraReactionType.focused, available: only),
@@ -330,7 +330,7 @@ void main() {
     );
     expect(
       FinoraAssets.artFor(FinoraReactionType.supportive, available: only),
-      'finance_zen',
+      'budget_12',
     );
     expect(
       FinoraAssets.resolve(
@@ -453,7 +453,7 @@ void main() {
   });
 
   test('«Что нового» 1.44 — про достижения', () {
-    expect(WhatsNew.items.first.$2, 'Достижения');
+    expect(WhatsNew.items.map((i) => i.$2), contains('Достижения'));
   });
 
   testWidgets('экран «Достижения», карточка на главной и окно получения', (
@@ -562,7 +562,7 @@ void main() {
       findsOneWidget,
     );
 
-    // The popup: several at once become one message.
+    // The popup: the cards pop up over the screen one after another.
     await tester.pumpWidget(
       FinanceScope(
         controller: c,
@@ -589,7 +589,31 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
     await tester.pump(const Duration(milliseconds: 300));
-    expect(find.text('Получено 3 новых достижений'), findsOneWidget);
+    final first = achievementDefinitions.first;
+    expect(find.byKey(const ValueKey('achievement-popup')), findsOneWidget);
+    expect(find.text('ДОСТИЖЕНИЕ ПОЛУЧЕНО'), findsOneWidget);
+    expect(find.text('1 / 3'), findsOneWidget);
+    expect(find.text(first.title), findsOneWidget);
+    final art = tester.widget<FinoraArt>(
+      find.descendant(
+        of: find.byKey(const ValueKey('achievement-popup')),
+        matching: find.byType(FinoraArt),
+      ),
+    );
+    expect(art.name, first.id);
+    expect(art.frame, isTrue);
+    await tester.tap(find.byKey(const ValueKey('achievement-popup-next')));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.text('2 / 3'), findsOneWidget);
+    expect(find.text(achievementDefinitions[1].title), findsOneWidget);
+    // More arriving while it is open join the same window.
+    AchievementPopup.show(tester.element(find.text('go')), [
+      achievementDefinitions[3],
+    ]);
+    await tester.pump();
+    expect(find.text('2 / 4'), findsOneWidget);
     await tester.tap(find.byKey(const ValueKey('achievement-popup-open')));
     await settle();
     expect(find.byKey(const ValueKey('achievements-count')), findsOneWidget);
