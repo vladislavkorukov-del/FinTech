@@ -1,4 +1,7 @@
 import 'dart:async';
+import 'dart:math' as math;
+
+import 'package:flutter/services.dart';
 
 import 'package:flutter/material.dart' hide InputDecoration, Text;
 
@@ -15,6 +18,7 @@ import 'world_customization.dart';
 import 'world_games_screen.dart';
 import 'world_garden_album.dart';
 import 'world_home_scene.dart';
+import 'world_home_chrome.dart';
 import 'world_reviews_settings.dart';
 
 /// A private home inside existing settings. Main navigation is untouched.
@@ -121,240 +125,130 @@ class _FinoraWorldScreenState extends State<FinoraWorldScreen>
           data: MediaQuery.of(context).copyWith(disableAnimations: reduced),
           child: TickerMode(
             enabled: _active && _front && !reduced,
-            child: Scaffold(
-              backgroundColor: worldPearl,
-              body: SafeArea(
-                child: LayoutBuilder(
+            child: AnnotatedRegion<SystemUiOverlayStyle>(
+              value:
+                  (['night', 'underwater', 'aurora'].contains(
+                            WorldArt.background(state.background).cosmeticId,
+                          )
+                          ? SystemUiOverlayStyle.light
+                          : SystemUiOverlayStyle.dark)
+                      .copyWith(
+                        statusBarColor: Colors.transparent,
+                        systemNavigationBarColor: Colors.transparent,
+                        systemNavigationBarIconBrightness:
+                            ['night', 'underwater', 'aurora'].contains(
+                              WorldArt.background(state.background).cosmeticId,
+                            )
+                            ? Brightness.light
+                            : Brightness.dark,
+                      ),
+              child: Scaffold(
+                backgroundColor: worldPearl,
+                body: LayoutBuilder(
                   builder: (context, box) {
-                    final scale = MediaQuery.textScalerOf(context).scale(1);
-                    final rank = WorldPearlSurface(
-                      padding: const EdgeInsets.fromLTRB(5, 7, 10, 7),
-                      onTap: () => _open(const AchievementsScreen()),
-                      child: Row(
-                        children: [
-                          const WorldArtImage('rank_badge', size: 40),
-                          const SizedBox(width: 5),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  level.title,
-                                  style: const TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                                const SizedBox(height: 3),
-                                Text(
-                                  '$points опыта',
-                                  style: const TextStyle(fontSize: 11),
-                                ),
-                                if (level.next != null) ...[
-                                  const SizedBox(height: 4),
-                                  LinearProgressIndicator(
-                                    key: const ValueKey('world-level-progress'),
-                                    value:
-                                        ((points - level.from) /
-                                                (level.next! - level.from))
-                                            .clamp(0, 1),
-                                    color: const Color(0xFF84CBA9),
-                                    backgroundColor: const Color(0xFFE3D8E4),
-                                    minHeight: 4,
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                ],
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
+                    final media = MediaQuery.of(context);
+                    final scale = media.textScaler.scale(1);
+                    final landscape = box.maxWidth > box.maxHeight;
+                    final stacked = WorldHomeHeader.stacks(
+                      box.maxWidth - media.padding.horizontal - 16,
+                      scale,
                     );
-                    final currency = WorldPearlSurface(
-                      padding: const EdgeInsets.fromLTRB(5, 1, 0, 1),
-                      child: Row(
-                        children: [
-                          const WorldArtImage('currency_gem', size: 30),
-                          Expanded(
-                            child: Text(
-                              '${state.sparks}',
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                          ),
-                          WorldImageButton(
-                            key: const ValueKey('world-currency-ways'),
-                            id: 'add',
-                            label: 'Как получать искры',
-                            size: 36,
-                            onPressed: () => _open(const WorldSettingsScreen()),
-                          ),
-                        ],
-                      ),
-                    );
-                    final back = WorldImageButton(
-                      id: 'back',
-                      label: 'Назад',
-                      onPressed: () => Navigator.maybePop(context),
-                    );
-                    final settings = WorldImageButton(
-                      key: const ValueKey('world-settings'),
-                      id: 'settings',
-                      label: 'Настройки мира',
-                      onPressed: () => _open(const WorldSettingsScreen()),
-                    );
-                    return SingleChildScrollView(
+                    final headerHeight = stacked
+                        ? 108 + (scale - 1) * 24
+                        : 60 + math.max(0, scale - 1) * 24;
+                    final dockHeight =
+                        (landscape ? 104.0 : 124.0) +
+                        math.max(0, scale - 1) * 25;
+                    final topInset =
+                        media.padding.top +
+                        headerHeight +
+                        (landscape ? 30 : 44);
+                    final bottomInset = media.padding.bottom + dockHeight;
+                    return Stack(
                       key: const ValueKey('world-page-Мир Финоры'),
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(minHeight: box.maxHeight),
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(8, 4, 8, 6),
+                      children: [
+                        Positioned.fill(
+                          child: WorldHomeScene(
+                            world: state,
+                            wardrobe: c.data.wardrobe,
+                            celebrating: _celebrating,
+                            topInset: topInset,
+                            bottomInset: bottomInset,
+                            onBackground: () =>
+                                _open(const WorldBackgroundScreen()),
+                            onDecorate: () => _open(const WorldDecorScreen()),
+                            reaction: state.remarks
+                                ? _WorldReaction(onOpen: _open)
+                                : null,
+                          ),
+                        ),
+                        Positioned(
+                          top: media.padding.top + 4,
+                          left: media.padding.left + 8,
+                          right: media.padding.right + 8,
                           child: Column(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
-                              if (box.maxWidth >= 420 && scale < 1.3)
-                                Row(
-                                  children: [
-                                    back,
-                                    const SizedBox(width: 3),
-                                    Expanded(child: rank),
-                                    const SizedBox(width: 6),
-                                    SizedBox(width: 125, child: currency),
-                                    settings,
-                                  ],
-                                )
-                              else ...[
-                                Row(
-                                  children: [
-                                    back,
-                                    const SizedBox(width: 3),
-                                    Expanded(child: rank),
-                                    settings,
-                                  ],
-                                ),
-                                const SizedBox(height: 5),
-                                Align(
-                                  alignment: Alignment.centerRight,
-                                  child: SizedBox(width: 172, child: currency),
-                                ),
-                              ],
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 8,
-                                ),
+                              WorldHomeHeader(
+                                title: level.title,
+                                points: points,
+                                progress: level.next == null
+                                    ? null
+                                    : ((points - level.from) /
+                                              (level.next! - level.from))
+                                          .clamp(0, 1),
+                                sparks: state.sparks,
+                                onBack: () => Navigator.maybePop(context),
+                                onRank: () => _open(const AchievementsScreen()),
+                                onCurrency: () =>
+                                    _open(const WorldSettingsScreen()),
+                                onSettings: () =>
+                                    _open(const WorldSettingsScreen()),
+                              ),
+                              SizedBox(
+                                height: landscape ? 32 : 44,
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     const WorldArtImage(
                                       'leaf_ornament',
-                                      size: 30,
+                                      size: 26,
                                     ),
                                     const SizedBox(width: 6),
                                     Flexible(
                                       child: Text(
                                         'Мир Финоры',
-                                        textAlign: TextAlign.center,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .headlineSmall
-                                            ?.copyWith(
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                          color: const Color(0xFFFFFBF1),
+                                          fontSize: math.min(
+                                            landscape ? 19 : 23,
+                                            (landscape ? 25 : 30) / scale,
+                                          ),
+                                          height: 1.05,
+                                          fontWeight: FontWeight.w800,
+                                          shadows: const [
+                                            Shadow(
                                               color: worldPlum,
-                                              fontWeight: FontWeight.w700,
+                                              blurRadius: 5,
+                                              offset: Offset(0, 1),
                                             ),
+                                            Shadow(
+                                              color: worldPlum,
+                                              blurRadius: 2,
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     ),
-                                    const SizedBox(width: 36),
-                                  ],
-                                ),
-                              ),
-                              SizedBox(
-                                height: (box.maxHeight * .55).clamp(
-                                  230.0,
-                                  600.0,
-                                ),
-                                child: WorldHomeScene(
-                                  world: state,
-                                  wardrobe: c.data.wardrobe,
-                                  celebrating: _celebrating,
-                                  onBackground: () =>
-                                      _open(const WorldBackgroundScreen()),
-                                  onDecorate: () =>
-                                      _open(const WorldDecorScreen()),
-                                ),
-                              ),
-                              if (state.remarks)
-                                Padding(
-                                  padding: const EdgeInsets.only(top: 6),
-                                  child: _WorldReaction(onOpen: _open),
-                                ),
-                              Wrap(
-                                alignment: WrapAlignment.center,
-                                spacing: 8,
-                                children: [
-                                  TextButton(
-                                    key: const ValueKey('world-destination-1'),
-                                    onPressed: () =>
-                                        _open(const WorldOutfitsScreen()),
-                                    child: const Text('Образы'),
-                                  ),
-                                  TextButton(
-                                    key: const ValueKey('world-destination-3'),
-                                    onPressed: () =>
-                                        _open(const WorldCollectionsScreen()),
-                                    child: const Text('Коллекции'),
-                                  ),
-                                  TextButton(
-                                    key: const ValueKey('world-open-review'),
-                                    onPressed: () =>
-                                        _open(const WorldReviewScreen()),
-                                    child: const Text('Обзор'),
-                                  ),
-                                ],
-                              ),
-                              WorldPearlSurface(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 3,
-                                  vertical: 5,
-                                ),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    _homeNav(
-                                      'world-destination-0',
-                                      'wardrobe',
-                                      'Гардероб',
-                                      const WardrobeScreen(
-                                        initialCategory: WardrobeCategory.cape,
+                                    const SizedBox(width: 6),
+                                    Transform.flip(
+                                      flipX: true,
+                                      child: const WorldArtImage(
+                                        'leaf_ornament',
+                                        size: 26,
                                       ),
-                                    ),
-                                    _homeNav(
-                                      'world-nav-pets',
-                                      'pet',
-                                      'Питомцы',
-                                      const WardrobeScreen(
-                                        initialCategory:
-                                            WardrobeCategory.companion,
-                                      ),
-                                    ),
-                                    _homeNav(
-                                      'world-destination-2',
-                                      'garden',
-                                      'Сад',
-                                      const WorldGardenScreen(),
-                                    ),
-                                    _homeNav(
-                                      'world-destination-4',
-                                      'album',
-                                      'Альбом',
-                                      const WorldAlbumScreen(),
-                                    ),
-                                    _homeNav(
-                                      'world-destination-5',
-                                      'games',
-                                      'Игры',
-                                      const WorldGamesScreen(),
                                     ),
                                   ],
                                 ),
@@ -362,7 +256,73 @@ class _FinoraWorldScreenState extends State<FinoraWorldScreen>
                             ],
                           ),
                         ),
-                      ),
+                        Positioned(
+                          left: media.padding.left + 12,
+                          bottom: bottomInset + 8,
+                          child: WorldPearlSurface(
+                            padding: EdgeInsets.zero,
+                            child: IconButton(
+                              key: const ValueKey('world-home-more'),
+                              tooltip: 'Образы, коллекции и обзор',
+                              onPressed: () => _showMore(context),
+                              icon: const Icon(
+                                Icons.more_horiz_rounded,
+                                color: worldPlum,
+                              ),
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          left: media.padding.left + 4,
+                          right: media.padding.right + 4,
+                          bottom: media.padding.bottom + 4,
+                          height: dockHeight,
+                          child: WorldHomeDock(
+                            key: const ValueKey('world-home-dock'),
+                            children: [
+                              _homeNav(
+                                'world-destination-0',
+                                'wardrobe',
+                                'Гардероб',
+                                const WardrobeScreen(
+                                  initialCategory: WardrobeCategory.cape,
+                                ),
+                                landscape,
+                              ),
+                              _homeNav(
+                                'world-nav-pets',
+                                'pet',
+                                'Питомцы',
+                                const WardrobeScreen(
+                                  initialCategory: WardrobeCategory.companion,
+                                ),
+                                landscape,
+                              ),
+                              _homeNav(
+                                'world-destination-2',
+                                'garden',
+                                'Сад',
+                                const WorldGardenScreen(),
+                                landscape,
+                              ),
+                              _homeNav(
+                                'world-destination-4',
+                                'album',
+                                'Альбом',
+                                const WorldAlbumScreen(),
+                                landscape,
+                              ),
+                              _homeNav(
+                                'world-destination-5',
+                                'games',
+                                'Игры',
+                                const WorldGamesScreen(),
+                                landscape,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     );
                   },
                 ),
@@ -374,49 +334,107 @@ class _FinoraWorldScreenState extends State<FinoraWorldScreen>
     );
   }
 
-  Widget _homeNav(String id, String image, String label, Widget page) =>
-      Expanded(
-        child: Semantics(
-          button: true,
-          label: label,
-          child: InkWell(
-            key: ValueKey(id),
-            onTap: () => _open(page),
-            borderRadius: BorderRadius.circular(16),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 2),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  WorldArtImage(image, size: 54),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 2,
-                      vertical: 5,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: .75),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: worldChampagne.withValues(alpha: .7),
-                      ),
-                    ),
-                    child: Text(
-                      label,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
+  Future<void> _showMore(BuildContext themedContext) async {
+    final page = await showModalBottomSheet<Widget>(
+      context: themedContext,
+      showDragHandle: true,
+      builder: (_) => WorldTheme(
+        child: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                for (final item in <(String, String, IconData, Widget)>[
+                  (
+                    'world-destination-1',
+                    'Образы',
+                    Icons.checkroom_outlined,
+                    const WorldOutfitsScreen(),
                   ),
-                ],
-              ),
+                  (
+                    'world-destination-3',
+                    'Коллекции',
+                    Icons.collections_bookmark_outlined,
+                    const WorldCollectionsScreen(),
+                  ),
+                  (
+                    'world-open-review',
+                    'Обзор',
+                    Icons.insights_rounded,
+                    const WorldReviewScreen(),
+                  ),
+                ])
+                  ListTile(
+                    key: ValueKey(item.$1),
+                    leading: Icon(item.$3, color: worldJade),
+                    title: Text(item.$2),
+                    trailing: const Icon(Icons.chevron_right_rounded),
+                    onTap: () => Navigator.pop(themedContext, item.$4),
+                  ),
+              ],
             ),
           ),
         ),
-      );
+      ),
+    );
+    if (page != null && mounted) await _open(page);
+  }
+
+  Widget _homeNav(
+    String id,
+    String image,
+    String label,
+    Widget page,
+    bool compact,
+  ) => Expanded(
+    child: Semantics(
+      button: true,
+      label: label,
+      child: Tooltip(
+        message: label,
+        child: InkWell(
+          key: ValueKey(id),
+          onTap: () => _open(page),
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 2),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                WorldArtImage(image, size: compact ? 48 : 64),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 2,
+                    vertical: 5,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: .75),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: worldChampagne.withValues(alpha: .7),
+                    ),
+                  ),
+                  child: Text(
+                    label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: worldPlum,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
 }
 
 class _WorldReaction extends StatelessWidget {
@@ -440,13 +458,8 @@ class _WorldReaction extends StatelessWidget {
         : hasPayment
         ? 'Теперь обязательные платежи на виду.'
         : 'С возвращением!';
-    return Container(
+    return WorldPearlSurface(
       padding: const EdgeInsets.fromLTRB(14, 6, 8, 6),
-      decoration: BoxDecoration(
-        color: worldMint.withValues(alpha: .07),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: worldMint.withValues(alpha: .15)),
-      ),
       child: Row(
         children: [
           Expanded(child: Text(message, style: const TextStyle(fontSize: 13))),

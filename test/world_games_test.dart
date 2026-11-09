@@ -138,6 +138,12 @@ void main() {
       await tester.pumpAndSettle();
 
       Future<void> show(Finder finder) async {
+        // The next piece can be above the board and outside ListView's cache.
+        // Return upwards before searching down for a lazily built target.
+        if (finder.evaluate().isEmpty) {
+          await tester.drag(find.byType(Scrollable), const Offset(0, 1600));
+          await tester.pumpAndSettle();
+        }
         await tester.scrollUntilVisible(finder, 180, maxScrolls: 40);
         await tester.ensureVisible(finder);
         await tester.pumpAndSettle();

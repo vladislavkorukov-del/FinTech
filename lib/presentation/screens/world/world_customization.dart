@@ -136,8 +136,10 @@ class WorldDecorScreen extends StatelessWidget {
               ChoiceChip(
                 key: ValueKey('world-background-${item.id}'),
                 avatar: Icon(
-                  worldCosmeticIcon(item.id),
-                  color: Color(item.color),
+                  worldOwns(world, item)
+                      ? worldCosmeticIcon(item.id)
+                      : Icons.lock_outline_rounded,
+                  color: worldOwns(world, item) ? worldJade : worldPlum,
                   size: 18,
                 ),
                 label: Text(item.name),
@@ -147,7 +149,7 @@ class WorldDecorScreen extends StatelessWidget {
                         context,
                         () => c.configureWorld(item.id, world.decor),
                       )
-                    : null,
+                    : (_) => worldOpen(context, const WorldCatalogScreen()),
               ),
           ],
         ),

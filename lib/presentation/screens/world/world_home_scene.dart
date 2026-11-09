@@ -20,24 +20,35 @@ class WorldHomeScene extends StatefulWidget {
     required this.onDecorate,
     this.onBackground,
     this.celebrating = false,
+    this.topInset = 0,
+    this.bottomInset = 0,
+    this.reaction,
   });
   final WorldState world;
   final WardrobeState wardrobe;
   final VoidCallback onDecorate;
   final VoidCallback? onBackground;
   final bool celebrating;
+  final double topInset, bottomInset;
+  final Widget? reaction;
   @override
   State<WorldHomeScene> createState() => _WorldHomeSceneState();
 }
 
 class _WorldHomeSceneState extends State<WorldHomeScene> {
   bool _happy = false, _sleeping = false;
-  Timer? _reaction;
+  Timer? _reaction, _speechTimer;
+  bool _speaking = false;
   void _greet() {
     _reaction?.cancel();
+    _speechTimer?.cancel();
     setState(() {
+      _speaking = true;
       _happy = true;
       _sleeping = false;
+    });
+    _speechTimer = Timer(const Duration(seconds: 6), () {
+      if (mounted) setState(() => _speaking = false);
     });
     _reaction = Timer(const Duration(milliseconds: 900), () {
       if (mounted) setState(() => _happy = false);
@@ -47,6 +58,7 @@ class _WorldHomeSceneState extends State<WorldHomeScene> {
   @override
   void dispose() {
     _reaction?.cancel();
+    _speechTimer?.cancel();
     super.dispose();
   }
 
@@ -60,14 +72,24 @@ class _WorldHomeSceneState extends State<WorldHomeScene> {
       final companion = worn
           .where((i) => i.slot == WardrobeSlot.companion)
           .firstOrNull;
-      final body = math.min(150.0, math.min(width * .34, height * .35));
+      final immersive = widget.bottomInset > 0;
+      final landscape = width > height;
+      final ground = immersive
+          ? math.min(
+              height * .78,
+              height - widget.bottomInset - (width > height ? 14 : 34),
+            )
+          : height * .80;
+      final room = math.max(24.0, ground - widget.topInset);
+      final body = immersive
+          ? math.min(174.0, math.min(width * .43, room * .58))
+          : math.min(150.0, math.min(width * .34, height * .35));
       final reduced = Motion.reduced(context);
-      final scale = MediaQuery.textScalerOf(context).scale(1);
       return SizedBox(
         height: height,
         child: ClipRRect(
           key: const ValueKey('world-home-scene'),
-          borderRadius: BorderRadius.circular(28),
+          borderRadius: BorderRadius.circular(immersive ? 0 : 28),
           child: Stack(
             children: [
               Positioned.fill(
@@ -96,13 +118,17 @@ class _WorldHomeSceneState extends State<WorldHomeScene> {
                 Positioned(
                   left: entry.key == 'left' ? 14 : null,
                   right: entry.key == 'right' ? 14 : null,
-                  top: entry.key == 'shelf' ? height * .28 : null,
-                  bottom: entry.key == 'shelf' ? null : height * .12,
+                  top: entry.key == 'shelf'
+                      ? math.max(widget.topInset + 16, height * .32)
+                      : null,
+                  bottom: entry.key == 'shelf'
+                      ? null
+                      : height - ground + (landscape ? 6 : 64),
                   child: _DecorObject(id: entry.value),
                 ),
               Positioned(
                 left: width * .5 - body * FinoraDressed.centerX,
-                top: height * .80 - body * 1.67,
+                top: ground - body * 1.67,
                 width: body * FinoraDressed.widthFactor,
                 height: body * FinoraDressed.heightFactor,
                 child: Semantics(
@@ -130,7 +156,7 @@ class _WorldHomeSceneState extends State<WorldHomeScene> {
                               ? FinoraMood.sleep
                               : _happy
                               ? FinoraMood.happy
-                              : FinoraMood.calm,
+                              : FinoraMood.idle,
                         ],
                       ),
                     ),
@@ -138,25 +164,30 @@ class _WorldHomeSceneState extends State<WorldHomeScene> {
                 ),
               ),
               Positioned(
-                top: 10,
-                right: 10,
-                child: Column(
+                top: widget.topInset + (landscape ? -10 : 8),
+                right: MediaQuery.paddingOf(context).right + 10,
+                child: Flex(
+                  direction: landscape ? Axis.horizontal : Axis.vertical,
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     _SceneAction(
                       key: const ValueKey('world-change-background'),
                       icon: 'background',
                       label: 'Фон',
+                      showLabel: !landscape,
                       onPressed: widget.onBackground ?? widget.onDecorate,
-                      compact: height < 300,
+                      compact:
+                          height - widget.topInset - widget.bottomInset < 330,
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 8, width: 8),
                     _SceneAction(
                       key: const ValueKey('world-decorate'),
                       icon: 'decor',
                       label: 'Декор',
+                      showLabel: !landscape,
                       onPressed: widget.onDecorate,
-                      compact: height < 300,
+                      compact:
+                          height - widget.topInset - widget.bottomInset < 330,
                     ),
                   ],
                 ),
@@ -171,31 +202,35 @@ class _WorldHomeSceneState extends State<WorldHomeScene> {
                     size: 30,
                   ),
                 ),
+              if (widget.reaction != null && (_speaking || widget.celebrating))
+                Positioned(
+                  top: math.max(
+                    widget.topInset + 10,
+                    ground - body * 1.67 - 90,
+                  ),
+                  left: 12 + MediaQuery.paddingOf(context).left,
+                  right: 92 + MediaQuery.paddingOf(context).right,
+                  child: widget.reaction!,
+                ),
               if (companion != null)
                 Positioned(
-                  bottom: 8,
-                  left: 8,
-                  right: 8,
-                  child: Align(
-                    alignment: Alignment.bottomLeft,
-                    child: WorldPearlSurface(
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
-                      child: TextButton.icon(
-                        key: const ValueKey('world-pet-rest'),
-                        onPressed: () => setState(() {
-                          _sleeping = !_sleeping;
-                          _happy = false;
-                        }),
-                        icon: Icon(
-                          _sleeping
-                              ? Icons.wb_sunny_outlined
-                              : Icons.bedtime_outlined,
-                          size: 17,
-                        ),
-                        label: Text(
-                          _sleeping ? 'Позвать' : 'Тихий час',
-                          style: TextStyle(fontSize: scale > 1.3 ? 11 : 12),
-                        ),
+                  bottom: widget.bottomInset + 8,
+                  left: MediaQuery.paddingOf(context).left + 68,
+                  child: WorldPearlSurface(
+                    padding: EdgeInsets.zero,
+                    child: IconButton(
+                      key: const ValueKey('world-pet-rest'),
+                      tooltip: _sleeping ? 'Позвать питомца' : 'Тихий час',
+                      onPressed: () => setState(() {
+                        _sleeping = !_sleeping;
+                        _happy = false;
+                      }),
+                      icon: Icon(
+                        _sleeping
+                            ? Icons.wb_sunny_outlined
+                            : Icons.bedtime_outlined,
+                        size: 22,
+                        color: worldJade,
                       ),
                     ),
                   ),
@@ -215,10 +250,11 @@ class _SceneAction extends StatelessWidget {
     required this.label,
     required this.onPressed,
     this.compact = false,
+    this.showLabel = true,
   });
   final String icon, label;
   final VoidCallback onPressed;
-  final bool compact;
+  final bool compact, showLabel;
   @override
   Widget build(BuildContext context) => Semantics(
     button: true,
@@ -230,27 +266,31 @@ class _SceneAction extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            width: compact ? 44 : 56,
-            height: compact ? 44 : 56,
+            width: compact ? 48 : 62,
+            height: compact ? 48 : 62,
             decoration: BoxDecoration(
               color: worldPearl.withValues(alpha: .85),
               shape: BoxShape.circle,
               border: Border.all(color: worldChampagne),
             ),
-            child: WorldArtImage(icon, size: compact ? 40 : 52),
+            child: WorldArtImage(icon, size: compact ? 44 : 58),
           ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-            decoration: BoxDecoration(
-              color: worldPearl.withValues(alpha: .94),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: worldChampagne),
+          if (showLabel)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+              decoration: BoxDecoration(
+                color: worldPearl.withValues(alpha: .94),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: worldChampagne),
+              ),
+              child: Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
-            child: Text(
-              label,
-              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-            ),
-          ),
         ],
       ),
     ),

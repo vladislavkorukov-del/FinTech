@@ -93,6 +93,7 @@ void main() {
     Size size = const Size(360, 740),
     double scale = 1,
     bool reduced = true,
+    EdgeInsets padding = EdgeInsets.zero,
   }) async {
     tester.view.physicalSize = size;
     tester.view.devicePixelRatio = 1;
@@ -105,6 +106,8 @@ void main() {
           builder: (context, child) => MediaQuery(
             data: MediaQuery.of(context).copyWith(
               disableAnimations: reduced,
+              padding: padding,
+              viewPadding: padding,
               textScaler: TextScaler.linear(scale),
             ),
             child: child!,
@@ -154,10 +157,12 @@ void main() {
               size: size,
               scale: 1.6,
             );
-            await tester.drag(
-              find.byType(Scrollable).first,
-              const Offset(0, -1800),
-            );
+            if (page is! FinoraWorldScreen) {
+              await tester.drag(
+                find.byType(Scrollable).first,
+                const Offset(0, -1800),
+              );
+            }
             await tester.pumpAndSettle();
             expect(
               tester.takeException(),
@@ -169,6 +174,100 @@ void main() {
           }
         }
       }
+    },
+  );
+
+  testWidgets(
+    'immersive home keeps all controls inside Android insets and secondary destinations reachable',
+    (tester) async {
+      const padding = EdgeInsets.fromLTRB(12, 44, 12, 24);
+      for (final size in [
+        const Size(320, 640),
+        const Size(390, 844),
+        const Size(740, 360),
+      ]) {
+        for (final scale in [1.0, 1.6, 2.0]) {
+          await mount(
+            tester,
+            const FinoraWorldScreen(),
+            size: size,
+            scale: scale,
+            padding: padding,
+          );
+          expect(find.byType(Scrollable), findsNothing);
+          final scene = tester.getRect(
+            find.byKey(const ValueKey('world-home-scene')),
+          );
+          expect(scene, Offset.zero & size);
+          for (final id in [
+            'world-back',
+            'world-settings',
+            'world-currency-ways',
+            'world-change-background',
+            'world-decorate',
+            'world-home-more',
+            'world-pet-rest',
+            'world-destination-0',
+            'world-nav-pets',
+            'world-destination-2',
+            'world-destination-4',
+            'world-destination-5',
+          ]) {
+            final rect = tester.getRect(find.byKey(ValueKey(id)));
+            expect(
+              rect.left,
+              greaterThanOrEqualTo(padding.left),
+              reason: '$id $size $scale',
+            );
+            expect(
+              rect.top,
+              greaterThanOrEqualTo(padding.top),
+              reason: '$id $size $scale',
+            );
+            expect(
+              rect.right,
+              lessThanOrEqualTo(size.width - padding.right),
+              reason: '$id $size $scale',
+            );
+            expect(
+              rect.bottom,
+              lessThanOrEqualTo(size.height - padding.bottom),
+              reason: '$id $size $scale',
+            );
+            expect(
+              rect.width,
+              greaterThanOrEqualTo(48),
+              reason: '$id $size $scale',
+            );
+            expect(
+              rect.height,
+              greaterThanOrEqualTo(48),
+              reason: '$id $size $scale',
+            );
+            expect(
+              find.byKey(ValueKey(id)).hitTestable(),
+              findsOneWidget,
+              reason: '$id $size $scale',
+            );
+          }
+          expect(tester.takeException(), isNull, reason: '$size $scale');
+          await tester.pumpWidget(const SizedBox.shrink());
+        }
+      }
+      await mount(tester, const FinoraWorldScreen());
+      await tester.tap(find.byKey(const ValueKey('world-home-more')));
+      await tester.pumpAndSettle();
+      for (final id in [
+        'world-destination-1',
+        'world-destination-3',
+        'world-open-review',
+      ]) {
+        expect(find.byKey(ValueKey(id)).hitTestable(), findsOneWidget);
+      }
+      await tester.tap(find.byKey(const ValueKey('world-destination-3')));
+      await tester.pumpAndSettle();
+      expect(find.byType(WorldCollectionsScreen), findsOneWidget);
+      expect(tester.takeException(), isNull);
     },
   );
 
@@ -207,6 +306,21 @@ void main() {
       expect(c.balance, 123456);
       expect(tester.takeException(), isNull);
       await tester.pumpWidget(const SizedBox.shrink());
+    },
+  );
+
+  testWidgets(
+    'locked house backgrounds open the catalog without spending sparks or changing the scene',
+    (tester) async {
+      await mount(tester, const WorldDecorScreen());
+      final before = c.data.world;
+      await tester.tap(find.byKey(const ValueKey('world-background-night')));
+      await tester.pumpAndSettle();
+      expect(find.byType(WorldCatalogScreen), findsOneWidget);
+      expect(c.data.world.background, before.background);
+      expect(c.data.world.sparks, before.sparks);
+      expect(c.data.world.purchases, before.purchases);
+      expect(tester.takeException(), isNull);
     },
   );
 

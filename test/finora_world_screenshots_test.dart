@@ -7,6 +7,8 @@ import 'package:finora/domain/models.dart';
 import 'package:finora/domain/wardrobe.dart';
 import 'package:finora/presentation/controller.dart';
 import 'package:finora/presentation/screens/world/finora_world_screen.dart';
+import 'package:finora/presentation/screens/world/world_art.dart';
+import 'package:finora/presentation/screens/world/flow_screens.dart';
 import 'package:finora/presentation/screens/world/world_collections.dart';
 import 'package:finora/presentation/screens/world/world_customization.dart';
 import 'package:finora/presentation/screens/world/world_games_screen.dart';
@@ -126,6 +128,11 @@ void main() {
       const stageAmounts = [0, 10000, 45000, 76000, 85000, 100000];
       final pages = <String, Widget>{
         'home': const FinoraWorldScreen(),
+        if (output != null) 'home-small-text2': const FinoraWorldScreen(),
+        if (output != null) 'home-landscape-text2': const FinoraWorldScreen(),
+        'home-settings': const WorldDecorScreen(),
+        'backgrounds': const WorldBackgroundScreen(),
+        'flow-map': const FlowMapScreen(),
         'garden': const WorldGardenScreen(),
         'collections': const WorldCollectionsScreen(),
         'catalog': const WorldCatalogScreen(),
@@ -144,23 +151,37 @@ void main() {
             ),
           );
         }
+        final small = entry.key == 'home-small-text2';
+        final landscape = entry.key == 'home-landscape-text2';
+        tester.view.physicalSize = small
+            ? const Size(320, 640)
+            : landscape
+            ? const Size(740, 360)
+            : const Size(390, 844);
         await tester.pumpWidget(
           FinanceScope(
             controller: c,
             child: MaterialApp(
               theme: AppTheme.build(Brightness.dark, 'coffee'),
               builder: (context, child) => MediaQuery(
-                data: MediaQuery.of(context).copyWith(disableAnimations: true),
+                data: MediaQuery.of(context).copyWith(
+                  disableAnimations: true,
+                  textScaler: TextScaler.linear(small || landscape ? 2 : 1),
+                  padding: const EdgeInsets.only(top: 24, bottom: 24),
+                  viewPadding: const EdgeInsets.only(top: 24, bottom: 24),
+                ),
                 child: child!,
               ),
-              home: RepaintBoundary(
-                key: const ValueKey('world-capture'),
-                child: entry.value,
+              home: WorldTheme(
+                child: RepaintBoundary(
+                  key: const ValueKey('world-capture'),
+                  child: entry.value,
+                ),
               ),
             ),
           ),
         );
-        await tester.pumpAndSettle();
+        await tester.pump();
         await tester.runAsync(
           () => Future<void>.delayed(const Duration(milliseconds: 40)),
         );
