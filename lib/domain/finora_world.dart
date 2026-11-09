@@ -2,7 +2,11 @@ import 'achievements.dart';
 import 'finance_engine.dart';
 import 'models.dart';
 import 'wardrobe.dart';
+import 'flow/models.dart';
+
 import 'world_games.dart';
+
+const _unchangedGardenGoal = Object();
 
 /// Cosmetic economy. It never enters account, entry or analytics arithmetic.
 class WorldRewardAmount {
@@ -28,6 +32,14 @@ const worldCosmetics = <WorldCosmetic>[
   WorldCosmetic('pearl', 'Жемчужное утро', 'background', 0, 0, 0xFFE9E0D4),
   WorldCosmetic('night', 'Лунное стекло', 'background', 30, 0, 0xFF8B9BCE),
   WorldCosmetic('garden', 'Тихий сад', 'background', 60, 50, 0xFF84B489),
+  WorldCosmetic(
+    'underwater',
+    'Подводный дом',
+    'background',
+    60,
+    50,
+    0xFF78B9D3,
+  ),
   WorldCosmetic(
     'aurora',
     'Северное сияние',
@@ -102,6 +114,9 @@ abstract final class WorldCatalog {
     if (RegExp(
       r'^game:(constellation|parcel|expedition):[0-2]$',
     ).hasMatch(id)) {
+      return rewards['game'];
+    }
+    if (RegExp(r'^flow:level:([1-9]|1[0-9]|20):v1$').hasMatch(id)) {
       return rewards['game'];
     }
     return null;
@@ -248,6 +263,8 @@ class WorldState {
     this.reducedMotion = false,
     this.remarks = true,
     this.hidePrivate = true,
+    this.gardenGoalId,
+    this.flow = const FlowProgress(),
   });
   final Map<String, WorldReward> rewards;
   final Set<String> purchases;
@@ -258,6 +275,8 @@ class WorldState {
   final Map<String, WorldMemory> memories;
   final Map<String, List<int>> games;
   final bool reducedMotion, remarks, hidePrivate;
+  final String? gardenGoalId;
+  final FlowProgress flow;
   int get experience => rewards.values.fold(0, (n, r) => n + r.xp);
   int get earned => rewards.values.fold(0, (n, r) => n + r.sparks);
   int get sparks =>
@@ -276,6 +295,8 @@ class WorldState {
     bool? reducedMotion,
     bool? remarks,
     bool? hidePrivate,
+    Object? gardenGoalId = _unchangedGardenGoal,
+    FlowProgress? flow,
   }) => WorldState(
     rewards: rewards ?? this.rewards,
     purchases: purchases ?? this.purchases,
@@ -288,6 +309,10 @@ class WorldState {
     reducedMotion: reducedMotion ?? this.reducedMotion,
     remarks: remarks ?? this.remarks,
     hidePrivate: hidePrivate ?? this.hidePrivate,
+    gardenGoalId: identical(gardenGoalId, _unchangedGardenGoal)
+        ? this.gardenGoalId
+        : gardenGoalId as String?,
+    flow: flow ?? this.flow,
   );
 
   Map<String, Object?> toJson() => {
@@ -303,6 +328,8 @@ class WorldState {
     'reducedMotion': reducedMotion,
     'remarks': remarks,
     'hidePrivate': hidePrivate,
+    'gardenGoalId': gardenGoalId,
+    'flow': flow.toJson(),
   };
 
   factory WorldState.fromJson(Map<String, dynamic> j) {
@@ -359,6 +386,10 @@ class WorldState {
       reducedMotion: j['reducedMotion'] as bool? ?? false,
       remarks: j['remarks'] as bool? ?? true,
       hidePrivate: j['hidePrivate'] as bool? ?? true,
+      gardenGoalId: j['gardenGoalId'] is String
+          ? j['gardenGoalId'] as String
+          : null,
+      flow: _readFlow(j['flow']),
     );
     if (state.sparks < 0) {
       throw const FormatException('Недостаточно искр в сохранении');
@@ -382,6 +413,16 @@ class WorldState {
       decor: decor,
     );
     return state;
+  }
+
+  static FlowProgress _readFlow(Object? raw) {
+    if (raw is! Map) return const FlowProgress();
+    try {
+      return FlowProgress.fromJson(Map<String, dynamic>.from(raw));
+    } on Object {
+      // A broken optional game snapshot cannot erase finances or old rewards.
+      return const FlowProgress();
+    }
   }
 }
 
@@ -439,6 +480,16 @@ class WorldPlant {
   final Goal goal;
   final int savedMinor, stage;
   final double ratio;
+
+  /// Preserve the existing growth milestones and add an opening-flower frame
+  /// within the former bud interval. Financial completion remains unchanged.
+  int get visualStage => switch (stage) {
+    0 => 0,
+    1 => 1,
+    2 => 2,
+    3 => ratio >= .8 ? 4 : 3,
+    _ => 5,
+  };
   String get stageName =>
       const ['Семя', 'Росток', 'Листья', 'Бутон', 'Цветение'][stage];
 }
@@ -572,6 +623,14 @@ abstract final class WorldEngine {
     bool events = true,
   }) {
     var updated = state;
+    final selectedGoal =
+        state.gardenGoalId == null ||
+            after.goals.any((g) => g.id == state.gardenGoalId)
+        ? state.gardenGoalId
+        : after.goals.firstOrNull?.id;
+    if (selectedGoal != state.gardenGoalId) {
+      updated = updated.copyWith(gardenGoalId: selectedGoal);
+    }
     // Demo data is never a source of spendable rewards or completed real goals.
     if (!after.demo) {
       if (events &&
@@ -692,6 +751,8 @@ abstract final class WorldEngine {
         ),
       ].take(WorldCatalog.maxOutfits).toList(),
       games: {...incoming.games, ...local.games},
+      gardenGoalId: local.gardenGoalId ?? incoming.gardenGoalId,
+      flow: FlowProgress.merge(local.flow, incoming.flow),
     );
     final incomingIds = incoming.purchases.toList()..sort();
     for (final id in incomingIds) {
@@ -710,7 +771,9 @@ abstract final class WorldEngine {
         local.outfits.isEmpty &&
         local.decor.isEmpty &&
         local.background == 'mint' &&
-        local.games.isEmpty;
+        local.games.isEmpty &&
+        local.flow.results.isEmpty &&
+        local.flow.session == null;
     if (pristine) {
       merged = merged.copyWith(
         background: owns(merged, incoming.background)

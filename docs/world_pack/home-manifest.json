@@ -1,0 +1,136 @@
+{
+  "schema_version": 1,
+  "pack_id": "finora_home_backgrounds_6",
+  "default_background_id": "finora_home_mint_atrium",
+  "coordinate_system": "Normalized 0..1, origin at top-left of the visible scene container. Ground anchors refer to the bottom center of each character. Suggested values require visual adjustment.",
+  "images_are_flattened": true,
+  "notes": "Original PNG assets, no resizing. Aurora has a different aspect ratio. Fit without distortion; crop and place characters against visible container bounds.",
+  "backgrounds": [
+    {
+      "id": "finora_home_mint_atrium",
+      "title_ru": "Мятный атриум",
+      "file": "backgrounds/01_mint_atrium.png",
+      "width": 941,
+      "height": 1672,
+      "format": "png",
+      "sha256": "30da5fde4ef1d83c8de2e4751316689b47ab8e57eaa77699602946011fe3fa01",
+      "suggested_image_alignment": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "suggested_mascot_ground_anchor": {
+        "x": 0.5,
+        "y": 0.8
+      },
+      "suggested_pet_ground_anchor": {
+        "x": 0.75,
+        "y": 0.83
+      }
+    },
+    {
+      "id": "finora_home_tea_room",
+      "title_ru": "Чайная комната",
+      "file": "backgrounds/02_tea_room.png",
+      "width": 941,
+      "height": 1672,
+      "format": "png",
+      "sha256": "7e4b4a1ee9cc66a5e85b1820cd13b8297610f8fe49d33efeead1eccd404376d0",
+      "suggested_image_alignment": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "suggested_mascot_ground_anchor": {
+        "x": 0.5,
+        "y": 0.8
+      },
+      "suggested_pet_ground_anchor": {
+        "x": 0.75,
+        "y": 0.83
+      }
+    },
+    {
+      "id": "finora_home_observatory",
+      "title_ru": "Звёздная обсерватория",
+      "file": "backgrounds/03_observatory.png",
+      "width": 941,
+      "height": 1672,
+      "format": "png",
+      "sha256": "b85d9ec027dc5099fb396a5f2d3a5d2db15c38d78389e68fc5503f646225c1b3",
+      "suggested_image_alignment": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "suggested_mascot_ground_anchor": {
+        "x": 0.5,
+        "y": 0.8
+      },
+      "suggested_pet_ground_anchor": {
+        "x": 0.75,
+        "y": 0.83
+      }
+    },
+    {
+      "id": "finora_home_garden",
+      "title_ru": "Дом-сад",
+      "file": "backgrounds/04_garden.png",
+      "width": 941,
+      "height": 1672,
+      "format": "png",
+      "sha256": "04f2d2297a54f9c3dc0b1ff5fae6067f2128e119add3f38b844203f997f44ad2",
+      "suggested_image_alignment": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "suggested_mascot_ground_anchor": {
+        "x": 0.5,
+        "y": 0.8
+      },
+      "suggested_pet_ground_anchor": {
+        "x": 0.75,
+        "y": 0.83
+      }
+    },
+    {
+      "id": "finora_home_underwater",
+      "title_ru": "Подводный дом",
+      "file": "backgrounds/05_underwater.png",
+      "width": 941,
+      "height": 1672,
+      "format": "png",
+      "sha256": "397c7b1826dc1e976e86d1c4893d083c0016e7a74e7e30aaef829a6e9493714f",
+      "suggested_image_alignment": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "suggested_mascot_ground_anchor": {
+        "x": 0.5,
+        "y": 0.8
+      },
+      "suggested_pet_ground_anchor": {
+        "x": 0.75,
+        "y": 0.83
+      }
+    },
+    {
+      "id": "finora_home_aurora",
+      "title_ru": "Северное сияние",
+      "file": "backgrounds/06_aurora.png",
+      "width": 1052,
+      "height": 1495,
+      "format": "png",
+      "sha256": "033217160a0a4b0e23a477eecbaef0898b133bf2782e81145894aa13835818b6",
+      "suggested_image_alignment": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "suggested_mascot_ground_anchor": {
+        "x": 0.5,
+        "y": 0.8
+      },
+      "suggested_pet_ground_anchor": {
+        "x": 0.75,
+        "y": 0.83
+      }
+    }
+  ]
+}

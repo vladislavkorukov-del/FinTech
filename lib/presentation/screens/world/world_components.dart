@@ -4,6 +4,8 @@ import '../../../domain/finora_world.dart';
 import '../../controller.dart';
 import '../../l10n_widgets.dart';
 import '../../widgets/common.dart';
+import 'world_art.dart';
+export 'world_art.dart';
 
 const worldMint = Color(0xFF9DE5C7);
 
@@ -22,19 +24,33 @@ class WorldPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final world = FinanceScope.of(context).data.world;
-    return MediaQuery(
-      data: MediaQuery.of(context).copyWith(
-        disableAnimations:
-            MediaQuery.disableAnimationsOf(context) || world.reducedMotion,
-      ),
-      child: Scaffold(
-        appBar: AppBar(title: Text(title), actions: actions),
-        body: SafeArea(
-          top: false,
-          child: ListView(
-            key: ValueKey('world-page-$title'),
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
-            children: children,
+    return WorldTheme(
+      child: Builder(
+        builder: (context) => MediaQuery(
+          data: MediaQuery.of(context).copyWith(
+            disableAnimations:
+                MediaQuery.disableAnimationsOf(context) || world.reducedMotion,
+          ),
+          child: Scaffold(
+            appBar: AppBar(
+              title: Text(title),
+              leading: Navigator.canPop(context)
+                  ? WorldImageButton(
+                      id: 'back',
+                      label: 'Назад',
+                      onPressed: () => Navigator.maybePop(context),
+                    )
+                  : null,
+              actions: actions,
+            ),
+            body: SafeArea(
+              top: false,
+              child: ListView(
+                key: ValueKey('world-page-$title'),
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+                children: children,
+              ),
+            ),
           ),
         ),
       ),
@@ -50,7 +66,7 @@ class WorldPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Padding(
     padding: const EdgeInsets.only(bottom: 12),
-    child: SurfaceCard(
+    child: WorldPearlSurface(
       padding: const EdgeInsets.all(16),
       onTap: onTap,
       child: child,
@@ -113,7 +129,9 @@ Future<void> worldAttempt(
 
 Future<void> worldOpen(BuildContext context, Widget screen) =>
     Navigator.of(context).push<void>(
-      MaterialPageRoute<void>(builder: (_) => _WorldRouteMotion(child: screen)),
+      MaterialPageRoute<void>(
+        builder: (_) => _WorldRouteMotion(child: WorldTheme(child: screen)),
+      ),
     );
 
 /// Navigator pages do not inherit the MediaQuery below the previous route.

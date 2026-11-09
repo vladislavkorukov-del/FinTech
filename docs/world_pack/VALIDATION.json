@@ -1,0 +1,12 @@
+{
+  "status": "passed",
+  "working_images": 29,
+  "home_backgrounds": 6,
+  "garden_images": 7,
+  "ui_images": 16,
+  "all_manifest_paths_exist": true,
+  "all_source_sha256_match": true,
+  "all_dimensions_match": true,
+  "ui_and_plant_alpha_verified": true,
+  "note_ru": "Проверены файлы набора; внедрение и запуск внутри пользовательского приложения ещё не выполнялись."
+}

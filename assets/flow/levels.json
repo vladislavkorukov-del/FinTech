@@ -1,0 +1,8802 @@
+{
+  "schemaVersion": 1,
+  "levels": [
+    {
+      "schemaVersion": 1,
+      "id": 1,
+      "chapterId": 1,
+      "name": "Первая цепочка",
+      "width": 8,
+      "height": 8,
+      "seed": 101009,
+      "moves": 9,
+      "availableTileTypes": [
+        "coin",
+        "wallet",
+        "goal",
+        "shield",
+        "receipt",
+        "chart"
+      ],
+      "obstacles": [],
+      "goals": [
+        {
+          "key": "collect:coin",
+          "target": 9
+        }
+      ],
+      "scoreThresholds": [
+        0,
+        455,
+        940
+      ],
+      "initialLayout": [
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        }
+      ],
+      "tutorial": "Выберите две соседние клетки нажатием или свайпом. Собирайте указанные фишки; неверный обмен не тратит ход.",
+      "teachingMove": [
+        33,
+        34
+      ]
+    },
+    {
+      "schemaVersion": 1,
+      "id": 2,
+      "chapterId": 1,
+      "name": "Карманный порядок",
+      "width": 8,
+      "height": 8,
+      "seed": 102018,
+      "moves": 11,
+      "availableTileTypes": [
+        "coin",
+        "wallet",
+        "goal",
+        "shield",
+        "receipt",
+        "chart"
+      ],
+      "obstacles": [],
+      "goals": [
+        {
+          "key": "collect:wallet",
+          "target": 12
+        }
+      ],
+      "scoreThresholds": [
+        0,
+        510,
+        1030
+      ],
+      "initialLayout": [
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        }
+      ],
+      "tutorial": "Выберите две соседние клетки нажатием или свайпом. Собирайте указанные фишки; неверный обмен не тратит ход.",
+      "teachingMove": [
+        26,
+        27
+      ]
+    },
+    {
+      "schemaVersion": 1,
+      "id": 3,
+      "chapterId": 1,
+      "name": "Верная цель",
+      "width": 8,
+      "height": 8,
+      "seed": 103027,
+      "moves": 13,
+      "availableTileTypes": [
+        "coin",
+        "wallet",
+        "goal",
+        "shield",
+        "receipt",
+        "chart"
+      ],
+      "obstacles": [],
+      "goals": [
+        {
+          "key": "collect:goal",
+          "target": 15
+        }
+      ],
+      "scoreThresholds": [
+        0,
+        565,
+        1120
+      ],
+      "initialLayout": [
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        }
+      ],
+      "tutorial": "Выберите две соседние клетки нажатием или свайпом. Собирайте указанные фишки; неверный обмен не тратит ход.",
+      "teachingMove": [
+        21,
+        29
+      ]
+    },
+    {
+      "schemaVersion": 1,
+      "id": 4,
+      "chapterId": 1,
+      "name": "Ракета по горизонтали",
+      "width": 8,
+      "height": 8,
+      "seed": 104521,
+      "moves": 16,
+      "availableTileTypes": [
+        "coin",
+        "wallet",
+        "goal",
+        "shield",
+        "receipt",
+        "chart"
+      ],
+      "obstacles": [],
+      "goals": [
+        {
+          "key": "collect:coin",
+          "target": 15
+        },
+        {
+          "key": "collect:wallet",
+          "target": 12
+        }
+      ],
+      "scoreThresholds": [
+        0,
+        620,
+        1210
+      ],
+      "initialLayout": [
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        }
+      ],
+      "tutorial": "Обменяйте отмеченные клетки: четыре по горизонтали создадут ракету. Затем обменяйте ракету с соседней доступной фишкой, чтобы запустить её.",
+      "teachingMove": [
+        19,
+        27
+      ]
+    },
+    {
+      "schemaVersion": 1,
+      "id": 5,
+      "chapterId": 1,
+      "name": "Ракета по вертикали",
+      "width": 8,
+      "height": 8,
+      "seed": 105045,
+      "moves": 17,
+      "availableTileTypes": [
+        "coin",
+        "wallet",
+        "goal",
+        "shield",
+        "receipt",
+        "chart"
+      ],
+      "obstacles": [],
+      "goals": [
+        {
+          "key": "collect:shield",
+          "target": 16
+        },
+        {
+          "key": "collect:chart",
+          "target": 12
+        }
+      ],
+      "scoreThresholds": [
+        0,
+        675,
+        1300
+      ],
+      "initialLayout": [
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        }
+      ],
+      "tutorial": "Обменяйте отмеченные клетки: четыре по вертикали создадут ракету. Ракета очищает свой столбец.",
+      "teachingMove": [
+        26,
+        27
+      ]
+    },
+    {
+      "schemaVersion": 1,
+      "id": 6,
+      "chapterId": 1,
+      "name": "Две линии порядка",
+      "width": 8,
+      "height": 8,
+      "seed": 106442,
+      "moves": 19,
+      "availableTileTypes": [
+        "coin",
+        "wallet",
+        "goal",
+        "shield",
+        "receipt",
+        "chart"
+      ],
+      "obstacles": [],
+      "goals": [
+        {
+          "key": "collect:receipt",
+          "target": 18
+        },
+        {
+          "key": "collect:coin",
+          "target": 18
+        }
+      ],
+      "scoreThresholds": [
+        0,
+        730,
+        1390
+      ],
+      "initialLayout": [
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        }
+      ],
+      "tutorial": "Обменяйте отмеченные клетки: четыре по горизонтали создадут ракету. Затем обменяйте ракету с соседней доступной фишкой, чтобы запустить её.",
+      "teachingMove": [
+        19,
+        27
+      ]
+    },
+    {
+      "schemaVersion": 1,
+      "id": 7,
+      "chapterId": 1,
+      "name": "Мягкий Fin-взрыв",
+      "width": 8,
+      "height": 8,
+      "seed": 107063,
+      "moves": 20,
+      "availableTileTypes": [
+        "coin",
+        "wallet",
+        "goal",
+        "shield",
+        "receipt",
+        "chart"
+      ],
+      "obstacles": [],
+      "goals": [
+        {
+          "key": "collect:goal",
+          "target": 18
+        },
+        {
+          "key": "collect:shield",
+          "target": 18
+        }
+      ],
+      "scoreThresholds": [
+        0,
+        785,
+        1480
+      ],
+      "initialLayout": [
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        }
+      ],
+      "tutorial": "Обменяйте отмеченные клетки: T-образная фигура создаст Fin-взрыв. Он очищает область 3 × 3.",
+      "teachingMove": [
+        19,
+        27
+      ]
+    },
+    {
+      "schemaVersion": 1,
+      "id": 8,
+      "chapterId": 1,
+      "name": "Ядро Финоры",
+      "width": 8,
+      "height": 8,
+      "seed": 108169,
+      "moves": 21,
+      "availableTileTypes": [
+        "coin",
+        "wallet",
+        "goal",
+        "shield",
+        "receipt",
+        "chart"
+      ],
+      "obstacles": [],
+      "goals": [
+        {
+          "key": "collect:wallet",
+          "target": 20
+        },
+        {
+          "key": "collect:chart",
+          "target": 20
+        }
+      ],
+      "scoreThresholds": [
+        0,
+        840,
+        1570
+      ],
+      "initialLayout": [
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        }
+      ],
+      "tutorial": "Обменяйте отмеченные клетки: пять в ряд создадут ядро. Обмен ядра с обычной фишкой очищает её тип.",
+      "teachingMove": [
+        19,
+        27
+      ]
+    },
+    {
+      "schemaVersion": 1,
+      "id": 9,
+      "chapterId": 1,
+      "name": "Центр притяжения",
+      "width": 8,
+      "height": 8,
+      "seed": 109178,
+      "moves": 22,
+      "availableTileTypes": [
+        "coin",
+        "wallet",
+        "goal",
+        "shield",
+        "receipt",
+        "chart"
+      ],
+      "obstacles": [],
+      "goals": [
+        {
+          "key": "collect:coin",
+          "target": 24
+        },
+        {
+          "key": "collect:receipt",
+          "target": 24
+        }
+      ],
+      "scoreThresholds": [
+        0,
+        895,
+        1660
+      ],
+      "initialLayout": [
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        }
+      ],
+      "tutorial": "Обменяйте отмеченные клетки: пять в ряд создадут ядро. Обмен ядра с обычной фишкой очищает её тип.",
+      "teachingMove": [
+        19,
+        27
+      ]
+    },
+    {
+      "schemaVersion": 1,
+      "id": 10,
+      "chapterId": 1,
+      "name": "Первый полёт дрона",
+      "width": 8,
+      "height": 8,
+      "seed": 110478,
+      "moves": 20,
+      "availableTileTypes": [
+        "coin",
+        "wallet",
+        "goal",
+        "shield",
+        "receipt",
+        "chart"
+      ],
+      "obstacles": [
+        {
+          "index": 10,
+          "kind": "ice",
+          "layers": 1
+        },
+        {
+          "index": 14,
+          "kind": "ice",
+          "layers": 1
+        }
+      ],
+      "goals": [
+        {
+          "key": "ice",
+          "target": 2
+        },
+        {
+          "key": "collect:shield",
+          "target": 14
+        }
+      ],
+      "scoreThresholds": [
+        0,
+        950,
+        1750
+      ],
+      "initialLayout": [
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 1,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 1,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        }
+      ],
+      "tutorial": "Обменяйте отмеченные клетки: квадрат 2 × 2 создаст дрон. При запуске он выбирает нужное препятствие или цель.",
+      "teachingMove": [
+        19,
+        27
+      ]
+    },
+    {
+      "schemaVersion": 1,
+      "id": 11,
+      "chapterId": 1,
+      "name": "Монеты подо льдом",
+      "width": 8,
+      "height": 8,
+      "seed": 111099,
+      "moves": 22,
+      "availableTileTypes": [
+        "coin",
+        "wallet",
+        "goal",
+        "shield",
+        "receipt",
+        "chart"
+      ],
+      "obstacles": [
+        {
+          "index": 10,
+          "kind": "ice",
+          "layers": 1
+        },
+        {
+          "index": 14,
+          "kind": "ice",
+          "layers": 1
+        },
+        {
+          "index": 49,
+          "kind": "ice",
+          "layers": 1
+        }
+      ],
+      "goals": [
+        {
+          "key": "ice",
+          "target": 3
+        },
+        {
+          "key": "collect:coin",
+          "target": 18
+        }
+      ],
+      "scoreThresholds": [
+        0,
+        1005,
+        1840
+      ],
+      "initialLayout": [
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 1,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 1,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 1,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        }
+      ],
+      "tutorial": "Выберите две соседние клетки нажатием или свайпом. Собирайте указанные фишки; неверный обмен не тратит ход.",
+      "teachingMove": [
+        52,
+        53
+      ]
+    },
+    {
+      "schemaVersion": 1,
+      "id": 12,
+      "chapterId": 1,
+      "name": "Двойной лёд",
+      "width": 8,
+      "height": 8,
+      "seed": 112205,
+      "moves": 26,
+      "availableTileTypes": [
+        "coin",
+        "wallet",
+        "goal",
+        "shield",
+        "receipt",
+        "chart"
+      ],
+      "obstacles": [
+        {
+          "index": 10,
+          "kind": "ice",
+          "layers": 2
+        },
+        {
+          "index": 14,
+          "kind": "ice",
+          "layers": 2
+        },
+        {
+          "index": 49,
+          "kind": "ice",
+          "layers": 2
+        },
+        {
+          "index": 54,
+          "kind": "ice",
+          "layers": 2
+        }
+      ],
+      "goals": [
+        {
+          "key": "ice",
+          "target": 4
+        },
+        {
+          "key": "collect:goal",
+          "target": 20
+        }
+      ],
+      "scoreThresholds": [
+        0,
+        1060,
+        1930
+      ],
+      "initialLayout": [
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 2,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 2,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 2,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 2,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        }
+      ],
+      "tutorial": "Обменяйте отмеченные клетки: квадрат 2 × 2 создаст дрон. При запуске он выбирает нужное препятствие или цель.",
+      "teachingMove": [
+        19,
+        27
+      ]
+    },
+    {
+      "schemaVersion": 1,
+      "id": 13,
+      "chapterId": 1,
+      "name": "Стопка чеков",
+      "width": 8,
+      "height": 8,
+      "seed": 113311,
+      "moves": 22,
+      "availableTileTypes": [
+        "coin",
+        "wallet",
+        "goal",
+        "shield",
+        "receipt",
+        "chart"
+      ],
+      "obstacles": [
+        {
+          "index": 8,
+          "kind": "stack",
+          "layers": 1
+        },
+        {
+          "index": 15,
+          "kind": "stack",
+          "layers": 1
+        }
+      ],
+      "goals": [
+        {
+          "key": "stack",
+          "target": 2
+        },
+        {
+          "key": "collect:receipt",
+          "target": 15
+        }
+      ],
+      "scoreThresholds": [
+        0,
+        1115,
+        2020
+      ],
+      "initialLayout": [
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": null,
+          "booster": "none",
+          "ice": 0,
+          "stack": 1
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": null,
+          "booster": "none",
+          "ice": 0,
+          "stack": 1
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        }
+      ],
+      "tutorial": "Обменяйте отмеченные клетки: четыре по горизонтали создадут ракету. Затем обменяйте ракету с соседней доступной фишкой, чтобы запустить её.",
+      "teachingMove": [
+        19,
+        27
+      ]
+    },
+    {
+      "schemaVersion": 1,
+      "id": 14,
+      "chapterId": 1,
+      "name": "Разбор документов",
+      "width": 8,
+      "height": 8,
+      "seed": 114805,
+      "moves": 26,
+      "availableTileTypes": [
+        "coin",
+        "wallet",
+        "goal",
+        "shield",
+        "receipt",
+        "chart"
+      ],
+      "obstacles": [
+        {
+          "index": 8,
+          "kind": "stack",
+          "layers": 2
+        },
+        {
+          "index": 15,
+          "kind": "stack",
+          "layers": 2
+        },
+        {
+          "index": 48,
+          "kind": "stack",
+          "layers": 2
+        }
+      ],
+      "goals": [
+        {
+          "key": "stack",
+          "target": 3
+        },
+        {
+          "key": "collect:chart",
+          "target": 20
+        }
+      ],
+      "scoreThresholds": [
+        0,
+        1170,
+        2110
+      ],
+      "initialLayout": [
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": null,
+          "booster": "none",
+          "ice": 0,
+          "stack": 2
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": null,
+          "booster": "none",
+          "ice": 0,
+          "stack": 2
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": null,
+          "booster": "none",
+          "ice": 0,
+          "stack": 2
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        }
+      ],
+      "tutorial": "Обменяйте отмеченные клетки: T-образная фигура создаст Fin-взрыв. Он очищает область 3 × 3.",
+      "teachingMove": [
+        19,
+        27
+      ]
+    },
+    {
+      "schemaVersion": 1,
+      "id": 15,
+      "chapterId": 1,
+      "name": "Порядок со всех сторон",
+      "width": 8,
+      "height": 8,
+      "seed": 115135,
+      "moves": 28,
+      "availableTileTypes": [
+        "coin",
+        "wallet",
+        "goal",
+        "shield",
+        "receipt",
+        "chart"
+      ],
+      "obstacles": [
+        {
+          "index": 10,
+          "kind": "ice",
+          "layers": 1
+        },
+        {
+          "index": 14,
+          "kind": "ice",
+          "layers": 1
+        },
+        {
+          "index": 8,
+          "kind": "stack",
+          "layers": 2
+        },
+        {
+          "index": 15,
+          "kind": "stack",
+          "layers": 2
+        },
+        {
+          "index": 48,
+          "kind": "stack",
+          "layers": 2
+        }
+      ],
+      "goals": [
+        {
+          "key": "stack",
+          "target": 3
+        },
+        {
+          "key": "ice",
+          "target": 2
+        },
+        {
+          "key": "collect:wallet",
+          "target": 18
+        }
+      ],
+      "scoreThresholds": [
+        0,
+        1225,
+        2200
+      ],
+      "initialLayout": [
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": null,
+          "booster": "none",
+          "ice": 0,
+          "stack": 2
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 1,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 1,
+          "stack": 0
+        },
+        {
+          "tile": null,
+          "booster": "none",
+          "ice": 0,
+          "stack": 2
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": null,
+          "booster": "none",
+          "ice": 0,
+          "stack": 2
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        }
+      ],
+      "tutorial": "Выберите две соседние клетки нажатием или свайпом. Собирайте указанные фишки; неверный обмен не тратит ход.",
+      "teachingMove": [
+        38,
+        46
+      ]
+    },
+    {
+      "schemaVersion": 1,
+      "id": 16,
+      "chapterId": 1,
+      "name": "Перекрёстный поток",
+      "width": 8,
+      "height": 8,
+      "seed": 116144,
+      "moves": 30,
+      "availableTileTypes": [
+        "coin",
+        "wallet",
+        "goal",
+        "shield",
+        "receipt",
+        "chart"
+      ],
+      "obstacles": [
+        {
+          "index": 10,
+          "kind": "ice",
+          "layers": 1
+        },
+        {
+          "index": 14,
+          "kind": "ice",
+          "layers": 1
+        },
+        {
+          "index": 49,
+          "kind": "ice",
+          "layers": 1
+        },
+        {
+          "index": 8,
+          "kind": "stack",
+          "layers": 1
+        },
+        {
+          "index": 15,
+          "kind": "stack",
+          "layers": 1
+        },
+        {
+          "index": 48,
+          "kind": "stack",
+          "layers": 1
+        }
+      ],
+      "goals": [
+        {
+          "key": "stack",
+          "target": 3
+        },
+        {
+          "key": "ice",
+          "target": 3
+        },
+        {
+          "key": "collect:coin",
+          "target": 20
+        }
+      ],
+      "scoreThresholds": [
+        0,
+        1280,
+        2290
+      ],
+      "initialLayout": [
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": null,
+          "booster": "none",
+          "ice": 0,
+          "stack": 1
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 1,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 1,
+          "stack": 0
+        },
+        {
+          "tile": null,
+          "booster": "none",
+          "ice": 0,
+          "stack": 1
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "rocketRow",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "rocketColumn",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": null,
+          "booster": "none",
+          "ice": 0,
+          "stack": 1
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 1,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        }
+      ],
+      "tutorial": "Обменяйте отмеченные усилители. Сочетание разрешается за один ход; после него выполните все оставшиеся цели.",
+      "teachingMove": [
+        27,
+        28
+      ]
+    },
+    {
+      "schemaVersion": 1,
+      "id": 17,
+      "chapterId": 1,
+      "name": "Широкий проход",
+      "width": 8,
+      "height": 8,
+      "seed": 117153,
+      "moves": 30,
+      "availableTileTypes": [
+        "coin",
+        "wallet",
+        "goal",
+        "shield",
+        "receipt",
+        "chart"
+      ],
+      "obstacles": [
+        {
+          "index": 10,
+          "kind": "ice",
+          "layers": 2
+        },
+        {
+          "index": 14,
+          "kind": "ice",
+          "layers": 2
+        },
+        {
+          "index": 49,
+          "kind": "ice",
+          "layers": 2
+        },
+        {
+          "index": 8,
+          "kind": "stack",
+          "layers": 1
+        },
+        {
+          "index": 15,
+          "kind": "stack",
+          "layers": 1
+        },
+        {
+          "index": 48,
+          "kind": "stack",
+          "layers": 1
+        }
+      ],
+      "goals": [
+        {
+          "key": "stack",
+          "target": 3
+        },
+        {
+          "key": "ice",
+          "target": 3
+        },
+        {
+          "key": "collect:receipt",
+          "target": 22
+        }
+      ],
+      "scoreThresholds": [
+        0,
+        1335,
+        2380
+      ],
+      "initialLayout": [
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": null,
+          "booster": "none",
+          "ice": 0,
+          "stack": 1
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 2,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 2,
+          "stack": 0
+        },
+        {
+          "tile": null,
+          "booster": "none",
+          "ice": 0,
+          "stack": 1
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "rocketRow",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "bomb",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": null,
+          "booster": "none",
+          "ice": 0,
+          "stack": 1
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 2,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        }
+      ],
+      "tutorial": "Обменяйте отмеченные усилители. Сочетание разрешается за один ход; после него выполните все оставшиеся цели.",
+      "teachingMove": [
+        27,
+        28
+      ]
+    },
+    {
+      "schemaVersion": 1,
+      "id": 18,
+      "chapterId": 1,
+      "name": "Двойная волна",
+      "width": 8,
+      "height": 8,
+      "seed": 118162,
+      "moves": 32,
+      "availableTileTypes": [
+        "coin",
+        "wallet",
+        "goal",
+        "shield",
+        "receipt",
+        "chart"
+      ],
+      "obstacles": [
+        {
+          "index": 10,
+          "kind": "ice",
+          "layers": 1
+        },
+        {
+          "index": 14,
+          "kind": "ice",
+          "layers": 1
+        },
+        {
+          "index": 8,
+          "kind": "stack",
+          "layers": 2
+        },
+        {
+          "index": 15,
+          "kind": "stack",
+          "layers": 2
+        },
+        {
+          "index": 48,
+          "kind": "stack",
+          "layers": 2
+        },
+        {
+          "index": 55,
+          "kind": "stack",
+          "layers": 2
+        }
+      ],
+      "goals": [
+        {
+          "key": "stack",
+          "target": 4
+        },
+        {
+          "key": "ice",
+          "target": 2
+        },
+        {
+          "key": "collect:goal",
+          "target": 22
+        }
+      ],
+      "scoreThresholds": [
+        0,
+        1390,
+        2470
+      ],
+      "initialLayout": [
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": null,
+          "booster": "none",
+          "ice": 0,
+          "stack": 2
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 1,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 1,
+          "stack": 0
+        },
+        {
+          "tile": null,
+          "booster": "none",
+          "ice": 0,
+          "stack": 2
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "bomb",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "bomb",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": null,
+          "booster": "none",
+          "ice": 0,
+          "stack": 2
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": null,
+          "booster": "none",
+          "ice": 0,
+          "stack": 2
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        }
+      ],
+      "tutorial": "Обменяйте отмеченные усилители. Сочетание разрешается за один ход; после него выполните все оставшиеся цели.",
+      "teachingMove": [
+        27,
+        28
+      ]
+    },
+    {
+      "schemaVersion": 1,
+      "id": 19,
+      "chapterId": 1,
+      "name": "Ядро и ракета",
+      "width": 8,
+      "height": 8,
+      "seed": 119171,
+      "moves": 34,
+      "availableTileTypes": [
+        "coin",
+        "wallet",
+        "goal",
+        "shield",
+        "receipt",
+        "chart"
+      ],
+      "obstacles": [
+        {
+          "index": 10,
+          "kind": "ice",
+          "layers": 1
+        },
+        {
+          "index": 14,
+          "kind": "ice",
+          "layers": 1
+        },
+        {
+          "index": 49,
+          "kind": "ice",
+          "layers": 1
+        },
+        {
+          "index": 54,
+          "kind": "ice",
+          "layers": 1
+        },
+        {
+          "index": 8,
+          "kind": "stack",
+          "layers": 2
+        },
+        {
+          "index": 15,
+          "kind": "stack",
+          "layers": 2
+        },
+        {
+          "index": 48,
+          "kind": "stack",
+          "layers": 2
+        },
+        {
+          "index": 55,
+          "kind": "stack",
+          "layers": 2
+        }
+      ],
+      "goals": [
+        {
+          "key": "stack",
+          "target": 4
+        },
+        {
+          "key": "ice",
+          "target": 4
+        },
+        {
+          "key": "collect:shield",
+          "target": 24
+        }
+      ],
+      "scoreThresholds": [
+        0,
+        1445,
+        2560
+      ],
+      "initialLayout": [
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": null,
+          "booster": "none",
+          "ice": 0,
+          "stack": 2
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 1,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 1,
+          "stack": 0
+        },
+        {
+          "tile": null,
+          "booster": "none",
+          "ice": 0,
+          "stack": 2
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": null,
+          "booster": "core",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "rocketRow",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": null,
+          "booster": "none",
+          "ice": 0,
+          "stack": 2
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 1,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 1,
+          "stack": 0
+        },
+        {
+          "tile": null,
+          "booster": "none",
+          "ice": 0,
+          "stack": 2
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        }
+      ],
+      "tutorial": "Обменяйте отмеченные усилители. Сочетание разрешается за один ход; после него выполните все оставшиеся цели.",
+      "teachingMove": [
+        27,
+        28
+      ]
+    },
+    {
+      "schemaVersion": 1,
+      "id": 20,
+      "chapterId": 1,
+      "name": "Сердце первого потока",
+      "width": 8,
+      "height": 8,
+      "seed": 120180,
+      "moves": 36,
+      "availableTileTypes": [
+        "coin",
+        "wallet",
+        "goal",
+        "shield",
+        "receipt",
+        "chart"
+      ],
+      "obstacles": [
+        {
+          "index": 10,
+          "kind": "ice",
+          "layers": 2
+        },
+        {
+          "index": 14,
+          "kind": "ice",
+          "layers": 2
+        },
+        {
+          "index": 49,
+          "kind": "ice",
+          "layers": 2
+        },
+        {
+          "index": 54,
+          "kind": "ice",
+          "layers": 2
+        },
+        {
+          "index": 8,
+          "kind": "stack",
+          "layers": 2
+        },
+        {
+          "index": 15,
+          "kind": "stack",
+          "layers": 2
+        },
+        {
+          "index": 48,
+          "kind": "stack",
+          "layers": 2
+        },
+        {
+          "index": 55,
+          "kind": "stack",
+          "layers": 2
+        },
+        {
+          "index": 61,
+          "kind": "stack",
+          "layers": 2
+        }
+      ],
+      "goals": [
+        {
+          "key": "stack",
+          "target": 5
+        },
+        {
+          "key": "ice",
+          "target": 4
+        },
+        {
+          "key": "collect:coin",
+          "target": 25
+        },
+        {
+          "key": "collect:chart",
+          "target": 25
+        }
+      ],
+      "scoreThresholds": [
+        0,
+        1500,
+        2650
+      ],
+      "initialLayout": [
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": null,
+          "booster": "none",
+          "ice": 0,
+          "stack": 2
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 2,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 2,
+          "stack": 0
+        },
+        {
+          "tile": null,
+          "booster": "none",
+          "ice": 0,
+          "stack": 2
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": null,
+          "booster": "core",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "bomb",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "goal",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": null,
+          "booster": "none",
+          "ice": 0,
+          "stack": 2
+        },
+        {
+          "tile": "wallet",
+          "booster": "none",
+          "ice": 2,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 2,
+          "stack": 0
+        },
+        {
+          "tile": null,
+          "booster": "none",
+          "ice": 0,
+          "stack": 2
+        },
+        {
+          "tile": "coin",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "chart",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "receipt",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": null,
+          "booster": "none",
+          "ice": 0,
+          "stack": 2
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        },
+        {
+          "tile": "shield",
+          "booster": "none",
+          "ice": 0,
+          "stack": 0
+        }
+      ],
+      "tutorial": "Обменяйте отмеченные усилители. Сочетание разрешается за один ход; после него выполните все оставшиеся цели.",
+      "teachingMove": [
+        27,
+        28
+      ]
+    }
+  ]
+}

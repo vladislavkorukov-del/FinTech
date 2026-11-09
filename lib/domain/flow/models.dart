@@ -1,0 +1,456 @@
+/// Deterministic match-3 state. No Flutter, financial models or network access.
+enum FlowTile { coin, wallet, goal, shield, receipt, chart }
+
+enum FlowBooster { none, rocketRow, rocketColumn, bomb, core, drone }
+
+enum FlowStatus { active, won, lost }
+
+class FlowCell {
+  const FlowCell({
+    this.tile,
+    this.booster = FlowBooster.none,
+    this.ice = 0,
+    this.stack = 0,
+  });
+  final FlowTile? tile;
+  final FlowBooster booster;
+  final int ice, stack;
+  bool get movable =>
+      stack == 0 && ice == 0 && (tile != null || booster == FlowBooster.core);
+  bool get empty => stack == 0 && tile == null && booster == FlowBooster.none;
+  Map<String, Object?> toJson() => {
+    'tile': tile?.name,
+    'booster': booster.name,
+    'ice': ice,
+    'stack': stack,
+  };
+  factory FlowCell.fromJson(Map<String, dynamic> j) {
+    _keys(j, {'tile', 'booster', 'ice', 'stack'});
+    final tile = j['tile'] == null
+        ? null
+        : FlowTile.values.byName(j['tile'] as String);
+    final b = FlowBooster.values.byName(j['booster'] as String? ?? 'none');
+    final ice = _int(j['ice'] ?? 0, 0, 5), stack = _int(j['stack'] ?? 0, 0, 5);
+    if (stack > 0 && (tile != null || b != FlowBooster.none || ice > 0) ||
+        b == FlowBooster.core && tile != null ||
+        ice > 0 && tile == null ||
+        b != FlowBooster.none && b != FlowBooster.core && tile == null) {
+      throw const FormatException('Invalid flow cell');
+    }
+    return FlowCell(tile: tile, booster: b, ice: ice, stack: stack);
+  }
+}
+
+class FlowGoal {
+  const FlowGoal(this.key, this.target);
+  final String key;
+  final int target;
+  String get title => switch (key) {
+    'ice' => 'Разбить лёд',
+    'stack' => 'Разобрать чеки',
+    'collect:coin' => 'Монеты C',
+    'collect:wallet' => 'Кошельки W',
+    'collect:goal' => 'Цели G',
+    'collect:shield' => 'Щиты S',
+    'collect:receipt' => 'Чеки R',
+    'collect:chart' => 'Графики H',
+    _ => key,
+  };
+  Map<String, Object?> toJson() => {'key': key, 'target': target};
+  factory FlowGoal.fromJson(Map<String, dynamic> j) {
+    _keys(j, {'key', 'target'});
+    final key = j['key'] as String;
+    if (!{
+      'ice',
+      'stack',
+      ...FlowTile.values.map((t) => 'collect:${t.name}'),
+    }.contains(key)) {
+      throw const FormatException('Unsupported flow goal');
+    }
+    return FlowGoal(key, _int(j['target'], 1, 10000));
+  }
+}
+
+class FlowObstacle {
+  const FlowObstacle(this.index, this.kind, this.layers);
+  final int index, layers;
+  final String kind;
+  Map<String, Object?> toJson() => {
+    'index': index,
+    'kind': kind,
+    'layers': layers,
+  };
+  factory FlowObstacle.fromJson(Map<String, dynamic> j) {
+    _keys(j, {'index', 'kind', 'layers'});
+    final kind = j['kind'] as String;
+    if (!{'ice', 'stack'}.contains(kind)) {
+      throw const FormatException('Unsupported flow obstacle');
+    }
+    return FlowObstacle(_int(j['index'], 0, 63), kind, _int(j['layers'], 1, 5));
+  }
+}
+
+class FlowLevel {
+  const FlowLevel({
+    required this.id,
+    this.chapterId = 1,
+    required this.name,
+    required this.seed,
+    required this.moves,
+    this.types = FlowTile.values,
+    this.obstacles = const [],
+    required this.goals,
+    required this.scoreThresholds,
+    this.initialLayout,
+    this.tutorial = '',
+    this.teachingMove,
+  });
+  final int id, chapterId, seed, moves;
+  final String name, tutorial;
+  final List<FlowTile> types;
+  final List<FlowObstacle> obstacles;
+  final List<FlowGoal> goals;
+  final List<int> scoreThresholds;
+  final List<FlowCell>? initialLayout;
+  final (int, int)? teachingMove;
+  Map<String, Object?> toJson() => {
+    'schemaVersion': 1,
+    'id': id,
+    'chapterId': chapterId,
+    'name': name,
+    'width': 8,
+    'height': 8,
+    'seed': seed,
+    'moves': moves,
+    'availableTileTypes': types.map((e) => e.name).toList(),
+    'obstacles': obstacles.map((e) => e.toJson()).toList(),
+    'goals': goals.map((e) => e.toJson()).toList(),
+    'scoreThresholds': scoreThresholds,
+    if (initialLayout != null)
+      'initialLayout': initialLayout!.map((e) => e.toJson()).toList(),
+    'tutorial': tutorial,
+    if (teachingMove != null)
+      'teachingMove': [teachingMove!.$1, teachingMove!.$2],
+  };
+  factory FlowLevel.fromJson(Map<String, dynamic> j) {
+    _keys(j, {
+      'schemaVersion',
+      'id',
+      'chapterId',
+      'name',
+      'width',
+      'height',
+      'seed',
+      'moves',
+      'availableTileTypes',
+      'obstacles',
+      'goals',
+      'scoreThresholds',
+      'initialLayout',
+      'tutorial',
+      'teachingMove',
+    });
+    if (j['schemaVersion'] != 1 || j['width'] != 8 || j['height'] != 8) {
+      throw const FormatException('Only flow schema1,8x8 supported');
+    }
+    final types = (j['availableTileTypes'] as List)
+        .map((e) => FlowTile.values.byName(e as String))
+        .toList();
+    if (types.length < 3 || types.toSet().length != types.length) {
+      throw const FormatException('Invalid flow tile types');
+    }
+    final thresholds = (j['scoreThresholds'] as List)
+        .map((e) => _int(e, 0, 10000000))
+        .toList();
+    if (thresholds.length != 3 ||
+        thresholds[0] >= thresholds[1] ||
+        thresholds[1] >= thresholds[2]) {
+      throw const FormatException('Invalid star thresholds');
+    }
+    final goals = (j['goals'] as List)
+        .map((e) => FlowGoal.fromJson(Map<String, dynamic>.from(e as Map)))
+        .toList();
+    if (goals.isEmpty ||
+        goals.map((g) => g.key).toSet().length != goals.length) {
+      throw const FormatException('Invalid goals');
+    }
+    final layout = (j['initialLayout'] as List?)
+        ?.map((e) => FlowCell.fromJson(Map<String, dynamic>.from(e as Map)))
+        .toList();
+    if (layout != null && layout.length != 64) {
+      throw const FormatException('Invalid board size');
+    }
+    final move = j['teachingMove'] as List?;
+    if (move != null && move.length != 2) {
+      throw const FormatException('Invalid tutorial move');
+    }
+    return FlowLevel(
+      id: _int(j['id'], 1, 500),
+      chapterId: _int(j['chapterId'] ?? 1, 1, 10),
+      name: j['name'] as String,
+      seed: _int(j['seed'], 1, 0xffffffff),
+      moves: _int(j['moves'], 1, 100),
+      types: types,
+      goals: goals,
+      obstacles: (j['obstacles'] as List? ?? [])
+          .map(
+            (e) => FlowObstacle.fromJson(Map<String, dynamic>.from(e as Map)),
+          )
+          .toList(),
+      scoreThresholds: thresholds,
+      initialLayout: layout,
+      tutorial: j['tutorial'] as String? ?? '',
+      teachingMove: move == null
+          ? null
+          : (_int(move[0], 0, 63), _int(move[1], 0, 63)),
+    );
+  }
+}
+
+class FlowSession {
+  FlowSession({
+    required this.levelId,
+    required List<FlowCell> board,
+    required this.remainingMoves,
+    required this.score,
+    required Map<String, int> progress,
+    required this.rngState,
+    this.status = FlowStatus.active,
+  }) : board = List.unmodifiable(board),
+       progress = Map.unmodifiable(progress);
+  final int levelId, remainingMoves, score, rngState;
+  final List<FlowCell> board;
+  final Map<String, int> progress;
+  final FlowStatus status;
+  bool get finished => status != FlowStatus.active;
+  int stars(FlowLevel level) => status != FlowStatus.won
+      ? 0
+      : score >= level.scoreThresholds[2]
+      ? 3
+      : score >= level.scoreThresholds[1]
+      ? 2
+      : 1;
+  Map<String, Object?> toJson() => {
+    'version': 1,
+    'levelId': levelId,
+    'board': board.map((c) => c.toJson()).toList(),
+    'remainingMoves': remainingMoves,
+    'score': score,
+    'progress': progress,
+    'rngState': rngState,
+    'status': status.name,
+  };
+  factory FlowSession.fromJson(Map<String, dynamic> j) {
+    _keys(j, {
+      'version',
+      'levelId',
+      'board',
+      'remainingMoves',
+      'score',
+      'progress',
+      'rngState',
+      'status',
+    });
+    if (j['version'] != 1) throw const FormatException('Unsupported session');
+    final board = (j['board'] as List)
+        .map((e) => FlowCell.fromJson(Map<String, dynamic>.from(e as Map)))
+        .toList();
+    if (board.length != 64 ||
+        board.any((e) => e.empty) ||
+        !_stableBoard(board)) {
+      throw const FormatException('Session must be stable and full');
+    }
+    final progress = <String, int>{};
+    for (final e in (j['progress'] as Map).entries) {
+      if (!{
+        'ice',
+        'stack',
+        ...FlowTile.values.map((t) => 'collect:${t.name}'),
+      }.contains(e.key)) {
+        throw const FormatException('Invalid progress');
+      }
+      progress[e.key as String] = _int(e.value, 0, 1000000);
+    }
+    return FlowSession(
+      levelId: _int(j['levelId'], 1, 500),
+      board: board,
+      remainingMoves: _int(j['remainingMoves'], 0, 100),
+      score: _int(j['score'], 0, 100000000),
+      progress: progress,
+      rngState: _int(j['rngState'], 1, 0xffffffff),
+      status: FlowStatus.values.byName(j['status'] as String),
+    );
+  }
+}
+
+class FlowEvent {
+  const FlowEvent(
+    this.kind,
+    this.index, {
+    this.tile,
+    this.booster,
+    this.amount = 1,
+    this.chain = 0,
+  });
+  final String kind;
+  final int index, amount, chain;
+  final FlowTile? tile;
+  final FlowBooster? booster;
+}
+
+class FlowTurn {
+  const FlowTurn({
+    required this.accepted,
+    required this.session,
+    this.events = const [],
+    this.shuffled = false,
+  });
+  final bool accepted, shuffled;
+  final FlowSession session;
+  final List<FlowEvent> events;
+}
+
+class FlowResult {
+  const FlowResult({required this.stars, required this.bestScore});
+  final int stars, bestScore;
+  Map<String, Object?> toJson() => {'stars': stars, 'bestScore': bestScore};
+  factory FlowResult.fromJson(Map<String, dynamic> j) => FlowResult(
+    stars: _int(j['stars'], 1, 3),
+    bestScore: _int(j['bestScore'], 0, 100000000),
+  );
+}
+
+const _missing = Object();
+
+class FlowProgress {
+  const FlowProgress({this.results = const {}, this.session});
+  final Map<int, FlowResult> results;
+  final FlowSession? session;
+  int get highestUnlocked {
+    var n = 1;
+    while (n <= 20 && results.containsKey(n)) {
+      n++;
+    }
+    return n.clamp(1, 20);
+  }
+
+  bool isUnlocked(int id) => id >= 1 && id <= 20 && id <= highestUnlocked;
+  FlowProgress copyWith({
+    Map<int, FlowResult>? results,
+    Object? session = _missing,
+  }) => FlowProgress(
+    results: results ?? this.results,
+    session: identical(session, _missing)
+        ? this.session
+        : session as FlowSession?,
+  );
+  Map<String, Object?> toJson() => {
+    'version': 1,
+    'results': {for (final e in results.entries) '${e.key}': e.value.toJson()},
+    if (session != null) 'session': session!.toJson(),
+  };
+  factory FlowProgress.fromJson(Map<String, dynamic> j) {
+    // A damaged optional game session cannot reset unrelated Finance/world data.
+    final results = <int, FlowResult>{};
+    for (final e
+        in (j['results'] is Map ? j['results'] as Map : const {}).entries) {
+      final id = int.tryParse('${e.key}');
+      if (id == null || id < 1 || id > 20) continue;
+      try {
+        results[id] = FlowResult.fromJson(
+          Map<String, dynamic>.from(e.value as Map),
+        );
+      } on Object {
+        continue;
+      }
+    }
+    FlowSession? session;
+    try {
+      if (j['version'] == 1 && j['session'] is Map) {
+        session = FlowSession.fromJson(
+          Map<String, dynamic>.from(j['session'] as Map),
+        );
+      }
+    } on Object {
+      session = null;
+    }
+    final progress = FlowProgress(results: results);
+    if (session != null && !progress.isUnlocked(session.levelId)) {
+      session = null;
+    }
+    return progress.copyWith(session: session);
+  }
+  FlowProgress record(FlowSession value, FlowLevel level) {
+    if (value.levelId != level.id) {
+      throw const FormatException('Wrong level result');
+    }
+    if (value.status != FlowStatus.won) return copyWith(session: value);
+    final old = results[level.id];
+    final stars = value.stars(level);
+    return copyWith(
+      session: value,
+      results: {
+        ...results,
+        level.id: FlowResult(
+          stars: old == null || stars > old.stars ? stars : old.stars,
+          bestScore: old == null || value.score > old.bestScore
+              ? value.score
+              : old.bestScore,
+        ),
+      },
+    );
+  }
+
+  static FlowProgress merge(FlowProgress local, FlowProgress incoming) {
+    final results = {...local.results};
+    for (final e in incoming.results.entries) {
+      final old = results[e.key];
+      results[e.key] = FlowResult(
+        stars: old == null || e.value.stars > old.stars
+            ? e.value.stars
+            : old.stars,
+        bestScore: old == null || e.value.bestScore > old.bestScore
+            ? e.value.bestScore
+            : old.bestScore,
+      );
+    }
+    return FlowProgress(
+      results: results,
+      session: local.session ?? incoming.session,
+    );
+  }
+}
+
+void _keys(Map<String, dynamic> j, Set<String> allowed) {
+  if (j.keys.any((k) => !allowed.contains(k))) {
+    throw const FormatException('Unsupported flow parameter');
+  }
+}
+
+int _int(Object? value, int min, int max) {
+  if (value is! int || value < min || value > max) {
+    throw const FormatException('Invalid flow number');
+  }
+  return value;
+}
+
+bool _stableBoard(List<FlowCell> board) {
+  FlowTile? color(int i) =>
+      board[i].stack == 0 && board[i].booster != FlowBooster.core
+      ? board[i].tile
+      : null;
+  for (var i = 0; i < 64; i++) {
+    final tile = color(i);
+    if (tile == null) continue;
+    if (i % 8 < 6 && color(i + 1) == tile && color(i + 2) == tile) return false;
+    if (i < 48 && color(i + 8) == tile && color(i + 16) == tile) return false;
+    if (i % 8 < 7 &&
+        i < 56 &&
+        color(i + 1) == tile &&
+        color(i + 8) == tile &&
+        color(i + 9) == tile) {
+      return false;
+    }
+  }
+  return true;
+}

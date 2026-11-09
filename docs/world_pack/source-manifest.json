@@ -1,0 +1,524 @@
+[
+  {
+    "archive": "Finora_Part_1_Backgrounds_and_Instructions.zip",
+    "file": "Finora_World_Complete_Pack/DESIGN_SPEC_RU.md",
+    "sha256": "77cef0d43b343a70576e6fa6da0d40f47090f6302bdddca3e59d2a335172ea8b",
+    "bytes": 8509
+  },
+  {
+    "archive": "Finora_Part_1_Backgrounds_and_Instructions.zip",
+    "file": "Finora_World_Complete_Pack/START_HERE_RU.md",
+    "sha256": "c51ba6cd17168b16abe98a5b629641e00f18b1ca3c2c1bc1badff35ef1c64360",
+    "bytes": 4074
+  },
+  {
+    "archive": "Finora_Part_1_Backgrounds_and_Instructions.zip",
+    "file": "Finora_World_Complete_Pack/MATCH3_ACCEPTANCE_RU.md",
+    "sha256": "39adbca2aa8162a1df522bf209ff2837a3682328327b83f3364680978346e68c",
+    "bytes": 5242
+  },
+  {
+    "archive": "Finora_Part_1_Backgrounds_and_Instructions.zip",
+    "file": "Finora_World_Complete_Pack/CODEX_MATCH3_PROMPT_RU.md",
+    "sha256": "cc68943ad5d71ed1bbcceed37e7390b8dd7a721e9a5b98e49704925e09554da5",
+    "bytes": 23635
+  },
+  {
+    "archive": "Finora_Part_1_Backgrounds_and_Instructions.zip",
+    "file": "Finora_World_Complete_Pack/asset_index.json",
+    "sha256": "c5fb68ccf760d71a28f7bf64ff736db132eba1d5f354ea4c9c3b36603f9e5c66",
+    "bytes": 9772
+  },
+  {
+    "archive": "Finora_Part_1_Backgrounds_and_Instructions.zip",
+    "file": "Finora_World_Complete_Pack/MATCH3_CONCEPT_ROADMAP_RU.md",
+    "sha256": "97537d0ecb1fc4cdc3b8e916b1f3969ce7c7c88349b0826f4a7435d2a89c33b6",
+    "bytes": 6516
+  },
+  {
+    "archive": "Finora_Part_1_Backgrounds_and_Instructions.zip",
+    "file": "Finora_World_Complete_Pack/VALIDATION.json",
+    "sha256": "f43a9155a7bc22f9e21e77d376ecfa584e919dc3a001c3c48bf170c0518461f5",
+    "bytes": 456
+  },
+  {
+    "archive": "Finora_Part_1_Backgrounds_and_Instructions.zip",
+    "file": "Finora_World_Complete_Pack/CODEX_TASK_RU.md",
+    "sha256": "dcd2b216c6b9e71f70bdaaf25ba8ed425486c720a5e905af04ca0d0f7773f8de",
+    "bytes": 16386
+  },
+  {
+    "archive": "Finora_Part_1_Backgrounds_and_Instructions.zip",
+    "file": "Finora_World_Complete_Pack/PREVIEW.html",
+    "sha256": "f6b39e127636f2b19af3c3912de83f5e3ec1eceaad84ba10abb9b2c0bfa9665a",
+    "bytes": 9809
+  },
+  {
+    "archive": "Finora_Part_1_Backgrounds_and_Instructions.zip",
+    "file": "Finora_World_Complete_Pack/assets/home/manifest.json",
+    "sha256": "05e8e48ab77565de1fcf14f3954de698a698b1026eca0dc4094e472942ea4f9f",
+    "bytes": 3810
+  },
+  {
+    "archive": "Finora_Part_1_Backgrounds_and_Instructions.zip",
+    "file": "Finora_World_Complete_Pack/assets/home/CODEX_INSTRUCTIONS_ru.md",
+    "sha256": "2eab814367c7a96a5cc9fa43821ec7fad501c79af05cd1d6c97b791cb6b89817",
+    "bytes": 11726
+  },
+  {
+    "archive": "Finora_Part_1_Backgrounds_and_Instructions.zip",
+    "file": "Finora_World_Complete_Pack/assets/home/README_ru.txt",
+    "sha256": "20eace294ab1e56cfbf70f46af412708c1fa065cf6426ea553e6aec76d566acd",
+    "bytes": 1932
+  },
+  {
+    "archive": "Finora_Part_1_Backgrounds_and_Instructions.zip",
+    "file": "Finora_World_Complete_Pack/assets/home/backgrounds/04_garden.png",
+    "sha256": "04f2d2297a54f9c3dc0b1ff5fae6067f2128e119add3f38b844203f997f44ad2",
+    "bytes": 2287343
+  },
+  {
+    "archive": "Finora_Part_1_Backgrounds_and_Instructions.zip",
+    "file": "Finora_World_Complete_Pack/assets/home/backgrounds/01_mint_atrium.png",
+    "sha256": "30da5fde4ef1d83c8de2e4751316689b47ab8e57eaa77699602946011fe3fa01",
+    "bytes": 2019602
+  },
+  {
+    "archive": "Finora_Part_1_Backgrounds_and_Instructions.zip",
+    "file": "Finora_World_Complete_Pack/assets/home/backgrounds/06_aurora.png",
+    "sha256": "033217160a0a4b0e23a477eecbaef0898b133bf2782e81145894aa13835818b6",
+    "bytes": 2039793
+  },
+  {
+    "archive": "Finora_Part_1_Backgrounds_and_Instructions.zip",
+    "file": "Finora_World_Complete_Pack/assets/home/backgrounds/03_observatory.png",
+    "sha256": "b85d9ec027dc5099fb396a5f2d3a5d2db15c38d78389e68fc5503f646225c1b3",
+    "bytes": 2153357
+  },
+  {
+    "archive": "Finora_Part_1_Backgrounds_and_Instructions.zip",
+    "file": "Finora_World_Complete_Pack/assets/home/backgrounds/05_underwater.png",
+    "sha256": "397c7b1826dc1e976e86d1c4893d083c0016e7a74e7e30aaef829a6e9493714f",
+    "bytes": 2082104
+  },
+  {
+    "archive": "Finora_Part_1_Backgrounds_and_Instructions.zip",
+    "file": "Finora_World_Complete_Pack/assets/home/backgrounds/02_tea_room.png",
+    "sha256": "7e4b4a1ee9cc66a5e85b1820cd13b8297610f8fe49d33efeead1eccd404376d0",
+    "bytes": 2183852
+  },
+  {
+    "archive": "Finora_Part_1_Backgrounds_and_Instructions.zip",
+    "file": "Finora_World_Complete_Pack/READ_THREE_PARTS_RU.txt",
+    "sha256": "a35e6ca85b03040928e34bd1a2fe589e031c3f93231c5a9bca9f439b0d3daebe",
+    "bytes": 1522
+  },
+  {
+    "archive": "Finora_Part_2A_Interface.zip",
+    "file": "Finora_World_Complete_Pack/DESIGN_SPEC_RU.md",
+    "sha256": "77cef0d43b343a70576e6fa6da0d40f47090f6302bdddca3e59d2a335172ea8b",
+    "bytes": 8509
+  },
+  {
+    "archive": "Finora_Part_2A_Interface.zip",
+    "file": "Finora_World_Complete_Pack/START_HERE_RU.md",
+    "sha256": "c51ba6cd17168b16abe98a5b629641e00f18b1ca3c2c1bc1badff35ef1c64360",
+    "bytes": 4074
+  },
+  {
+    "archive": "Finora_Part_2A_Interface.zip",
+    "file": "Finora_World_Complete_Pack/MATCH3_ACCEPTANCE_RU.md",
+    "sha256": "39adbca2aa8162a1df522bf209ff2837a3682328327b83f3364680978346e68c",
+    "bytes": 5242
+  },
+  {
+    "archive": "Finora_Part_2A_Interface.zip",
+    "file": "Finora_World_Complete_Pack/CODEX_MATCH3_PROMPT_RU.md",
+    "sha256": "cc68943ad5d71ed1bbcceed37e7390b8dd7a721e9a5b98e49704925e09554da5",
+    "bytes": 23635
+  },
+  {
+    "archive": "Finora_Part_2A_Interface.zip",
+    "file": "Finora_World_Complete_Pack/asset_index.json",
+    "sha256": "c5fb68ccf760d71a28f7bf64ff736db132eba1d5f354ea4c9c3b36603f9e5c66",
+    "bytes": 9772
+  },
+  {
+    "archive": "Finora_Part_2A_Interface.zip",
+    "file": "Finora_World_Complete_Pack/MATCH3_CONCEPT_ROADMAP_RU.md",
+    "sha256": "97537d0ecb1fc4cdc3b8e916b1f3969ce7c7c88349b0826f4a7435d2a89c33b6",
+    "bytes": 6516
+  },
+  {
+    "archive": "Finora_Part_2A_Interface.zip",
+    "file": "Finora_World_Complete_Pack/VALIDATION.json",
+    "sha256": "f43a9155a7bc22f9e21e77d376ecfa584e919dc3a001c3c48bf170c0518461f5",
+    "bytes": 456
+  },
+  {
+    "archive": "Finora_Part_2A_Interface.zip",
+    "file": "Finora_World_Complete_Pack/CODEX_TASK_RU.md",
+    "sha256": "dcd2b216c6b9e71f70bdaaf25ba8ed425486c720a5e905af04ca0d0f7773f8de",
+    "bytes": 16386
+  },
+  {
+    "archive": "Finora_Part_2A_Interface.zip",
+    "file": "Finora_World_Complete_Pack/PREVIEW.html",
+    "sha256": "f6b39e127636f2b19af3c3912de83f5e3ec1eceaad84ba10abb9b2c0bfa9665a",
+    "bytes": 9809
+  },
+  {
+    "archive": "Finora_Part_2A_Interface.zip",
+    "file": "Finora_World_Complete_Pack/assets/ui/README_RU.md",
+    "sha256": "df5cd5b1418bd39936747705396d67af7b87090fc137950646ce5efa2f3b90fe",
+    "bytes": 3874
+  },
+  {
+    "archive": "Finora_Part_2A_Interface.zip",
+    "file": "Finora_World_Complete_Pack/assets/ui/manifest.json",
+    "sha256": "f7d2bae2e922a12dee24d0f18356cfab2e866f004bb96bb9fcfcacd4b43bc7dc",
+    "bytes": 4477
+  },
+  {
+    "archive": "Finora_Part_2A_Interface.zip",
+    "file": "Finora_World_Complete_Pack/assets/ui/CODEX_INTEGRATION_RU.md",
+    "sha256": "0c3dbb83c22f2f349fc57a9551a4b420d75214f8b2c2b8c99e382a25011faa62",
+    "bytes": 2868
+  },
+  {
+    "archive": "Finora_Part_2A_Interface.zip",
+    "file": "Finora_World_Complete_Pack/READ_THREE_PARTS_RU.txt",
+    "sha256": "a35e6ca85b03040928e34bd1a2fe589e031c3f93231c5a9bca9f439b0d3daebe",
+    "bytes": 1522
+  },
+  {
+    "archive": "Finora_Part_2A_Interface.zip",
+    "file": "Finora_World_Complete_Pack/assets/ui/source/approved_style.png",
+    "sha256": "a44387d0d48c8fcbcf6fc1a647a9abd4c82bad0ff05fd4454be4f63030c64ce3",
+    "bytes": 1975886
+  },
+  {
+    "archive": "Finora_Part_2A_Interface.zip",
+    "file": "Finora_World_Complete_Pack/assets/ui/png/garden.png",
+    "sha256": "aef71982da290d49fb2ddb999a76f02cb8045bc8ac2e9135943108dafbc5c75f",
+    "bytes": 1082444
+  },
+  {
+    "archive": "Finora_Part_2A_Interface.zip",
+    "file": "Finora_World_Complete_Pack/assets/ui/png/wardrobe.png",
+    "sha256": "4fcba56eab04023ea7b6dc5f30ae25d753de316f1902694aa5914ec75a3cfda5",
+    "bytes": 929637
+  },
+  {
+    "archive": "Finora_Part_2A_Interface.zip",
+    "file": "Finora_World_Complete_Pack/assets/ui/png/settings.png",
+    "sha256": "3af5fb1a6603fc6398e9d4f9ca024802dfdf816732a34d51ffbe9ea0b4622706",
+    "bytes": 886381
+  },
+  {
+    "archive": "Finora_Part_2A_Interface.zip",
+    "file": "Finora_World_Complete_Pack/assets/ui/png/decor.png",
+    "sha256": "09359c0c534db3a579cb8a8ca1bd984f43f4286491dcd3ca6856400ccfbf7d19",
+    "bytes": 830696
+  },
+  {
+    "archive": "Finora_Part_2A_Interface.zip",
+    "file": "Finora_World_Complete_Pack/assets/ui/png/close.png",
+    "sha256": "d87c3cb27619f7e5e0c14e678bc1479fb05f3bf8ed246a36e31bc4d612f12196",
+    "bytes": 751901
+  },
+  {
+    "archive": "Finora_Part_2A_Interface.zip",
+    "file": "Finora_World_Complete_Pack/assets/ui/png/add.png",
+    "sha256": "e329e640e1dc373353b1f52f8263e5c41b17baa451cab45b59a9a46120479807",
+    "bytes": 654276
+  },
+  {
+    "archive": "Finora_Part_2A_Interface.zip",
+    "file": "Finora_World_Complete_Pack/assets/ui/png/sound.png",
+    "sha256": "e37432786aee889837cde0b042f4a8c83d5088bda5e53ed2a677b64d04fb408e",
+    "bytes": 514644
+  },
+  {
+    "archive": "Finora_Part_2A_Interface.zip",
+    "file": "Finora_World_Complete_Pack/READ_PART_2_REPLACEMENT_RU.txt",
+    "sha256": "a37a9acf3a704c6def9ff2dd48418d8479e98e34c8c9506f1718f7355b172576",
+    "bytes": 1141
+  },
+  {
+    "archive": "Finora_Part_2B_Interface.zip",
+    "file": "Finora_World_Complete_Pack/DESIGN_SPEC_RU.md",
+    "sha256": "77cef0d43b343a70576e6fa6da0d40f47090f6302bdddca3e59d2a335172ea8b",
+    "bytes": 8509
+  },
+  {
+    "archive": "Finora_Part_2B_Interface.zip",
+    "file": "Finora_World_Complete_Pack/START_HERE_RU.md",
+    "sha256": "c51ba6cd17168b16abe98a5b629641e00f18b1ca3c2c1bc1badff35ef1c64360",
+    "bytes": 4074
+  },
+  {
+    "archive": "Finora_Part_2B_Interface.zip",
+    "file": "Finora_World_Complete_Pack/MATCH3_ACCEPTANCE_RU.md",
+    "sha256": "39adbca2aa8162a1df522bf209ff2837a3682328327b83f3364680978346e68c",
+    "bytes": 5242
+  },
+  {
+    "archive": "Finora_Part_2B_Interface.zip",
+    "file": "Finora_World_Complete_Pack/CODEX_MATCH3_PROMPT_RU.md",
+    "sha256": "cc68943ad5d71ed1bbcceed37e7390b8dd7a721e9a5b98e49704925e09554da5",
+    "bytes": 23635
+  },
+  {
+    "archive": "Finora_Part_2B_Interface.zip",
+    "file": "Finora_World_Complete_Pack/asset_index.json",
+    "sha256": "c5fb68ccf760d71a28f7bf64ff736db132eba1d5f354ea4c9c3b36603f9e5c66",
+    "bytes": 9772
+  },
+  {
+    "archive": "Finora_Part_2B_Interface.zip",
+    "file": "Finora_World_Complete_Pack/MATCH3_CONCEPT_ROADMAP_RU.md",
+    "sha256": "97537d0ecb1fc4cdc3b8e916b1f3969ce7c7c88349b0826f4a7435d2a89c33b6",
+    "bytes": 6516
+  },
+  {
+    "archive": "Finora_Part_2B_Interface.zip",
+    "file": "Finora_World_Complete_Pack/VALIDATION.json",
+    "sha256": "f43a9155a7bc22f9e21e77d376ecfa584e919dc3a001c3c48bf170c0518461f5",
+    "bytes": 456
+  },
+  {
+    "archive": "Finora_Part_2B_Interface.zip",
+    "file": "Finora_World_Complete_Pack/CODEX_TASK_RU.md",
+    "sha256": "dcd2b216c6b9e71f70bdaaf25ba8ed425486c720a5e905af04ca0d0f7773f8de",
+    "bytes": 16386
+  },
+  {
+    "archive": "Finora_Part_2B_Interface.zip",
+    "file": "Finora_World_Complete_Pack/PREVIEW.html",
+    "sha256": "f6b39e127636f2b19af3c3912de83f5e3ec1eceaad84ba10abb9b2c0bfa9665a",
+    "bytes": 9809
+  },
+  {
+    "archive": "Finora_Part_2B_Interface.zip",
+    "file": "Finora_World_Complete_Pack/assets/ui/README_RU.md",
+    "sha256": "df5cd5b1418bd39936747705396d67af7b87090fc137950646ce5efa2f3b90fe",
+    "bytes": 3874
+  },
+  {
+    "archive": "Finora_Part_2B_Interface.zip",
+    "file": "Finora_World_Complete_Pack/assets/ui/manifest.json",
+    "sha256": "f7d2bae2e922a12dee24d0f18356cfab2e866f004bb96bb9fcfcacd4b43bc7dc",
+    "bytes": 4477
+  },
+  {
+    "archive": "Finora_Part_2B_Interface.zip",
+    "file": "Finora_World_Complete_Pack/assets/ui/CODEX_INTEGRATION_RU.md",
+    "sha256": "0c3dbb83c22f2f349fc57a9551a4b420d75214f8b2c2b8c99e382a25011faa62",
+    "bytes": 2868
+  },
+  {
+    "archive": "Finora_Part_2B_Interface.zip",
+    "file": "Finora_World_Complete_Pack/READ_THREE_PARTS_RU.txt",
+    "sha256": "a35e6ca85b03040928e34bd1a2fe589e031c3f93231c5a9bca9f439b0d3daebe",
+    "bytes": 1522
+  },
+  {
+    "archive": "Finora_Part_2B_Interface.zip",
+    "file": "Finora_World_Complete_Pack/assets/ui/png/album.png",
+    "sha256": "a98bc72e03c41482288776705aff4223f1dfbe063db030b483a623ee3584bb1e",
+    "bytes": 1221811
+  },
+  {
+    "archive": "Finora_Part_2B_Interface.zip",
+    "file": "Finora_World_Complete_Pack/assets/ui/png/leaf_ornament.png",
+    "sha256": "f0900fe8c4a22669f88a4e8d3b61999ac27669361cc2c8708a455d7dfb90d308",
+    "bytes": 1095873
+  },
+  {
+    "archive": "Finora_Part_2B_Interface.zip",
+    "file": "Finora_World_Complete_Pack/assets/ui/png/rank_badge.png",
+    "sha256": "95c5f5a9288c87d682409eb217a391aafcc05f263db5f11158110d433c05f942",
+    "bytes": 1010933
+  },
+  {
+    "archive": "Finora_Part_2B_Interface.zip",
+    "file": "Finora_World_Complete_Pack/assets/ui/png/games.png",
+    "sha256": "2975c796b24d759abcaf89a03abbe2fc47de3a95460999d8016637475951ab68",
+    "bytes": 944607
+  },
+  {
+    "archive": "Finora_Part_2B_Interface.zip",
+    "file": "Finora_World_Complete_Pack/assets/ui/png/background.png",
+    "sha256": "a63ee66756369de7a862ea1bf70cb7f55b6bbf31caa438b235ae68ccc83e81b9",
+    "bytes": 828256
+  },
+  {
+    "archive": "Finora_Part_2B_Interface.zip",
+    "file": "Finora_World_Complete_Pack/assets/ui/png/pet.png",
+    "sha256": "b301af4f1ba9c0b508172a75b6ad446ee641aed313eeaea8dab4ca08758219c7",
+    "bytes": 747546
+  },
+  {
+    "archive": "Finora_Part_2B_Interface.zip",
+    "file": "Finora_World_Complete_Pack/assets/ui/png/back.png",
+    "sha256": "07122feb06f81df759d42424a724f2a538a0c86c8ebdcde4cc5a9280f2e33296",
+    "bytes": 724935
+  },
+  {
+    "archive": "Finora_Part_2B_Interface.zip",
+    "file": "Finora_World_Complete_Pack/assets/ui/png/currency_gem.png",
+    "sha256": "8137905999b98e3b13bdfd3a069b5334a7d1dc7b5b41d3608bc2bd6a7f4f24ab",
+    "bytes": 556848
+  },
+  {
+    "archive": "Finora_Part_2B_Interface.zip",
+    "file": "Finora_World_Complete_Pack/assets/ui/png/music.png",
+    "sha256": "9c7358fbec3c9ff7ca9bc3503966a547cd305c59cd7c4aad747b86268d336a24",
+    "bytes": 404297
+  },
+  {
+    "archive": "Finora_Part_2B_Interface.zip",
+    "file": "Finora_World_Complete_Pack/READ_PART_2_REPLACEMENT_RU.txt",
+    "sha256": "a37a9acf3a704c6def9ff2dd48418d8479e98e34c8c9506f1718f7355b172576",
+    "bytes": 1141
+  },
+  {
+    "archive": "Finora_Part_3_Plant_and_Visual_References.zip",
+    "file": "Finora_World_Complete_Pack/DESIGN_SPEC_RU.md",
+    "sha256": "77cef0d43b343a70576e6fa6da0d40f47090f6302bdddca3e59d2a335172ea8b",
+    "bytes": 8509
+  },
+  {
+    "archive": "Finora_Part_3_Plant_and_Visual_References.zip",
+    "file": "Finora_World_Complete_Pack/START_HERE_RU.md",
+    "sha256": "c51ba6cd17168b16abe98a5b629641e00f18b1ca3c2c1bc1badff35ef1c64360",
+    "bytes": 4074
+  },
+  {
+    "archive": "Finora_Part_3_Plant_and_Visual_References.zip",
+    "file": "Finora_World_Complete_Pack/MATCH3_ACCEPTANCE_RU.md",
+    "sha256": "39adbca2aa8162a1df522bf209ff2837a3682328327b83f3364680978346e68c",
+    "bytes": 5242
+  },
+  {
+    "archive": "Finora_Part_3_Plant_and_Visual_References.zip",
+    "file": "Finora_World_Complete_Pack/CODEX_MATCH3_PROMPT_RU.md",
+    "sha256": "cc68943ad5d71ed1bbcceed37e7390b8dd7a721e9a5b98e49704925e09554da5",
+    "bytes": 23635
+  },
+  {
+    "archive": "Finora_Part_3_Plant_and_Visual_References.zip",
+    "file": "Finora_World_Complete_Pack/asset_index.json",
+    "sha256": "c5fb68ccf760d71a28f7bf64ff736db132eba1d5f354ea4c9c3b36603f9e5c66",
+    "bytes": 9772
+  },
+  {
+    "archive": "Finora_Part_3_Plant_and_Visual_References.zip",
+    "file": "Finora_World_Complete_Pack/MATCH3_CONCEPT_ROADMAP_RU.md",
+    "sha256": "97537d0ecb1fc4cdc3b8e916b1f3969ce7c7c88349b0826f4a7435d2a89c33b6",
+    "bytes": 6516
+  },
+  {
+    "archive": "Finora_Part_3_Plant_and_Visual_References.zip",
+    "file": "Finora_World_Complete_Pack/VALIDATION.json",
+    "sha256": "f43a9155a7bc22f9e21e77d376ecfa584e919dc3a001c3c48bf170c0518461f5",
+    "bytes": 456
+  },
+  {
+    "archive": "Finora_Part_3_Plant_and_Visual_References.zip",
+    "file": "Finora_World_Complete_Pack/CODEX_TASK_RU.md",
+    "sha256": "dcd2b216c6b9e71f70bdaaf25ba8ed425486c720a5e905af04ca0d0f7773f8de",
+    "bytes": 16386
+  },
+  {
+    "archive": "Finora_Part_3_Plant_and_Visual_References.zip",
+    "file": "Finora_World_Complete_Pack/PREVIEW.html",
+    "sha256": "f6b39e127636f2b19af3c3912de83f5e3ec1eceaad84ba10abb9b2c0bfa9665a",
+    "bytes": 9809
+  },
+  {
+    "archive": "Finora_Part_3_Plant_and_Visual_References.zip",
+    "file": "Finora_World_Complete_Pack/assets/garden/manifest.json",
+    "sha256": "deffb6daec94690e9ce2b14323d6dd51cae9949cc5efed5fa7a03260e9146644",
+    "bytes": 3791
+  },
+  {
+    "archive": "Finora_Part_3_Plant_and_Visual_References.zip",
+    "file": "Finora_World_Complete_Pack/assets/garden/CODEX_INSTRUCTIONS_ru.md",
+    "sha256": "6c3d51c7700cd8226d24beba452b8b3c551c9cb88d24601b92dc06927765bb1f",
+    "bytes": 12125
+  },
+  {
+    "archive": "Finora_Part_3_Plant_and_Visual_References.zip",
+    "file": "Finora_World_Complete_Pack/assets/garden/README_ru.txt",
+    "sha256": "dd27329d8ca99362a36747a9be647a689ce30b6082334f5fc699cc00c45f0ff4",
+    "bytes": 1751
+  },
+  {
+    "archive": "Finora_Part_3_Plant_and_Visual_References.zip",
+    "file": "Finora_World_Complete_Pack/assets/garden/stages/04_bud.png",
+    "sha256": "4151bc059d18975a0a2bbca7880a1836319c340cd85c24ee04d353287b2a456f",
+    "bytes": 664109
+  },
+  {
+    "archive": "Finora_Part_3_Plant_and_Visual_References.zip",
+    "file": "Finora_World_Complete_Pack/assets/garden/stages/05_opening.png",
+    "sha256": "5b517f4faa4ac0c2de472493af2f477c8ef35ef22f18f89b50cbf120cd3ee6ab",
+    "bytes": 695115
+  },
+  {
+    "archive": "Finora_Part_3_Plant_and_Visual_References.zip",
+    "file": "Finora_World_Complete_Pack/assets/garden/stages/06_full_bloom.png",
+    "sha256": "faeed9b62da1355690f14f3dc745b69e3f85e47d348995fc1479e5230722493d",
+    "bytes": 1025538
+  },
+  {
+    "archive": "Finora_Part_3_Plant_and_Visual_References.zip",
+    "file": "Finora_World_Complete_Pack/assets/garden/stages/01_seed.png",
+    "sha256": "4e8194eec1f6a2a615b85fbef51be8072e8f0e1b8d9ab76ba34b67cc1138c399",
+    "bytes": 367644
+  },
+  {
+    "archive": "Finora_Part_3_Plant_and_Visual_References.zip",
+    "file": "Finora_World_Complete_Pack/assets/garden/stages/03_leaves.png",
+    "sha256": "7d1d007e659964cb33b0f7153a461c65cb2e9302d8bab54c71ab198796ef8447",
+    "bytes": 496044
+  },
+  {
+    "archive": "Finora_Part_3_Plant_and_Visual_References.zip",
+    "file": "Finora_World_Complete_Pack/assets/garden/stages/02_sprout.png",
+    "sha256": "919a832e3c18267ac1db479b101a5f234e67f3684d37a83a19770d697358ad2d",
+    "bytes": 371289
+  },
+  {
+    "archive": "Finora_Part_3_Plant_and_Visual_References.zip",
+    "file": "Finora_World_Complete_Pack/assets/garden/background/goal_garden.png",
+    "sha256": "06af2b5a8004ee691120f45841a8915ec9b640732173392423833e9aff7b2944",
+    "bytes": 2236533
+  },
+  {
+    "archive": "Finora_Part_3_Plant_and_Visual_References.zip",
+    "file": "Finora_World_Complete_Pack/references/03_original_home_layout.png",
+    "sha256": "3a2bbd7dad2b441a3a901b1548db66982712cd4ef4728c4158058760b0705368",
+    "bytes": 2476600
+  },
+  {
+    "archive": "Finora_Part_3_Plant_and_Visual_References.zip",
+    "file": "Finora_World_Complete_Pack/references/02_home_screen_assembled.png",
+    "sha256": "387395ed96f76354d6c0f2047ba37fb0e8db546627ddf1a6370c70b21b16db60",
+    "bytes": 2465543
+  },
+  {
+    "archive": "Finora_Part_3_Plant_and_Visual_References.zip",
+    "file": "Finora_World_Complete_Pack/references/01_approved_ui_style.png",
+    "sha256": "a44387d0d48c8fcbcf6fc1a647a9abd4c82bad0ff05fd4454be4f63030c64ce3",
+    "bytes": 1975886
+  },
+  {
+    "archive": "Finora_Part_3_Plant_and_Visual_References.zip",
+    "file": "Finora_World_Complete_Pack/READ_THREE_PARTS_RU.txt",
+    "sha256": "a35e6ca85b03040928e34bd1a2fe589e031c3f93231c5a9bca9f439b0d3daebe",
+    "bytes": 1522
+  }
+]

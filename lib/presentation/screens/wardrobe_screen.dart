@@ -38,14 +38,15 @@ String? wardrobeCondition(WardrobeItem item) {
 
 /// 1.46: «Гардероб Finora» — what she can wear, on her right away.
 class WardrobeScreen extends StatefulWidget {
-  const WardrobeScreen({super.key});
+  const WardrobeScreen({super.key, this.initialCategory});
+  final WardrobeCategory? initialCategory;
 
   @override
   State<WardrobeScreen> createState() => _WardrobeScreenState();
 }
 
 class _WardrobeScreenState extends State<WardrobeScreen> {
-  WardrobeCategory? _category;
+  late WardrobeCategory? _category = widget.initialCategory;
   Future<void> _toggle(FinanceController c, WardrobeItem item) async {
     final worn = c.data.wardrobe.equipped[item.slot] == item.id;
     Haptics.tap();

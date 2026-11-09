@@ -1,0 +1,165 @@
+{
+  "style": "Finora pearl mint lavender balanced",
+  "assets": [
+    {
+      "id": "wardrobe",
+      "label_ru": "Гардероб",
+      "file": "png/wardrobe.png",
+      "width": 1254,
+      "height": 1254,
+      "format": "PNG",
+      "alpha": true,
+      "sha256": "4fcba56eab04023ea7b6dc5f30ae25d753de316f1902694aa5914ec75a3cfda5"
+    },
+    {
+      "id": "pet",
+      "label_ru": "Питомцы",
+      "file": "png/pet.png",
+      "width": 1254,
+      "height": 1254,
+      "format": "PNG",
+      "alpha": true,
+      "sha256": "b301af4f1ba9c0b508172a75b6ad446ee641aed313eeaea8dab4ca08758219c7"
+    },
+    {
+      "id": "garden",
+      "label_ru": "Сад",
+      "file": "png/garden.png",
+      "width": 1254,
+      "height": 1254,
+      "format": "PNG",
+      "alpha": true,
+      "sha256": "aef71982da290d49fb2ddb999a76f02cb8045bc8ac2e9135943108dafbc5c75f"
+    },
+    {
+      "id": "album",
+      "label_ru": "Альбом",
+      "file": "png/album.png",
+      "width": 1254,
+      "height": 1254,
+      "format": "PNG",
+      "alpha": true,
+      "sha256": "a98bc72e03c41482288776705aff4223f1dfbe063db030b483a623ee3584bb1e"
+    },
+    {
+      "id": "games",
+      "label_ru": "Игры",
+      "file": "png/games.png",
+      "width": 1254,
+      "height": 1254,
+      "format": "PNG",
+      "alpha": true,
+      "sha256": "2975c796b24d759abcaf89a03abbe2fc47de3a95460999d8016637475951ab68"
+    },
+    {
+      "id": "background",
+      "label_ru": "Фон",
+      "file": "png/background.png",
+      "width": 1254,
+      "height": 1254,
+      "format": "PNG",
+      "alpha": true,
+      "sha256": "a63ee66756369de7a862ea1bf70cb7f55b6bbf31caa438b235ae68ccc83e81b9"
+    },
+    {
+      "id": "decor",
+      "label_ru": "Декор",
+      "file": "png/decor.png",
+      "width": 1254,
+      "height": 1254,
+      "format": "PNG",
+      "alpha": true,
+      "sha256": "09359c0c534db3a579cb8a8ca1bd984f43f4286491dcd3ca6856400ccfbf7d19"
+    },
+    {
+      "id": "currency_gem",
+      "label_ru": "Игровая валюта",
+      "file": "png/currency_gem.png",
+      "width": 1254,
+      "height": 1254,
+      "format": "PNG",
+      "alpha": true,
+      "sha256": "8137905999b98e3b13bdfd3a069b5334a7d1dc7b5b41d3608bc2bd6a7f4f24ab"
+    },
+    {
+      "id": "rank_badge",
+      "label_ru": "Значок ранга",
+      "file": "png/rank_badge.png",
+      "width": 1254,
+      "height": 1254,
+      "format": "PNG",
+      "alpha": true,
+      "sha256": "95c5f5a9288c87d682409eb217a391aafcc05f263db5f11158110d433c05f942"
+    },
+    {
+      "id": "add",
+      "label_ru": "Добавить",
+      "file": "png/add.png",
+      "width": 1254,
+      "height": 1254,
+      "format": "PNG",
+      "alpha": true,
+      "sha256": "e329e640e1dc373353b1f52f8263e5c41b17baa451cab45b59a9a46120479807"
+    },
+    {
+      "id": "back",
+      "label_ru": "Назад",
+      "file": "png/back.png",
+      "width": 1254,
+      "height": 1254,
+      "format": "PNG",
+      "alpha": true,
+      "sha256": "07122feb06f81df759d42424a724f2a538a0c86c8ebdcde4cc5a9280f2e33296"
+    },
+    {
+      "id": "settings",
+      "label_ru": "Настройки",
+      "file": "png/settings.png",
+      "width": 1254,
+      "height": 1254,
+      "format": "PNG",
+      "alpha": true,
+      "sha256": "3af5fb1a6603fc6398e9d4f9ca024802dfdf816732a34d51ffbe9ea0b4622706"
+    },
+    {
+      "id": "close",
+      "label_ru": "Закрыть",
+      "file": "png/close.png",
+      "width": 1254,
+      "height": 1254,
+      "format": "PNG",
+      "alpha": true,
+      "sha256": "d87c3cb27619f7e5e0c14e678bc1479fb05f3bf8ed246a36e31bc4d612f12196"
+    },
+    {
+      "id": "music",
+      "label_ru": "Музыка",
+      "file": "png/music.png",
+      "width": 1254,
+      "height": 1254,
+      "format": "PNG",
+      "alpha": true,
+      "sha256": "9c7358fbec3c9ff7ca9bc3503966a547cd305c59cd7c4aad747b86268d336a24"
+    },
+    {
+      "id": "sound",
+      "label_ru": "Звуки",
+      "file": "png/sound.png",
+      "width": 1254,
+      "height": 1254,
+      "format": "PNG",
+      "alpha": true,
+      "sha256": "e37432786aee889837cde0b042f4a8c83d5088bda5e53ed2a677b64d04fb408e"
+    },
+    {
+      "id": "leaf_ornament",
+      "label_ru": "Декоративная веточка",
+      "file": "png/leaf_ornament.png",
+      "width": 1536,
+      "height": 1024,
+      "format": "PNG",
+      "alpha": true,
+      "sha256": "f0900fe8c4a22669f88a4e8d3b61999ac27669361cc2c8708a455d7dfb90d308"
+    }
+  ]
+}

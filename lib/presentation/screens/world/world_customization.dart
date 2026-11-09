@@ -8,6 +8,106 @@ import '../../widgets/common.dart';
 import '../wardrobe_screen.dart';
 import 'world_components.dart';
 
+/// The package's six previews use the existing ownership and persistence rules.
+class WorldBackgroundScreen extends StatefulWidget {
+  const WorldBackgroundScreen({super.key});
+  @override
+  State<WorldBackgroundScreen> createState() => _WorldBackgroundScreenState();
+}
+
+class _WorldBackgroundScreenState extends State<WorldBackgroundScreen> {
+  String? _saving;
+  Future<void> _select(String id) async {
+    if (_saving != null) return;
+    setState(() => _saving = id);
+    final c = FinanceScope.of(context);
+    await worldAttempt(context, () => c.configureWorld(id, c.data.world.decor));
+    if (mounted) setState(() => _saving = null);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = FinanceScope.of(context);
+    final world = c.data.world;
+    return WorldPage(
+      title: 'Фон дома',
+      children: [
+        const Text('Выбор применяется сразу и сохраняется на устройстве.'),
+        const SizedBox(height: 14),
+        for (final art in worldBackgroundArt)
+          Builder(
+            builder: (context) {
+              final item = worldCosmetic(art.cosmeticId);
+              final owned = item != null && worldOwns(world, item);
+              final selected = world.background == art.cosmeticId;
+              return WorldPanel(
+                key: ValueKey('world-background-${art.cosmeticId}'),
+                onTap: _saving != null
+                    ? null
+                    : owned
+                    ? () => _select(art.cosmeticId)
+                    : () => worldOpen(context, const WorldCatalogScreen()),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(18),
+                      child: AspectRatio(
+                        aspectRatio: 1.6,
+                        child: Image.asset(
+                          art.asset,
+                          fit: BoxFit.cover,
+                          cacheWidth:
+                              (MediaQuery.sizeOf(context).width *
+                                      MediaQuery.devicePixelRatioOf(context))
+                                  .ceil()
+                                  .clamp(256, 768),
+                          filterQuality: FilterQuality.high,
+                          excludeFromSemantics: true,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            art.title,
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Icon(
+                          selected
+                              ? Icons.check_circle_rounded
+                              : owned
+                              ? Icons.radio_button_unchecked
+                              : Icons.lock_outline,
+                          color: selected ? worldJade : worldPlum,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      _saving == art.cosmeticId
+                          ? 'Сохраняем…'
+                          : selected
+                          ? 'Выбран'
+                          : owned
+                          ? 'Выбрать'
+                          : 'Условия открытия — в существующем каталоге',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+      ],
+    );
+  }
+}
+
 class WorldDecorScreen extends StatelessWidget {
   const WorldDecorScreen({super.key});
 
@@ -23,6 +123,11 @@ class WorldDecorScreen extends StatelessWidget {
       title: 'Оформление дома',
       children: [
         const WorldHeading('Фон'),
+        OutlinedButton.icon(
+          onPressed: () => worldOpen(context, const WorldBackgroundScreen()),
+          icon: const WorldArtImage('background', size: 30),
+          label: const Text('Посмотреть все фоны'),
+        ),
         Wrap(
           spacing: 8,
           runSpacing: 8,
@@ -163,10 +268,22 @@ class _WorldCatalogScreenState extends State<WorldCatalogScreen> {
                               color: Color(item.color).withValues(alpha: .3),
                             ),
                           ),
-                          child: Icon(
-                            worldCosmeticIcon(item.id),
-                            color: Color(item.color),
-                          ),
+                          child: item.kind == 'background'
+                              ? ClipRRect(
+                                  borderRadius: BorderRadius.circular(14),
+                                  child: Image.asset(
+                                    WorldArt.background(item.id).asset,
+                                    width: 46,
+                                    height: 46,
+                                    fit: BoxFit.cover,
+                                    cacheWidth: 138,
+                                    excludeFromSemantics: true,
+                                  ),
+                                )
+                              : Icon(
+                                  worldCosmeticIcon(item.id),
+                                  color: Color(item.color),
+                                ),
                         ),
                         const SizedBox(width: 12),
                         Expanded(

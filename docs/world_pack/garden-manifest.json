@@ -1,0 +1,122 @@
+{
+  "schema_version": 1,
+  "pack_id": "finora_goal_garden_6_stages",
+  "background": {
+    "file": "background/goal_garden.png",
+    "name_ru": "Фон сада целей",
+    "width": 941,
+    "height": 1672,
+    "mode": "RGB",
+    "has_transparency": false,
+    "sha256": "06af2b5a8004ee691120f45841a8915ec9b640732173392423833e9aff7b2944"
+  },
+  "stages": [
+    {
+      "file": "stages/01_seed.png",
+      "name_ru": "Семечко",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "has_transparency": true,
+      "sha256": "4e8194eec1f6a2a615b85fbef51be8072e8f0e1b8d9ab76ba34b67cc1138c399",
+      "stage": 1,
+      "id": "finora_goal_flower_stage_01",
+      "min_progress_inclusive": 0.0,
+      "max_progress_exclusive": 0.2
+    },
+    {
+      "file": "stages/02_sprout.png",
+      "name_ru": "Росток",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "has_transparency": true,
+      "sha256": "919a832e3c18267ac1db479b101a5f234e67f3684d37a83a19770d697358ad2d",
+      "stage": 2,
+      "id": "finora_goal_flower_stage_02",
+      "min_progress_inclusive": 0.2,
+      "max_progress_exclusive": 0.4
+    },
+    {
+      "file": "stages/03_leaves.png",
+      "name_ru": "Листья",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "has_transparency": true,
+      "sha256": "7d1d007e659964cb33b0f7153a461c65cb2e9302d8bab54c71ab198796ef8447",
+      "stage": 3,
+      "id": "finora_goal_flower_stage_03",
+      "min_progress_inclusive": 0.4,
+      "max_progress_exclusive": 0.6
+    },
+    {
+      "file": "stages/04_bud.png",
+      "name_ru": "Закрытый бутон",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "has_transparency": true,
+      "sha256": "4151bc059d18975a0a2bbca7880a1836319c340cd85c24ee04d353287b2a456f",
+      "stage": 4,
+      "id": "finora_goal_flower_stage_04",
+      "min_progress_inclusive": 0.6,
+      "max_progress_exclusive": 0.8
+    },
+    {
+      "file": "stages/05_opening.png",
+      "name_ru": "Начало цветения",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "has_transparency": true,
+      "sha256": "5b517f4faa4ac0c2de472493af2f477c8ef35ef22f18f89b50cbf120cd3ee6ab",
+      "stage": 5,
+      "id": "finora_goal_flower_stage_05",
+      "min_progress_inclusive": 0.8,
+      "max_progress_exclusive": 1.0
+    },
+    {
+      "file": "stages/06_full_bloom.png",
+      "name_ru": "Полное цветение",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "has_transparency": true,
+      "sha256": "faeed9b62da1355690f14f3dc745b69e3f85e47d348995fc1479e5230722493d",
+      "stage": 6,
+      "id": "finora_goal_flower_stage_06",
+      "min_progress_inclusive": 1.0,
+      "max_progress_exclusive": null
+    }
+  ],
+  "progress_rules": {
+    "units": "fraction from 0 to 1",
+    "requires_positive_finite_target": true,
+    "formula": "clamp(current_amount / target_amount, 0, 1)",
+    "stage_thresholds_inclusive": [
+      0.0,
+      0.2,
+      0.4,
+      0.6,
+      0.8,
+      1.0
+    ],
+    "warning": "Use unrounded progress. Stage 6 begins only at actual 100%. Reuse existing application rules if present; these thresholds are defaults."
+  },
+  "sprite_layout": {
+    "coordinate_system": "Normalized 0..1, origin top-left.",
+    "preserve_full_canvas": true,
+    "trim_transparent_padding": false,
+    "shared_source_ground_anchor": {
+      "x": 0.493,
+      "y": 0.965
+    },
+    "suggested_scene_ground_anchor": {
+      "x": 0.5,
+      "y": 0.82
+    },
+    "suggested_sprite_canvas_width_fraction_of_scene": 0.76,
+    "note": "Approximate anchors; visually validate on device. Use the same scale and image rectangle for all stages. Generated art can have slight edge differences."
+  }
+}

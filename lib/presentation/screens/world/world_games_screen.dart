@@ -6,6 +6,7 @@ import '../../controller.dart';
 import '../../l10n_widgets.dart';
 import '../../widgets/common.dart';
 import 'world_components.dart';
+import 'flow_screens.dart';
 
 /// All three activities live inside the world; they never navigate through or
 /// modify a financial form. Every successful move is committed before advancing.
@@ -20,6 +21,51 @@ class WorldGamesScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
         children: [
+          SurfaceCard(
+            key: const ValueKey('world-game-flow'),
+            onTap: () {
+              final navigator = Navigator.of(context);
+              final gamesRoute = ModalRoute.of(context);
+              worldOpen(
+                context,
+                FlowMapScreen(
+                  onExitWorld: () {
+                    navigator.popUntil((route) => identical(route, gamesRoute));
+                    if (gamesRoute != null && !gamesRoute.isFirst) {
+                      navigator.pop();
+                    }
+                  },
+                ),
+              );
+            },
+            child: Row(
+              children: [
+                Image.asset(
+                  'assets/finora/world/ui/png/games.png',
+                  width: 64,
+                  height: 64,
+                  fit: BoxFit.contain,
+                  cacheWidth: 192,
+                  excludeFromSemantics: true,
+                ),
+                const SizedBox(width: 12),
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Finora — Поток',
+                        style: TextStyle(fontWeight: FontWeight.w800),
+                      ),
+                      Text('3 в ряд · 20 уровней'),
+                    ],
+                  ),
+                ),
+                const Icon(Icons.chevron_right),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
           const Text(
             'Каждая активность даёт награду один раз. Можно возвращаться и играть без дополнительных наград.',
           ),

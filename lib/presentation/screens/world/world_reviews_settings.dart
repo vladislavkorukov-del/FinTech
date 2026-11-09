@@ -223,7 +223,33 @@ class WorldSettingsScreen extends StatelessWidget {
     final state = c.data.world;
     return WorldPage(
       title: 'Настройки мира',
+      actions: [
+        WorldImageButton(
+          id: 'close',
+          label: 'Закрыть настройки',
+          onPressed: () => Navigator.maybePop(context),
+        ),
+      ],
       children: [
+        const WorldPanel(
+          child: Column(
+            children: [
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: WorldArtImage('music', size: 38),
+                title: Text('Музыка'),
+                subtitle: Text('Музыкальных дорожек в наборе пока нет.'),
+              ),
+              Divider(height: 1),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: WorldArtImage('sound', size: 38),
+                title: Text('Звуки'),
+                subtitle: Text('Звуковые эффекты для мира пока не добавлены.'),
+              ),
+            ],
+          ),
+        ),
         WorldPanel(
           child: Column(
             children: [
@@ -264,7 +290,7 @@ class WorldSettingsScreen extends StatelessWidget {
           ),
         ),
         const Text(
-          'Системная настройка уменьшения движения действует независимо от спокойного режима.',
+          'Настройки сохраняются сразу. Системная настройка уменьшения движения действует независимо от спокойного режима.',
         ),
         const WorldHeading('Как получать искры'),
         const WorldPanel(

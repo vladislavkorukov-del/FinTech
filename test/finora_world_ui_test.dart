@@ -253,7 +253,10 @@ void main() {
     (tester) async {
       await mount(tester, const WorldGardenScreen());
       expect(find.text('50% накоплено'), findsOneWidget);
-      await tester.tap(find.byKey(const ValueKey('world-plant-garden')));
+      final card = find.byKey(const ValueKey('world-plant-garden'));
+      await tester.scrollUntilVisible(card, 200, maxScrolls: 20);
+      await tester.ensureVisible(card);
+      await tester.tap(card);
       await tester.pumpAndSettle();
       expect(find.byType(TextFormField), findsWidgets);
       expect(tester.takeException(), isNull);
@@ -365,7 +368,7 @@ void main() {
         () => c.saveGoal(c.goal('garden')!.copyWith(savedMinor: 100000)),
       );
       await tester.pumpAndSettle();
-      await tester.pageBack();
+      await tester.tap(find.byTooltip('Назад').last);
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 400));
       expect(

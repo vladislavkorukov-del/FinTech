@@ -113,6 +113,7 @@ void main() {
       final c = FinanceController(repo, _Quiet(), loaded!)
         ..achievementClock = () => now;
       await tester.runAsync(c.syncWorld);
+      await tester.runAsync(() => c.selectWorldGardenGoal('garden'));
       addTearDown(() async {
         c.dispose();
         await repo.close();
@@ -121,6 +122,8 @@ void main() {
       tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);
+      final output = Platform.environment['FINORA_WORLD_CAPTURE_DIR'];
+      const stageAmounts = [0, 10000, 45000, 76000, 85000, 100000];
       final pages = <String, Widget>{
         'home': const FinoraWorldScreen(),
         'garden': const WorldGardenScreen(),
@@ -128,9 +131,19 @@ void main() {
         'catalog': const WorldCatalogScreen(),
         'album': const WorldAlbumScreen(),
         'activities': const WorldGamesScreen(),
+        if (output != null)
+          for (var stage = 0; stage < 6; stage++)
+            'garden-stage-${stage + 1}': const WorldGardenScreen(),
       };
-      final output = Platform.environment['FINORA_WORLD_CAPTURE_DIR'];
       for (final entry in pages.entries) {
+        if (entry.key.startsWith('garden-stage-')) {
+          final stage = int.parse(entry.key.split('-').last) - 1;
+          await tester.runAsync(
+            () => c.saveGoal(
+              c.goal('garden')!.copyWith(savedMinor: stageAmounts[stage]),
+            ),
+          );
+        }
         await tester.pumpWidget(
           FinanceScope(
             controller: c,
@@ -154,6 +167,19 @@ void main() {
         await tester.pumpAndSettle();
         expect(tester.takeException(), isNull, reason: entry.key);
         if (output != null) {
+          final context = tester.element(
+            find.byKey(const ValueKey('world-capture')),
+          );
+          final providers = tester
+              .widgetList<Image>(find.byType(Image))
+              .map((image) => image.image)
+              .toSet();
+          await tester.runAsync(
+            () => Future.wait(
+              providers.map((provider) => precacheImage(provider, context)),
+            ),
+          );
+          await tester.pumpAndSettle();
           final boundary = tester.renderObject<RenderRepaintBoundary>(
             find.byKey(const ValueKey('world-capture')),
           );

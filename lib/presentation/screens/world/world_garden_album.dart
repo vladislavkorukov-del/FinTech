@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart' hide InputDecoration, Text;
 
 import '../../../domain/finora_world.dart';
@@ -9,13 +7,48 @@ import '../../widgets/common.dart';
 import '../achievements_screen.dart';
 import '../management.dart';
 import 'world_components.dart';
+import 'world_garden_scene.dart';
 
-class WorldGardenScreen extends StatelessWidget {
+export 'world_garden_scene.dart';
+
+/// One selected live financial goal, with one plant on the supplied scene.
+class WorldGardenScreen extends StatefulWidget {
   const WorldGardenScreen({super.key});
+
+  @override
+  State<WorldGardenScreen> createState() => _WorldGardenScreenState();
+}
+
+class _WorldGardenScreenState extends State<WorldGardenScreen> {
+  String? _scheduledGoal;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final c = FinanceScope.of(context);
+    final first = c.data.goals.firstOrNull;
+    if (c.data.world.gardenGoalId == null &&
+        first != null &&
+        _scheduledGoal != first.id) {
+      _scheduledGoal = first.id;
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        if (!mounted) return;
+        await worldAttempt(context, () => c.selectWorldGardenGoal(first.id));
+        _scheduledGoal = null;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final c = FinanceScope.of(context);
+    final goals = c.data.goals;
+    final selected =
+        goals.where((g) => g.id == c.data.world.gardenGoalId).firstOrNull ??
+        goals.firstOrNull;
+    final plant = selected == null
+        ? null
+        : WorldPlant.of(selected, c.data.entries);
     return WorldPage(
       title: 'Сад целей',
       actions: [
@@ -26,203 +59,121 @@ class WorldGardenScreen extends StatelessWidget {
         ),
       ],
       children: [
-        if (c.data.goals.isEmpty) ...[
+        if (selected == null || plant == null) ...[
           const EmptyState(
             'Здесь вырастут ваши мечты',
             'Растение появляется вместе с финансовой целью. Рост зависит от процента накоплений.',
             icon: Icons.spa_outlined,
           ),
           FilledButton.tonal(
+            key: const ValueKey('world-garden-create-goal'),
             onPressed: () => worldOpen(context, const GoalsScreen()),
             child: const Text('Создать цель'),
           ),
-        ],
-        for (final goal in c.data.goals)
-          Builder(
-            builder: (context) {
-              final plant = WorldPlant.of(goal, c.data.entries);
-              final complete = c.data.world.completedGoals.contains(goal.id);
-              return WorldPanel(
-                key: ValueKey('world-plant-${goal.id}'),
-                onTap: () =>
-                    worldOpen(context, GoalsScreen(initialGoalId: goal.id)),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Semantics(
-                          label:
-                              '${plant.stageName}, ${(plant.ratio * 100).round()}%',
-                          child: SizedBox(
-                            width: 82,
-                            height: 96,
-                            child: CustomPaint(
-                              painter: WorldPlantPainter(
-                                stage: plant.stage,
-                                color: Color(goal.color),
-                                commemorated: complete,
-                              ),
-                            ),
+        ] else ...[
+          WorldPanel(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Ваша цель',
+                  style: Theme.of(context).textTheme.labelLarge,
+                ),
+                const SizedBox(height: 4),
+                DropdownButton<String>(
+                  key: const ValueKey('world-garden-goal-selector'),
+                  value: selected.id,
+                  isExpanded: true,
+                  itemHeight: null,
+                  underline: const SizedBox.shrink(),
+                  items: [
+                    for (final goal in goals)
+                      DropdownMenuItem(
+                        value: goal.id,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          child: Text(
+                            goal.name,
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                goal.name,
-                                style: Theme.of(context).textTheme.titleMedium,
-                              ),
-                              const SizedBox(height: 4),
-                              Text(plant.stageName),
-                              const SizedBox(height: 4),
-                              Text(
-                                '${money(plant.savedMinor, goal.currency)} / ${money(goal.targetMinor, goal.currency)}',
-                                style: Theme.of(context).textTheme.bodySmall,
-                              ),
-                            ],
-                          ),
-                        ),
-                        const Icon(Icons.chevron_right_rounded, size: 20),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    LinearProgressIndicator(
-                      value: plant.ratio,
-                      color: worldMint,
-                      backgroundColor: worldMint.withValues(alpha: .13),
-                      borderRadius: BorderRadius.circular(8),
-                      minHeight: 5,
-                    ),
-                    const SizedBox(height: 7),
-                    Text('${(plant.ratio * 100).round()}% накоплено'),
-                    if (complete)
-                      const Padding(
-                        padding: EdgeInsets.only(top: 5),
-                        child: Text('Момент достижения сохранён в альбоме'),
                       ),
                   ],
+                  onChanged: (id) =>
+                      worldAttempt(context, () => c.selectWorldGardenGoal(id)),
                 ),
-              );
-            },
+              ],
+            ),
           ),
+          WorldGardenScene(
+            stage: plant.visualStage,
+            semanticLabel:
+                '${selected.name}. ${WorldGardenArt.names[plant.visualStage]}, ${worldGardenPercent(plant.ratio)}',
+            onTap: () =>
+                worldOpen(context, GoalsScreen(initialGoalId: selected.id)),
+          ),
+          const SizedBox(height: 14),
+          WorldPanel(
+            key: ValueKey('world-plant-${selected.id}'),
+            onTap: () =>
+                worldOpen(context, GoalsScreen(initialGoalId: selected.id)),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        selected.name,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    const Icon(Icons.chevron_right_rounded),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text(WorldGardenArt.names[plant.visualStage]),
+                const SizedBox(height: 6),
+                Text(
+                  '${money(plant.savedMinor, selected.currency)} / ${money(selected.targetMinor, selected.currency)}',
+                ),
+                const SizedBox(height: 10),
+                LinearProgressIndicator(
+                  value: plant.ratio,
+                  color: worldMint,
+                  backgroundColor: worldMint.withValues(alpha: .13),
+                  borderRadius: BorderRadius.circular(8),
+                  minHeight: 5,
+                ),
+                const SizedBox(height: 7),
+                Text('${worldGardenPercent(plant.ratio)} накоплено'),
+                if (selected.targetMinor <= 0)
+                  const Padding(
+                    padding: EdgeInsets.only(top: 7),
+                    child: Text(
+                      'Укажите положительную сумму в настройках цели',
+                    ),
+                  ),
+                if (c.data.world.completedGoals.contains(selected.id))
+                  const Padding(
+                    padding: EdgeInsets.only(top: 7),
+                    child: Text('Момент достижения сохранён в альбоме'),
+                  ),
+              ],
+            ),
+          ),
+          OutlinedButton.icon(
+            onPressed: () =>
+                worldOpen(context, GoalsScreen(initialGoalId: selected.id)),
+            icon: const Icon(Icons.open_in_new_rounded),
+            label: const Text('Открыть цель'),
+          ),
+        ],
       ],
     );
   }
-}
-
-/// Small vector plants share their geometry at every savings amount.
-/// Completed memories are retained; no wilted or punishing state exists.
-class WorldPlantPainter extends CustomPainter {
-  const WorldPlantPainter({
-    required this.stage,
-    required this.color,
-    this.commemorated = false,
-  });
-  final int stage;
-  final Color color;
-  final bool commemorated;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final pot = Rect.fromLTWH(
-      size.width * .25,
-      size.height * .69,
-      size.width * .5,
-      size.height * .23,
-    );
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(pot, const Radius.circular(10)),
-      Paint()..color = color.withValues(alpha: .17),
-    );
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(pot, const Radius.circular(10)),
-      Paint()
-        ..color = color.withValues(alpha: .7)
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 1,
-    );
-    final soil = Offset(size.width / 2, size.height * .7);
-    if (stage == 0) {
-      canvas.drawOval(
-        Rect.fromCenter(
-          center: soil - const Offset(0, 4),
-          width: 10,
-          height: 7,
-        ),
-        Paint()..color = color,
-      );
-      return;
-    }
-    final top = Offset(size.width / 2, size.height * (stage >= 3 ? .22 : .36));
-    final stem = Paint()
-      ..color = Color.lerp(color, worldMint, .7)!
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.5
-      ..strokeCap = StrokeCap.round;
-    final path = Path()
-      ..moveTo(soil.dx, soil.dy)
-      ..quadraticBezierTo(soil.dx - 4, size.height * .47, top.dx, top.dy);
-    canvas.drawPath(path, stem);
-    for (var i = 0; i < (stage >= 2 ? 2 : 1); i++) {
-      final y = size.height * (.51 - i * .16);
-      final direction = i.isEven ? -1 : 1;
-      final leaf = Path()
-        ..moveTo(size.width / 2, y + 8)
-        ..quadraticBezierTo(
-          size.width / 2 + 26 * direction,
-          y + 2,
-          size.width / 2 + 19 * direction,
-          y - 10,
-        )
-        ..quadraticBezierTo(
-          size.width / 2 + 2 * direction,
-          y - 11,
-          size.width / 2,
-          y + 8,
-        );
-      canvas.drawPath(
-        leaf,
-        Paint()
-          ..color = Color.lerp(color, worldMint, .5)!.withValues(alpha: .75),
-      );
-    }
-    if (stage >= 3) {
-      final petals = stage == 4 ? 5 : 1;
-      for (var i = 0; i < petals; i++) {
-        final angle = math.pi * 2 * i / petals - math.pi / 2;
-        final center =
-            top +
-            Offset(math.cos(angle), math.sin(angle)) * (stage == 4 ? 9 : 2);
-        canvas.drawCircle(
-          center,
-          stage == 4 ? 8 : 6,
-          Paint()..color = Color.lerp(color, Colors.white, .38)!,
-        );
-      }
-      canvas.drawCircle(
-        top,
-        stage == 4 ? 5 : 3,
-        Paint()..color = const Color(0xFFF0D997),
-      );
-    }
-    if (commemorated) {
-      canvas.drawCircle(
-        Offset(size.width * .82, size.height * .18),
-        3,
-        Paint()..color = worldMint,
-      );
-    }
-  }
-
-  @override
-  bool shouldRepaint(WorldPlantPainter oldDelegate) =>
-      oldDelegate.stage != stage ||
-      oldDelegate.color != color ||
-      oldDelegate.commemorated != commemorated;
 }
 
 class WorldAlbumScreen extends StatelessWidget {

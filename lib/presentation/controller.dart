@@ -10,6 +10,7 @@ import '../domain/models.dart';
 import '../domain/wardrobe.dart';
 import '../domain/finora_world.dart';
 import '../domain/world_games.dart';
+import '../domain/flow/flow.dart';
 import '../domain/payment_plan.dart';
 import '../domain/finance_engine.dart';
 import '../domain/scan_import.dart';
@@ -170,6 +171,13 @@ class FinanceController extends ChangeNotifier {
 
   Future<void> syncWorld() => _world((d) => d.world);
 
+  Future<void> selectWorldGardenGoal(String? id) => _world((d) {
+    if (id != null && !d.goals.any((g) => g.id == id)) {
+      throw const FormatException('Цель не найдена');
+    }
+    return d.world.copyWith(gardenGoalId: id);
+  });
+
   Future<void> configureWorld(String background, Map<String, String> decor) =>
       _world(
         (d) => WorldEngine.configure(
@@ -263,6 +271,61 @@ class FinanceController extends ChangeNotifier {
       }
       return world;
     });
+  }
+
+  Future<void> startFlow(FlowLevel level, {bool restart = false}) =>
+      _world((d) {
+        FlowLevels.validate(level);
+        final progress = d.world.flow;
+        if (!progress.isUnlocked(level.id)) {
+          throw const FormatException('Сначала пройдите предыдущий уровень');
+        }
+        final current = progress.session;
+        if (!restart && current != null && !current.finished) {
+          if (current.levelId != level.id) {
+            throw const FormatException(
+              'Сначала завершите или замените текущую попытку',
+            );
+          }
+          FlowEngine.validateSession(level, current);
+          return d.world;
+        }
+        return d.world.copyWith(
+          flow: progress.copyWith(session: FlowEngine.newGame(level)),
+        );
+      });
+
+  Future<FlowTurn> swapFlow(
+    FlowLevel level,
+    FlowSession expected,
+    int from,
+    int to,
+  ) async {
+    FlowTurn? turn;
+    await _world((d) {
+      final current = d.world.flow.session;
+      if (current == null ||
+          !identical(current, expected) ||
+          current.levelId != level.id) {
+        throw const FormatException('Поле изменилось. Выберите клетки заново');
+      }
+      FlowEngine.validateSession(level, current);
+      final resolved = FlowEngine.swap(level, current, from, to);
+      turn = resolved;
+      if (!resolved.accepted) return d.world;
+      var world = d.world.copyWith(
+        flow: d.world.flow.record(resolved.session, level),
+      );
+      if (resolved.session.status == FlowStatus.won) {
+        world = WorldEngine.reward(
+          world,
+          'flow:level:${level.id}:v1',
+          now: achievementClock(),
+        );
+      }
+      return world;
+    });
+    return turn!;
   }
 
   /// Only the achievement state changes (a screen was opened).
