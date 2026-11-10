@@ -1,0 +1,20 @@
+{
+  "version": 2,
+  "installedAt": "2026-11-10T21:20:36.067Z",
+  "files": {
+    "/home/user/FinTech/.claude/settings.json": {
+      "plugins": [
+        "ruflo-mods@ruflo",
+        "ruflo-swarm@ruflo",
+        "ruflo-console@ruflo"
+      ],
+      "marketplace": true,
+      "env": true,
+      "claudeInstalled": [
+        "ruflo-mods@ruflo",
+        "ruflo-swarm@ruflo",
+        "ruflo-console@ruflo"
+      ]
+    }
+  }
+}
