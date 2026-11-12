@@ -7,6 +7,7 @@ import '../../domain/finance_engine.dart';
 import '../../domain/models.dart';
 import '../controller.dart';
 import '../widgets/common.dart';
+import '../widgets/dream_photo.dart';
 import '../widgets/savings_pace.dart';
 import '../widgets/grouped_list.dart';
 import '../widgets/money_tips.dart';
@@ -595,62 +596,74 @@ class _DreamRow extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final saved = FinanceEngine.goalSaved(goal, c.data.entries);
     final percent = (saved / goal.targetMinor * 100).round();
+    void open() => Navigator.push(
+      context,
+      MaterialPageRoute<void>(
+        builder: (_) => TransactionsScreen(goalId: goal.id),
+      ),
+    );
+    final photo = hasDreamPhoto(goal.photoPath);
+    final content = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            CategoryBadge(
+              icon: categoryIcon(goal.icon),
+              color: scheme.onSurface,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                goal.name,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+            ),
+            IconButton(
+              tooltip: 'Пополнить мечту ${goal.name}',
+              onPressed: () => showEntryEditor(
+                context,
+                kind: EntryKind.transfer,
+                goalId: goal.id,
+              ),
+              icon: const Icon(Icons.add_circle_outline_rounded),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        LinearProgressIndicator(
+          value: (saved / goal.targetMinor).clamp(0, 1),
+          minHeight: 6,
+          borderRadius: BorderRadius.circular(8),
+          color: scheme.primary,
+          backgroundColor: scheme.outlineVariant.withValues(alpha: .3),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          '${money(saved, goal.currency)} · $percent% накоплено',
+          style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant),
+        ),
+        if (goal.deadline != null && saved < goal.targetMinor) ...[
+          const SizedBox(height: 8),
+          SavingsPace(goal: goal, saved: saved, compact: true),
+        ],
+      ],
+    );
+    // 1.55: a dream with a photo shows it as the card's background.
+    if (photo) {
+      return DreamPhotoCard(
+        key: ValueKey('dream-photo-${goal.id}'),
+        path: goal.photoPath!,
+        onTap: open,
+        child: content,
+      );
+    }
     return SurfaceCard(
       padding: const EdgeInsets.fromLTRB(14, 10, 6, 12),
-      onTap: () => Navigator.push(
-        context,
-        MaterialPageRoute<void>(
-          builder: (_) => TransactionsScreen(goalId: goal.id),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              CategoryBadge(
-                icon: categoryIcon(goal.icon),
-                color: scheme.onSurface,
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  goal.name,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-              ),
-              IconButton(
-                tooltip: 'Пополнить мечту ${goal.name}',
-                onPressed: () => showEntryEditor(
-                  context,
-                  kind: EntryKind.transfer,
-                  goalId: goal.id,
-                ),
-                icon: const Icon(Icons.add_circle_outline_rounded),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          LinearProgressIndicator(
-            value: (saved / goal.targetMinor).clamp(0, 1),
-            minHeight: 6,
-            borderRadius: BorderRadius.circular(8),
-            color: scheme.primary,
-            backgroundColor: scheme.outlineVariant.withValues(alpha: .3),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            '${money(saved, goal.currency)} · $percent% накоплено',
-            style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant),
-          ),
-          if (goal.deadline != null && saved < goal.targetMinor) ...[
-            const SizedBox(height: 8),
-            SavingsPace(goal: goal, saved: saved, compact: true),
-          ],
-        ],
-      ),
+      onTap: open,
+      child: content,
     );
   }
 }

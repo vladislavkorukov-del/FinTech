@@ -91,6 +91,11 @@ class GoalCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // 1.55: the dream's photo, cropped to 2:1, above its name.
+          if (hasDreamPhoto(goal.photoPath)) ...[
+            DreamPhotoBanner(path: goal.photoPath!),
+            const SizedBox(height: 14),
+          ],
           Row(
             children: [
               CategoryBadge(
@@ -181,6 +186,11 @@ Future<void> _goalEditor(BuildContext context, {Goal? goal}) async {
   var deadline = goal?.deadline;
   var color = goal?.color ?? categoryColors[1];
   var icon = goal?.icon ?? 29;
+  // 1.55: a photo on the dream's card, cropped to the card's shape.
+  const photos = GoalPhotoStore();
+  var photo = goal?.photoPath;
+  final picked = <String>[];
+  var stored = false;
   await _edit(
     context,
     title: goal == null ? 'Новая мечта' : 'Настроить мечту',
@@ -251,6 +261,51 @@ Future<void> _goalEditor(BuildContext context, {Goal? goal}) async {
         },
       ),
       _colors(color, (v) => set(() => color = v)),
+      ListTile(
+        key: const ValueKey('goal-photo'),
+        contentPadding: EdgeInsets.zero,
+        leading: SizedBox(
+          width: 56,
+          height: 28,
+          child: photo == null
+              ? const Icon(Icons.add_photo_alternate_outlined)
+              : ClipRRect(
+                  borderRadius: BorderRadius.circular(6),
+                  child: Image.file(File(photo!), fit: BoxFit.cover),
+                ),
+        ),
+        title: const Text('Фото мечты'),
+        subtitle: Text(
+          photo == null
+              ? 'Станет фоном карточки — обрежем под её размер'
+              : 'Нажмите, чтобы выбрать другое',
+        ),
+        trailing: photo == null
+            ? null
+            : IconButton(
+                tooltip: 'Убрать фото',
+                onPressed: () => set(() => photo = null),
+                icon: const Icon(Icons.close),
+              ),
+        onTap: () async {
+          try {
+            final source = await photos.pickSource();
+            if (source == null || !context.mounted) return;
+            final cropped = await Navigator.of(context).push<Uint8List>(
+              MaterialPageRoute(
+                fullscreenDialog: true,
+                builder: (_) => PhotoCropScreen(bytes: source),
+              ),
+            );
+            if (cropped == null) return;
+            final path = await photos.save(cropped);
+            picked.add(path);
+            set(() => photo = path);
+          } catch (e) {
+            if (context.mounted) showError(context, e);
+          }
+        },
+      ),
     ],
     save: () async {
       final t = FinanceEngine.parseMinor(target.text),
@@ -270,9 +325,22 @@ Future<void> _goalEditor(BuildContext context, {Goal? goal}) async {
           deadline: deadline,
           color: color,
           icon: icon,
+          photoPath: photo,
         ),
       );
+      stored = true;
+      // The replaced or removed photo is no longer needed.
+      if (goal?.photoPath != photo) await photos.delete(goal?.photoPath);
     },
-    delete: goal == null ? null : () => c.deleteGoal(goal.id),
+    delete: goal == null
+        ? null
+        : () async {
+            await c.deleteGoal(goal.id);
+            await photos.delete(goal.photoPath);
+          },
   );
+  // Photos picked in an editor that was then closed, or replaced before saving.
+  for (final path in picked) {
+    if (!stored || path != photo) await photos.delete(path);
+  }
 }

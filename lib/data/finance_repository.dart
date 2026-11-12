@@ -25,7 +25,7 @@ class FinanceRepository {
   final DatabaseFactory _factory;
   final String _path;
   final DateTime Function() _clock;
-  static const schemaVersion = 5;
+  static const schemaVersion = 6;
   static const maxBackupBytes = 50 * 1024 * 1024;
 
   static Future<FinanceRepository> open({
@@ -114,6 +114,14 @@ class FinanceRepository {
             await db.execute(
               'ALTER TABLE recurring ADD COLUMN totalMinor INTEGER',
             );
+          }
+          if (oldVersion < 6) {
+            // 1.55: a photo on a dream's card. Added only when missing, so a
+            // base rebuilt from the current schema upgrades cleanly too.
+            final columns = await db.rawQuery('PRAGMA table_info(goals)');
+            if (!columns.any((c) => c['name'] == 'photoPath')) {
+              await db.execute('ALTER TABLE goals ADD COLUMN photoPath TEXT');
+            }
           }
         },
       ),
@@ -310,6 +318,12 @@ class FinanceRepository {
         );
       }
     }
+    final goalPhotos = <String, String>{};
+    for (final goal in data.goals) {
+      if (goal.photoPath != null) {
+        goalPhotos[goal.id] = await encodeMedia(goal.photoPath!);
+      }
+    }
     // Device-local paths never leave the device. IDs select records, never names
     // for imported files; each filename is generated in a private staging root.
     final portable = _stripMediaPaths(data);
@@ -319,6 +333,7 @@ class FinanceRepository {
       'data': portable.toJson(),
       'attachments': attachments,
       'serviceIcons': serviceIcons,
+      if (goalPhotos.isNotEmpty) 'goalPhotos': goalPhotos,
     });
     if (utf8.encode(result).length > maxBackupBytes) {
       throw const FormatException('Резервная копия превышает 50 МБ');
@@ -362,6 +377,10 @@ class FinanceRepository {
       ...data.entries.map((e) => 'entry:${e.id}'),
       ...data.recurring.map((r) => 'recurring:${r.id}'),
     });
+    final photos = decodeMedia(
+      envelope['goalPhotos'],
+      data.goals.map((g) => g.id).toSet(),
+    );
     final staged = <Directory>[];
     Future<Map<String, String>> stage(
       Map<String, List<int>> bytes,
@@ -387,6 +406,7 @@ class FinanceRepository {
     try {
       final receiptPaths = await stage(receipts, 'receipts');
       final iconPaths = await stage(icons, 'service_icons');
+      final photoPaths = await stage(photos, 'goal_photos');
       data = data.copyWith(
         entries: [
           for (final entry in data.entries)
@@ -398,6 +418,10 @@ class FinanceRepository {
         recurring: [
           for (final rule in data.recurring)
             rule.copyWith(customIconPath: iconPaths['recurring:${rule.id}']),
+        ],
+        goals: [
+          for (final goal in data.goals)
+            goal.copyWith(photoPath: photoPaths[goal.id]),
         ],
       );
       await save(data, transform: transform);
@@ -419,6 +443,7 @@ class FinanceRepository {
     recurring: [
       for (final rule in data.recurring) rule.copyWith(customIconPath: null),
     ],
+    goals: [for (final goal in data.goals) goal.copyWith(photoPath: null)],
   );
 
   /// Stale quick-entry choices never invalidate financial history. Called by
@@ -697,8 +722,14 @@ class FinanceRepository {
           ),
         );
       }
+      final goals = <Goal>[];
+      for (final goal in data.goals) {
+        goals.add(
+          goal.copyWith(photoPath: await retain(goal.photoPath, 'goal_photos')),
+        );
+      }
       data = normalizeCategoryPreferences(
-        data.copyWith(entries: entries, recurring: rules),
+        data.copyWith(entries: entries, recurring: rules, goals: goals),
       );
       validateData(data);
     } on FormatException {
@@ -1158,7 +1189,7 @@ class FinanceRepository {
     'CREATE TABLE entry_tags(entryId TEXT NOT NULL REFERENCES entries(id), tagId INTEGER NOT NULL REFERENCES tags(id), position INTEGER NOT NULL, PRIMARY KEY(entryId,tagId))',
     'CREATE TABLE attachments(entryId TEXT PRIMARY KEY REFERENCES entries(id), path TEXT NOT NULL)',
     'CREATE TABLE budgets(id TEXT PRIMARY KEY, name TEXT NOT NULL, currency TEXT NOT NULL REFERENCES currencies(code), categoryId TEXT REFERENCES categories(id), limitMinor INTEGER NOT NULL CHECK(limitMinor > 0))',
-    'CREATE TABLE goals(id TEXT PRIMARY KEY, name TEXT NOT NULL, currency TEXT NOT NULL REFERENCES currencies(code), targetMinor INTEGER NOT NULL CHECK(targetMinor > 0), savedMinor INTEGER NOT NULL CHECK(savedMinor >= 0), color INTEGER NOT NULL, icon INTEGER NOT NULL, deadline TEXT)',
+    'CREATE TABLE goals(id TEXT PRIMARY KEY, name TEXT NOT NULL, currency TEXT NOT NULL REFERENCES currencies(code), targetMinor INTEGER NOT NULL CHECK(targetMinor > 0), savedMinor INTEGER NOT NULL CHECK(savedMinor >= 0), color INTEGER NOT NULL, icon INTEGER NOT NULL, deadline TEXT, photoPath TEXT)',
     'CREATE TABLE recurring(id TEXT PRIMARY KEY, name TEXT NOT NULL, accountId TEXT NOT NULL REFERENCES accounts(id), currency TEXT NOT NULL REFERENCES currencies(code), categoryId TEXT REFERENCES categories(id), kind TEXT NOT NULL, amountMinor INTEGER NOT NULL CHECK(amountMinor > 0), interval INTEGER NOT NULL, anchorDay INTEGER NOT NULL, frequency TEXT NOT NULL, nextDate TEXT NOT NULL, automatic INTEGER NOT NULL, enabled INTEGER NOT NULL, paymentType TEXT NOT NULL DEFAULT \'mandatory\', serviceId TEXT, customIconPath TEXT, reminderEnabled INTEGER NOT NULL DEFAULT 0, reminderDaysBefore INTEGER NOT NULL DEFAULT 1, reminderHour INTEGER NOT NULL DEFAULT 10, reminderMinute INTEGER NOT NULL DEFAULT 0, icon INTEGER, color INTEGER, totalMinor INTEGER)',
     'CREATE TABLE settings(key TEXT PRIMARY KEY, value TEXT NOT NULL)',
   ];

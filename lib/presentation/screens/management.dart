@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart' hide InputDecoration, Text;
@@ -21,6 +22,9 @@ import '../widgets/amount_format.dart';
 import '../widgets/common.dart';
 import '../widgets/finora_orb.dart';
 import '../widgets/grouped_list.dart';
+import '../widgets/photo_cropper.dart';
+import '../widgets/dream_photo.dart';
+import '../../services/goal_photo_store.dart';
 import 'account_import_screen.dart';
 import 'achievements_screen.dart';
 import 'wardrobe_screen.dart';

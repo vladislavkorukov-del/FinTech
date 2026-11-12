@@ -142,15 +142,21 @@ class FinoraOrbPainter extends CustomPainter {
     return _Palette(
       mint: at(s, .56).toColor(),
       deep: at(s, .35).toColor(),
-      light: at(s, .9).toColor(),
+      light: at(s, .84).toColor(),
       mid: at(s, .68).toColor(),
       shade: at(s, .3).toColor(),
+      rim: HSLColor.fromAHSL(
+        1,
+        (h.hue + 8) % 360,
+        (s + .1).clamp(0.0, 1.0),
+        .58,
+      ).toColor(),
     );
   }
 
   static Color get mint => _palette.mint;
-  static Color get _deep => _palette.deep;
   static Color get _light => _palette.light;
+  static Color get _rim => _palette.rim;
   static const _pink = Color(0xFFFF7FB0);
   static const _ink = Color(0xFF0A2730);
 
@@ -194,21 +200,37 @@ class FinoraOrbPainter extends CustomPainter {
         ),
     );
     final rect = Rect.fromCircle(center: c, radius: r);
+    // 1.55: redrawn after the owner's picture — a glossy soap-bubble sphere
+    // with real volume: a pale mint core, a saturated glowing aqua rim, a
+    // pink bloom and a long highlight at the upper left, faint iridescence,
+    // a shaded lower right and light bouncing back along the bottom.
     canvas.save();
     canvas.clipPath(Path()..addOval(rect));
-    // Body: light at the upper right, deep at the lower edge.
     canvas.drawCircle(
       c,
       r,
       Paint()
         ..shader = RadialGradient(
-          center: const Alignment(.3, -.35),
-          radius: 1.05,
-          colors: [_light, _palette.mid, mint, _deep],
-          stops: [0, .32, .7, 1],
+          center: const Alignment(-.1, -.15),
+          radius: 1.0,
+          colors: [_light, _palette.mid, mint, mint, _rim],
+          stops: const [0, .3, .62, .86, 1],
         ).createShader(rect),
     );
-    // Pink and lilac blush drifting on the upper left.
+    // Volume: the sphere turns away from the light at the lower right.
+    canvas.drawCircle(
+      c,
+      r,
+      Paint()
+        ..shader = RadialGradient(
+          center: const Alignment(.55, .7),
+          radius: .95,
+          colors: [
+            _palette.shade.withValues(alpha: .5),
+            _palette.shade.withValues(alpha: 0),
+          ],
+        ).createShader(rect),
+    );
     void cloud(Offset at, double radius, Color color, double alpha) {
       canvas.drawCircle(
         at,
@@ -223,59 +245,111 @@ class FinoraOrbPainter extends CustomPainter {
       );
     }
 
-    final drift = Offset(math.cos(a), math.sin(a * 1.3)) * r * .05;
-    cloud(c + Offset(-r * .55, -r * .25) + drift, r * .66, _pink, .95);
+    final drift = Offset(math.cos(a), math.sin(a * 1.3)) * r * .04;
+    // The pink bloom at the upper left, and a faint lilac edge to it.
+    cloud(c + Offset(-r * .48, -r * .3) + drift, r * .62, _pink, 1);
     cloud(
-      c + Offset(-r * .15, -r * .62) - drift,
-      r * .45,
-      const Color(0xFFC6A4FF),
-      .35,
+      c + Offset(-r * .25, -r * .6) - drift,
+      r * .38,
+      const Color(0xFFC9A8FF),
+      .3,
     );
-    cloud(c + Offset(r * .35, r * .55), r * .7, _palette.shade, .35);
-    // Gloss.
-    final gloss = Rect.fromCenter(
-      center: c + Offset(r * .08, -r * .6),
-      width: r * 1.1,
-      height: r * .5,
+    // Iridescent streaks drifting over the lower half, like a bubble film.
+    for (final (offset, color, alpha) in [
+      (const Offset(.38, .42), const Color(0xFFF2F7A8), .22),
+      (const Offset(.15, .62), const Color(0xFFB9A8FF), .2),
+      (const Offset(.6, .1), const Color(0xFFA8E8FF), .25),
+    ]) {
+      canvas.save();
+      canvas.translate(
+        c.dx + r * offset.dx + drift.dx,
+        c.dy + r * offset.dy - drift.dy,
+      );
+      canvas.rotate(-.55);
+      final streak = Rect.fromCenter(
+        center: Offset.zero,
+        width: r * .7,
+        height: r * .14,
+      );
+      canvas.drawOval(
+        streak,
+        Paint()
+          ..shader = RadialGradient(
+            colors: [
+              color.withValues(alpha: alpha),
+              color.withValues(alpha: 0),
+            ],
+          ).createShader(streak),
+      );
+      canvas.restore();
+    }
+    // Light bouncing back along the bottom edge.
+    final bounce = Rect.fromCenter(
+      center: c + Offset(r * .05, r * .82),
+      width: r * 1.3,
+      height: r * .38,
     );
     canvas.drawOval(
-      gloss,
+      bounce,
+      Paint()
+        ..shader = RadialGradient(
+          colors: [_light.withValues(alpha: .38), _light.withValues(alpha: 0)],
+        ).createShader(bounce),
+    );
+    canvas.restore();
+    // The glowing rim of the bubble: brighter at the edge than inside.
+    canvas.drawCircle(
+      c,
+      r * .97,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = r * .07
+        ..color = _rim.withValues(alpha: .55)
+        ..maskFilter = MaskFilter.blur(BlurStyle.normal, r * .035),
+    );
+    canvas.drawCircle(
+      c,
+      r * .99,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = r * .02
+        ..shader = SweepGradient(
+          colors: [
+            Colors.white.withValues(alpha: .1),
+            Colors.white.withValues(alpha: .55),
+            Colors.white.withValues(alpha: .1),
+            Colors.white.withValues(alpha: .35),
+            Colors.white.withValues(alpha: .1),
+          ],
+        ).createShader(rect),
+    );
+    // The long highlight at the upper left and its small companion spot.
+    canvas.save();
+    canvas.translate(c.dx - r * .34, c.dy - r * .56);
+    canvas.rotate(-.42);
+    final highlight = Rect.fromCenter(
+      center: Offset.zero,
+      width: r * .5,
+      height: r * .2,
+    );
+    canvas.drawOval(
+      highlight,
       Paint()
         ..shader = LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
-            Colors.white.withValues(alpha: .55),
-            Colors.white.withValues(alpha: 0),
+            Colors.white.withValues(alpha: .95),
+            Colors.white.withValues(alpha: .35),
           ],
-        ).createShader(gloss),
+        ).createShader(highlight),
     );
     canvas.restore();
-    // Rim light and a bright spot.
     canvas.drawCircle(
-      c,
-      r * .985,
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = r * .035
-        ..shader = SweepGradient(
-          colors: [
-            Colors.white.withValues(alpha: .05),
-            Colors.white.withValues(alpha: .6),
-            Colors.white.withValues(alpha: .05),
-            Colors.white.withValues(alpha: .25),
-            Colors.white.withValues(alpha: .05),
-          ],
-        ).createShader(rect),
+      c + Offset(-r * .55, -r * .36),
+      r * .055,
+      Paint()..color = Colors.white.withValues(alpha: .85),
     );
-    canvas.save();
-    canvas.translate(c.dx + r * .5, c.dy - r * .48);
-    canvas.rotate(.7);
-    canvas.drawOval(
-      Rect.fromCenter(center: Offset.zero, width: r * .22, height: r * .1),
-      Paint()..color = Colors.white.withValues(alpha: .8),
-    );
-    canvas.restore();
 
     if (face) _face(canvas, c, r);
     if (sign) _sign(canvas, c, r);
@@ -298,17 +372,33 @@ class FinoraOrbPainter extends CustomPainter {
     final left = Offset(c.dx - r * .3, eyeY) + look;
     final right = Offset(c.dx + r * .3, eyeY) + look;
 
+    // 1.55: glassy emerald eyes, as in the owner's picture — dark at the
+    // top, green light gathering at the bottom, two white highlights.
     void open(Offset at, {double scale = 1}) {
       final h = r * .3 * scale * (1 - blink * .9);
-      final w = r * .23 * scale;
-      canvas.drawOval(Rect.fromCenter(center: at, width: w, height: h), ink);
+      final w = r * .24 * scale;
+      final eye = Rect.fromCenter(center: at, width: w, height: h);
+      canvas.drawOval(
+        eye,
+        Paint()
+          ..shader = const LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color(0xFF05201C),
+              Color(0xFF0A4A3C),
+              Color(0xFF1FB386),
+            ],
+            stops: [0, .55, 1],
+          ).createShader(eye),
+      );
       if (h > r * .1) {
-        final hl = Paint()..color = Colors.white.withValues(alpha: .95);
-        canvas.drawCircle(at + Offset(w * .2, -h * .22), w * .26, hl);
+        final hl = Paint()..color = Colors.white.withValues(alpha: .97);
+        canvas.drawCircle(at + Offset(w * .18, -h * .2), w * .27, hl);
         canvas.drawCircle(
-          at + Offset(-w * .2, h * .22),
-          w * .12,
-          Paint()..color = Colors.white.withValues(alpha: .7),
+          at + Offset(-w * .2, h * .1),
+          w * .11,
+          Paint()..color = Colors.white.withValues(alpha: .85),
         );
       }
     }
@@ -366,7 +456,7 @@ class FinoraOrbPainter extends CustomPainter {
           y,
         )
         ..close();
-      canvas.drawPath(mouth, Paint()..color = const Color(0xFF3B0F1F));
+      canvas.drawPath(mouth, Paint()..color = const Color(0xFF7A1236));
       canvas.save();
       canvas.clipPath(mouth);
       canvas.drawOval(
@@ -375,7 +465,7 @@ class FinoraOrbPainter extends CustomPainter {
           width: r * width * 1.3,
           height: r * depth * .8,
         ),
-        Paint()..color = const Color(0xFFFF6F8F),
+        Paint()..color = const Color(0xFFFF7FA0),
       );
       canvas.restore();
     }
@@ -436,9 +526,10 @@ class FinoraOrbPainter extends CustomPainter {
 
     switch (mood) {
       case FinoraMood.idle || FinoraMood.greeting || FinoraMood.done:
+        // 1.55: her resting face is the open smile from the picture.
         open(left);
         open(right);
-        smile();
+        openSmile(width: .13, depth: .17);
       case FinoraMood.happy || FinoraMood.idea:
         open(left);
         open(right);
@@ -1061,6 +1152,7 @@ class _Palette {
     required this.light,
     required this.mid,
     required this.shade,
+    required this.rim,
   });
-  final Color mint, deep, light, mid, shade;
+  final Color mint, deep, light, mid, shade, rim;
 }

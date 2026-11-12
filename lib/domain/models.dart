@@ -393,6 +393,10 @@ class Goal {
   final int icon;
   final DateTime? deadline;
 
+  /// 1.55: the dream's photo, already cropped to the card (a private file in
+  /// the app's `goal_photos` folder); null for none.
+  final String? photoPath;
+
   const Goal({
     required this.id,
     required this.name,
@@ -402,6 +406,7 @@ class Goal {
     this.color = 0xffc9f36f,
     this.icon = 0,
     this.deadline,
+    this.photoPath,
   });
 
   Goal copyWith({
@@ -413,6 +418,7 @@ class Goal {
     int? color,
     int? icon,
     Object? deadline = _absent,
+    Object? photoPath = _absent,
   }) => Goal(
     id: id ?? this.id,
     name: name ?? this.name,
@@ -424,6 +430,9 @@ class Goal {
     deadline: identical(deadline, _absent)
         ? this.deadline
         : deadline as DateTime?,
+    photoPath: identical(photoPath, _absent)
+        ? this.photoPath
+        : photoPath as String?,
   );
 
   Map<String, Object?> toJson() => {
@@ -435,6 +444,7 @@ class Goal {
     'color': color,
     'icon': icon,
     'deadline': deadline?.toIso8601String(),
+    if (photoPath != null) 'photoPath': photoPath,
   };
 
   factory Goal.fromJson(Map<String, dynamic> json) => Goal(
@@ -448,6 +458,7 @@ class Goal {
     deadline: json['deadline'] == null
         ? null
         : DateTime.parse(json['deadline'] as String),
+    photoPath: json['photoPath'] as String?,
   );
 }
 

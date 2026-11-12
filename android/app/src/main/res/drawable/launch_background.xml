@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 1.27: Finora greets on the dark background (before Android 12 too). -->
+<!-- 1.55: an empty dark sky (before Android 12 too); the app then writes
+     the animated «Finora» wordmark on it. -->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:drawable="@color/finora_icon_background" />
-    <item android:width="216dp" android:height="216dp" android:gravity="center">
-        <bitmap android:src="@drawable/finora_splash" android:filter="true" />
-    </item>
 </layer-list>

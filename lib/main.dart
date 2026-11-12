@@ -24,6 +24,7 @@ import 'presentation/screens/onboarding.dart';
 import 'presentation/widgets/common.dart';
 import 'presentation/widgets/finance_background.dart';
 import 'presentation/widgets/voice_orb.dart';
+import 'presentation/widgets/finora_wordmark.dart';
 import 'presentation/voice_commands.dart';
 import 'presentation/haptics.dart';
 import 'presentation/payment_prompt.dart';
@@ -79,7 +80,8 @@ class _BootstrapState extends State<Bootstrap> {
 
   Future<void> _load() async {
     setState(() => _error = null);
-    // 1.29: Finora gets a moment to say hello, however fast the data opens.
+    // 1.55: the «Finora» wordmark gets its moment, however fast the data
+    // opens.
     final hello = Future<void>.delayed(const Duration(milliseconds: 1600));
     FinanceRepository? repository;
     try {
@@ -114,13 +116,13 @@ class _BootstrapState extends State<Bootstrap> {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.build(Brightness.dark, 'coffee'),
       home: Scaffold(
-        // 1.27: the same dark sky as the system splash; Finora greets.
+        // The same dark sky as the system splash; the wordmark is written.
         backgroundColor: const Color(0xFF040A12),
         body: Center(
           child: Padding(
             padding: const EdgeInsets.all(28),
             child: _error == null
-                ? const HelloFinora()
+                ? const FinoraWordmark()
                 : Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
