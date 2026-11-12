@@ -1,0 +1,59 @@
+{
+  "notes": "Visual mapping example only. Do not override existing game mechanics or balance.",
+  "obstacles": {
+    "ice": {
+      "role": "overlay",
+      "states": {
+        "intact": "png/obstacle_ice_intact.png",
+        "damaged": "png/obstacle_ice_cracked.png",
+        "removed": null
+      },
+      "example_hp_to_visual": {
+        "2": "intact",
+        "1": "damaged",
+        "0": "removed"
+      },
+      "destination": "same full-cell square for both states",
+      "anchor": [
+        0.5,
+        0.5
+      ]
+    },
+    "chain": {
+      "role": "overlay",
+      "states": {
+        "intact": "png/obstacle_chain_intact.png",
+        "damaged": "png/obstacle_chain_damaged.png",
+        "removed": null
+      },
+      "example_hp_to_visual": {
+        "2": "intact",
+        "1": "damaged",
+        "0": "removed"
+      },
+      "destination": "same full-cell square for both states",
+      "anchor": [
+        0.5,
+        0.5
+      ]
+    },
+    "crate": {
+      "role": "cell_blocker",
+      "states": {
+        "intact": "png/obstacle_crate_intact.png",
+        "damaged": "png/obstacle_crate_damaged.png",
+        "removed": null
+      },
+      "example_hp_to_visual": {
+        "2": "intact",
+        "1": "damaged",
+        "0": "removed"
+      },
+      "destination": "same full-cell square for both states",
+      "anchor": [
+        0.5,
+        0.5
+      ]
+    }
+  }
+}

@@ -1,0 +1,160 @@
+{
+  "reference_width": 724,
+  "section_height": 724,
+  "period_height": 2172,
+  "background_order": [
+    "map_bg_A.png",
+    "map_bg_B.png",
+    "map_bg_C.png"
+  ],
+  "repeat_order": "A → B → C → A → B → C",
+  "scroll_axis": "vertical",
+  "world_origin": "top-left; y increases down",
+  "platform_anchors": [
+    {
+      "index_top_to_bottom": 0,
+      "x": 240,
+      "y": 145,
+      "visible_node_width": 164,
+      "base_y_offset": 36
+    },
+    {
+      "index_top_to_bottom": 1,
+      "x": 490,
+      "y": 308,
+      "visible_node_width": 164,
+      "base_y_offset": 36
+    },
+    {
+      "index_top_to_bottom": 2,
+      "x": 235,
+      "y": 465,
+      "visible_node_width": 164,
+      "base_y_offset": 36
+    },
+    {
+      "index_top_to_bottom": 3,
+      "x": 490,
+      "y": 632,
+      "visible_node_width": 164,
+      "base_y_offset": 36
+    },
+    {
+      "index_top_to_bottom": 4,
+      "x": 230,
+      "y": 805,
+      "visible_node_width": 164,
+      "base_y_offset": 36
+    },
+    {
+      "index_top_to_bottom": 5,
+      "x": 350,
+      "y": 1040,
+      "visible_node_width": 130,
+      "base_y_offset": 36
+    },
+    {
+      "index_top_to_bottom": 6,
+      "x": 490,
+      "y": 1290,
+      "visible_node_width": 164,
+      "base_y_offset": 36
+    },
+    {
+      "index_top_to_bottom": 7,
+      "x": 235,
+      "y": 1410,
+      "visible_node_width": 164,
+      "base_y_offset": 36
+    },
+    {
+      "index_top_to_bottom": 8,
+      "x": 490,
+      "y": 1555,
+      "visible_node_width": 164,
+      "base_y_offset": 36
+    },
+    {
+      "index_top_to_bottom": 9,
+      "x": 230,
+      "y": 1695,
+      "visible_node_width": 164,
+      "base_y_offset": 36
+    },
+    {
+      "index_top_to_bottom": 10,
+      "x": 490,
+      "y": 1835,
+      "visible_node_width": 164,
+      "base_y_offset": 36
+    },
+    {
+      "index_top_to_bottom": 11,
+      "x": 225,
+      "y": 1988,
+      "visible_node_width": 164,
+      "base_y_offset": 36
+    },
+    {
+      "index_top_to_bottom": 12,
+      "x": 490,
+      "y": 2130,
+      "visible_node_width": 164,
+      "base_y_offset": 36
+    }
+  ],
+  "progression": "Level numbers increase when traveling UP. Anchor indices above are geometry only. Use real saved level IDs; never loop or reset progression when the background repeats.",
+  "sample": {
+    "top_anchor_level_id": 21,
+    "current_level_id": 12,
+    "preview_scroll_y": 1020
+  },
+  "overlay_positions_within_visible_node_bounds": {
+    "number_completed": [
+      0.5,
+      0.39
+    ],
+    "number_available": [
+      0.5,
+      0.46
+    ],
+    "number_current": [
+      0.5,
+      0.46
+    ],
+    "number_locked": [
+      0.5,
+      0.35
+    ],
+    "lock": [
+      0.5,
+      0.76
+    ],
+    "stars": [
+      [
+        0.28,
+        0.79
+      ],
+      [
+        0.5,
+        0.82
+      ],
+      [
+        0.72,
+        0.79
+      ]
+    ]
+  },
+  "header": {
+    "pinned": true,
+    "visible_width": 676,
+    "top": 20,
+    "back_visible_width": 66,
+    "title_visible_width": 212
+  },
+  "notes": [
+    "Positions are proposed art anchors; validate touch targets on target devices.",
+    "Scale all world dimensions uniformly by viewportWidth/724.",
+    "Do not use independent BoxFit.cover for sections."
+  ]
+}

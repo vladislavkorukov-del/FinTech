@@ -273,27 +273,126 @@ class FinanceController extends ChangeNotifier {
     });
   }
 
-  Future<void> startFlow(FlowLevel level, {bool restart = false}) =>
-      _world((d) {
-        FlowLevels.validate(level);
-        final progress = d.world.flow;
-        if (!progress.isUnlocked(level.id)) {
-          throw const FormatException('Сначала пройдите предыдущий уровень');
-        }
-        final current = progress.session;
-        if (!restart && current != null && !current.finished) {
-          if (current.levelId != level.id) {
-            throw const FormatException(
-              'Сначала завершите или замените текущую попытку',
-            );
-          }
-          FlowEngine.validateSession(level, current);
-          return d.world;
-        }
-        return d.world.copyWith(
-          flow: progress.copyWith(session: FlowEngine.newGame(level)),
+  Future<void> startFlow(
+    FlowLevel level, {
+    bool restart = false,
+    Set<FlowTool> tools = const {},
+  }) {
+    final selected = Set<FlowTool>.of(tools);
+    // Capture before enqueue. Two queued confirmations cannot restart and spend
+    // twice against the same initial attempt, even if the caller misses a guard.
+    final expected = data.world.flow.session;
+    return _world((d) {
+      FlowLevels.validate(level);
+      var progress = d.world.flow;
+      if (!identical(progress.session, expected)) {
+        throw const FormatException(
+          'Попытка изменилась. Откройте уровень заново',
         );
-      });
+      }
+      if (!progress.isUnlocked(level.id)) {
+        throw const FormatException('Сначала пройдите предыдущий уровень');
+      }
+      final current = progress.session;
+      if (!restart && current != null && !current.finished) {
+        if (current.levelId != level.id) {
+          throw const FormatException(
+            'Сначала завершите или замените текущую попытку',
+          );
+        }
+        if (selected.isNotEmpty) {
+          throw const FormatException(
+            'Стартовые усилители доступны только для новой попытки',
+          );
+        }
+        FlowEngine.validateSession(level, current);
+        return d.world;
+      }
+      for (final tool in selected) {
+        if (!FlowToolRules.prelevel.contains(tool)) {
+          throw const FormatException('Этот усилитель применяется на поле');
+        }
+        if (progress.available(tool) <= 0) {
+          throw const FormatException('Усилитель закончился');
+        }
+      }
+      var session = FlowEngine.newGame(level);
+      for (final tool in FlowTool.values.where(selected.contains)) {
+        if (session.finished) break;
+        final turn = FlowEngine.useTool(
+          level,
+          session,
+          tool,
+          cell: tool == FlowTool.bomb ? 27 : null,
+        );
+        if (!turn.accepted) {
+          throw const FormatException('Усилитель не применён');
+        }
+        progress = progress.consume(tool);
+        session = turn.session;
+      }
+      FlowEngine.validateSession(level, session);
+      return _recordFlow(d, progress, level, session);
+    });
+  }
+
+  Future<FlowTurn> useFlowTool(
+    FlowLevel level,
+    FlowSession expected,
+    FlowTool tool, {
+    int? cell,
+  }) async {
+    FlowTurn? turn;
+    await _world((d) {
+      final progress = d.world.flow, current = progress.session;
+      if (current == null ||
+          !identical(current, expected) ||
+          current.levelId != level.id) {
+        throw const FormatException(
+          'Поле изменилось. Выберите усилитель заново',
+        );
+      }
+      FlowEngine.validateSession(level, current);
+      if (progress.available(tool) <= 0) {
+        throw const FormatException('Усилитель закончился');
+      }
+      final resolved = FlowEngine.useTool(level, current, tool, cell: cell);
+      turn = resolved;
+      if (!resolved.accepted) return d.world;
+      FlowEngine.validateSession(level, resolved.session);
+      return _recordFlow(d, progress.consume(tool), level, resolved.session);
+    });
+    return turn!;
+  }
+
+  Future<void> setFlowPreferences({bool? music, bool? sound, bool? haptics}) =>
+      _world(
+        (d) => d.world.copyWith(
+          flow: d.world.flow.copyWith(
+            music: music,
+            sound: sound,
+            haptics: haptics,
+            preferencesSaved: true,
+          ),
+        ),
+      );
+
+  WorldState _recordFlow(
+    FinanceData d,
+    FlowProgress progress,
+    FlowLevel level,
+    FlowSession session,
+  ) {
+    var world = d.world.copyWith(flow: progress.record(session, level));
+    if (session.status == FlowStatus.won) {
+      world = WorldEngine.reward(
+        world,
+        'flow:level:${level.id}:v1',
+        now: achievementClock(),
+      );
+    }
+    return world;
+  }
 
   Future<FlowTurn> swapFlow(
     FlowLevel level,
@@ -313,17 +412,7 @@ class FinanceController extends ChangeNotifier {
       final resolved = FlowEngine.swap(level, current, from, to);
       turn = resolved;
       if (!resolved.accepted) return d.world;
-      var world = d.world.copyWith(
-        flow: d.world.flow.record(resolved.session, level),
-      );
-      if (resolved.session.status == FlowStatus.won) {
-        world = WorldEngine.reward(
-          world,
-          'flow:level:${level.id}:v1',
-          now: achievementClock(),
-        );
-      }
-      return world;
+      return _recordFlow(d, d.world.flow, level, resolved.session);
     });
     return turn!;
   }

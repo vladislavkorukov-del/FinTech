@@ -88,8 +88,13 @@ void main() {
       await repo.save(base);
       c = FinanceController(repo, _Quiet(), await repo.load());
     });
-    Future<void> settle() async {
-      for (var i = 0; i < 10; i++) {
+    Future<void> settle([bool Function()? completed]) async {
+      for (
+        var i = 0;
+        i < (completed == null ? 10 : 150) &&
+            (completed == null || !completed());
+        i++
+      ) {
         await tester.runAsync(
           () => Future<void>.delayed(const Duration(milliseconds: 20)),
         );
@@ -125,7 +130,8 @@ void main() {
     expect(find.byKey(const ValueKey('shopping-record')), findsOneWidget);
     expect(find.textContaining('89'), findsWidgets);
     await tester.tap(find.byKey(const ValueKey('shopping-clear-done')));
-    await settle();
+    // SQLite completion is observed, rather than assuming a fixed200ms under load.
+    await settle(() => c.data.shopping.length == 1);
     expect(c.data.shopping.map((s) => s.name), ['хлеб']);
     await tester.pumpWidget(const SizedBox());
     await tester.runAsync(() async {

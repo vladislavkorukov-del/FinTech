@@ -1,0 +1,170 @@
+{
+  "project": "FINORA — Поток",
+  "pack": "Terrace Map",
+  "assets": [
+    {
+      "file": "png/map_node_completed.png",
+      "width": 512,
+      "height": 512,
+      "mode": "RGBA",
+      "visible_bounds_alpha128": [
+        50,
+        37,
+        451,
+        465
+      ],
+      "transparent_background": true,
+      "reused_approved_asset": false
+    },
+    {
+      "file": "png/map_node_current.png",
+      "width": 512,
+      "height": 512,
+      "mode": "RGBA",
+      "visible_bounds_alpha128": [
+        50,
+        62,
+        451,
+        465
+      ],
+      "transparent_background": true,
+      "reused_approved_asset": false
+    },
+    {
+      "file": "png/map_node_locked.png",
+      "width": 512,
+      "height": 512,
+      "mode": "RGBA",
+      "visible_bounds_alpha128": [
+        64,
+        62,
+        437,
+        451
+      ],
+      "transparent_background": true,
+      "reused_approved_asset": false
+    },
+    {
+      "file": "png/map_node_available.png",
+      "width": 512,
+      "height": 512,
+      "mode": "RGBA",
+      "visible_bounds_alpha128": [
+        59,
+        61,
+        442,
+        453
+      ],
+      "transparent_background": true,
+      "reused_approved_asset": false
+    },
+    {
+      "file": "png/map_lock_closed.png",
+      "width": 512,
+      "height": 512,
+      "mode": "RGBA",
+      "visible_bounds_alpha128": [
+        115,
+        90,
+        389,
+        423
+      ],
+      "transparent_background": true,
+      "reused_approved_asset": false
+    },
+    {
+      "file": "png/map_button_back.png",
+      "width": 512,
+      "height": 512,
+      "mode": "RGBA",
+      "visible_bounds_alpha128": [
+        68,
+        77,
+        432,
+        442
+      ],
+      "transparent_background": true,
+      "reused_approved_asset": false
+    },
+    {
+      "file": "png/map_label_levels.png",
+      "width": 1024,
+      "height": 341,
+      "mode": "RGBA",
+      "visible_bounds_alpha128": [
+        22,
+        58,
+        1004,
+        312
+      ],
+      "transparent_background": true,
+      "reused_approved_asset": false
+    },
+    {
+      "file": "png/map_header_base.png",
+      "width": 1024,
+      "height": 341,
+      "mode": "RGBA",
+      "visible_bounds_alpha128": [
+        21,
+        84,
+        1003,
+        249
+      ],
+      "transparent_background": true,
+      "reused_approved_asset": true
+    },
+    {
+      "file": "png/map_star_earned.png",
+      "width": 512,
+      "height": 512,
+      "mode": "RGBA",
+      "visible_bounds_alpha128": [
+        42,
+        45,
+        469,
+        459
+      ],
+      "transparent_background": true,
+      "reused_approved_asset": true
+    },
+    {
+      "file": "png/map_star_empty.png",
+      "width": 512,
+      "height": 512,
+      "mode": "RGBA",
+      "visible_bounds_alpha128": [
+        43,
+        49,
+        465,
+        451
+      ],
+      "transparent_background": true,
+      "reused_approved_asset": true
+    },
+    {
+      "file": "backgrounds/map_bg_A.png",
+      "width": 724,
+      "height": 724,
+      "mode": "RGB",
+      "transparent_background": false,
+      "world_y": 0
+    },
+    {
+      "file": "backgrounds/map_bg_B.png",
+      "width": 724,
+      "height": 724,
+      "mode": "RGB",
+      "transparent_background": false,
+      "world_y": 724
+    },
+    {
+      "file": "backgrounds/map_bg_C.png",
+      "width": 724,
+      "height": 724,
+      "mode": "RGB",
+      "transparent_background": false,
+      "world_y": 1448
+    }
+  ]
+}

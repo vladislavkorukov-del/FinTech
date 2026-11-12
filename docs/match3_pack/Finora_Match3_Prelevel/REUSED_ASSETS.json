@@ -1,0 +1,325 @@
+[
+  {
+    "id": "goal_coin",
+    "purpose_ru": "Монета",
+    "existing_workspace_relative_path": "Finora_Match3_6_Tiles_Final/png/match3_coin.png",
+    "source_archive": "Finora_Match3_6_Tiles_1024_PNG.zip",
+    "archive_member": "Finora_Match3_6_Tiles_Final/png/match3_coin.png",
+    "size": [
+      1024,
+      1024
+    ],
+    "visible_bounds_alpha128": [
+      99,
+      96,
+      888,
+      940
+    ],
+    "sha256": "892b88b161e7ee5f9ee1c50e71c3d4382997ad17c1fc9f9eef18e6ae20fb530d",
+    "included_in_this_pack": false
+  },
+  {
+    "id": "goal_wallet",
+    "purpose_ru": "Кошелёк",
+    "existing_workspace_relative_path": "Finora_Match3_6_Tiles_Final/png/match3_wallet.png",
+    "source_archive": "Finora_Match3_6_Tiles_1024_PNG.zip",
+    "archive_member": "Finora_Match3_6_Tiles_Final/png/match3_wallet.png",
+    "size": [
+      1024,
+      1024
+    ],
+    "visible_bounds_alpha128": [
+      94,
+      178,
+      930,
+      902
+    ],
+    "sha256": "2e9d387859806d5db788c6bd81750b427785c1386dcaa56f3dfdc3780e9e6089",
+    "included_in_this_pack": false
+  },
+  {
+    "id": "goal_goal",
+    "purpose_ru": "Мишень",
+    "existing_workspace_relative_path": "Finora_Match3_6_Tiles_Final/png/match3_goal.png",
+    "source_archive": "Finora_Match3_6_Tiles_1024_PNG.zip",
+    "archive_member": "Finora_Match3_6_Tiles_Final/png/match3_goal.png",
+    "size": [
+      1024,
+      1024
+    ],
+    "visible_bounds_alpha128": [
+      97,
+      102,
+      918,
+      949
+    ],
+    "sha256": "81f9abd5e0d4e7b9a25c343183ad2f2e739592127a3829b40a875bb9bb1f8ffd",
+    "included_in_this_pack": false
+  },
+  {
+    "id": "goal_shield",
+    "purpose_ru": "Щит",
+    "existing_workspace_relative_path": "Finora_Match3_6_Tiles_Final/png/match3_shield.png",
+    "source_archive": "Finora_Match3_6_Tiles_1024_PNG.zip",
+    "archive_member": "Finora_Match3_6_Tiles_Final/png/match3_shield.png",
+    "size": [
+      1024,
+      1024
+    ],
+    "visible_bounds_alpha128": [
+      135,
+      96,
+      883,
+      956
+    ],
+    "sha256": "bae9405aa00fed099bf4f8a92324a42e0dcc76df8217000d37f8687a19675f1a",
+    "included_in_this_pack": false
+  },
+  {
+    "id": "goal_receipt",
+    "purpose_ru": "Чек",
+    "existing_workspace_relative_path": "Finora_Match3_6_Tiles_Final/png/match3_receipt.png",
+    "source_archive": "Finora_Match3_6_Tiles_1024_PNG.zip",
+    "archive_member": "Finora_Match3_6_Tiles_Final/png/match3_receipt.png",
+    "size": [
+      1024,
+      1024
+    ],
+    "visible_bounds_alpha128": [
+      132,
+      102,
+      881,
+      939
+    ],
+    "sha256": "ab54e13ef02fd5940814164c6720962816707a786e3976eff10e33374c3e3626",
+    "included_in_this_pack": false
+  },
+  {
+    "id": "goal_chart",
+    "purpose_ru": "График",
+    "existing_workspace_relative_path": "Finora_Match3_6_Tiles_Final/png/match3_chart.png",
+    "source_archive": "Finora_Match3_6_Tiles_1024_PNG.zip",
+    "archive_member": "Finora_Match3_6_Tiles_Final/png/match3_chart.png",
+    "size": [
+      1024,
+      1024
+    ],
+    "visible_bounds_alpha128": [
+      107,
+      107,
+      914,
+      919
+    ],
+    "sha256": "7b22bff23f83604d3c6568f669e1f88a8a4c8d874083abb7945e9f5af7c8d5d8",
+    "included_in_this_pack": false
+  },
+  {
+    "id": "booster_bomb",
+    "purpose_ru": "Бомба",
+    "existing_workspace_relative_path": "Finora_Match3_Bottom_HUD/png/booster_bomb.png",
+    "source_archive": "Finora_Match3_Bottom_HUD_8_PNG.zip",
+    "archive_member": "Finora_Match3_Bottom_HUD/png/booster_bomb.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "visible_bounds_alpha128": [
+      186,
+      118,
+      1071,
+      1154
+    ],
+    "sha256": "4671727694dbd013b94b4bd9b7c8f5f3f7501a796c4fa0fbccd1628bb723cb77",
+    "included_in_this_pack": false
+  },
+  {
+    "id": "booster_shuffle",
+    "purpose_ru": "Перемешивание",
+    "existing_workspace_relative_path": "Finora_Match3_Bottom_HUD/png/booster_shuffle.png",
+    "source_archive": "Finora_Match3_Bottom_HUD_8_PNG.zip",
+    "archive_member": "Finora_Match3_Bottom_HUD/png/booster_shuffle.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "visible_bounds_alpha128": [
+      91,
+      241,
+      1163,
+      1033
+    ],
+    "sha256": "3315832adb30de30dd9cf6d9dc3ea32be594d53f5a4b1acac30e497880c2aabc",
+    "included_in_this_pack": false
+  },
+  {
+    "id": "booster_extra_moves",
+    "purpose_ru": "Ещё 5 ходов",
+    "existing_workspace_relative_path": "Finora_Match3_Bottom_HUD/png/booster_extra_moves.png",
+    "source_archive": "Finora_Match3_Bottom_HUD_8_PNG.zip",
+    "archive_member": "Finora_Match3_Bottom_HUD/png/booster_extra_moves.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "visible_bounds_alpha128": [
+      124,
+      133,
+      1140,
+      1107
+    ],
+    "sha256": "3cbc904ef6d907c7970abb12b1573cafb4e03bba0b4e52b55edcf6703238753d",
+    "included_in_this_pack": false
+  },
+  {
+    "id": "booster_hammer",
+    "purpose_ru": "Молоток",
+    "existing_workspace_relative_path": "Finora_Match3_Bottom_HUD/png/booster_hammer.png",
+    "source_archive": "Finora_Match3_Bottom_HUD_8_PNG.zip",
+    "archive_member": "Finora_Match3_Bottom_HUD/png/booster_hammer.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "visible_bounds_alpha128": [
+      120,
+      88,
+      1134,
+      1169
+    ],
+    "sha256": "62534d10af4c393f14cc561de88ecd51bdf0a5e30e69cce3201be58604bb0a57",
+    "included_in_this_pack": false
+  },
+  {
+    "id": "booster_slot",
+    "purpose_ru": "Ячейка усилителя",
+    "existing_workspace_relative_path": "Finora_Match3_Bottom_HUD/png/booster_slot.png",
+    "source_archive": "Finora_Match3_Bottom_HUD_8_PNG.zip",
+    "archive_member": "Finora_Match3_Bottom_HUD/png/booster_slot.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "visible_bounds_alpha128": [
+      123,
+      139,
+      1128,
+      1123
+    ],
+    "sha256": "3d505ea551fbcc684d232285d5ff0975bada307a899b6e8ad327c86ad437bdb6",
+    "included_in_this_pack": false
+  },
+  {
+    "id": "booster_counter_badge",
+    "purpose_ru": "Плашка количества",
+    "existing_workspace_relative_path": "Finora_Match3_Bottom_HUD/png/booster_counter_badge.png",
+    "source_archive": "Finora_Match3_Bottom_HUD_8_PNG.zip",
+    "archive_member": "Finora_Match3_Bottom_HUD/png/booster_counter_badge.png",
+    "size": [
+      1586,
+      992
+    ],
+    "visible_bounds_alpha128": [
+      199,
+      187,
+      1373,
+      815
+    ],
+    "sha256": "e8f0efc3d49c8eb72b380c47730a61185f5ec36f436884a9a8663ec313bbe01f",
+    "included_in_this_pack": false
+  },
+  {
+    "id": "panel",
+    "purpose_ru": "Основа карточки",
+    "existing_workspace_relative_path": "Finora_Match3_Out_Of_Moves/png/out_of_moves_panel_base.png",
+    "source_archive": "Finora_Match3_Out_Of_Moves_15_PNG.zip",
+    "archive_member": "Finora_Match3_Out_Of_Moves/png/out_of_moves_panel_base.png",
+    "size": [
+      1122,
+      1402
+    ],
+    "visible_bounds_alpha128": [
+      81,
+      93,
+      1039,
+      1319
+    ],
+    "sha256": "3ccb8b53c043eb1399975c0405cf51650ed96b798feaa0079b5a37ea5c2ff991",
+    "included_in_this_pack": false
+  },
+  {
+    "id": "moves_pill",
+    "purpose_ru": "Лавандовая плашка ходов",
+    "existing_workspace_relative_path": "Finora_Match3_Out_Of_Moves/png/out_of_moves_button_restart_base.png",
+    "source_archive": "Finora_Match3_Out_Of_Moves_15_PNG.zip",
+    "archive_member": "Finora_Match3_Out_Of_Moves/png/out_of_moves_button_restart_base.png",
+    "size": [
+      1024,
+      372
+    ],
+    "visible_bounds_alpha128": [
+      66,
+      106,
+      955,
+      267
+    ],
+    "sha256": "54bf1dcf77aa054326952e2f5bf96a1c08127de3a13de22b3c5126d668da0f90",
+    "included_in_this_pack": false
+  },
+  {
+    "id": "play_button",
+    "purpose_ru": "Мятная кнопка",
+    "existing_workspace_relative_path": "Finora_Match3_Victory/png/victory_button_primary_base.png",
+    "source_archive": "Finora_Match3_Victory_11_PNG.zip",
+    "archive_member": "Finora_Match3_Victory/png/victory_button_primary_base.png",
+    "size": [
+      1024,
+      341
+    ],
+    "visible_bounds_alpha128": [
+      69,
+      88,
+      955,
+      272
+    ],
+    "sha256": "f439bff0ef37c0ee628d9f94a91bc2c8358acd605ab7ce55ee9e6d040c18ec39",
+    "included_in_this_pack": false
+  },
+  {
+    "id": "level_label",
+    "purpose_ru": "Надпись Уровень",
+    "existing_workspace_relative_path": "Finora_Match3_Top_HUD/png/hud_level_label.png",
+    "source_archive": "Finora_Match3_Top_HUD_9_PNG.zip",
+    "archive_member": "Finora_Match3_Top_HUD/png/hud_level_label.png",
+    "size": [
+      2172,
+      724
+    ],
+    "visible_bounds_alpha128": [
+      180,
+      164,
+      2004,
+      575
+    ],
+    "sha256": "75cd4444f86110310f36c4e376bcf16553d52b76b94787cbb42d75723e86ff52",
+    "included_in_this_pack": false
+  },
+  {
+    "id": "close_base",
+    "purpose_ru": "Пустая жемчужная круглая кнопка для закрытия",
+    "existing_workspace_relative_path": "Finora_Match3_Terrace_Map/png/map_node_available.png",
+    "source_archive": "Finora_Match3_Terrace_Map_3_BG_10_UI.zip",
+    "archive_member": "Finora_Match3_Terrace_Map/png/map_node_available.png",
+    "size": [
+      512,
+      512
+    ],
+    "visible_bounds_alpha128": [
+      59,
+      61,
+      442,
+      453
+    ],
+    "sha256": "b2cf7da5847495d29f2168a49664d60162597212c38c37075cad7a889efda033",
+    "included_in_this_pack": false
+  }
+]

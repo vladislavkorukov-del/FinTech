@@ -1,0 +1,32 @@
+{
+  "six_individual_originals": true,
+  "export_count": 6,
+  "all_rgba_1024_square": true,
+  "transparent_background": true,
+  "existing_piece_art_regenerated": false,
+  "overlay_composites_created": true,
+  "native_64px_review_created": true,
+  "flutter_project_tested": false,
+  "core_bounds_deltas_between_states": {
+    "ice": [
+      -1,
+      -2,
+      6,
+      1
+    ],
+    "chain": [
+      -2,
+      -2,
+      -1,
+      0
+    ],
+    "crate": [
+      -2,
+      -2,
+      2,
+      1
+    ]
+  },
+  "obstacle_ice_intact_center_alpha_mean": 22.88,
+  "obstacle_ice_cracked_center_alpha_mean": 0.62
+}

@@ -1,0 +1,124 @@
+{
+  "assets": [
+    {
+      "file": "png/bottom_panel_base.png",
+      "width": 2172,
+      "height": 724,
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bounds_alpha128": [
+        34,
+        50,
+        2138,
+        672
+      ]
+    },
+    {
+      "file": "png/booster_slot.png",
+      "width": 1254,
+      "height": 1254,
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bounds_alpha128": [
+        123,
+        139,
+        1128,
+        1123
+      ]
+    },
+    {
+      "file": "png/booster_counter_badge.png",
+      "width": 1586,
+      "height": 992,
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bounds_alpha128": [
+        199,
+        187,
+        1373,
+        815
+      ]
+    },
+    {
+      "file": "png/booster_plus_button.png",
+      "width": 1254,
+      "height": 1254,
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bounds_alpha128": [
+        99,
+        111,
+        1145,
+        1166
+      ]
+    },
+    {
+      "file": "png/booster_hammer.png",
+      "width": 1254,
+      "height": 1254,
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bounds_alpha128": [
+        120,
+        88,
+        1134,
+        1169
+      ]
+    },
+    {
+      "file": "png/booster_bomb.png",
+      "width": 1254,
+      "height": 1254,
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bounds_alpha128": [
+        186,
+        118,
+        1071,
+        1154
+      ]
+    },
+    {
+      "file": "png/booster_shuffle.png",
+      "width": 1254,
+      "height": 1254,
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bounds_alpha128": [
+        91,
+        241,
+        1163,
+        1033
+      ]
+    },
+    {
+      "file": "png/booster_extra_moves.png",
+      "width": 1254,
+      "height": 1254,
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bounds_alpha128": [
+        124,
+        133,
+        1140,
+        1107
+      ]
+    }
+  ]
+}

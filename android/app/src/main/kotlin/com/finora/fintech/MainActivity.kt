@@ -13,6 +13,7 @@ class MainActivity : FlutterFragmentActivity() {
     private var receiptShare: ReceiptShareBridge? = null
     private var voiceInput: VoiceInputBridge? = null
     private var finora: FinoraBridge? = null
+    private var flowAudio: FlowAudioBridge? = null
     private var ear: FinoraEar? = null
     private var dispatchedShareIntent: Intent? = null
 
@@ -43,6 +44,8 @@ class MainActivity : FlutterFragmentActivity() {
         finora?.close()
         finora = FinoraBridge(this, flutterEngine.dartExecutor.binaryMessenger)
         finora?.accept(intent)
+        flowAudio?.close()
+        flowAudio = FlowAudioBridge(this, flutterEngine.dartExecutor.binaryMessenger)
         // FlutterFragment may attach after Activity.onCreate has returned.
         // Dispatch here too, once per Intent, so cold-start shares cannot vanish.
         dispatchShareIntent(intent)
@@ -81,10 +84,13 @@ class MainActivity : FlutterFragmentActivity() {
     override fun onPause() {
         // 1.31: Finora never listens while the app is in the background.
         ear?.stop()
+        flowAudio?.suspend()
         super.onPause()
     }
 
     override fun onDestroy() {
+        flowAudio?.close()
+        flowAudio = null
         ear?.close()
         ear = null
         finora?.close()

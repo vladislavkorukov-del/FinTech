@@ -1,0 +1,122 @@
+{
+  "project": "FINORA — Поток",
+  "canvas": [
+    1024,
+    1024
+  ],
+  "anchor": [
+    0.5,
+    0.5
+  ],
+  "placement": "Same full-cell square and same center for both states. Never auto-trim each state independently.",
+  "assets": [
+    {
+      "file": "png/obstacle_ice_intact.png",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "role": "overlay",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "opaque_core_bounds_alpha220": [
+        109,
+        112,
+        907,
+        917
+      ],
+      "sha256": "cbc95e63afe558522ce0b52e9f40d171c7d6ab4471fc8d2a3aa4ec7bf1d58ccf"
+    },
+    {
+      "file": "png/obstacle_ice_cracked.png",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "role": "overlay",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "opaque_core_bounds_alpha220": [
+        108,
+        110,
+        913,
+        918
+      ],
+      "sha256": "2717e6f833d564521b277b238503fcf2bb31518fd731067acf3b616cfa31cca7"
+    },
+    {
+      "file": "png/obstacle_chain_intact.png",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "role": "overlay",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "opaque_core_bounds_alpha220": [
+        79,
+        90,
+        945,
+        947
+      ],
+      "sha256": "7cc475eed43b381910f2f6ef8a0487ca2f6d665a9a9753106fb88e0eee942ef3"
+    },
+    {
+      "file": "png/obstacle_chain_damaged.png",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "role": "overlay",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "opaque_core_bounds_alpha220": [
+        77,
+        88,
+        944,
+        947
+      ],
+      "sha256": "11403e8ecdcb980febe82d072a7099f7b4b9da2666b9bc7595b0ca0f6220a854"
+    },
+    {
+      "file": "png/obstacle_crate_intact.png",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "role": "cell_blocker",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "opaque_core_bounds_alpha220": [
+        122,
+        106,
+        898,
+        931
+      ],
+      "sha256": "519a487e26186a8af748ae73b26ed54a41d7c84194882cdc273183e2ad2d976c"
+    },
+    {
+      "file": "png/obstacle_crate_damaged.png",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "role": "cell_blocker",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "opaque_core_bounds_alpha220": [
+        120,
+        104,
+        900,
+        932
+      ],
+      "sha256": "75ad5d6964e0a14061fe5a9e49234cb147a4d3072df37ea775af762637e4d9bf"
+    }
+  ]
+}

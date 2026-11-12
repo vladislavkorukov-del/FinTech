@@ -5,39 +5,80 @@ enum FlowBooster { none, rocketRow, rocketColumn, bomb, core, drone }
 
 enum FlowStatus { active, won, lost }
 
+/// Consumables are separate from special pieces earned on the board.
+enum FlowTool { hammer, bomb, shuffle, extraMoves }
+
+abstract final class FlowToolRules {
+  // One finite introduction allowance per profile, never renewed on restart.
+  static const initialStock = {
+    FlowTool.hammer: 2,
+    FlowTool.bomb: 1,
+    FlowTool.shuffle: 1,
+    FlowTool.extraMoves: 1,
+  };
+  static const prelevel = {
+    FlowTool.bomb,
+    FlowTool.shuffle,
+    FlowTool.extraMoves,
+  };
+  static const extraMoves = 5;
+}
+
 class FlowCell {
   const FlowCell({
     this.tile,
     this.booster = FlowBooster.none,
     this.ice = 0,
     this.stack = 0,
+    this.chain = 0,
+    this.crate = 0,
   });
   final FlowTile? tile;
   final FlowBooster booster;
-  final int ice, stack;
+  final int ice, stack, chain, crate;
   bool get movable =>
-      stack == 0 && ice == 0 && (tile != null || booster == FlowBooster.core);
-  bool get empty => stack == 0 && tile == null && booster == FlowBooster.none;
+      stack == 0 &&
+      crate == 0 &&
+      ice == 0 &&
+      chain == 0 &&
+      (tile != null || booster == FlowBooster.core);
+  bool get empty =>
+      stack == 0 && crate == 0 && tile == null && booster == FlowBooster.none;
   Map<String, Object?> toJson() => {
     'tile': tile?.name,
     'booster': booster.name,
     'ice': ice,
     'stack': stack,
+    if (chain > 0) 'chain': chain,
+    if (crate > 0) 'crate': crate,
   };
   factory FlowCell.fromJson(Map<String, dynamic> j) {
-    _keys(j, {'tile', 'booster', 'ice', 'stack'});
+    _keys(j, {'tile', 'booster', 'ice', 'stack', 'chain', 'crate'});
     final tile = j['tile'] == null
         ? null
         : FlowTile.values.byName(j['tile'] as String);
     final b = FlowBooster.values.byName(j['booster'] as String? ?? 'none');
     final ice = _int(j['ice'] ?? 0, 0, 5), stack = _int(j['stack'] ?? 0, 0, 5);
-    if (stack > 0 && (tile != null || b != FlowBooster.none || ice > 0) ||
+    final chain = _int(j['chain'] ?? 0, 0, 2),
+        crate = _int(j['crate'] ?? 0, 0, 2);
+    if ((stack > 0 || crate > 0) &&
+            (tile != null || b != FlowBooster.none || ice > 0 || chain > 0) ||
+        stack > 0 && crate > 0 ||
+        chain > 0 && ice > 0 ||
+        chain > 0 && tile == null ||
         b == FlowBooster.core && tile != null ||
         ice > 0 && tile == null ||
         b != FlowBooster.none && b != FlowBooster.core && tile == null) {
       throw const FormatException('Invalid flow cell');
     }
-    return FlowCell(tile: tile, booster: b, ice: ice, stack: stack);
+    return FlowCell(
+      tile: tile,
+      booster: b,
+      ice: ice,
+      stack: stack,
+      chain: chain,
+      crate: crate,
+    );
   }
 }
 
@@ -48,6 +89,8 @@ class FlowGoal {
   String get title => switch (key) {
     'ice' => 'Разбить лёд',
     'stack' => 'Разобрать чеки',
+    'chain' => 'Снять цепи',
+    'crate' => 'Разобрать ящики',
     'collect:coin' => 'Монеты C',
     'collect:wallet' => 'Кошельки W',
     'collect:goal' => 'Цели G',
@@ -63,6 +106,8 @@ class FlowGoal {
     if (!{
       'ice',
       'stack',
+      'chain',
+      'crate',
       ...FlowTile.values.map((t) => 'collect:${t.name}'),
     }.contains(key)) {
       throw const FormatException('Unsupported flow goal');
@@ -83,10 +128,14 @@ class FlowObstacle {
   factory FlowObstacle.fromJson(Map<String, dynamic> j) {
     _keys(j, {'index', 'kind', 'layers'});
     final kind = j['kind'] as String;
-    if (!{'ice', 'stack'}.contains(kind)) {
+    if (!{'ice', 'stack', 'chain', 'crate'}.contains(kind)) {
       throw const FormatException('Unsupported flow obstacle');
     }
-    return FlowObstacle(_int(j['index'], 0, 63), kind, _int(j['layers'], 1, 5));
+    return FlowObstacle(
+      _int(j['index'], 0, 63),
+      kind,
+      _int(j['layers'], 1, {'chain', 'crate'}.contains(kind) ? 2 : 5),
+    );
   }
 }
 
@@ -216,12 +265,17 @@ class FlowSession {
     required Map<String, int> progress,
     required this.rngState,
     this.status = FlowStatus.active,
+    this.bonusMoves = 0,
+    Map<FlowTool, int> usedTools = const {},
   }) : board = List.unmodifiable(board),
-       progress = Map.unmodifiable(progress);
+       progress = Map.unmodifiable(progress),
+       usedTools = Map.unmodifiable(usedTools);
   final int levelId, remainingMoves, score, rngState;
   final List<FlowCell> board;
   final Map<String, int> progress;
   final FlowStatus status;
+  final int bonusMoves;
+  final Map<FlowTool, int> usedTools;
   bool get finished => status != FlowStatus.active;
   int stars(FlowLevel level) => status != FlowStatus.won
       ? 0
@@ -239,6 +293,9 @@ class FlowSession {
     'progress': progress,
     'rngState': rngState,
     'status': status.name,
+    if (bonusMoves > 0) 'bonusMoves': bonusMoves,
+    if (usedTools.isNotEmpty)
+      'usedTools': {for (final e in usedTools.entries) e.key.name: e.value},
   };
   factory FlowSession.fromJson(Map<String, dynamic> j) {
     _keys(j, {
@@ -250,6 +307,8 @@ class FlowSession {
       'progress',
       'rngState',
       'status',
+      'bonusMoves',
+      'usedTools',
     });
     if (j['version'] != 1) throw const FormatException('Unsupported session');
     final board = (j['board'] as List)
@@ -265,6 +324,8 @@ class FlowSession {
       if (!{
         'ice',
         'stack',
+        'chain',
+        'crate',
         ...FlowTile.values.map((t) => 'collect:${t.name}'),
       }.contains(e.key)) {
         throw const FormatException('Invalid progress');
@@ -274,11 +335,13 @@ class FlowSession {
     return FlowSession(
       levelId: _int(j['levelId'], 1, 500),
       board: board,
-      remainingMoves: _int(j['remainingMoves'], 0, 100),
+      remainingMoves: _int(j['remainingMoves'], 0, 200),
       score: _int(j['score'], 0, 100000000),
       progress: progress,
       rngState: _int(j['rngState'], 1, 0xffffffff),
       status: FlowStatus.values.byName(j['status'] as String),
+      bonusMoves: _int(j['bonusMoves'] ?? 0, 0, 100),
+      usedTools: _tools(j['usedTools']),
     );
   }
 }
@@ -323,9 +386,31 @@ class FlowResult {
 const _missing = Object();
 
 class FlowProgress {
-  const FlowProgress({this.results = const {}, this.session});
+  const FlowProgress({
+    this.results = const {},
+    this.session,
+    this.spent = const {},
+    this.music = false,
+    this.sound = true,
+    this.haptics = true,
+    this.preferencesSaved = false,
+  });
   final Map<int, FlowResult> results;
   final FlowSession? session;
+  final Map<FlowTool, int> spent;
+  final bool music, sound, haptics, preferencesSaved;
+  int available(FlowTool tool) =>
+      (FlowToolRules.initialStock[tool]! - (spent[tool] ?? 0)).clamp(
+        0,
+        FlowToolRules.initialStock[tool]!,
+      );
+  FlowProgress consume(FlowTool tool) {
+    if (available(tool) <= 0) {
+      throw const FormatException('Усилитель закончился');
+    }
+    return copyWith(spent: {...spent, tool: (spent[tool] ?? 0) + 1});
+  }
+
   int get highestUnlocked {
     var n = 1;
     while (n <= 20 && results.containsKey(n)) {
@@ -338,16 +423,30 @@ class FlowProgress {
   FlowProgress copyWith({
     Map<int, FlowResult>? results,
     Object? session = _missing,
+    Map<FlowTool, int>? spent,
+    bool? music,
+    bool? sound,
+    bool? haptics,
+    bool? preferencesSaved,
   }) => FlowProgress(
     results: results ?? this.results,
     session: identical(session, _missing)
         ? this.session
         : session as FlowSession?,
+    spent: spent ?? this.spent,
+    music: music ?? this.music,
+    sound: sound ?? this.sound,
+    haptics: haptics ?? this.haptics,
+    preferencesSaved: preferencesSaved ?? this.preferencesSaved,
   );
   Map<String, Object?> toJson() => {
     'version': 1,
     'results': {for (final e in results.entries) '${e.key}': e.value.toJson()},
     if (session != null) 'session': session!.toJson(),
+    if (spent.isNotEmpty)
+      'spent': {for (final e in spent.entries) e.key.name: e.value},
+    if (preferencesSaved || music || !sound || !haptics)
+      'preferences': {'music': music, 'sound': sound, 'haptics': haptics},
   };
   factory FlowProgress.fromJson(Map<String, dynamic> j) {
     // A damaged optional game session cannot reset unrelated Finance/world data.
@@ -374,7 +473,22 @@ class FlowProgress {
     } on Object {
       session = null;
     }
-    final progress = FlowProgress(results: results);
+    final prefs = j['preferences'] is Map ? j['preferences'] as Map : const {};
+    Map<FlowTool, int> spent;
+    try {
+      spent = _tools(j['spent']);
+    } on Object {
+      // Malformed ledger fails closed: it cannot mint another starter allowance.
+      spent = Map.of(FlowToolRules.initialStock);
+    }
+    final progress = FlowProgress(
+      results: results,
+      spent: spent,
+      music: prefs['music'] is bool ? prefs['music'] as bool : false,
+      sound: prefs['sound'] is bool ? prefs['sound'] as bool : true,
+      haptics: prefs['haptics'] is bool ? prefs['haptics'] as bool : true,
+      preferencesSaved: prefs.isNotEmpty,
+    );
     if (session != null && !progress.isUnlocked(session.levelId)) {
       session = null;
     }
@@ -414,11 +528,32 @@ class FlowProgress {
             : old.bestScore,
       );
     }
+    final preferences = local.preferencesSaved ? local : incoming;
     return FlowProgress(
       results: results,
       session: local.session ?? incoming.session,
+      spent: {
+        for (final tool in FlowTool.values)
+          if ((local.spent[tool] ?? 0) > 0 || (incoming.spent[tool] ?? 0) > 0)
+            tool: (local.spent[tool] ?? 0) > (incoming.spent[tool] ?? 0)
+                ? local.spent[tool]!
+                : incoming.spent[tool]!,
+      },
+      music: preferences.music,
+      sound: preferences.sound,
+      haptics: preferences.haptics,
+      preferencesSaved: preferences.preferencesSaved,
     );
   }
+}
+
+Map<FlowTool, int> _tools(Object? raw) {
+  if (raw == null) return const {};
+  if (raw is! Map) throw const FormatException('Invalid tool ledger');
+  return {
+    for (final e in raw.entries)
+      FlowTool.values.byName(e.key as String): _int(e.value, 0, 1000000),
+  };
 }
 
 void _keys(Map<String, dynamic> j, Set<String> allowed) {
@@ -436,7 +571,9 @@ int _int(Object? value, int min, int max) {
 
 bool _stableBoard(List<FlowCell> board) {
   FlowTile? color(int i) =>
-      board[i].stack == 0 && board[i].booster != FlowBooster.core
+      board[i].stack == 0 &&
+          board[i].crate == 0 &&
+          board[i].booster != FlowBooster.core
       ? board[i].tile
       : null;
   for (var i = 0; i < 64; i++) {

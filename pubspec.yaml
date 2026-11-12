@@ -1,7 +1,7 @@
 name: finora
 description: Offline-first personal and family finance for Android.
 publish_to: none
-version: 1.52.0+64
+version: 1.53.0+65
 
 environment:
   sdk: '>=3.8.0 <4.0.0'
@@ -53,3 +53,14 @@ flutter:
     - assets/finora/world/garden/stages/
     - assets/finora/world/ui/png/
     - assets/flow/
+    - assets/finora/match3/audio/
+    - assets/finora/match3/tiles/
+    - assets/finora/match3/hud/
+    - assets/finora/match3/boosters/
+    - assets/finora/match3/pause/
+    - assets/finora/match3/victory/
+    - assets/finora/match3/out_of_moves/
+    - assets/finora/match3/map/
+    - assets/finora/match3/prelevel/
+    - assets/finora/match3/obstacles/
+    - assets/finora/match3/special/

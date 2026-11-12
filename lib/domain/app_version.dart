@@ -1,2 +1,2 @@
 /// The app's version as people see it (also in pubspec.yaml).
-const appVersion = '1.52.0';
+const appVersion = '1.53.0';

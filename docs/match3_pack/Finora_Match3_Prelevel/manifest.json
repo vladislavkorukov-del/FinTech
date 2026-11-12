@@ -1,0 +1,61 @@
+{
+  "new_assets": [
+    {
+      "file": "png/prelevel_label_moves.png",
+      "size": [
+        1024,
+        341
+      ],
+      "visible_bounds_alpha128": [
+        181,
+        79,
+        842,
+        276
+      ],
+      "sha256": "1dbd3e78824831ea17681d937c4628d754db862029d40cb60ad4a1b5aaefed6b"
+    },
+    {
+      "file": "png/prelevel_label_goals.png",
+      "size": [
+        1024,
+        341
+      ],
+      "visible_bounds_alpha128": [
+        57,
+        102,
+        968,
+        248
+      ],
+      "sha256": "1acafc9f37a4774f2d031f4920a4eaa291c80808570e90345cf792a96c248ae2"
+    },
+    {
+      "file": "png/prelevel_label_boosters.png",
+      "size": [
+        1024,
+        341
+      ],
+      "visible_bounds_alpha128": [
+        74,
+        99,
+        948,
+        239
+      ],
+      "sha256": "8bcb01cc7faaabdb9ed5b313f381d0b2e04728afacd57e81764e6c7c92123a1c"
+    },
+    {
+      "file": "png/prelevel_label_play.png",
+      "size": [
+        1024,
+        341
+      ],
+      "visible_bounds_alpha128": [
+        146,
+        79,
+        879,
+        279
+      ],
+      "sha256": "69605f3dac04c625e81368e3a3a6b4c313d1f417c05e25c651078920ae29f6e5"
+    }
+  ],
+  "notes": "Existing icons and UI art are referenced, not duplicated."
+}

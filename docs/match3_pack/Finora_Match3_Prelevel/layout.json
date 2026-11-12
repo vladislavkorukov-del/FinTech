@@ -1,0 +1,75 @@
+{
+  "reference_screen": [
+    861,
+    1827
+  ],
+  "card_visible_rect": [
+    30,
+    250,
+    800,
+    1390
+  ],
+  "nine_slice": {
+    "panel": {
+      "asset_id": "panel",
+      "source_size": [
+        1122,
+        1402
+      ],
+      "center_slice_original_pixels": [
+        201,
+        213,
+        919,
+        1199
+      ],
+      "note": "Keep corner regions; align by visible bounds; validate at final target size."
+    },
+    "moves_pill": {
+      "asset_id": "moves_pill",
+      "source_size": [
+        1024,
+        372
+      ],
+      "center_slice_original_pixels": [
+        186,
+        122,
+        835,
+        251
+      ],
+      "note": "Keep corner regions; align by visible bounds; validate at final target size."
+    },
+    "play_button": {
+      "asset_id": "play_button",
+      "source_size": [
+        1024,
+        341
+      ],
+      "center_slice_original_pixels": [
+        189,
+        104,
+        835,
+        256
+      ],
+      "note": "Keep corner regions; align by visible bounds; validate at final target size."
+    }
+  },
+  "sample_level": 12,
+  "sample_moves": 25,
+  "sample_goals": [
+    {
+      "kind": "coin",
+      "amount": 20
+    },
+    {
+      "kind": "wallet",
+      "amount": 15
+    },
+    {
+      "kind": "shield",
+      "amount": 10
+    }
+  ],
+  "numbers_baked_into_assets": false,
+  "backdrop": "Live map with runtime dim and blur",
+  "selected_frame_and_check": "Flutter UI overlay, not additional PNG"
+}
