@@ -114,7 +114,7 @@ class _CategoryOrbitChartState extends State<CategoryOrbitChart>
           builder: (context, box) {
             final width = box.maxWidth;
             final d = math.min(widget.diameter, width - 16);
-            final stroke = d * .17;
+            final stroke = d * .14;
             final ringR = d / 2 - stroke / 2 - 6;
             final height = d + 24;
             final center = Offset(width / 2, height / 2);
@@ -461,7 +461,7 @@ class _RingPainter extends CustomPainter {
     for (final item in items) {
       final sweep = sweeps[item.id]!;
       final chosen = selected == item.id;
-      final gap = items.length == 1 ? 0.0 : math.min(.03, sweep * .2);
+      final gap = items.length == 1 ? 0.0 : math.min(.05, sweep * .25);
       final lift = chosen ? 6 * t : 0.0;
       final mid = start + sweep / 2;
       final c = center + Offset(math.cos(mid), math.sin(mid)) * lift;

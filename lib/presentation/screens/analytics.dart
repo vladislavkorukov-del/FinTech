@@ -155,6 +155,12 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
+        // Apple polish: a large title on the main tab.
+        toolbarHeight: Navigator.canPop(context) ? null : 64,
+        titleSpacing: Navigator.canPop(context) ? null : 20,
+        titleTextStyle: Navigator.canPop(context)
+            ? null
+            : Theme.of(context).textTheme.headlineLarge,
         title: const Text('Аналитика'),
         actions: [
           DropdownButton<String>(
@@ -299,6 +305,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                   days: days,
                   amountsMinor: daily,
                   currency: currency,
+                  focusDay: DateUtils.dateOnly(
+                    DateTime.now(),
+                  ).difference(start).inDays.clamp(0, days - 1),
                   onDayTap: (date) => Navigator.push(
                     context,
                     MaterialPageRoute<void>(

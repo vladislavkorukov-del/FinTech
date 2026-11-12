@@ -143,20 +143,11 @@ class _PayeeSummaryScreenState extends State<PayeeSummaryScreen> {
           Container(
             key: const ValueKey('payee-hero'),
             padding: const EdgeInsets.fromLTRB(18, 16, 18, 18),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(26),
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Color.alphaBlend(tone.withValues(alpha: .28), scheme.surface),
-                  Color.alphaBlend(
-                    scheme.primary.withValues(alpha: .10),
-                    scheme.surface,
-                  ),
-                ],
+            decoration: ShapeDecoration(
+              color: scheme.surface,
+              shape: const RoundedSuperellipseBorder(
+                borderRadius: BorderRadius.all(Radius.circular(22)),
               ),
-              border: Border.all(color: tone.withValues(alpha: .35)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

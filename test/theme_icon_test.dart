@@ -20,7 +20,11 @@ void main() {
       () {
         final light = AppTheme.build(Brightness.light, 'lime');
         final dark = AppTheme.build(Brightness.dark, 'lime');
-        expect(light.scaffoldBackgroundColor, const Color(0xFFEEF1EC));
+        // Apple polish: the light background is neutralized toward iOS gray.
+        expect(
+          light.scaffoldBackgroundColor,
+          Color.lerp(const Color(0xFFEEF1EC), const Color(0xFFF2F2F7), .8),
+        );
         expect(light.colorScheme.surface, const Color(0xFFFCFEFA));
         expect(dark.scaffoldBackgroundColor, const Color(0xFF070807));
         expect(dark.colorScheme.surface, const Color(0xFF1F2321));
@@ -33,7 +37,14 @@ void main() {
             const Color(0xFFD9FF3F),
           );
         }
-        expect(light.colorScheme.outlineVariant, const Color(0xFFD5D7CF));
+        // Apple polish: separators are a faint hairline of the text color.
+        expect(
+          light.colorScheme.outlineVariant,
+          Color.alphaBlend(
+            light.colorScheme.onSurface.withValues(alpha: .1),
+            light.colorScheme.surface,
+          ),
+        );
         expect(dark.colorScheme.onSurfaceVariant, const Color(0xFFACAEA9));
       },
     );

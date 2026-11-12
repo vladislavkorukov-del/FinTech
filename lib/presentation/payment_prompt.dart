@@ -130,7 +130,7 @@ class _PaymentDialogState extends State<_PaymentDialog> {
     return Dialog(
       key: const ValueKey('payment-prompt'),
       insetPadding: const EdgeInsets.symmetric(horizontal: 22, vertical: 24),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
       child: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(22, 22, 22, 14),
         child: Column(

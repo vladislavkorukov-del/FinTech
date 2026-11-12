@@ -188,7 +188,7 @@ class _FlowCellView extends StatelessWidget {
                                 : FlowTileArt.symbol(type),
                             style: TextStyle(
                               fontSize: math.min(18, box.maxWidth * .48),
-                              fontWeight: FontWeight.w800,
+                              fontWeight: FontWeight.w700,
                               color: const Color(0xFF38243F),
                             ),
                           ),
@@ -208,7 +208,7 @@ class _FlowCellView extends StatelessWidget {
                         textScaler: TextScaler.noScaling,
                         style: const TextStyle(
                           fontSize: 9,
-                          fontWeight: FontWeight.w900,
+                          fontWeight: FontWeight.w700,
                           color: Color(0xFF38243F),
                         ),
                       ),

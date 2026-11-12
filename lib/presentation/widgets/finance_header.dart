@@ -6,7 +6,6 @@ import '../controller.dart';
 import '../screens/management.dart';
 import '../screens/settings.dart';
 import 'common.dart' show money;
-import 'glass.dart';
 import 'motion.dart';
 import '../l10n_widgets.dart';
 
@@ -94,94 +93,92 @@ class _FinanceBrandState extends State<FinanceBrand>
   );
 }
 
-/// Top bar of the dashboard: settings, the total balance in the selected
-/// currency (from [FinanceController.balance]) and the family profile.
-/// The app mark is kept for the launch screen; the header no longer repeats it.
+/// Top of the dashboard, after Apple Wallet: two quiet round buttons
+/// (settings, family) and below them the total balance in the selected
+/// currency (from [FinanceController.balance]) as the one large number on
+/// the screen. The app mark is kept for the launch screen.
 class FinanceHeader extends StatelessWidget {
   const FinanceHeader({super.key});
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
     final c = FinanceScope.of(context);
     void open(Widget page) =>
         Navigator.push(context, MaterialPageRoute<void>(builder: (_) => page));
-    // 1.16: quiet round buttons in the card color.
     final buttonStyle = IconButton.styleFrom(
-      backgroundColor: GlassSurface.pane(Theme.of(context), null, null, 1),
+      backgroundColor: scheme.surface,
       foregroundColor: scheme.onSurface,
-      side: BorderSide(color: scheme.onSurface.withValues(alpha: .07)),
-      minimumSize: const Size(48, 48),
+      minimumSize: const Size(40, 40),
+      fixedSize: const Size(40, 40),
+      padding: EdgeInsets.zero,
     );
-    return ConstrainedBox(
-      constraints: const BoxConstraints(minHeight: 56),
-      child: Row(
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          IconButton.filledTonal(
-            tooltip: tr('Настройки'),
-            onPressed: () => open(const SettingsScreen()),
-            style: buttonStyle,
-            icon: const Icon(Icons.tune_rounded, size: 21),
+          Row(
+            children: [
+              IconButton.filledTonal(
+                tooltip: tr('Настройки'),
+                onPressed: () => open(const SettingsScreen()),
+                style: buttonStyle,
+                icon: const Icon(Icons.tune_rounded, size: 19),
+              ),
+              const Spacer(),
+              IconButton.filledTonal(
+                tooltip: tr('Моя семья'),
+                onPressed: () => open(const MembersScreen()),
+                style: buttonStyle,
+                icon: const Icon(Icons.family_restroom_outlined, size: 20),
+              ),
+            ],
           ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Semantics(
-              button: true,
-              label: 'Общий баланс ${money(c.balance, c.currency)}',
-              excludeSemantics: true,
-              child: InkWell(
-                key: const ValueKey('header-balance'),
-                borderRadius: BorderRadius.circular(16),
-                onTap: () => open(const AccountsScreen()),
-                // 1.16: no halo behind the balance.
-                child: Ink(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 6,
-                      vertical: 4,
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: Text(
-                            '${tr('Общий баланс')} · ${c.currency}',
-                            maxLines: 1,
-                            style: TextStyle(
-                              fontSize: 11,
-                              letterSpacing: .2,
-                              color: scheme.onSurfaceVariant,
-                            ),
+          const SizedBox(height: 10),
+          Semantics(
+            button: true,
+            label: 'Общий баланс ${money(c.balance, c.currency)}',
+            excludeSemantics: true,
+            child: GestureDetector(
+              key: const ValueKey('header-balance'),
+              behavior: HitTestBehavior.opaque,
+              onTap: () => open(const AccountsScreen()),
+              child: PressScale(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        '${tr('Общий баланс')} · ${c.currency}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: scheme.onSurfaceVariant,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: AnimatedMoney(
+                          c.balance,
+                          currency: c.currency,
+                          textKey: const ValueKey('header-balance-amount'),
+                          style: theme.textTheme.displayLarge?.copyWith(
+                            fontSize: 44,
+                            height: 1.1,
+                            color: scheme.onSurface,
                           ),
                         ),
-                        const SizedBox(height: 1),
-                        FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: AnimatedMoney(
-                            c.balance,
-                            currency: c.currency,
-                            textKey: const ValueKey('header-balance-amount'),
-                            style: TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: -.5,
-                              color: scheme.onSurface,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               ),
             ),
-          ),
-          const SizedBox(width: 8),
-          IconButton.filledTonal(
-            tooltip: tr('Моя семья'),
-            onPressed: () => open(const MembersScreen()),
-            style: buttonStyle,
-            icon: const Icon(Icons.family_restroom_outlined, size: 22),
           ),
         ],
       ),

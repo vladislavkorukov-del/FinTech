@@ -123,8 +123,8 @@ class _AnimatedMoneyState extends State<AnimatedMoney> {
     return TweenAnimationBuilder<double>(
       key: ValueKey(widget.minor),
       tween: Tween(begin: _from.toDouble(), end: widget.minor.toDouble()),
-      duration: const Duration(milliseconds: 900),
-      curve: Curves.easeOutExpo,
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeOutCubic,
       builder: (context, value, _) => Text(
         money(value.round(), widget.currency),
         key: widget.textKey,
@@ -203,7 +203,7 @@ class _SheenState extends State<Sheen> with SingleTickerProviderStateMixin {
   );
 }
 
-/// Shrinks slightly while pressed, springing back on release.
+/// Shrinks slightly while pressed and settles back on release.
 class PressScale extends StatefulWidget {
   const PressScale({super.key, required this.child, this.enabled = true});
   final Widget child;
@@ -227,8 +227,9 @@ class _PressScaleState extends State<PressScale> {
       onPointerCancel: (_) => _set(false),
       child: AnimatedScale(
         scale: _down ? .97 : 1,
-        duration: Duration(milliseconds: _down ? 90 : 260),
-        curve: _down ? Curves.easeOut : Curves.elasticOut,
+        // Apple polish: a quick press and a calm release — no wobble.
+        duration: Duration(milliseconds: _down ? 90 : 200),
+        curve: Curves.easeOutCubic,
         child: widget.child,
       ),
     );

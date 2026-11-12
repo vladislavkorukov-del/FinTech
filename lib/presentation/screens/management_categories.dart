@@ -198,7 +198,7 @@ class _IconPickerState extends State<_IconPicker> {
                                     ),
                                     onTap: () =>
                                         setState(() => icon = entry.index),
-                                    borderRadius: BorderRadius.circular(16),
+                                    borderRadius: BorderRadius.circular(14),
                                     child: Container(
                                       decoration: BoxDecoration(
                                         color: selected
@@ -206,7 +206,7 @@ class _IconPickerState extends State<_IconPicker> {
                                                 color,
                                               ).withValues(alpha: .18)
                                             : scheme.surfaceContainerHigh,
-                                        borderRadius: BorderRadius.circular(16),
+                                        borderRadius: BorderRadius.circular(14),
                                         border: Border.all(
                                           color: selected
                                               ? Color(color)
@@ -552,7 +552,7 @@ Future<void> _categoryEditor(
                 .map(
                   (v) => InkWell(
                     onTap: () => set(() => bg = v),
-                    borderRadius: BorderRadius.circular(24),
+                    borderRadius: BorderRadius.circular(22),
                     child: Container(
                       width: 38,
                       height: 38,

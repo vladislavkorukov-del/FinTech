@@ -84,7 +84,7 @@ class SurfaceCard extends StatelessWidget {
     enabled: onTap != null,
     // Liquid glass over the painted backdrop (see GlassSurface).
     child: GlassSurface(
-      radius: 24,
+      radius: 22,
       padding: padding,
       base: color,
       onTap: onTap,
@@ -156,11 +156,13 @@ class CategoryBadge extends StatelessWidget {
     return Container(
       width: size,
       height: size,
-      decoration: BoxDecoration(
+      decoration: ShapeDecoration(
         color: category == null
             ? colors.iconBackground
             : Color(category!.background),
-        borderRadius: BorderRadius.circular(15),
+        shape: RoundedSuperellipseBorder(
+          borderRadius: BorderRadius.circular(size * .3),
+        ),
       ),
       child: Icon(
         icon ?? categoryIcon(category?.icon ?? 26),

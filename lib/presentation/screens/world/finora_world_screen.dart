@@ -227,7 +227,7 @@ class _FinoraWorldScreenState extends State<FinoraWorldScreen>
                                             (landscape ? 25 : 30) / scale,
                                           ),
                                           height: 1.05,
-                                          fontWeight: FontWeight.w800,
+                                          fontWeight: FontWeight.w700,
                                           shadows: const [
                                             Shadow(
                                               color: worldPlum,

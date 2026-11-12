@@ -127,7 +127,7 @@ class _HalfYearChartState extends State<HalfYearChart> {
                     child: InkWell(
                       key: ValueKey('month-flow-$i'),
                       onTap: () => _show(i),
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(14),
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 150),
                         padding: const EdgeInsets.symmetric(
@@ -138,7 +138,7 @@ class _HalfYearChartState extends State<HalfYearChart> {
                           color: _selected == i
                               ? scheme.primary.withValues(alpha: .1)
                               : Colors.transparent,
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(14),
                         ),
                         child: Column(
                           children: [

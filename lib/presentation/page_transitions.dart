@@ -27,7 +27,8 @@ class FinoraPageTransitionsBuilder extends PageTransitionsBuilder {
     }
     final curve = CurvedAnimation(
       parent: animation,
-      curve: Curves.easeOutCubic,
+      // The iOS sheet/push curve: fast start, long soft landing.
+      curve: const Cubic(.32, .72, 0, 1),
       reverseCurve: Curves.easeInCubic,
     );
     final page = RepaintBoundary(

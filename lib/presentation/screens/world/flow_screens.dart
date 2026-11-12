@@ -107,7 +107,7 @@ class _FlowMapScreenState extends State<FlowMapScreen> {
                         '${level.id}',
                         style: const TextStyle(
                           color: worldPlum,
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                     ),

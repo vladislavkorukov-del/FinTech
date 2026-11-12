@@ -53,3 +53,14 @@ flutter:
     - assets/finora/world/garden/stages/
     - assets/finora/world/ui/png/
     - assets/flow/
+  # Inter 4.1 (SIL OFL 1.1, assets/fonts/inter/OFL.txt): the app's text face.
+  fonts:
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/inter/Inter-Regular.ttf
+        - asset: assets/fonts/inter/Inter-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/inter/Inter-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/inter/Inter-Bold.ttf
+          weight: 700

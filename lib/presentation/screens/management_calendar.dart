@@ -108,7 +108,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                     final isSelected = day == selected.day;
                     return InkWell(
                       onTap: () => setState(() => selected = date),
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(14),
                       child: Container(
                         margin: const EdgeInsets.all(2),
                         padding: const EdgeInsets.symmetric(vertical: 5),
@@ -118,7 +118,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                   context,
                                 ).colorScheme.primary.withValues(alpha: .14)
                               : null,
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(14),
                         ),
                         child: Column(
                           children: [

@@ -151,7 +151,7 @@ Widget _colors(int value, void Function(int) change) => Wrap(
           button: true,
           child: InkWell(
             onTap: () => change(c),
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: BorderRadius.circular(22),
             child: Container(
               width: 38,
               height: 38,

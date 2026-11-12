@@ -110,9 +110,9 @@ void main() {
         reason: 'corner at $p must show the plain backdrop, got $c',
       );
     }
-    // The card is drawn, and its edge is one visible hairline (1.16: no
-    // highlights, so the edge differs from the flat body, nothing more).
+    // The card is drawn as one solid fill: no rim, so its top edge row is
+    // the same color as its body (Apple polish).
     expect(at(card.center), isNot(backdrop));
-    expect(at(card.topCenter), isNot(at(card.center))); // the 1 px edge row
+    expect(at(card.topCenter + const Offset(0, 1)), at(card.center));
   });
 }

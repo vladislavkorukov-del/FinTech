@@ -11,7 +11,6 @@ import '../widgets/savings_pace.dart';
 import '../widgets/grouped_list.dart';
 import '../widgets/money_tips.dart';
 import '../widgets/entry_tile.dart';
-import 'achievements_screen.dart';
 import 'management.dart';
 import 'entry_editor.dart';
 import 'payee_summary_screen.dart';
@@ -297,7 +296,9 @@ class Dashboard extends StatelessWidget {
             ),
           )
         else
-          for (final budget in c.data.budgets.take(2))
+          // Apple polish: the main screen keeps one budget; the rest are a
+          // tap away.
+          for (final budget in c.data.budgets.take(1))
             Padding(
               padding: const EdgeInsets.only(bottom: 6),
               child: SurfaceCard(
@@ -343,7 +344,7 @@ class Dashboard extends StatelessWidget {
             ),
       ]),
       // 1.44: achievements — the series, what was received and what is next.
-      'achievements': const AchievementsCard(),
+      // Apple polish: achievements live under «Ещё», not on the main screen.
       // 1.28: a money tip from Finora; swipe it away or turn it off.
       // 1.30: at the very bottom unless the person drags it elsewhere.
       if (prefs.tips) 'tips': const MoneyTipsCard(),
@@ -387,7 +388,7 @@ Widget _lifted(Widget child, int index, Animation<double> animation) =>
             type: MaterialType.transparency,
             child: DecoratedBox(
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(24),
+                borderRadius: BorderRadius.circular(22),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: .28 * t),
@@ -845,7 +846,7 @@ class _SummaryTile extends StatelessWidget {
         key: ValueKey('summary-$title'),
         // 1.17: compact — tighter padding, a smaller amount, minimal gap.
         child: GlassSurface(
-          radius: 18,
+          radius: 14,
           onTap: onTap,
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
           child: Column(

@@ -474,7 +474,7 @@ class _Step extends StatelessWidget {
               height: 64,
               decoration: BoxDecoration(
                 color: tile,
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(14),
               ),
               child: Icon(icon, color: Colors.white, size: 36),
             ),

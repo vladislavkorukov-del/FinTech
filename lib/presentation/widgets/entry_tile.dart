@@ -86,10 +86,12 @@ class EntryTile extends StatelessWidget {
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
           textAlign: TextAlign.right,
+          // Apple polish: spending reads in the normal text color, like
+          // Wallet; only money coming in is marked with the accent.
           style: TextStyle(
             fontWeight: FontWeight.w600,
-            color: entry.kind == EntryKind.expense
-                ? FinanceColors.of(context).expense
+            color: income
+                ? FinanceColors.of(context).income
                 : Theme.of(context).colorScheme.onSurface,
           ),
         ),
@@ -106,7 +108,7 @@ class EntryTile extends StatelessWidget {
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.primary.withValues(alpha: .15),
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(14),
         ),
         child: const Icon(Icons.edit_outlined),
       ),
@@ -115,7 +117,7 @@ class EntryTile extends StatelessWidget {
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.errorContainer,
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(14),
         ),
         child: const Icon(Icons.delete_outline),
       ),

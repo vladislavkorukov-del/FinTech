@@ -370,7 +370,9 @@ void main() {
       final card = find.byKey(const ValueKey('world-plant-garden'));
       await tester.scrollUntilVisible(card, 200, maxScrolls: 20);
       await tester.ensureVisible(card);
-      await tester.tap(card);
+      // ensureVisible stops once the card's top is on screen; tap there, not
+      // at its center, which can still sit below the fold.
+      await tester.tapAt(tester.getRect(card).topCenter + const Offset(0, 24));
       await tester.pumpAndSettle();
       expect(find.byType(TextFormField), findsWidgets);
       expect(tester.takeException(), isNull);

@@ -243,7 +243,7 @@ class _Header extends StatelessWidget {
                           'Получено ${report.unlockedCount} из ${report.total}',
                           key: const ValueKey('achievements-count'),
                           style: theme.textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -254,7 +254,7 @@ class _Header extends StatelessWidget {
                   Text(
                     '${(report.share * 100).round()}%',
                     style: theme.textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                       color: scheme.primary,
                     ),
                   ),
@@ -511,7 +511,7 @@ class _Mystery extends StatelessWidget {
         '???',
         style: TextStyle(
           color: Colors.white.withValues(alpha: .8),
-          fontWeight: FontWeight.w800,
+          fontWeight: FontWeight.w700,
           fontSize: (size * .28).clamp(14, 40),
           letterSpacing: 2,
         ),
@@ -618,7 +618,7 @@ class AchievementCard extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w700,
                             fontSize: 15,
                           ),
                         ),
@@ -683,7 +683,7 @@ class RarityPill extends StatelessWidget {
     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
     decoration: BoxDecoration(
       color: rarity.color.withValues(alpha: .16),
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(22),
     ),
     child: Row(
       mainAxisSize: MainAxisSize.min,
@@ -749,7 +749,7 @@ Future<void> showAchievement(BuildContext context, AchievementStatus s) {
                     child: Text(
                       hidden ? '???' : d.title,
                       style: Theme.of(ctx).textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ),
@@ -781,7 +781,7 @@ Future<void> showAchievement(BuildContext context, AchievementStatus s) {
                 DecoratedBox(
                   decoration: BoxDecoration(
                     color: d.rarity.color.withValues(alpha: .1),
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(14),
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(14),
@@ -833,7 +833,7 @@ class AchievementsCard extends StatelessWidget {
         child: Row(
           children: [
             ClipRRect(
-              borderRadius: BorderRadius.circular(18),
+              borderRadius: BorderRadius.circular(14),
               child: SizedBox(
                 width: 72,
                 height: 72,
@@ -874,7 +874,7 @@ class AchievementsCard extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w700,
                             fontSize: 16,
                           ),
                         ),
@@ -896,7 +896,7 @@ class AchievementsCard extends StatelessWidget {
                             style: TextStyle(
                               color: Colors.black,
                               fontSize: 11,
-                              fontWeight: FontWeight.w800,
+                              fontWeight: FontWeight.w700,
                             ),
                           ),
                         ),
@@ -1175,7 +1175,7 @@ class _UnlockStageState extends State<_UnlockStage>
                           style: TextStyle(
                             color: color,
                             fontSize: 13,
-                            fontWeight: FontWeight.w900,
+                            fontWeight: FontWeight.w700,
                             letterSpacing: 2,
                             shadows: [Shadow(color: color, blurRadius: 12)],
                           ),
@@ -1207,7 +1207,7 @@ class _UnlockStageState extends State<_UnlockStage>
                           textAlign: TextAlign.center,
                           style: theme.textTheme.headlineSmall?.copyWith(
                             color: Colors.white,
-                            fontWeight: FontWeight.w900,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                         const SizedBox(height: 6),
@@ -1314,7 +1314,7 @@ class _ShiningCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) => DecoratedBox(
     decoration: BoxDecoration(
-      borderRadius: BorderRadius.circular(26),
+      borderRadius: BorderRadius.circular(22),
       boxShadow: [
         BoxShadow(
           color: color.withValues(alpha: .7),
@@ -1326,7 +1326,7 @@ class _ShiningCard extends StatelessWidget {
       ],
     ),
     child: ClipRRect(
-      borderRadius: BorderRadius.circular(26),
+      borderRadius: BorderRadius.circular(22),
       child: AspectRatio(
         aspectRatio: FinoraAssets.cardRatio,
         child: Stack(

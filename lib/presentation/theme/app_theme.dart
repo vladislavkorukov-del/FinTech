@@ -7,6 +7,15 @@ abstract final class Space {
   static const double xs = 6, sm = 12, md = 20, lg = 28, xl = 36;
 }
 
+/// Three corner sizes for the whole app, drawn as continuous «squircle»
+/// curves like iOS rather than plain circular arcs.
+abstract final class Corners {
+  static const double small = 10, medium = 14, large = 22;
+
+  static RoundedSuperellipseBorder shape(double radius) =>
+      RoundedSuperellipseBorder(borderRadius: BorderRadius.circular(radius));
+}
+
 /// Semantic finance colors keep product widgets independent of visual presets.
 @immutable
 class FinanceColors extends ThemeExtension<FinanceColors> {
@@ -222,7 +231,12 @@ abstract final class AppTheme {
     return theme.copyWith(scaffoldBackgroundColor: Colors.transparent);
   }
 
-  static ThemeData build(Brightness brightness, String selected) {
+  /// The theme for a palette: its colors, then the shared Apple-style system
+  /// (see [_refine]) on top.
+  static ThemeData build(Brightness brightness, String selected) =>
+      _refine(_palette(brightness, selected));
+
+  static ThemeData _palette(Brightness brightness, String selected) {
     if (selected == 'coffee') {
       return _coffee(brightness);
     }
@@ -275,7 +289,7 @@ abstract final class AppTheme {
       brightness: brightness,
       colorScheme: scheme,
       scaffoldBackgroundColor: dark ? darkBase : lightBase,
-      fontFamily: 'sans-serif',
+      fontFamily: fontFamily,
     );
     return base.copyWith(
       extensions: [
@@ -341,7 +355,7 @@ abstract final class AppTheme {
         contentTextStyle: TextStyle(color: scheme.onInverseSurface),
         actionTextColor: dark ? graphite : lime,
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       ),
       bottomSheetTheme: BottomSheetThemeData(
         backgroundColor: card,
@@ -349,7 +363,7 @@ abstract final class AppTheme {
         showDragHandle: true,
         dragHandleColor: scheme.outline,
         shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
@@ -359,15 +373,15 @@ abstract final class AppTheme {
         hintStyle: TextStyle(color: secondaryInk),
         prefixIconColor: secondaryInk,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide(color: scheme.outlineVariant),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide(color: dark ? seed : graphite, width: 1.5),
         ),
         contentPadding: const EdgeInsets.all(16),
@@ -378,7 +392,7 @@ abstract final class AppTheme {
           foregroundColor: darkBase,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 17),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(14),
           ),
         ),
       ),
@@ -390,7 +404,7 @@ abstract final class AppTheme {
           foregroundColor: dark ? lightCard : graphite,
           side: BorderSide(color: scheme.outlineVariant),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(14),
           ),
         ),
       ),
@@ -459,7 +473,7 @@ abstract final class AppTheme {
   /// presets retain their own mappings so existing preferences do not change.
   static ThemeData _reference(Brightness brightness, ReferencePalette palette) {
     final dark = brightness == Brightness.dark;
-    final inherited = build(brightness, 'lime');
+    final inherited = _palette(brightness, 'lime');
     // 1.37: the light mode is tinted with the theme's accent, so switching
     // to it changes the whole screen, not just its brightness.
     final base = dark
@@ -543,7 +557,7 @@ abstract final class AppTheme {
           : const Color(0xFF5F1411),
     );
     final shape = RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(18),
+      borderRadius: BorderRadius.circular(14),
     );
     Color selectedInk(Set<WidgetState> states) =>
         states.contains(WidgetState.selected) ? accentInk : ink;
@@ -593,7 +607,7 @@ abstract final class AppTheme {
         contentTextStyle: inherited.textTheme.bodyMedium?.copyWith(
           color: mutedInk,
         ),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
       ),
       bottomSheetTheme: inherited.bottomSheetTheme.copyWith(
         backgroundColor: card,
@@ -656,7 +670,7 @@ abstract final class AppTheme {
         color: card,
         surfaceTintColor: Colors.transparent,
         textStyle: TextStyle(color: ink),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       ),
       inputDecorationTheme: inherited.inputDecorationTheme.copyWith(
         fillColor: inputFill,
@@ -664,11 +678,11 @@ abstract final class AppTheme {
         hintStyle: TextStyle(color: _readable(mutedInk, [inputFill])),
         prefixIconColor: colors.iconForeground,
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide(color: subtleLine),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide(color: actionInk, width: 1.5),
         ),
       ),
@@ -849,6 +863,195 @@ abstract final class AppTheme {
     return a > b ? (a + .05) / (b + .05) : (b + .05) / (a + .05);
   }
 
+  /// The shared visual system over every palette, after Apple's apps: a flat
+  /// grouped background, solid borderless cards, continuous («squircle»)
+  /// corners, one type scale with tabular figures, and no ink ripples —
+  /// pressed things dim or shrink instead.
+  static ThemeData _refine(ThemeData t) {
+    final dark = t.brightness == Brightness.dark;
+    final s = t.colorScheme;
+    final ink = s.onSurface;
+    // Dark palettes already sit near black; the light mode gets Apple's
+    // neutral grouped gray instead of a wash of the theme color.
+    final base = dark
+        ? t.scaffoldBackgroundColor
+        : Color.lerp(t.scaffoldBackgroundColor, const Color(0xFFF2F2F7), .8)!;
+    final card = s.surface;
+    final fill = Color.alphaBlend(
+      ink.withValues(alpha: dark ? .12 : .06),
+      card,
+    );
+    final scheme = s.copyWith(
+      surface: card,
+      surfaceContainerLowest: base,
+      surfaceContainerLow: card,
+      surfaceContainer: card,
+      outlineVariant: Color.alphaBlend(
+        ink.withValues(alpha: dark ? .14 : .1),
+        card,
+      ),
+    );
+    TextStyle type(
+      double size,
+      FontWeight weight, {
+      double spacing = 0,
+      double? height,
+    }) => TextStyle(
+      fontSize: size,
+      fontWeight: weight,
+      letterSpacing: spacing,
+      height: height,
+      fontFeatures: const [FontFeature.tabularFigures()],
+    );
+    const regular = FontWeight.w400,
+        medium = FontWeight.w500,
+        semibold = FontWeight.w600,
+        bold = FontWeight.w700;
+    final text = t.textTheme
+        .merge(
+          TextTheme(
+            displayLarge: type(48, bold, spacing: -1.4),
+            displayMedium: type(40, bold, spacing: -1.1),
+            displaySmall: type(34, bold, spacing: -.8),
+            headlineLarge: type(34, bold, spacing: -.8),
+            headlineMedium: type(28, bold, spacing: -.6),
+            headlineSmall: type(22, bold, spacing: -.4),
+            titleLarge: type(20, semibold, spacing: -.3),
+            titleMedium: type(17, semibold, spacing: -.2),
+            titleSmall: type(15, semibold, spacing: -.1),
+            bodyLarge: type(17, regular, spacing: -.2, height: 1.35),
+            bodyMedium: type(15, regular, spacing: -.1, height: 1.35),
+            bodySmall: type(13, regular, height: 1.3),
+            labelLarge: type(15, semibold, spacing: -.1),
+            labelMedium: type(13, medium),
+            labelSmall: type(12, semibold, spacing: .2),
+          ),
+        )
+        .apply(fontFamily: fontFamily);
+    final buttonShape = Corners.shape(Corners.medium);
+    return t.copyWith(
+      colorScheme: scheme,
+      scaffoldBackgroundColor: base,
+      canvasColor: card,
+      cardColor: card,
+      splashFactory: NoSplash.splashFactory,
+      splashColor: Colors.transparent,
+      highlightColor: ink.withValues(alpha: dark ? .08 : .05),
+      hoverColor: ink.withValues(alpha: .04),
+      textTheme: text,
+      primaryTextTheme: t.primaryTextTheme.apply(fontFamily: fontFamily),
+      extensions: [
+        ...t.extensions.values.where((e) => e is! FinanceBackdrop),
+        FinanceBackdrop(
+          top: base,
+          middle: base,
+          bottom: base,
+          glowA: Colors.transparent,
+          glowB: Colors.transparent,
+        ),
+      ],
+      appBarTheme: t.appBarTheme.copyWith(
+        titleTextStyle: text.titleMedium?.copyWith(color: ink),
+      ),
+      dividerTheme: t.dividerTheme.copyWith(
+        color: scheme.outlineVariant,
+        thickness: .5,
+      ),
+      cardTheme: t.cardTheme.copyWith(
+        color: card,
+        elevation: 0,
+        shape: Corners.shape(Corners.large),
+      ),
+      dialogTheme: t.dialogTheme.copyWith(
+        backgroundColor: card,
+        shape: Corners.shape(Corners.large),
+      ),
+      bottomSheetTheme: t.bottomSheetTheme.copyWith(
+        backgroundColor: card,
+        shape: const RoundedSuperellipseBorder(
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(Corners.large),
+          ),
+        ),
+      ),
+      popupMenuTheme: t.popupMenuTheme.copyWith(
+        color: card,
+        shape: Corners.shape(Corners.medium),
+      ),
+      snackBarTheme: t.snackBarTheme.copyWith(
+        shape: Corners.shape(Corners.medium),
+      ),
+      inputDecorationTheme: t.inputDecorationTheme.copyWith(
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(Corners.small),
+          borderSide: BorderSide.none,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(Corners.small),
+          borderSide: BorderSide.none,
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(Corners.small),
+          borderSide: BorderSide(color: s.primary, width: 1.5),
+        ),
+      ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: (t.filledButtonTheme.style ?? const ButtonStyle()).copyWith(
+          shape: WidgetStatePropertyAll(buttonShape),
+          padding: const WidgetStatePropertyAll(
+            EdgeInsets.symmetric(horizontal: 22, vertical: 15),
+          ),
+          textStyle: WidgetStatePropertyAll(text.labelLarge),
+          elevation: const WidgetStatePropertyAll(0),
+        ),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: (t.elevatedButtonTheme.style ?? const ButtonStyle()).copyWith(
+          shape: WidgetStatePropertyAll(buttonShape),
+          elevation: const WidgetStatePropertyAll(0),
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: (t.outlinedButtonTheme.style ?? const ButtonStyle()).copyWith(
+          // Apple's «gray» button: a quiet fill instead of an outline.
+          side: const WidgetStatePropertyAll(BorderSide.none),
+          backgroundColor: WidgetStatePropertyAll(fill),
+          shape: WidgetStatePropertyAll(buttonShape),
+          textStyle: WidgetStatePropertyAll(text.labelLarge),
+        ),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: (t.textButtonTheme.style ?? const ButtonStyle()).copyWith(
+          textStyle: WidgetStatePropertyAll(text.labelLarge),
+          shape: WidgetStatePropertyAll(buttonShape),
+        ),
+      ),
+      chipTheme: t.chipTheme.copyWith(
+        backgroundColor: fill,
+        side: BorderSide.none,
+        shape: const StadiumBorder(),
+        labelStyle: t.chipTheme.labelStyle,
+      ),
+      segmentedButtonTheme: SegmentedButtonThemeData(
+        style: (t.segmentedButtonTheme.style ?? const ButtonStyle()).copyWith(
+          side: const WidgetStatePropertyAll(BorderSide.none),
+        ),
+      ),
+      navigationBarTheme: t.navigationBarTheme.copyWith(
+        indicatorColor: Colors.transparent,
+        elevation: 0,
+      ),
+      listTileTheme: t.listTileTheme.copyWith(
+        titleTextStyle: text.bodyLarge?.copyWith(color: ink),
+        subtitleTextStyle: text.bodySmall?.copyWith(color: s.onSurfaceVariant),
+      ),
+    );
+  }
+
+  /// The app's text face: Inter, a close relative of Apple's SF Pro that
+  /// may ship inside an Android app (SIL Open Font License).
+  static const fontFamily = 'Inter';
+
   static Color _onFill(Color fill, ReferencePalette palette) {
     final candidate =
         _contrast(palette.base, fill) >= _contrast(palette.ink, fill)
@@ -881,7 +1084,7 @@ abstract final class AppTheme {
 
   static ThemeData _coffee(Brightness brightness) {
     final dark = brightness == Brightness.dark;
-    final inherited = build(brightness, 'lime');
+    final inherited = _palette(brightness, 'lime');
     final ink = dark ? coffeeMilk : coffeeBase;
     final secondaryInk = dark
         ? const Color(0xFFBEAD99)
@@ -938,7 +1141,7 @@ abstract final class AppTheme {
     Color selectedFill(Set<WidgetState> states) =>
         states.contains(WidgetState.selected) ? coffeeHighlight : card;
     final buttonShape = RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(18),
+      borderRadius: BorderRadius.circular(14),
     );
     return inherited.copyWith(
       colorScheme: scheme,
@@ -969,7 +1172,7 @@ abstract final class AppTheme {
         contentTextStyle: inherited.textTheme.bodyMedium?.copyWith(
           color: secondaryInk,
         ),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
       ),
       bottomSheetTheme: inherited.bottomSheetTheme.copyWith(
         backgroundColor: card,
@@ -979,7 +1182,7 @@ abstract final class AppTheme {
         color: card,
         surfaceTintColor: Colors.transparent,
         textStyle: TextStyle(color: ink),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       ),
       inputDecorationTheme: inherited.inputDecorationTheme.copyWith(
         fillColor: elevated,
@@ -987,11 +1190,11 @@ abstract final class AppTheme {
         hintStyle: TextStyle(color: secondaryInk),
         prefixIconColor: secondaryInk,
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide(color: outline),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(14),
           borderSide: const BorderSide(color: coffeeTaupe, width: 1.5),
         ),
       ),

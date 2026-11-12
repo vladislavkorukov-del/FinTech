@@ -215,7 +215,7 @@ class _RecurringScreenState extends State<RecurringScreen> {
     proxyDecorator: (child, _, _) => Material(
       color: Colors.transparent,
       elevation: 6,
-      borderRadius: BorderRadius.circular(24),
+      borderRadius: BorderRadius.circular(22),
       child: child,
     ),
     onReorderItem: (from, to) {

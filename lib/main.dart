@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'presentation/i18n.dart';
 import 'dart:async';
 
@@ -502,9 +503,7 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
           decoration: BoxDecoration(
             color: scheme.surface,
             border: Border(
-              top: BorderSide(
-                color: scheme.outlineVariant.withValues(alpha: .14),
-              ),
+              top: BorderSide(color: scheme.outlineVariant, width: .5),
             ),
           ),
           child: SafeArea(
@@ -545,43 +544,36 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
   Widget _nav(int index, IconData icon, String label) {
     final scheme = Theme.of(context).colorScheme;
     final active = _tab == index;
+    // Apple polish: like an iOS tab bar — no pill; the chosen tab takes the
+    // tint color (or the text color where the tint would be too faint).
+    double luminance(Color c) => c.computeLuminance() + .05;
+    final ratio =
+        math.max(luminance(scheme.primary), luminance(scheme.surface)) /
+        math.min(luminance(scheme.primary), luminance(scheme.surface));
+    final tint = ratio >= 3 ? scheme.primary : scheme.onSurface;
+    final color = active ? tint : scheme.onSurfaceVariant;
     return Expanded(
       child: Semantics(
         selected: active,
         button: true,
         label: label,
-        child: InkWell(
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
           onTap: () => setState(() => _tab = index),
-          borderRadius: BorderRadius.circular(16),
           child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 6),
+            padding: const EdgeInsets.symmetric(vertical: 4),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                AnimatedContainer(
-                  duration: const Duration(milliseconds: 160),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: active ? scheme.primary : Colors.transparent,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(
-                    icon,
-                    color: active ? scheme.onPrimary : scheme.onSurfaceVariant,
-                    size: 23,
-                  ),
-                ),
-                const SizedBox(height: 5),
+                Icon(icon, color: color, size: 25),
+                const SizedBox(height: 3),
                 Text(
                   label,
                   maxLines: 1,
                   style: TextStyle(
                     fontSize: 10,
-                    fontWeight: active ? FontWeight.w600 : FontWeight.w400,
-                    color: active ? scheme.onSurface : scheme.onSurfaceVariant,
+                    fontWeight: FontWeight.w500,
+                    color: color,
                   ),
                 ),
               ],

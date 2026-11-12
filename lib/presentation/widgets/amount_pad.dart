@@ -89,10 +89,10 @@ class _DigitButtonState extends State<_DigitButton> {
           color: Theme.of(
             context,
           ).colorScheme.onSurface.withValues(alpha: .035),
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(14),
           child: InkWell(
             onTap: widget.onTap,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(14),
             child: Center(
               child: widget.label == '⌫'
                   ? const Icon(Icons.backspace_outlined, size: 21)

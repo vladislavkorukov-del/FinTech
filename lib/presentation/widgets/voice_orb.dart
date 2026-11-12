@@ -207,7 +207,7 @@ class _VoiceOrbState extends State<VoiceOrb> with TickerProviderStateMixin {
                         ),
                         decoration: BoxDecoration(
                           color: scheme.surface,
-                          borderRadius: BorderRadius.circular(16),
+                          borderRadius: BorderRadius.circular(14),
                           border: Border.all(
                             color: FinoraOrbPainter.mint.withValues(alpha: .7),
                           ),

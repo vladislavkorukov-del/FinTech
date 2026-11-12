@@ -215,7 +215,7 @@ class _Trend extends CustomPainter {
 
 /// Daily, lazily rendered columns preserve exact amounts instead of grouping
 /// several days into one unlabeled bucket on long periods.
-class DailyExpenseChart extends StatelessWidget {
+class DailyExpenseChart extends StatefulWidget {
   const DailyExpenseChart({
     super.key,
     required this.start,
@@ -223,20 +223,46 @@ class DailyExpenseChart extends StatelessWidget {
     required this.amountsMinor,
     required this.currency,
     this.onDayTap,
+    this.focusDay,
   });
   final DateTime start;
   final int days;
   final Map<int, int> amountsMinor;
   final String currency;
   final ValueChanged<DateTime>? onDayTap;
+
+  /// Day index to show on opening (usually today), so the newest days are in
+  /// view instead of the start of the period.
+  final int? focusDay;
+
+  @override
+  State<DailyExpenseChart> createState() => _DailyExpenseChartState();
+}
+
+class _DailyExpenseChartState extends State<DailyExpenseChart> {
+  static const _column = 86.0;
+  late final ScrollController _scroll = ScrollController(
+    initialScrollOffset: math.max(0, ((widget.focusDay ?? 0) - 3) * _column),
+  );
+
+  @override
+  void dispose() {
+    _scroll.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final start = widget.start, days = widget.days;
+    final amountsMinor = widget.amountsMinor, currency = widget.currency;
+    final onDayTap = widget.onDayTap;
     final scheme = Theme.of(context).colorScheme;
     final maxMinor = amountsMinor.values.fold<int>(1, math.max);
     final scale = MediaQuery.textScalerOf(context).scale(1);
     return SizedBox(
       height: 190 + math.max(0, scale - 1) * 26,
       child: ListView.builder(
+        controller: _scroll,
         scrollDirection: Axis.horizontal,
         itemCount: days,
         itemBuilder: (context, index) {
@@ -247,7 +273,7 @@ class DailyExpenseChart extends StatelessWidget {
               : math.max(4.0, amount / maxMinor * 108);
           final label = money(amount, currency);
           return SizedBox(
-            width: 86,
+            width: _column,
             child: Semantics(
               button: onDayTap != null,
               label: '${displayDate(date)}, расход $label',
@@ -255,7 +281,7 @@ class DailyExpenseChart extends StatelessWidget {
                 message: '${displayDate(date)} · $label',
                 child: InkWell(
                   key: ValueKey('daily-bar-$index'),
-                  onTap: onDayTap == null ? null : () => onDayTap!(date),
+                  onTap: onDayTap == null ? null : () => onDayTap(date),
                   borderRadius: BorderRadius.circular(14),
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(7, 2, 7, 6),

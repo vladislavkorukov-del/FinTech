@@ -17,7 +17,8 @@ class FinanceQuickActions extends StatelessWidget {
       (EntryKind.expense, 'Расход', Icons.remove_rounded),
       (EntryKind.transfer, 'Перевод', Icons.swap_horiz_rounded),
     ];
-    // 1.16: three equal, quiet buttons; only the icon carries a color.
+    // Three equal, quiet buttons in the card color; only the icon carries a
+    // color.
     final scheme = Theme.of(context).colorScheme;
     Color tone(EntryKind kind) => switch (kind) {
       EntryKind.income => colors.income,
@@ -36,18 +37,10 @@ class FinanceQuickActions extends StatelessWidget {
               style: FilledButton.styleFrom(
                 minimumSize: const Size(0, 48),
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
-                backgroundColor: GlassSurface.pane(
-                  Theme.of(context),
-                  null,
-                  null,
-                  1,
-                ),
-                side: BorderSide(
-                  color: scheme.onSurface.withValues(alpha: .07),
-                ),
+                backgroundColor: Theme.of(context).colorScheme.surface,
                 foregroundColor: scheme.onSurface,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15),
+                shape: const RoundedSuperellipseBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(14)),
                 ),
               ),
               child: stacked
@@ -63,7 +56,7 @@ class FinanceQuickActions extends StatelessWidget {
                         Text(
                           actions[i].$2,
                           style: const TextStyle(
-                            fontSize: 12,
+                            fontSize: 13,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -83,7 +76,7 @@ class FinanceQuickActions extends StatelessWidget {
                             actions[i].$2,
                             maxLines: 1,
                             style: const TextStyle(
-                              fontSize: 12,
+                              fontSize: 14,
                               fontWeight: FontWeight.w600,
                             ),
                           ),

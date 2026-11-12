@@ -55,7 +55,7 @@ class WorldGamesScreen extends StatelessWidget {
                     children: [
                       Text(
                         'Finora — Поток',
-                        style: TextStyle(fontWeight: FontWeight.w800),
+                        style: TextStyle(fontWeight: FontWeight.w700),
                       ),
                       Text('3 в ряд · 20 уровней'),
                     ],
@@ -559,7 +559,7 @@ class _StarBoard extends StatelessWidget {
                         child: Text(
                           String.fromCharCode(65 + i),
                           style: TextStyle(
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w700,
                             color: color,
                           ),
                         ),
@@ -583,7 +583,7 @@ class _StarBoard extends StatelessWidget {
                         ),
                         icon: Text(
                           String.fromCharCode(65 + i),
-                          style: const TextStyle(fontWeight: FontWeight.w800),
+                          style: const TextStyle(fontWeight: FontWeight.w700),
                         ),
                       ),
               ),

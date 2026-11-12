@@ -117,7 +117,7 @@ class _WardrobeScreenState extends State<WardrobeScreen> {
                       'Открыто ${open.length} из ${wardrobeItems.length}',
                       key: const ValueKey('wardrobe-count'),
                       style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -280,7 +280,7 @@ class WardrobeCard extends StatelessWidget {
                           '???',
                           style: TextStyle(
                             fontSize: 26,
-                            fontWeight: FontWeight.w900,
+                            fontWeight: FontWeight.w700,
                             color: scheme.onSurface.withValues(alpha: .7),
                           ),
                         ),
@@ -318,7 +318,7 @@ class WardrobeCard extends StatelessWidget {
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w700,
                   fontSize: 14,
                   height: 1.2,
                 ),

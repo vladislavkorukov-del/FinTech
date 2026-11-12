@@ -70,7 +70,7 @@ class GroupedSection extends StatelessWidget {
           SurfaceCard(
             padding: EdgeInsets.zero,
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(22),
               child: Column(children: rows),
             ),
           ),
@@ -233,7 +233,7 @@ class _SwipeToConfirmState extends State<SwipeToConfirm>
     super.initState();
     _back.addListener(
       () => setState(
-        () => _x = _from * (1 - Curves.easeOutBack.transform(_back.value)),
+        () => _x = _from * (1 - Curves.easeOutCubic.transform(_back.value)),
       ),
     );
   }
@@ -381,7 +381,7 @@ class SwipeToDelete extends StatelessWidget {
       margin: margin,
       decoration: BoxDecoration(
         color: scheme.error,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(22),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -415,7 +415,7 @@ class SwipeToDelete extends StatelessWidget {
               margin: margin,
               decoration: BoxDecoration(
                 color: scheme.primary,
-                borderRadius: BorderRadius.circular(24),
+                borderRadius: BorderRadius.circular(22),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -481,7 +481,7 @@ Future<bool> confirmWithFinora(
     context: context,
     builder: (ctx) => Dialog(
       key: const ValueKey('finora-confirm'),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(22, 22, 22, 12),
         child: Column(

@@ -929,7 +929,7 @@ class _EntryEditorState extends State<EntryEditor> {
                       kindColor.withValues(alpha: .05),
                     ],
                   ),
-                  borderRadius: BorderRadius.circular(26),
+                  borderRadius: BorderRadius.circular(22),
                   border: Border.all(color: kindColor.withValues(alpha: .25)),
                 ),
                 child: Column(
@@ -1531,7 +1531,7 @@ class _EntryEditorState extends State<EntryEditor> {
                             Padding(
                               padding: const EdgeInsets.only(top: 12),
                               child: ClipRRect(
-                                borderRadius: BorderRadius.circular(16),
+                                borderRadius: BorderRadius.circular(14),
                                 child: Image.file(
                                   File(_attachment!),
                                   height: 140,

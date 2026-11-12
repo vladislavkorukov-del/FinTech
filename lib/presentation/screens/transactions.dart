@@ -322,6 +322,13 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
+        // Apple polish: as a main tab the screen has a large title, like
+        // iOS; opened on top of another page it keeps the compact bar.
+        toolbarHeight: Navigator.canPop(context) ? null : 64,
+        titleSpacing: Navigator.canPop(context) ? null : 20,
+        titleTextStyle: Navigator.canPop(context)
+            ? null
+            : Theme.of(context).textTheme.headlineLarge,
         title: Text(
           widget.goalId != null
               ? 'Мечта: ${c.goal(widget.goalId)?.name ?? 'Накопления'}'

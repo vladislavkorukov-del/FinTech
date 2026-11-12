@@ -1406,7 +1406,7 @@ class _StyleGalleryState extends State<_StyleGallery> {
                 width: _tile,
                 padding: const EdgeInsets.all(7),
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(22),
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
@@ -1432,7 +1432,7 @@ class _StyleGalleryState extends State<_StyleGallery> {
                       child: Container(
                         decoration: BoxDecoration(
                           color: scheme.surface,
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(14),
                         ),
                         padding: const EdgeInsets.all(7),
                         child: Column(

@@ -439,7 +439,7 @@ class _PageView extends StatelessWidget {
                 height: 240,
                 decoration: BoxDecoration(
                   color: AppleUi.grouped(dark),
-                  borderRadius: BorderRadius.circular(28),
+                  borderRadius: BorderRadius.circular(22),
                 ),
                 clipBehavior: Clip.antiAlias,
                 padding: const EdgeInsets.all(18),
@@ -552,7 +552,7 @@ class _Card extends StatelessWidget {
       padding: padding ?? const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: dark ? const Color(0xFF2C2C2E) : Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(14),
         boxShadow: dark
             ? null
             : const [
@@ -687,7 +687,7 @@ class _Bubble extends StatelessWidget {
               : dark
               ? const Color(0xFF2C2C2E)
               : Colors.white,
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(14),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -886,7 +886,7 @@ class _ScanPicture extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
         color: color.withValues(alpha: .16),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(22),
       ),
       child: Text(
         category,
@@ -1103,7 +1103,7 @@ class _SafePicture extends StatelessWidget {
           height: 84,
           decoration: BoxDecoration(
             color: AppleUi.green(dark),
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: BorderRadius.circular(22),
           ),
           child: const Icon(
             Icons.fingerprint_rounded,
@@ -1225,7 +1225,7 @@ class _WidgetsPicture extends StatelessWidget {
             gradient: const LinearGradient(
               colors: [Color(0xFF0E2A33), Color(0xFF123B44)],
             ),
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: BorderRadius.circular(22),
           ),
           child: const Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -1249,7 +1249,7 @@ class _WidgetsPicture extends StatelessWidget {
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
             color: const Color(0xFF2C2C2E),
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(14),
           ),
           child: const Row(
             children: [

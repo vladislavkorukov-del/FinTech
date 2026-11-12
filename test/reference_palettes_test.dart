@@ -216,7 +216,11 @@ void main() {
       dark.filledButtonTheme.style!.backgroundColor!.resolve({}),
       const Color(0xFF886B4B),
     );
-    expect(light.scaffoldBackgroundColor, const Color(0xFFF7F5F1));
+    // Apple polish: the light background is neutralized toward iOS gray.
+    expect(
+      light.scaffoldBackgroundColor,
+      Color.lerp(const Color(0xFFF7F5F1), const Color(0xFFF2F2F7), .8),
+    );
     expect(light.colorScheme.surface, const Color(0xFFFEFCF8));
     expect(light.extension<FinanceColors>()!.expense, const Color(0xFF9F4448));
   });
