@@ -29,3 +29,8 @@ __pycache__/
 .claude-flow/sessions/
 .swarm/
 .claude/settings.json.bak-*
+.claude-flow/swarm/
+.claude-flow/cost/
+.claude-flow/mods/session.json
+.claude-flow/policy/state.json
+.claude-flow/policy/ledger-anchors.json
