@@ -1,0 +1,169 @@
+{
+  "assets": [
+    {
+      "file": "png/pause_panel_base.png",
+      "width": 1024,
+      "height": 949,
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bounds_alpha128": [
+        65,
+        89,
+        958,
+        865
+      ]
+    },
+    {
+      "file": "png/pause_button_continue.png",
+      "width": 1024,
+      "height": 341,
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bounds_alpha128": [
+        60,
+        83,
+        963,
+        263
+      ]
+    },
+    {
+      "file": "png/pause_button_restart.png",
+      "width": 1024,
+      "height": 341,
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bounds_alpha128": [
+        71,
+        93,
+        952,
+        246
+      ]
+    },
+    {
+      "file": "png/pause_button_exit.png",
+      "width": 1024,
+      "height": 341,
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bounds_alpha128": [
+        65,
+        90,
+        958,
+        251
+      ]
+    },
+    {
+      "file": "png/pause_title.png",
+      "width": 1024,
+      "height": 367,
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bounds_alpha128": [
+        121,
+        78,
+        900,
+        331
+      ]
+    },
+    {
+      "file": "png/pause_music_on.png",
+      "width": 512,
+      "height": 512,
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bounds_alpha128": [
+        73,
+        79,
+        429,
+        438
+      ]
+    },
+    {
+      "file": "png/pause_music_off.png",
+      "width": 512,
+      "height": 512,
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bounds_alpha128": [
+        53,
+        60,
+        445,
+        455
+      ]
+    },
+    {
+      "file": "png/pause_sound_on.png",
+      "width": 512,
+      "height": 512,
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bounds_alpha128": [
+        54,
+        62,
+        449,
+        458
+      ]
+    },
+    {
+      "file": "png/pause_sound_off.png",
+      "width": 512,
+      "height": 512,
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bounds_alpha128": [
+        55,
+        61,
+        449,
+        458
+      ]
+    },
+    {
+      "file": "png/pause_haptics_on.png",
+      "width": 512,
+      "height": 512,
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bounds_alpha128": [
+        62,
+        69,
+        442,
+        448
+      ]
+    },
+    {
+      "file": "png/pause_haptics_off.png",
+      "width": 512,
+      "height": 512,
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bounds_alpha128": [
+        48,
+        50,
+        455,
+        466
+      ]
+    }
+  ]
+}

@@ -1,0 +1,192 @@
+{
+  "assets": [
+    {
+      "file": "png/victory_panel_base.png",
+      "width": 1024,
+      "height": 1536,
+      "alpha_extrema": [
+        0,
+        254
+      ],
+      "visible_bounds_alpha128": [
+        53,
+        65,
+        971,
+        1471
+      ],
+      "reused_approved_asset": false
+    },
+    {
+      "file": "png/victory_title.png",
+      "width": 1024,
+      "height": 422,
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bounds_alpha128": [
+        165,
+        82,
+        858,
+        372
+      ],
+      "reused_approved_asset": false
+    },
+    {
+      "file": "png/victory_button_primary_base.png",
+      "width": 1024,
+      "height": 341,
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bounds_alpha128": [
+        69,
+        88,
+        955,
+        272
+      ],
+      "reused_approved_asset": false
+    },
+    {
+      "file": "png/victory_button_secondary_base.png",
+      "width": 1024,
+      "height": 458,
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bounds_alpha128": [
+        86,
+        145,
+        933,
+        305
+      ],
+      "reused_approved_asset": false
+    },
+    {
+      "file": "png/victory_label_score.png",
+      "width": 1024,
+      "height": 341,
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bounds_alpha128": [
+        212,
+        84,
+        809,
+        266
+      ],
+      "reused_approved_asset": false,
+      "typography": {
+        "capital_height_px": 182
+      }
+    },
+    {
+      "file": "png/victory_label_reward.png",
+      "width": 1024,
+      "height": 341,
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bounds_alpha128": [
+        77,
+        82,
+        949,
+        277
+      ],
+      "reused_approved_asset": false,
+      "typography": {
+        "capital_height_px": 156
+      }
+    },
+    {
+      "file": "png/victory_label_next.png",
+      "width": 1024,
+      "height": 341,
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bounds_alpha128": [
+        164,
+        89,
+        876,
+        252
+      ],
+      "reused_approved_asset": false,
+      "typography": {
+        "lowercase_x_height_px": 105
+      }
+    },
+    {
+      "file": "png/victory_label_levels.png",
+      "width": 1024,
+      "height": 341,
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bounds_alpha128": [
+        114,
+        95,
+        910,
+        243
+      ],
+      "reused_approved_asset": false,
+      "typography": {
+        "lowercase_x_height_px": 86
+      }
+    },
+    {
+      "file": "png/victory_star_earned.png",
+      "width": 512,
+      "height": 512,
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bounds_alpha128": [
+        42,
+        45,
+        469,
+        459
+      ],
+      "reused_approved_asset": true
+    },
+    {
+      "file": "png/victory_star_empty.png",
+      "width": 512,
+      "height": 512,
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bounds_alpha128": [
+        43,
+        49,
+        465,
+        451
+      ],
+      "reused_approved_asset": true
+    },
+    {
+      "file": "png/victory_reward_coin.png",
+      "width": 512,
+      "height": 512,
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bounds_alpha128": [
+        49,
+        48,
+        444,
+        470
+      ],
+      "reused_approved_asset": true
+    }
+  ]
+}

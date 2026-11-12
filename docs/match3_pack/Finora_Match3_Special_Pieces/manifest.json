@@ -1,0 +1,61 @@
+{
+  "project": "FINORA — Поток",
+  "canvas": [
+    1024,
+    1024
+  ],
+  "anchor": [
+    0.5,
+    0.5
+  ],
+  "new_assets": [
+    {
+      "file": "png/match3_rocket_horizontal.png",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "visible_bounds_alpha220": [
+        100,
+        228,
+        924,
+        795
+      ],
+      "orientation": "row",
+      "sha256": "6a88c8a68b52976cec57aa801f69b6c36ff972fc13c5c75fba8caa2d752bcf93"
+    },
+    {
+      "file": "png/match3_rocket_vertical.png",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "visible_bounds_alpha220": [
+        219,
+        88,
+        783,
+        917
+      ],
+      "orientation": "column",
+      "sha256": "24c98f7a9724373fc9b6c340df7fda951ab8f5ab5a3d1d4a44d3ad735b0662e9"
+    },
+    {
+      "file": "png/match3_rainbow_sphere.png",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "visible_bounds_alpha220": [
+        123,
+        125,
+        887,
+        907
+      ],
+      "orientation": null,
+      "sha256": "8808a7e763aebfc543c566d9f15f218f4134b021bb0d051ecd0b4173149c8d90"
+    }
+  ]
+}

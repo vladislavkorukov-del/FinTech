@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "game": "Finora — Поток",
+  "asset_count": 6,
+  "approved": true,
+  "assets": [
+    {
+      "id": "coin",
+      "file": "png/match3_coin.png",
+      "width": 1024,
+      "height": 1024,
+      "alpha": true,
+      "sha256": "892b88b161e7ee5f9ee1c50e71c3d4382997ad17c1fc9f9eef18e6ae20fb530d"
+    },
+    {
+      "id": "wallet",
+      "file": "png/match3_wallet.png",
+      "width": 1024,
+      "height": 1024,
+      "alpha": true,
+      "sha256": "2e9d387859806d5db788c6bd81750b427785c1386dcaa56f3dfdc3780e9e6089"
+    },
+    {
+      "id": "goal",
+      "file": "png/match3_goal.png",
+      "width": 1024,
+      "height": 1024,
+      "alpha": true,
+      "sha256": "81f9abd5e0d4e7b9a25c343183ad2f2e739592127a3829b40a875bb9bb1f8ffd"
+    },
+    {
+      "id": "shield",
+      "file": "png/match3_shield.png",
+      "width": 1024,
+      "height": 1024,
+      "alpha": true,
+      "sha256": "bae9405aa00fed099bf4f8a92324a42e0dcc76df8217000d37f8687a19675f1a"
+    },
+    {
+      "id": "receipt",
+      "file": "png/match3_receipt.png",
+      "width": 1024,
+      "height": 1024,
+      "alpha": true,
+      "sha256": "ab54e13ef02fd5940814164c6720962816707a786e3976eff10e33374c3e3626"
+    },
+    {
+      "id": "chart",
+      "file": "png/match3_chart.png",
+      "width": 1024,
+      "height": 1024,
+      "alpha": true,
+      "sha256": "7b22bff23f83604d3c6568f669e1f88a8a4c8d874083abb7945e9f5af7c8d5d8"
+    }
+  ]
+}

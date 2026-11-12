@@ -8,6 +8,7 @@ import 'package:finora/domain/models.dart';
 import 'package:finora/presentation/controller.dart';
 import 'package:finora/presentation/screens/world/finora_world_screen.dart';
 import 'package:finora/presentation/screens/world/flow_game_screen.dart';
+import 'package:finora/presentation/screens/world/flow_art.dart';
 import 'package:finora/presentation/screens/world/flow_screens.dart';
 import 'package:finora/presentation/screens/world/world_games_screen.dart';
 import 'package:finora/presentation/theme/app_theme.dart';
@@ -96,6 +97,10 @@ void main() {
             child: MediaQuery(
               data: MediaQuery.of(context).copyWith(
                 disableAnimations: true,
+                devicePixelRatio:
+                    Platform.environment.containsKey('FINORA_FLOW_CAPTURE_DIR')
+                    ? 2
+                    : 1,
                 textScaler: TextScaler.linear(scale),
               ),
               child: child!,
@@ -164,9 +169,10 @@ void main() {
         .widgetList<Image>(find.byType(Image))
         .map((w) => w.image)
         .toSet();
-    await tester.runAsync(
-      () => Future.wait(providers.map((p) => precacheImage(p, context))),
-    );
+    await tester.runAsync(() async {
+      await Future.wait(providers.map((p) => precacheImage(p, context)));
+      await FlowArt.precacheVisible(context);
+    });
     await tester.pumpAndSettle();
     final boundary = tester.renderObject<RenderRepaintBoundary>(
       find.byKey(const ValueKey('flow-capture')),
@@ -193,10 +199,13 @@ void main() {
         () => find.byKey(const ValueKey('flow-level-1')).evaluate().isNotEmpty,
       );
       await capture(tester, 'map');
-      final locked = tester.widget<ListTile>(
+      final locked = tester.getSemantics(
         find.byKey(const ValueKey('flow-level-2')),
       );
-      expect(locked.enabled, isFalse);
+      expect(
+        locked.getSemanticsData().hasAction(ui.SemanticsAction.tap),
+        isFalse,
+      );
       await touch(tester, find.byKey(const ValueKey('flow-level-1')));
       await capture(tester, 'preparation');
       await touch(tester, find.byKey(const ValueKey('flow-start')));
@@ -235,6 +244,125 @@ void main() {
       expect(c.balance, 100000);
       expect(c.data.entries, isEmpty);
       await tester.pumpWidget(const SizedBox.shrink());
+    },
+  );
+
+  testWidgets(
+    'prelevel choice and cancel do not consume stock; confirmed launch spends once',
+    (tester) async {
+      await mount(tester, const FlowMapScreen());
+      await touch(tester, find.byKey(const ValueKey('flow-level-1')));
+      final before = c.data.world.flow.available(FlowTool.bomb);
+      await touch(tester, find.byKey(const ValueKey('flow-prelevel-bomb')));
+      expect(c.data.world.flow.available(FlowTool.bomb), before);
+      await touch(tester, find.byKey(const ValueKey('flow-preparation-close')));
+      expect(c.data.world.flow.session, isNull);
+      expect(c.data.world.flow.available(FlowTool.bomb), before);
+      await touch(tester, find.byKey(const ValueKey('flow-level-1')));
+      await touch(tester, find.byKey(const ValueKey('flow-prelevel-bomb')));
+      final start = find.byKey(const ValueKey('flow-start'));
+      await tester.tap(start);
+      await tester.tap(start, warnIfMissed: false);
+      await tester.pump();
+      await wait(tester, () => c.data.world.flow.session != null);
+      expect(c.data.world.flow.available(FlowTool.bomb), before - 1);
+      expect(find.byType(FlowGameScreen), findsOneWidget);
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox.shrink());
+    },
+  );
+
+  testWidgets(
+    'pause blocks the board and independent music sound haptic settings persist',
+    (tester) async {
+      await tester.runAsync(() => c.startFlow(levels.first));
+      await mount(tester, FlowGameScreen(level: levels.first, levels: levels));
+      final saved = c.data.world.flow.session!.toJson();
+      await touch(tester, find.byKey(const ValueKey('flow-pause')));
+      final boardCell = find.byKey(ValueKey('flow-cell-${proof.first.$1}'));
+      expect(boardCell.hitTestable(), findsNothing);
+      await tester.pump();
+      expect(c.data.world.flow.session!.toJson(), saved);
+      await capture(tester, 'pause');
+      await touch(tester, find.byKey(const ValueKey('flow-setting-music')));
+      await wait(tester, () => c.data.world.flow.music);
+      await touch(tester, find.byKey(const ValueKey('flow-setting-sound')));
+      await wait(tester, () => !c.data.world.flow.sound);
+      await touch(tester, find.byKey(const ValueKey('flow-setting-haptics')));
+      await wait(tester, () => !c.data.world.flow.haptics);
+      final restored = await tester.runAsync(repo.load);
+      expect(restored!.world.flow.music, isTrue);
+      expect(restored.world.flow.sound, isFalse);
+      expect(restored.world.flow.haptics, isFalse);
+      expect(c.data.world.flow.session!.toJson(), saved);
+      await touch(tester, find.byKey(const ValueKey('flow-pause-continue')));
+      expect(find.byKey(const ValueKey('flow-pause-continue')), findsNothing);
+      await tester.pumpWidget(const SizedBox.shrink());
+    },
+  );
+
+  testWidgets(
+    'hammer chooses a target and commits one spend without touching financial accounts',
+    (tester) async {
+      await tester.runAsync(() => c.startFlow(levels.first));
+      await mount(tester, FlowGameScreen(level: levels.first, levels: levels));
+      final stock = c.data.world.flow.available(FlowTool.hammer);
+      final moves = c.data.world.flow.session!.remainingMoves;
+      final balance = c.balance;
+      await touch(tester, find.byKey(const ValueKey('flow-tool-hammer')));
+      expect(c.data.world.flow.available(FlowTool.hammer), stock);
+      final cell = find.byKey(const ValueKey('flow-cell-0'));
+      await tester.tap(cell);
+      await tester.tap(cell, warnIfMissed: false);
+      await tester.pump();
+      await wait(
+        tester,
+        () => c.data.world.flow.available(FlowTool.hammer) == stock - 1,
+      );
+      expect(c.data.world.flow.session!.remainingMoves, moves);
+      expect(c.balance, balance);
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox.shrink());
+    },
+  );
+
+  testWidgets(
+    'prelevel and pause stay operable on small and landscape Android screens at200% text',
+    (tester) async {
+      for (final size in [const Size(320, 640), const Size(740, 360)]) {
+        await mount(
+          tester,
+          FlowPreparationScreen(level: levels.first, levels: levels),
+          size: size,
+          scale: 2,
+        );
+        await tester.ensureVisible(find.byKey(const ValueKey('flow-start')));
+        await tester.pumpAndSettle();
+        expect(
+          find.byKey(const ValueKey('flow-start')).hitTestable(),
+          findsOneWidget,
+        );
+        expect(tester.takeException(), isNull);
+        await tester.pumpWidget(const SizedBox.shrink());
+        await tester.runAsync(() => c.startFlow(levels.first, restart: true));
+        await mount(
+          tester,
+          FlowGameScreen(level: levels.first, levels: levels),
+          size: size,
+          scale: 2,
+        );
+        await touch(tester, find.byKey(const ValueKey('flow-pause')));
+        await tester.ensureVisible(
+          find.byKey(const ValueKey('flow-setting-haptics')),
+        );
+        await tester.pumpAndSettle();
+        expect(
+          find.byKey(const ValueKey('flow-setting-haptics')).hitTestable(),
+          findsOneWidget,
+        );
+        expect(tester.takeException(), isNull);
+        await tester.pumpWidget(const SizedBox.shrink());
+      }
     },
   );
 
@@ -320,16 +448,34 @@ void main() {
         tester,
         () => c.data.world.flow.session!.status == FlowStatus.lost,
       );
-      expect(find.text('Ходы закончились'), findsOneWidget);
+      expect(
+        find.byWidgetPredicate(
+          (w) => w is FlowSprite && w.id == 'out_of_moves_title',
+        ),
+        findsOneWidget,
+      );
       expect(find.byKey(const ValueKey('flow-next')), findsNothing);
       expect(c.data.world.flow.isUnlocked(2), isFalse);
       await capture(tester, 'defeat');
-      await touch(tester, find.byKey(const ValueKey('flow-replay')));
+      final lost = c.data.world.flow.session!;
+      await touch(tester, find.byKey(const ValueKey('flow-extra-moves')));
       await wait(
         tester,
         () => c.data.world.flow.session!.status == FlowStatus.active,
       );
-      expect(c.data.world.flow.session!.remainingMoves, 1);
+      expect(c.data.world.flow.session!.remainingMoves, 5);
+      expect(
+        c.data.world.flow.session!.board.map((cell) => cell.toJson()).toList(),
+        lost.board.map((cell) => cell.toJson()).toList(),
+      );
+      expect(c.data.world.flow.session!.score, lost.score);
+      expect(c.data.world.flow.session!.progress, lost.progress);
+      expect(c.data.world.flow.available(FlowTool.extraMoves), 0);
+      await touch(tester, find.byKey(const ValueKey('flow-pause')));
+      await touch(tester, find.byKey(const ValueKey('flow-pause-restart')));
+      await tester.tap(find.text('Продолжить'));
+      await tester.pump();
+      await wait(tester, () => c.data.world.flow.session!.remainingMoves == 1);
       await tester.pumpWidget(const SizedBox.shrink());
     },
   );

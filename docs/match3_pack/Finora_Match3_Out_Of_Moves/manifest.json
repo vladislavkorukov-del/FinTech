@@ -1,0 +1,253 @@
+{
+  "assets": [
+    {
+      "file": "png/out_of_moves_panel_base.png",
+      "width": 1122,
+      "height": 1402,
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bounds_alpha128": [
+        81,
+        93,
+        1039,
+        1319
+      ],
+      "reused_approved_asset": false
+    },
+    {
+      "file": "png/out_of_moves_title.png",
+      "width": 1024,
+      "height": 342,
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bounds_alpha128": [
+        104,
+        56,
+        933,
+        289
+      ],
+      "reused_approved_asset": false
+    },
+    {
+      "file": "png/out_of_moves_label_remaining.png",
+      "width": 1024,
+      "height": 341,
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bounds_alpha128": [
+        97,
+        126,
+        928,
+        218
+      ],
+      "reused_approved_asset": false
+    },
+    {
+      "file": "png/out_of_moves_button_restart_base.png",
+      "width": 1024,
+      "height": 372,
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bounds_alpha128": [
+        66,
+        106,
+        955,
+        267
+      ],
+      "reused_approved_asset": false
+    },
+    {
+      "file": "png/out_of_moves_label_extra_moves.png",
+      "width": 1024,
+      "height": 341,
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bounds_alpha128": [
+        107,
+        115,
+        922,
+        236
+      ],
+      "reused_approved_asset": false,
+      "typography": {
+        "capital_height_px": 100
+      }
+    },
+    {
+      "file": "png/out_of_moves_label_restart.png",
+      "width": 1024,
+      "height": 347,
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bounds_alpha128": [
+        144,
+        100,
+        884,
+        251
+      ],
+      "reused_approved_asset": false,
+      "typography": {
+        "capital_height_px": 151
+      }
+    },
+    {
+      "file": "png/out_of_moves_button_primary_base.png",
+      "width": 1024,
+      "height": 341,
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bounds_alpha128": [
+        69,
+        88,
+        955,
+        272
+      ],
+      "reused_approved_asset": true
+    },
+    {
+      "file": "png/out_of_moves_button_levels_base.png",
+      "width": 1024,
+      "height": 458,
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bounds_alpha128": [
+        86,
+        145,
+        933,
+        305
+      ],
+      "reused_approved_asset": true
+    },
+    {
+      "file": "png/out_of_moves_label_levels.png",
+      "width": 1024,
+      "height": 341,
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bounds_alpha128": [
+        114,
+        95,
+        910,
+        243
+      ],
+      "reused_approved_asset": true,
+      "typography": {
+        "capital_height_px": 116
+      }
+    },
+    {
+      "file": "png/out_of_moves_goal_coin.png",
+      "width": 512,
+      "height": 512,
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bounds_alpha128": [
+        49,
+        48,
+        444,
+        470
+      ],
+      "reused_approved_asset": true
+    },
+    {
+      "file": "png/out_of_moves_goal_wallet.png",
+      "width": 512,
+      "height": 512,
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bounds_alpha128": [
+        47,
+        89,
+        465,
+        451
+      ],
+      "reused_approved_asset": true
+    },
+    {
+      "file": "png/out_of_moves_goal_goal.png",
+      "width": 512,
+      "height": 512,
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bounds_alpha128": [
+        49,
+        51,
+        459,
+        475
+      ],
+      "reused_approved_asset": true
+    },
+    {
+      "file": "png/out_of_moves_goal_shield.png",
+      "width": 512,
+      "height": 512,
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bounds_alpha128": [
+        68,
+        48,
+        441,
+        478
+      ],
+      "reused_approved_asset": true
+    },
+    {
+      "file": "png/out_of_moves_goal_receipt.png",
+      "width": 512,
+      "height": 512,
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bounds_alpha128": [
+        66,
+        51,
+        440,
+        469
+      ],
+      "reused_approved_asset": true
+    },
+    {
+      "file": "png/out_of_moves_goal_chart.png",
+      "width": 512,
+      "height": 512,
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bounds_alpha128": [
+        53,
+        54,
+        457,
+        459
+      ],
+      "reused_approved_asset": true
+    }
+  ]
+}

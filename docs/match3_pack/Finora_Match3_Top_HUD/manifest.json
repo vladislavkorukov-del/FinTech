@@ -1,0 +1,193 @@
+{
+  "assets": [
+    {
+      "file": "png/hud_level_header.png",
+      "width": 2172,
+      "height": 724,
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bounds_alpha128": [
+        44,
+        179,
+        2127,
+        529
+      ],
+      "corner_alpha": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "file": "png/hud_moves_card.png",
+      "width": 1224,
+      "height": 1285,
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bounds_alpha128": [
+        41,
+        49,
+        1177,
+        1228
+      ],
+      "corner_alpha": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "file": "png/hud_goals_card.png",
+      "width": 1774,
+      "height": 887,
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bounds_alpha128": [
+        49,
+        98,
+        1724,
+        801
+      ],
+      "corner_alpha": [
+        1,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "file": "png/hud_pause_button.png",
+      "width": 1254,
+      "height": 1254,
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bounds_alpha128": [
+        175,
+        164,
+        1066,
+        1060
+      ],
+      "corner_alpha": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "file": "png/hud_progress_track.png",
+      "width": 2172,
+      "height": 724,
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bounds_alpha128": [
+        58,
+        279,
+        2114,
+        446
+      ],
+      "corner_alpha": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "file": "png/hud_progress_fill.png",
+      "width": 2172,
+      "height": 724,
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bounds_alpha128": [
+        115,
+        283,
+        2057,
+        441
+      ],
+      "corner_alpha": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "file": "png/hud_star_active.png",
+      "width": 1254,
+      "height": 1254,
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bounds_alpha128": [
+        103,
+        110,
+        1148,
+        1125
+      ],
+      "corner_alpha": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "file": "png/hud_star_inactive.png",
+      "width": 1254,
+      "height": 1254,
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bounds_alpha128": [
+        106,
+        121,
+        1140,
+        1104
+      ],
+      "corner_alpha": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "file": "png/hud_level_label.png",
+      "width": 2172,
+      "height": 724,
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bounds_alpha128": [
+        180,
+        164,
+        2004,
+        575
+      ],
+      "corner_alpha": [
+        0,
+        0,
+        0,
+        0
+      ]
+    }
+  ]
+}

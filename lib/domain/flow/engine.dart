@@ -30,7 +30,10 @@ abstract final class FlowEngine {
   static void validateSession(FlowLevel level, FlowSession session) {
     FlowSession.fromJson(session.toJson());
     if (session.levelId != level.id ||
-        session.remainingMoves > level.moves ||
+        session.remainingMoves > level.moves + session.bonusMoves ||
+        session.bonusMoves !=
+            (session.usedTools[FlowTool.extraMoves] ?? 0) *
+                FlowToolRules.extraMoves ||
         session.board.any(
           (cell) => cell.tile != null && !level.types.contains(cell.tile),
         )) {
@@ -42,14 +45,25 @@ abstract final class FlowEngine {
       if (cell.stack > 0 &&
               (initial?.kind != 'stack' || cell.stack > initial!.layers) ||
           cell.ice > 0 &&
-              (initial?.kind != 'ice' || cell.ice > initial!.layers)) {
+              (initial?.kind != 'ice' || cell.ice > initial!.layers) ||
+          cell.chain > 0 &&
+              (initial?.kind != 'chain' || cell.chain > initial!.layers) ||
+          cell.crate > 0 &&
+              (initial?.kind != 'crate' || cell.crate > initial!.layers)) {
         throw const FormatException('Moved or inflated obstacle in session');
       }
     }
-    for (final kind in ['ice', 'stack']) {
+    for (final kind in ['ice', 'stack', 'chain', 'crate']) {
       final original = level.obstacles.where((o) => o.kind == kind).length;
       final remaining = session.board
-          .where((c) => kind == 'ice' ? c.ice > 0 : c.stack > 0)
+          .where(
+            (c) => switch (kind) {
+              'ice' => c.ice > 0,
+              'stack' => c.stack > 0,
+              'chain' => c.chain > 0,
+              _ => c.crate > 0,
+            },
+          )
           .length;
       if ((session.progress[kind] ?? 0) + remaining != original) {
         throw const FormatException(
@@ -131,6 +145,8 @@ abstract final class FlowEngine {
         progress: session.progress,
         rngState: run.rng.state,
         status: session.status,
+        bonusMoves: session.bonusMoves,
+        usedTools: session.usedTools,
       ),
     );
   }
@@ -225,12 +241,101 @@ abstract final class FlowEngine {
       progress: run.progress,
       rngState: run.rng.state,
       status: status,
+      bonusMoves: session.bonusMoves,
+      usedTools: session.usedTools,
     );
     return FlowTurn(
       accepted: true,
       session: next,
       events: List.unmodifiable(run.events),
       shuffled: shuffled,
+    );
+  }
+
+  /// Inventory is consumed by the repository/controller only after this succeeds.
+  /// Tools do not consume a move; all resulting cascades resolve before returning.
+  static FlowTurn useTool(
+    FlowLevel level,
+    FlowSession session,
+    FlowTool tool, {
+    int? cell,
+  }) {
+    if (session.levelId != level.id ||
+        session.status == FlowStatus.won ||
+        session.status == FlowStatus.lost && tool != FlowTool.extraMoves) {
+      return FlowTurn(accepted: false, session: session);
+    }
+    if ((tool == FlowTool.hammer || tool == FlowTool.bomb) &&
+        (cell == null || cell < 0 || cell >= 64)) {
+      return FlowTurn(accepted: false, session: session);
+    }
+    final run = _Resolution(
+      level,
+      List.of(session.board),
+      _Rng(session.rngState),
+      session.progress,
+      session.score,
+    );
+    var moves = session.remainingMoves, bonus = session.bonusMoves;
+    switch (tool) {
+      case FlowTool.extraMoves:
+        if (bonus + FlowToolRules.extraMoves > 100) {
+          return FlowTurn(accepted: false, session: session);
+        }
+        moves += FlowToolRules.extraMoves;
+        bonus += FlowToolRules.extraMoves;
+      case FlowTool.shuffle:
+        run.shuffle();
+      case FlowTool.hammer:
+        run.hit({cell!});
+        run.drain();
+      case FlowTool.bomb:
+        run.hit(run.area(cell!, FlowRules.bombRadius));
+        run.drain();
+    }
+    if (tool == FlowTool.hammer || tool == FlowTool.bomb) {
+      var rounds = 0;
+      while (true) {
+        if (++rounds > FlowRules.cascadeLimit) {
+          throw const FlowDiagnostic('Cascade safety limit exceeded');
+        }
+        run.gravity();
+        final matches = detect(run.board);
+        if (matches.isEmpty) break;
+        run.matches(matches);
+      }
+    }
+    final won = level.goals.every(
+      (g) => (run.progress[g.key] ?? 0) >= g.target,
+    );
+    final status = won
+        ? FlowStatus.won
+        : moves == 0
+        ? FlowStatus.lost
+        : FlowStatus.active;
+    var shuffled = tool == FlowTool.shuffle;
+    if (status == FlowStatus.active && _legal(run.board).isEmpty) {
+      run.shuffle();
+      shuffled = true;
+    }
+    return FlowTurn(
+      accepted: true,
+      shuffled: shuffled,
+      events: List.unmodifiable(run.events),
+      session: FlowSession(
+        levelId: level.id,
+        board: run.board,
+        remainingMoves: moves,
+        score: run.score,
+        progress: run.progress,
+        rngState: run.rng.state,
+        status: status,
+        bonusMoves: bonus,
+        usedTools: {
+          ...session.usedTools,
+          tool: (session.usedTools[tool] ?? 0) + 1,
+        },
+      ),
     );
   }
 
@@ -242,7 +347,9 @@ abstract final class FlowEngine {
         vertical = <Set<int>>[],
         squares = <Set<int>>[];
     FlowTile? color(int i) =>
-        board[i].stack == 0 && board[i].booster != FlowBooster.core
+        board[i].stack == 0 &&
+            board[i].crate == 0 &&
+            board[i].booster != FlowBooster.core
         ? board[i].tile
         : null;
     for (var row = 0; row < 8; row++) {
@@ -356,8 +463,12 @@ abstract final class FlowEngine {
       final board = <FlowCell>[];
       for (var i = 0; i < 64; i++) {
         final o = obstacles[i];
-        if (o?.kind == 'stack') {
-          board.add(FlowCell(stack: o!.layers));
+        if (o?.kind == 'stack' || o?.kind == 'crate') {
+          board.add(
+            o!.kind == 'stack'
+                ? FlowCell(stack: o.layers)
+                : FlowCell(crate: o.layers),
+          );
           continue;
         }
         final candidates = List<FlowTile>.of(level.types);
@@ -386,7 +497,11 @@ abstract final class FlowEngine {
         }
         if (chosen == null) break;
         board.add(
-          FlowCell(tile: chosen, ice: o?.kind == 'ice' ? o!.layers : 0),
+          FlowCell(
+            tile: chosen,
+            ice: o?.kind == 'ice' ? o!.layers : 0,
+            chain: o?.kind == 'chain' ? o!.layers : 0,
+          ),
         );
       }
       if (board.length == 64 &&
@@ -479,14 +594,44 @@ class _Resolution {
     }
   }
 
+  void damageCrate(int i) {
+    final c = board[i];
+    if (c.crate <= 0) return;
+    board[i] = FlowCell(crate: c.crate - 1);
+    score += FlowRules.stackScore;
+    emit('crateDamage', i);
+    if (c.crate == 1) {
+      progress['crate'] = (progress['crate'] ?? 0) + 1;
+      emit('crate', i);
+    }
+  }
+
   void hit(Set<int> cells, {Set<int> immune = const {}}) {
-    final stacks = <int>{};
+    final stacks = <int>{}, crates = <int>{};
     final ordered = cells.toList()..sort();
     for (final i in ordered) {
       if (i < 0 || i >= 64 || immune.contains(i)) continue;
       final cell = board[i];
       if (cell.stack > 0) {
         stacks.add(i);
+        continue;
+      }
+      if (cell.crate > 0) {
+        crates.add(i);
+        continue;
+      }
+      if (cell.chain > 0) {
+        board[i] = FlowCell(
+          tile: cell.tile,
+          booster: cell.booster,
+          chain: cell.chain - 1,
+        );
+        score += FlowRules.iceScore;
+        emit('chainDamage', i);
+        if (cell.chain == 1) {
+          progress['chain'] = (progress['chain'] ?? 0) + 1;
+          emit('chain', i);
+        }
         continue;
       }
       if (cell.ice > 0) {
@@ -515,11 +660,15 @@ class _Resolution {
         board[i] = const FlowCell();
         for (final n in _adjacent(i)) {
           if (board[n].stack > 0) stacks.add(n);
+          if (board[n].crate > 0) crates.add(n);
         }
       }
     }
     for (final i in stacks) {
       damageStack(i);
+    }
+    for (final i in crates) {
+      damageCrate(i);
     }
   }
 
@@ -570,7 +719,17 @@ class _Resolution {
                       (g) =>
                           g.key == 'stack' && (progress[g.key] ?? 0) < g.target,
                     ) &&
-                    c.stack > 0) {
+                    c.stack > 0 ||
+                level.goals.any(
+                      (g) =>
+                          g.key == 'chain' && (progress[g.key] ?? 0) < g.target,
+                    ) &&
+                    c.chain > 0 ||
+                level.goals.any(
+                      (g) =>
+                          g.key == 'crate' && (progress[g.key] ?? 0) < g.target,
+                    ) &&
+                    c.crate > 0) {
               candidates.add(i);
             }
           }
@@ -682,6 +841,7 @@ class _Resolution {
             tile: c.tile,
             booster: partner.booster,
             ice: c.ice,
+            chain: c.chain,
           );
         }
         hit(indexes.toSet());
@@ -704,14 +864,19 @@ class _Resolution {
       var end = 7;
       while (end >= 0) {
         final fixed = board[end * 8 + col];
-        if (fixed.stack > 0 || fixed.ice > 0) {
+        if (fixed.stack > 0 ||
+            fixed.ice > 0 ||
+            fixed.chain > 0 ||
+            fixed.crate > 0) {
           end--;
           continue;
         }
         var start = end;
         while (start > 0 &&
             board[(start - 1) * 8 + col].stack == 0 &&
-            board[(start - 1) * 8 + col].ice == 0) {
+            board[(start - 1) * 8 + col].ice == 0 &&
+            board[(start - 1) * 8 + col].chain == 0 &&
+            board[(start - 1) * 8 + col].crate == 0) {
           start--;
         }
         final cells = <FlowCell>[

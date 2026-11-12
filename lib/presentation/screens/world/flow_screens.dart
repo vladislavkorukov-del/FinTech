@@ -6,9 +6,38 @@ import '../../../services/flow_catalog.dart';
 import '../../controller.dart';
 import '../../l10n_widgets.dart';
 import '../../widgets/common.dart';
+import 'flow_art.dart';
 import 'flow_board.dart';
+import 'flow_dialogs.dart';
 import 'flow_game_screen.dart';
+import 'flow_hud.dart';
+import 'flow_map_scene.dart';
 import 'world_components.dart';
+
+Route<void> flowPreparationRoute(
+  BuildContext context,
+  FlowLevel level,
+  List<FlowLevel> levels, {
+  VoidCallback? onExitWorld,
+}) => PageRouteBuilder<void>(
+  opaque: false,
+  barrierDismissible: false,
+  transitionDuration: MediaQuery.disableAnimationsOf(context)
+      ? Duration.zero
+      : const Duration(milliseconds: 180),
+  reverseTransitionDuration: MediaQuery.disableAnimationsOf(context)
+      ? Duration.zero
+      : const Duration(milliseconds: 140),
+  pageBuilder: (_, _, _) => WorldTheme(
+    child: FlowPreparationScreen(
+      level: level,
+      levels: levels,
+      onExitWorld: onExitWorld,
+    ),
+  ),
+  transitionsBuilder: (_, animation, _, child) =>
+      FadeTransition(opacity: animation, child: child),
+);
 
 class FlowMapScreen extends StatefulWidget {
   const FlowMapScreen({super.key, this.onExitWorld});
@@ -20,20 +49,25 @@ class FlowMapScreen extends StatefulWidget {
 class _FlowMapScreenState extends State<FlowMapScreen> {
   late Future<List<FlowLevel>> _levels = FlowCatalog.load();
   void _open(List<FlowLevel> levels, FlowLevel level, {bool resume = false}) {
-    worldOpen(
-      context,
-      resume
-          ? FlowGameScreen(
-              level: level,
-              levels: levels,
-              onExitWorld: widget.onExitWorld,
-            )
-          : FlowPreparationScreen(
-              level: level,
-              levels: levels,
-              onExitWorld: widget.onExitWorld,
-            ),
-    );
+    if (resume) {
+      worldOpen(
+        context,
+        FlowGameScreen(
+          level: level,
+          levels: levels,
+          onExitWorld: widget.onExitWorld,
+        ),
+      );
+    } else {
+      Navigator.of(context).push(
+        flowPreparationRoute(
+          context,
+          level,
+          levels,
+          onExitWorld: widget.onExitWorld,
+        ),
+      );
+    }
   }
 
   @override
@@ -67,75 +101,20 @@ class _FlowMapScreenState extends State<FlowMapScreen> {
           ],
         );
       }
-      final c = FinanceScope.of(context);
-      final progress = c.data.world.flow;
+      final progress = FinanceScope.of(context).data.world.flow;
       final current = progress.session;
-      return WorldPage(
-        title: 'Finora — Поток',
-        children: [
-          Text('Первые шаги', style: Theme.of(context).textTheme.headlineSmall),
-          const SizedBox(height: 8),
-          Text('Пройдено ${progress.results.length} из ${levels.length}'),
-          if (current != null && !current.finished) ...[
-            const SizedBox(height: 12),
-            FilledButton.tonalIcon(
-              key: const ValueKey('flow-resume'),
-              onPressed: () => _open(
+      return FlowTerraceMap(
+        levels: levels,
+        progress: progress,
+        onBack: () => Navigator.maybePop(context),
+        onOpen: (level) => _open(levels, level),
+        onResume: current == null || current.finished
+            ? null
+            : () => _open(
                 levels,
                 levels.firstWhere((l) => l.id == current.levelId),
                 resume: true,
               ),
-              icon: const Icon(Icons.play_arrow_rounded),
-              label: Text('Продолжить уровень ${current.levelId}'),
-            ),
-          ],
-          const SizedBox(height: 16),
-          for (final level in levels)
-            Builder(
-              builder: (context) {
-                final result = progress.results[level.id];
-                final unlocked = progress.isUnlocked(level.id);
-                return WorldPanel(
-                  child: ListTile(
-                    key: ValueKey('flow-level-${level.id}'),
-                    contentPadding: EdgeInsets.zero,
-                    leading: CircleAvatar(
-                      backgroundColor: unlocked
-                          ? const Color(0xFFB8DDCA)
-                          : const Color(0xFFE4DEE5),
-                      child: Text(
-                        '${level.id}',
-                        style: const TextStyle(
-                          color: worldPlum,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
-                    title: Text(level.name),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (result != null) ...[
-                          FlowStars(stars: result.stars),
-                          Text('Лучший счёт: ${result.bestScore}'),
-                        ] else
-                          Text(
-                            unlocked
-                                ? '${level.moves} ходов'
-                                : 'Пройдите уровень ${level.id - 1}',
-                          ),
-                      ],
-                    ),
-                    trailing: Icon(
-                      unlocked ? Icons.chevron_right : Icons.lock_outline,
-                    ),
-                    enabled: unlocked,
-                    onTap: unlocked ? () => _open(levels, level) : null,
-                  ),
-                );
-              },
-            ),
-        ],
       );
     },
   );
@@ -157,28 +136,33 @@ class FlowPreparationScreen extends StatefulWidget {
 
 class _FlowPreparationScreenState extends State<FlowPreparationScreen> {
   bool _busy = false;
+  final Set<FlowTool> _tools = {};
   Future<void> _start() async {
     if (_busy) return;
+    setState(() => _busy = true);
     final c = FinanceScope.of(context);
     final old = c.data.world.flow.session;
-    if (old != null && !old.finished) {
-      final replace = await confirm(
-        context,
-        'Начать новую попытку?',
-        'Незавершённая попытка уровня ${old.levelId} будет заменена. Полученные звёзды и награды сохранятся.',
-      );
-      if (!replace || !mounted) return;
-    }
-    setState(() => _busy = true);
     try {
-      await c.startFlow(widget.level, restart: true);
+      if (old != null && !old.finished) {
+        final replace = await confirm(
+          context,
+          'Начать новую попытку?',
+          'Незавершённая попытка уровня ${old.levelId} будет заменена. Полученные звёзды и награды сохранятся.',
+        );
+        if (!replace || !mounted) return;
+      }
+      final sparks = c.data.world.sparks;
+      await c.startFlow(widget.level, restart: true, tools: _tools);
       if (!mounted) return;
       await Navigator.of(context).pushReplacement<void, void>(
         MaterialPageRoute(
-          builder: (_) => FlowGameScreen(
-            level: widget.level,
-            levels: widget.levels,
-            onExitWorld: widget.onExitWorld,
+          builder: (_) => WorldTheme(
+            child: FlowGameScreen(
+              level: widget.level,
+              levels: widget.levels,
+              onExitWorld: widget.onExitWorld,
+              initialReward: c.data.world.sparks - sparks,
+            ),
           ),
         ),
       );
@@ -192,53 +176,207 @@ class _FlowPreparationScreenState extends State<FlowPreparationScreen> {
   @override
   Widget build(BuildContext context) {
     final c = FinanceScope.of(context);
+    final flow = c.data.world.flow;
     final level = widget.level;
     final received = c.data.world.rewards.containsKey(
       'flow:level:${level.id}:v1',
     );
     final reward = WorldCatalog.rewards['game']!;
-    return WorldPage(
-      title: 'Уровень ${level.id}',
-      children: [
-        Text(level.name, style: Theme.of(context).textTheme.headlineSmall),
-        const SizedBox(height: 12),
-        WorldPanel(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                '${level.moves} ходов',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const SizedBox(height: 10),
-              for (final goal in level.goals)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 3),
-                  child: Text('${goal.title}: ${goal.target}'),
+    return WorldTheme(
+      child: FlowOverlay(
+        blur: true,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Flexible(
+                        child: FlowSprite(
+                          'hud_level_label',
+                          width: 130,
+                          height: 30,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Flexible(child: FlowNumber(level.id, size: 30)),
+                    ],
+                  ),
                 ),
-            ],
-          ),
+                FlowArtButton(
+                  key: const ValueKey('flow-preparation-close'),
+                  art: 'map_node_available',
+                  label: 'Закрыть',
+                  onPressed: _busy ? null : () => Navigator.maybePop(context),
+                  width: 48,
+                  height: 48,
+                  child: const Icon(
+                    Icons.close_rounded,
+                    color: flowInk,
+                    size: 25,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            FlowArtPanel(
+              art: 'out_of_moves_button_restart_base',
+              padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Flexible(
+                    child: FlowSprite(
+                      'prelevel_label_moves',
+                      width: 94,
+                      height: 22,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Flexible(child: FlowNumber(level.moves, size: 24)),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            Semantics(
+              header: true,
+              label: 'Цели уровня',
+              child: const FlowSprite('prelevel_label_goals', height: 26),
+            ),
+            const SizedBox(height: 10),
+            FlowGoals(goals: level.goals, iconSize: 58),
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 14),
+              child: Divider(color: Color(0xFFD4B592), height: 1),
+            ),
+            Semantics(
+              header: true,
+              label: 'Усилители',
+              child: const FlowSprite('prelevel_label_boosters', height: 26),
+            ),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                for (final tool in const [
+                  FlowTool.bomb,
+                  FlowTool.shuffle,
+                  FlowTool.extraMoves,
+                ])
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 3),
+                      child: Semantics(
+                        selected: _tools.contains(tool),
+                        child: Stack(
+                          children: [
+                            const Positioned.fill(
+                              child: FlowSprite(
+                                'booster_slot',
+                                fit: BoxFit.fill,
+                              ),
+                            ),
+                            if (_tools.contains(tool))
+                              Positioned.fill(
+                                child: DecoratedBox(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(16),
+                                    border: Border.all(
+                                      color: const Color(0xFF4BCDA8),
+                                      width: 2,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                FlowArtButton(
+                                  key: ValueKey('flow-prelevel-${tool.name}'),
+                                  art: flowToolArt(tool),
+                                  label:
+                                      '${flowToolName(tool)}, запас ${flow.available(tool)}',
+                                  onPressed: _busy || flow.available(tool) == 0
+                                      ? null
+                                      : () => setState(
+                                          () => _tools.contains(tool)
+                                              ? _tools.remove(tool)
+                                              : _tools.add(tool),
+                                        ),
+                                  height: 64,
+                                  width: 72,
+                                ),
+                                SizedBox(
+                                  height: 24,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Flexible(
+                                        child: FlowNumber(
+                                          flow.available(tool),
+                                          size: 16,
+                                        ),
+                                      ),
+                                      if (_tools.contains(tool))
+                                        const Icon(
+                                          Icons.check_circle_rounded,
+                                          color: Color(0xFF27896C),
+                                          size: 19,
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            if (_tools.contains(FlowTool.bomb))
+              const Padding(
+                padding: EdgeInsets.only(top: 8),
+                child: Text(
+                  'Бомба сработает в центре поля',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: flowInk, fontSize: 12),
+                ),
+              ),
+            const SizedBox(height: 14),
+            FlowArtButton(
+              key: const ValueKey('flow-start'),
+              art: 'victory_button_primary_base',
+              labelArt: 'prelevel_label_play',
+              label: _busy ? 'Сохраняем' : 'Играть',
+              onPressed: _busy ? null : _start,
+              width: double.infinity,
+              height: 60,
+            ),
+            if (_busy) const LinearProgressIndicator(),
+            const SizedBox(height: 8),
+            Text(
+              received
+                  ? 'Награда первого прохождения уже получена'
+                  : 'Первое прохождение: ${reward.xp} опыта и ${reward.sparks} искр',
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 11, color: flowInk),
+            ),
+            if (level.tutorial.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Text(
+                  level.tutorial,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 11, color: flowInk),
+                ),
+              ),
+          ],
         ),
-        if (level.tutorial.isNotEmpty) WorldPanel(child: Text(level.tutorial)),
-        const Text(
-          'Нажмите на две соседние клетки или смахните фишку в сторону. Обмен без совпадения не расходует ход.',
-        ),
-        const SizedBox(height: 12),
-        FlowLegend(types: level.types),
-        const SizedBox(height: 16),
-        Text(
-          received
-              ? 'Награда первого прохождения уже получена.'
-              : 'За первое прохождение: ${reward.xp} опыта и ${reward.sparks} искр.',
-        ),
-        const SizedBox(height: 16),
-        FilledButton.icon(
-          key: const ValueKey('flow-start'),
-          onPressed: _busy ? null : _start,
-          icon: const Icon(Icons.play_arrow_rounded),
-          label: Text(_busy ? 'Сохраняем…' : 'Играть'),
-        ),
-      ],
+      ),
     );
   }
 }
@@ -248,20 +386,24 @@ class FlowLegend extends StatelessWidget {
   final List<FlowTile> types;
   @override
   Widget build(BuildContext context) => Wrap(
-    spacing: 7,
-    runSpacing: 7,
+    spacing: 8,
+    runSpacing: 6,
     children: [
       for (final type in types)
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-          decoration: BoxDecoration(
-            color: FlowTileArt.color(type).withValues(alpha: .5),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Text(
-            '${FlowTileArt.symbol(type)} · ${FlowTileArt.name(type)}',
-            style: const TextStyle(fontSize: 12, color: worldPlum),
-          ),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            FlowSprite(
+              'match3_${type.name}',
+              width: 28,
+              height: 28,
+              trim: false,
+            ),
+            Text(
+              FlowTileArt.name(type),
+              style: const TextStyle(color: flowInk, fontSize: 12),
+            ),
+          ],
         ),
     ],
   );
@@ -277,12 +419,10 @@ class FlowStars extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         for (var i = 0; i < 3; i++)
-          Icon(
-            i < stars ? Icons.star_rounded : Icons.star_border_rounded,
-            color: i < stars
-                ? const Color(0xFF936521)
-                : const Color(0xFF9B909C),
-            size: 21,
+          FlowSprite(
+            i < stars ? 'map_star_earned' : 'map_star_empty',
+            width: 22,
+            height: 22,
           ),
       ],
     ),

@@ -1,0 +1,2279 @@
+{
+  "schema": 1,
+  "original_entries": 86,
+  "unique_original_png": 80,
+  "assets": [
+    {
+      "id": "match3_chart",
+      "source_pack": "Finora_Match3_6_Tiles_Final",
+      "source_file": "png/match3_chart.png",
+      "path": "assets/finora/match3/tiles/match3_chart.png",
+      "width": 1024,
+      "height": 1024,
+      "bounds": [
+        0,
+        0,
+        1024,
+        1024
+      ],
+      "visible_bounds_alpha128": [
+        0,
+        0,
+        1024,
+        1024
+      ],
+      "preserve_square": true,
+      "slice": null,
+      "typography": {},
+      "sha256": "7b22bff23f83604d3c6568f669e1f88a8a4c8d874083abb7945e9f5af7c8d5d8",
+      "bytes": 501245
+    },
+    {
+      "id": "match3_coin",
+      "source_pack": "Finora_Match3_6_Tiles_Final",
+      "source_file": "png/match3_coin.png",
+      "path": "assets/finora/match3/tiles/match3_coin.png",
+      "width": 1024,
+      "height": 1024,
+      "bounds": [
+        0,
+        0,
+        1024,
+        1024
+      ],
+      "visible_bounds_alpha128": [
+        0,
+        0,
+        1024,
+        1024
+      ],
+      "preserve_square": true,
+      "slice": null,
+      "typography": {},
+      "sha256": "892b88b161e7ee5f9ee1c50e71c3d4382997ad17c1fc9f9eef18e6ae20fb530d",
+      "bytes": 665540
+    },
+    {
+      "id": "match3_goal",
+      "source_pack": "Finora_Match3_6_Tiles_Final",
+      "source_file": "png/match3_goal.png",
+      "path": "assets/finora/match3/tiles/match3_goal.png",
+      "width": 1024,
+      "height": 1024,
+      "bounds": [
+        0,
+        0,
+        1024,
+        1024
+      ],
+      "visible_bounds_alpha128": [
+        0,
+        0,
+        1024,
+        1024
+      ],
+      "preserve_square": true,
+      "slice": null,
+      "typography": {},
+      "sha256": "81f9abd5e0d4e7b9a25c343183ad2f2e739592127a3829b40a875bb9bb1f8ffd",
+      "bytes": 601877
+    },
+    {
+      "id": "match3_receipt",
+      "source_pack": "Finora_Match3_6_Tiles_Final",
+      "source_file": "png/match3_receipt.png",
+      "path": "assets/finora/match3/tiles/match3_receipt.png",
+      "width": 1024,
+      "height": 1024,
+      "bounds": [
+        0,
+        0,
+        1024,
+        1024
+      ],
+      "visible_bounds_alpha128": [
+        0,
+        0,
+        1024,
+        1024
+      ],
+      "preserve_square": true,
+      "slice": null,
+      "typography": {},
+      "sha256": "ab54e13ef02fd5940814164c6720962816707a786e3976eff10e33374c3e3626",
+      "bytes": 490999
+    },
+    {
+      "id": "match3_shield",
+      "source_pack": "Finora_Match3_6_Tiles_Final",
+      "source_file": "png/match3_shield.png",
+      "path": "assets/finora/match3/tiles/match3_shield.png",
+      "width": 1024,
+      "height": 1024,
+      "bounds": [
+        0,
+        0,
+        1024,
+        1024
+      ],
+      "visible_bounds_alpha128": [
+        0,
+        0,
+        1024,
+        1024
+      ],
+      "preserve_square": true,
+      "slice": null,
+      "typography": {},
+      "sha256": "bae9405aa00fed099bf4f8a92324a42e0dcc76df8217000d37f8687a19675f1a",
+      "bytes": 505845
+    },
+    {
+      "id": "match3_wallet",
+      "source_pack": "Finora_Match3_6_Tiles_Final",
+      "source_file": "png/match3_wallet.png",
+      "path": "assets/finora/match3/tiles/match3_wallet.png",
+      "width": 1024,
+      "height": 1024,
+      "bounds": [
+        0,
+        0,
+        1024,
+        1024
+      ],
+      "visible_bounds_alpha128": [
+        0,
+        0,
+        1024,
+        1024
+      ],
+      "preserve_square": true,
+      "slice": null,
+      "typography": {},
+      "sha256": "2e9d387859806d5db788c6bd81750b427785c1386dcaa56f3dfdc3780e9e6089",
+      "bytes": 653683
+    },
+    {
+      "id": "hud_goals_card",
+      "source_pack": "Finora_Match3_Top_HUD",
+      "source_file": "png/hud_goals_card.png",
+      "path": "assets/finora/match3/hud/hud_goals_card.png",
+      "width": 1774,
+      "height": 887,
+      "bounds": [
+        41,
+        90,
+        1732,
+        809
+      ],
+      "visible_bounds_alpha128": [
+        49,
+        98,
+        1724,
+        801
+      ],
+      "preserve_square": false,
+      "slice": null,
+      "typography": {},
+      "sha256": "d58b5c2fbcb95582c6d31b4d096688b15894a277241dc6484337e516e35422fd",
+      "bytes": 1400572
+    },
+    {
+      "id": "hud_level_header",
+      "source_pack": "Finora_Match3_Top_HUD",
+      "source_file": "png/hud_level_header.png",
+      "path": "assets/finora/match3/hud/hud_level_header.png",
+      "width": 2172,
+      "height": 724,
+      "bounds": [
+        36,
+        171,
+        2135,
+        537
+      ],
+      "visible_bounds_alpha128": [
+        44,
+        179,
+        2127,
+        529
+      ],
+      "preserve_square": false,
+      "slice": [
+        413.82,
+        236.88,
+        1757.18,
+        471.12
+      ],
+      "typography": {},
+      "sha256": "929f4cf96a2ea48f14dca295a13e26cf3c1f4e745c7e1fc79de570b95ba50f6e",
+      "bytes": 928769
+    },
+    {
+      "id": "hud_level_label",
+      "source_pack": "Finora_Match3_Top_HUD",
+      "source_file": "png/hud_level_label.png",
+      "path": "assets/finora/match3/hud/hud_level_label.png",
+      "width": 2172,
+      "height": 724,
+      "bounds": [
+        172,
+        156,
+        2012,
+        583
+      ],
+      "visible_bounds_alpha128": [
+        180,
+        164,
+        2004,
+        575
+      ],
+      "preserve_square": false,
+      "slice": null,
+      "typography": {},
+      "sha256": "75cd4444f86110310f36c4e376bcf16553d52b76b94787cbb42d75723e86ff52",
+      "bytes": 513065
+    },
+    {
+      "id": "hud_moves_card",
+      "source_pack": "Finora_Match3_Top_HUD",
+      "source_file": "png/hud_moves_card.png",
+      "path": "assets/finora/match3/hud/hud_moves_card.png",
+      "width": 1224,
+      "height": 1285,
+      "bounds": [
+        33,
+        41,
+        1185,
+        1236
+      ],
+      "visible_bounds_alpha128": [
+        41,
+        49,
+        1177,
+        1228
+      ],
+      "preserve_square": false,
+      "slice": null,
+      "typography": {},
+      "sha256": "e041b0747dc22870144a4f3eb1a0d9acf527c758c8a1a3021ef240468c1a10e4",
+      "bytes": 1676615
+    },
+    {
+      "id": "hud_pause_button",
+      "source_pack": "Finora_Match3_Top_HUD",
+      "source_file": "png/hud_pause_button.png",
+      "path": "assets/finora/match3/hud/hud_pause_button.png",
+      "width": 1254,
+      "height": 1254,
+      "bounds": [
+        167,
+        156,
+        1074,
+        1068
+      ],
+      "visible_bounds_alpha128": [
+        175,
+        164,
+        1066,
+        1060
+      ],
+      "preserve_square": false,
+      "slice": null,
+      "typography": {},
+      "sha256": "d6d7696e33aa7d49c446b2ba490ba804a3ac12048287e700b8dd066b0e92be86",
+      "bytes": 982111
+    },
+    {
+      "id": "hud_progress_fill",
+      "source_pack": "Finora_Match3_Top_HUD",
+      "source_file": "png/hud_progress_fill.png",
+      "path": "assets/finora/match3/hud/hud_progress_fill.png",
+      "width": 2172,
+      "height": 724,
+      "bounds": [
+        107,
+        275,
+        2065,
+        449
+      ],
+      "visible_bounds_alpha128": [
+        115,
+        283,
+        2057,
+        441
+      ],
+      "preserve_square": false,
+      "slice": null,
+      "typography": {},
+      "sha256": "d4c927e5a6e4d2085f70b40a0504ed2c917620ae143ab6c8ba51e0b1ffe02879",
+      "bytes": 416692
+    },
+    {
+      "id": "hud_progress_track",
+      "source_pack": "Finora_Match3_Top_HUD",
+      "source_file": "png/hud_progress_track.png",
+      "path": "assets/finora/match3/hud/hud_progress_track.png",
+      "width": 2172,
+      "height": 724,
+      "bounds": [
+        50,
+        271,
+        2122,
+        454
+      ],
+      "visible_bounds_alpha128": [
+        58,
+        279,
+        2114,
+        446
+      ],
+      "preserve_square": false,
+      "slice": null,
+      "typography": {},
+      "sha256": "a0cf7efebd18ddea3110197c68ebfe022e934d0494ba2f6d3dbd20c1049257ed",
+      "bytes": 463428
+    },
+    {
+      "id": "hud_star_active",
+      "source_pack": "Finora_Match3_Top_HUD",
+      "source_file": "png/hud_star_active.png",
+      "path": "assets/finora/match3/hud/hud_star_active.png",
+      "width": 1254,
+      "height": 1254,
+      "bounds": [
+        95,
+        102,
+        1156,
+        1133
+      ],
+      "visible_bounds_alpha128": [
+        103,
+        110,
+        1148,
+        1125
+      ],
+      "preserve_square": false,
+      "slice": null,
+      "typography": {},
+      "sha256": "63181d9a69e2a8ba24393efec9a1b6876b9b6c18d25fbdbb751dc793a672479a",
+      "bytes": 905477
+    },
+    {
+      "id": "hud_star_inactive",
+      "source_pack": "Finora_Match3_Top_HUD",
+      "source_file": "png/hud_star_inactive.png",
+      "path": "assets/finora/match3/hud/hud_star_inactive.png",
+      "width": 1254,
+      "height": 1254,
+      "bounds": [
+        98,
+        113,
+        1148,
+        1112
+      ],
+      "visible_bounds_alpha128": [
+        106,
+        121,
+        1140,
+        1104
+      ],
+      "preserve_square": false,
+      "slice": null,
+      "typography": {},
+      "sha256": "92a1c6b9346d11bfda12a14b6f04734d6b034fc3ca73680c6dd6926f78810362",
+      "bytes": 883538
+    },
+    {
+      "id": "booster_bomb",
+      "source_pack": "Finora_Match3_Bottom_HUD",
+      "source_file": "png/booster_bomb.png",
+      "path": "assets/finora/match3/boosters/booster_bomb.png",
+      "width": 1254,
+      "height": 1254,
+      "bounds": [
+        178,
+        110,
+        1079,
+        1162
+      ],
+      "visible_bounds_alpha128": [
+        186,
+        118,
+        1071,
+        1154
+      ],
+      "preserve_square": false,
+      "slice": null,
+      "typography": {},
+      "sha256": "4671727694dbd013b94b4bd9b7c8f5f3f7501a796c4fa0fbccd1628bb723cb77",
+      "bytes": 931875
+    },
+    {
+      "id": "booster_counter_badge",
+      "source_pack": "Finora_Match3_Bottom_HUD",
+      "source_file": "png/booster_counter_badge.png",
+      "path": "assets/finora/match3/boosters/booster_counter_badge.png",
+      "width": 1586,
+      "height": 992,
+      "bounds": [
+        191,
+        179,
+        1381,
+        823
+      ],
+      "visible_bounds_alpha128": [
+        199,
+        187,
+        1373,
+        815
+      ],
+      "preserve_square": false,
+      "slice": null,
+      "typography": {},
+      "sha256": "e8f0efc3d49c8eb72b380c47730a61185f5ec36f436884a9a8663ec313bbe01f",
+      "bytes": 960811
+    },
+    {
+      "id": "booster_extra_moves",
+      "source_pack": "Finora_Match3_Bottom_HUD",
+      "source_file": "png/booster_extra_moves.png",
+      "path": "assets/finora/match3/boosters/booster_extra_moves.png",
+      "width": 1254,
+      "height": 1254,
+      "bounds": [
+        116,
+        125,
+        1148,
+        1115
+      ],
+      "visible_bounds_alpha128": [
+        124,
+        133,
+        1140,
+        1107
+      ],
+      "preserve_square": false,
+      "slice": null,
+      "typography": {},
+      "sha256": "3cbc904ef6d907c7970abb12b1573cafb4e03bba0b4e52b55edcf6703238753d",
+      "bytes": 1222961
+    },
+    {
+      "id": "booster_hammer",
+      "source_pack": "Finora_Match3_Bottom_HUD",
+      "source_file": "png/booster_hammer.png",
+      "path": "assets/finora/match3/boosters/booster_hammer.png",
+      "width": 1254,
+      "height": 1254,
+      "bounds": [
+        112,
+        80,
+        1142,
+        1177
+      ],
+      "visible_bounds_alpha128": [
+        120,
+        88,
+        1134,
+        1169
+      ],
+      "preserve_square": false,
+      "slice": null,
+      "typography": {},
+      "sha256": "62534d10af4c393f14cc561de88ecd51bdf0a5e30e69cce3201be58604bb0a57",
+      "bytes": 990781
+    },
+    {
+      "id": "booster_plus_button",
+      "source_pack": "Finora_Match3_Bottom_HUD",
+      "source_file": "png/booster_plus_button.png",
+      "path": "assets/finora/match3/boosters/booster_plus_button.png",
+      "width": 1254,
+      "height": 1254,
+      "bounds": [
+        91,
+        103,
+        1153,
+        1174
+      ],
+      "visible_bounds_alpha128": [
+        99,
+        111,
+        1145,
+        1166
+      ],
+      "preserve_square": false,
+      "slice": null,
+      "typography": {},
+      "sha256": "323084179d5131a378eb73693ffa5e2c48bb94d77ce76aad4a0054c4877f119d",
+      "bytes": 1157039
+    },
+    {
+      "id": "booster_shuffle",
+      "source_pack": "Finora_Match3_Bottom_HUD",
+      "source_file": "png/booster_shuffle.png",
+      "path": "assets/finora/match3/boosters/booster_shuffle.png",
+      "width": 1254,
+      "height": 1254,
+      "bounds": [
+        83,
+        233,
+        1171,
+        1041
+      ],
+      "visible_bounds_alpha128": [
+        91,
+        241,
+        1163,
+        1033
+      ],
+      "preserve_square": false,
+      "slice": null,
+      "typography": {},
+      "sha256": "3315832adb30de30dd9cf6d9dc3ea32be594d53f5a4b1acac30e497880c2aabc",
+      "bytes": 783271
+    },
+    {
+      "id": "booster_slot",
+      "source_pack": "Finora_Match3_Bottom_HUD",
+      "source_file": "png/booster_slot.png",
+      "path": "assets/finora/match3/boosters/booster_slot.png",
+      "width": 1254,
+      "height": 1254,
+      "bounds": [
+        115,
+        131,
+        1136,
+        1131
+      ],
+      "visible_bounds_alpha128": [
+        123,
+        139,
+        1128,
+        1123
+      ],
+      "preserve_square": false,
+      "slice": null,
+      "typography": {},
+      "sha256": "3d505ea551fbcc684d232285d5ff0975bada307a899b6e8ad327c86ad437bdb6",
+      "bytes": 1252213
+    },
+    {
+      "id": "bottom_panel_base",
+      "source_pack": "Finora_Match3_Bottom_HUD",
+      "source_file": "png/bottom_panel_base.png",
+      "path": "assets/finora/match3/boosters/bottom_panel_base.png",
+      "width": 2172,
+      "height": 724,
+      "bounds": [
+        26,
+        42,
+        2146,
+        680
+      ],
+      "visible_bounds_alpha128": [
+        34,
+        50,
+        2138,
+        672
+      ],
+      "preserve_square": false,
+      "slice": [
+        407.59999999999997,
+        156.83999999999997,
+        1764.4,
+        565.16
+      ],
+      "typography": {},
+      "sha256": "57f40bc9fc3346220af835a4ce48ca56e45e01d5ddfabad1264fd52a28ceaedf",
+      "bytes": 1635812
+    },
+    {
+      "id": "pause_button_continue",
+      "source_pack": "Finora_Match3_Pause",
+      "source_file": "png/pause_button_continue.png",
+      "path": "assets/finora/match3/pause/pause_button_continue.png",
+      "width": 1024,
+      "height": 341,
+      "bounds": [
+        52,
+        75,
+        971,
+        271
+      ],
+      "visible_bounds_alpha128": [
+        60,
+        83,
+        963,
+        263
+      ],
+      "preserve_square": false,
+      "slice": null,
+      "typography": {},
+      "sha256": "b18bad7e273f7e0dac98dfeda398d44b10cbf08cf6626a639666aa50be861ccd",
+      "bytes": 175508
+    },
+    {
+      "id": "pause_button_exit",
+      "source_pack": "Finora_Match3_Pause",
+      "source_file": "png/pause_button_exit.png",
+      "path": "assets/finora/match3/pause/pause_button_exit.png",
+      "width": 1024,
+      "height": 341,
+      "bounds": [
+        57,
+        82,
+        966,
+        259
+      ],
+      "visible_bounds_alpha128": [
+        65,
+        90,
+        958,
+        251
+      ],
+      "preserve_square": false,
+      "slice": null,
+      "typography": {},
+      "sha256": "87a93dd2531f35cb291d22a2e6c844d775644e0728c8a5c6a2f6033ca7d6331c",
+      "bytes": 156169
+    },
+    {
+      "id": "pause_button_restart",
+      "source_pack": "Finora_Match3_Pause",
+      "source_file": "png/pause_button_restart.png",
+      "path": "assets/finora/match3/pause/pause_button_restart.png",
+      "width": 1024,
+      "height": 341,
+      "bounds": [
+        63,
+        85,
+        960,
+        254
+      ],
+      "visible_bounds_alpha128": [
+        71,
+        93,
+        952,
+        246
+      ],
+      "preserve_square": false,
+      "slice": null,
+      "typography": {},
+      "sha256": "166d43700261b919e9cfb1d3a834337fd4974e9ac2e0ffcf0c4c98702567c511",
+      "bytes": 154150
+    },
+    {
+      "id": "pause_haptics_off",
+      "source_pack": "Finora_Match3_Pause",
+      "source_file": "png/pause_haptics_off.png",
+      "path": "assets/finora/match3/pause/pause_haptics_off.png",
+      "width": 512,
+      "height": 512,
+      "bounds": [
+        40,
+        42,
+        463,
+        474
+      ],
+      "visible_bounds_alpha128": [
+        48,
+        50,
+        455,
+        466
+      ],
+      "preserve_square": false,
+      "slice": null,
+      "typography": {},
+      "sha256": "3774a8ee7444b4751bcfcc8f3e2071a0bcbab16f4b6af012a05d799a2be23c0a",
+      "bytes": 209527
+    },
+    {
+      "id": "pause_haptics_on",
+      "source_pack": "Finora_Match3_Pause",
+      "source_file": "png/pause_haptics_on.png",
+      "path": "assets/finora/match3/pause/pause_haptics_on.png",
+      "width": 512,
+      "height": 512,
+      "bounds": [
+        54,
+        61,
+        450,
+        456
+      ],
+      "visible_bounds_alpha128": [
+        62,
+        69,
+        442,
+        448
+      ],
+      "preserve_square": false,
+      "slice": null,
+      "typography": {},
+      "sha256": "b2a03285d9e0f4efa2983ed6970af11bf63c4e66be3052353e2a64205eed85f2",
+      "bytes": 177930
+    },
+    {
+      "id": "pause_music_off",
+      "source_pack": "Finora_Match3_Pause",
+      "source_file": "png/pause_music_off.png",
+      "path": "assets/finora/match3/pause/pause_music_off.png",
+      "width": 512,
+      "height": 512,
+      "bounds": [
+        45,
+        52,
+        453,
+        463
+      ],
+      "visible_bounds_alpha128": [
+        53,
+        60,
+        445,
+        455
+      ],
+      "preserve_square": false,
+      "slice": null,
+      "typography": {},
+      "sha256": "e4245dc96b6f68aa41cffd5077ff76182cc5f0b37c3cc16ac05fefce27db8cd8",
+      "bytes": 182310
+    },
+    {
+      "id": "pause_music_on",
+      "source_pack": "Finora_Match3_Pause",
+      "source_file": "png/pause_music_on.png",
+      "path": "assets/finora/match3/pause/pause_music_on.png",
+      "width": 512,
+      "height": 512,
+      "bounds": [
+        65,
+        71,
+        437,
+        446
+      ],
+      "visible_bounds_alpha128": [
+        73,
+        79,
+        429,
+        438
+      ],
+      "preserve_square": false,
+      "slice": null,
+      "typography": {},
+      "sha256": "153d2527aaf780b0a58621b20c3fa130a56612be3f9f2e9483f46ad89638c7de",
+      "bytes": 157002
+    },
+    {
+      "id": "pause_panel_base",
+      "source_pack": "Finora_Match3_Pause",
+      "source_file": "png/pause_panel_base.png",
+      "path": "assets/finora/match3/pause/pause_panel_base.png",
+      "width": 1024,
+      "height": 949,
+      "bounds": [
+        57,
+        81,
+        966,
+        873
+      ],
+      "visible_bounds_alpha128": [
+        65,
+        89,
+        958,
+        865
+      ],
+      "preserve_square": false,
+      "slice": [
+        220.62,
+        223.56,
+        802.38,
+        730.44
+      ],
+      "typography": {},
+      "sha256": "692dc6d48cdf3fcb89d436edd9bc1bbc48ff212a50a0e187b6d5f5227d84ada8",
+      "bytes": 638348
+    },
+    {
+      "id": "pause_sound_off",
+      "source_pack": "Finora_Match3_Pause",
+      "source_file": "png/pause_sound_off.png",
+      "path": "assets/finora/match3/pause/pause_sound_off.png",
+      "width": 512,
+      "height": 512,
+      "bounds": [
+        47,
+        53,
+        457,
+        466
+      ],
+      "visible_bounds_alpha128": [
+        55,
+        61,
+        449,
+        458
+      ],
+      "preserve_square": false,
+      "slice": null,
+      "typography": {},
+      "sha256": "c0fb1fe24d5fef10580b091fdb35a37059c90f8e431910da79446f38e70f3608",
+      "bytes": 196366
+    },
+    {
+      "id": "pause_sound_on",
+      "source_pack": "Finora_Match3_Pause",
+      "source_file": "png/pause_sound_on.png",
+      "path": "assets/finora/match3/pause/pause_sound_on.png",
+      "width": 512,
+      "height": 512,
+      "bounds": [
+        46,
+        54,
+        457,
+        466
+      ],
+      "visible_bounds_alpha128": [
+        54,
+        62,
+        449,
+        458
+      ],
+      "preserve_square": false,
+      "slice": null,
+      "typography": {},
+      "sha256": "cff1911c1915a051aaa3239cf1826e0933978673066c0568110b9f88a78ee263",
+      "bytes": 186645
+    },
+    {
+      "id": "pause_title",
+      "source_pack": "Finora_Match3_Pause",
+      "source_file": "png/pause_title.png",
+      "path": "assets/finora/match3/pause/pause_title.png",
+      "width": 1024,
+      "height": 367,
+      "bounds": [
+        113,
+        70,
+        908,
+        339
+      ],
+      "visible_bounds_alpha128": [
+        121,
+        78,
+        900,
+        331
+      ],
+      "preserve_square": false,
+      "slice": null,
+      "typography": {},
+      "sha256": "829a74488e814501240229e01547df6889ecaeedfad98566210110ced0d3109c",
+      "bytes": 113516
+    },
+    {
+      "id": "victory_button_primary_base",
+      "source_pack": "Finora_Match3_Victory",
+      "source_file": "png/victory_button_primary_base.png",
+      "path": "assets/finora/match3/victory/victory_button_primary_base.png",
+      "width": 1024,
+      "height": 341,
+      "bounds": [
+        61,
+        80,
+        963,
+        280
+      ],
+      "visible_bounds_alpha128": [
+        69,
+        88,
+        955,
+        272
+      ],
+      "preserve_square": false,
+      "slice": [
+        189,
+        104,
+        835,
+        256
+      ],
+      "typography": {},
+      "sha256": "f439bff0ef37c0ee628d9f94a91bc2c8358acd605ab7ce55ee9e6d040c18ec39",
+      "bytes": 156833
+    },
+    {
+      "id": "victory_button_secondary_base",
+      "source_pack": "Finora_Match3_Victory",
+      "source_file": "png/victory_button_secondary_base.png",
+      "path": "assets/finora/match3/victory/victory_button_secondary_base.png",
+      "width": 1024,
+      "height": 458,
+      "bounds": [
+        78,
+        137,
+        941,
+        313
+      ],
+      "visible_bounds_alpha128": [
+        86,
+        145,
+        933,
+        305
+      ],
+      "preserve_square": false,
+      "slice": [
+        216.08,
+        198.6,
+        802.92,
+        251.4
+      ],
+      "typography": {},
+      "sha256": "0dc8f53a63b5682408a9c39d3c6218f58722d298434fb54d6a7c18121b291ab4",
+      "bytes": 156843
+    },
+    {
+      "id": "victory_label_levels",
+      "source_pack": "Finora_Match3_Victory",
+      "source_file": "png/victory_label_levels.png",
+      "path": "assets/finora/match3/victory/victory_label_levels.png",
+      "width": 1024,
+      "height": 341,
+      "bounds": [
+        106,
+        87,
+        918,
+        251
+      ],
+      "visible_bounds_alpha128": [
+        114,
+        95,
+        910,
+        243
+      ],
+      "preserve_square": false,
+      "slice": null,
+      "typography": {
+        "lowercase_x_height_px": 86
+      },
+      "sha256": "db0d115a5e8e5b3befe5ac069f2102ff73811947359ca94118917f4ed35dd4ee",
+      "bytes": 76180
+    },
+    {
+      "id": "victory_label_next",
+      "source_pack": "Finora_Match3_Victory",
+      "source_file": "png/victory_label_next.png",
+      "path": "assets/finora/match3/victory/victory_label_next.png",
+      "width": 1024,
+      "height": 341,
+      "bounds": [
+        156,
+        81,
+        884,
+        260
+      ],
+      "visible_bounds_alpha128": [
+        164,
+        89,
+        876,
+        252
+      ],
+      "preserve_square": false,
+      "slice": null,
+      "typography": {
+        "lowercase_x_height_px": 105
+      },
+      "sha256": "26a50da3d47df5811506db938e3034200aa754497eb757c7d9c11fedaae94cef",
+      "bytes": 78373
+    },
+    {
+      "id": "victory_label_reward",
+      "source_pack": "Finora_Match3_Victory",
+      "source_file": "png/victory_label_reward.png",
+      "path": "assets/finora/match3/victory/victory_label_reward.png",
+      "width": 1024,
+      "height": 341,
+      "bounds": [
+        69,
+        74,
+        957,
+        285
+      ],
+      "visible_bounds_alpha128": [
+        77,
+        82,
+        949,
+        277
+      ],
+      "preserve_square": false,
+      "slice": null,
+      "typography": {
+        "capital_height_px": 156
+      },
+      "sha256": "35e698762ee963735bcae2247428349f42c18fcbeeafa3ffc055488f9311667e",
+      "bytes": 102460
+    },
+    {
+      "id": "victory_label_score",
+      "source_pack": "Finora_Match3_Victory",
+      "source_file": "png/victory_label_score.png",
+      "path": "assets/finora/match3/victory/victory_label_score.png",
+      "width": 1024,
+      "height": 341,
+      "bounds": [
+        204,
+        76,
+        817,
+        274
+      ],
+      "visible_bounds_alpha128": [
+        212,
+        84,
+        809,
+        266
+      ],
+      "preserve_square": false,
+      "slice": null,
+      "typography": {
+        "capital_height_px": 182
+      },
+      "sha256": "a5fe765411b70dba1bd7d80799bdac84b98c967adc877b167af453e4afbe5a7a",
+      "bytes": 76335
+    },
+    {
+      "id": "victory_panel_base",
+      "source_pack": "Finora_Match3_Victory",
+      "source_file": "png/victory_panel_base.png",
+      "path": "assets/finora/match3/victory/victory_panel_base.png",
+      "width": 1024,
+      "height": 1536,
+      "bounds": [
+        45,
+        57,
+        979,
+        1479
+      ],
+      "visible_bounds_alpha128": [
+        53,
+        65,
+        971,
+        1471
+      ],
+      "preserve_square": false,
+      "slice": [
+        213.12,
+        312.96,
+        810.88,
+        1223.04
+      ],
+      "typography": {},
+      "sha256": "d34b50c3d00c48f06a9891973d837ebc7ecc7e44b504f6f0df59f9743aa3ab38",
+      "bytes": 1309233
+    },
+    {
+      "id": "victory_reward_coin",
+      "source_pack": "Finora_Match3_Victory",
+      "source_file": "png/victory_reward_coin.png",
+      "path": "assets/finora/match3/victory/victory_reward_coin.png",
+      "width": 512,
+      "height": 512,
+      "bounds": [
+        41,
+        40,
+        452,
+        478
+      ],
+      "visible_bounds_alpha128": [
+        49,
+        48,
+        444,
+        470
+      ],
+      "preserve_square": false,
+      "slice": null,
+      "typography": {},
+      "sha256": "fe6a1724362020393188da0179c2a9289bb2b0ec5e2e79bd50f1b237d90b5c21",
+      "bytes": 206415
+    },
+    {
+      "id": "victory_star_earned",
+      "source_pack": "Finora_Match3_Victory",
+      "source_file": "png/victory_star_earned.png",
+      "path": "assets/finora/match3/victory/victory_star_earned.png",
+      "width": 512,
+      "height": 512,
+      "bounds": [
+        34,
+        37,
+        477,
+        467
+      ],
+      "visible_bounds_alpha128": [
+        42,
+        45,
+        469,
+        459
+      ],
+      "preserve_square": false,
+      "slice": null,
+      "typography": {},
+      "sha256": "48752fc799623c1e001fbaedbe921218ca05b0dc21e221f1c641ca3ae23ced41",
+      "bytes": 150678
+    },
+    {
+      "id": "victory_star_empty",
+      "source_pack": "Finora_Match3_Victory",
+      "source_file": "png/victory_star_empty.png",
+      "path": "assets/finora/match3/victory/victory_star_empty.png",
+      "width": 512,
+      "height": 512,
+      "bounds": [
+        35,
+        41,
+        473,
+        459
+      ],
+      "visible_bounds_alpha128": [
+        43,
+        49,
+        465,
+        451
+      ],
+      "preserve_square": false,
+      "slice": null,
+      "typography": {},
+      "sha256": "655b74bba5fe529e9d1a680f7107ecc1a52c083f178d44486d4227c0407d9af0",
+      "bytes": 132617
+    },
+    {
+      "id": "victory_title",
+      "source_pack": "Finora_Match3_Victory",
+      "source_file": "png/victory_title.png",
+      "path": "assets/finora/match3/victory/victory_title.png",
+      "width": 1024,
+      "height": 422,
+      "bounds": [
+        157,
+        74,
+        866,
+        380
+      ],
+      "visible_bounds_alpha128": [
+        165,
+        82,
+        858,
+        372
+      ],
+      "preserve_square": false,
+      "slice": null,
+      "typography": {},
+      "sha256": "46c5712588bac4cfe01097a956ba393596a83481725f3d5c974b7ca97cff283e",
+      "bytes": 136271
+    },
+    {
+      "id": "out_of_moves_button_levels_base",
+      "source_pack": "Finora_Match3_Out_Of_Moves",
+      "source_file": "png/out_of_moves_button_levels_base.png",
+      "path": "assets/finora/match3/victory/victory_button_secondary_base.png",
+      "width": 1024,
+      "height": 458,
+      "bounds": [
+        78,
+        137,
+        941,
+        313
+      ],
+      "visible_bounds_alpha128": [
+        86,
+        145,
+        933,
+        305
+      ],
+      "preserve_square": false,
+      "slice": [
+        216.08,
+        198.6,
+        802.92,
+        251.4
+      ],
+      "typography": {},
+      "sha256": "0dc8f53a63b5682408a9c39d3c6218f58722d298434fb54d6a7c18121b291ab4",
+      "bytes": 156843
+    },
+    {
+      "id": "out_of_moves_button_primary_base",
+      "source_pack": "Finora_Match3_Out_Of_Moves",
+      "source_file": "png/out_of_moves_button_primary_base.png",
+      "path": "assets/finora/match3/victory/victory_button_primary_base.png",
+      "width": 1024,
+      "height": 341,
+      "bounds": [
+        61,
+        80,
+        963,
+        280
+      ],
+      "visible_bounds_alpha128": [
+        69,
+        88,
+        955,
+        272
+      ],
+      "preserve_square": false,
+      "slice": [
+        189,
+        104,
+        835,
+        256
+      ],
+      "typography": {},
+      "sha256": "f439bff0ef37c0ee628d9f94a91bc2c8358acd605ab7ce55ee9e6d040c18ec39",
+      "bytes": 156833
+    },
+    {
+      "id": "out_of_moves_button_restart_base",
+      "source_pack": "Finora_Match3_Out_Of_Moves",
+      "source_file": "png/out_of_moves_button_restart_base.png",
+      "path": "assets/finora/match3/out_of_moves/out_of_moves_button_restart_base.png",
+      "width": 1024,
+      "height": 372,
+      "bounds": [
+        58,
+        98,
+        963,
+        275
+      ],
+      "visible_bounds_alpha128": [
+        66,
+        106,
+        955,
+        267
+      ],
+      "preserve_square": false,
+      "slice": [
+        186,
+        122,
+        835,
+        251
+      ],
+      "typography": {},
+      "sha256": "54bf1dcf77aa054326952e2f5bf96a1c08127de3a13de22b3c5126d668da0f90",
+      "bytes": 159706
+    },
+    {
+      "id": "out_of_moves_goal_chart",
+      "source_pack": "Finora_Match3_Out_Of_Moves",
+      "source_file": "png/out_of_moves_goal_chart.png",
+      "path": "assets/finora/match3/out_of_moves/out_of_moves_goal_chart.png",
+      "width": 512,
+      "height": 512,
+      "bounds": [
+        45,
+        46,
+        465,
+        467
+      ],
+      "visible_bounds_alpha128": [
+        53,
+        54,
+        457,
+        459
+      ],
+      "preserve_square": false,
+      "slice": null,
+      "typography": {},
+      "sha256": "80fdb753230e081d741edb07cc4943b99465550c707b52e3024c52e7b0507bcf",
+      "bytes": 151501
+    },
+    {
+      "id": "out_of_moves_goal_coin",
+      "source_pack": "Finora_Match3_Out_Of_Moves",
+      "source_file": "png/out_of_moves_goal_coin.png",
+      "path": "assets/finora/match3/victory/victory_reward_coin.png",
+      "width": 512,
+      "height": 512,
+      "bounds": [
+        41,
+        40,
+        452,
+        478
+      ],
+      "visible_bounds_alpha128": [
+        49,
+        48,
+        444,
+        470
+      ],
+      "preserve_square": false,
+      "slice": null,
+      "typography": {},
+      "sha256": "fe6a1724362020393188da0179c2a9289bb2b0ec5e2e79bd50f1b237d90b5c21",
+      "bytes": 206415
+    },
+    {
+      "id": "out_of_moves_goal_goal",
+      "source_pack": "Finora_Match3_Out_Of_Moves",
+      "source_file": "png/out_of_moves_goal_goal.png",
+      "path": "assets/finora/match3/out_of_moves/out_of_moves_goal_goal.png",
+      "width": 512,
+      "height": 512,
+      "bounds": [
+        41,
+        43,
+        467,
+        483
+      ],
+      "visible_bounds_alpha128": [
+        49,
+        51,
+        459,
+        475
+      ],
+      "preserve_square": false,
+      "slice": null,
+      "typography": {},
+      "sha256": "7cab5215f7103ffe77e8ee843be263731d81eae5ab66e369728197ea73938a97",
+      "bytes": 187679
+    },
+    {
+      "id": "out_of_moves_goal_receipt",
+      "source_pack": "Finora_Match3_Out_Of_Moves",
+      "source_file": "png/out_of_moves_goal_receipt.png",
+      "path": "assets/finora/match3/out_of_moves/out_of_moves_goal_receipt.png",
+      "width": 512,
+      "height": 512,
+      "bounds": [
+        58,
+        43,
+        448,
+        477
+      ],
+      "visible_bounds_alpha128": [
+        66,
+        51,
+        440,
+        469
+      ],
+      "preserve_square": false,
+      "slice": null,
+      "typography": {},
+      "sha256": "d59ea3067add87c89e96aea5899a986689f8e81a262d139888fc3ad2fcbbfc2d",
+      "bytes": 149208
+    },
+    {
+      "id": "out_of_moves_goal_shield",
+      "source_pack": "Finora_Match3_Out_Of_Moves",
+      "source_file": "png/out_of_moves_goal_shield.png",
+      "path": "assets/finora/match3/out_of_moves/out_of_moves_goal_shield.png",
+      "width": 512,
+      "height": 512,
+      "bounds": [
+        60,
+        40,
+        449,
+        486
+      ],
+      "visible_bounds_alpha128": [
+        68,
+        48,
+        441,
+        478
+      ],
+      "preserve_square": false,
+      "slice": null,
+      "typography": {},
+      "sha256": "87b9924f6717b9f25853e3630ba88a03dca49c464c9ca7811de3a9f78b7303b8",
+      "bytes": 157002
+    },
+    {
+      "id": "out_of_moves_goal_wallet",
+      "source_pack": "Finora_Match3_Out_Of_Moves",
+      "source_file": "png/out_of_moves_goal_wallet.png",
+      "path": "assets/finora/match3/out_of_moves/out_of_moves_goal_wallet.png",
+      "width": 512,
+      "height": 512,
+      "bounds": [
+        39,
+        81,
+        473,
+        459
+      ],
+      "visible_bounds_alpha128": [
+        47,
+        89,
+        465,
+        451
+      ],
+      "preserve_square": false,
+      "slice": null,
+      "typography": {},
+      "sha256": "f9a7f506ede782c3087276f707bc9ae1c68c18ae8e7a95b1107f4acbbf2e4cf5",
+      "bytes": 187684
+    },
+    {
+      "id": "out_of_moves_label_extra_moves",
+      "source_pack": "Finora_Match3_Out_Of_Moves",
+      "source_file": "png/out_of_moves_label_extra_moves.png",
+      "path": "assets/finora/match3/out_of_moves/out_of_moves_label_extra_moves.png",
+      "width": 1024,
+      "height": 341,
+      "bounds": [
+        99,
+        107,
+        930,
+        244
+      ],
+      "visible_bounds_alpha128": [
+        107,
+        115,
+        922,
+        236
+      ],
+      "preserve_square": false,
+      "slice": null,
+      "typography": {
+        "capital_height_px": 100
+      },
+      "sha256": "91b3855f94f9cc3fb74ca6af597495d80112ed5ae6799548147b14a53c7264fc",
+      "bytes": 74730
+    },
+    {
+      "id": "out_of_moves_label_levels",
+      "source_pack": "Finora_Match3_Out_Of_Moves",
+      "source_file": "png/out_of_moves_label_levels.png",
+      "path": "assets/finora/match3/victory/victory_label_levels.png",
+      "width": 1024,
+      "height": 341,
+      "bounds": [
+        106,
+        87,
+        918,
+        251
+      ],
+      "visible_bounds_alpha128": [
+        114,
+        95,
+        910,
+        243
+      ],
+      "preserve_square": false,
+      "slice": null,
+      "typography": {
+        "capital_height_px": 116
+      },
+      "sha256": "db0d115a5e8e5b3befe5ac069f2102ff73811947359ca94118917f4ed35dd4ee",
+      "bytes": 76180
+    },
+    {
+      "id": "out_of_moves_label_remaining",
+      "source_pack": "Finora_Match3_Out_Of_Moves",
+      "source_file": "png/out_of_moves_label_remaining.png",
+      "path": "assets/finora/match3/out_of_moves/out_of_moves_label_remaining.png",
+      "width": 1024,
+      "height": 341,
+      "bounds": [
+        89,
+        118,
+        936,
+        226
+      ],
+      "visible_bounds_alpha128": [
+        97,
+        126,
+        928,
+        218
+      ],
+      "preserve_square": false,
+      "slice": null,
+      "typography": {},
+      "sha256": "3c93b00a84f3092280589440662ae147ae02be3a3f1de4c3403e74971900ea56",
+      "bytes": 56553
+    },
+    {
+      "id": "out_of_moves_label_restart",
+      "source_pack": "Finora_Match3_Out_Of_Moves",
+      "source_file": "png/out_of_moves_label_restart.png",
+      "path": "assets/finora/match3/out_of_moves/out_of_moves_label_restart.png",
+      "width": 1024,
+      "height": 347,
+      "bounds": [
+        136,
+        92,
+        892,
+        259
+      ],
+      "visible_bounds_alpha128": [
+        144,
+        100,
+        884,
+        251
+      ],
+      "preserve_square": false,
+      "slice": null,
+      "typography": {
+        "capital_height_px": 151
+      },
+      "sha256": "ae82e3d503ed376fb1299d474121a89444d76d4878095fee3a15b65dc463363f",
+      "bytes": 84789
+    },
+    {
+      "id": "out_of_moves_panel_base",
+      "source_pack": "Finora_Match3_Out_Of_Moves",
+      "source_file": "png/out_of_moves_panel_base.png",
+      "path": "assets/finora/match3/out_of_moves/out_of_moves_panel_base.png",
+      "width": 1122,
+      "height": 1402,
+      "bounds": [
+        73,
+        85,
+        1047,
+        1327
+      ],
+      "visible_bounds_alpha128": [
+        81,
+        93,
+        1039,
+        1319
+      ],
+      "preserve_square": false,
+      "slice": [
+        201,
+        213,
+        919,
+        1199
+      ],
+      "typography": {},
+      "sha256": "3ccb8b53c043eb1399975c0405cf51650ed96b798feaa0079b5a37ea5c2ff991",
+      "bytes": 1014173
+    },
+    {
+      "id": "out_of_moves_title",
+      "source_pack": "Finora_Match3_Out_Of_Moves",
+      "source_file": "png/out_of_moves_title.png",
+      "path": "assets/finora/match3/out_of_moves/out_of_moves_title.png",
+      "width": 1024,
+      "height": 342,
+      "bounds": [
+        96,
+        48,
+        941,
+        297
+      ],
+      "visible_bounds_alpha128": [
+        104,
+        56,
+        933,
+        289
+      ],
+      "preserve_square": false,
+      "slice": null,
+      "typography": {},
+      "sha256": "2c9c36fe559654309f9a570ded1395482a72aa1922b9ff1f52aad79ddb64401f",
+      "bytes": 101318
+    },
+    {
+      "id": "map_bg_A",
+      "source_pack": "Finora_Match3_Terrace_Map",
+      "source_file": "backgrounds/map_bg_A.png",
+      "path": "assets/finora/match3/map/map_bg_A.png",
+      "width": 724,
+      "height": 724,
+      "bounds": [
+        0,
+        0,
+        724,
+        724
+      ],
+      "visible_bounds_alpha128": [
+        0,
+        0,
+        724,
+        724
+      ],
+      "preserve_square": true,
+      "slice": null,
+      "typography": {},
+      "sha256": "280e42a2ee36b5c42348e750682eebb90f0483986da93316e621e7ab98f05b69",
+      "bytes": 822283
+    },
+    {
+      "id": "map_bg_B",
+      "source_pack": "Finora_Match3_Terrace_Map",
+      "source_file": "backgrounds/map_bg_B.png",
+      "path": "assets/finora/match3/map/map_bg_B.png",
+      "width": 724,
+      "height": 724,
+      "bounds": [
+        0,
+        0,
+        724,
+        724
+      ],
+      "visible_bounds_alpha128": [
+        0,
+        0,
+        724,
+        724
+      ],
+      "preserve_square": true,
+      "slice": null,
+      "typography": {},
+      "sha256": "adf0d0e3aeacb1085aa71d87708f9bbf43e275e3365c205a0db0464b11d8ffae",
+      "bytes": 881111
+    },
+    {
+      "id": "map_bg_C",
+      "source_pack": "Finora_Match3_Terrace_Map",
+      "source_file": "backgrounds/map_bg_C.png",
+      "path": "assets/finora/match3/map/map_bg_C.png",
+      "width": 724,
+      "height": 724,
+      "bounds": [
+        0,
+        0,
+        724,
+        724
+      ],
+      "visible_bounds_alpha128": [
+        0,
+        0,
+        724,
+        724
+      ],
+      "preserve_square": true,
+      "slice": null,
+      "typography": {},
+      "sha256": "cb5676e94ec6249356466af8eb93a747918a5d5ed384f75c74be1bfa3bed953e",
+      "bytes": 805860
+    },
+    {
+      "id": "map_button_back",
+      "source_pack": "Finora_Match3_Terrace_Map",
+      "source_file": "png/map_button_back.png",
+      "path": "assets/finora/match3/map/map_button_back.png",
+      "width": 512,
+      "height": 512,
+      "bounds": [
+        60,
+        69,
+        440,
+        450
+      ],
+      "visible_bounds_alpha128": [
+        68,
+        77,
+        432,
+        442
+      ],
+      "preserve_square": false,
+      "slice": null,
+      "typography": {},
+      "sha256": "35478d10db32e8b52b38db1df4b1a3aa87ceb04aea9579b792b7f0146c82ab38",
+      "bytes": 160715
+    },
+    {
+      "id": "map_header_base",
+      "source_pack": "Finora_Match3_Terrace_Map",
+      "source_file": "png/map_header_base.png",
+      "path": "assets/finora/match3/map/map_header_base.png",
+      "width": 1024,
+      "height": 341,
+      "bounds": [
+        13,
+        76,
+        1011,
+        257
+      ],
+      "visible_bounds_alpha128": [
+        21,
+        84,
+        1003,
+        249
+      ],
+      "preserve_square": false,
+      "slice": [
+        192.64,
+        108.58,
+        831.36,
+        224.42000000000002
+      ],
+      "typography": {},
+      "sha256": "6e74ec23effdbecf5da68ec3cbdd357afaba49828c351399c3af6f2dbf62dbdb",
+      "bytes": 160262
+    },
+    {
+      "id": "map_label_levels",
+      "source_pack": "Finora_Match3_Terrace_Map",
+      "source_file": "png/map_label_levels.png",
+      "path": "assets/finora/match3/map/map_label_levels.png",
+      "width": 1024,
+      "height": 341,
+      "bounds": [
+        14,
+        50,
+        1012,
+        320
+      ],
+      "visible_bounds_alpha128": [
+        22,
+        58,
+        1004,
+        312
+      ],
+      "preserve_square": false,
+      "slice": null,
+      "typography": {},
+      "sha256": "542650e3bf25f1167f87141ac4ab1c2deb78e6bad44d5321b534c41a9de159ce",
+      "bytes": 185890
+    },
+    {
+      "id": "map_lock_closed",
+      "source_pack": "Finora_Match3_Terrace_Map",
+      "source_file": "png/map_lock_closed.png",
+      "path": "assets/finora/match3/map/map_lock_closed.png",
+      "width": 512,
+      "height": 512,
+      "bounds": [
+        107,
+        82,
+        397,
+        431
+      ],
+      "visible_bounds_alpha128": [
+        115,
+        90,
+        389,
+        423
+      ],
+      "preserve_square": false,
+      "slice": null,
+      "typography": {},
+      "sha256": "700428f14853d9802394affafc14e24486b767aaf7106a462f91302c832fa156",
+      "bytes": 110312
+    },
+    {
+      "id": "map_node_available",
+      "source_pack": "Finora_Match3_Terrace_Map",
+      "source_file": "png/map_node_available.png",
+      "path": "assets/finora/match3/map/map_node_available.png",
+      "width": 512,
+      "height": 512,
+      "bounds": [
+        51,
+        53,
+        450,
+        461
+      ],
+      "visible_bounds_alpha128": [
+        59,
+        61,
+        442,
+        453
+      ],
+      "preserve_square": false,
+      "slice": null,
+      "typography": {},
+      "sha256": "b2cf7da5847495d29f2168a49664d60162597212c38c37075cad7a889efda033",
+      "bytes": 159411
+    },
+    {
+      "id": "map_node_completed",
+      "source_pack": "Finora_Match3_Terrace_Map",
+      "source_file": "png/map_node_completed.png",
+      "path": "assets/finora/match3/map/map_node_completed.png",
+      "width": 512,
+      "height": 512,
+      "bounds": [
+        42,
+        29,
+        459,
+        473
+      ],
+      "visible_bounds_alpha128": [
+        50,
+        37,
+        451,
+        465
+      ],
+      "preserve_square": false,
+      "slice": null,
+      "typography": {},
+      "sha256": "ca731d66bb317ff7ca3fcd6d988be3379f6442812eed8de60495f7d78fa14e35",
+      "bytes": 176804
+    },
+    {
+      "id": "map_node_current",
+      "source_pack": "Finora_Match3_Terrace_Map",
+      "source_file": "png/map_node_current.png",
+      "path": "assets/finora/match3/map/map_node_current.png",
+      "width": 512,
+      "height": 512,
+      "bounds": [
+        42,
+        54,
+        459,
+        473
+      ],
+      "visible_bounds_alpha128": [
+        50,
+        62,
+        451,
+        465
+      ],
+      "preserve_square": false,
+      "slice": null,
+      "typography": {},
+      "sha256": "af8d3d66edece9ec00cf04847bfb050cea4829ab6b9672d54e93e71c9a9ab85a",
+      "bytes": 180570
+    },
+    {
+      "id": "map_node_locked",
+      "source_pack": "Finora_Match3_Terrace_Map",
+      "source_file": "png/map_node_locked.png",
+      "path": "assets/finora/match3/map/map_node_locked.png",
+      "width": 512,
+      "height": 512,
+      "bounds": [
+        56,
+        54,
+        445,
+        459
+      ],
+      "visible_bounds_alpha128": [
+        64,
+        62,
+        437,
+        451
+      ],
+      "preserve_square": false,
+      "slice": null,
+      "typography": {},
+      "sha256": "1510ff19d6f6082482cd2994aeb5ec0b4963908e346c7c59cdcb32b3819cc38d",
+      "bytes": 167322
+    },
+    {
+      "id": "map_star_earned",
+      "source_pack": "Finora_Match3_Terrace_Map",
+      "source_file": "png/map_star_earned.png",
+      "path": "assets/finora/match3/victory/victory_star_earned.png",
+      "width": 512,
+      "height": 512,
+      "bounds": [
+        34,
+        37,
+        477,
+        467
+      ],
+      "visible_bounds_alpha128": [
+        42,
+        45,
+        469,
+        459
+      ],
+      "preserve_square": false,
+      "slice": null,
+      "typography": {},
+      "sha256": "48752fc799623c1e001fbaedbe921218ca05b0dc21e221f1c641ca3ae23ced41",
+      "bytes": 150678
+    },
+    {
+      "id": "map_star_empty",
+      "source_pack": "Finora_Match3_Terrace_Map",
+      "source_file": "png/map_star_empty.png",
+      "path": "assets/finora/match3/victory/victory_star_empty.png",
+      "width": 512,
+      "height": 512,
+      "bounds": [
+        35,
+        41,
+        473,
+        459
+      ],
+      "visible_bounds_alpha128": [
+        43,
+        49,
+        465,
+        451
+      ],
+      "preserve_square": false,
+      "slice": null,
+      "typography": {},
+      "sha256": "655b74bba5fe529e9d1a680f7107ecc1a52c083f178d44486d4227c0407d9af0",
+      "bytes": 132617
+    },
+    {
+      "id": "prelevel_label_boosters",
+      "source_pack": "Finora_Match3_Prelevel",
+      "source_file": "png/prelevel_label_boosters.png",
+      "path": "assets/finora/match3/prelevel/prelevel_label_boosters.png",
+      "width": 1024,
+      "height": 341,
+      "bounds": [
+        66,
+        91,
+        956,
+        247
+      ],
+      "visible_bounds_alpha128": [
+        74,
+        99,
+        948,
+        239
+      ],
+      "preserve_square": false,
+      "slice": null,
+      "typography": {},
+      "sha256": "8bcb01cc7faaabdb9ed5b313f381d0b2e04728afacd57e81764e6c7c92123a1c",
+      "bytes": 112260
+    },
+    {
+      "id": "prelevel_label_goals",
+      "source_pack": "Finora_Match3_Prelevel",
+      "source_file": "png/prelevel_label_goals.png",
+      "path": "assets/finora/match3/prelevel/prelevel_label_goals.png",
+      "width": 1024,
+      "height": 341,
+      "bounds": [
+        49,
+        94,
+        976,
+        256
+      ],
+      "visible_bounds_alpha128": [
+        57,
+        102,
+        968,
+        248
+      ],
+      "preserve_square": false,
+      "slice": null,
+      "typography": {},
+      "sha256": "1acafc9f37a4774f2d031f4920a4eaa291c80808570e90345cf792a96c248ae2",
+      "bytes": 115695
+    },
+    {
+      "id": "prelevel_label_moves",
+      "source_pack": "Finora_Match3_Prelevel",
+      "source_file": "png/prelevel_label_moves.png",
+      "path": "assets/finora/match3/prelevel/prelevel_label_moves.png",
+      "width": 1024,
+      "height": 341,
+      "bounds": [
+        173,
+        71,
+        850,
+        284
+      ],
+      "visible_bounds_alpha128": [
+        181,
+        79,
+        842,
+        276
+      ],
+      "preserve_square": false,
+      "slice": null,
+      "typography": {},
+      "sha256": "1dbd3e78824831ea17681d937c4628d754db862029d40cb60ad4a1b5aaefed6b",
+      "bytes": 112588
+    },
+    {
+      "id": "prelevel_label_play",
+      "source_pack": "Finora_Match3_Prelevel",
+      "source_file": "png/prelevel_label_play.png",
+      "path": "assets/finora/match3/prelevel/prelevel_label_play.png",
+      "width": 1024,
+      "height": 341,
+      "bounds": [
+        138,
+        71,
+        887,
+        287
+      ],
+      "visible_bounds_alpha128": [
+        146,
+        79,
+        879,
+        279
+      ],
+      "preserve_square": false,
+      "slice": null,
+      "typography": {},
+      "sha256": "69605f3dac04c625e81368e3a3a6b4c313d1f417c05e25c651078920ae29f6e5",
+      "bytes": 109308
+    },
+    {
+      "id": "obstacle_chain_damaged",
+      "source_pack": "Finora_Match3_Obstacles",
+      "source_file": "png/obstacle_chain_damaged.png",
+      "path": "assets/finora/match3/obstacles/obstacle_chain_damaged.png",
+      "width": 1024,
+      "height": 1024,
+      "bounds": [
+        0,
+        0,
+        1024,
+        1024
+      ],
+      "visible_bounds_alpha128": [
+        0,
+        0,
+        1024,
+        1024
+      ],
+      "preserve_square": true,
+      "slice": null,
+      "typography": {},
+      "sha256": "11403e8ecdcb980febe82d072a7099f7b4b9da2666b9bc7595b0ca0f6220a854",
+      "bytes": 352204
+    },
+    {
+      "id": "obstacle_chain_intact",
+      "source_pack": "Finora_Match3_Obstacles",
+      "source_file": "png/obstacle_chain_intact.png",
+      "path": "assets/finora/match3/obstacles/obstacle_chain_intact.png",
+      "width": 1024,
+      "height": 1024,
+      "bounds": [
+        0,
+        0,
+        1024,
+        1024
+      ],
+      "visible_bounds_alpha128": [
+        0,
+        0,
+        1024,
+        1024
+      ],
+      "preserve_square": true,
+      "slice": null,
+      "typography": {},
+      "sha256": "7cc475eed43b381910f2f6ef8a0487ca2f6d665a9a9753106fb88e0eee942ef3",
+      "bytes": 670799
+    },
+    {
+      "id": "obstacle_crate_damaged",
+      "source_pack": "Finora_Match3_Obstacles",
+      "source_file": "png/obstacle_crate_damaged.png",
+      "path": "assets/finora/match3/obstacles/obstacle_crate_damaged.png",
+      "width": 1024,
+      "height": 1024,
+      "bounds": [
+        0,
+        0,
+        1024,
+        1024
+      ],
+      "visible_bounds_alpha128": [
+        0,
+        0,
+        1024,
+        1024
+      ],
+      "preserve_square": true,
+      "slice": null,
+      "typography": {},
+      "sha256": "75ad5d6964e0a14061fe5a9e49234cb147a4d3072df37ea775af762637e4d9bf",
+      "bytes": 986394
+    },
+    {
+      "id": "obstacle_crate_intact",
+      "source_pack": "Finora_Match3_Obstacles",
+      "source_file": "png/obstacle_crate_intact.png",
+      "path": "assets/finora/match3/obstacles/obstacle_crate_intact.png",
+      "width": 1024,
+      "height": 1024,
+      "bounds": [
+        0,
+        0,
+        1024,
+        1024
+      ],
+      "visible_bounds_alpha128": [
+        0,
+        0,
+        1024,
+        1024
+      ],
+      "preserve_square": true,
+      "slice": null,
+      "typography": {},
+      "sha256": "519a487e26186a8af748ae73b26ed54a41d7c84194882cdc273183e2ad2d976c",
+      "bytes": 926936
+    },
+    {
+      "id": "obstacle_ice_cracked",
+      "source_pack": "Finora_Match3_Obstacles",
+      "source_file": "png/obstacle_ice_cracked.png",
+      "path": "assets/finora/match3/obstacles/obstacle_ice_cracked.png",
+      "width": 1024,
+      "height": 1024,
+      "bounds": [
+        0,
+        0,
+        1024,
+        1024
+      ],
+      "visible_bounds_alpha128": [
+        0,
+        0,
+        1024,
+        1024
+      ],
+      "preserve_square": true,
+      "slice": null,
+      "typography": {},
+      "sha256": "2717e6f833d564521b277b238503fcf2bb31518fd731067acf3b616cfa31cca7",
+      "bytes": 452169
+    },
+    {
+      "id": "obstacle_ice_intact",
+      "source_pack": "Finora_Match3_Obstacles",
+      "source_file": "png/obstacle_ice_intact.png",
+      "path": "assets/finora/match3/obstacles/obstacle_ice_intact.png",
+      "width": 1024,
+      "height": 1024,
+      "bounds": [
+        0,
+        0,
+        1024,
+        1024
+      ],
+      "visible_bounds_alpha128": [
+        0,
+        0,
+        1024,
+        1024
+      ],
+      "preserve_square": true,
+      "slice": null,
+      "typography": {},
+      "sha256": "cbc95e63afe558522ce0b52e9f40d171c7d6ab4471fc8d2a3aa4ec7bf1d58ccf",
+      "bytes": 934128
+    },
+    {
+      "id": "match3_rainbow_sphere",
+      "source_pack": "Finora_Match3_Special_Pieces",
+      "source_file": "png/match3_rainbow_sphere.png",
+      "path": "assets/finora/match3/special/match3_rainbow_sphere.png",
+      "width": 1024,
+      "height": 1024,
+      "bounds": [
+        0,
+        0,
+        1024,
+        1024
+      ],
+      "visible_bounds_alpha128": [
+        0,
+        0,
+        1024,
+        1024
+      ],
+      "preserve_square": true,
+      "slice": null,
+      "typography": {},
+      "sha256": "8808a7e763aebfc543c566d9f15f218f4134b021bb0d051ecd0b4173149c8d90",
+      "bytes": 693916
+    },
+    {
+      "id": "match3_rocket_horizontal",
+      "source_pack": "Finora_Match3_Special_Pieces",
+      "source_file": "png/match3_rocket_horizontal.png",
+      "path": "assets/finora/match3/special/match3_rocket_horizontal.png",
+      "width": 1024,
+      "height": 1024,
+      "bounds": [
+        0,
+        0,
+        1024,
+        1024
+      ],
+      "visible_bounds_alpha128": [
+        0,
+        0,
+        1024,
+        1024
+      ],
+      "preserve_square": true,
+      "slice": null,
+      "typography": {},
+      "sha256": "6a88c8a68b52976cec57aa801f69b6c36ff972fc13c5c75fba8caa2d752bcf93",
+      "bytes": 465941
+    },
+    {
+      "id": "match3_rocket_vertical",
+      "source_pack": "Finora_Match3_Special_Pieces",
+      "source_file": "png/match3_rocket_vertical.png",
+      "path": "assets/finora/match3/special/match3_rocket_vertical.png",
+      "width": 1024,
+      "height": 1024,
+      "bounds": [
+        0,
+        0,
+        1024,
+        1024
+      ],
+      "visible_bounds_alpha128": [
+        0,
+        0,
+        1024,
+        1024
+      ],
+      "preserve_square": true,
+      "slice": null,
+      "typography": {},
+      "sha256": "24c98f7a9724373fc9b6c340df7fda951ab8f5ab5a3d1d4a44d3ad735b0662e9",
+      "bytes": 437204
+    }
+  ],
+  "note": "All originals kept byte-identical. Aliases share a path only for identical bytes. UI visible rects include an 8-source-pixel anti-alias margin; square game sprites always retain full original canvas.",
+  "source_archives": [
+    {
+      "file": "Finora_Match3_Terrace_Map_3_BG_10_UI.zip",
+      "bytes": 8996498,
+      "sha256": "4eb279a9da96e5bcd75261ff86a07c86cd9345bab89bdbb27547f3628dc8d8c9"
+    },
+    {
+      "file": "Finora_Match3_Bottom_HUD_8_PNG.zip",
+      "bytes": 9700960,
+      "sha256": "22503490f08f448c3e4f06ed5196cbb3a5c6cdfe16d0e1aebc646ff73fdcc1bf"
+    },
+    {
+      "file": "Finora_Match3_Pause_11_PNG.zip",
+      "bytes": 5116287,
+      "sha256": "f015df03b54e822d9fe3f607e74075a341b9c2914797eb652c93ea6f935d6c36"
+    },
+    {
+      "file": "Finora_Match3_6_Tiles_1024_PNG.zip",
+      "bytes": 3408222,
+      "sha256": "df494629e7d80f27b1003efd8aeb59e5a0088e5d65f182695ede66c42e3c9af9"
+    },
+    {
+      "file": "Finora_Match3_Top_HUD_9_PNG.zip",
+      "bytes": 8814241,
+      "sha256": "65ebcc81ada525a95171c396a7a31690e580c0f521a49e6a4a55c484e1cbd0b0"
+    },
+    {
+      "file": "Finora_Match3_Out_Of_Moves_15_PNG.zip",
+      "bytes": 5633824,
+      "sha256": "cb08221f906ad2090aa9f30aa2f70749f10e7f04416ffb9907fdd0ad8ced1acf"
+    },
+    {
+      "file": "Finora_Match3_Prelevel_New_Labels_and_Codex.zip",
+      "bytes": 943310,
+      "sha256": "c4d01ba476d10d676294cd61bfbfd43430850b9d8d0299a621c3d7305f18d503"
+    },
+    {
+      "file": "Finora_Match3_Obstacles_6_PNG_with_Codex.zip",
+      "bytes": 5355786,
+      "sha256": "e8fede4570e98af25015ac5fb70f62ba65a28e734e78b01f4a81ce9708b566b9"
+    },
+    {
+      "file": "Finora_Match3_Victory_11_PNG.zip",
+      "bytes": 5643063,
+      "sha256": "3163a5e4904bc6082c8119fab11015ff5f568b53dcaac0107a3ae72aa528e816"
+    },
+    {
+      "file": "Finora_Match3_Special_Pieces_3_PNG_with_Codex.zip",
+      "bytes": 2194978,
+      "sha256": "15ad7810d34bb8b5588bb3740c7d8d7f87c6acc38ff6f346e8923e79a6c0d23c"
+    }
+  ]
+}

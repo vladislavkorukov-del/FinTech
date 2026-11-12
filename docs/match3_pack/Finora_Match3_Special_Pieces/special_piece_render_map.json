@@ -1,0 +1,50 @@
+{
+  "anchor": [
+    0.5,
+    0.5
+  ],
+  "canvas": [
+    1024,
+    1024
+  ],
+  "special_pieces": {
+    "rocket_horizontal": {
+      "asset": "png/match3_rocket_horizontal.png",
+      "effect": "clear_row",
+      "trigger_pattern": "straight_horizontal_4"
+    },
+    "rocket_vertical": {
+      "asset": "png/match3_rocket_vertical.png",
+      "effect": "clear_column",
+      "trigger_pattern": "straight_vertical_4"
+    },
+    "rainbow_sphere": {
+      "asset": "png/match3_rainbow_sphere.png",
+      "effect": "clear_chosen_piece_type",
+      "trigger_pattern": "straight_5_or_more"
+    },
+    "bomb": {
+      "asset_reuse": {
+        "id": "booster_bomb",
+        "purpose_ru": "Бомба",
+        "existing_workspace_relative_path": "Finora_Match3_Bottom_HUD/png/booster_bomb.png",
+        "source_archive": "Finora_Match3_Bottom_HUD_8_PNG.zip",
+        "archive_member": "Finora_Match3_Bottom_HUD/png/booster_bomb.png",
+        "size": [
+          1254,
+          1254
+        ],
+        "visible_bounds_alpha128": [
+          186,
+          118,
+          1071,
+          1154
+        ],
+        "sha256": "4671727694dbd013b94b4bd9b7c8f5f3f7501a796c4fa0fbccd1628bb723cb77",
+        "included_in_this_pack": false
+      },
+      "effect": "area_clear_using_existing_parameters",
+      "trigger_pattern": "T_or_L_intersection"
+    }
+  }
+}

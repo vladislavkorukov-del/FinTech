@@ -1,0 +1,16 @@
+{
+  "exact_reconstruction_from_exported_sections": true,
+  "A_to_B": "Adjacent rows of continuous artwork",
+  "B_to_C": "Adjacent rows of continuous artwork",
+  "C_to_A_exact_continuous_source_neighborhood": true,
+  "wrap_checked_pixels": [
+    724,
+    480
+  ],
+  "order": [
+    "A",
+    "B",
+    "C"
+  ],
+  "repeat": true
+}

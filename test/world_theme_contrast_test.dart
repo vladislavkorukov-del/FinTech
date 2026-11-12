@@ -121,15 +121,11 @@ void main() {
     for (final id in [1, 2]) {
       final tile = find.byKey(ValueKey('flow-level-$id'));
       expect(tile, findsOneWidget);
-      final title = tester.widget<ListTile>(tile).title!;
-      final rich = tester.widget<RichText>(
-        find
-            .descendant(
-              of: find.byWidget(title),
-              matching: find.byType(RichText),
-            )
-            .first,
-      );
+      final rich = tester
+          .widgetList<RichText>(
+            find.descendant(of: tile, matching: find.byType(RichText)),
+          )
+          .firstWhere((w) => w.text.toPlainText() == '$id');
       expect(
         _contrast(rich.text.style!.color!, worldPearl),
         greaterThanOrEqualTo(4.5),

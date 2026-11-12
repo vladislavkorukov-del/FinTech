@@ -4,8 +4,9 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 import '../../../domain/flow/flow.dart';
+import 'flow_art.dart';
 
-/// Temporary renderer: changing this mapping later does not change game rules.
+/// Stable names and original art, independent of matching and saved tile IDs.
 abstract final class FlowTileArt {
   static String symbol(FlowTile type) =>
       const ['C', 'W', 'G', 'S', 'R', 'H'][type.index];
@@ -146,19 +147,19 @@ class _FlowCellView extends StatelessWidget {
     final type = cell.tile;
     final label = cell.stack > 0
         ? 'Стопка чеков, ${cell.stack} слоёв'
+        : cell.crate > 0
+        ? 'Ящик, прочность ${cell.crate}'
         : cell.booster != FlowBooster.none
         ? FlowTileArt.boosterName(cell.booster)
         : type == null
         ? 'Пустая клетка'
         : FlowTileArt.name(type);
-    final color = type == null
-        ? const Color(0xFFE0D5E7)
-        : FlowTileArt.color(type);
+
     return Semantics(
       button: true,
       selected: selected,
       label:
-          '$label${cell.ice > 0 ? ", лёд ${cell.ice}" : ""}, строка ${index ~/ 8 + 1}, столбец ${index % 8 + 1}',
+          '$label${cell.ice > 0 ? ", лёд ${cell.ice}" : ""}${cell.chain > 0 ? ", цепи ${cell.chain}" : ""}, строка ${index ~/ 8 + 1}, столбец ${index % 8 + 1}',
       child: Material(
         color: Colors.transparent,
         child: InkWell(
@@ -168,53 +169,79 @@ class _FlowCellView extends StatelessWidget {
             builder: (context, box) => Stack(
               children: [
                 Positioned.fill(
-                  child: CustomPaint(
-                    painter: _TileShape(type, color, cell.stack),
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFEEE8F3).withValues(alpha: .64),
+                      borderRadius: BorderRadius.circular(7),
+                      border: Border.all(color: const Color(0xFFE1D8DF)),
+                    ),
                   ),
                 ),
-                Positioned.fill(
-                  child: Center(
-                    child: cell.booster != FlowBooster.none
-                        ? Icon(
-                            FlowTileArt.booster(cell.booster),
-                            size: math.min(25, box.maxWidth * .65),
-                            color: const Color(0xFF38243F),
-                          )
-                        : Text(
-                            cell.stack > 0
-                                ? 'R'
-                                : type == null
-                                ? ''
-                                : FlowTileArt.symbol(type),
-                            style: TextStyle(
-                              fontSize: math.min(18, box.maxWidth * .48),
-                              fontWeight: FontWeight.w700,
-                              color: const Color(0xFF38243F),
-                            ),
-                          ),
+                if (cell.stack > 0)
+                  for (var layer = 0; layer < math.min(cell.stack, 3); layer++)
+                    Positioned.fill(
+                      top: layer * 3,
+                      child: const FlowSprite('match3_receipt', trim: false),
+                    )
+                else if (cell.crate > 0)
+                  Positioned.fill(
+                    child: FlowSprite(
+                      cell.crate > 1
+                          ? 'obstacle_crate_intact'
+                          : 'obstacle_crate_damaged',
+                      trim: false,
+                    ),
+                  )
+                else if (cell.booster == FlowBooster.drone)
+                  const Positioned.fill(
+                    child: Icon(
+                      Icons.flight_outlined,
+                      color: Color(0xFF4B1038),
+                    ),
+                  )
+                else if (cell.booster != FlowBooster.none || type != null)
+                  Positioned.fill(
+                    child: FlowSprite(switch (cell.booster) {
+                      FlowBooster.rocketRow => 'match3_rocket_horizontal',
+                      FlowBooster.rocketColumn => 'match3_rocket_vertical',
+                      FlowBooster.bomb => 'booster_bomb',
+                      FlowBooster.core => 'match3_rainbow_sphere',
+                      _ => 'match3_${type!.name}',
+                    }, trim: false),
                   ),
-                ),
-                if (cell.ice > 0 || cell.stack > 0)
+                if (cell.ice > 0)
+                  Positioned.fill(
+                    child: FlowSprite(
+                      cell.ice > 1
+                          ? 'obstacle_ice_intact'
+                          : 'obstacle_ice_cracked',
+                      trim: false,
+                    ),
+                  ),
+                if (cell.chain > 0)
+                  Positioned.fill(
+                    child: FlowSprite(
+                      cell.chain > 1
+                          ? 'obstacle_chain_intact'
+                          : 'obstacle_chain_damaged',
+                      trim: false,
+                    ),
+                  ),
+                if (cell.stack > 0)
                   Positioned(
                     right: 1,
-                    bottom: 0,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 2),
-                      color: cell.ice > 0
-                          ? const Color(0xFFD2EFFB)
-                          : const Color(0xFFF0D8AE),
-                      child: Text(
-                        '${cell.ice > 0 ? 'I' : 'R'}${cell.ice > 0 ? cell.ice : cell.stack}',
-                        textScaler: TextScaler.noScaling,
-                        style: const TextStyle(
-                          fontSize: 9,
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFF38243F),
-                        ),
+                    bottom: 1,
+                    child: Text(
+                      '${cell.stack}',
+                      textScaler: TextScaler.noScaling,
+                      style: const TextStyle(
+                        color: Color(0xFF4B1038),
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ),
-                if (selected || cell.ice > 0)
+                if (selected)
                   Positioned.fill(
                     child: DecoratedBox(
                       decoration: BoxDecoration(
@@ -235,74 +262,4 @@ class _FlowCellView extends StatelessWidget {
       ),
     );
   }
-}
-
-class _TileShape extends CustomPainter {
-  const _TileShape(this.type, this.color, this.layers);
-  final FlowTile? type;
-  final Color color;
-  final int layers;
-  @override
-  void paint(Canvas canvas, Size size) {
-    final rect = (Offset.zero & size).deflate(2);
-    final p = Paint()..color = layers > 0 ? const Color(0xFFD7BD9B) : color;
-    if (type == FlowTile.coin) {
-      canvas.drawOval(rect, p);
-    } else if (type == FlowTile.goal) {
-      canvas.drawPath(
-        Path()
-          ..moveTo(size.width / 2, 1)
-          ..lineTo(size.width - 1, size.height / 2)
-          ..lineTo(size.width / 2, size.height - 1)
-          ..lineTo(1, size.height / 2)
-          ..close(),
-        p,
-      );
-    } else if (type == FlowTile.shield) {
-      canvas.drawPath(
-        Path()
-          ..moveTo(3, 2)
-          ..lineTo(size.width - 3, 2)
-          ..lineTo(size.width - 3, size.height * .55)
-          ..quadraticBezierTo(
-            size.width * .85,
-            size.height * .8,
-            size.width / 2,
-            size.height - 1,
-          )
-          ..quadraticBezierTo(
-            size.width * .15,
-            size.height * .8,
-            3,
-            size.height * .55,
-          )
-          ..close(),
-        p,
-      );
-    } else if (type == FlowTile.chart) {
-      canvas.drawPath(
-        Path()
-          ..moveTo(size.width * .25, 2)
-          ..lineTo(size.width * .75, 2)
-          ..lineTo(size.width - 1, size.height / 2)
-          ..lineTo(size.width * .75, size.height - 2)
-          ..lineTo(size.width * .25, size.height - 2)
-          ..lineTo(1, size.height / 2)
-          ..close(),
-        p,
-      );
-    } else {
-      canvas.drawRRect(
-        RRect.fromRectAndRadius(
-          rect,
-          Radius.circular(type == FlowTile.wallet ? 9 : 3),
-        ),
-        p,
-      );
-    }
-  }
-
-  @override
-  bool shouldRepaint(_TileShape old) =>
-      old.type != type || old.color != color || old.layers != layers;
 }

@@ -51,7 +51,8 @@ abstract final class FlowLevels {
           o.index >= 64 ||
           o.layers < 1 ||
           o.layers > 5 ||
-          !{'ice', 'stack'}.contains(o.kind)) {
+          !{'ice', 'stack', 'chain', 'crate'}.contains(o.kind) ||
+          {'chain', 'crate'}.contains(o.kind) && o.layers > 2) {
         throw const FormatException('Invalid obstacle');
       }
     }
@@ -61,6 +62,8 @@ abstract final class FlowLevels {
           !{
             'ice',
             'stack',
+            'chain',
+            'crate',
             ...FlowTile.values.map((t) => 'collect:${t.name}'),
           }.contains(g.key)) {
         throw const FormatException('Invalid target');
@@ -69,7 +72,7 @@ abstract final class FlowLevels {
           !level.types.any((t) => g.key == 'collect:${t.name}')) {
         throw const FormatException('Unavailable target tile');
       }
-      if ({'ice', 'stack'}.contains(g.key) &&
+      if ({'ice', 'stack', 'chain', 'crate'}.contains(g.key) &&
           level.obstacles.where((o) => o.kind == g.key).length < g.target) {
         throw const FormatException('Unavailable obstacle target');
       }
@@ -86,7 +89,13 @@ abstract final class FlowLevels {
               (obstacle?.kind != 'stack' || obstacle?.layers != c.stack) ||
           c.ice > 0 && (obstacle?.kind != 'ice' || obstacle?.layers != c.ice) ||
           obstacle?.kind == 'ice' && c.ice != obstacle?.layers ||
-          obstacle?.kind == 'stack' && c.stack != obstacle?.layers) {
+          obstacle?.kind == 'stack' && c.stack != obstacle?.layers ||
+          c.chain > 0 &&
+              (obstacle?.kind != 'chain' || obstacle?.layers != c.chain) ||
+          c.crate > 0 &&
+              (obstacle?.kind != 'crate' || obstacle?.layers != c.crate) ||
+          obstacle?.kind == 'chain' && c.chain != obstacle?.layers ||
+          obstacle?.kind == 'crate' && c.crate != obstacle?.layers) {
         throw const FormatException(
           'Obstacle declaration does not match initial layout',
         );

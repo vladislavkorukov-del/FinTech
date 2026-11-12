@@ -1,0 +1,116 @@
+[
+  {
+    "id": "goal_coin",
+    "purpose_ru": "Монета",
+    "existing_workspace_relative_path": "Finora_Match3_6_Tiles_Final/png/match3_coin.png",
+    "source_archive": "Finora_Match3_6_Tiles_1024_PNG.zip",
+    "archive_member": "Finora_Match3_6_Tiles_Final/png/match3_coin.png",
+    "size": [
+      1024,
+      1024
+    ],
+    "visible_bounds_alpha128": [
+      99,
+      96,
+      888,
+      940
+    ],
+    "sha256": "892b88b161e7ee5f9ee1c50e71c3d4382997ad17c1fc9f9eef18e6ae20fb530d",
+    "included_in_this_pack": false
+  },
+  {
+    "id": "goal_wallet",
+    "purpose_ru": "Кошелёк",
+    "existing_workspace_relative_path": "Finora_Match3_6_Tiles_Final/png/match3_wallet.png",
+    "source_archive": "Finora_Match3_6_Tiles_1024_PNG.zip",
+    "archive_member": "Finora_Match3_6_Tiles_Final/png/match3_wallet.png",
+    "size": [
+      1024,
+      1024
+    ],
+    "visible_bounds_alpha128": [
+      94,
+      178,
+      930,
+      902
+    ],
+    "sha256": "2e9d387859806d5db788c6bd81750b427785c1386dcaa56f3dfdc3780e9e6089",
+    "included_in_this_pack": false
+  },
+  {
+    "id": "goal_goal",
+    "purpose_ru": "Мишень",
+    "existing_workspace_relative_path": "Finora_Match3_6_Tiles_Final/png/match3_goal.png",
+    "source_archive": "Finora_Match3_6_Tiles_1024_PNG.zip",
+    "archive_member": "Finora_Match3_6_Tiles_Final/png/match3_goal.png",
+    "size": [
+      1024,
+      1024
+    ],
+    "visible_bounds_alpha128": [
+      97,
+      102,
+      918,
+      949
+    ],
+    "sha256": "81f9abd5e0d4e7b9a25c343183ad2f2e739592127a3829b40a875bb9bb1f8ffd",
+    "included_in_this_pack": false
+  },
+  {
+    "id": "goal_shield",
+    "purpose_ru": "Щит",
+    "existing_workspace_relative_path": "Finora_Match3_6_Tiles_Final/png/match3_shield.png",
+    "source_archive": "Finora_Match3_6_Tiles_1024_PNG.zip",
+    "archive_member": "Finora_Match3_6_Tiles_Final/png/match3_shield.png",
+    "size": [
+      1024,
+      1024
+    ],
+    "visible_bounds_alpha128": [
+      135,
+      96,
+      883,
+      956
+    ],
+    "sha256": "bae9405aa00fed099bf4f8a92324a42e0dcc76df8217000d37f8687a19675f1a",
+    "included_in_this_pack": false
+  },
+  {
+    "id": "goal_receipt",
+    "purpose_ru": "Чек",
+    "existing_workspace_relative_path": "Finora_Match3_6_Tiles_Final/png/match3_receipt.png",
+    "source_archive": "Finora_Match3_6_Tiles_1024_PNG.zip",
+    "archive_member": "Finora_Match3_6_Tiles_Final/png/match3_receipt.png",
+    "size": [
+      1024,
+      1024
+    ],
+    "visible_bounds_alpha128": [
+      132,
+      102,
+      881,
+      939
+    ],
+    "sha256": "ab54e13ef02fd5940814164c6720962816707a786e3976eff10e33374c3e3626",
+    "included_in_this_pack": false
+  },
+  {
+    "id": "goal_chart",
+    "purpose_ru": "График",
+    "existing_workspace_relative_path": "Finora_Match3_6_Tiles_Final/png/match3_chart.png",
+    "source_archive": "Finora_Match3_6_Tiles_1024_PNG.zip",
+    "archive_member": "Finora_Match3_6_Tiles_Final/png/match3_chart.png",
+    "size": [
+      1024,
+      1024
+    ],
+    "visible_bounds_alpha128": [
+      107,
+      107,
+      914,
+      919
+    ],
+    "sha256": "7b22bff23f83604d3c6568f669e1f88a8a4c8d874083abb7945e9f5af7c8d5d8",
+    "included_in_this_pack": false
+  }
+]

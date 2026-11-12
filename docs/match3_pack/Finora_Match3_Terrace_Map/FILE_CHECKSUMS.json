@@ -1,0 +1,122 @@
+[
+  {
+    "file": "CODEX_INSTRUCTIONS_RU.md",
+    "bytes": 7929,
+    "sha256": "63af3e1bbf2367d97714287b07460c0a3a66a8d6a8bf7092a8ba8d598da9927a"
+  },
+  {
+    "file": "README_RU.md",
+    "bytes": 4235,
+    "sha256": "bb952e61d76b4714eee6ead7b597273cba4b4658a21d7c7104a2f4baad04f289"
+  },
+  {
+    "file": "SEAM_VERIFICATION.json",
+    "bytes": 325,
+    "sha256": "a1db965efafe42106efc1fb7d118a72115e850d367eb1ac6d44b2d62f08a3e06"
+  },
+  {
+    "file": "backgrounds/map_bg_A.png",
+    "bytes": 822283,
+    "sha256": "280e42a2ee36b5c42348e750682eebb90f0483986da93316e621e7ab98f05b69"
+  },
+  {
+    "file": "backgrounds/map_bg_B.png",
+    "bytes": 881111,
+    "sha256": "adf0d0e3aeacb1085aa71d87708f9bbf43e275e3365c205a0db0464b11d8ffae"
+  },
+  {
+    "file": "backgrounds/map_bg_C.png",
+    "bytes": 805860,
+    "sha256": "cb5676e94ec6249356466af8eb93a747918a5d5ed384f75c74be1bfa3bed953e"
+  },
+  {
+    "file": "manifest.json",
+    "bytes": 3472,
+    "sha256": "bb409cb5fcd236d921a82af09e8d562eb7505e9eec2302d3cfe521c511e821d0"
+  },
+  {
+    "file": "map_layout.json",
+    "bytes": 3231,
+    "sha256": "ba35a91173634eaf0121dd7db12cad1c6b4e7bc54e0a716fdb22672fd37bc683"
+  },
+  {
+    "file": "png/map_button_back.png",
+    "bytes": 160715,
+    "sha256": "35478d10db32e8b52b38db1df4b1a3aa87ceb04aea9579b792b7f0146c82ab38"
+  },
+  {
+    "file": "png/map_header_base.png",
+    "bytes": 160262,
+    "sha256": "6e74ec23effdbecf5da68ec3cbdd357afaba49828c351399c3af6f2dbf62dbdb"
+  },
+  {
+    "file": "png/map_label_levels.png",
+    "bytes": 185890,
+    "sha256": "542650e3bf25f1167f87141ac4ab1c2deb78e6bad44d5321b534c41a9de159ce"
+  },
+  {
+    "file": "png/map_lock_closed.png",
+    "bytes": 110312,
+    "sha256": "700428f14853d9802394affafc14e24486b767aaf7106a462f91302c832fa156"
+  },
+  {
+    "file": "png/map_node_available.png",
+    "bytes": 159411,
+    "sha256": "b2cf7da5847495d29f2168a49664d60162597212c38c37075cad7a889efda033"
+  },
+  {
+    "file": "png/map_node_completed.png",
+    "bytes": 176804,
+    "sha256": "ca731d66bb317ff7ca3fcd6d988be3379f6442812eed8de60495f7d78fa14e35"
+  },
+  {
+    "file": "png/map_node_current.png",
+    "bytes": 180570,
+    "sha256": "af8d3d66edece9ec00cf04847bfb050cea4829ab6b9672d54e93e71c9a9ab85a"
+  },
+  {
+    "file": "png/map_node_locked.png",
+    "bytes": 167322,
+    "sha256": "1510ff19d6f6082482cd2994aeb5ec0b4963908e346c7c59cdcb32b3819cc38d"
+  },
+  {
+    "file": "png/map_star_earned.png",
+    "bytes": 150678,
+    "sha256": "48752fc799623c1e001fbaedbe921218ca05b0dc21e221f1c641ca3ae23ced41"
+  },
+  {
+    "file": "png/map_star_empty.png",
+    "bytes": 132617,
+    "sha256": "655b74bba5fe529e9d1a680f7107ecc1a52c083f178d44486d4227c0407d9af0"
+  },
+  {
+    "file": "preview/Map_Full_Period.jpg",
+    "bytes": 674450,
+    "sha256": "a1a47353cb8b2b795fef3b0c825fba065d07ecba31a090a314d3799060afd3a3"
+  },
+  {
+    "file": "preview/Map_Icons_Overview.png",
+    "bytes": 385829,
+    "sha256": "9c265073a3ffe027472be41c295485ebf10f902b17f6278794f2974dd9765127"
+  },
+  {
+    "file": "preview/Map_Screen_Assembled.png",
+    "bytes": 1695134,
+    "sha256": "57c0f02bacf7097b030f40668638650ceaac18965a8a4c617d17b8e9bb725b2d"
+  },
+  {
+    "file": "preview/Map_Scroll_Demo.mp4",
+    "bytes": 638493,
+    "sha256": "dc9f4ac1d211de7767ee0cbef32c07c0c0a46a10bf5dd2105e528b1bc88b975c"
+  },
+  {
+    "file": "preview/Map_Seams_Review.png",
+    "bytes": 1211505,
+    "sha256": "e61facc97b9f0b6f887f2ded0a450408aecb263b0d603a4df8268d9f4b7c61d0"
+  },
+  {
+    "file": "preview/Selected_Terrace_Map_Reference.png",
+    "bytes": 298614,
+    "sha256": "271193112e29bdaff033f775ee8d42602189094ee09351c12f0e4eeb9378a08d"
+  }
+]
