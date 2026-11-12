@@ -41,6 +41,19 @@ class MoreScreen extends StatelessWidget {
             ),
           ),
         const SizedBox(height: 20),
+        // 1.55: Finora's world comes first, not inside Settings.
+        GroupedSection(
+          children: [
+            row(
+              'world',
+              Icons.cottage_rounded,
+              TileColors.teal,
+              tr('Мир Финоры'),
+              tr('Дом, сад целей, коллекции и «Поток»'),
+              const FinoraWorldScreen(),
+            ),
+          ],
+        ),
         GroupedSection(
           title: tr('Деньги'),
           children: [

@@ -1,5 +1,6 @@
-/// Small offline activities. Persisted moves are a replayable, validated record;
-/// merely claiming a result or sending extra moves never completes a puzzle.
+/// The three small activities removed in 1.55 (Созвездия, Посылка для
+/// Финоры, Экспедиция). They can no longer be played; this validation stays
+/// only so older saves and backups that contain their moves still load.
 abstract final class WorldGames {
   static const kinds = ['constellation', 'parcel', 'expedition'];
   static const levels = 3;

@@ -11,7 +11,6 @@ import 'package:finora/presentation/screens/world/world_art.dart';
 import 'package:finora/presentation/screens/world/flow_screens.dart';
 import 'package:finora/presentation/screens/world/world_collections.dart';
 import 'package:finora/presentation/screens/world/world_customization.dart';
-import 'package:finora/presentation/screens/world/world_games_screen.dart';
 import 'package:finora/presentation/screens/world/world_garden_album.dart';
 import 'package:finora/presentation/theme/app_theme.dart';
 import 'package:finora/services/notification_service.dart';
@@ -137,7 +136,6 @@ void main() {
         'collections': const WorldCollectionsScreen(),
         'catalog': const WorldCatalogScreen(),
         'album': const WorldAlbumScreen(),
-        'activities': const WorldGamesScreen(),
         if (output != null)
           for (var stage = 0; stage < 6; stage++)
             'garden-stage-${stage + 1}': const WorldGardenScreen(),

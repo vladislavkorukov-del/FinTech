@@ -64,6 +64,19 @@ abstract final class BankStatementParser {
     }
 
     if (receipt) return single();
+    // 1.55: the details page of one operation (bank app «Операция»/«Детали»)
+    // also shows cashback, commission or the amount in the card currency.
+    // Those extra amounts made it look like a history list, which split one
+    // purchase into several empty rows with no payee or date.
+    final details = _detailLabel.allMatches(source.toLowerCase()).length;
+    final listTitle = RegExp(
+      r'^\s*(?:операции|история(?:\s+операций)?|все\s+операции|выписка|платежи\s+и\s+переводы)\s*$',
+      multiLine: true,
+      caseSensitive: false,
+    ).hasMatch(source);
+    if (!heading && !listTitle && details > 0 && signedRows <= 2) {
+      return single();
+    }
     final monetaryRows = visual
         .where((r) => !_ignored(r.text) && _amounts(r.text).isNotEmpty)
         .length;
@@ -291,6 +304,10 @@ abstract final class BankStatementParser {
   static final _historyHeading = RegExp(
     r'истори[яи]\s+(?:операц|платеж)|список\s+операц|все\s+операции|операции\s+по\s+(?:карте|сч[её]ту)|выписка|bank\s+statement|transaction\s+history|recent\s+transactions|\bоперации\b',
   );
+  /// Field labels of a single operation's details page in bank apps.
+  static final _detailLabel = RegExp(
+    r'сч[её]т\s+(?:списания|зачисления|получателя|отправителя)|карт[аы]\s+(?:списания|зачисления|получателя)|дата\s+и\s+время|телефон\s+получателя|банк\s+(?:получателя|отправителя)|номер\s+(?:операции|документа)|идентификатор\s+операции|статус\s+операции|квитанц|чек\s+по\s+операции|сумма\s+в\s+валюте|(?<![а-я])комиссия(?![а-я])|к[эе]шб[эе]к|сообщение\s+получателю|реквизиты\s+операции',
+  );
   static final _receiptMarker = RegExp(
     r'кассовый\s*чек|товарный\s*чек|фискальн|(?:^|[^а-я])ндс(?:$|[^а-я])|cashier|tax\s+invoice|sales\s+receipt',
   );
@@ -413,6 +430,12 @@ abstract final class BankStatementParser {
   }) {
     var candidate = text.replaceAll(_fullDate, '').replaceAll(_time, '');
     candidate = candidate.replaceAll(RegExp(r'^\s*\d{1,2}[./]\d{1,2}\s*'), '');
+    // 1.55: a round avatar or logo left of the name is read as «C)», «()»,
+    // «©» or «@»; it is not part of the merchant.
+    candidate = candidate.replaceAll(
+      RegExp(r'^\s*(?:[(\[]?[cсoо0©®@][)\]]|\(\s*\)|[©®@])\s+', caseSensitive: false),
+      '',
+    );
     candidate = candidate.replaceAll(
       RegExp(
         r'^\s*(?:магазин|получатель|merchant|payee)\s*[:：]\s*',

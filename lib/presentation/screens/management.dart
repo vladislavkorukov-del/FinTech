@@ -24,6 +24,7 @@ import '../widgets/grouped_list.dart';
 import 'account_import_screen.dart';
 import 'achievements_screen.dart';
 import 'wardrobe_screen.dart';
+import 'world/finora_world_screen.dart';
 import '../../domain/wardrobe.dart';
 import 'entry_editor.dart';
 import 'settings.dart';

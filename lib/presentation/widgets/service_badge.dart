@@ -290,9 +290,10 @@ class _ServicePickerState extends State<_ServicePicker> {
                         children: [
                           TextField(
                             key: const ValueKey('service-search'),
-                            decoration: const InputDecoration(
-                              prefixIcon: Icon(Icons.search_rounded),
-                              hintText: 'Название на русском или английском',
+                            style: const TextStyle(fontSize: 15),
+                            decoration: searchDecoration(
+                              context,
+                              'Название на русском или английском',
                             ),
                             onChanged: (v) => setState(() => query = v),
                           ),

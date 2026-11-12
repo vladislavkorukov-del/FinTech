@@ -27,7 +27,6 @@ import '../widgets/grouped_list.dart';
 import '../widgets/finora_orb.dart';
 import '../widgets/profile_avatar.dart';
 import '../l10n_widgets.dart';
-import 'world/finora_world_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key, this.section});
@@ -897,19 +896,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       'Виджеты: удерживайте рабочий стол → «Виджеты» → Finora. '
                       'Плитка: опустите шторку → карандаш → «Финора».',
                   children: [
-                    GroupedRow(
-                      key: const ValueKey('settings-finora-world'),
-                      icon: Icons.cottage_outlined,
-                      color: TileColors.teal,
-                      title: 'Мир Финоры',
-                      subtitle: 'Дом, сад целей, коллекции и путешествия',
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute<void>(
-                          builder: (_) => const FinoraWorldScreen(),
-                        ),
-                      ),
-                    ),
                     // 1.33: everything she understands.
                     GroupedRow(
                       key: const ValueKey('settings-voice-help'),

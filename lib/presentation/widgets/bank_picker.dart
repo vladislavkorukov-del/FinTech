@@ -80,9 +80,10 @@ class _BankPickerState extends State<_BankPicker> {
               child: TextField(
                 key: const ValueKey('bank-search'),
                 autofocus: false,
-                decoration: const InputDecoration(
-                  prefixIcon: Icon(Icons.search_rounded),
-                  hintText: 'Название, БИК или рег. номер',
+                style: const TextStyle(fontSize: 15),
+                decoration: searchDecoration(
+                  context,
+                  'Название, БИК или рег. номер',
                 ),
                 onChanged: (v) => setState(() => query = v),
               ),

@@ -75,3 +75,11 @@ flutter:
           weight: 600
         - asset: assets/fonts/inter/Inter-Bold.ttf
           weight: 700
+    # Finora Potok (SIL OFL 1.1, from Noto Sans; assets/fonts/finora_potok/OFL.txt):
+    # the brand face of Finora's world.
+    - family: FinoraPotok
+      fonts:
+        - asset: assets/fonts/finora_potok/FinoraPotok-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/finora_potok/FinoraPotok-Bold.ttf
+          weight: 700

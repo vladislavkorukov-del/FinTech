@@ -66,6 +66,39 @@ const categoryColors = [
   0xFF94A0B6,
 ];
 
+/// A compact search field look (1.55), after the iOS search bar: a slim
+/// filled capsule, a small magnifier and no outline.
+InputDecoration searchDecoration(
+  BuildContext context,
+  String hint, {
+  Widget? suffixIcon,
+}) {
+  final scheme = Theme.of(context).colorScheme;
+  final shape = OutlineInputBorder(
+    borderRadius: BorderRadius.circular(12),
+    borderSide: BorderSide.none,
+  );
+  return InputDecoration(
+    hintText: hint,
+    isDense: true,
+    filled: true,
+    fillColor: scheme.onSurface.withValues(alpha: .07),
+    contentPadding: const EdgeInsets.symmetric(vertical: 10),
+    prefixIcon: Icon(
+      Icons.search_rounded,
+      size: 19,
+      color: scheme.onSurfaceVariant,
+    ),
+    prefixIconConstraints: const BoxConstraints(minWidth: 38, minHeight: 38),
+    suffixIcon: suffixIcon,
+    suffixIconConstraints: const BoxConstraints(minWidth: 38, minHeight: 38),
+    hintStyle: TextStyle(fontSize: 15, color: scheme.onSurfaceVariant),
+    border: shape,
+    enabledBorder: shape,
+    focusedBorder: shape,
+  );
+}
+
 class SurfaceCard extends StatelessWidget {
   const SurfaceCard({
     super.key,

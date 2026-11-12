@@ -6,7 +6,6 @@ import 'package:finora/domain/finance_engine.dart';
 import 'package:finora/domain/finora_world.dart';
 import 'package:finora/domain/models.dart';
 import 'package:finora/domain/wardrobe.dart';
-import 'package:finora/domain/world_games.dart';
 import 'package:finora/presentation/controller.dart';
 import 'package:finora/services/notification_service.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -110,7 +109,7 @@ void main() {
   );
 
   test(
-    'scene, slots, settings, game steps and multiple outfits survive restart',
+    'scene, slots, settings, legacy game steps and multiple outfits survive restart',
     () async {
       await c.completeWorldTutorial();
       await c.purchaseWorldCosmetic('crystal');
@@ -122,7 +121,18 @@ void main() {
       await c.applyWorldOutfit(looks.first.id);
       expect(c.data.wardrobe.equipped, {WardrobeSlot.companion: 'moon_cat'});
       await c.applyWorldOutfit(looks.last.id);
-      await c.saveWorldGame('parcel:0', [0, 102]);
+      // 1.55: the small games are gone; moves already in a save must
+      // still round-trip.
+      await c.mutate(
+        (d) => d.copyWith(
+          world: d.world.copyWith(
+            games: {
+              ...d.world.games,
+              'parcel:0': [0, 102],
+            },
+          ),
+        ),
+      );
       await c.worldSettings(
         reducedMotion: true,
         remarks: false,
@@ -138,13 +148,8 @@ void main() {
       );
       await c.deleteWorldOutfit(looks.first.id);
       expect(c.data.world.outfits.single.id, looks.last.id);
-      await c.saveWorldGame('parcel:0', [0, 102, 206]);
-      expect(c.data.world.rewards, contains('game:parcel:0'));
       await restart();
-      expect(
-        WorldGames.complete('parcel:0', c.data.world.games['parcel:0']!),
-        isTrue,
-      );
+      expect(c.data.world.games['parcel:0'], [0, 102]);
     },
   );
 
@@ -247,7 +252,18 @@ void main() {
       await c.purchaseWorldCosmetic('tea');
       await c.configureWorld('pearl', {'right': 'tea'});
       await c.saveWorldOutfit('Любимый');
-      await c.saveWorldGame('expedition:2', [2, 1]);
+      // 1.55: the small games are gone; moves already in a save must
+      // still round-trip.
+      await c.mutate(
+        (d) => d.copyWith(
+          world: d.world.copyWith(
+            games: {
+              ...d.world.games,
+              'expedition:2': [2, 1],
+            },
+          ),
+        ),
+      );
       final expected = c.data.world.toJson();
       final json = await repo.exportJson();
       final csv = await repo.exportFullCsv();
@@ -331,7 +347,6 @@ void main() {
       final money = c.data.entries.map((e) => e.toJson()).toList();
       await c.purchaseWorldCosmetic('star');
       await c.configureWorld('pearl', {'right': 'star'});
-      await c.saveWorldGame('constellation:0', [0, 1, 2, 3, 4]);
       await c.syncWorld();
       expect(c.balance, balance);
       expect(c.data.entries.map((e) => e.toJson()).toList(), money);

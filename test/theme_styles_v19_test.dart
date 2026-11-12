@@ -16,19 +16,12 @@ void main() {
     expect(AppTheme.presetNames.keys.toList(), visualStyleIds);
     for (final id in [
       'sunset',
-      'rose',
       'neon',
-      'crimson',
       'dusk',
       'emerald',
       'tropic',
       'twilight',
-      'plum',
-      'wine',
-      'copper',
-      'sand',
       'apricot',
-      'terracotta',
     ]) {
       expect(referencePalettes, contains(id));
       expect(AppTheme.accent(id), referencePalettes[id]!.accent);
@@ -49,6 +42,17 @@ void main() {
         );
         await repository.save(data);
         expect((await repository.load()).preferences.accent, id);
+      }
+      // 1.55: removed styles still load from older settings and are drawn
+      // in Coffee.
+      for (final id in removedStyleIds) {
+        data = data.copyWith(
+          preferences: data.preferences.copyWith(accent: id),
+        );
+        await repository.save(data);
+        expect((await repository.load()).preferences.accent, id);
+        expect(AppTheme.styleOf(id), 'coffee');
+        expect(AppTheme.presetNames, isNot(contains(id)));
       }
     } finally {
       await repository.close();

@@ -147,14 +147,14 @@ void main() {
         ('тема фиолетовая', 240.0, 300.0),
         ('поставь красную тему', 0.0, 25.0),
         ('хочу оранжевую тему', 20.0, 45.0),
-        ('смени цвет на розовый', 300.0, 345.0),
+        // 1.55: Rose was removed, so no pink style is left to pick.
       ]) {
         final id = VoiceCommands.pickAccent(theme(phrase), 'coffee');
         expect(hue(id), inInclusiveRange(low, high), reason: phrase);
       }
       expect(
         VoiceCommands.pickAccent(theme('серая тема'), 'coffee'),
-        anyOf('graphite', 'paper', 'plum'),
+        'graphite',
       );
     });
 

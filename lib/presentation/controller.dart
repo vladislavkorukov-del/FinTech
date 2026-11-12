@@ -9,7 +9,6 @@ import '../domain/achievements.dart';
 import '../domain/models.dart';
 import '../domain/wardrobe.dart';
 import '../domain/finora_world.dart';
-import '../domain/world_games.dart';
 import '../domain/flow/flow.dart';
 import '../domain/payment_plan.dart';
 import '../domain/finance_engine.dart';
@@ -257,21 +256,6 @@ class FinanceController extends ChangeNotifier {
   Future<void> completeWorldTutorial() => _world(
     (d) => WorldEngine.reward(d.world, 'tutorial', now: achievementClock()),
   );
-
-  Future<void> saveWorldGame(String key, List<int> moves) {
-    // Copy before enqueue: a caller cannot change a validated move later.
-    final sequence = List<int>.of(moves);
-    return _world((d) {
-      if (!WorldGames.validKey(key) || !WorldGames.validate(key, sequence)) {
-        throw const FormatException('Некорректный ход');
-      }
-      var world = d.world.copyWith(games: {...d.world.games, key: sequence});
-      if (WorldGames.complete(key, sequence)) {
-        world = WorldEngine.reward(world, 'game:$key', now: achievementClock());
-      }
-      return world;
-    });
-  }
 
   Future<void> startFlow(
     FlowLevel level, {

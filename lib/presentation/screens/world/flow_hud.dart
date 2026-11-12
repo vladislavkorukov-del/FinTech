@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import '../../../domain/flow/flow.dart';
 import '../../l10n_widgets.dart';
 import 'flow_art.dart';
+import 'world_art.dart' show worldFontFamily;
 
 const flowInk = Color(0xFF4B1038);
 String flowNumber(int value) => NumberFormat.decimalPattern('ru').format(value);
@@ -32,7 +33,7 @@ class FlowNumber extends StatelessWidget {
     child: Text(
       flowNumber(value),
       style: TextStyle(
-        fontFamily: 'sans-serif',
+        fontFamily: worldFontFamily,
         color: flowInk,
         fontSize: size,
         fontWeight: FontWeight.w700,

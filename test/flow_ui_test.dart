@@ -10,7 +10,6 @@ import 'package:finora/presentation/screens/world/finora_world_screen.dart';
 import 'package:finora/presentation/screens/world/flow_game_screen.dart';
 import 'package:finora/presentation/screens/world/flow_art.dart';
 import 'package:finora/presentation/screens/world/flow_screens.dart';
-import 'package:finora/presentation/screens/world/world_games_screen.dart';
 import 'package:finora/presentation/theme/app_theme.dart';
 import 'package:finora/services/notification_service.dart';
 import 'package:finora/services/flow_catalog.dart';
@@ -191,9 +190,7 @@ void main() {
     (tester) async {
       await mount(tester, const FinoraWorldScreen());
       await touch(tester, find.byKey(const ValueKey('world-destination-5')));
-      await tester.pumpAndSettle();
-      expect(find.byType(WorldGamesScreen), findsOneWidget);
-      await touch(tester, find.byKey(const ValueKey('world-game-flow')));
+      // 1.55: «Поток» opens straight from the house.
       await wait(
         tester,
         () => find.byKey(const ValueKey('flow-level-1')).evaluate().isNotEmpty,
@@ -240,7 +237,7 @@ void main() {
       await touch(tester, find.byKey(const ValueKey('flow-exit-world')));
       await tester.pumpAndSettle();
       expect(find.byType(FinoraWorldScreen), findsOneWidget);
-      expect(find.byType(WorldGamesScreen), findsNothing);
+      expect(find.byType(FlowMapScreen), findsNothing);
       expect(c.balance, 100000);
       expect(c.data.entries, isEmpty);
       await tester.pumpWidget(const SizedBox.shrink());

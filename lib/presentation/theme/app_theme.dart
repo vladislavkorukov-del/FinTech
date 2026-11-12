@@ -179,31 +179,19 @@ abstract final class AppTheme {
 
   static const presetNames = <String, String>{
     'coffee': 'Coffee · тёплый',
-    'lime': 'Lime · фирменный',
     'electric': 'Electric · яркий',
-    'sage': 'Sage · спокойный',
     'graphite': 'Graphite · строгий',
-    'paper': 'Paper · мягкий',
-    'midnight': 'Midnight · глубокий',
     'harbor': 'Harbor · морской',
     'forest': 'Forest · природный',
     'velvet': 'Lavender · мягкий',
-    'aurora': 'Aurora · вечерний',
     'royal': 'Royal / Nitro · контрастный',
     'sunset': 'Sunset · закатный',
-    'rose': 'Rose · пудровый',
     'neon': 'Neon · яркий',
-    'crimson': 'Crimson · бордо и синий',
     'dusk': 'Dusk · сумеречный',
     'emerald': 'Emerald · изумрудный',
     'tropic': 'Tropic · тропический',
     'twilight': 'Twilight · пастельный',
-    'plum': 'Plum · сливовый',
-    'wine': 'Wine · винный',
-    'copper': 'Copper · медный',
-    'sand': 'Sand · песочный',
     'apricot': 'Apricot · абрикосовый',
-    'terracotta': 'Holst · терракотовый',
   };
 
   static Color accent(String value) => switch (value) {
@@ -213,13 +201,9 @@ abstract final class AppTheme {
     'harbor' => referencePalettes['harbor']!.accent,
     'forest' => referencePalettes['forest']!.accent,
     'velvet' => referencePalettes['velvet']!.accent,
-    'aurora' => referencePalettes['aurora']!.accent,
     'royal' => referencePalettes['royal']!.accent,
     'electric' => electric,
-    'sage' => sage,
     'graphite' => const Color(0xFFBFC9B4),
-    'paper' => const Color(0xFFD9E5C8),
-    'midnight' => const Color(0xFFB6D86A),
     // Legacy accents remain readable, without reviving the old multicolor UI.
     _ => lime,
   };
@@ -234,7 +218,11 @@ abstract final class AppTheme {
   /// The theme for a palette: its colors, then the shared Apple-style system
   /// (see [_refine]) on top.
   static ThemeData build(Brightness brightness, String selected) =>
-      _refine(_palette(brightness, selected));
+      _refine(_palette(brightness, styleOf(selected)));
+
+  /// The style actually drawn: a removed or legacy id opens in Coffee.
+  static String styleOf(String selected) =>
+      presetNames.containsKey(selected) ? selected : 'coffee';
 
   static ThemeData _palette(Brightness brightness, String selected) {
     if (selected == 'coffee') {
@@ -863,19 +851,17 @@ abstract final class AppTheme {
     return a > b ? (a + .05) / (b + .05) : (b + .05) / (a + .05);
   }
 
-  /// The shared visual system over every palette, after Apple's apps: a flat
-  /// grouped background, solid borderless cards, continuous («squircle»)
-  /// corners, one type scale with tabular figures, and no ink ripples —
-  /// pressed things dim or shrink instead.
+  /// The shared visual system over every palette, after Apple's apps:
+  /// continuous («squircle») corners, one type scale with tabular figures,
+  /// quiet filled controls and no ink ripples — pressed things dim or shrink
+  /// instead. Backgrounds and Liquid Glass cards come from the palette.
   static ThemeData _refine(ThemeData t) {
     final dark = t.brightness == Brightness.dark;
     final s = t.colorScheme;
     final ink = s.onSurface;
-    // Dark palettes already sit near black; the light mode gets Apple's
-    // neutral grouped gray instead of a wash of the theme color.
-    final base = dark
-        ? t.scaffoldBackgroundColor
-        : Color.lerp(t.scaffoldBackgroundColor, const Color(0xFFF2F2F7), .8)!;
+    // 1.55: the palette's own background and tinted backdrop stay, so the
+    // Liquid Glass cards have color and light to sit on.
+    final base = t.scaffoldBackgroundColor;
     final card = s.surface;
     final fill = Color.alphaBlend(
       ink.withValues(alpha: dark ? .12 : .06),
@@ -940,16 +926,6 @@ abstract final class AppTheme {
       hoverColor: ink.withValues(alpha: .04),
       textTheme: text,
       primaryTextTheme: t.primaryTextTheme.apply(fontFamily: fontFamily),
-      extensions: [
-        ...t.extensions.values.where((e) => e is! FinanceBackdrop),
-        FinanceBackdrop(
-          top: base,
-          middle: base,
-          bottom: base,
-          glowA: Colors.transparent,
-          glowB: Colors.transparent,
-        ),
-      ],
       appBarTheme: t.appBarTheme.copyWith(
         titleTextStyle: text.titleMedium?.copyWith(color: ink),
       ),

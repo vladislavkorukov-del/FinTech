@@ -10,36 +10,29 @@ double _contrast(Color a, Color b) {
   return (hi + .05) / (lo + .05);
 }
 
-/// Finance 1.8 introduced a tinted gradient backdrop; the Apple polish
-/// replaced it with one flat grouped-background color per theme (neutral
-/// gray in light mode). Text stays readable on it in every theme.
+/// Finance 1.8: themes paint a tinted gradient with color glows instead of a
+/// flat (often black) background; text stays readable on all of it.
 void main() {
   for (final preset in AppTheme.presetNames.keys) {
     for (final brightness in Brightness.values) {
-      test('$preset ${brightness.name}: flat, readable backdrop', () {
+      test('$preset ${brightness.name}: tinted, readable backdrop', () {
         final theme = AppTheme.build(brightness, preset);
         final b = theme.extension<FinanceBackdrop>()!;
         final base = theme.scaffoldBackgroundColor;
-        expect([b.top, b.middle, b.bottom], everyElement(base));
-        expect(b.glowA.a, 0);
-        expect(b.glowB.a, 0);
-        expect(
-          _contrast(theme.colorScheme.onSurface, base),
-          greaterThanOrEqualTo(4.5),
-        );
-        expect(
-          _contrast(theme.colorScheme.onSurfaceVariant, base),
-          greaterThanOrEqualTo(4.5),
-        );
-        if (brightness == Brightness.light) {
-          // Close to iOS systemGroupedBackground, not a wash of the accent.
-          final gray = const Color(0xFFF2F2F7);
-          final shift = [
-            (base.r - gray.r).abs(),
-            (base.g - gray.g).abs(),
-            (base.b - gray.b).abs(),
-          ].reduce((a, c) => a > c ? a : c);
-          expect(shift, lessThan(.06), reason: '$base');
+        // The top of the screen carries the palette's color, not plain base.
+        expect(b.top, isNot(base));
+        final shift = [
+          (b.top.r - base.r).abs(),
+          (b.top.g - base.g).abs(),
+          (b.top.b - base.b).abs(),
+        ].reduce((a, c) => a > c ? a : c);
+        // 1.16: a calm backdrop, still tinted by the theme at the top.
+        expect(shift, greaterThan(.015), reason: 'top is visibly tinted');
+        expect(b.glowA.a, greaterThan(0));
+        expect(b.glowB.a, greaterThan(0));
+        final ink = theme.colorScheme.onSurface;
+        for (final c in [b.top, b.middle, b.bottom]) {
+          expect(_contrast(ink, c), greaterThanOrEqualTo(4.5), reason: '$c');
         }
         // The running app keeps the preset's colors with a transparent
         // scaffold so the backdrop shows through.
@@ -50,7 +43,7 @@ void main() {
     }
   }
 
-  testWidgets('background paints one flat color under its child', (
+  testWidgets('background paints gradient and glows under its child', (
     tester,
   ) async {
     await tester.pumpWidget(
@@ -59,16 +52,19 @@ void main() {
         home: const FinanceBackground(child: Text('содержимое')),
       ),
     );
+    expect(find.byKey(const ValueKey('finance-backdrop')), findsOneWidget);
     expect(find.text('содержимое'), findsOneWidget);
     final box = tester.widget<DecoratedBox>(
-      find.byKey(const ValueKey('finance-backdrop')),
+      find
+          .descendant(
+            of: find.byKey(const ValueKey('finance-backdrop')),
+            matching: find.byType(DecoratedBox),
+          )
+          .first,
     );
-    final decoration = box.decoration as BoxDecoration;
-    expect(decoration.gradient, isNull);
-    expect(
-      decoration.color,
-      AppTheme.build(Brightness.dark, 'coffee').scaffoldBackgroundColor,
-    );
+    final gradient = (box.decoration as BoxDecoration).gradient!;
+    expect(gradient, isA<LinearGradient>());
+    expect(gradient.colors.toSet(), hasLength(greaterThan(1)));
   });
 
   testWidgets('backdrop stands still: no frames when idle', (tester) async {

@@ -354,9 +354,10 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                   child: TextField(
                     controller: _search,
                     onChanged: (_) => setState(() {}),
-                    decoration: const InputDecoration(
-                      hintText: 'Магазин, категория, комментарий',
-                      prefixIcon: Icon(Icons.search_rounded),
+                    style: const TextStyle(fontSize: 15),
+                    decoration: searchDecoration(
+                      context,
+                      'Магазин, категория, комментарий',
                     ),
                   ),
                 ),

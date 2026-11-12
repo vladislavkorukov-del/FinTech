@@ -15,39 +15,14 @@ double contrast(Color first, Color second) {
 
 void main() {
   group('Premium palette and readable controls', () {
-    test(
-      'default light/dark surface colors match the design specification',
-      () {
-        final light = AppTheme.build(Brightness.light, 'lime');
-        final dark = AppTheme.build(Brightness.dark, 'lime');
-        // Apple polish: the light background is neutralized toward iOS gray.
+    test('removed Lime opens in Coffee (1.55)', () {
+      for (final b in Brightness.values) {
         expect(
-          light.scaffoldBackgroundColor,
-          Color.lerp(const Color(0xFFEEF1EC), const Color(0xFFF2F2F7), .8),
+          AppTheme.build(b, 'lime').colorScheme,
+          AppTheme.build(b, 'coffee').colorScheme,
         );
-        expect(light.colorScheme.surface, const Color(0xFFFCFEFA));
-        expect(dark.scaffoldBackgroundColor, const Color(0xFF070807));
-        expect(dark.colorScheme.surface, const Color(0xFF1F2321));
-        for (final theme in [light, dark]) {
-          expect(theme.colorScheme.primary, const Color(0xFFC5E768));
-          expect(theme.colorScheme.secondary, const Color(0xFFA3C156));
-          expect(theme.colorScheme.tertiary, const Color(0xFF78806D));
-          expect(
-            theme.filledButtonTheme.style!.backgroundColor!.resolve({}),
-            const Color(0xFFD9FF3F),
-          );
-        }
-        // Apple polish: separators are a faint hairline of the text color.
-        expect(
-          light.colorScheme.outlineVariant,
-          Color.alphaBlend(
-            light.colorScheme.onSurface.withValues(alpha: .1),
-            light.colorScheme.surface,
-          ),
-        );
-        expect(dark.colorScheme.onSurfaceVariant, const Color(0xFFACAEA9));
-      },
-    );
+      }
+    });
     test('every preset keeps text and buttons accessible in both themes', () {
       expect(AppTheme.presetNames.keys, visualStyleIds);
       for (final preset in AppTheme.presetNames.keys) {

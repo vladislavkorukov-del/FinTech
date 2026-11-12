@@ -541,8 +541,30 @@ abstract final class ReceiptParser {
     ).hasMatch(lower);
   }
 
+  /// The operation's time: one written next to its date wins; a bare time
+  /// alone on the first line is the phone's status bar and is skipped (1.55).
+  static RegExpMatch? _operationTime(String text) {
+    final lines = text.split('\n');
+    final dated = RegExp(
+      r'\d{1,2}[./-]\d{1,2}|\d{1,2}\s+(?:январ|феврал|март|апрел|ма[яй]|июн|июл|август|сентябр|октябр|ноябр|декабр)|сегодня|вчера',
+      caseSensitive: false,
+    );
+    for (final line in lines) {
+      final time = _timePattern.firstMatch(line);
+      if (time != null && dated.hasMatch(line)) return time;
+    }
+    for (var i = 0; i < lines.length; i++) {
+      final line = lines[i].trim();
+      final time = _timePattern.firstMatch(line);
+      if (time == null) continue;
+      if (i == 0 && time.group(0) == line) continue;
+      return time;
+    }
+    return null;
+  }
+
   static DateTime? _date(String text, DateTime now) {
-    final time = _timePattern.firstMatch(text);
+    final time = _operationTime(text);
     final hour = time == null ? 0 : int.parse(time.group(1)!);
     final minute = time == null ? 0 : int.parse(time.group(2)!);
     final second = time?.group(3) == null ? 0 : int.parse(time!.group(3)!);

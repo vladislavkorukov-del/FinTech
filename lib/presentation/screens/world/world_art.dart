@@ -83,6 +83,9 @@ abstract final class WorldArt {
 }
 
 /// The uploaded style applies only below this subtree, never to finance pages.
+/// The brand face of Finora's world (bundled, SIL OFL 1.1).
+const worldFontFamily = 'FinoraPotok';
+
 class WorldTheme extends StatelessWidget {
   const WorldTheme({super.key, required this.child});
   final Widget child;
@@ -110,7 +113,8 @@ class WorldTheme extends StatelessWidget {
       useMaterial3: true,
       brightness: Brightness.light,
       colorScheme: scheme,
-      fontFamily: 'sans-serif',
+      // 1.55: Finora Potok, the world's own brand face (400 and 700).
+      fontFamily: worldFontFamily,
       platform: Theme.of(context).platform,
       visualDensity: VisualDensity.standard,
     );

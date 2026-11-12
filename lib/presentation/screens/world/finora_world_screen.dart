@@ -15,7 +15,7 @@ import '../wardrobe_screen.dart';
 import 'world_collections.dart';
 import 'world_components.dart';
 import 'world_customization.dart';
-import 'world_games_screen.dart';
+import 'flow_screens.dart';
 import 'world_garden_album.dart';
 import 'world_home_scene.dart';
 import 'world_home_chrome.dart';
@@ -312,11 +312,21 @@ class _FinoraWorldScreenState extends State<FinoraWorldScreen>
                                 const WorldAlbumScreen(),
                                 landscape,
                               ),
+                              // 1.55: «Поток» is the only game; it opens
+                              // straight from the house.
                               _homeNav(
                                 'world-destination-5',
                                 'games',
-                                'Игры',
-                                const WorldGamesScreen(),
+                                'Поток',
+                                FlowMapScreen(
+                                  onExitWorld: () => Navigator.of(context)
+                                      .popUntil(
+                                        (route) => identical(
+                                          route,
+                                          ModalRoute.of(context),
+                                        ),
+                                      ),
+                                ),
                                 landscape,
                               ),
                             ],

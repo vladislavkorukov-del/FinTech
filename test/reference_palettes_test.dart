@@ -28,14 +28,6 @@ const references = <String, List<Color>>{
     Color(0xFFC9C2E3),
     Color(0xFF3A3A52),
   ],
-  'aurora': [
-    Color(0xFF1A1A1F),
-    Color(0xFF2D2B55),
-    Color(0xFF6A5ACD),
-    Color(0xFFA678B9),
-    Color(0xFFF0D9B5),
-    Color(0xFFF4A62A),
-  ],
   'royal': [
     Color(0xFF09091F),
     Color(0xFF191970),
@@ -53,30 +45,22 @@ double contrast(Color first, Color second) {
 }
 
 void main() {
-  test(
-    'reference themes (5 + 14 in 1.9) extend, rather than replace, seven presets',
-    () {
-      expect(AppTheme.presetNames.length, 26);
-      expect(
-        AppTheme.presetNames.keys,
-        containsAll([
-          'coffee',
-          'lime',
-          'electric',
-          'sage',
-          'graphite',
-          'paper',
-          'midnight',
-          ...references.keys,
-        ]),
-      );
-      expect(AppTheme.presetNames['velvet'], contains('Lavender'));
-      expect(AppTheme.presetNames['royal'], contains('Nitro'));
-      expect(AppTheme.accent('lavender'), AppTheme.lime);
-      expect(AppTheme.accent('gold'), AppTheme.lime);
-      expect(AppTheme.accent('blue'), AppTheme.lime);
-    },
-  );
+  test('1.55 keeps 14 styles; removed ones open in Coffee', () {
+    expect(AppTheme.presetNames.length, 14);
+    expect(
+      AppTheme.presetNames.keys,
+      containsAll(['coffee', 'electric', 'graphite', ...references.keys]),
+    );
+    for (final removed in ['lime', 'sage', 'paper', 'midnight', 'aurora']) {
+      expect(AppTheme.presetNames, isNot(contains(removed)));
+      expect(AppTheme.styleOf(removed), 'coffee');
+    }
+    expect(AppTheme.presetNames['velvet'], contains('Lavender'));
+    expect(AppTheme.presetNames['royal'], contains('Nitro'));
+    expect(AppTheme.accent('lavender'), AppTheme.lime);
+    expect(AppTheme.accent('gold'), AppTheme.lime);
+    expect(AppTheme.accent('blue'), AppTheme.lime);
+  });
   for (final entry in references.entries) {
     final name = entry.key;
     final colors = entry.value;
@@ -216,11 +200,7 @@ void main() {
       dark.filledButtonTheme.style!.backgroundColor!.resolve({}),
       const Color(0xFF886B4B),
     );
-    // Apple polish: the light background is neutralized toward iOS gray.
-    expect(
-      light.scaffoldBackgroundColor,
-      Color.lerp(const Color(0xFFF7F5F1), const Color(0xFFF2F2F7), .8),
-    );
+    expect(light.scaffoldBackgroundColor, const Color(0xFFF7F5F1));
     expect(light.colorScheme.surface, const Color(0xFFFEFCF8));
     expect(light.extension<FinanceColors>()!.expense, const Color(0xFF9F4448));
   });

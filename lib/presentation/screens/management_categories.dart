@@ -101,9 +101,10 @@ class _IconPickerState extends State<_IconPicker> {
                               key: const ValueKey('icon-search'),
                               controller: search,
                               textInputAction: TextInputAction.search,
-                              decoration: InputDecoration(
-                                prefixIcon: const Icon(Icons.search_rounded),
-                                hintText: 'Такси, стоматолог, отпуск…',
+                              style: const TextStyle(fontSize: 15),
+                              decoration: searchDecoration(
+                                context,
+                                'Такси, стоматолог, отпуск…',
                                 suffixIcon: query.isEmpty
                                     ? null
                                     : IconButton(

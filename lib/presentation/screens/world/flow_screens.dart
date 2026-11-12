@@ -6,6 +6,7 @@ import '../../../services/flow_catalog.dart';
 import '../../controller.dart';
 import '../../l10n_widgets.dart';
 import '../../widgets/common.dart';
+import 'finora_retry_dialog.dart';
 import 'flow_art.dart';
 import 'flow_board.dart';
 import 'flow_dialogs.dart';
@@ -144,10 +145,14 @@ class _FlowPreparationScreenState extends State<FlowPreparationScreen> {
     final old = c.data.world.flow.session;
     try {
       if (old != null && !old.finished) {
-        final replace = await confirm(
+        final replace = await showFinoraRetryDialog(
           context,
-          'Начать новую попытку?',
-          'Незавершённая попытка уровня ${old.levelId} будет заменена. Полученные звёзды и награды сохранятся.',
+          unfinishedLevel: old.levelId,
+          panelAsset: 'assets/finora/match3/pause/pause_panel_base.png',
+          cancelButtonAsset:
+              'assets/finora/match3/victory/victory_button_secondary_base.png',
+          confirmButtonAsset:
+              'assets/finora/match3/victory/victory_button_primary_base.png',
         );
         if (!replace || !mounted) return;
       }
