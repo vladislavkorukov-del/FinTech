@@ -176,9 +176,10 @@ void main() {
             find.text(money(controller.balance, controller.currency)),
             findsOneWidget,
           );
+          // 1.58: no caption above the number.
           expect(
             find.text('Общий баланс · ${controller.currency}'),
-            findsOneWidget,
+            findsNothing,
           );
           expect(find.byType(FinanceBrand), findsNothing);
           expect(find.byType(Image), findsNothing);
@@ -226,7 +227,8 @@ void main() {
           ),
           findsOneWidget,
         );
-        expect(find.textContaining('Общий баланс'), findsOneWidget);
+        expect(find.textContaining('Общий баланс'), findsNothing);
+        expect(find.bySemanticsLabel(RegExp('^Общий баланс')), findsOneWidget);
         expect(top(header), lessThan(top(summary)));
         expect(top(summary), lessThan(top(actions)));
         // Actions sit directly below the month income/expense cards.

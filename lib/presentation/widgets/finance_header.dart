@@ -1,4 +1,3 @@
-import '../i18n.dart';
 import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart' hide InputDecoration, Text;
@@ -6,7 +5,6 @@ import '../controller.dart';
 import '../screens/management.dart';
 import 'common.dart' show money;
 import 'motion.dart';
-import '../l10n_widgets.dart';
 
 class FinanceBrand extends StatefulWidget {
   const FinanceBrand({super.key, this.animated = true});
@@ -105,64 +103,34 @@ class FinanceHeader extends StatelessWidget {
         Navigator.push(context, MaterialPageRoute<void>(builder: (_) => page));
     // 1.57: only the balance — settings and the family profile live under
     // «Ещё», so the top of the main screen stays clean.
-    return ConstrainedBox(
-      constraints: const BoxConstraints(minHeight: 56),
-      child: Row(
-        children: [
-          Expanded(
-            child: Semantics(
-              button: true,
-              label: 'Общий баланс ${money(c.balance, c.currency)}',
-              excludeSemantics: true,
-              child: InkWell(
-                key: const ValueKey('header-balance'),
-                borderRadius: BorderRadius.circular(16),
-                onTap: () => open(const AccountsScreen()),
-                // 1.16: no halo behind the balance.
-                child: Ink(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 6,
-                      vertical: 4,
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: Text(
-                            '${tr('Общий баланс')} · ${c.currency}',
-                            maxLines: 1,
-                            style: TextStyle(
-                              fontSize: 11,
-                              letterSpacing: .2,
-                              color: scheme.onSurfaceVariant,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 1),
-                        FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: AnimatedMoney(
-                            c.balance,
-                            currency: c.currency,
-                            textKey: const ValueKey('header-balance-amount'),
-                            style: TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: -.5,
-                              color: scheme.onSurface,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+    // 1.58: just the number — no caption, a slim row.
+    return Semantics(
+      button: true,
+      label: 'Общий баланс ${money(c.balance, c.currency)}',
+      excludeSemantics: true,
+      child: InkWell(
+        key: const ValueKey('header-balance'),
+        borderRadius: BorderRadius.circular(14),
+        onTap: () => open(const AccountsScreen()),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+          child: Center(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: AnimatedMoney(
+                c.balance,
+                currency: c.currency,
+                textKey: const ValueKey('header-balance-amount'),
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: -.4,
+                  color: scheme.onSurface,
                 ),
               ),
             ),
           ),
-        ],
+        ),
       ),
     );
   }
