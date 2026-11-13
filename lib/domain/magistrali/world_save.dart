@@ -7,7 +7,8 @@ extension MagWorldSave on MagWorld {
   /// 1: 1.68.0. 2: logistics orders (trucks may carry an order, a truck
   /// may stand idle on the map).
   /// 3: technologies and warehouses with their rules.
-  static const version = 3;
+  /// 4: the automatic fleet (a flag per truck) and the dispatcher mode.
+  static const version = 4;
 
   Map<String, Object?> toJson() => {
     'version': version,
@@ -42,6 +43,7 @@ extension MagWorldSave on MagWorld {
           'trips': v.trips,
           'upgradeSpent': v.upgradeSpent,
           'route': v.routeId,
+          if (v.auto) 'auto': true,
           if (v.orderId != null) 'order': v.orderId,
           'stop': v.stop,
           'state': v.state.name,
@@ -136,7 +138,11 @@ extension MagWorldSave on MagWorld {
         },
     ],
     'camera': [cameraX, cameraY, zoom],
-    'settings': {'autoService': autoService, 'sound': sound},
+    'settings': {
+      'autoService': autoService,
+      'sound': sound,
+      'dispatch': dispatchMode.name,
+    },
   };
 
   static Map<String, int> _cargo(Map<MagCargo, int> m) => {
@@ -156,13 +162,15 @@ Map<String, dynamic> migrateMagSave(Map<String, dynamic> j) {
     return migrateMagSave({...j, 'version': 2, 'orders': const <Object>[]});
   }
   if (v == 2) {
-    return {
+    return migrateMagSave({
       ...j,
       'version': 3,
       'techs': const <Object>[],
       'warehouses': const <Object>[],
-    };
+    });
   }
+  // Format 3 → 4: every truck stays under manual control.
+  if (v == 3) return {...j, 'version': 4};
   throw const FormatException('Unsupported Magistrali save version');
 }
 
@@ -322,6 +330,7 @@ MagWorld magWorldFromJson(Map<String, dynamic> raw) {
         ..load = whole(m['load'], 1, 1 << 20)
         ..loadFrom = m['loadFrom'] as int?;
     }
+    v.auto = m['auto'] as bool? ?? false;
     final order = m['order'];
     if (order != null) {
       if (route != null) {
@@ -436,6 +445,11 @@ MagWorld magWorldFromJson(Map<String, dynamic> raw) {
   final settings = j['settings'] as Map? ?? const {};
   w.autoService = settings['autoService'] as bool? ?? true;
   w.sound = settings['sound'] as bool? ?? true;
+  final mode = settings['dispatch'];
+  if (mode is String) {
+    w.dispatchMode =
+        MagDispatchMode.values.asNameMap()[mode] ?? MagDispatchMode.balanced;
+  }
   // The ledger must still add up, or the file was altered or broken.
   final total = w.totalCargo();
   for (final c in MagCargo.values) {

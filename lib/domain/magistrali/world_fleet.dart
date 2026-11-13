@@ -143,6 +143,7 @@ extension MagWorldFleet on MagWorld {
     if (routeId != null && !routes.containsKey(routeId)) return 'Нет маршрута';
     _park(v);
     if (routeId == null) return null;
+    v.auto = false; // a route means the player drives it again
     v
       ..routeId = routeId
       ..stop = 0

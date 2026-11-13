@@ -5,6 +5,7 @@ import 'package:flutter/material.dart' hide Text;
 import '../../../../domain/magistrali/magistrali.dart';
 import '../../../l10n_widgets.dart';
 import 'mag_art.dart';
+import 'mag_dispatch.dart';
 import 'mag_hud.dart';
 import 'mag_lore.dart';
 import 'mag_orders.dart';
@@ -18,7 +19,8 @@ String stateName(MagWorld w, MagVehicle v) {
     return 'Заказ №${o.id}: ${orderStatusName(o.status).toLowerCase()}';
   }
   return switch (v.state) {
-    MagVehicleState.idle => 'Свободен, ждёт заказ',
+    MagVehicleState.idle =>
+      v.auto ? 'Автопарк: ждёт заявку' : 'Свободен, ждёт заказ',
     MagVehicleState.garage => 'В гараже',
     MagVehicleState.noRoad => 'Нет дороги до остановки',
     MagVehicleState.driving =>
@@ -57,6 +59,7 @@ Widget _truckTile(
     title: Text(v.name, style: const TextStyle(fontWeight: FontWeight.w700)),
     subtitle: Text(
       [
+        if (v.auto) 'автопарк',
         stateName(w, v),
         if (v.load > 0) '${cargoName(v.cargo!)} ${v.load}',
         'износ ${v.wear.round()}%',
@@ -86,6 +89,7 @@ Future<void> showFleetSheet(MagistraliScreenState state) =>
         children: [
           Text('Транспорт · ${w.vehicles.length}', style: magTitle),
           const SizedBox(height: 6),
+          MagDispatchPanel(state: state),
           for (final v in w.vehicles.values) _truckTile(state, v, context),
           const SizedBox(height: 10),
           const Text(
@@ -204,7 +208,26 @@ Future<void> showVehicleSheet(MagistraliScreenState state, int id) => magSheet(
           color: MagPalette.teal,
         ),
         magRow('Маршрут', route?.name ?? 'нет'),
-        const SizedBox(height: 12),
+        SwitchListTile(
+          key: const ValueKey('mag-auto-toggle'),
+          contentPadding: EdgeInsets.zero,
+          value: v.auto,
+          activeThumbColor: MagPalette.mint,
+          title: const Text('Автопарк'),
+          subtitle: Text(
+            w.dispatcherUnlocked
+                ? 'Диспетчер сам даёт машине заявки. Маршрут снимается.'
+                : 'Откроет технология «Диспетчерская»',
+            style: magMuted,
+          ),
+          onChanged: (on) => state.report(
+            w.setAuto(v.id, on),
+            on
+                ? '${v.name} в автопарке'
+                : '${v.name} снова под вашим управлением',
+          ),
+        ),
+        const SizedBox(height: 8),
         Text(
           'Улучшения · доступно до ${w.maxUpgradeLevel} ур.',
           style: const TextStyle(fontWeight: FontWeight.w800),

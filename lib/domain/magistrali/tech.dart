@@ -20,6 +20,9 @@ abstract final class MagBonus {
   /// Warehouses: how many may stand, extra room in each, modes.
   static const warehouses = 'warehouses', storage = 'storage';
   static const autoSupply = 'autoSupply', distribute = 'distribute';
+
+  /// The automatic dispatcher (stage 3).
+  static const dispatcher = 'dispatcher';
 }
 
 class MagTech {
@@ -275,6 +278,19 @@ abstract final class MagTechTree {
       cost: 2500,
       level: 3,
       requires: ['storage'],
+    ),
+    MagTech(
+      id: 'dispatch',
+      branch: MagBranch.storage,
+      title: 'Диспетчерская',
+      lore:
+          'Рация, карта на стене и человек с кофе. Машины автопарка сами '
+          'берут заявки — диспетчер решает, кому ехать.',
+      effect: 'Автоматический диспетчер и автопарк',
+      effects: {MagBonus.dispatcher: 1},
+      cost: 3000,
+      level: 4,
+      requires: ['autosupply'],
     ),
     MagTech(
       id: 'racks',

@@ -13,6 +13,7 @@ extension MagWorldSim on MagWorld {
     tick++;
     if (tick % MagRules.ticksPerDay == 0) _day();
     if (tick % MagRules.planEveryTicks == 0) _planLogistics();
+    if (tick % MagDispatch.everyTicks == 0) dispatch();
     for (final v in vehicles.values.toList()) {
       switch (v.state) {
         case MagVehicleState.garage:

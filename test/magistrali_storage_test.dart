@@ -399,7 +399,7 @@ void main() {
         expect(old.orders.orders.first.status, MagOrderStatus.inTransit);
       }
       old.step(1500);
-      expect(old.toJson()['version'], 3);
+      expect(old.toJson()['version'], MagWorldSave.version);
       expectBalanced(old);
     }
   });

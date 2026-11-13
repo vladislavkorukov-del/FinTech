@@ -3,12 +3,14 @@ import 'dart:math' as math;
 import 'dart:typed_data';
 
 import 'config.dart';
+import 'dispatcher.dart';
 import 'entities.dart';
 import 'map.dart';
 import 'orders.dart';
 import 'pathfinding.dart';
 import 'tech.dart';
 
+part 'world_dispatch.dart';
 part 'world_fleet.dart';
 part 'world_orders.dart';
 part 'world_progress.dart';
@@ -74,6 +76,10 @@ class MagWorld {
   final vehicles = <int, MagVehicle>{};
   final routes = <int, MagRoute>{};
   final contracts = <MagContract>[];
+
+  /// How the dispatcher weighs trucks, and its latest choices.
+  MagDispatchMode dispatchMode = MagDispatchMode.balanced;
+  final dispatchLog = <MagDispatchNote>[];
 
   /// Technologies learned (ids of MagTechTree).
   final techs = <String>{};

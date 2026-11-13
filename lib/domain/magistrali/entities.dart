@@ -84,6 +84,9 @@ class MagVehicle {
   /// The logistics order it carries out (never together with a route).
   int? orderId;
 
+  /// In the automatic fleet: the dispatcher gives it orders (stage 3).
+  bool auto = false;
+
   /// Index of the stop it drives to or stands at.
   int stop = 0;
   MagVehicleState state = MagVehicleState.garage;

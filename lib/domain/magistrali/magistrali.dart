@@ -2,6 +2,7 @@
 library;
 
 export 'config.dart';
+export 'dispatcher.dart';
 export 'entities.dart';
 export 'map.dart';
 export 'orders.dart';

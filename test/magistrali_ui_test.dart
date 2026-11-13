@@ -433,4 +433,75 @@ void main() {
     }
     expect(c.data.world.rewards.containsKey('magistrali:level:5:v1'), isTrue);
   });
+
+  testWidgets('stage 3 by touch: the fleet takes an order by itself', (
+    tester,
+  ) async {
+    await mount(tester, const MagistraliScreen(seed: MagRules.defaultSeed));
+    final s = await ready(tester);
+    final w = s.world;
+    final farm = w.map.startFarm, plant = w.map.startPlant;
+    w.buildRoad(
+      w.planRoad(
+        farm.x + farm.size,
+        farm.y,
+        plant.x - 1,
+        plant.y,
+        MagRoad.dirt,
+      ),
+    );
+    w
+      ..money = 200000
+      ..xp = MagWorldProgress.xpFor(4);
+    s.changed();
+    await tester.pump();
+
+    await tap(tester, 'mag-tab-upgrades');
+    await tap(tester, 'mag-branch-storage');
+    for (final t in ['storage', 'autosupply', 'dispatch']) {
+      await tap(tester, 'mag-research-$t');
+      expect(w.techs, contains(t));
+    }
+    await closeSheet(tester);
+
+    final truck = w.vehicles.values.first;
+    await tap(tester, 'mag-tab-fleet');
+    expect(find.byKey(const ValueKey('mag-dispatch')), findsOneWidget);
+    await tap(tester, 'mag-dispatch-fast');
+    expect(w.dispatchMode, MagDispatchMode.fast);
+    await tap(tester, 'mag-truck-${truck.id}');
+    await tap(tester, 'mag-auto-toggle');
+    expect(truck.auto, isTrue);
+    await closeSheet(tester);
+
+    expect(
+      w.createOrder(
+        cargo: MagCargo.grain,
+        from: farm.id,
+        to: plant.id,
+        amount: 6,
+      ),
+      isNull,
+    );
+    final o = w.orders.orders.last;
+    await tap(tester, 'mag-speed-4');
+    for (var i = 0; i < 400 && o.status.active; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    await tap(tester, 'mag-speed-0');
+    expect(o.vehicle, truck.id);
+    expect(o.status, MagOrderStatus.done);
+    expect(w.dispatchLog.single.vehicle, truck.id);
+    // Let the first delivery's Finora reward be written.
+    for (var i = 0; i < 5; i++) {
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 50)),
+      );
+      await tester.pump();
+    }
+    expect(
+      c.data.world.rewards.containsKey('magistrali:first_delivery:v1'),
+      isTrue,
+    );
+  });
 }
