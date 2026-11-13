@@ -56,6 +56,42 @@ TextStyle flowText(double size, {bool bold = true, Color color = flowInk}) =>
       fontFeatures: const [FontFeature.tabularFigures()],
     );
 
+/// 1.63: the game's one type style — Finora Potok, plum ink, a few fixed
+/// roles. Every word in «Поток» is live text in one of these.
+abstract final class FlowType {
+  /// Window titles: «Пауза», «Уровень пройден!», «Закончились ходы».
+  static TextStyle get title => flowText(24).copyWith(height: 1.08);
+
+  /// Plate and section headings: «Уровень 3», «Очки», «Цели уровня».
+  static TextStyle get heading => flowText(17);
+
+  /// Small capitals over a number: «ХОДЫ», «ЦЕЛИ».
+  static TextStyle get label => flowText(
+    10.5,
+    color: flowInk.withValues(alpha: .62),
+  ).copyWith(letterSpacing: .9);
+
+  /// Every button.
+  static TextStyle get button => flowText(17);
+
+  /// Notes and hints.
+  static TextStyle get body => flowText(13.5, bold: false);
+}
+
+/// A button's live caption, shrinking to fit rather than wrapping.
+class FlowButtonText extends StatelessWidget {
+  const FlowButtonText(this.text, {super.key});
+  final String text;
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 20),
+    child: FittedBox(
+      fit: BoxFit.scaleDown,
+      child: Text(text, maxLines: 1, style: FlowType.button),
+    ),
+  );
+}
+
 /// 1.60: one compact pearl plate for the game's chrome — a soft milky
 /// gradient, a thin champagne edge and a gentle shadow.
 class FlowPearl extends StatelessWidget {
@@ -232,241 +268,172 @@ class FlowTopHud extends StatelessWidget {
   final FlowSession session;
   final VoidCallback? onPause;
 
-  /// Visible aspect ratios of the two cards (from the pack's alpha bounds).
-  static double get _movesAspect => FlowArt.aspectRatio('hud_moves_card');
-  static double get _goalsAspect => FlowArt.aspectRatio('hud_goals_card');
-  static const _gap = 8.0, _header = 48.0, _score = 30.0, _spacing = 6.0;
+  static const _row = 48.0, _plate = 60.0, _score = 30.0, _spacing = 6.0;
 
-  /// 1.62: the cards keep their pack proportions (moves ≈ 29%, goals ≈ 71%
-  /// of the row) and never grow taller than 108.
-  static double cardHeight(double width) =>
-      math.min(108.0, (width - _gap) / (_movesAspect + _goalsAspect));
-
-  /// The HUD's full height for a given width, for the screen's layout.
+  /// The HUD's full height (it no longer depends on the width).
   static double heightFor(double width) =>
-      _header + _spacing + cardHeight(width) + _spacing + _score;
+      _row + _spacing + _plate + _spacing + _score;
 
-  /// 1.62: the pack's top HUD — the level plate with its «Уровень» lettering
-  /// and a live number, pause on the right; separate «ХОДЫ» and «ЦЕЛИ»
-  /// cards with live numbers; the score track with three stars.
+  /// 1.63: the compact top again — the level and pause on one row, moves
+  /// and goals on one plate, the score track below. Plates are the empty
+  /// pearl art from the library; every word and number is live Finora
+  /// Potok in the game's one type style.
   @override
-  Widget build(BuildContext context) => LayoutBuilder(
-    builder: (context, box) {
-      final card = cardHeight(box.maxWidth);
-      return Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SizedBox(
-            height: _header,
-            child: Row(
-              children: [
-                Expanded(child: _LevelPlate(level: level.id)),
-                const SizedBox(width: 6),
-                FlowArtButton(
-                  key: const ValueKey('flow-pause'),
-                  art: 'hud_pause_button',
-                  label: 'Пауза',
-                  onPressed: onPause,
-                  width: 48,
-                  height: 48,
-                  visualSize: 46,
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: _spacing),
-          SizedBox(
-            height: card,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _MovesCard(moves: session.remainingMoves, height: card),
-                const SizedBox(width: _gap),
-                _GoalsCard(
-                  goals: level.goals,
-                  progress: session.progress,
-                  height: card,
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: _spacing),
-          SizedBox(
-            height: _score,
-            child: Row(
-              children: [
-                SizedBox(
-                  width: 64,
-                  child: Semantics(
-                    label: 'Счёт: ${session.score}',
-                    excludeSemantics: true,
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: FlowCountUp(session.score, size: 17),
+  Widget build(BuildContext context) => Column(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      SizedBox(
+        height: _row,
+        child: Row(
+          children: [
+            Expanded(
+              child: Semantics(
+                label: 'Уровень ${level.id}',
+                excludeSemantics: true,
+                child: FlowArtPanel(
+                  art: 'hud_level_header',
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Center(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        'Уровень ${level.id}',
+                        style: FlowType.heading,
+                      ),
                     ),
                   ),
                 ),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: TweenAnimationBuilder<double>(
-                    tween: Tween(end: session.score.toDouble()),
-                    duration: MediaQuery.disableAnimationsOf(context)
-                        ? Duration.zero
-                        : const Duration(milliseconds: 620),
-                    curve: Curves.easeOutCubic,
-                    builder: (context, score, _) => FlowScoreTrack(
-                      score: score.round(),
-                      thresholds: level.scoreThresholds,
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
-          ),
-        ],
-      );
-    },
-  );
-}
-
-/// The empty pearl plate (nine-slice) with the «Уровень» lettering PNG and
-/// the live level number beside it.
-class _LevelPlate extends StatelessWidget {
-  const _LevelPlate({required this.level});
-  final int level;
-  @override
-  Widget build(BuildContext context) => Semantics(
-    label: 'Уровень $level',
-    excludeSemantics: true,
-    child: FlowArtPanel(
-      art: 'hud_level_header',
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 9),
-      child: Center(
-        child: FittedBox(
-          fit: BoxFit.scaleDown,
+            const SizedBox(width: 6),
+            FlowArtButton(
+              key: const ValueKey('flow-pause'),
+              art: 'hud_pause_button',
+              label: 'Пауза',
+              onPressed: onPause,
+              width: 48,
+              height: 48,
+              visualSize: 46,
+            ),
+          ],
+        ),
+      ),
+      const SizedBox(height: _spacing),
+      SizedBox(
+        height: _plate,
+        child: FlowArtPanel(
+          art: 'hud_level_header',
+          padding: const EdgeInsets.fromLTRB(16, 9, 12, 9),
           child: Row(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              const FlowSprite('hud_level_label', height: 26),
-              const SizedBox(width: 7),
-              // The lettering's baseline sits ~22% above its bottom edge
-              // (the descenders of «у» and «р»).
-              Padding(
-                padding: const EdgeInsets.only(bottom: 3),
-                child: Text(
-                  '$level',
-                  textScaler: TextScaler.noScaling,
-                  style: flowText(28).copyWith(height: 1),
+              Semantics(
+                label: 'Ходы: ${session.remainingMoves}',
+                excludeSemantics: true,
+                child: SizedBox(
+                  key: const ValueKey('flow-hud-moves'),
+                  width: 54,
+                  // Large system text shrinks to fit instead of spilling.
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text('ХОДЫ', style: FlowType.label),
+                        SizedBox(
+                          height: 28,
+                          child: FlowBump(session.remainingMoves, size: 24),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              Container(
+                width: 1,
+                height: 30,
+                margin: const EdgeInsets.symmetric(horizontal: 10),
+                color: const Color(0xFFE3C9A0),
+              ),
+              Text(
+                'ЦЕЛИ',
+                textScaler: MediaQuery.textScalerOf(
+                  context,
+                ).clamp(maxScaleFactor: 1.3),
+                style: FlowType.label,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: FittedBox(
+                  key: const ValueKey('flow-hud-goals'),
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Row(
+                    children: [
+                      for (final goal in level.goals)
+                        Builder(
+                          builder: (context) {
+                            final left = math.max(
+                              0,
+                              goal.target - (session.progress[goal.key] ?? 0),
+                            );
+                            return Semantics(
+                              label: '${goal.title}: $left',
+                              excludeSemantics: true,
+                              child: Padding(
+                                padding: const EdgeInsets.only(right: 12),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    FlowGoalIcon(goal.key, size: 32),
+                                    const SizedBox(width: 4),
+                                    FlowBump(left, size: 19),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                    ],
+                  ),
                 ),
               ),
             ],
           ),
         ),
       ),
-    ),
-  );
-}
-
-/// «ХОДЫ» is baked into the card; the number below it is live.
-class _MovesCard extends StatelessWidget {
-  const _MovesCard({required this.moves, required this.height});
-  final int moves;
-  final double height;
-  @override
-  Widget build(BuildContext context) {
-    final width = height * FlowTopHud._movesAspect;
-    return Semantics(
-      label: 'Ходы: $moves',
-      excludeSemantics: true,
-      child: SizedBox(
-        key: const ValueKey('flow-hud-moves'),
-        width: width,
-        height: height,
-        child: Stack(
+      const SizedBox(height: _spacing),
+      SizedBox(
+        height: _score,
+        child: Row(
           children: [
-            const Positioned.fill(child: FlowSprite('hud_moves_card')),
-            // Below the baked label (top 11–25% of the card).
-            Positioned(
-              left: width * .1,
-              right: width * .1,
-              top: height * .28,
-              bottom: height * .1,
-              child: Center(child: FlowBump(moves, size: height * .46)),
+            SizedBox(
+              width: 60,
+              child: Semantics(
+                label: 'Счёт: ${session.score}',
+                excludeSemantics: true,
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: FlowCountUp(session.score, size: 16),
+                ),
+              ),
+            ),
+            const SizedBox(width: 6),
+            Expanded(
+              child: TweenAnimationBuilder<double>(
+                tween: Tween(end: session.score.toDouble()),
+                duration: MediaQuery.disableAnimationsOf(context)
+                    ? Duration.zero
+                    : const Duration(milliseconds: 620),
+                curve: Curves.easeOutCubic,
+                builder: (context, score, _) => FlowScoreTrack(
+                  score: score.round(),
+                  thresholds: level.scoreThresholds,
+                ),
+              ),
             ),
           ],
         ),
       ),
-    );
-  }
-}
-
-/// «ЦЕЛИ» is baked into the card; the level's goal pieces and the live
-/// remaining counts sit below it.
-class _GoalsCard extends StatelessWidget {
-  const _GoalsCard({
-    required this.goals,
-    required this.progress,
-    required this.height,
-  });
-  final List<FlowGoal> goals;
-  final Map<String, int> progress;
-  final double height;
-  @override
-  Widget build(BuildContext context) {
-    final width = height * FlowTopHud._goalsAspect;
-    final icon = height * .36;
-    return SizedBox(
-      key: const ValueKey('flow-hud-goals'),
-      width: width,
-      height: height,
-      child: Stack(
-        children: [
-          const Positioned.fill(child: FlowSprite('hud_goals_card')),
-          Positioned(
-            left: width * .06,
-            right: width * .06,
-            top: height * .27,
-            bottom: height * .08,
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  for (final goal in goals)
-                    Builder(
-                      builder: (context) {
-                        final left = math.max(
-                          0,
-                          goal.target - (progress[goal.key] ?? 0),
-                        );
-                        return Semantics(
-                          label: '${goal.title}: $left',
-                          excludeSemantics: true,
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: height * .08,
-                            ),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                FlowGoalIcon(goal.key, size: icon),
-                                SizedBox(
-                                  height: height * .28,
-                                  child: FlowBump(left, size: height * .26),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+    ],
+  );
 }

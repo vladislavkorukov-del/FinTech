@@ -7,6 +7,32 @@ import 'package:finora/presentation/screens/world/flow_art.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+/// Art with words baked in; 1.63 draws all words as live Finora Potok.
+const _baked = [
+  'hud_moves_card',
+  'hud_goals_card',
+  'hud_level_label',
+  'pause_title',
+  'pause_button_continue',
+  'pause_button_restart',
+  'pause_button_exit',
+  'victory_title',
+  'victory_label_score',
+  'victory_label_reward',
+  'victory_label_next',
+  'victory_label_levels',
+  'out_of_moves_title',
+  'out_of_moves_label_remaining',
+  'out_of_moves_label_extra_moves',
+  'out_of_moves_label_restart',
+  'out_of_moves_label_levels',
+  'prelevel_label_moves',
+  'prelevel_label_goals',
+  'prelevel_label_boosters',
+  'prelevel_label_play',
+  'map_label_levels',
+];
+
 Finder _sprite(String id) =>
     find.byWidgetPredicate((w) => w is FlowSprite && w.id == id);
 
@@ -101,7 +127,7 @@ void main() {
   }
 
   testWidgets(
-    '1.62: separate moves and goals cards from the pack with live numbers',
+    '1.63: compact HUD on empty library plates with live, unified text',
     (tester) async {
       for (final (width, scale) in [(320.0, 2.0), (430.0, 1.0)]) {
         await _mount(
@@ -120,34 +146,24 @@ void main() {
           size: Size(width, 700),
           scale: scale,
         );
-        final moves = find.byKey(const ValueKey('flow-hud-moves'));
-        final goals = find.byKey(const ValueKey('flow-hud-goals'));
-        expect(
-          find.descendant(of: moves, matching: _sprite('hud_moves_card')),
-          findsOneWidget,
-        );
-        expect(
-          find.descendant(of: goals, matching: _sprite('hud_goals_card')),
-          findsOneWidget,
-        );
-        // Two cards side by side, moves ≈ 29% of the row.
-        final m = tester.getRect(moves), g = tester.getRect(goals);
-        expect(m.right, lessThan(g.left));
-        expect(m.height, closeTo(g.height, .5));
-        expect(m.width / (m.width + g.width), closeTo(.29, .02));
-        // Baked lettering is not repeated as text; numbers are live.
-        expect(find.text('ХОДЫ'), findsNothing);
-        expect(find.text('ЦЕЛИ'), findsNothing);
-        expect(
-          find.descendant(of: moves, matching: find.text('123')),
-          findsOneWidget,
-        );
-        expect(_sprite('hud_level_label'), findsOneWidget);
-        expect(_sprite('hud_level_header'), findsNothing); // nine-slice art
         expect(
           tester.getSize(find.byType(FlowTopHud)).height,
           closeTo(FlowTopHud.heightFor(width - 16), .5),
         );
+        expect(FlowTopHud.heightFor(width), lessThanOrEqualTo(150));
+        expect(find.text('Уровень ${level.id}'), findsOneWidget);
+        expect(find.text('ХОДЫ'), findsOneWidget);
+        expect(find.text('ЦЕЛИ'), findsOneWidget);
+        expect(
+          find.descendant(
+            of: find.byKey(const ValueKey('flow-hud-moves')),
+            matching: find.text('123'),
+          ),
+          findsOneWidget,
+        );
+        for (final id in _baked) {
+          expect(_sprite(id), findsNothing, reason: id);
+        }
         expect(
           tester.getSize(find.byKey(const ValueKey('flow-pause'))),
           const Size(48, 48),
@@ -223,7 +239,7 @@ void main() {
   );
 
   testWidgets(
-    '1.62: victory uses the pack lettering and keeps four actions on a small phone',
+    '1.63: victory has live text on empty bases and keeps four actions on a small phone',
     (tester) async {
       final taps = <String>[];
       final won = session(moves: 3, score: 1234567);
@@ -244,9 +260,20 @@ void main() {
         size: const Size(320, 568),
         scale: 1.3,
       );
-      expect(_sprite('victory_label_next'), findsOneWidget);
-      expect(_sprite('victory_label_levels'), findsOneWidget);
-      expect(find.text('Дальше'), findsNothing);
+      for (final id in _baked) {
+        expect(_sprite(id), findsNothing, reason: id);
+      }
+      for (final text in [
+        'Уровень пройден!',
+        'Очки',
+        'Награда',
+        'Дальше',
+        'К уровням',
+        'Повторить уровень',
+        'В Мир Финоры',
+      ]) {
+        expect(find.text(text), findsOneWidget, reason: text);
+      }
       expect(find.text(flowNumber(1234567)), findsOneWidget);
       expect(find.text(flowNumber(100000)), findsOneWidget);
       for (final (key, name) in [

@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import '../../../domain/flow/flow.dart';
 import '../../l10n_widgets.dart';
 import 'flow_art.dart';
+import 'flow_hud.dart' show FlowType, flowText;
 import 'world_art.dart';
 
 /// The supplied terraces and the live nodes share one world coordinate system.
@@ -331,11 +332,7 @@ class _FlowTerraceMapState extends State<FlowTerraceMap> {
                                 Flexible(
                                   child: Text(
                                     'Продолжить уровень ${widget.progress.session!.levelId}',
-                                    style: const TextStyle(
-                                      fontFamily: worldFontFamily,
-                                      color: worldPlum,
-                                      fontWeight: FontWeight.w700,
-                                    ),
+                                    style: flowText(14),
                                   ),
                                 ),
                               ],
@@ -496,13 +493,9 @@ class _TerraceNode extends StatelessWidget {
                           child: Text(
                             '${level.id}',
                             textScaler: TextScaler.noScaling,
-                            style: TextStyle(
-                              fontFamily: worldFontFamily,
-                              fontSize: width * (level.id >= 100 ? .32 : .4),
-                              fontWeight: FontWeight.w700,
-                              color: const Color(0xFF610738),
-                              height: 1,
-                            ),
+                            style: flowText(
+                              width * (level.id >= 100 ? .32 : .4),
+                            ).copyWith(height: 1),
                           ),
                         ),
                       ),
@@ -564,10 +557,7 @@ class _MapHeader extends StatelessWidget {
           right: 56,
           child: Semantics(
             header: true,
-            label: 'Уровни',
-            child: const Center(
-              child: FlowSprite('map_label_levels', height: 30),
-            ),
+            child: Center(child: Text('Уровни', style: FlowType.heading)),
           ),
         ),
         Positioned(

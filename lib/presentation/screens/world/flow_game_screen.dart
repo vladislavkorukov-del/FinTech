@@ -453,7 +453,7 @@ class _FlowGameScreenState extends State<FlowGameScreen>
                                       fit: BoxFit.scaleDown,
                                       child: Text(
                                         _feedback!,
-                                        style: flowText(13, bold: false),
+                                        style: FlowType.body,
                                       ),
                                     ),
                                   ),

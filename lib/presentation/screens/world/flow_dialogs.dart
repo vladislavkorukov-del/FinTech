@@ -105,37 +105,36 @@ class FlowPauseContent extends StatelessWidget {
   Widget build(BuildContext context) => Column(
     mainAxisSize: MainAxisSize.min,
     children: [
-      Semantics(
-        header: true,
-        label: 'Пауза',
-        child: const FlowSprite('pause_title', height: 30),
-      ),
+      Semantics(header: true, child: Text('Пауза', style: FlowType.title)),
       const SizedBox(height: 12),
       FlowArtButton(
         key: const ValueKey('flow-pause-continue'),
-        art: 'pause_button_continue',
+        art: 'victory_button_primary_base',
         label: 'Продолжить',
         onPressed: busy ? null : onContinue,
         width: double.infinity,
         height: 50,
+        child: const FlowButtonText('Продолжить'),
       ),
       const SizedBox(height: 10),
       FlowArtButton(
         key: const ValueKey('flow-pause-restart'),
-        art: 'pause_button_restart',
+        art: 'out_of_moves_button_restart_base',
         label: 'Заново',
         onPressed: busy ? null : onRestart,
         width: double.infinity,
         height: 50,
+        child: const FlowButtonText('Заново'),
       ),
       const SizedBox(height: 10),
       FlowArtButton(
         key: const ValueKey('flow-pause-exit'),
-        art: 'pause_button_exit',
+        art: 'victory_button_secondary_base',
         label: 'Выйти',
         onPressed: busy ? null : onExit,
         width: double.infinity,
         height: 50,
+        child: const FlowButtonText('Выйти'),
       ),
       const SizedBox(height: 12),
       Row(
@@ -198,8 +197,11 @@ class FlowVictoryContent extends StatelessWidget {
         children: [
           Semantics(
             header: true,
-            label: 'Уровень пройден!',
-            child: const FlowSprite('victory_title', height: 46),
+            child: Text(
+              'Уровень пройден!',
+              textAlign: TextAlign.center,
+              style: FlowType.title,
+            ),
           ),
           const SizedBox(height: 10),
           Semantics(
@@ -207,16 +209,10 @@ class FlowVictoryContent extends StatelessWidget {
             child: FlowVictoryStars(stars: session.stars(level)),
           ),
           const SizedBox(height: 12),
-          Semantics(
-            label: 'Очки',
-            child: const FlowLabel('victory_label_score', capitalHeight: 13),
-          ),
+          Text('Очки', style: FlowType.heading),
           SizedBox(height: 38, child: FlowNumber(session.score, size: 30)),
           const SizedBox(height: 8),
-          Semantics(
-            label: 'Награда',
-            child: const FlowLabel('victory_label_reward', capitalHeight: 13),
-          ),
+          Text('Награда', style: FlowType.heading),
           Semantics(
             label: 'Награда: $reward игровых искр',
             child: Row(
@@ -233,8 +229,7 @@ class FlowVictoryContent extends StatelessWidget {
               ],
             ),
           ),
-          if (reward == 0)
-            Text('Награда уже получена', style: flowText(12, bold: false)),
+          if (reward == 0) Text('Награда уже получена', style: FlowType.body),
           const SizedBox(height: 12),
           if (onNext != null) ...[
             FlowArtButton(
@@ -244,9 +239,7 @@ class FlowVictoryContent extends StatelessWidget {
               onPressed: busy ? null : onNext,
               width: double.infinity,
               height: 52,
-              // 1.62: the pack's lettering; both labels share an x-height.
-              labelArt: 'victory_label_next',
-              labelCapHeight: 12.5,
+              child: const FlowButtonText('Дальше'),
             ),
             const SizedBox(height: 8),
           ] else
@@ -255,7 +248,7 @@ class FlowVictoryContent extends StatelessWidget {
               child: Text(
                 'Все 20 уровней пройдены',
                 textAlign: TextAlign.center,
-                style: flowText(13),
+                style: FlowType.body,
               ),
             ),
           FlowArtButton(
@@ -265,12 +258,10 @@ class FlowVictoryContent extends StatelessWidget {
             onPressed: busy ? null : onLevels,
             width: double.infinity,
             height: 52,
-            labelArt: 'victory_label_levels',
-            labelCapHeight: 12.5,
+            child: const FlowButtonText('К уровням'),
           ),
           const SizedBox(height: 8),
-          // The game's own two extra actions: the same pearl base with live
-          // Finora Potok text (the pack has no lettering for them).
+          // 1.63: all four actions on empty library bases, one live style.
           _VictorySecondary(
             buttonKey: const ValueKey('flow-replay'),
             text: 'Повторить уровень',
@@ -307,13 +298,7 @@ class _VictorySecondary extends StatelessWidget {
     onPressed: onPressed,
     width: double.infinity,
     height: 48,
-    child: Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 22),
-      child: FittedBox(
-        fit: BoxFit.scaleDown,
-        child: Text(text, maxLines: 1, style: flowText(15)),
-      ),
-    ),
+    child: FlowButtonText(text),
   );
 }
 
@@ -340,14 +325,14 @@ class FlowLossContent extends StatelessWidget {
     children: [
       Semantics(
         header: true,
-        label: 'Закончились ходы',
-        child: const FlowSprite('out_of_moves_title', height: 46),
+        child: Text(
+          'Закончились ходы',
+          textAlign: TextAlign.center,
+          style: FlowType.title,
+        ),
       ),
       const SizedBox(height: 12),
-      Semantics(
-        label: 'Осталось собрать',
-        child: const FlowSprite('out_of_moves_label_remaining', height: 18),
-      ),
+      Text('Осталось собрать', style: FlowType.heading),
       const SizedBox(height: 12),
       FlowGoals(
         goals: level.goals
@@ -365,13 +350,11 @@ class FlowLossContent extends StatelessWidget {
         onPressed: busy ? null : onExtraMoves,
         width: double.infinity,
         height: 50,
-        // 1.62: the pack's lettering, all three at one cap height.
-        labelArt: 'out_of_moves_label_extra_moves',
-        labelCapHeight: 14,
+        child: const FlowButtonText('Ещё 5 ходов'),
       ),
       Padding(
         padding: const EdgeInsets.only(top: 2),
-        child: Text('Запас: $stock', style: flowText(12, bold: false)),
+        child: Text('Запас: $stock', style: FlowType.body),
       ),
       const SizedBox(height: 8),
       FlowArtButton(
@@ -381,9 +364,7 @@ class FlowLossContent extends StatelessWidget {
         onPressed: busy ? null : onRestart,
         width: double.infinity,
         height: 50,
-        // 1.62: the pack's lettering, all three at one cap height.
-        labelArt: 'out_of_moves_label_restart',
-        labelCapHeight: 14,
+        child: const FlowButtonText('Заново'),
       ),
       const SizedBox(height: 8),
       FlowArtButton(
@@ -393,9 +374,7 @@ class FlowLossContent extends StatelessWidget {
         onPressed: busy ? null : onLevels,
         width: double.infinity,
         height: 50,
-        // 1.62: the pack's lettering, all three at one cap height.
-        labelArt: 'out_of_moves_label_levels',
-        labelCapHeight: 14,
+        child: const FlowButtonText('К уровням'),
       ),
     ],
   );

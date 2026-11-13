@@ -209,21 +209,9 @@ class _FlowPreparationScreenState extends State<FlowPreparationScreen> {
                     child: Center(
                       child: FittedBox(
                         fit: BoxFit.scaleDown,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            const FlowSprite('hud_level_label', height: 32),
-                            const SizedBox(width: 8),
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 4),
-                              child: Text(
-                                '${level.id}',
-                                textScaler: TextScaler.noScaling,
-                                style: flowText(30).copyWith(height: 1),
-                              ),
-                            ),
-                          ],
+                        child: Text(
+                          'Уровень ${level.id}',
+                          style: FlowType.title,
                         ),
                       ),
                     ),
@@ -259,24 +247,9 @@ class _FlowPreparationScreenState extends State<FlowPreparationScreen> {
                   child: Center(
                     child: FittedBox(
                       fit: BoxFit.scaleDown,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          const FlowSprite('prelevel_label_moves', height: 22),
-                          const SizedBox(width: 5),
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 2),
-                            child: Text(
-                              '${level.moves}',
-                              textScaler: TextScaler.noScaling,
-                              style: flowText(
-                                19,
-                                color: _number,
-                              ).copyWith(height: 1),
-                            ),
-                          ),
-                        ],
+                      child: Text(
+                        'Ходы: ${level.moves}',
+                        style: FlowType.heading,
                       ),
                     ),
                   ),
@@ -286,8 +259,7 @@ class _FlowPreparationScreenState extends State<FlowPreparationScreen> {
             const SizedBox(height: 12),
             Semantics(
               header: true,
-              label: 'Цели уровня',
-              child: const FlowSprite('prelevel_label_goals', height: 22),
+              child: Text('Цели уровня', style: FlowType.heading),
             ),
             const SizedBox(height: 8),
             _PrelevelGoals(goals: level.goals),
@@ -296,8 +268,7 @@ class _FlowPreparationScreenState extends State<FlowPreparationScreen> {
             const SizedBox(height: 12),
             Semantics(
               header: true,
-              label: 'Усилители',
-              child: const FlowSprite('prelevel_label_boosters', height: 22),
+              child: Text('Усилители', style: FlowType.heading),
             ),
             const SizedBox(height: 8),
             Row(
@@ -339,7 +310,7 @@ class _FlowPreparationScreenState extends State<FlowPreparationScreen> {
                 child: Text(
                   'Бомба сработает в центре поля',
                   textAlign: TextAlign.center,
-                  style: flowText(12, bold: false),
+                  style: FlowType.body,
                 ),
               ),
             const SizedBox(height: 14),
@@ -350,9 +321,7 @@ class _FlowPreparationScreenState extends State<FlowPreparationScreen> {
               onPressed: _busy ? null : _start,
               width: double.infinity,
               height: 56,
-              // 1.62: the pack's «Играть» lettering; live text while saving.
-              labelArt: _busy ? null : 'prelevel_label_play',
-              child: _busy ? Text('Сохраняем', style: flowText(19)) : null,
+              child: FlowButtonText(_busy ? 'Сохраняем' : 'Играть'),
             ),
             if (_busy) const LinearProgressIndicator(),
             const SizedBox(height: 10),
@@ -361,7 +330,7 @@ class _FlowPreparationScreenState extends State<FlowPreparationScreen> {
                   ? 'Награда первого прохождения уже получена'
                   : 'Первое прохождение: ${reward.xp} опыта и ${reward.sparks} искр',
               textAlign: TextAlign.center,
-              style: flowText(12, color: flowInk.withValues(alpha: .75)),
+              style: FlowType.body,
             ),
             if (level.tutorial.isNotEmpty)
               Padding(
@@ -369,7 +338,7 @@ class _FlowPreparationScreenState extends State<FlowPreparationScreen> {
                 child: Text(
                   level.tutorial,
                   textAlign: TextAlign.center,
-                  style: flowText(12, bold: false),
+                  style: FlowType.body,
                 ),
               ),
           ],
@@ -378,8 +347,6 @@ class _FlowPreparationScreenState extends State<FlowPreparationScreen> {
     );
   }
 }
-
-const _number = Color(0xFF610738);
 
 /// The level's goals: the approved pieces in an even row, each count on the
 /// pack's empty badge, all numbers at one size and baseline.
@@ -424,7 +391,7 @@ class _PrelevelGoals extends StatelessWidget {
                                 child: Text(
                                   flowNumber(goal.target),
                                   textScaler: TextScaler.noScaling,
-                                  style: flowText(cell * .2, color: _number),
+                                  style: flowText(cell * .2),
                                 ),
                               ),
                             ),
@@ -460,7 +427,7 @@ class FlowLegend extends StatelessWidget {
               height: 28,
               trim: false,
             ),
-            Text(FlowTileArt.name(type), style: flowText(13, bold: false)),
+            Text(FlowTileArt.name(type), style: FlowType.body),
           ],
         ),
     ],

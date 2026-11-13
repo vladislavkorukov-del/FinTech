@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'flow_hud.dart' show FlowType, flowInk, flowText;
 import 'world_art.dart' show worldFontFamily;
 
 // From the owner's «Finora Potok · Шрифт и окно новой попытки» pack (1.55),
@@ -42,40 +43,23 @@ Future<bool> showFinoraRetryDialog(
                   children: [
                     Semantics(
                       header: true,
-                      child: const Text(
+                      child: Text(
                         'Начать новую попытку?',
                         textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontFamily: finoraPotokFont,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 27,
-                          height: 1.08,
-                          color: Color(0xFF590E39),
-                        ),
+                        style: FlowType.title,
                       ),
                     ),
                     const SizedBox(height: 15),
                     Text(
                       'Незавершённая попытка уровня $unfinishedLevel будет заменена.',
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        fontFamily: finoraPotokFont,
-                        fontSize: 16,
-                        height: 1.33,
-                        color: Color(0xFF503148),
-                      ),
+                      style: FlowType.body.copyWith(height: 1.3),
                     ),
                     const SizedBox(height: 8),
-                    const Text(
+                    Text(
                       'Звёзды и награды сохранятся.',
                       textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontFamily: finoraPotokFont,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 16,
-                        height: 1.33,
-                        color: Color(0xFF5B123E),
-                      ),
+                      style: flowText(FlowType.body.fontSize!),
                     ),
                     const SizedBox(height: 23),
                     LayoutBuilder(
@@ -163,13 +147,8 @@ class _RetryButton extends StatelessWidget {
               minimumSize: const Size(48, 48),
               tapTargetSize: MaterialTapTargetSize.padded,
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 11),
-              foregroundColor: const Color(0xFF590E39),
-              textStyle: const TextStyle(
-                fontFamily: finoraPotokFont,
-                fontWeight: FontWeight.w700,
-                fontSize: 17,
-                height: 1.1,
-              ),
+              foregroundColor: flowInk,
+              textStyle: FlowType.button,
             ),
             onPressed: onPressed,
             child: Text(label, textAlign: TextAlign.center),

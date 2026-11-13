@@ -445,11 +445,13 @@ void main() {
         tester,
         () => c.data.world.flow.session!.status == FlowStatus.lost,
       );
+      // 1.63: titles are live Finora Potok text, not lettering art.
+      expect(find.text('Закончились ходы'), findsOneWidget);
       expect(
         find.byWidgetPredicate(
           (w) => w is FlowSprite && w.id == 'out_of_moves_title',
         ),
-        findsOneWidget,
+        findsNothing,
       );
       expect(find.byKey(const ValueKey('flow-next')), findsNothing);
       expect(c.data.world.flow.isUnlocked(2), isFalse);
@@ -470,7 +472,8 @@ void main() {
       expect(c.data.world.flow.available(FlowTool.extraMoves), 0);
       await touch(tester, find.byKey(const ValueKey('flow-pause')));
       await touch(tester, find.byKey(const ValueKey('flow-pause-restart')));
-      await tester.tap(find.text('Продолжить'));
+      // The pause card also reads «Продолжить» now; the confirmation is on top.
+      await tester.tap(find.text('Продолжить').last);
       await tester.pump();
       await wait(tester, () => c.data.world.flow.session!.remainingMoves == 1);
       await tester.pumpWidget(const SizedBox.shrink());
