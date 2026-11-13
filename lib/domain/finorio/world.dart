@@ -62,6 +62,10 @@ class FinWorld {
   double zoom = 1;
   bool showGrid = true, tips = true;
 
+  /// The painted ground under the map (view only; never changes cells).
+  late String terrainTheme =
+      FinConfig.terrainThemes[seed % FinConfig.terrainThemes.length];
+
   /// Reward ids already handed to the shared wallet of the world.
   final Set<String> claimed = {};
 

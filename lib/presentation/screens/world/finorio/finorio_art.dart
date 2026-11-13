@@ -4,6 +4,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 
 import '../../../../domain/finorio/finorio.dart';
+import 'finorio_sprites.dart';
 
 /// Finorio's look: soft 3D shapes drawn in code for now. Drawing is kept
 /// apart from the simulation: to switch to painted PNGs later, list them
@@ -50,13 +51,130 @@ abstract final class FinPalette {
   };
 }
 
-/// Optional painted sprites (none yet): building → asset path.
-abstract final class FinSprites {
-  static const assets = <FinBuilding, String>{};
+/// Draws a whole sprite over a unit cell, turned by [quarter] quarter
+/// turns clockwise (and mirrored top–bottom first when asked).
+void _sprite(
+  Canvas c,
+  ui.Image img,
+  Rect cell, {
+  double angle = 0,
+  bool mirror = false,
+  double opacity = 1,
+  double scale = 1,
+}) {
+  c.save();
+  c.translate(cell.center.dx, cell.center.dy);
+  if (angle != 0) c.rotate(angle);
+  if (mirror) c.scale(1, -1);
+  final half = cell.width * scale / 2;
+  c.drawImageRect(
+    img,
+    Rect.fromLTWH(0, 0, img.width.toDouble(), img.height.toDouble()),
+    Rect.fromLTRB(-half, -half, half, half),
+    Paint()
+      ..filterQuality = FilterQuality.medium
+      ..color = Color.fromRGBO(0, 0, 0, opacity),
+  );
+  c.restore();
 }
 
-/// Draws one cell's ground (deposits get soft pebbles).
-void paintTerrain(Canvas c, FinTerrain t, int x, int y, int seed) {
+/// The painted ground under the whole map (one texture, world coordinates).
+void paintGroundBackground(Canvas c, FinTerrainMap map) {
+  final bg = FinSpriteBank.current?.background;
+  if (bg == null) return;
+  c.drawImageRect(
+    bg,
+    Rect.fromLTWH(0, 0, bg.width.toDouble(), bg.height.toDouble()),
+    Rect.fromLTWH(0, 0, map.width.toDouble(), map.height.toDouble()),
+    Paint()..filterQuality = FilterQuality.medium,
+  );
+}
+
+/// A painted terrain tile; free ground stays clear over the background,
+/// and edges towards a different terrain fade out (14% of the cell).
+bool _paintTile(Canvas c, FinTerrainMap map, FinTerrain t, int x, int y) {
+  final bank = FinSpriteBank.current;
+  if (bank == null || bank.background == null) return false;
+  if (t == FinTerrain.ground) return true;
+  final img = bank.tile(t, x, y, map.seed);
+  if (img == null) return false;
+  final r = Rect.fromLTWH(x.toDouble(), y.toDouble(), 1, 1);
+  bool same(int dx, int dy) =>
+      !map.inside(x + dx, y + dy) || map.at(x + dx, y + dy) == t;
+  c.saveLayer(r, Paint());
+  _sprite(c, img, r);
+  const band = .14;
+  final cut = Paint()..blendMode = BlendMode.dstOut;
+  void edge(Rect band0, Alignment from, Alignment to) => c.drawRect(
+    band0,
+    cut
+      ..shader = ui.Gradient.linear(
+        from.withinRect(band0),
+        to.withinRect(band0),
+        [const Color(0xFF000000), const Color(0x00000000)],
+      ),
+  );
+  if (!same(0, -1)) {
+    edge(
+      Rect.fromLTWH(r.left, r.top, 1, band),
+      Alignment.topCenter,
+      Alignment.bottomCenter,
+    );
+  }
+  if (!same(0, 1)) {
+    edge(
+      Rect.fromLTWH(r.left, r.bottom - band, 1, band),
+      Alignment.bottomCenter,
+      Alignment.topCenter,
+    );
+  }
+  if (!same(-1, 0)) {
+    edge(
+      Rect.fromLTWH(r.left, r.top, band, 1),
+      Alignment.centerLeft,
+      Alignment.centerRight,
+    );
+  }
+  if (!same(1, 0)) {
+    edge(
+      Rect.fromLTWH(r.right - band, r.top, band, 1),
+      Alignment.centerRight,
+      Alignment.centerLeft,
+    );
+  }
+  // A corner whose two sides match but whose diagonal does not.
+  for (final (dx, dy) in const [(-1, -1), (1, -1), (-1, 1), (1, 1)]) {
+    if (same(dx, 0) && same(0, dy) && !same(dx, dy)) {
+      final corner = Offset(
+        dx < 0 ? r.left : r.right,
+        dy < 0 ? r.top : r.bottom,
+      );
+      c.drawCircle(
+        corner,
+        band,
+        cut
+          ..shader = ui.Gradient.radial(corner, band, [
+            const Color(0xFF000000),
+            const Color(0x00000000),
+          ]),
+      );
+    }
+  }
+  c.restore();
+  return true;
+}
+
+/// Draws one cell's ground: the painted tile when the art is loaded,
+/// otherwise a procedural one (deposits get soft pebbles).
+void paintTerrain(
+  Canvas c,
+  FinTerrain t,
+  int x,
+  int y,
+  int seed, [
+  FinTerrainMap? map,
+]) {
+  if (map != null && _paintTile(c, map, t, x, y)) return;
   final r = Rect.fromLTWH(x.toDouble(), y.toDouble(), 1, 1);
   c.drawRect(r, Paint()..color = FinPalette.terrain(t));
   if (t == FinTerrain.ground) return;
@@ -101,6 +219,11 @@ void paintTerrain(Canvas c, FinTerrain t, int x, int y, int seed) {
 
 /// One item: a small glossy gem in the item's colour.
 void paintItem(Canvas c, Offset at, FinItem item, double size) {
+  final img = FinSpriteBank.current?.item(item);
+  if (img != null) {
+    _sprite(c, img, Rect.fromCenter(center: at, width: size, height: size));
+    return;
+  }
   final color = FinPalette.item(item);
   c.drawCircle(
     at.translate(0, size * .18),
@@ -133,6 +256,31 @@ void paintItem(Canvas c, Offset at, FinItem item, double size) {
 /// simulated time for gentle motion, [active] whether it is working.
 void paintBuilding(Canvas c, FinMachine m, double t, {required bool active}) {
   final cell = Rect.fromLTWH(m.x.toDouble(), m.y.toDouble(), 1, 1);
+  final bank = FinSpriteBank.current;
+  final art = FinSpriteBank.buildingArt[m.kind];
+  final base = art == null ? null : bank?[art.$1];
+  if (base != null) {
+    // The art faces east (dir 1); directional buildings turn with dir.
+    final turns =
+        m.kind == FinBuilding.storage || m.kind == FinBuilding.generator
+        ? 0
+        : (m.dir - 1) % 4;
+    final angle = turns * math.pi / 2;
+    _sprite(c, base, cell, angle: angle);
+    final layer = art!.$2 == null ? null : bank![art.$2!];
+    if (layer != null) {
+      switch (m.kind) {
+        case FinBuilding.drill || FinBuilding.assembler:
+          final spin = active ? t * (m.kind == FinBuilding.drill ? 5 : 2) : 0.0;
+          _sprite(c, layer, cell, angle: angle + spin);
+        default:
+          // Light layers breathe between 55 and 100% while working.
+          final glow = active ? .775 + .225 * math.sin(t * 4) : .3;
+          _sprite(c, layer, cell, angle: angle, opacity: glow);
+      }
+    }
+    return;
+  }
   final body = RRect.fromRectAndRadius(
     cell.deflate(.07),
     const Radius.circular(.2),
@@ -270,6 +418,23 @@ void paintBuilding(Canvas c, FinMachine m, double t, {required bool active}) {
 void paintBelt(Canvas c, FinMachine b, int from, double t) {
   final cell = Rect.fromLTWH(b.x.toDouble(), b.y.toDouble(), 1, 1);
   final fast = b.kind == FinBuilding.fastBelt;
+  final bank = FinSpriteBank.current;
+  final name = fast ? 'fast_belt' : 'belt';
+  final straight = from == FinDir.opposite(b.dir);
+  final art = bank?['${name}_${straight ? 'straight' : 'corner'}'];
+  if (art != null) {
+    // Straight art runs west → east, the corner south → east: turn to the
+    // belt's direction; the other bend is the corner mirrored first.
+    final angle = (b.dir - 1) * math.pi / 2;
+    _sprite(
+      c,
+      art,
+      cell,
+      angle: angle,
+      mirror: !straight && from != (b.dir + 1) % 4,
+    );
+    return;
+  }
   final track = RRect.fromRectAndRadius(
     cell.deflate(.1),
     const Radius.circular(.14),
@@ -305,6 +470,37 @@ void paintBelt(Canvas c, FinMachine b, int from, double t) {
         ..lineTo(p.dx + n.dx * .04, p.dy + n.dy * .04)
         ..lineTo(p.dx - n.dx * .08 - side.dx, p.dy - n.dy * .08 - side.dy),
       chevron,
+    );
+  }
+}
+
+/// The belt's moving chevrons, drawn after all belt bases so a chevron
+/// crossing into the next cell is not covered by it.
+void paintBeltChevrons(Canvas c, FinMachine b, int from, double t) {
+  final bank = FinSpriteBank.current;
+  final img =
+      bank?[b.kind == FinBuilding.fastBelt
+          ? 'fast_belt_chevron'
+          : 'belt_chevron'];
+  if (img == null) return;
+  final speed =
+      (FinRules.beltSpeed[b.kind]! * FinRules.ticksPerSecond) /
+      FinRules.beltLength;
+  final phase = (t * speed) % .5;
+  for (var k = 0; k < 2; k++) {
+    final s = phase + k * .5;
+    final p = beltPoint(b, from, s);
+    final d =
+        beltPoint(b, from, (s + .01).clamp(0, 1)) -
+        beltPoint(b, from, (s - .01).clamp(0, 1));
+    final angle = math.atan2(d.dy, d.dx);
+    _sprite(
+      c,
+      img,
+      Rect.fromCenter(center: p, width: 1, height: 1),
+      angle: angle,
+      scale: .5,
+      opacity: .9,
     );
   }
 }

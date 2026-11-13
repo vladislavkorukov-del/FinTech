@@ -3,7 +3,6 @@ import 'package:flutter/material.dart' hide Text;
 import '../../../../domain/finorio/finorio.dart';
 import '../../../controller.dart';
 import '../../../l10n_widgets.dart';
-import 'finorio_art.dart';
 import 'finorio_names.dart';
 import 'finorio_panels.dart';
 import 'finorio_screen.dart';
@@ -56,10 +55,7 @@ Future<void> showFinorioInventory(
           for (final e in w.inventory.entries)
             ListTile(
               dense: true,
-              leading: CircleAvatar(
-                backgroundColor: FinPalette.item(e.key),
-                radius: 10,
-              ),
+              leading: FinItemIcon(e.key, size: 26),
               title: Text(FinNames.item(e.key)),
               trailing: Text('${e.value}'),
             ),
@@ -178,6 +174,34 @@ Future<String?> showFinorioMenu(
               value: w.showGrid,
               onChanged: (v) => setLocal(() => w.showGrid = v),
             ),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Местность',
+                style: TextStyle(
+                  fontSize: 13,
+                  color: _ink.withValues(alpha: .7),
+                ),
+              ),
+            ),
+            const SizedBox(height: 6),
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: [
+                for (final key in FinConfig.terrainThemes)
+                  ChoiceChip(
+                    key: ValueKey('finorio-theme-$key'),
+                    label: Text(FinNames.terrainTheme(key)),
+                    selected: w.terrainTheme == key,
+                    onSelected: (_) async {
+                      await state.setTerrainTheme(key);
+                      setLocal(() {});
+                    },
+                  ),
+              ],
+            ),
+            const SizedBox(height: 6),
             SwitchListTile(
               title: const Text('Подсказки Финоры'),
               value: w.tips,

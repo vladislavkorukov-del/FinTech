@@ -353,10 +353,7 @@ class FinInspector extends StatelessWidget {
                 for (final e in items.entries)
                   Chip(
                     visualDensity: VisualDensity.compact,
-                    avatar: CircleAvatar(
-                      backgroundColor: FinPalette.item(e.key),
-                      radius: 7,
-                    ),
+                    avatar: FinItemIcon(e.key, size: 20),
                     label: Text(
                       total
                           ? '${FinNames.item(e.key)}: ${e.value}'

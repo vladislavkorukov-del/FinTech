@@ -431,6 +431,28 @@ class _BuildingTile extends StatelessWidget {
   );
 }
 
+/// An item drawn small (same art as on the belts).
+class FinItemIcon extends StatelessWidget {
+  const FinItemIcon(this.item, {super.key, this.size = 22});
+  final FinItem item;
+  final double size;
+  @override
+  Widget build(BuildContext context) => SizedBox.square(
+    dimension: size,
+    child: CustomPaint(painter: _ItemPainter(item)),
+  );
+}
+
+class _ItemPainter extends CustomPainter {
+  const _ItemPainter(this.item);
+  final FinItem item;
+  @override
+  void paint(Canvas canvas, Size size) =>
+      paintItem(canvas, size.center(Offset.zero), item, size.shortestSide);
+  @override
+  bool shouldRepaint(_ItemPainter old) => old.item != item;
+}
+
 /// A building drawn small, for menus (same art as on the map).
 class FinBuildingIcon extends StatelessWidget {
   const FinBuildingIcon(this.kind, {super.key});

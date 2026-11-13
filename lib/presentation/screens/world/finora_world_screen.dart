@@ -399,30 +399,96 @@ class _FinoraWorldScreenState extends State<FinoraWorldScreen>
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              for (final item in <(String, String, String, IconData, Widget)>[
-                (
-                  'world-game-flow',
-                  'Поток',
-                  'Три в ряд: 500 уровней',
-                  Icons.grid_view_rounded,
-                  flow,
+              ListTile(
+                key: const ValueKey('world-game-flow'),
+                leading: const Icon(Icons.grid_view_rounded, color: worldJade),
+                title: const Text('Поток'),
+                subtitle: const Text('Три в ряд: 500 уровней'),
+                trailing: const Icon(Icons.chevron_right_rounded),
+                onTap: () => Navigator.pop(themedContext, flow),
+              ),
+              // Finorio's card: the «Мой завод» cover, the title on its
+              // dark left side.
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+                child: Semantics(
+                  button: true,
+                  label: 'Finorio, мой завод',
+                  excludeSemantics: true,
+                  child: Material(
+                    color: Colors.black,
+                    clipBehavior: Clip.antiAlias,
+                    shape: RoundedSuperellipseBorder(
+                      borderRadius: BorderRadius.circular(22),
+                    ),
+                    child: InkWell(
+                      key: const ValueKey('world-game-finorio'),
+                      onTap: () =>
+                          Navigator.pop(themedContext, const FinorioScreen()),
+                      child: SizedBox(
+                        height: 150,
+                        child: Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            Image.asset(
+                              'assets/finorio/covers/my_factory_cover.webp',
+                              fit: BoxFit.cover,
+                              alignment: Alignment.centerRight,
+                              excludeFromSemantics: true,
+                            ),
+                            const DecoratedBox(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    Color(0xE6101014),
+                                    Color(0x00101014),
+                                  ],
+                                  stops: [.25, .75],
+                                ),
+                              ),
+                            ),
+                            const Padding(
+                              padding: EdgeInsets.fromLTRB(20, 16, 16, 16),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'FINORIO',
+                                    style: TextStyle(
+                                      color: Color(0xFF8FE9D9),
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w700,
+                                      letterSpacing: 1.6,
+                                    ),
+                                  ),
+                                  SizedBox(height: 4),
+                                  Text(
+                                    'Мой завод',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                  SizedBox(height: 2),
+                                  Text(
+                                    'Заводы, конвейеры и технологии',
+                                    style: TextStyle(
+                                      color: Color(0xCCFFFFFF),
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
-                (
-                  'world-game-finorio',
-                  'Finorio',
-                  'Заводы, конвейеры и технологии',
-                  Icons.precision_manufacturing_outlined,
-                  const FinorioScreen(),
-                ),
-              ])
-                ListTile(
-                  key: ValueKey(item.$1),
-                  leading: Icon(item.$4, color: worldJade),
-                  title: Text(item.$2),
-                  subtitle: Text(item.$3),
-                  trailing: const Icon(Icons.chevron_right_rounded),
-                  onTap: () => Navigator.pop(themedContext, item.$5),
-                ),
+              ),
               const SizedBox(height: 8),
             ],
           ),

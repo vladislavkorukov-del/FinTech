@@ -23,7 +23,7 @@ extension FinWorldSave on FinWorld {
     'furnaceOre': furnaceOre,
     'labDelivered': labDelivered,
     'camera': [cameraX, cameraY, zoom],
-    'settings': {'grid': showGrid, 'tips': tips},
+    'settings': {'grid': showGrid, 'tips': tips, 'theme': terrainTheme},
     'claimed': claimed.toList()..sort(),
     'machines': [
       for (final m in sorted)
@@ -120,6 +120,10 @@ FinWorld finWorldFromJson(Map<String, dynamic> j) {
   final settings = j['settings'] as Map? ?? const {};
   w.showGrid = settings['grid'] as bool? ?? true;
   w.tips = settings['tips'] as bool? ?? true;
+  final theme = settings['theme'];
+  if (theme is String && FinConfig.terrainThemes.contains(theme)) {
+    w.terrainTheme = theme;
+  }
   w.claimed.addAll((j['claimed'] as List? ?? const []).cast<String>());
   for (final raw in j['machines'] as List? ?? const []) {
     final m = Map<String, dynamic>.from(raw as Map);

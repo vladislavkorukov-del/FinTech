@@ -257,6 +257,17 @@ abstract final class FinConfig {
       requires: ['robots', 'solar'],
     ),
   ];
+
+  /// Painted ground themes for the whole map (Finorio_Terrain_Backgrounds).
+  static const terrainThemes = [
+    'meadow',
+    'quarry',
+    'canyon',
+    'wetlands',
+    'tundra',
+    'volcanic',
+  ];
+
   static FinTech? tech(String id) =>
       research.where((t) => t.id == id).firstOrNull;
 }

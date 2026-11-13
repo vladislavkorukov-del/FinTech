@@ -14,6 +14,7 @@ import 'finorio_painter.dart';
 import 'finorio_inspector.dart';
 import 'finorio_panels.dart';
 import 'finorio_sheets.dart';
+import 'finorio_sprites.dart';
 
 enum FinTool { select, build, remove }
 
@@ -72,6 +73,8 @@ class FinorioScreenState extends State<FinorioScreen>
     final w =
         loaded ??
         FinWorld.start(widget.seed ?? math.Random().nextInt(0x7ffffff0) + 1);
+    await _loadArt(w.terrainTheme);
+    if (!mounted) return;
     setState(() {
       world = w;
       _camera = FinCamera(w.cameraX, w.cameraY, w.zoom);
@@ -80,6 +83,37 @@ class FinorioScreenState extends State<FinorioScreen>
     _ticker.start();
     _autosave = Timer.periodic(const Duration(seconds: 30), (_) => save());
     _claimRewards();
+  }
+
+  /// The painted art for [theme]; without it the game keeps its
+  /// procedural shapes (never blocks playing).
+  Future<void> _loadArt(String theme) async {
+    try {
+      final bank = await FinSpriteBank.load(theme);
+      if (!mounted) {
+        bank.dispose();
+        return;
+      }
+      final old = FinSpriteBank.current;
+      FinSpriteBank.current = bank;
+      old?.dispose();
+    } on Object {
+      // Procedural art stays in place.
+    }
+  }
+
+  /// Switches the painted ground; the map's cells do not change.
+  Future<void> setTerrainTheme(String theme) async {
+    final w = world;
+    if (w == null || w.terrainTheme == theme) return;
+    w.terrainTheme = theme;
+    await _loadArt(theme);
+    if (!mounted) return;
+    setState(() {
+      _cache?.dispose();
+      _cache = FinTerrainCache(w.terrain);
+    });
+    frame.value++;
   }
 
   @override
@@ -153,6 +187,9 @@ class FinorioScreenState extends State<FinorioScreen>
     _messageTimer?.cancel();
     _ticker.dispose();
     _cache?.dispose();
+    // The pictures hold the art; release both with the screen.
+    FinSpriteBank.current?.dispose();
+    FinSpriteBank.current = null;
     frame.dispose();
     ticks.dispose();
     unawaited(save());
@@ -339,6 +376,7 @@ class FinorioScreenState extends State<FinorioScreen>
       _cache?.dispose();
       final w = FinWorld.start(math.Random().nextInt(0x7ffffff0) + 1);
       w.claimed.addAll(world?.claimed ?? const {});
+      w.terrainTheme = world?.terrainTheme ?? w.terrainTheme;
       setState(() {
         world = w;
         _camera = FinCamera(w.cameraX, w.cameraY, w.zoom);

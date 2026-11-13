@@ -65,6 +65,16 @@ abstract final class FinNames {
     FinStatus.idle => const Color(0xFFB4B0C4),
   };
 
+  static String terrainTheme(String key) => switch (key) {
+    'meadow' => 'Шалфейная равнина',
+    'quarry' => 'Сланцевый карьер',
+    'canyon' => 'Пески каньона',
+    'wetlands' => 'Моховые низины',
+    'tundra' => 'Морозная тундра',
+    'volcanic' => 'Вулканическое плато',
+    _ => key,
+  };
+
   static String tech(String id) => switch (id) {
     'logistics' => 'Улучшенная логистика',
     'mining' => 'Улучшенная добыча',

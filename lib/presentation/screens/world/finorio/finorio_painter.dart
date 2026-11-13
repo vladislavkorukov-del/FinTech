@@ -32,7 +32,7 @@ class FinTerrainCache {
     const n = FinRules.chunk;
     for (var y = cy * n; y < (cy + 1) * n && y < map.height; y++) {
       for (var x = cx * n; x < (cx + 1) * n && x < map.width; x++) {
-        paintTerrain(c, map.at(x, y), x, y, map.seed);
+        paintTerrain(c, map.at(x, y), x, y, map.seed, map);
       }
     }
     return rec.endRecording();
@@ -95,6 +95,7 @@ class FinWorldPainter extends CustomPainter {
     canvas.scale(s);
     canvas.translate(-camera.x, -camera.y);
 
+    paintGroundBackground(canvas, world.terrain);
     const n = FinRules.chunk;
     for (var cy = y0 ~/ n; cy <= y1 ~/ n; cy++) {
       for (var cx = x0 ~/ n; cx <= x1 ~/ n; cx++) {
@@ -169,6 +170,9 @@ class FinWorldPainter extends CustomPainter {
     }
     for (final b in belts) {
       paintBelt(canvas, b, entrySide(world, b), t);
+    }
+    for (final b in belts) {
+      paintBeltChevrons(canvas, b, entrySide(world, b), t);
     }
     for (final b in belts) {
       final from = entrySide(world, b);
@@ -282,7 +286,7 @@ class FinWorldPainter extends CustomPainter {
 }
 
 /// The side a belt's items come in from: its back, or a side where a belt
-/// feeds it (then it is drawn as a bend).
+/// or a machine feeds it (then it is drawn as a bend).
 int entrySide(FinWorld w, FinMachine b) {
   final back = FinDir.opposite(b.dir);
   bool feeds(int side) {
@@ -293,7 +297,8 @@ int entrySide(FinWorld w, FinMachine b) {
   if (feeds(back)) return back;
   for (final side in [(b.dir + 1) % 4, (b.dir + 3) % 4]) {
     final m = w.machineAt(b.x + FinDir.dx[side], b.y + FinDir.dy[side]);
-    if (m != null && m.isBelt && feeds(side)) return side;
+    // A belt or a machine handing out onto this belt from the side.
+    if (m != null && feeds(side)) return side;
   }
   return back;
 }
