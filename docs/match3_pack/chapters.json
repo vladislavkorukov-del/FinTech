@@ -1,0 +1,301 @@
+{
+  "chapters": [
+    {
+      "pack_order": 1,
+      "theme_key": "sakura",
+      "title_ru": "Сад сакуры",
+      "background": {
+        "asset": "assets/finora/match3/chapters/sakura/gameplay_background.webp",
+        "width": 941,
+        "height": 1672,
+        "sha256": "6e558765f0b8583e5ee7ee7395a1ed030965fae91f961d16976d4d64be2dd392"
+      },
+      "map": {
+        "asset": "assets/finora/match3/chapters/sakura/level_map.webp",
+        "width": 724,
+        "height": 2172,
+        "sha256": "ca151cc72c99eb5408aaf8b320a37afa3112144b213876cb99b81072f602da03"
+      }
+    },
+    {
+      "pack_order": 2,
+      "theme_key": "jade",
+      "title_ru": "Нефритовые каскады",
+      "background": {
+        "asset": "assets/finora/match3/chapters/jade/gameplay_background.webp",
+        "width": 941,
+        "height": 1672,
+        "sha256": "db2711866a23f1f145fc57feb88bcd9d205ab33d33fc9d0f92587bc1e44e2b93"
+      },
+      "map": {
+        "asset": "assets/finora/match3/chapters/jade/level_map.webp",
+        "width": 724,
+        "height": 2172,
+        "sha256": "7abbf441c638385282c7a43155f2deddcf9dbdf43f5cf52e04acf3062a5cf16d"
+      }
+    },
+    {
+      "pack_order": 3,
+      "theme_key": "lagoon",
+      "title_ru": "Коралловая лагуна",
+      "background": {
+        "asset": "assets/finora/match3/chapters/lagoon/gameplay_background.webp",
+        "width": 941,
+        "height": 1672,
+        "sha256": "024b9959d451c09a97aed60ae3fc33411f14105e5c85879e0d6a8843df5fc733"
+      },
+      "map": {
+        "asset": "assets/finora/match3/chapters/lagoon/level_map.webp",
+        "width": 724,
+        "height": 2172,
+        "sha256": "e666566f2a0edf6308fd630b7d1243cea392e96c5d168ba43b592ef75b0ebf9e"
+      }
+    },
+    {
+      "pack_order": 4,
+      "theme_key": "dunes",
+      "title_ru": "Янтарные дюны",
+      "background": {
+        "asset": "assets/finora/match3/chapters/dunes/gameplay_background.webp",
+        "width": 941,
+        "height": 1672,
+        "sha256": "cd2394a6dc88b01279f62b7d50286a773b58c007305c551f0189acd5dfe318b6"
+      },
+      "map": {
+        "asset": "assets/finora/match3/chapters/dunes/level_map.webp",
+        "width": 724,
+        "height": 2172,
+        "sha256": "7f25190fa26b9d63c4e6a3f0da00a08efc265dc433aa09e519165e25edbe5b08"
+      }
+    },
+    {
+      "pack_order": 5,
+      "theme_key": "autumn",
+      "title_ru": "Кленовые террасы",
+      "background": {
+        "asset": "assets/finora/match3/chapters/autumn/gameplay_background.webp",
+        "width": 941,
+        "height": 1672,
+        "sha256": "ffbc6bb4336c783f50cdfc02a7ac030b1e4909daa3a2561e8ba1f3a279d7e446"
+      },
+      "map": {
+        "asset": "assets/finora/match3/chapters/autumn/level_map.webp",
+        "width": 724,
+        "height": 2172,
+        "sha256": "673bae0dbe294caaa57e9460f05a6e2d8bc6405ac75bff1f4e2cc5ef61a42ffa"
+      }
+    },
+    {
+      "pack_order": 6,
+      "theme_key": "amethyst",
+      "title_ru": "Аметистовый грот",
+      "background": {
+        "asset": "assets/finora/match3/chapters/amethyst/gameplay_background.webp",
+        "width": 941,
+        "height": 1672,
+        "sha256": "ae018e2017c1cc7b7014096551a7a87792afbadfc70dbf3daa0f4c5e59c4e2bc"
+      },
+      "map": {
+        "asset": "assets/finora/match3/chapters/amethyst/level_map.webp",
+        "width": 724,
+        "height": 2172,
+        "sha256": "7662244abf245f6b403e0e3d2d5d3e51bc881af7f8880126f3d7d7d71684f8d2"
+      }
+    },
+    {
+      "pack_order": 7,
+      "theme_key": "ice",
+      "title_ru": "Ледяной дворец",
+      "background": {
+        "asset": "assets/finora/match3/chapters/ice/gameplay_background.webp",
+        "width": 941,
+        "height": 1672,
+        "sha256": "081bebafb49ab81e45fbf4715a9c27d93e079e9057602bab429bcf6f47f890b7"
+      },
+      "map": {
+        "asset": "assets/finora/match3/chapters/ice/level_map.webp",
+        "width": 724,
+        "height": 2172,
+        "sha256": "cf16d34eed40e89736e1667fba8b6649fa5a6e189c0916637e290aeb65ca1b3d"
+      }
+    },
+    {
+      "pack_order": 8,
+      "theme_key": "storm",
+      "title_ru": "Грозовые острова",
+      "background": {
+        "asset": "assets/finora/match3/chapters/storm/gameplay_background.webp",
+        "width": 941,
+        "height": 1672,
+        "sha256": "378e9304b3c963ad5e3ff9864638dbd583cc335e77db3cf5ccc42a4d59af0b50"
+      },
+      "map": {
+        "asset": "assets/finora/match3/chapters/storm/level_map.webp",
+        "width": 724,
+        "height": 2172,
+        "sha256": "d9121ee836db4899fa80330e77787ddccca13b6bb8447836c29bcd17687cce2a"
+      }
+    },
+    {
+      "pack_order": 9,
+      "theme_key": "moon",
+      "title_ru": "Лунная обсерватория",
+      "background": {
+        "asset": "assets/finora/match3/chapters/moon/gameplay_background.webp",
+        "width": 941,
+        "height": 1672,
+        "sha256": "e9c397d034b59c36f12425883dcff962ddf7bffd808158d08935281b0a6e3699"
+      },
+      "map": {
+        "asset": "assets/finora/match3/chapters/moon/level_map.webp",
+        "width": 724,
+        "height": 2172,
+        "sha256": "c0d7b31eb8cf52a5be4494d79a5496e6d9ed45191ccfec20667705b483c96c86"
+      }
+    }
+  ],
+  "map_layout": {
+    "reference_width": 724,
+    "platform_anchors": [
+      {
+        "index_top_to_bottom": 0,
+        "x": 240,
+        "y": 145,
+        "visible_node_width": 164,
+        "base_y_offset": 36
+      },
+      {
+        "index_top_to_bottom": 1,
+        "x": 490,
+        "y": 308,
+        "visible_node_width": 164,
+        "base_y_offset": 36
+      },
+      {
+        "index_top_to_bottom": 2,
+        "x": 235,
+        "y": 465,
+        "visible_node_width": 164,
+        "base_y_offset": 36
+      },
+      {
+        "index_top_to_bottom": 3,
+        "x": 490,
+        "y": 632,
+        "visible_node_width": 164,
+        "base_y_offset": 36
+      },
+      {
+        "index_top_to_bottom": 4,
+        "x": 230,
+        "y": 805,
+        "visible_node_width": 164,
+        "base_y_offset": 36
+      },
+      {
+        "index_top_to_bottom": 5,
+        "x": 350,
+        "y": 1040,
+        "visible_node_width": 130,
+        "base_y_offset": 36
+      },
+      {
+        "index_top_to_bottom": 6,
+        "x": 490,
+        "y": 1290,
+        "visible_node_width": 164,
+        "base_y_offset": 36
+      },
+      {
+        "index_top_to_bottom": 7,
+        "x": 235,
+        "y": 1410,
+        "visible_node_width": 164,
+        "base_y_offset": 36
+      },
+      {
+        "index_top_to_bottom": 8,
+        "x": 490,
+        "y": 1555,
+        "visible_node_width": 164,
+        "base_y_offset": 36
+      },
+      {
+        "index_top_to_bottom": 9,
+        "x": 230,
+        "y": 1695,
+        "visible_node_width": 164,
+        "base_y_offset": 36
+      },
+      {
+        "index_top_to_bottom": 10,
+        "x": 490,
+        "y": 1835,
+        "visible_node_width": 164,
+        "base_y_offset": 36
+      },
+      {
+        "index_top_to_bottom": 11,
+        "x": 225,
+        "y": 1988,
+        "visible_node_width": 164,
+        "base_y_offset": 36
+      },
+      {
+        "index_top_to_bottom": 12,
+        "x": 490,
+        "y": 2130,
+        "visible_node_width": 164,
+        "base_y_offset": 36
+      }
+    ],
+    "overlay_positions_within_visible_node_bounds": {
+      "number_completed": [
+        0.5,
+        0.39
+      ],
+      "number_available": [
+        0.5,
+        0.46
+      ],
+      "number_current": [
+        0.5,
+        0.46
+      ],
+      "number_locked": [
+        0.5,
+        0.35
+      ],
+      "lock": [
+        0.5,
+        0.76
+      ],
+      "stars": [
+        [
+          0.28,
+          0.79
+        ],
+        [
+          0.5,
+          0.82
+        ],
+        [
+          0.72,
+          0.79
+        ]
+      ]
+    },
+    "header": {
+      "pinned": true,
+      "visible_width": 676,
+      "top": 20,
+      "back_visible_width": 66,
+      "title_visible_width": 212
+    },
+    "map_height": 2172,
+    "world_origin": "top-left",
+    "scroll_axis": "vertical",
+    "progression": "bottom-to-top",
+    "wrap": false
+  }
+}

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 
 import '../../../domain/flow/flow.dart';
 import 'flow_art.dart';
+import 'flow_chapters.dart';
 import 'world_art.dart' show worldFontFamily;
 
 part 'flow_board_drone.dart';
@@ -50,12 +51,10 @@ abstract final class FlowPlayfield {
   static const folder = 'assets/finora/match3/playfield';
   static const background = '$folder/gameplay_background.png';
 
-  /// 1.62: one backdrop per chapter of 50 levels. Put the art in
-  /// assets/finora/match3/chapters/ (registered in pubspec.yaml) and list
-  /// it here; a chapter without its own art keeps the default sky.
-  static const chapterBackgrounds = <int, String>{};
+  /// 1.64: one backdrop per chapter of 50 levels — the painted themes
+  /// from chapter 2 on; chapter 1 keeps the original sky.
   static String backgroundFor(int chapter) =>
-      chapterBackgrounds[chapter] ?? background;
+      FlowChapters.of(chapter)?.background ?? background;
   static const backplate = '$folder/board_backplate.png';
   static const cell = '$folder/board_cell.png';
   static const frame = '$folder/board_frame_pearl.png';

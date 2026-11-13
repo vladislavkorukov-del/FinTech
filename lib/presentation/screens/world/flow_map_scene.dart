@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import '../../../domain/flow/flow.dart';
 import '../../l10n_widgets.dart';
 import 'flow_art.dart';
+import 'flow_chapters.dart';
 import 'flow_hud.dart' show FlowType, flowText;
 import 'world_art.dart';
 
@@ -34,6 +35,17 @@ abstract final class FlowMapGeometry {
   ];
 
   static int backgroundIndex(int section) => ((section % 3) + 3) % 3;
+
+  /// 1.64: the period (13 platforms, three sections) a section belongs to.
+  static int periodOf(int section) => (section / 3).floor();
+
+  /// The painted theme of a period, by the chapter of its middle level;
+  /// null for chapter 1, which keeps the original terraces.
+  static FlowChapterTheme? themeOf(int period, int topLevelId) {
+    final middle = (topLevelId - period * 13 - 6).clamp(1, topLevelId);
+    return FlowChapters.forLevel(middle);
+  }
+
   static FlowMapAnchor anchor(int levelId, int topLevelId) =>
       anchors[((topLevelId - levelId) % 13 + 13) % 13];
   static double worldY(int levelId, int topLevelId) {
@@ -234,29 +246,15 @@ class _FlowTerraceMapState extends State<FlowTerraceMap> {
                               return Stack(
                                 clipBehavior: Clip.none,
                                 children: [
-                                  for (
-                                    var section = from;
-                                    section <= through;
-                                    section++
-                                  )
-                                    if (FlowMapGeometry.boundary(
-                                              section + 1,
-                                              width,
-                                              media.devicePixelRatio,
-                                            ) >
-                                            0 &&
-                                        FlowMapGeometry.boundary(
-                                              section,
-                                              width,
-                                              media.devicePixelRatio,
-                                            ) <
-                                            contentHeight)
-                                      _background(
-                                        section,
-                                        width,
-                                        media.devicePixelRatio,
-                                        cacheWidth,
-                                      ),
+                                  ..._backgrounds(
+                                    from,
+                                    through,
+                                    top,
+                                    width,
+                                    media.devicePixelRatio,
+                                    cacheWidth,
+                                    contentHeight,
+                                  ),
                                   for (final level in widget.levels)
                                     if (_nodeRect(
                                               level.id,
@@ -349,6 +347,145 @@ class _FlowTerraceMapState extends State<FlowTerraceMap> {
       ),
     ),
   );
+
+  /// The map's ground from section [from] to [through]: original terraces
+  /// for chapter 1, one painted part per period for the later chapters,
+  /// and clouds where a part follows itself.
+  List<Widget> _backgrounds(
+    int from,
+    int through,
+    int top,
+    double width,
+    double dpr,
+    int cacheWidth,
+    double contentHeight,
+  ) {
+    bool visible(int a, int b) =>
+        FlowMapGeometry.boundary(b, width, dpr) > 0 &&
+        FlowMapGeometry.boundary(a, width, dpr) < contentHeight;
+    final first = FlowMapGeometry.periodOf(from);
+    final last = FlowMapGeometry.periodOf(through);
+    final ground = <Widget>[], clouds = <Widget>[];
+    final topTheme = FlowMapGeometry.themeOf(0, top);
+    for (var q = first; q <= last; q++) {
+      final theme = q < 0 ? null : FlowMapGeometry.themeOf(q, top);
+      if (q < 0 && topTheme != null) {
+        // Above the end of the route: the top chapter's sky.
+        if (visible(3 * q, 3 * q + 3)) {
+          final a = FlowMapGeometry.boundary(3 * q, width, dpr);
+          final b = FlowMapGeometry.boundary(3 * q + 3, width, dpr);
+          ground.add(
+            Positioned(
+              key: ValueKey('flow-map-sky-$q'),
+              left: 0,
+              top: a,
+              width: width,
+              height: b - a,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [topTheme.mist, topTheme.sky],
+                  ),
+                ),
+              ),
+            ),
+          );
+        }
+        continue;
+      }
+      if (theme == null) {
+        for (var section = 3 * q; section < 3 * q + 3; section++) {
+          if (section >= from &&
+              section <= through &&
+              visible(section, section + 1)) {
+            ground.add(_background(section, width, dpr, cacheWidth));
+          }
+        }
+        continue;
+      }
+      if (!visible(3 * q, 3 * q + 3)) continue;
+      final a = FlowMapGeometry.boundary(3 * q, width, dpr);
+      final b = FlowMapGeometry.boundary(3 * q + 3, width, dpr);
+      ground.add(
+        Positioned(
+          key: ValueKey('flow-map-part-$q-${theme.key}'),
+          left: 0,
+          top: a,
+          width: width,
+          height: b - a,
+          child: Image.asset(
+            theme.map,
+            fit: BoxFit.fill,
+            filterQuality: FilterQuality.medium,
+            cacheWidth: cacheWidth,
+            excludeFromSemantics: true,
+            gaplessPlayback: true,
+          ),
+        ),
+      );
+      // The top part fades into the sky above the end of the route.
+      if (q == 0) {
+        final h = 160 * width / FlowMapGeometry.referenceWidth;
+        clouds.add(
+          Positioned(
+            key: const ValueKey('flow-map-sky-fade'),
+            left: 0,
+            top: a,
+            width: width,
+            height: h,
+            child: IgnorePointer(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [theme.sky, theme.sky.withValues(alpha: 0)],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      }
+      // The painted parts join their neighbours in pack order; where the
+      // same part follows itself its edges do not meet, so clouds cover the
+      // join until per-chapter parts are painted.
+      if (FlowMapGeometry.themeOf(q + 1, top) == theme) {
+        final y = b;
+        final h = 150 * width / FlowMapGeometry.referenceWidth;
+        clouds.add(
+          Positioned(
+            key: ValueKey('flow-map-clouds-$q'),
+            left: 0,
+            top: y - h,
+            width: width,
+            height: 2 * h,
+            child: IgnorePointer(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      theme.mist.withValues(alpha: 0),
+                      theme.mist.withValues(alpha: .8),
+                      theme.mist.withValues(alpha: .97),
+                      theme.mist.withValues(alpha: .8),
+                      theme.mist.withValues(alpha: 0),
+                    ],
+                    stops: const [0, .34, .5, .66, 1],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      }
+    }
+    return [...ground, ...clouds];
+  }
 
   Widget _background(int section, double width, double dpr, int cacheWidth) {
     final top = FlowMapGeometry.boundary(section, width, dpr);
