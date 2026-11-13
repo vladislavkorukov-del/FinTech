@@ -20,7 +20,7 @@ List<String> routeFlows(MagWorld w, List<int> stops) {
         if (id != a.id) w.map.industry(id)!,
     ];
     for (final c in a.supplies) {
-      final to = others.where((o) => o.spec.accepts.contains(c)).toList();
+      final to = others.where((o) => o.accepts.contains(c)).toList();
       if (to.isNotEmpty) {
         out.add(
           '${cargoName(c)}: ${a.name.split(' «').first} → ${to.first.name.split(' «').first}',
@@ -288,8 +288,8 @@ Future<void> showCreateRouteSheet(MagistraliScreenState state, {int? first}) {
                               [
                                 if (i.supplies.isNotEmpty)
                                   'даёт: ${i.supplies.map(cargoName).join(', ')}',
-                                if (i.spec.accepts.isNotEmpty)
-                                  'берёт: ${i.spec.accepts.map(cargoName).join(', ')}',
+                                if (i.accepts.isNotEmpty)
+                                  'берёт: ${i.accepts.map(cargoName).join(', ')}',
                                 if (last != null) '${i.distanceTo(last)} кл.',
                                 if (last != null && !w.connected(last, i))
                                   'нет дороги',

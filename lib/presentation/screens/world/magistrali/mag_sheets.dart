@@ -8,6 +8,7 @@ import 'mag_art.dart';
 import 'mag_hud.dart';
 import 'mag_lore.dart';
 import 'mag_orders.dart';
+import 'mag_town.dart';
 import 'mag_warehouse.dart';
 import 'mag_routes.dart';
 import 'mag_screen.dart';
@@ -234,53 +235,57 @@ Future<void> showIndustrySheet(
 });
 
 /// All places, nearest to the view first.
-Future<void> showIndustriesSheet(MagistraliScreenState state) =>
-    magSheet(state, 'mag-industries', (context) {
-      final w = state.world, cam = state.camera;
-      final list = [...w.map.industries]
-        ..sort((a, b) {
-          double d(MagIndustry i) =>
-              (i.centerX - cam.x).abs() + (i.centerY - cam.y).abs();
-          return d(a).compareTo(d(b));
-        });
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text('Предприятия', style: magTitle),
-          const SizedBox(height: 6),
-          for (final i in list)
-            ListTile(
-              key: ValueKey('mag-place-${i.id}'),
-              contentPadding: EdgeInsets.zero,
-              leading: Icon(kindIcon(i.kind), color: MagPalette.teal),
-              title: Text(
-                i.name,
-                style: const TextStyle(fontWeight: FontWeight.w700),
-              ),
-              subtitle: Text(
-                [
-                  kindName(i.kind),
-                  if (w.accessCells(i).isEmpty) 'нет дороги',
-                  for (final c in i.supplies)
-                    '${cargoName(c)} ${i.stock[c] ?? 0}',
-                ].join(' · '),
-                style: magMuted,
-              ),
-              trailing: const Icon(Icons.my_location_rounded, size: 20),
-              onTap: () {
-                Navigator.pop(context);
-                state.centerOn(i.centerX, i.centerY);
-                state.overlay.industry = i.id;
-                unawaited(
-                  i.spec.stores
-                      ? showWarehouseSheet(state, i.id)
-                      : showIndustrySheet(state, i.id),
-                );
-              },
-            ),
-        ],
-      );
+Future<void> showIndustriesSheet(
+  MagistraliScreenState state,
+) => magSheet(state, 'mag-industries', (context) {
+  final w = state.world, cam = state.camera;
+  final list = [...w.map.industries]
+    ..sort((a, b) {
+      double d(MagIndustry i) =>
+          (i.centerX - cam.x).abs() + (i.centerY - cam.y).abs();
+      return d(a).compareTo(d(b));
     });
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      const Text('Предприятия', style: magTitle),
+      const SizedBox(height: 6),
+      for (final i in list)
+        ListTile(
+          key: ValueKey('mag-place-${i.id}'),
+          contentPadding: EdgeInsets.zero,
+          leading: Icon(kindIcon(i.kind), color: MagPalette.teal),
+          title: Text(
+            i.name,
+            style: const TextStyle(fontWeight: FontWeight.w700),
+          ),
+          subtitle: Text(
+            [
+              i.town != null
+                  ? "${i.town!.spec.name}, ${magMoney(i.town!.population)} жит."
+                  : kindName(i.kind),
+              if (w.accessCells(i).isEmpty) 'нет дороги',
+              for (final c in i.supplies) '${cargoName(c)} ${i.stock[c] ?? 0}',
+            ].join(' · '),
+            style: magMuted,
+          ),
+          trailing: const Icon(Icons.my_location_rounded, size: 20),
+          onTap: () {
+            Navigator.pop(context);
+            state.centerOn(i.centerX, i.centerY);
+            state.overlay.industry = i.id;
+            unawaited(
+              i.town != null
+                  ? showTownSheet(state, i.id)
+                  : i.spec.stores
+                  ? showWarehouseSheet(state, i.id)
+                  : showIndustrySheet(state, i.id),
+            );
+          },
+        ),
+    ],
+  );
+});
 
 Future<void> showContractsSheet(
   MagistraliScreenState state,

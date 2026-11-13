@@ -66,8 +66,8 @@ class MagGame extends Game {
 class MagRenderer {
   static const chunk = 16;
   final _chunks = <int, ui.Picture>{};
-  final _industries = <int, ui.Picture>{};
-  final _labels = <int, TextPainter>{};
+  final _industries = <String, ui.Picture>{};
+  final _labels = <String, TextPainter>{};
   MagMap? _map;
 
   void dispose() {
@@ -188,17 +188,21 @@ class MagRenderer {
       }
     }
     for (final i in map.industries) {
-      if (i.x > x1 + 1 ||
-          i.y > y1 + 1 ||
-          i.x + i.size < x0 ||
-          i.y + i.size < y0) {
+      if (i.left > x1 + 1 ||
+          i.top > y1 + 1 ||
+          i.right + 1 < x0 ||
+          i.bottom + 1 < y0) {
         continue;
       }
+      // A settlement is redrawn when it grows.
+      final key = i.town == null
+          ? '${i.id}'
+          : '${i.id}:${i.town!.level}:${i.town!.cells.length}';
       objects.add((
-        i.x + i.y + 2.0 * i.size - 1.5,
+        i.right + i.bottom + .5,
         () {
           canvas.drawPicture(
-            _industries.putIfAbsent(i.id, () => recordIndustry(i)),
+            _industries.putIfAbsent(key, () => recordIndustry(i)),
           );
           paintSmoke(canvas, i, t);
         },
@@ -229,14 +233,20 @@ class MagRenderer {
     // Names over places, when close enough to read.
     if (cam.zoom >= .7) {
       for (final i in map.industries) {
-        if (i.x > x1 || i.y > y1 || i.x + i.size < x0 || i.y + i.size < y0) {
+        if (i.left > x1 ||
+            i.top > y1 ||
+            i.right + 1 < x0 ||
+            i.bottom + 1 < y0) {
           continue;
         }
+        final title = i.town == null
+            ? i.name
+            : '${i.name} · ${i.town!.spec.name}';
         final label = _labels.putIfAbsent(
-          i.id,
+          title,
           () => TextPainter(
             text: TextSpan(
-              text: i.name,
+              text: title,
               style: const TextStyle(
                 fontSize: 10,
                 fontWeight: FontWeight.w600,
@@ -246,7 +256,11 @@ class MagRenderer {
             textDirection: TextDirection.ltr,
           )..layout(),
         );
-        final p = MagIso.project(i.centerX, i.centerY, 56);
+        final p = MagIso.project(
+          i.centerX,
+          i.centerY,
+          i.town == null ? 56 : 30 + 6.0 * i.town!.level,
+        );
         final box = Rect.fromCenter(
           center: p,
           width: label.width + 12,

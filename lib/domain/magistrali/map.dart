@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'config.dart';
 import 'entities.dart';
+import 'settlements.dart';
 
 /// A place on the map that makes or takes cargo.
 class MagIndustry {
@@ -29,15 +30,54 @@ class MagIndustry {
   /// A warehouse's rules per cargo.
   final Map<MagCargo, MagStockRule> rules = {};
 
+  /// A settlement's life (towns and villages); its land is [MagSettlement.cells].
+  MagSettlement? town;
+
   /// Fractional production carried between days is not needed: production
   /// is whole units per day.
   MagIndustrySpec get spec => MagRules.industries[kind]!;
   int get size => spec.size;
-  double get centerX => x + size / 2;
-  double get centerY => y + size / 2;
 
-  bool covers(int cx, int cy) =>
-      cx >= x && cy >= y && cx < x + size && cy < y + size;
+  /// Centre of its land (a settlement: the middle of all its cells, which
+  /// for an old square town is exactly where its centre always was).
+  double get centerX => town != null
+      ? town!.cells.fold(0, (a, k) => a + MagSettlement.keyX(k)) /
+                town!.cells.length +
+            .5
+      : x + size / 2;
+  double get centerY => town != null
+      ? town!.cells.fold(0, (a, k) => a + MagSettlement.keyY(k)) /
+                town!.cells.length +
+            .5
+      : y + size / 2;
+
+  bool covers(int cx, int cy) => town != null
+      ? town!.cells.contains(MagSettlement.key(cx, cy))
+      : cx >= x && cy >= y && cx < x + size && cy < y + size;
+
+  /// Bounds of the land it covers (inclusive).
+  int get left =>
+      town == null ? x : _bound((k) => MagSettlement.keyX(k), false);
+  int get right =>
+      town == null ? x + size - 1 : _bound((k) => MagSettlement.keyX(k), true);
+  int get top => town == null ? y : _bound((k) => MagSettlement.keyY(k), false);
+  int get bottom =>
+      town == null ? y + size - 1 : _bound((k) => MagSettlement.keyY(k), true);
+
+  int _bound(int Function(int) of, bool max) {
+    var v = max ? -1 << 30 : 1 << 30;
+    for (final k in town!.cells) {
+      final c = of(k);
+      if (max ? c > v : c < v) v = c;
+    }
+    return v;
+  }
+
+  /// Cargo it takes: a settlement takes what its level needs and what
+  /// its growth asks for.
+  Set<MagCargo> get accepts => town == null
+      ? spec.accepts
+      : {...town!.spec.needs.keys, ...town!.spec.development.keys};
 
   /// Cargo this place hands to trucks.
   Set<MagCargo> get supplies => {
@@ -55,9 +95,13 @@ class MagIndustry {
 /// seed. The same seed always gives the same map, so saves keep only the
 /// seed and what changed.
 class MagMap {
-  MagMap._(this.seed, this.size, this._terrain, this.industries);
+  MagMap._(this.seed, this.size, this._terrain, this.industries, this.version);
 
   final int seed, size;
+
+  /// Generator version: 1 for maps made before 1.72 (towns of fixed
+  /// size), 2 for new games (hamlets with room to grow).
+  final int version;
   final Uint8List _terrain;
   final List<MagIndustry> industries;
 
@@ -103,7 +147,66 @@ class MagMap {
     'Тихий Брод',
   ];
 
-  static MagMap generate(int seed, {int size = MagRules.mapSize}) {
+  /// Grows a set of cells to [target] cells: the free neighbour touching
+  /// the most cells already in it goes first (compact land), ties by
+  /// position, so the result is always the same. Returns false if not
+  /// enough free land was found.
+  static bool expandCells(
+    Set<int> cells,
+    int target,
+    bool Function(int x, int y) free,
+  ) {
+    while (cells.length < target) {
+      int? best;
+      var bestScore = -1;
+      final seen = <int>{};
+      for (final k in cells.toList()..sort()) {
+        final x = MagSettlement.keyX(k), y = MagSettlement.keyY(k);
+        for (var d = 0; d < 4; d++) {
+          final nx = x + MagDir.dx[d], ny = y + MagDir.dy[d];
+          final nk = MagSettlement.key(nx, ny);
+          if (nx < 0 || ny < 0 || cells.contains(nk) || !seen.add(nk)) {
+            continue;
+          }
+          if (!free(nx, ny)) continue;
+          var score = 0;
+          for (var e = 0; e < 4; e++) {
+            if (cells.contains(
+              MagSettlement.key(nx + MagDir.dx[e], ny + MagDir.dy[e]),
+            )) {
+              score++;
+            }
+          }
+          if (score > bestScore || score == bestScore && nk < best!) {
+            best = nk;
+            bestScore = score;
+          }
+        }
+      }
+      if (best == null) return false;
+      cells.add(best);
+    }
+    return true;
+  }
+
+  static const _hamlets = [
+    'Сосновый хутор',
+    'Липки',
+    'Ручей',
+    'Заимка',
+    'Овражки',
+    'Берёзовка',
+    'Медвежий угол',
+    'Камышинка',
+    'Росинка',
+    'Дубки',
+  ];
+
+  static MagMap generate(
+    int seed, {
+    int size = MagRules.mapSize,
+    int version = 1,
+  }) {
     final rnd = math.Random(seed);
     final t = Uint8List(size * size);
     double noise(int ox, int oy, double scale, int x, int y) =>
@@ -148,10 +251,14 @@ class MagMap {
         }
       }
       for (final p in places) {
-        if (x < p.x + p.size + gap &&
-            p.x < x + s + gap &&
-            y < p.y + p.size + gap &&
-            p.y < y + s + gap) {
+        // A settlement keeps a free ring so it can grow (new maps).
+        final g = p.town != null && version >= 2
+            ? math.max(gap, MagTowns.room)
+            : gap;
+        if (x < p.x + p.size + g &&
+            p.x < x + s + g &&
+            y < p.y + p.size + g &&
+            p.y < y + s + g) {
           return false;
         }
       }
@@ -195,17 +302,79 @@ class MagMap {
     }
     put(MagIndustryKind.farm, fx, fy, 'Ферма «Колос»');
     put(MagIndustryKind.foodPlant, px, py, 'Пищевой завод «Нива»');
-    var vx = px + 5, vy = py + 5;
-    for (var tries = 0; !free(vx, vy, 2, gap: 1) && tries < 40; tries++) {
-      vx = px - 4 + rnd.nextInt(10);
-      vy = py + 4 + rnd.nextInt(6);
+
+    /// A settlement of [level] with its land grown to the level's size.
+    void settle(int x, int y, String name, int level) {
+      final p = put(MagIndustryKind.village, x, y, name);
+      var forest = 0, hills = 0;
+      for (var yy = y - 3; yy <= y + 3; yy++) {
+        for (var xx = x - 3; xx <= x + 3; xx++) {
+          if (xx < 0 || yy < 0 || xx >= size || yy >= size) continue;
+          final k = t[yy * size + xx];
+          if (k == MagTerrain.forest.index) forest++;
+          if (k == MagTerrain.hill.index) hills++;
+        }
+      }
+      final town = MagSettlement(
+        level: level,
+        population: MagTowns.of(level).population,
+        specialization: hills > 4
+            ? MagSpecialization.mining
+            : forest > 6
+            ? MagSpecialization.forestry
+            : MagSpecialization.farming,
+      )..cells.add(MagSettlement.key(x, y));
+      p.town = town;
+      MagMap.expandCells(town.cells, MagTowns.of(level).cells, (cx, cy) {
+        if (cx < 1 || cy < 1 || cx >= size - 1 || cy >= size - 1) return false;
+        final k = t[cy * size + cx];
+        if (k == MagTerrain.lake.index || k == MagTerrain.river.index) {
+          return false;
+        }
+        return !places.any((o) => o != p && o.covers(cx, cy));
+      });
     }
-    put(MagIndustryKind.village, vx, vy, _villages[0]);
+
+    var vx = px + 5, vy = py + 5;
+    if (version >= 2) {
+      // New games: the first village by the plant, then hamlets and two
+      // more villages spread wide, each with room to become a city.
+      for (
+        var tries = 0;
+        !free(vx, vy, 1, gap: MagTowns.room) && tries < 60;
+        tries++
+      ) {
+        vx = px - 5 + rnd.nextInt(12);
+        vy = py + 4 + rnd.nextInt(7);
+      }
+      settle(vx, vy, _villages[0], 2);
+      var named = 0;
+      for (final level in [2, 2, 1, 1, 1, 1, 1, 1]) {
+        for (var tries = 0; tries < 400; tries++) {
+          final x = 4 + rnd.nextInt(size - 8), y = 4 + rnd.nextInt(size - 8);
+          if (!free(x, y, 1, gap: MagTowns.room + 1)) continue;
+          settle(
+            x,
+            y,
+            level == 2 ? _villages[1 + named % 5] : _hamlets[named % 10],
+            level,
+          );
+          named++;
+          break;
+        }
+      }
+    } else {
+      for (var tries = 0; !free(vx, vy, 2, gap: 1) && tries < 40; tries++) {
+        vx = px - 4 + rnd.nextInt(10);
+        vy = py + 4 + rnd.nextInt(6);
+      }
+      put(MagIndustryKind.village, vx, vy, _villages[0]);
+    }
 
     // The rest spread over the map.
-    const plan = [
-      (MagIndustryKind.city, 4),
-      (MagIndustryKind.village, 4),
+    final plan = [
+      if (version < 2) (MagIndustryKind.city, 4),
+      if (version < 2) (MagIndustryKind.village, 4),
       (MagIndustryKind.farm, 4),
       (MagIndustryKind.sawmill, 4),
       (MagIndustryKind.mine, 3),
@@ -249,7 +418,32 @@ class MagMap {
         }
       }
     }
-    return MagMap._(seed, size, t, places);
+    if (version < 2) {
+      // Maps made before 1.72: their villages and cities become
+      // settlements of a matching level on the land they already cover.
+      for (final p in places) {
+        final level = switch (p.kind) {
+          MagIndustryKind.village => 3,
+          MagIndustryKind.city => 6,
+          _ => 0,
+        };
+        if (level == 0) continue;
+        final town = MagSettlement(
+          level: level,
+          population: MagTowns.of(level).population,
+          specialization: level >= 6
+              ? MagSpecialization.industry
+              : MagSpecialization.trade,
+        );
+        for (var yy = p.y; yy < p.y + p.size; yy++) {
+          for (var xx = p.x; xx < p.x + p.size; xx++) {
+            town.cells.add(MagSettlement.key(xx, yy));
+          }
+        }
+        p.town = town;
+      }
+    }
+    return MagMap._(seed, size, t, places, version);
   }
 
   static bool _near(Uint8List t, int size, int x, int y, int s, MagTerrain k) {

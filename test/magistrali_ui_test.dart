@@ -504,4 +504,25 @@ void main() {
       isTrue,
     );
   });
+
+  testWidgets('master plan stage 1: a settlement opens its own card', (
+    tester,
+  ) async {
+    await mount(tester, const MagistraliScreen(seed: MagRules.defaultSeed));
+    final s = await ready(tester);
+    final w = s.world;
+    final village = w.settlements.firstWhere((t) => t.name == 'Луговое');
+    s.centerOn(village.centerX, village.centerY);
+    await tester.pump();
+    await tester.tapAt(at(tester, s, village.x, village.y));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(find.byKey(ValueKey('mag-town-${village.id}')), findsOneWidget);
+    expect(find.byKey(const ValueKey('mag-town-population')), findsOneWidget);
+    await closeSheet(tester);
+    // The places list shows settlements with their level.
+    await tap(tester, 'mag-tab-places');
+    await tap(tester, 'mag-place-${village.id}');
+    expect(find.byKey(ValueKey('mag-town-${village.id}')), findsOneWidget);
+  });
 }

@@ -383,11 +383,22 @@ void main() {
     final village = w.map.industries.firstWhere(
       (i) => i.kind == MagIndustryKind.village,
     );
+    // Any free cell next to the village's land (its shape is its own).
+    final (tx, ty) = [
+      for (var y = village.top - 1; y <= village.bottom + 1; y++)
+        for (var x = village.left - 1; x <= village.right + 1; x++)
+          if (w.map.roadable(x, y) &&
+              [
+                for (var d = 0; d < 4; d++)
+                  village.covers(x + MagDir.dx[d], y + MagDir.dy[d]),
+              ].any((e) => e))
+            (x, y),
+    ].first;
     final plan = w.planRoad(
       plant.x + 1,
       plant.y + plant.size,
-      village.x,
-      village.y - 1,
+      tx,
+      ty,
       MagRoad.dirt,
     );
     expect(plan.error, isNull);

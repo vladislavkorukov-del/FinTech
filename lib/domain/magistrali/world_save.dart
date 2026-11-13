@@ -8,13 +8,34 @@ extension MagWorldSave on MagWorld {
   /// may stand idle on the map).
   /// 3: technologies and warehouses with their rules.
   /// 4: the automatic fleet (a flag per truck) and the dispatcher mode.
-  static const version = 4;
+  /// 5: settlements (level, people, land, supply, growth, story) and the
+  /// map generator version.
+  static const version = 5;
 
   Map<String, Object?> toJson() => {
     'version': version,
     'seed': seed,
     'size': size,
     'tick': tick,
+    'mapVersion': map.version,
+    'settlements': [
+      for (final i in settlements)
+        {
+          'id': i.id,
+          'level': i.town!.level,
+          'population': i.town!.population,
+          'specialization': i.town!.specialization.name,
+          'cells': i.town!.cells.toList()..sort(),
+          if (i.town!.pantry.isNotEmpty) 'pantry': _cargo(i.town!.pantry),
+          'satisfaction': i.town!.satisfaction,
+          if (i.town!.devStock.isNotEmpty) 'dev': _cargo(i.town!.devStock),
+          'reputation': i.town!.reputation,
+          if (i.town!.blocked != null) 'blocked': i.town!.blocked,
+          'history': [
+            for (final e in i.town!.history) [e.tick, e.text],
+          ],
+        },
+    ],
     'money': money,
     'xp': xp,
     'nextId': nextId,
@@ -26,8 +47,8 @@ extension MagWorldSave on MagWorld {
       for (final i in map.industries)
         {
           'id': i.id,
-          if (i.stock.isNotEmpty) 'stock': _cargo(i.stock),
-          if (i.input.isNotEmpty) 'input': _cargo(i.input),
+          if (i.stock.values.any((n) => n != 0)) 'stock': _cargo(i.stock),
+          if (i.input.values.any((n) => n != 0)) 'input': _cargo(i.input),
         },
     ],
     'vehicles': [
@@ -170,7 +191,10 @@ Map<String, dynamic> migrateMagSave(Map<String, dynamic> j) {
     });
   }
   // Format 3 → 4: every truck stays under manual control.
-  if (v == 3) return {...j, 'version': 4};
+  if (v == 3) return migrateMagSave({...j, 'version': 4});
+  // Format 4 → 5: the old map (generator 1); its villages and cities
+  // become settlements of matching level on the land they cover.
+  if (v == 4) return {...j, 'version': 5, 'mapVersion': 1};
   throw const FormatException('Unsupported Magistrali save version');
 }
 
@@ -202,7 +226,66 @@ MagWorld magWorldFromJson(Map<String, dynamic> raw) {
 
   final seed = whole(j['seed'], 0, 0x7fffffff);
   final size = whole(j['size'], 16, 256);
-  final w = MagWorld(map: MagMap.generate(seed, size: size));
+  final mapVersion = whole(j['mapVersion'] ?? 1, 1, 2);
+  final w = MagWorld(
+    map: MagMap.generate(seed, size: size, version: mapVersion),
+  );
+  final saved = j['settlements'] as List?;
+  if (saved == null) {
+    for (final s in w.settlements) {
+      s.town!.remember(
+        0,
+        'Стало поселением: ${s.town!.spec.name} (обновление 1.72)',
+      );
+    }
+  }
+  // Settlements come before roads and warehouses, so nothing may lie on
+  // their land.
+  for (final raw in saved ?? const []) {
+    final m = raw as Map;
+    final i = w.map.industry(whole(m['id'], 1, 1 << 20));
+    final t = i?.town;
+    if (t == null) throw const FormatException('Unknown settlement');
+    final level = whole(m['level'], 1, MagTowns.maxLevel);
+    final cells = [for (final k in m['cells'] as List) whole(k, 0, 1 << 30)];
+    if (cells.isEmpty || !cells.contains(MagSettlement.key(i!.x, i.y))) {
+      throw const FormatException('Bad settlement land');
+    }
+    t.cells.clear();
+    for (final k in cells) {
+      final x = MagSettlement.keyX(k), y = MagSettlement.keyY(k);
+      if (!w.map.inside(x, y)) {
+        throw const FormatException('Bad settlement land');
+      }
+      final ground = w.map.at(x, y);
+      final other = w.map.industryAt(x, y);
+      if (ground == MagTerrain.lake ||
+          ground == MagTerrain.river ||
+          other != null && other != i) {
+        throw const FormatException('Bad settlement land');
+      }
+      t.cells.add(k);
+    }
+    t
+      ..level = level
+      ..population = whole(m['population'], 0, 1 << 40)
+      ..specialization = MagSpecialization.values.byName(
+        m['specialization'] as String,
+      )
+      ..reputation = whole(m['reputation'] ?? 0, 0, 1 << 50)
+      ..blocked = m['blocked'] as String?;
+    t.pantry.addAll(cargo(m['pantry']));
+    t.devStock.addAll(cargo(m['dev']));
+    for (final s in m['satisfaction'] as List? ?? const []) {
+      t.satisfaction.add(real(s, 0, 1));
+    }
+    for (final e in m['history'] as List? ?? const []) {
+      final pair = e as List;
+      t.history.add(
+        MagTownEvent(whole(pair[0], 0, 1 << 50), pair[1] as String),
+      );
+    }
+  }
   w.tick = whole(j['tick'], 0, 1 << 50);
   w.money = whole(j['money'], -(1 << 50), 1 << 50);
   w.xp = whole(j['xp'], 0, 1 << 50);

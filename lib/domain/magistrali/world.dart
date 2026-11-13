@@ -8,6 +8,7 @@ import 'entities.dart';
 import 'map.dart';
 import 'orders.dart';
 import 'pathfinding.dart';
+import 'settlements.dart';
 import 'tech.dart';
 
 part 'world_dispatch.dart';
@@ -15,6 +16,7 @@ part 'world_fleet.dart';
 part 'world_orders.dart';
 part 'world_progress.dart';
 part 'world_save.dart';
+part 'world_settlements.dart';
 part 'world_sim.dart';
 part 'world_storage.dart';
 part 'world_tech.dart';
@@ -37,7 +39,11 @@ class MagWorld {
   MagWorld({required this.map}) : roads = Uint8List(map.size * map.size);
 
   factory MagWorld.start([int seed = MagRules.defaultSeed]) {
-    final w = MagWorld(map: MagMap.generate(seed));
+    // New games: generator 2 — hamlets and villages with room to grow.
+    final w = MagWorld(map: MagMap.generate(seed, version: 2));
+    for (final s in w.settlements) {
+      s.town!.remember(0, 'Основано: ${s.town!.spec.name}');
+    }
     w.money = MagRules.startMoney;
     final v = w._newVehicle(MagRules.trucks.first);
     v.name = 'Пикап №1';
@@ -151,6 +157,17 @@ class MagWorld {
 
   /// Road cells next to a place, in a stable order: where trucks stop.
   List<int> accessCells(MagIndustry i) {
+    if (i.town != null) {
+      // A settlement: road cells next to any cell of its land.
+      final out = <int>[];
+      for (var y = i.top - 1; y <= i.bottom + 1; y++) {
+        for (var x = i.left - 1; x <= i.right + 1; x++) {
+          if (!map.inside(x, y) || i.covers(x, y) || !hasRoad(x, y)) continue;
+          if (_touches(cellOf(x, y), i)) out.add(cellOf(x, y));
+        }
+      }
+      return out;
+    }
     final out = <int>[];
     for (var y = i.y - 1; y <= i.y + i.size; y++) {
       for (var x = i.x - 1; x <= i.x + i.size; x++) {
@@ -165,6 +182,13 @@ class MagWorld {
 
   bool _touches(int cell, MagIndustry i) {
     final x = cx(cell), y = cy(cell);
+    if (i.town != null) {
+      if (i.covers(x, y)) return false;
+      for (var d = 0; d < 4; d++) {
+        if (i.covers(x + MagDir.dx[d], y + MagDir.dy[d])) return true;
+      }
+      return false;
+    }
     final dx = x < i.x
         ? i.x - x
         : (x >= i.x + i.size ? x - i.x - i.size + 1 : 0);
@@ -190,6 +214,7 @@ class MagWorld {
         if (roads[c] != 0) c,
     ];
     if (from.isEmpty) return null;
+    final l = to.left, r = to.right, t = to.top, b = to.bottom;
     return magAStar(
       width: size,
       height: size,
@@ -198,8 +223,8 @@ class MagWorld {
       step: (a, b) => roads[b] == 0 ? null : 1 / _roadSpeed(b),
       heuristic: (c) {
         final x = cx(c), y = cy(c);
-        final dx = math.max(0, math.max(to.x - x, x - (to.x + to.size - 1)));
-        final dy = math.max(0, math.max(to.y - y, y - (to.y + to.size - 1)));
+        final dx = math.max(0, math.max(l - x, x - r));
+        final dy = math.max(0, math.max(t - y, y - b));
         return math.max(0, dx + dy - 1) / (1.6 * factor(MagBonus.roadSpeed));
       },
     );
@@ -348,6 +373,8 @@ class MagWorld {
     for (final i in map.industries) {
       i.stock.forEach(add);
       i.input.forEach(add);
+      i.town?.devStock.forEach(add);
+      i.town?.pantry.forEach(add);
     }
     for (final v in vehicles.values) {
       if (v.load > 0) add(v.cargo!, v.load);

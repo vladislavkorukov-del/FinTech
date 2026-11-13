@@ -158,11 +158,10 @@ extension MagWorldProgress on MagWorld {
     if (rng == 1) rng = seed & 0x7fffffff | 1;
     while (contracts.length < contractSlots) {
       final targets = map.industries
-          .where((i) => i.spec.accepts.isNotEmpty && !i.spec.stores)
+          .where((i) => i.accepts.isNotEmpty && !i.spec.stores)
           .toList();
       final to = targets[_random(targets.length)];
-      final cargos = to.spec.accepts.toList()
-        ..sort((a, b) => a.index - b.index);
+      final cargos = to.accepts.toList()..sort((a, b) => a.index - b.index);
       final cargo = cargos[_random(cargos.length)];
       final big = level >= 40 ? 2 : 1;
       final amount = (30 + _random(40) + level * 3) * big;

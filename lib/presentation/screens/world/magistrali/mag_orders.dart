@@ -371,9 +371,7 @@ Future<void> showNewOrderSheet(MagistraliScreenState state, {int? from}) {
                   pickList(
                     'mag-order-to-',
                     (w.map.industries
-                        .where(
-                          (i) => i.id != a.id && i.spec.accepts.contains(cargo),
-                        )
+                        .where((i) => i.id != a.id && i.accepts.contains(cargo))
                         .toList()
                       ..sort(
                         (x, y) => x.distanceTo(a).compareTo(y.distanceTo(a)),

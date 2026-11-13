@@ -15,6 +15,7 @@ import 'mag_fleet.dart';
 import 'mag_sheets.dart';
 import 'mag_sprites.dart';
 import 'mag_tools.dart';
+import 'mag_town.dart';
 import 'mag_warehouse.dart';
 
 /// What a finger on the map does.
@@ -449,7 +450,9 @@ class MagistraliScreenState extends State<MagistraliScreen>
         });
         if (i != null) {
           unawaited(
-            i.spec.stores
+            i.town != null
+                ? showTownSheet(this, i.id)
+                : i.spec.stores
                 ? showWarehouseSheet(this, i.id)
                 : showIndustrySheet(this, i.id),
           );

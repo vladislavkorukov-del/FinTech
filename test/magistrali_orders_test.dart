@@ -88,11 +88,14 @@ void main() {
     final village = w.map.industries.firstWhere(
       (i) => i.kind == MagIndustryKind.village,
     );
+    final factory = w.map.industries.firstWhere(
+      (i) => i.kind == MagIndustryKind.factory,
+    );
     expect(
       w.createOrder(
         cargo: MagCargo.grain,
         from: farm.id,
-        to: village.id,
+        to: factory.id,
         amount: 1,
       ),
       contains('не принимает'),

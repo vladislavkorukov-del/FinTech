@@ -211,7 +211,7 @@ extension MagWorldStorage on MagWorld {
     if (extra < MagRules.minAutoBatch) return;
     final sinks =
         map.industries
-            .where((i) => !i.spec.stores && i.spec.accepts.contains(c))
+            .where((i) => !i.spec.stores && i.accepts.contains(c))
             .toList()
           ..sort((a, b) => a.distanceTo(w).compareTo(b.distanceTo(w)));
     for (final s in sinks) {

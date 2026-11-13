@@ -32,6 +32,7 @@ extension MagWorldSim on MagWorld {
   int get day => tick ~/ MagRules.ticksPerDay;
 
   void _day() {
+    _dayTowns();
     for (final i in map.industries) {
       // Processing first, so delivered goods turn into new cargo.
       var budget = MagRules.processPerDay;
@@ -210,7 +211,7 @@ extension MagWorldSim on MagWorld {
       _spend(serviceCost(v), 'service');
       v.wear = 0;
     }
-    if (v.load > 0 && here.spec.accepts.contains(v.cargo)) {
+    if (v.load > 0 && here.accepts.contains(v.cargo)) {
       // A warehouse takes only what fits (orders keep their own room).
       final limit = here.spec.stores ? _warehouseRoom(here, v.cargo!) : null;
       if (limit != 0) _deliver(v, here, limit: limit);
@@ -241,12 +242,17 @@ extension MagWorldSim on MagWorld {
       MagRules.minPayDistance,
       from == null ? 0 : from.distanceTo(here),
     );
-    final pay = (n * MagRules.cargoRate[cargo]! * dist * factor(MagBonus.pay))
-        .round();
+    // A bigger settlement is a richer market.
+    final market = 1 + (here.town?.spec.payBonus ?? 0);
+    final pay =
+        (n * MagRules.cargoRate[cargo]! * dist * factor(MagBonus.pay) * market)
+            .round();
     if (here.spec.converts.containsKey(cargo)) {
       here.input[cargo] = (here.input[cargo] ?? 0) + n;
+    } else if (here.town != null) {
+      _townReceive(here, cargo, n);
     } else {
-      destroyed[cargo] = (destroyed[cargo] ?? 0) + n; // towns use it up
+      destroyed[cargo] = (destroyed[cargo] ?? 0) + n;
     }
     v.load -= n;
     if (v.load == 0) {
@@ -279,7 +285,7 @@ extension MagWorldSim on MagWorld {
     final wanted = <MagCargo>{};
     for (final id in r.stops) {
       if (id == here.id) continue;
-      wanted.addAll(map.industry(id)?.spec.accepts ?? const {});
+      wanted.addAll(map.industry(id)?.accepts ?? const {});
     }
     if (v.load > 0) {
       return here.supplies.contains(v.cargo) && wanted.contains(v.cargo)
