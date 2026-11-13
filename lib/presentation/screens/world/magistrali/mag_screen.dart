@@ -7,7 +7,6 @@ import 'package:flutter/material.dart' hide Text;
 import '../../../../domain/magistrali/magistrali.dart';
 import '../../../../services/magistrali_store.dart';
 import '../../../controller.dart';
-import '../../../l10n_widgets.dart';
 import 'mag_art.dart';
 import 'mag_game.dart';
 import 'mag_hud.dart';
@@ -15,6 +14,7 @@ import 'mag_iso.dart';
 import 'mag_fleet.dart';
 import 'mag_sheets.dart';
 import 'mag_sprites.dart';
+import 'mag_tools.dart';
 
 /// What a finger on the map does.
 enum MagTool { view, road, remove }
@@ -468,29 +468,7 @@ class MagistraliScreenState extends State<MagistraliScreen>
                 right: 24,
                 bottom:
                     media.padding.bottom + (tool == MagTool.view ? 150 : 340),
-                child: IgnorePointer(
-                  child: Center(
-                    child: Container(
-                      key: const ValueKey('mag-message'),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 9,
-                      ),
-                      decoration: BoxDecoration(
-                        color: MagPalette.ink.withValues(alpha: .9),
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      child: Text(
-                        message!,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 13,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
+                child: MagToast(text: message!),
               ),
             Positioned(
               left: media.padding.left,

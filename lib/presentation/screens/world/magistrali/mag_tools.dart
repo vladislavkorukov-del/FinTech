@@ -5,6 +5,7 @@ import '../../../l10n_widgets.dart';
 import 'mag_art.dart';
 import 'mag_hud.dart';
 import 'mag_screen.dart';
+import 'mag_sheets.dart';
 
 String roadName(MagRoad r) => switch (r) {
   MagRoad.dirt => 'Грунтовая',
@@ -165,4 +166,93 @@ class MagConfirmBar extends StatelessWidget {
       ),
     );
   }
+}
+
+Future<void> showSettingsSheet(MagistraliScreenState state) => magSheet(
+  state,
+  'mag-settings',
+  (context) {
+    final w = state.world;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('Настройки игры', style: magTitle),
+        SwitchListTile(
+          contentPadding: EdgeInsets.zero,
+          value: w.autoService,
+          activeThumbColor: MagPalette.mint,
+          title: const Text('Автоматический ремонт'),
+          subtitle: const Text(
+            'Машины с износом от 50% чинятся на остановках',
+            style: magMuted,
+          ),
+          onChanged: (v) {
+            w.autoService = v;
+            state.changed();
+          },
+        ),
+        const SizedBox(height: 6),
+        const Text(
+          'Игра сохраняется сама. Пока игра закрыта, компания не работает.',
+          style: magMuted,
+        ),
+        const SizedBox(height: 14),
+        OutlinedButton.icon(
+          key: const ValueKey('mag-new-game'),
+          onPressed: () async {
+            final ok = await showDialog<bool>(
+              context: context,
+              builder: (d) => AlertDialog(
+                title: const Text('Начать заново?'),
+                content: const Text(
+                  'Текущая компания будет удалена. Полученные искры останутся.',
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(d, false),
+                    child: const Text('Отмена'),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.pop(d, true),
+                    child: const Text('Начать'),
+                  ),
+                ],
+              ),
+            );
+            if (ok == true && context.mounted) {
+              Navigator.pop(context);
+              await state.restart();
+            }
+          },
+          icon: const Icon(Icons.restart_alt_rounded),
+          label: const Text('Новая компания на новой карте'),
+        ),
+      ],
+    );
+  },
+);
+
+/// A short message over the map.
+class MagToast extends StatelessWidget {
+  const MagToast({super.key, required this.text});
+  final String text;
+
+  @override
+  Widget build(BuildContext context) => IgnorePointer(
+    child: Center(
+      child: Container(
+        key: const ValueKey('mag-message'),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+        decoration: BoxDecoration(
+          color: MagPalette.ink.withValues(alpha: .9),
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Text(
+          text,
+          textAlign: TextAlign.center,
+          style: const TextStyle(color: Colors.white, fontSize: 13),
+        ),
+      ),
+    ),
+  );
 }

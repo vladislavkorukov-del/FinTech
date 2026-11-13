@@ -12,6 +12,9 @@ enum MagVehicleState {
 
   /// No road leads to the next stop; tries again soon.
   noRoad,
+
+  /// On the map with nothing to do (after an order); waits for the next.
+  idle,
 }
 
 class MagVehicle {
@@ -32,6 +35,9 @@ class MagVehicle {
   int upgradeSpent = 0;
 
   int? routeId;
+
+  /// The logistics order it carries out (never together with a route).
+  int? orderId;
 
   /// Index of the stop it drives to or stands at.
   int stop = 0;

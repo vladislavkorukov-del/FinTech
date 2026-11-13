@@ -4,7 +4,9 @@ part of 'world.dart';
 /// stocks, trucks and money are checked on load, and the cargo ledger
 /// must still add up, so a broken file is refused whole.
 extension MagWorldSave on MagWorld {
-  static const version = 1;
+  /// 1: 1.68.0. 2: logistics orders (trucks may carry an order, a truck
+  /// may stand idle on the map).
+  static const version = 2;
 
   Map<String, Object?> toJson() => {
     'version': version,
@@ -39,6 +41,7 @@ extension MagWorldSave on MagWorld {
           'trips': v.trips,
           'upgradeSpent': v.upgradeSpent,
           'route': v.routeId,
+          if (v.orderId != null) 'order': v.orderId,
           'stop': v.stop,
           'state': v.state.name,
           if (v.load > 0) ...{
@@ -63,6 +66,25 @@ extension MagWorldSave on MagWorld {
           'stops': r.stops,
           'income': r.income,
           'deliveries': r.deliveries,
+        },
+    ],
+    'orders': [
+      for (final o in orders.orders)
+        {
+          'id': o.id,
+          'cargo': o.cargo.name,
+          'amount': o.amount,
+          'from': o.supplier,
+          'to': o.receiver,
+          'priority': o.priority,
+          'created': o.createdTick,
+          if (o.tag != null) 'tag': o.tag,
+          'status': o.status.name,
+          if (o.vehicle != null) 'vehicle': o.vehicle,
+          if (o.finishedTick != null) 'finished': o.finishedTick,
+          if (o.error != null) 'error': o.error,
+          if (o.noRoadTicks != 0) 'noRoad': o.noRoadTicks,
+          if (o.income != 0) 'income': o.income,
         },
     ],
     'contracts': [
@@ -103,10 +125,18 @@ extension MagWorldSave on MagWorld {
 }
 
 /// Reads a saved company, or throws [FormatException].
-MagWorld magWorldFromJson(Map<String, dynamic> j) {
-  if (j['version'] != MagWorldSave.version) {
-    throw const FormatException('Unsupported Magistrali save version');
-  }
+/// Brings an older save up to the current format, or throws
+/// [FormatException] for a version this build does not know. New fields
+/// get safe defaults: no orders, every truck stays on its own route.
+Map<String, dynamic> migrateMagSave(Map<String, dynamic> j) {
+  final v = j['version'];
+  if (v == MagWorldSave.version) return j;
+  if (v == 1) return {...j, 'version': 2, 'orders': const <Object>[]};
+  throw const FormatException('Unsupported Magistrali save version');
+}
+
+MagWorld magWorldFromJson(Map<String, dynamic> raw) {
+  final j = migrateMagSave(raw);
   int whole(Object? v, int lo, int hi) {
     if (v is! int || v < lo || v > hi) {
       throw const FormatException('Bad number in Magistrali save');
@@ -220,14 +250,78 @@ MagWorld magWorldFromJson(Map<String, dynamic> j) {
         ..load = whole(m['load'], 1, 1 << 20)
         ..loadFrom = m['loadFrom'] as int?;
     }
+    final order = m['order'];
+    if (order != null) {
+      if (route != null) {
+        throw const FormatException('Truck on a route and an order');
+      }
+      v.orderId = whole(order, 1, w.nextId - 1);
+    }
     final driving = v.state == MagVehicleState.driving;
-    if (v.state != MagVehicleState.garage && v.routeId == null ||
+    final idle = v.state == MagVehicleState.idle;
+    if (v.state != MagVehicleState.garage &&
+            !idle &&
+            v.routeId == null &&
+            v.orderId == null ||
+        idle && (!v.onMap || v.routeId != null || v.orderId != null) ||
         driving && v.pathIndex + 1 >= v.path.length ||
         v.onMap && w.roads[v.cell] == 0 ||
         driving && v.path.any((c) => w.roads[c] == 0)) {
       throw const FormatException('Inconsistent truck in Magistrali save');
     }
     w.vehicles[v.id] = v;
+  }
+  for (final raw in j['orders'] as List? ?? const []) {
+    final m = raw as Map;
+    final o =
+        MagOrder(
+            id: whole(m['id'], 1, w.nextId - 1),
+            cargo: MagCargo.values.byName(m['cargo'] as String),
+            amount: whole(m['amount'], 1, 1 << 20),
+            supplier: whole(m['from'], 1, 1 << 20),
+            receiver: whole(m['to'], 1, 1 << 20),
+            priority: whole(m['priority'] ?? 1, 0, 2),
+            createdTick: whole(m['created'] ?? 0, 0, 1 << 50),
+            tag: m['tag'] as String?,
+            status: MagOrderStatus.values.byName(m['status'] as String),
+          )
+          ..vehicle = m['vehicle'] as int?
+          ..finishedTick = m['finished'] as int?
+          ..error = m['error'] as String?
+          ..noRoadTicks = whole(m['noRoad'] ?? 0, 0, 1 << 40)
+          ..income = whole(m['income'] ?? 0, 0, 1 << 50);
+    if (w.map.industry(o.supplier) == null ||
+        w.map.industry(o.receiver) == null ||
+        w.orders.byId(o.id) != null) {
+      throw const FormatException('Bad order in Magistrali save');
+    }
+    // An order in work has its truck, and the truck has it.
+    final truck = o.vehicle == null ? null : w.vehicles[o.vehicle];
+    final working = o.status.active && o.status != MagOrderStatus.pending;
+    if (working &&
+            (truck == null ||
+                truck.orderId != o.id ||
+                o.status.onBoard &&
+                    (truck.load != o.amount || truck.cargo != o.cargo)) ||
+        o.status == MagOrderStatus.pending && o.vehicle != null) {
+      throw const FormatException('Inconsistent order in Magistrali save');
+    }
+    w.orders.orders.add(o);
+  }
+  for (final v in w.vehicles.values) {
+    final o = v.orderId == null ? null : w.orders.byId(v.orderId!);
+    if (v.orderId != null &&
+        (o == null || !o.status.active || o.vehicle != v.id)) {
+      throw const FormatException('Truck with a missing order');
+    }
+  }
+  // Orders never hold more than is there.
+  for (final i in w.map.industries) {
+    for (final c in MagCargo.values) {
+      if (w.orders.reservedOut(i.id, c) > (i.stock[c] ?? 0)) {
+        throw const FormatException('Orders hold more than the stock');
+      }
+    }
   }
   for (final raw in j['contracts'] as List? ?? const []) {
     final m = raw as Map;

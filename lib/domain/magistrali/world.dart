@@ -5,8 +5,10 @@ import 'dart:typed_data';
 import 'config.dart';
 import 'entities.dart';
 import 'map.dart';
+import 'orders.dart';
 import 'pathfinding.dart';
 
+part 'world_orders.dart';
 part 'world_progress.dart';
 part 'world_save.dart';
 part 'world_sim.dart';
@@ -68,6 +70,9 @@ class MagWorld {
   final vehicles = <int, MagVehicle>{};
   final routes = <int, MagRoute>{};
   final contracts = <MagContract>[];
+
+  /// Logistics orders (stage 1 of automation).
+  final orders = MagOrderBook();
   final tasksDone = <int>{};
 
   /// Cargo ledger: made (production, processing) and used up (processing,
@@ -370,6 +375,17 @@ class MagWorld {
   /// Takes a truck off the map; cargo on board goes back where it was
   /// loaded, so nothing appears or vanishes.
   void _park(MagVehicle v) {
+    // An order it carries is cancelled first (its cargo goes back).
+    final o = v.orderId == null ? null : orders.byId(v.orderId!);
+    if (o != null && o.status.active) {
+      _closeOrder(
+        o,
+        o.status == MagOrderStatus.unloading
+            ? MagOrderStatus.done
+            : MagOrderStatus.cancelled,
+      );
+    }
+    v.orderId = null;
     if (v.load > 0) {
       final from = map.industry(v.loadFrom ?? -1);
       if (from != null) {

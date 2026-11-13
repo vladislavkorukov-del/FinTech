@@ -96,6 +96,12 @@ abstract final class MagRules {
   static const daysPerMonth = 30;
 
   static const outputCap = 80;
+
+  /// Store for delivered cargo at plants (orders never overfill it).
+  static const inputCap = 120;
+
+  /// An order whose truck finds no road this many days fails.
+  static const orderNoRoadDays = 3;
   static const processPerDay = 14;
 
   /// Loading and unloading: units per tick, and the shortest stop.

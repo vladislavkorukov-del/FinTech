@@ -6,12 +6,18 @@ import '../../../../domain/magistrali/magistrali.dart';
 import '../../../l10n_widgets.dart';
 import 'mag_art.dart';
 import 'mag_hud.dart';
+import 'mag_orders.dart';
 import 'mag_screen.dart';
 import 'mag_sheets.dart';
 
 String stateName(MagWorld w, MagVehicle v) {
   final r = w.routes[v.routeId];
+  final o = v.orderId == null ? null : w.orders.byId(v.orderId!);
+  if (o != null) {
+    return 'Заказ №${o.id}: ${orderStatusName(o.status).toLowerCase()}';
+  }
   return switch (v.state) {
+    MagVehicleState.idle => 'Свободен, ждёт заказ',
     MagVehicleState.garage => 'В гараже',
     MagVehicleState.noRoad => 'Нет дороги до остановки',
     MagVehicleState.driving =>
@@ -87,6 +93,16 @@ Future<void> showFleetSheet(MagistraliScreenState state) =>
           ),
           const SizedBox(height: 6),
           for (final m in MagRules.trucks) _shopCard(state, m),
+          const SizedBox(height: 4),
+          OutlinedButton.icon(
+            key: const ValueKey('mag-open-orders'),
+            onPressed: () {
+              Navigator.pop(context);
+              unawaited(showOrdersSheet(state));
+            },
+            icon: const Icon(Icons.assignment_turned_in_rounded),
+            label: Text('Логистические заказы · ${w.orders.active.length}'),
+          ),
           const SizedBox(height: 4),
           const Text(
             'Поезда и корабли появятся на следующих этапах развития.',

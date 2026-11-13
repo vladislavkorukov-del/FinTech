@@ -262,4 +262,69 @@ void main() {
     expect(saved.vehicles.values.first.level(MagUpgrade.engine), 1);
     expect(saved.connected(farm, plant), isTrue);
   });
+
+  testWidgets('a logistics order through the panel: create, assign, done', (
+    tester,
+  ) async {
+    await mount(tester, const MagistraliScreen(seed: MagRules.defaultSeed));
+    final s = await ready(tester);
+    final w = s.world;
+    final farm = w.map.startFarm, plant = w.map.startPlant;
+    w.buildRoad(
+      w.planRoad(
+        farm.x + farm.size,
+        farm.y,
+        plant.x - 1,
+        plant.y,
+        MagRoad.dirt,
+      ),
+    );
+    s.changed();
+    await tester.pump();
+    final truck = w.vehicles.values.first;
+
+    await tap(tester, 'mag-tab-fleet');
+    await tap(tester, 'mag-open-orders');
+    await tap(tester, 'mag-new-order');
+    await tap(tester, 'mag-order-from-${farm.id}');
+    await tap(tester, 'mag-order-to-${plant.id}');
+    await tap(tester, 'mag-create-order');
+    expect(w.orders.orders.length, 1);
+    final o = w.orders.orders.first;
+    expect(o.status, MagOrderStatus.pending);
+    expect(o.cargo, MagCargo.grain);
+    expect(o.reserved, greaterThan(0));
+    expect(find.byKey(ValueKey('mag-order-${o.id}')), findsOneWidget);
+
+    await tap(tester, 'mag-order-assign-${o.id}');
+    await tap(tester, 'mag-order-truck-${truck.id}');
+    expect(o.vehicle, truck.id);
+    expect(truck.orderId, o.id);
+    await closeSheet(tester);
+
+    await tap(tester, 'mag-speed-4');
+    final money = w.money;
+    for (var i = 0; i < 400 && o.status.active; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    expect(o.status, MagOrderStatus.done);
+    // The first delivery's Finora world reward is written.
+    for (var i = 0; i < 5; i++) {
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 50)),
+      );
+      await tester.pump();
+    }
+    expect(
+      c.data.world.rewards.containsKey('magistrali:first_delivery:v1'),
+      isTrue,
+    );
+    expect(o.income, greaterThan(0));
+    expect(w.money, greaterThan(money - 100)); // paid, minus a little upkeep
+    expect(truck.state, MagVehicleState.idle);
+    await tap(tester, 'mag-speed-0');
+    await tap(tester, 'mag-tab-fleet');
+    await tap(tester, 'mag-open-orders');
+    expect(find.byKey(ValueKey('mag-order-done-${o.id}')), findsOneWidget);
+  });
 }

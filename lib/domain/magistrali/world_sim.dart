@@ -15,6 +15,7 @@ extension MagWorldSim on MagWorld {
     for (final v in vehicles.values.toList()) {
       switch (v.state) {
         case MagVehicleState.garage:
+        case MagVehicleState.idle:
           break;
         case MagVehicleState.noRoad:
           if (--v.wait <= 0) _tryStart(v);
@@ -68,6 +69,23 @@ extension MagWorldSim on MagWorld {
     }
   }
 
+  /// Where a truck drives: its order's place, or its route's next stop.
+  MagIndustry? _target(MagVehicle v) =>
+      v.orderId != null ? _orderTarget(v) : _stopOf(v, v.stop);
+
+  /// A truck without a job any more stops being driven.
+  void _lost(MagVehicle v) {
+    if (v.orderId == null) return _park(v);
+    final o = _orderOf(v);
+    if (o != null && o.status.active) {
+      _closeOrder(o, MagOrderStatus.failed, 'Предприятие недоступно');
+    } else {
+      v
+        ..orderId = null
+        ..state = v.onMap ? MagVehicleState.idle : MagVehicleState.garage;
+    }
+  }
+
   MagIndustry? _stopOf(MagVehicle v, int index) {
     final r = routes[v.routeId];
     if (r == null || r.stops.isEmpty) return null;
@@ -77,16 +95,18 @@ extension MagWorldSim on MagWorld {
   /// Puts a truck on the map at its route's first stop, or plans its way
   /// on. Without a road it waits and tries again.
   void _tryStart(MagVehicle v) {
-    final target = _stopOf(v, v.stop);
-    if (target == null) return _park(v);
+    final target = _target(v);
+    if (target == null) return _lost(v);
     if (!v.onMap) {
       final access = accessCells(target);
       if (access.isEmpty) {
         v
           ..state = MagVehicleState.noRoad
           ..wait = MagRules.retryTicks;
+        _orderNoRoad(v);
         return;
       }
+      _orderStarted(v);
       v
         ..cell = access.first
         ..path = const []
@@ -98,12 +118,14 @@ extension MagWorldSim on MagWorld {
   }
 
   void _plan(MagVehicle v) {
-    final target = _stopOf(v, v.stop);
-    if (target == null) return _park(v);
+    final target = _target(v);
+    if (target == null) return _lost(v);
     // From a stop a truck may leave by any road reaching that place.
     // (It stands at the place when its cell touches the last stop.)
-    final last = _stopOf(v, v.stop - 1);
-    final yard = last != null && _touches(v.cell, last)
+    final last = v.orderId != null ? null : _stopOf(v, v.stop - 1);
+    final yard = v.orderId != null
+        ? _yardAround(v.cell)
+        : last != null && _touches(v.cell, last)
         ? accessCells(last)
         : const <int>[];
     final path = roadPath([v.cell, ...yard], target);
@@ -113,8 +135,10 @@ extension MagWorldSim on MagWorld {
         ..path = const []
         ..progress = 0
         ..wait = MagRules.retryTicks;
+      _orderNoRoad(v);
       return;
     }
+    _orderStarted(v);
     v
       ..cell = path.first
       ..path = path
@@ -171,8 +195,9 @@ extension MagWorldSim on MagWorld {
 
   /// At a stop: deliver what this place takes (paid now, once), then load.
   void _arrive(MagVehicle v) {
-    final here = _stopOf(v, v.stop);
-    if (here == null) return _park(v);
+    final here = _target(v);
+    if (here == null) return _lost(v);
+    if (v.orderId != null) return _orderArrive(v, here);
     v
       ..state = MagVehicleState.atStop
       ..wait = 0
@@ -236,7 +261,7 @@ extension MagWorldSim on MagWorld {
     MagCargo? best;
     for (final c in here.supplies) {
       if (!wanted.contains(c)) continue;
-      if (best == null || (here.stock[c] ?? 0) > (here.stock[best] ?? 0)) {
+      if (best == null || availableOf(here, c) > availableOf(here, best)) {
         best = c;
       }
     }
@@ -244,16 +269,18 @@ extension MagWorldSim on MagWorld {
   }
 
   void _atStop(MagVehicle v) {
+    if (v.orderId != null) return _orderAtStop(v);
     final here = _stopOf(v, v.stop);
     if (here == null) return _park(v);
     v.wait++;
     final cargo = _loadable(v, here);
     final cap = capacityOf(v);
     if (cargo != null && v.load < cap) {
-      final have = here.stock[cargo] ?? 0;
+      // Cargo reserved by orders is not for route trucks.
+      final have = availableOf(here, cargo);
       final n = math.min(math.min(MagRules.handlePerTick, cap - v.load), have);
       if (n > 0) {
-        here.stock[cargo] = have - n;
+        here.stock[cargo] = (here.stock[cargo] ?? 0) - n;
         if (v.load == 0) {
           v
             ..cargo = cargo

@@ -6,6 +6,7 @@ import '../../../../domain/magistrali/magistrali.dart';
 import '../../../l10n_widgets.dart';
 import 'mag_art.dart';
 import 'mag_hud.dart';
+import 'mag_orders.dart';
 import 'mag_routes.dart';
 import 'mag_screen.dart';
 
@@ -161,6 +162,12 @@ Future<void> showIndustrySheet(
       Wrap(
         children: [
           for (final c in i.supplies) cargoChip(c, i.stock[c] ?? 0),
+          for (final c in i.supplies)
+            if (w.orders.reservedOut(i.id, c) > 0)
+              Text(
+                'В заказах: ${cargoName(c)} ${w.orders.reservedOut(i.id, c)}',
+                style: magMuted,
+              ),
           for (final e in i.input.entries)
             if (e.value > 0) cargoChip(e.key, e.value),
           if (i.supplies.isEmpty && i.input.values.every((v) => v == 0))
@@ -200,6 +207,19 @@ Future<void> showIndustrySheet(
           label: const Text('Маршрут отсюда'),
         ),
       ),
+      if (i.supplies.isNotEmpty)
+        SizedBox(
+          width: double.infinity,
+          child: OutlinedButton.icon(
+            key: const ValueKey('mag-order-from'),
+            onPressed: () {
+              Navigator.pop(context);
+              unawaited(showNewOrderSheet(state, from: id));
+            },
+            icon: const Icon(Icons.assignment_add),
+            label: const Text('Заказ на перевозку отсюда'),
+          ),
+        ),
     ],
   );
 });
@@ -434,67 +454,3 @@ Future<void> showCompanySheet(
     ],
   );
 });
-
-Future<void> showSettingsSheet(MagistraliScreenState state) => magSheet(
-  state,
-  'mag-settings',
-  (context) {
-    final w = state.world;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text('Настройки игры', style: magTitle),
-        SwitchListTile(
-          contentPadding: EdgeInsets.zero,
-          value: w.autoService,
-          activeThumbColor: MagPalette.mint,
-          title: const Text('Автоматический ремонт'),
-          subtitle: const Text(
-            'Машины с износом от 50% чинятся на остановках',
-            style: magMuted,
-          ),
-          onChanged: (v) {
-            w.autoService = v;
-            state.changed();
-          },
-        ),
-        const SizedBox(height: 6),
-        const Text(
-          'Игра сохраняется сама. Пока игра закрыта, компания не работает.',
-          style: magMuted,
-        ),
-        const SizedBox(height: 14),
-        OutlinedButton.icon(
-          key: const ValueKey('mag-new-game'),
-          onPressed: () async {
-            final ok = await showDialog<bool>(
-              context: context,
-              builder: (d) => AlertDialog(
-                title: const Text('Начать заново?'),
-                content: const Text(
-                  'Текущая компания будет удалена. Полученные искры останутся.',
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(d, false),
-                    child: const Text('Отмена'),
-                  ),
-                  TextButton(
-                    onPressed: () => Navigator.pop(d, true),
-                    child: const Text('Начать'),
-                  ),
-                ],
-              ),
-            );
-            if (ok == true && context.mounted) {
-              Navigator.pop(context);
-              await state.restart();
-            }
-          },
-          icon: const Icon(Icons.restart_alt_rounded),
-          label: const Text('Новая компания на новой карте'),
-        ),
-      ],
-    );
-  },
-);

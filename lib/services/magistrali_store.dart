@@ -38,8 +38,17 @@ class MagistraliStore {
       }
       if (!file.existsSync()) continue;
       try {
-        final json = jsonDecode(await file.readAsString());
-        return magWorldFromJson(Map<String, dynamic>.from(json as Map));
+        final text = await file.readAsString();
+        final json = Map<String, dynamic>.from(jsonDecode(text) as Map);
+        final world = magWorldFromJson(json);
+        // An older format is kept untouched before the first save in the
+        // new one overwrites it.
+        final version = json['version'];
+        if (version is int && version < MagWorldSave.version) {
+          final keep = await _file('world.v$version.json');
+          if (!keep.existsSync()) await keep.writeAsString(text, flush: true);
+        }
+        return world;
       } on Object {
         continue; // try the backup
       }
