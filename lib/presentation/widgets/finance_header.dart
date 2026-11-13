@@ -4,9 +4,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart' hide InputDecoration, Text;
 import '../controller.dart';
 import '../screens/management.dart';
-import '../screens/settings.dart';
 import 'common.dart' show money;
-import 'glass.dart';
 import 'motion.dart';
 import '../l10n_widgets.dart';
 
@@ -105,24 +103,12 @@ class FinanceHeader extends StatelessWidget {
     final c = FinanceScope.of(context);
     void open(Widget page) =>
         Navigator.push(context, MaterialPageRoute<void>(builder: (_) => page));
-    // 1.16: quiet round buttons in the card color.
-    final buttonStyle = IconButton.styleFrom(
-      backgroundColor: GlassSurface.pane(Theme.of(context), null, null, 1),
-      foregroundColor: scheme.onSurface,
-      side: BorderSide(color: scheme.onSurface.withValues(alpha: .07)),
-      minimumSize: const Size(48, 48),
-    );
+    // 1.57: only the balance — settings and the family profile live under
+    // «Ещё», so the top of the main screen stays clean.
     return ConstrainedBox(
       constraints: const BoxConstraints(minHeight: 56),
       child: Row(
         children: [
-          IconButton.filledTonal(
-            tooltip: tr('Настройки'),
-            onPressed: () => open(const SettingsScreen()),
-            style: buttonStyle,
-            icon: const Icon(Icons.tune_rounded, size: 21),
-          ),
-          const SizedBox(width: 8),
           Expanded(
             child: Semantics(
               button: true,
@@ -175,13 +161,6 @@ class FinanceHeader extends StatelessWidget {
                 ),
               ),
             ),
-          ),
-          const SizedBox(width: 8),
-          IconButton.filledTonal(
-            tooltip: tr('Моя семья'),
-            onPressed: () => open(const MembersScreen()),
-            style: buttonStyle,
-            icon: const Icon(Icons.family_restroom_outlined, size: 22),
           ),
         ],
       ),

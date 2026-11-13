@@ -186,17 +186,10 @@ void main() {
           expect(tester.takeException(), isNull);
         }
       }
-      await tester.tap(find.byTooltip('Моя семья'));
-      await tester.pumpAndSettle();
-      expect(find.text('Семейный профиль'), findsOneWidget);
-      expect(find.text('Я'), findsOneWidget);
-      tester.state<NavigatorState>(find.byType(Navigator).first).pop();
-      await tester.pumpAndSettle();
-      await tester.tap(find.byTooltip('Настройки'));
-      await tester.pumpAndSettle();
-      expect(find.text('Внешний вид'), findsWidgets);
-      tester.state<NavigatorState>(find.byType(Navigator).first).pop();
-      await tester.pumpAndSettle();
+      // 1.57: the header shows only the balance; settings and the family
+      // profile are reached from «Ещё».
+      expect(find.byTooltip('Моя семья'), findsNothing);
+      expect(find.byTooltip('Настройки'), findsNothing);
       await tester.tap(find.byKey(const ValueKey('header-balance')));
       await tester.pumpAndSettle();
       expect(find.byType(AccountsScreen), findsOneWidget);

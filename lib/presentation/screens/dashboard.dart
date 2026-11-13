@@ -492,7 +492,8 @@ class _AccountRow extends StatelessWidget {
     final c = FinanceScope.of(context);
     final scheme = Theme.of(context).colorScheme;
     return SurfaceCard(
-      padding: const EdgeInsets.fromLTRB(14, 11, 4, 11),
+      // 1.57: a compact row — one line of name and one of details.
+      padding: const EdgeInsets.fromLTRB(12, 7, 2, 7),
       onTap: () => Navigator.push(
         context,
         MaterialPageRoute<void>(
@@ -501,32 +502,34 @@ class _AccountRow extends StatelessWidget {
       ),
       child: Row(
         children: [
-          accountBankLogo(context, account, size: 38) ??
+          accountBankLogo(context, account, size: 32) ??
               Container(
-                width: 38,
-                height: 38,
-                decoration: BoxDecoration(
+                width: 32,
+                height: 32,
+                decoration: ShapeDecoration(
                   color: FinanceColors.of(context).iconBackground,
-                  borderRadius: BorderRadius.circular(14),
+                  shape: RoundedSuperellipseBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                 ),
                 child: Icon(
                   categoryIcon(account.icon),
                   color: FinanceColors.of(context).iconForeground,
-                  size: 21,
+                  size: 18,
                 ),
               ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   account.name,
-                  maxLines: 2,
+                  maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.titleMedium,
+                  style: Theme.of(context).textTheme.titleSmall,
                 ),
-                const SizedBox(height: 3),
+                const SizedBox(height: 1),
                 Text(
                   [
                         if (account.bank.isNotEmpty) account.bank,
@@ -541,10 +544,10 @@ class _AccountRow extends StatelessWidget {
                             '•• ${account.lastFour}',
                           if (account.excluded) 'Вне общего баланса',
                         ].join(' · '),
-                  maxLines: 2,
+                  maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontSize: 10,
+                    fontSize: 12,
                     color: scheme.onSurfaceVariant,
                   ),
                 ),
@@ -564,9 +567,9 @@ class _AccountRow extends StatelessWidget {
                   account.currency,
                 ),
                 style: const TextStyle(
-                  fontSize: 18,
+                  fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  letterSpacing: -.5,
+                  letterSpacing: -.3,
                 ),
               ),
             ),
@@ -574,11 +577,12 @@ class _AccountRow extends StatelessWidget {
           IconButton(
             tooltip: 'Настроить счёт ${account.name}',
             visualDensity: VisualDensity.compact,
+            constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
             onPressed: () => showAccountEditor(context, account: account),
             icon: Icon(
               Icons.more_horiz_rounded,
               color: scheme.onSurfaceVariant,
-              size: 21,
+              size: 19,
             ),
           ),
         ],
