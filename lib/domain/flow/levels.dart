@@ -51,8 +51,9 @@ abstract final class FlowLevels {
           o.index >= 64 ||
           o.layers < 1 ||
           o.layers > 5 ||
-          !{'ice', 'stack', 'chain', 'crate'}.contains(o.kind) ||
-          {'chain', 'crate'}.contains(o.kind) && o.layers > 2) {
+          !{'ice', 'stack', 'chain', 'crate', 'wall'}.contains(o.kind) ||
+          {'chain', 'crate'}.contains(o.kind) && o.layers > 2 ||
+          o.kind == 'wall' && o.layers != 1) {
         throw const FormatException('Invalid obstacle');
       }
     }
@@ -85,6 +86,9 @@ abstract final class FlowLevels {
       final c = session.board[i];
       FlowCell.fromJson(c.toJson());
       final obstacle = declared[i];
+      if (c.wall != (obstacle?.kind == 'wall')) {
+        throw const FormatException('Wall declaration does not match layout');
+      }
       if (c.stack > 0 &&
               (obstacle?.kind != 'stack' || obstacle?.layers != c.stack) ||
           c.ice > 0 && (obstacle?.kind != 'ice' || obstacle?.layers != c.ice) ||
@@ -110,7 +114,9 @@ abstract final class FlowLevels {
           if (i >= 8) i - 8,
           if (i < 56) i + 8,
         ];
-        if (adj.every((n) => session.board[n].stack > 0)) {
+        if (adj.every(
+          (n) => session.board[n].stack > 0 || session.board[n].wall,
+        )) {
           throw const FormatException('Unreachable frozen tile');
         }
       }

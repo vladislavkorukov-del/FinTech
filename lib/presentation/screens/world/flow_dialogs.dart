@@ -246,7 +246,7 @@ class FlowVictoryContent extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(bottom: 8),
               child: Text(
-                'Все 20 уровней пройдены',
+                'Все уровни пройдены',
                 textAlign: TextAlign.center,
                 style: FlowType.body,
               ),

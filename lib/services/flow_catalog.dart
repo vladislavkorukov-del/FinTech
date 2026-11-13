@@ -10,9 +10,11 @@ abstract final class FlowCatalog {
 
   static Future<List<FlowLevel>> _load() async {
     try {
-      return FlowLevels.decode(
+      // 1.62: the twenty hand-made levels, then 21–500 from the generator.
+      final made = FlowLevels.decode(
         await rootBundle.loadString('assets/flow/levels.json'),
       );
+      return List.unmodifiable([...made, ...FlowLevelGenerator.all()]);
     } catch (_) {
       _pending = null;
       rethrow;

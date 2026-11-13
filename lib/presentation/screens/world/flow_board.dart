@@ -49,6 +49,13 @@ abstract final class FlowTileArt {
 abstract final class FlowPlayfield {
   static const folder = 'assets/finora/match3/playfield';
   static const background = '$folder/gameplay_background.png';
+
+  /// 1.62: one backdrop per chapter of 50 levels. Put the art in
+  /// assets/finora/match3/chapters/ (registered in pubspec.yaml) and list
+  /// it here; a chapter without its own art keeps the default sky.
+  static const chapterBackgrounds = <int, String>{};
+  static String backgroundFor(int chapter) =>
+      chapterBackgrounds[chapter] ?? background;
   static const backplate = '$folder/board_backplate.png';
   static const cell = '$folder/board_cell.png';
   static const frame = '$folder/board_frame_pearl.png';
@@ -542,15 +549,18 @@ class _FlowBoardState extends State<FlowBoard> with TickerProviderStateMixin {
                 ),
                 boardCache,
               ),
+              // 1.62: a wall is a cell that is not part of the board — no
+              // lavender plate, the plum backplate shows through.
               for (var i = 0; i < 64; i++)
-                layer(
-                  FlowPlayfield.cell,
-                  FlowPlayfield.place(
-                    FlowPlayfield.cellVisible,
-                    FlowPlayfield.cellRect(i),
+                if (!widget.session.board[i].wall)
+                  layer(
+                    FlowPlayfield.cell,
+                    FlowPlayfield.place(
+                      FlowPlayfield.cellVisible,
+                      FlowPlayfield.cellRect(i),
+                    ),
+                    cellCache,
                   ),
-                  cellCache,
-                ),
               // Pieces stay inside the grid while they fall in from above.
               Positioned.fromRect(
                 rect: FlowPlayfield.toBox(FlowPlayfield.grid, side),
@@ -877,6 +887,13 @@ class _FlowCellView extends StatelessWidget {
   final VoidCallback onTap;
   @override
   Widget build(BuildContext context) {
+    // 1.62: a wall draws nothing and takes no touch.
+    if (cell.wall) {
+      return Semantics(
+        label: 'Стенка, строка ${index ~/ 8 + 1}, столбец ${index % 8 + 1}',
+        child: const SizedBox.expand(),
+      );
+    }
     final type = cell.tile;
     final label = cell.stack > 0
         ? 'Стопка чеков, ${cell.stack} слоёв'

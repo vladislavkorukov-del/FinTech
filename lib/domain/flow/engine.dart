@@ -42,6 +42,9 @@ abstract final class FlowEngine {
     final obstacles = {for (final o in level.obstacles) o.index: o};
     for (var i = 0; i < 64; i++) {
       final cell = session.board[i], initial = obstacles[i];
+      if (cell.wall != (initial?.kind == 'wall')) {
+        throw const FormatException('Walls do not match level');
+      }
       if (cell.stack > 0 &&
               (initial?.kind != 'stack' || cell.stack > initial!.layers) ||
           cell.ice > 0 &&
@@ -269,6 +272,10 @@ abstract final class FlowEngine {
         (cell == null || cell < 0 || cell >= 64)) {
       return FlowTurn(accepted: false, session: session);
     }
+    // Nothing breaks a wall: a hammer there is not spent.
+    if (tool == FlowTool.hammer && session.board[cell!].wall) {
+      return FlowTurn(accepted: false, session: session);
+    }
     final run = _Resolution(
       level,
       List.of(session.board),
@@ -463,6 +470,10 @@ abstract final class FlowEngine {
       final board = <FlowCell>[];
       for (var i = 0; i < 64; i++) {
         final o = obstacles[i];
+        if (o?.kind == 'wall') {
+          board.add(const FlowCell(wall: true));
+          continue;
+        }
         if (o?.kind == 'stack' || o?.kind == 'crate') {
           board.add(
             o!.kind == 'stack'
@@ -612,6 +623,7 @@ class _Resolution {
     for (final i in ordered) {
       if (i < 0 || i >= 64 || immune.contains(i)) continue;
       final cell = board[i];
+      if (cell.wall) continue;
       if (cell.stack > 0) {
         stacks.add(i);
         continue;
@@ -863,20 +875,12 @@ class _Resolution {
     for (var col = 0; col < 8; col++) {
       var end = 7;
       while (end >= 0) {
-        final fixed = board[end * 8 + col];
-        if (fixed.stack > 0 ||
-            fixed.ice > 0 ||
-            fixed.chain > 0 ||
-            fixed.crate > 0) {
+        if (board[end * 8 + col].fixed) {
           end--;
           continue;
         }
         var start = end;
-        while (start > 0 &&
-            board[(start - 1) * 8 + col].stack == 0 &&
-            board[(start - 1) * 8 + col].ice == 0 &&
-            board[(start - 1) * 8 + col].chain == 0 &&
-            board[(start - 1) * 8 + col].crate == 0) {
+        while (start > 0 && !board[(start - 1) * 8 + col].fixed) {
           start--;
         }
         final cells = <FlowCell>[

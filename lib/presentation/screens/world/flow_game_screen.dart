@@ -347,7 +347,7 @@ class _FlowGameScreenState extends State<FlowGameScreen>
                 // 1.59: the pack's sky background under the whole level.
                 Positioned.fill(
                   child: Image.asset(
-                    FlowPlayfield.background,
+                    FlowPlayfield.backgroundFor(widget.level.chapterId),
                     fit: BoxFit.cover,
                     cacheWidth: 1080,
                     excludeFromSemantics: true,

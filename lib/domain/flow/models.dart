@@ -1,6 +1,9 @@
 /// Deterministic match-3 state. No Flutter, financial models or network access.
 enum FlowTile { coin, wallet, goal, shield, receipt, chart }
 
+/// 1.62: twenty hand-made levels, then generated ones up to 500.
+const flowLevelCount = 500;
+
 enum FlowBooster { none, rocketRow, rocketColumn, bomb, core, drone }
 
 enum FlowStatus { active, won, lost }
@@ -32,18 +35,31 @@ class FlowCell {
     this.stack = 0,
     this.chain = 0,
     this.crate = 0,
+    this.wall = false,
   });
   final FlowTile? tile;
   final FlowBooster booster;
   final int ice, stack, chain, crate;
+
+  /// 1.62: a wall — a cell that is not part of the board. Nothing moves
+  /// into, out of or through it, and nothing breaks it.
+  final bool wall;
   bool get movable =>
+      !wall &&
       stack == 0 &&
       crate == 0 &&
       ice == 0 &&
       chain == 0 &&
       (tile != null || booster == FlowBooster.core);
   bool get empty =>
-      stack == 0 && crate == 0 && tile == null && booster == FlowBooster.none;
+      !wall &&
+      stack == 0 &&
+      crate == 0 &&
+      tile == null &&
+      booster == FlowBooster.none;
+
+  /// Cells that stay put while pieces fall: walls and blocking obstacles.
+  bool get fixed => wall || stack > 0 || ice > 0 || chain > 0 || crate > 0;
   Map<String, Object?> toJson() => {
     'tile': tile?.name,
     'booster': booster.name,
@@ -51,9 +67,10 @@ class FlowCell {
     'stack': stack,
     if (chain > 0) 'chain': chain,
     if (crate > 0) 'crate': crate,
+    if (wall) 'wall': true,
   };
   factory FlowCell.fromJson(Map<String, dynamic> j) {
-    _keys(j, {'tile', 'booster', 'ice', 'stack', 'chain', 'crate'});
+    _keys(j, {'tile', 'booster', 'ice', 'stack', 'chain', 'crate', 'wall'});
     final tile = j['tile'] == null
         ? null
         : FlowTile.values.byName(j['tile'] as String);
@@ -61,6 +78,19 @@ class FlowCell {
     final ice = _int(j['ice'] ?? 0, 0, 5), stack = _int(j['stack'] ?? 0, 0, 5);
     final chain = _int(j['chain'] ?? 0, 0, 2),
         crate = _int(j['crate'] ?? 0, 0, 2);
+    final wall = j['wall'] ?? false;
+    if (wall is! bool) throw const FormatException('Invalid flow cell');
+    if (wall) {
+      if (tile != null ||
+          b != FlowBooster.none ||
+          ice > 0 ||
+          stack > 0 ||
+          chain > 0 ||
+          crate > 0) {
+        throw const FormatException('Invalid flow cell');
+      }
+      return const FlowCell(wall: true);
+    }
     if ((stack > 0 || crate > 0) &&
             (tile != null || b != FlowBooster.none || ice > 0 || chain > 0) ||
         stack > 0 && crate > 0 ||
@@ -128,13 +158,21 @@ class FlowObstacle {
   factory FlowObstacle.fromJson(Map<String, dynamic> j) {
     _keys(j, {'index', 'kind', 'layers'});
     final kind = j['kind'] as String;
-    if (!{'ice', 'stack', 'chain', 'crate'}.contains(kind)) {
+    if (!{'ice', 'stack', 'chain', 'crate', 'wall'}.contains(kind)) {
       throw const FormatException('Unsupported flow obstacle');
     }
     return FlowObstacle(
       _int(j['index'], 0, 63),
       kind,
-      _int(j['layers'], 1, {'chain', 'crate'}.contains(kind) ? 2 : 5),
+      _int(
+        j['layers'],
+        1,
+        kind == 'wall'
+            ? 1
+            : {'chain', 'crate'}.contains(kind)
+            ? 2
+            : 5,
+      ),
     );
   }
 }
@@ -413,13 +451,14 @@ class FlowProgress {
 
   int get highestUnlocked {
     var n = 1;
-    while (n <= 20 && results.containsKey(n)) {
+    while (n <= flowLevelCount && results.containsKey(n)) {
       n++;
     }
-    return n.clamp(1, 20);
+    return n.clamp(1, flowLevelCount);
   }
 
-  bool isUnlocked(int id) => id >= 1 && id <= 20 && id <= highestUnlocked;
+  bool isUnlocked(int id) =>
+      id >= 1 && id <= flowLevelCount && id <= highestUnlocked;
   FlowProgress copyWith({
     Map<int, FlowResult>? results,
     Object? session = _missing,
@@ -454,7 +493,7 @@ class FlowProgress {
     for (final e
         in (j['results'] is Map ? j['results'] as Map : const {}).entries) {
       final id = int.tryParse('${e.key}');
-      if (id == null || id < 1 || id > 20) continue;
+      if (id == null || id < 1 || id > flowLevelCount) continue;
       try {
         results[id] = FlowResult.fromJson(
           Map<String, dynamic>.from(e.value as Map),
