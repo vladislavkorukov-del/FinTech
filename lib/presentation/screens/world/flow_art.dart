@@ -170,6 +170,7 @@ class FlowArtPanel extends StatelessWidget {
     this.art = 'out_of_moves_panel_base',
     this.padding = const EdgeInsets.all(20),
     this.sliceByHeight = false,
+    this.slice,
   });
   final Widget child;
   final String art;
@@ -179,10 +180,16 @@ class FlowArtPanel extends StatelessWidget {
   /// so plates of one height match whatever their widths.
   final bool sliceByHeight;
 
+  /// A tighter stretch rectangle (source pixels, LTRB) than the manifest's
+  /// conservative one, for plates that hug their text.
+  final List<num>? slice;
+
   @override
   Widget build(BuildContext context) => Stack(
     children: [
-      Positioned.fill(child: _NineSliceArt(art, byHeight: sliceByHeight)),
+      Positioned.fill(
+        child: _NineSliceArt(art, byHeight: sliceByHeight, slice: slice),
+      ),
       Padding(padding: padding, child: child),
     ],
   );
@@ -297,19 +304,23 @@ class FlowArtButton extends StatelessWidget {
 }
 
 class _NineSliceArt extends StatelessWidget {
-  const _NineSliceArt(this.id, {this.byHeight = false});
+  const _NineSliceArt(this.id, {this.byHeight = false, this.slice});
   final String id;
   final bool byHeight;
+  final List<num>? slice;
   @override
   Widget build(BuildContext context) => LayoutBuilder(
     builder: (context, constraints) {
       final asset = FlowArt.info(id);
       final width = constraints.hasBoundedWidth ? constraints.maxWidth : 320.0;
+      // Decode at the corners' on-screen scale: by height for plates that
+      // scale their corners by height (a narrow plate stays crisp, and its
+      // resolution does not change while its width animates).
+      final scale = byHeight && constraints.hasBoundedHeight
+          ? constraints.maxHeight / asset.bounds().height
+          : width / asset.bounds().width;
       final desired =
-          width /
-          asset.bounds().width *
-          asset.width *
-          MediaQuery.devicePixelRatioOf(context);
+          scale * asset.width * MediaQuery.devicePixelRatioOf(context);
       final cacheWidth = math.min(
         asset.width,
         math.max(64, (desired / 32).ceil() * 32),
@@ -321,6 +332,7 @@ class _NineSliceArt extends StatelessWidget {
         cacheWidth: cacheWidth,
         nineSlice: true,
         byHeight: byHeight,
+        slice: slice,
       );
     },
   );
@@ -334,9 +346,11 @@ class _FlowImage extends StatefulWidget {
     required this.cacheWidth,
     this.nineSlice = false,
     this.byHeight = false,
+    this.slice,
   });
   final FlowAssetInfo asset;
   final bool trim, nineSlice, byHeight;
+  final List<num>? slice;
   final BoxFit fit;
   final int cacheWidth;
   @override
@@ -415,6 +429,7 @@ class _FlowImageState extends State<_FlowImage> {
         widget.fit,
         widget.nineSlice,
         widget.byHeight,
+        widget.slice,
       ),
     ),
   );
@@ -428,10 +443,12 @@ class _FlowImagePainter extends CustomPainter {
     this.fit,
     this.nineSlice,
     this.byHeight,
+    this.sliceOverride,
   );
   final ui.Image? image;
   final FlowAssetInfo asset;
   final bool trim, nineSlice, byHeight;
+  final List<num>? sliceOverride;
   final BoxFit fit;
   @override
   void paint(Canvas canvas, Size size) {
@@ -448,7 +465,7 @@ class _FlowImagePainter extends CustomPainter {
     final paint = Paint()
       ..filterQuality = FilterQuality.high
       ..isAntiAlias = true;
-    final slice = asset.nineSlice;
+    final slice = sliceOverride ?? asset.nineSlice;
     if (nineSlice && slice != null) {
       paint.isAntiAlias = false;
       final center = FlowAssetInfo._rect(slice);
@@ -500,5 +517,6 @@ class _FlowImagePainter extends CustomPainter {
       oldDelegate.trim != trim ||
       oldDelegate.fit != fit ||
       oldDelegate.nineSlice != nineSlice ||
-      oldDelegate.byHeight != byHeight;
+      oldDelegate.byHeight != byHeight ||
+      oldDelegate.sliceOverride != sliceOverride;
 }

@@ -294,4 +294,39 @@ void main() {
       await tester.pumpWidget(const SizedBox.shrink());
     },
   );
+
+  testWidgets('1.65: HUD plates hug their text and grow with it', (
+    tester,
+  ) async {
+    final widths = <String, List<double>>{'moves': [], 'goals': []};
+    for (final moves in [9, 12345]) {
+      await _mount(
+        tester,
+        Align(
+          alignment: Alignment.topCenter,
+          child: SizedBox(
+            width: 374,
+            child: FlowTopHud(
+              level: level,
+              session: session(moves: moves),
+              onPause: () {},
+            ),
+          ),
+        ),
+        size: const Size(390, 600),
+      );
+      for (final key in widths.keys) {
+        widths[key]!.add(
+          tester.getSize(find.byKey(ValueKey('flow-hud-$key'))).width,
+        );
+      }
+      expect(tester.takeException(), isNull);
+    }
+    // Narrow plates, not stretched rows; the moves plate widens with 12 345.
+    expect(widths['moves']![0], lessThan(120));
+    expect(widths['moves']![1], greaterThan(widths['moves']![0] + 20));
+    expect(widths['goals']![0], widths['goals']![1]);
+    expect(widths['goals']![0], lessThan(200));
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
 }

@@ -286,79 +286,73 @@ class FlowTopHud extends StatelessWidget {
   Widget build(BuildContext context) => Column(
     mainAxisSize: MainAxisSize.min,
     children: [
+      // 1.65: every plate hugs its text, like the level buttons on the map.
       SizedBox(
         height: _row,
-        child: Row(
+        child: Stack(
+          alignment: Alignment.center,
           children: [
-            Expanded(
-              child: Semantics(
-                label: 'Уровень ${level.id}',
-                excludeSemantics: true,
-                child: FlowArtPanel(
-                  art: 'hud_level_header',
-                  sliceByHeight: true,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Center(
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Text(
-                        'Уровень ${level.id}',
-                        style: FlowType.heading,
-                      ),
-                    ),
-                  ),
-                ),
+            Padding(
+              // Symmetric room for the pause button keeps the plate centred.
+              padding: const EdgeInsets.symmetric(horizontal: 54),
+              child: _HugPlate(
+                semantics: 'Уровень ${level.id}',
+                child: Text('Уровень ${level.id}', style: FlowType.heading),
               ),
             ),
-            const SizedBox(width: 6),
-            FlowArtButton(
-              key: const ValueKey('flow-pause'),
-              art: 'hud_pause_button',
-              label: 'Пауза',
-              onPressed: onPause,
-              width: 48,
-              height: 48,
-              visualSize: 46,
+            Align(
+              alignment: Alignment.centerRight,
+              child: FlowArtButton(
+                key: const ValueKey('flow-pause'),
+                art: 'hud_pause_button',
+                label: 'Пауза',
+                onPressed: onPause,
+                width: 48,
+                height: 48,
+                visualSize: 46,
+              ),
             ),
           ],
         ),
       ),
       const SizedBox(height: _spacing),
-      // 1.64: two matching plates — the same small label on top, the
-      // value centred below it, numbers at one size and baseline.
+      // Two matching plates — the same small label on top, the value
+      // centred below it, numbers at one size and baseline.
       SizedBox(
         height: _plate,
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            SizedBox(
-              // Wide enough for the plate's corners at this height.
-              width: 128,
-              child: _StatPlate(
-                key: const ValueKey('flow-hud-moves'),
+            _HugPlate(
+              key: const ValueKey('flow-hud-moves'),
+              semantics: 'Ходы: ${session.remainingMoves}',
+              child: _Stat(
                 label: 'ХОДЫ',
-                semantics: 'Ходы: ${session.remainingMoves}',
                 child: FlowBump(session.remainingMoves, size: _value),
               ),
             ),
-            const SizedBox(width: 6),
-            Expanded(
-              child: _StatPlate(
+            const SizedBox(width: 8),
+            Flexible(
+              child: _HugPlate(
                 key: const ValueKey('flow-hud-goals'),
-                label: 'ЦЕЛИ',
                 semantics: [
                   for (final goal in level.goals)
                     '${goal.title}: ${_left(goal)}',
                 ].join(', '),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    for (final (i, goal) in level.goals.indexed) ...[
-                      if (i > 0) const SizedBox(width: 14),
-                      FlowGoalIcon(goal.key, size: _value + 4),
-                      const SizedBox(width: 4),
-                      FlowBump(_left(goal), size: _value),
+                child: _Stat(
+                  label: 'ЦЕЛИ',
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      for (final (i, goal) in level.goals.indexed) ...[
+                        if (i > 0) const SizedBox(width: 14),
+                        FlowGoalIcon(goal.key, size: _value + 4),
+                        const SizedBox(width: 4),
+                        FlowBump(_left(goal), size: _value),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
               ),
             ),
@@ -402,38 +396,70 @@ class FlowTopHud extends StatelessWidget {
   );
 }
 
-/// One HUD plate: a small label on top, the value centred below it.
-class _StatPlate extends StatelessWidget {
-  const _StatPlate({
-    super.key,
-    required this.label,
-    required this.semantics,
-    required this.child,
-  });
-  final String label, semantics;
+/// The pearl plate's real corners: much tighter than the manifest's safe
+/// stretch rectangle, so a plate can be as narrow as its text.
+const _plateSlice = <num>[220, 236.88, 1951, 471.12];
+
+/// A pearl plate as wide as its content (never narrower than its corners),
+/// resizing smoothly when the content changes.
+class _HugPlate extends StatelessWidget {
+  const _HugPlate({super.key, required this.semantics, required this.child});
+  final String semantics;
   final Widget child;
   @override
   Widget build(BuildContext context) => Semantics(
     label: semantics,
     excludeSemantics: true,
-    child: FlowArtPanel(
-      art: 'hud_level_header',
-      sliceByHeight: true,
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-      child: Center(
-        // Large system text shrinks to fit instead of spilling.
-        child: FittedBox(
-          fit: BoxFit.scaleDown,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(label, style: FlowType.label),
-              const SizedBox(height: 1),
-              SizedBox(height: 27, child: Center(child: child)),
-            ],
+    child: LayoutBuilder(
+      builder: (context, box) {
+        final plate = ConstrainedBox(
+          // As tall as its row; never narrower than its corners.
+          constraints: BoxConstraints(
+            minWidth: 72,
+            minHeight: box.maxHeight,
+            maxHeight: box.maxHeight,
           ),
-        ),
-      ),
+          child: FlowArtPanel(
+            art: 'hud_level_header',
+            sliceByHeight: true,
+            slice: _plateSlice,
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 7),
+            child: Center(
+              widthFactor: 1,
+              // Large system text shrinks to fit instead of spilling.
+              child: FittedBox(fit: BoxFit.scaleDown, child: child),
+            ),
+          ),
+        );
+        return Center(
+          widthFactor: 1,
+          // With reduced motion the width changes at once (a zero-length
+          // AnimatedSize would re-dirty itself during layout).
+          child: MediaQuery.disableAnimationsOf(context)
+              ? plate
+              : AnimatedSize(
+                  duration: const Duration(milliseconds: 220),
+                  curve: Curves.easeOutCubic,
+                  child: plate,
+                ),
+        );
+      },
     ),
+  );
+}
+
+/// A small label on top, the value centred below it.
+class _Stat extends StatelessWidget {
+  const _Stat({required this.label, required this.child});
+  final String label;
+  final Widget child;
+  @override
+  Widget build(BuildContext context) => Column(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Text(label, style: FlowType.label),
+      const SizedBox(height: 1),
+      SizedBox(height: 27, child: Center(widthFactor: 1, child: child)),
+    ],
   );
 }
