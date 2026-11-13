@@ -403,11 +403,12 @@ class _FlowGameScreenState extends State<FlowGameScreen>
                               ),
                             );
                           }
-                          final hudHeight =
-                              (box.maxWidth * .28).clamp(58.0, 106.0) + 100;
+                          // 1.60: the compact top (≈146) and tool bar (≈80)
+                          // leave the board most of the screen.
+                          const hudHeight = 152.0;
                           final boardSize = math.min(
-                            box.maxWidth - 20,
-                            box.maxHeight - hudHeight - 132,
+                            box.maxWidth - 12,
+                            box.maxHeight - hudHeight - 100,
                           );
                           return Padding(
                             padding: const EdgeInsets.fromLTRB(8, 4, 8, 6),

@@ -190,25 +190,22 @@ class _FlowPreparationScreenState extends State<FlowPreparationScreen> {
     return WorldTheme(
       child: FlowOverlay(
         blur: true,
+        // 1.60: a compact start card — live text in Finora Potok, moves and
+        // goals on one plate, boosters on small tiles that hold their icons.
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Row(
               children: [
+                const SizedBox(width: 48),
                 Expanded(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Flexible(
-                        child: FlowSprite(
-                          'hud_level_label',
-                          width: 130,
-                          height: 30,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Flexible(child: FlowNumber(level.id, size: 30)),
-                    ],
+                  child: Semantics(
+                    header: true,
+                    child: Text(
+                      'Уровень ${level.id}',
+                      textAlign: TextAlign.center,
+                      style: flowText(22),
+                    ),
                   ),
                 ),
                 FlowArtButton(
@@ -218,51 +215,95 @@ class _FlowPreparationScreenState extends State<FlowPreparationScreen> {
                   onPressed: _busy ? null : () => Navigator.maybePop(context),
                   width: 48,
                   height: 48,
+                  visualSize: 36,
                   child: const Icon(
                     Icons.close_rounded,
                     color: flowInk,
-                    size: 25,
+                    size: 20,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 12),
-            FlowArtPanel(
-              art: 'out_of_moves_button_restart_base',
-              padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 10),
+            const SizedBox(height: 10),
+            FlowPearl(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Flexible(
-                    child: FlowSprite(
-                      'prelevel_label_moves',
-                      width: 94,
-                      height: 22,
+                  Semantics(
+                    label: 'Ходы: ${level.moves}',
+                    excludeSemantics: true,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'ХОДЫ',
+                          style: flowText(
+                            10,
+                            color: flowInk.withValues(alpha: .6),
+                          ).copyWith(letterSpacing: .8),
+                        ),
+                        SizedBox(
+                          height: 26,
+                          child: FlowNumber(level.moves, size: 24),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  Flexible(child: FlowNumber(level.moves, size: 24)),
+                  Container(
+                    width: 1,
+                    height: 32,
+                    margin: const EdgeInsets.symmetric(horizontal: 14),
+                    color: const Color(0xFFE3C9A0),
+                  ),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'ЦЕЛИ УРОВНЯ',
+                          style: flowText(
+                            10,
+                            color: flowInk.withValues(alpha: .6),
+                          ).copyWith(letterSpacing: .8),
+                        ),
+                        const SizedBox(height: 2),
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.centerLeft,
+                          child: Row(
+                            children: [
+                              for (final goal in level.goals)
+                                Semantics(
+                                  label: '${goal.title}: ${goal.target}',
+                                  excludeSemantics: true,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(right: 12),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        FlowGoalIcon(goal.key, size: 30),
+                                        const SizedBox(width: 4),
+                                        FlowNumber(goal.target, size: 18),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 14),
             Semantics(
               header: true,
-              label: 'Цели уровня',
-              child: const FlowSprite('prelevel_label_goals', height: 26),
+              child: Text('Усилители', style: flowText(15)),
             ),
-            const SizedBox(height: 10),
-            FlowGoals(goals: level.goals, iconSize: 58),
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 14),
-              child: Divider(color: Color(0xFFD4B592), height: 1),
-            ),
-            Semantics(
-              header: true,
-              label: 'Усилители',
-              child: const FlowSprite('prelevel_label_boosters', height: 26),
-            ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 8),
             Row(
               children: [
                 for (final tool in const [
@@ -272,70 +313,24 @@ class _FlowPreparationScreenState extends State<FlowPreparationScreen> {
                 ])
                   Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 3),
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
                       child: Semantics(
                         selected: _tools.contains(tool),
-                        child: Stack(
-                          children: [
-                            const Positioned.fill(
-                              child: FlowSprite(
-                                'booster_slot',
-                                fit: BoxFit.fill,
-                              ),
-                            ),
-                            if (_tools.contains(tool))
-                              Positioned.fill(
-                                child: DecoratedBox(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(16),
-                                    border: Border.all(
-                                      color: const Color(0xFF4BCDA8),
-                                      width: 2,
-                                    ),
+                        child: SizedBox(
+                          height: 64,
+                          child: FlowToolTile(
+                            tool: tool,
+                            stock: flow.available(tool),
+                            selected: _tools.contains(tool),
+                            buttonKey: ValueKey('flow-prelevel-${tool.name}'),
+                            onPressed: _busy || flow.available(tool) == 0
+                                ? null
+                                : () => setState(
+                                    () => _tools.contains(tool)
+                                        ? _tools.remove(tool)
+                                        : _tools.add(tool),
                                   ),
-                                ),
-                              ),
-                            Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                FlowArtButton(
-                                  key: ValueKey('flow-prelevel-${tool.name}'),
-                                  art: flowToolArt(tool),
-                                  label:
-                                      '${flowToolName(tool)}, запас ${flow.available(tool)}',
-                                  onPressed: _busy || flow.available(tool) == 0
-                                      ? null
-                                      : () => setState(
-                                          () => _tools.contains(tool)
-                                              ? _tools.remove(tool)
-                                              : _tools.add(tool),
-                                        ),
-                                  height: 64,
-                                  width: 72,
-                                ),
-                                SizedBox(
-                                  height: 24,
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Flexible(
-                                        child: FlowNumber(
-                                          flow.available(tool),
-                                          size: 16,
-                                        ),
-                                      ),
-                                      if (_tools.contains(tool))
-                                        const Icon(
-                                          Icons.check_circle_rounded,
-                                          color: Color(0xFF27896C),
-                                          size: 19,
-                                        ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
+                          ),
                         ),
                       ),
                     ),
@@ -343,40 +338,40 @@ class _FlowPreparationScreenState extends State<FlowPreparationScreen> {
               ],
             ),
             if (_tools.contains(FlowTool.bomb))
-              const Padding(
-                padding: EdgeInsets.only(top: 8),
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
                 child: Text(
                   'Бомба сработает в центре поля',
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: flowInk, fontSize: 13),
+                  style: flowText(12, bold: false),
                 ),
               ),
             const SizedBox(height: 14),
             FlowArtButton(
               key: const ValueKey('flow-start'),
               art: 'victory_button_primary_base',
-              labelArt: 'prelevel_label_play',
               label: _busy ? 'Сохраняем' : 'Играть',
               onPressed: _busy ? null : _start,
               width: double.infinity,
-              height: 60,
+              height: 50,
+              child: Text(_busy ? 'Сохраняем' : 'Играть', style: flowText(19)),
             ),
             if (_busy) const LinearProgressIndicator(),
-            const SizedBox(height: 8),
+            const SizedBox(height: 10),
             Text(
               received
                   ? 'Награда первого прохождения уже получена'
                   : 'Первое прохождение: ${reward.xp} опыта и ${reward.sparks} искр',
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 12, color: flowInk),
+              style: flowText(12, color: flowInk.withValues(alpha: .75)),
             ),
             if (level.tutorial.isNotEmpty)
               Padding(
-                padding: const EdgeInsets.only(top: 8),
+                padding: const EdgeInsets.only(top: 6),
                 child: Text(
                   level.tutorial,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 12, color: flowInk),
+                  style: flowText(12, bold: false),
                 ),
               ),
           ],

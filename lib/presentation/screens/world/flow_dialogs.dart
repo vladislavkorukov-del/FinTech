@@ -44,14 +44,15 @@ class FlowOverlay extends StatelessWidget {
                   horizontal: 14,
                   vertical: 12,
                 ),
+                // 1.60: a compact card, never wider than 360.
                 child: SizedBox(
                   width: math.min(
-                    430,
-                    box.maxWidth * (box.maxWidth < 360 ? .90 : .84),
+                    360,
+                    box.maxWidth * (box.maxWidth < 360 ? .92 : .82),
                   ),
                   child: FlowArtPanel(
                     art: art,
-                    padding: const EdgeInsets.fromLTRB(20, 22, 20, 20),
+                    padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
                     child: child,
                   ),
                 ),
@@ -86,16 +87,16 @@ class FlowPauseContent extends StatelessWidget {
       Semantics(
         header: true,
         label: 'Пауза',
-        child: const FlowSprite('pause_title', height: 36),
+        child: const FlowSprite('pause_title', height: 30),
       ),
-      const SizedBox(height: 18),
+      const SizedBox(height: 12),
       FlowArtButton(
         key: const ValueKey('flow-pause-continue'),
         art: 'pause_button_continue',
         label: 'Продолжить',
         onPressed: busy ? null : onContinue,
         width: double.infinity,
-        height: 56,
+        height: 50,
       ),
       const SizedBox(height: 10),
       FlowArtButton(
@@ -104,7 +105,7 @@ class FlowPauseContent extends StatelessWidget {
         label: 'Заново',
         onPressed: busy ? null : onRestart,
         width: double.infinity,
-        height: 56,
+        height: 50,
       ),
       const SizedBox(height: 10),
       FlowArtButton(
@@ -113,9 +114,9 @@ class FlowPauseContent extends StatelessWidget {
         label: 'Выйти',
         onPressed: busy ? null : onExit,
         width: double.infinity,
-        height: 56,
+        height: 50,
       ),
-      const SizedBox(height: 16),
+      const SizedBox(height: 12),
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
@@ -167,7 +168,7 @@ class FlowVictoryContent extends StatelessWidget {
       Semantics(
         header: true,
         label: 'Уровень пройден!',
-        child: const FlowSprite('victory_title', height: 60),
+        child: const FlowSprite('victory_title', height: 46),
       ),
       const SizedBox(height: 10),
       Semantics(
@@ -183,8 +184,8 @@ class FlowVictoryContent extends StatelessWidget {
                   i < session.stars(level)
                       ? 'victory_star_earned'
                       : 'victory_star_empty',
-                  width: i == 1 ? 64 : 52,
-                  height: i == 1 ? 64 : 52,
+                  width: i == 1 ? 52 : 42,
+                  height: i == 1 ? 52 : 42,
                 ),
               ),
           ],
@@ -193,23 +194,23 @@ class FlowVictoryContent extends StatelessWidget {
       const SizedBox(height: 12),
       Semantics(
         label: 'Очки',
-        child: const FlowLabel('victory_label_score', capitalHeight: 16),
+        child: const FlowLabel('victory_label_score', capitalHeight: 13),
       ),
-      SizedBox(height: 42, child: FlowNumber(session.score, size: 30)),
+      SizedBox(height: 32, child: FlowNumber(session.score, size: 24)),
       const SizedBox(height: 8),
       Semantics(
         label: 'Награда',
-        child: const FlowLabel('victory_label_reward', capitalHeight: 16),
+        child: const FlowLabel('victory_label_reward', capitalHeight: 13),
       ),
       Semantics(
         label: 'Награда: $reward игровых искр',
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const FlowSprite('victory_reward_coin', width: 38, height: 38),
+            const FlowSprite('victory_reward_coin', width: 30, height: 30),
             const SizedBox(width: 8),
             Flexible(
-              child: SizedBox(height: 42, child: FlowNumber(reward, size: 30)),
+              child: SizedBox(height: 32, child: FlowNumber(reward, size: 24)),
             ),
           ],
         ),
@@ -217,18 +218,19 @@ class FlowVictoryContent extends StatelessWidget {
       if (reward == 0)
         const Text(
           'Награда уже получена',
-          style: TextStyle(fontSize: 13, color: flowInk),
+          style: TextStyle(fontSize: 12, color: flowInk),
         ),
-      const SizedBox(height: 16),
+      const SizedBox(height: 12),
       if (onNext != null) ...[
         FlowArtButton(
           key: const ValueKey('flow-next'),
           art: 'victory_button_primary_base',
-          labelArt: 'victory_label_next',
           label: 'Следующий уровень',
           onPressed: busy ? null : onNext,
           width: double.infinity,
-          height: 56,
+          height: 50,
+          // 1.60: live text in Finora Potok, like every button in the game.
+          child: Text('Дальше', style: flowText(17)),
         ),
         const SizedBox(height: 8),
       ] else
@@ -236,22 +238,29 @@ class FlowVictoryContent extends StatelessWidget {
       FlowArtButton(
         key: const ValueKey('flow-map'),
         art: 'victory_button_secondary_base',
-        labelArt: 'victory_label_levels',
         label: 'К уровням',
         onPressed: busy ? null : onLevels,
         width: double.infinity,
-        height: 56,
+        height: 50,
+        // 1.60: live text in Finora Potok, like every button in the game.
+        child: Text('К уровням', style: flowText(17)),
       ),
       TextButton(
         key: const ValueKey('flow-replay'),
         onPressed: busy ? null : onReplay,
-        child: const Text('Повторить уровень'),
+        child: Text(
+          'Повторить уровень',
+          style: flowText(14, color: const Color(0xFF27896C)),
+        ),
       ),
       if (onExitWorld != null)
         TextButton(
           key: const ValueKey('flow-exit-world'),
           onPressed: busy ? null : onExitWorld,
-          child: const Text('В Мир Финоры'),
+          child: Text(
+            'В Мир Финоры',
+            style: flowText(14, color: const Color(0xFF27896C)),
+          ),
         ),
     ],
   );
@@ -281,12 +290,12 @@ class FlowLossContent extends StatelessWidget {
       Semantics(
         header: true,
         label: 'Закончились ходы',
-        child: const FlowSprite('out_of_moves_title', height: 62),
+        child: const FlowSprite('out_of_moves_title', height: 46),
       ),
-      const SizedBox(height: 16),
+      const SizedBox(height: 12),
       Semantics(
         label: 'Осталось собрать',
-        child: const FlowSprite('out_of_moves_label_remaining', height: 22),
+        child: const FlowSprite('out_of_moves_label_remaining', height: 18),
       ),
       const SizedBox(height: 12),
       FlowGoals(
@@ -297,39 +306,42 @@ class FlowLossContent extends StatelessWidget {
         remaining: true,
         iconSize: 58,
       ),
-      const SizedBox(height: 16),
+      const SizedBox(height: 12),
       FlowArtButton(
         key: const ValueKey('flow-extra-moves'),
         art: 'out_of_moves_button_primary_base',
-        labelArt: 'out_of_moves_label_extra_moves',
         label: 'Ещё 5 ходов, запас $stock',
         onPressed: busy ? null : onExtraMoves,
         width: double.infinity,
-        height: 56,
+        height: 50,
+        // 1.60: live text in Finora Potok, like every button in the game.
+        child: Text('Ещё 5 ходов', style: flowText(17)),
       ),
       Text(
         'Запас: $stock',
-        style: const TextStyle(fontSize: 13, color: flowInk),
+        style: const TextStyle(fontSize: 12, color: flowInk),
       ),
       const SizedBox(height: 8),
       FlowArtButton(
         key: const ValueKey('flow-replay'),
         art: 'out_of_moves_button_restart_base',
-        labelArt: 'out_of_moves_label_restart',
         label: 'Заново',
         onPressed: busy ? null : onRestart,
         width: double.infinity,
-        height: 56,
+        height: 50,
+        // 1.60: live text in Finora Potok, like every button in the game.
+        child: Text('Заново', style: flowText(17)),
       ),
       const SizedBox(height: 8),
       FlowArtButton(
         key: const ValueKey('flow-map'),
         art: 'out_of_moves_button_levels_base',
-        labelArt: 'out_of_moves_label_levels',
         label: 'К уровням',
         onPressed: busy ? null : onLevels,
         width: double.infinity,
-        height: 56,
+        height: 50,
+        // 1.60: live text in Finora Potok, like every button in the game.
+        child: Text('К уровням', style: flowText(17)),
       ),
     ],
   );

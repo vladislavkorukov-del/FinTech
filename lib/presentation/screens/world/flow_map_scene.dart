@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import '../../../domain/flow/flow.dart';
 import '../../l10n_widgets.dart';
 import 'flow_art.dart';
+import 'flow_hud.dart' show FlowPearl, flowText;
 import 'world_art.dart';
 
 /// The supplied terraces and the live nodes share one world coordinate system.
@@ -172,7 +173,8 @@ class _FlowTerraceMapState extends State<FlowTerraceMap> {
                 width - media.padding.horizontal - 24,
                 500.0,
               );
-              final headerHeight = math.max(56.0, headerWidth * 165 / 982);
+              // 1.60: a slim header, like the level's top bar.
+              const headerHeight = 52.0;
               final top = _topId;
               final lastY = widget.levels.fold<double>(
                 0,
@@ -545,26 +547,21 @@ class _TerraceNode extends StatelessWidget {
 class _MapHeader extends StatelessWidget {
   const _MapHeader({required this.onBack});
   final VoidCallback onBack;
+
+  /// 1.60: the same compact pearl bar as the level screen — a back button
+  /// and the live title «Уровни» in Finora Potok.
   @override
-  Widget build(BuildContext context) => LayoutBuilder(
-    builder: (context, box) => Stack(
-      key: const ValueKey('flow-map-header'),
+  Widget build(BuildContext context) => FlowPearl(
+    key: const ValueKey('flow-map-header'),
+    padding: EdgeInsets.zero,
+    child: Stack(
       alignment: Alignment.center,
       children: [
-        Positioned.fill(
-          child: FlowSprite(
-            'map_header_base',
-            width: box.maxWidth,
-            height: box.maxHeight,
-          ),
-        ),
-        FlowSprite(
-          'map_label_levels',
-          width: box.maxWidth * .32,
-          height: box.maxHeight * .64,
-        ),
+        Semantics(header: true, child: Text('Уровни', style: flowText(18))),
         Positioned(
-          left: 2,
+          left: 0,
+          top: 0,
+          bottom: 0,
           child: Semantics(
             button: true,
             label: 'Назад к играм',
@@ -573,16 +570,12 @@ class _MapHeader extends StatelessWidget {
               child: InkWell(
                 key: const ValueKey('flow-map-back'),
                 onTap: onBack,
-                borderRadius: BorderRadius.circular(18),
-                child: SizedBox(
+                customBorder: const CircleBorder(),
+                child: const SizedBox(
                   width: 48,
-                  height: math.max(48, box.maxHeight),
+                  height: 48,
                   child: Center(
-                    child: FlowSprite(
-                      'map_button_back',
-                      width: math.min(42, box.maxWidth * 66 / 676),
-                      height: math.min(42, box.maxWidth * 66 / 676),
-                    ),
+                    child: FlowSprite('map_button_back', width: 34, height: 34),
                   ),
                 ),
               ),
