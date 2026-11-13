@@ -169,15 +169,20 @@ class FlowArtPanel extends StatelessWidget {
     required this.child,
     this.art = 'out_of_moves_panel_base',
     this.padding = const EdgeInsets.all(20),
+    this.sliceByHeight = false,
   });
   final Widget child;
   final String art;
   final EdgeInsetsGeometry padding;
 
+  /// Scale the corners and rim by the panel's height instead of its width,
+  /// so plates of one height match whatever their widths.
+  final bool sliceByHeight;
+
   @override
   Widget build(BuildContext context) => Stack(
     children: [
-      Positioned.fill(child: _NineSliceArt(art)),
+      Positioned.fill(child: _NineSliceArt(art, byHeight: sliceByHeight)),
       Padding(padding: padding, child: child),
     ],
   );
@@ -292,8 +297,9 @@ class FlowArtButton extends StatelessWidget {
 }
 
 class _NineSliceArt extends StatelessWidget {
-  const _NineSliceArt(this.id);
+  const _NineSliceArt(this.id, {this.byHeight = false});
   final String id;
+  final bool byHeight;
   @override
   Widget build(BuildContext context) => LayoutBuilder(
     builder: (context, constraints) {
@@ -314,6 +320,7 @@ class _NineSliceArt extends StatelessWidget {
         fit: BoxFit.fill,
         cacheWidth: cacheWidth,
         nineSlice: true,
+        byHeight: byHeight,
       );
     },
   );
@@ -326,9 +333,10 @@ class _FlowImage extends StatefulWidget {
     required this.fit,
     required this.cacheWidth,
     this.nineSlice = false,
+    this.byHeight = false,
   });
   final FlowAssetInfo asset;
-  final bool trim, nineSlice;
+  final bool trim, nineSlice, byHeight;
   final BoxFit fit;
   final int cacheWidth;
   @override
@@ -406,6 +414,7 @@ class _FlowImageState extends State<_FlowImage> {
         widget.trim,
         widget.fit,
         widget.nineSlice,
+        widget.byHeight,
       ),
     ),
   );
@@ -418,10 +427,11 @@ class _FlowImagePainter extends CustomPainter {
     this.trim,
     this.fit,
     this.nineSlice,
+    this.byHeight,
   );
   final ui.Image? image;
   final FlowAssetInfo asset;
-  final bool trim, nineSlice;
+  final bool trim, nineSlice, byHeight;
   final BoxFit fit;
   @override
   void paint(Canvas canvas, Size size) {
@@ -442,7 +452,10 @@ class _FlowImagePainter extends CustomPainter {
     if (nineSlice && slice != null) {
       paint.isAntiAlias = false;
       final center = FlowAssetInfo._rect(slice);
-      final scale = size.width / raw.width;
+      var scale = byHeight ? size.height / raw.height : size.width / raw.width;
+      // Corners never overlap across a narrow plate.
+      final sides = (center.left - raw.left) + (raw.right - center.right);
+      if (sides * scale > size.width) scale = size.width / sides;
       var top = (center.top - raw.top) * scale;
       var bottom = (raw.bottom - center.bottom) * scale;
       if (top + bottom > size.height) {
@@ -486,5 +499,6 @@ class _FlowImagePainter extends CustomPainter {
       oldDelegate.asset != asset ||
       oldDelegate.trim != trim ||
       oldDelegate.fit != fit ||
-      oldDelegate.nineSlice != nineSlice;
+      oldDelegate.nineSlice != nineSlice ||
+      oldDelegate.byHeight != byHeight;
 }

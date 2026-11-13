@@ -269,6 +269,10 @@ class FlowTopHud extends StatelessWidget {
   final VoidCallback? onPause;
 
   static const _row = 48.0, _plate = 60.0, _score = 30.0, _spacing = 6.0;
+  static const _value = 21.0;
+
+  int _left(FlowGoal goal) =>
+      math.max(0, goal.target - (session.progress[goal.key] ?? 0));
 
   /// The HUD's full height (it no longer depends on the width).
   static double heightFor(double width) =>
@@ -292,6 +296,7 @@ class FlowTopHud extends StatelessWidget {
                 excludeSemantics: true,
                 child: FlowArtPanel(
                   art: 'hud_level_header',
+                  sliceByHeight: true,
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Center(
                     child: FittedBox(
@@ -319,86 +324,45 @@ class FlowTopHud extends StatelessWidget {
         ),
       ),
       const SizedBox(height: _spacing),
+      // 1.64: two matching plates — the same small label on top, the
+      // value centred below it, numbers at one size and baseline.
       SizedBox(
         height: _plate,
-        child: FlowArtPanel(
-          art: 'hud_level_header',
-          padding: const EdgeInsets.fromLTRB(16, 9, 12, 9),
-          child: Row(
-            children: [
-              Semantics(
-                label: 'Ходы: ${session.remainingMoves}',
-                excludeSemantics: true,
-                child: SizedBox(
-                  key: const ValueKey('flow-hud-moves'),
-                  width: 54,
-                  // Large system text shrinks to fit instead of spilling.
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text('ХОДЫ', style: FlowType.label),
-                        SizedBox(
-                          height: 28,
-                          child: FlowBump(session.remainingMoves, size: 24),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+        child: Row(
+          children: [
+            SizedBox(
+              // Wide enough for the plate's corners at this height.
+              width: 128,
+              child: _StatPlate(
+                key: const ValueKey('flow-hud-moves'),
+                label: 'ХОДЫ',
+                semantics: 'Ходы: ${session.remainingMoves}',
+                child: FlowBump(session.remainingMoves, size: _value),
               ),
-              Container(
-                width: 1,
-                height: 30,
-                margin: const EdgeInsets.symmetric(horizontal: 10),
-                color: const Color(0xFFE3C9A0),
-              ),
-              Text(
-                'ЦЕЛИ',
-                textScaler: MediaQuery.textScalerOf(
-                  context,
-                ).clamp(maxScaleFactor: 1.3),
-                style: FlowType.label,
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: FittedBox(
-                  key: const ValueKey('flow-hud-goals'),
-                  fit: BoxFit.scaleDown,
-                  alignment: Alignment.centerLeft,
-                  child: Row(
-                    children: [
-                      for (final goal in level.goals)
-                        Builder(
-                          builder: (context) {
-                            final left = math.max(
-                              0,
-                              goal.target - (session.progress[goal.key] ?? 0),
-                            );
-                            return Semantics(
-                              label: '${goal.title}: $left',
-                              excludeSemantics: true,
-                              child: Padding(
-                                padding: const EdgeInsets.only(right: 12),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    FlowGoalIcon(goal.key, size: 32),
-                                    const SizedBox(width: 4),
-                                    FlowBump(left, size: 19),
-                                  ],
-                                ),
-                              ),
-                            );
-                          },
-                        ),
+            ),
+            const SizedBox(width: 6),
+            Expanded(
+              child: _StatPlate(
+                key: const ValueKey('flow-hud-goals'),
+                label: 'ЦЕЛИ',
+                semantics: [
+                  for (final goal in level.goals)
+                    '${goal.title}: ${_left(goal)}',
+                ].join(', '),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    for (final (i, goal) in level.goals.indexed) ...[
+                      if (i > 0) const SizedBox(width: 14),
+                      FlowGoalIcon(goal.key, size: _value + 4),
+                      const SizedBox(width: 4),
+                      FlowBump(_left(goal), size: _value),
                     ],
-                  ),
+                  ],
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
       const SizedBox(height: _spacing),
@@ -435,5 +399,41 @@ class FlowTopHud extends StatelessWidget {
         ),
       ),
     ],
+  );
+}
+
+/// One HUD plate: a small label on top, the value centred below it.
+class _StatPlate extends StatelessWidget {
+  const _StatPlate({
+    super.key,
+    required this.label,
+    required this.semantics,
+    required this.child,
+  });
+  final String label, semantics;
+  final Widget child;
+  @override
+  Widget build(BuildContext context) => Semantics(
+    label: semantics,
+    excludeSemantics: true,
+    child: FlowArtPanel(
+      art: 'hud_level_header',
+      sliceByHeight: true,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+      child: Center(
+        // Large system text shrinks to fit instead of spilling.
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(label, style: FlowType.label),
+              const SizedBox(height: 1),
+              SizedBox(height: 27, child: Center(child: child)),
+            ],
+          ),
+        ),
+      ),
+    ),
   );
 }
