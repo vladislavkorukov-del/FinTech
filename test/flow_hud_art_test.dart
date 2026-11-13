@@ -327,6 +327,11 @@ void main() {
     expect(widths['moves']![1], greaterThan(widths['moves']![0] + 20));
     expect(widths['goals']![0], widths['goals']![1]);
     expect(widths['goals']![0], lessThan(200));
+    // The progress track is centred under the plates.
+    expect(
+      tester.getCenter(find.byKey(const ValueKey('flow-hud-track'))).dx,
+      closeTo(tester.getCenter(find.byType(FlowTopHud)).dx, .5),
+    );
     await tester.pumpWidget(const SizedBox.shrink());
   });
 }

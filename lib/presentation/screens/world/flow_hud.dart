@@ -362,34 +362,44 @@ class FlowTopHud extends StatelessWidget {
       const SizedBox(height: _spacing),
       SizedBox(
         height: _score,
-        child: Row(
-          children: [
-            SizedBox(
-              width: 60,
-              child: Semantics(
-                label: 'Счёт: ${session.score}',
-                excludeSemantics: true,
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: FlowCountUp(session.score, size: 16),
+        // 1.65: the track is centred like the plates above; the score sits
+        // just left of it, balanced by equal space on the right.
+        child: LayoutBuilder(
+          builder: (context, box) {
+            final track = math.min(240.0, box.maxWidth - 2 * 76);
+            return Row(
+              children: [
+                Expanded(
+                  child: Semantics(
+                    label: 'Счёт: ${session.score}',
+                    excludeSemantics: true,
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: FlowCountUp(session.score, size: 16),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            const SizedBox(width: 6),
-            Expanded(
-              child: TweenAnimationBuilder<double>(
-                tween: Tween(end: session.score.toDouble()),
-                duration: MediaQuery.disableAnimationsOf(context)
-                    ? Duration.zero
-                    : const Duration(milliseconds: 620),
-                curve: Curves.easeOutCubic,
-                builder: (context, score, _) => FlowScoreTrack(
-                  score: score.round(),
-                  thresholds: level.scoreThresholds,
+                const SizedBox(width: 8),
+                SizedBox(
+                  key: const ValueKey('flow-hud-track'),
+                  width: track,
+                  child: TweenAnimationBuilder<double>(
+                    tween: Tween(end: session.score.toDouble()),
+                    duration: MediaQuery.disableAnimationsOf(context)
+                        ? Duration.zero
+                        : const Duration(milliseconds: 620),
+                    curve: Curves.easeOutCubic,
+                    builder: (context, score, _) => FlowScoreTrack(
+                      score: score.round(),
+                      thresholds: level.scoreThresholds,
+                    ),
+                  ),
                 ),
-              ),
-            ),
-          ],
+                const SizedBox(width: 8),
+                const Spacer(),
+              ],
+            );
+          },
         ),
       ),
     ],
