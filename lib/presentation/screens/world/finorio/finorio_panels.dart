@@ -276,7 +276,7 @@ class FinBuildBar extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             SizedBox(
-              height: 78,
+              height: 96,
               // Eight tiles: built at once (no lazy list) and scrolled.
               child: SingleChildScrollView(
                 key: const ValueKey('finorio-palette'),
@@ -294,6 +294,8 @@ class FinBuildBar extends StatelessWidget {
                               state.tool == FinTool.build &&
                               state.building == kind,
                           onTap: () => _setTool(FinTool.build, kind),
+                          onInfo: () =>
+                              showFinorioBuildingInfo(context, state, kind),
                         ),
                   ],
                 ),
@@ -379,11 +381,12 @@ class _BuildingTile extends StatelessWidget {
     required this.affordable,
     required this.selected,
     required this.onTap,
+    required this.onInfo,
   });
   final FinBuilding kind;
   final int count;
   final bool affordable, selected;
-  final VoidCallback onTap;
+  final VoidCallback onTap, onInfo;
   @override
   Widget build(BuildContext context) => Semantics(
     button: true,
@@ -395,10 +398,14 @@ class _BuildingTile extends StatelessWidget {
             ? 'из материалов'
             : 'нет материалов'}',
     excludeSemantics: true,
+    onLongPress: onInfo,
+    onLongPressHint: 'описание',
     child: GestureDetector(
       onTap: onTap,
+      // Holding a tile tells what it is, what it costs and what it does.
+      onLongPress: onInfo,
       child: Container(
-        width: 72,
+        width: 76,
         margin: const EdgeInsets.symmetric(horizontal: 3),
         padding: const EdgeInsets.all(4),
         decoration: BoxDecoration(
@@ -416,6 +423,12 @@ class _BuildingTile extends StatelessWidget {
           child: Column(
             children: [
               Expanded(child: FinBuildingIcon(kind)),
+              Text(
+                FinNames.short(kind),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontSize: 11, height: 1.1),
+              ),
               Text(
                 count > 0 ? '×$count' : (affordable ? 'из мат.' : '—'),
                 style: const TextStyle(

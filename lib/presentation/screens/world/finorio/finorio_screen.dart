@@ -11,6 +11,7 @@ import '../../../l10n_widgets.dart';
 import 'finorio_art.dart';
 import 'finorio_names.dart';
 import 'finorio_painter.dart';
+import 'finorio_fx.dart';
 import 'finorio_inspector.dart';
 import 'finorio_panels.dart';
 import 'finorio_sheets.dart';
@@ -41,6 +42,7 @@ class FinorioScreenState extends State<FinorioScreen>
   FinCamera? _camera;
   FinTerrainCache? _cache;
   final overlay = FinOverlay();
+  final _fx = FinFx();
 
   late final Ticker _ticker = createTicker(_onFrame);
   Duration _last = Duration.zero;
@@ -138,6 +140,12 @@ class FinorioScreenState extends State<FinorioScreen>
       _acc -= FinRules.tickMs;
       steps++;
     }
+    _fx.step(
+      w,
+      elapsed.inMicroseconds / 1e6,
+      dt / 1000,
+      enabled: !MediaQuery.disableAnimationsOf(context),
+    );
     if (steps > 0) {
       ticks.value++;
       if (w.tick % 10 < steps) _claimRewards();
@@ -443,6 +451,7 @@ class FinorioScreenState extends State<FinorioScreen>
                               FinRules.ticksPerSecond,
                           alpha: () => running ? _acc / FinRules.tickMs : 0,
                           repaint: frame,
+                          fx: _fx,
                         ),
                       ),
                     ),

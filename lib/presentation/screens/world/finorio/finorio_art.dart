@@ -530,3 +530,45 @@ Offset beltPoint(FinMachine b, int from, double s) {
   final a = a0 + da * s; // s = 0 at the entry edge, 1 at the exit
   return corner + Offset(math.cos(a), math.sin(a)) * .5;
 }
+
+/// A short piece of belt reaching from [b] into the building next to it
+/// (towards [side]), drawn under that building so its port and the belt
+/// meet without a gap.
+void paintBeltStub(Canvas c, FinMachine b, int side) {
+  final nx = b.x + FinDir.dx[side], ny = b.y + FinDir.dy[side];
+  final cell = Rect.fromLTWH(nx.toDouble(), ny.toDouble(), 1, 1);
+  const depth = .2;
+  final clip = switch (side) {
+    0 => Rect.fromLTWH(cell.left, cell.bottom - depth, 1, depth),
+    1 => Rect.fromLTWH(cell.left, cell.top, depth, 1),
+    2 => Rect.fromLTWH(cell.left, cell.top, 1, depth),
+    _ => Rect.fromLTWH(cell.right - depth, cell.top, depth, 1),
+  };
+  final fast = b.kind == FinBuilding.fastBelt;
+  final art =
+      FinSpriteBank.current?[fast ? 'fast_belt_straight' : 'belt_straight'];
+  c.save();
+  c.clipRect(clip);
+  if (art != null) {
+    _sprite(c, art, cell, angle: (side - 1) * math.pi / 2);
+  } else {
+    final horizontal = side == 1 || side == 3;
+    c.drawRect(
+      horizontal
+          ? cell.deflate(.1).copyWith(left: cell.left, right: cell.right)
+          : cell.deflate(.1).copyWith(top: cell.top, bottom: cell.bottom),
+      Paint()..color = fast ? const Color(0xFF3E6F73) : FinPalette.belt,
+    );
+  }
+  c.restore();
+}
+
+extension on Rect {
+  Rect copyWith({double? left, double? top, double? right, double? bottom}) =>
+      Rect.fromLTRB(
+        left ?? this.left,
+        top ?? this.top,
+        right ?? this.right,
+        bottom ?? this.bottom,
+      );
+}

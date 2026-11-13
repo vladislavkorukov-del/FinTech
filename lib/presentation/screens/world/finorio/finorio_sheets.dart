@@ -34,13 +34,19 @@ Future<void> showFinorioInventory(
           for (final k in FinBuilding.values)
             if ((w.kits[k] ?? 0) > 0)
               ListTile(
-                dense: true,
+                key: ValueKey('finorio-inventory-${k.name}'),
                 leading: SizedBox.square(
-                  dimension: 32,
+                  dimension: 40,
                   child: FinBuildingIcon(k),
                 ),
                 title: Text(FinNames.building(k)),
-                trailing: Text('${w.kits[k]}'),
+                subtitle: Text(
+                  FinNames.buildingAbout(k),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                trailing: Text('×${w.kits[k]}'),
+                onTap: () => showFinorioBuildingInfo(context, state, k),
               ),
           const SizedBox(height: 8),
           const Text(
@@ -54,10 +60,11 @@ Future<void> showFinorioInventory(
             ),
           for (final e in w.inventory.entries)
             ListTile(
-              dense: true,
-              leading: FinItemIcon(e.key, size: 26),
+              key: ValueKey('finorio-inventory-${e.key.name}'),
+              leading: FinItemIcon(e.key, size: 36),
               title: Text(FinNames.item(e.key)),
-              trailing: Text('${e.value}'),
+              subtitle: Text(FinNames.itemAbout(e.key)),
+              trailing: Text('×${e.value}'),
             ),
         ],
       ),
@@ -251,6 +258,135 @@ Future<String?> showFinorioMenu(
             onPressed: () => Navigator.pop(context),
             child: const Text('Продолжить'),
           ),
+        ],
+      ),
+    ),
+  );
+}
+
+/// What a building is: its picture, description, cost, power and recipes.
+Future<void> showFinorioBuildingInfo(
+  BuildContext context,
+  FinorioScreenState state,
+  FinBuilding kind,
+) {
+  final w = state.world!;
+  final spec = FinConfig.specs[kind]!;
+  final recipes = FinConfig.recipesFor(kind);
+  Widget row(String a, Widget b) => Padding(
+    padding: const EdgeInsets.symmetric(vertical: 4),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: 110,
+          child: Text(
+            a,
+            style: TextStyle(fontSize: 13, color: _ink.withValues(alpha: .7)),
+          ),
+        ),
+        Expanded(child: b),
+      ],
+    ),
+  );
+  Widget items(Map<FinItem, int> m) => Wrap(
+    spacing: 10,
+    runSpacing: 4,
+    children: [
+      for (final e in m.entries)
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            FinItemIcon(e.key, size: 22),
+            const SizedBox(width: 4),
+            Text(
+              '${e.value} ${FinNames.item(e.key).toLowerCase()}',
+              style: const TextStyle(fontSize: 13),
+            ),
+          ],
+        ),
+    ],
+  );
+  return showModalBottomSheet(
+    context: context,
+    showDragHandle: true,
+    isScrollControlled: true,
+    builder: (context) => SafeArea(
+      child: ListView(
+        key: ValueKey('finorio-info-${kind.name}'),
+        shrinkWrap: true,
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+        children: [
+          Row(
+            children: [
+              SizedBox.square(dimension: 64, child: FinBuildingIcon(kind)),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      FinNames.building(kind),
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    Text(
+                      (w.kits[kind] ?? 0) > 0
+                          ? 'В наборе: ${w.kits[kind]}'
+                          : 'Строится из материалов',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: _ink.withValues(alpha: .7),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            FinNames.buildingAbout(kind),
+            style: const TextStyle(fontSize: 14, height: 1.35),
+          ),
+          const SizedBox(height: 10),
+          row('Стоимость', items(spec.cost)),
+          row(
+            'Энергия',
+            Text(
+              kind == FinBuilding.generator
+                  ? 'даёт до ${spec.power} ед.'
+                  : spec.power == 0
+                  ? 'не нужна'
+                  : '${spec.power} ед. при работе',
+              style: const TextStyle(fontSize: 13),
+            ),
+          ),
+          if (kind == FinBuilding.drill)
+            row(
+              'Добывает',
+              items({for (final i in FinConfig.deposits.values) i: 1}),
+            ),
+          for (final r in recipes)
+            row(
+              FinNames.recipe(r.id),
+              Row(
+                children: [
+                  Flexible(child: items(r.inputs)),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 6),
+                    child: Icon(Icons.arrow_forward_rounded, size: 16),
+                  ),
+                  FinItemIcon(r.output, size: 22),
+                  Text(
+                    ' за ${r.seconds.toStringAsFixed(0)} с',
+                    style: const TextStyle(fontSize: 13),
+                  ),
+                ],
+              ),
+            ),
         ],
       ),
     ),

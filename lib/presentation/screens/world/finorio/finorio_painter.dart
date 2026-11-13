@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../domain/finorio/finorio.dart';
 import 'finorio_art.dart';
+import 'finorio_fx.dart';
 import 'finorio_names.dart';
 
 /// The camera: where the view is centred (in cells) and its zoom.
@@ -67,6 +68,7 @@ class FinWorldPainter extends CustomPainter {
     required this.time,
     required this.alpha,
     required Listenable repaint,
+    this.fx,
   }) : super(repaint: repaint);
 
   final FinWorld world;
@@ -77,6 +79,20 @@ class FinWorldPainter extends CustomPainter {
   /// Seconds of simulated time (for motion) and the fraction of the next
   /// tick already elapsed (to glide items between ticks).
   final double Function() time, alpha;
+
+  /// Decorative motion (pops, sparks, breathing); none when null.
+  final FinFx? fx;
+
+  void _scaled(Canvas c, FinMachine m, void Function() draw) {
+    final s = fx?.scaleOf(m) ?? 1;
+    if (s == 1) return draw();
+    c.save();
+    c.translate(m.x + .5, m.y + .5);
+    c.scale(s);
+    c.translate(-(m.x + .5), -(m.y + .5));
+    draw();
+    c.restore();
+  }
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -168,11 +184,35 @@ class FinWorldPainter extends CustomPainter {
         (m.isBelt ? belts : others).add(m);
       }
     }
+    // Joins: a belt reaches under the building it feeds or is fed by.
     for (final b in belts) {
-      paintBelt(canvas, b, entrySide(world, b), t);
+      if (fx?.popping(b) ?? false) continue;
+      final front = world.machineAt(b.frontX, b.frontY);
+      if (front != null && !front.isBelt && !(fx?.popping(front) ?? false)) {
+        paintBeltStub(canvas, b, b.dir);
+      }
+      final from = entrySide(world, b);
+      final feeder = world.machineAt(
+        b.x + FinDir.dx[from],
+        b.y + FinDir.dy[from],
+      );
+      if (feeder != null &&
+          !feeder.isBelt &&
+          !(fx?.popping(feeder) ?? false) &&
+          feeder.frontX == b.x &&
+          feeder.frontY == b.y) {
+        paintBeltStub(canvas, b, from);
+      }
     }
     for (final b in belts) {
-      paintBeltChevrons(canvas, b, entrySide(world, b), t);
+      _scaled(canvas, b, () => paintBelt(canvas, b, entrySide(world, b), t));
+    }
+    for (final b in belts) {
+      _scaled(
+        canvas,
+        b,
+        () => paintBeltChevrons(canvas, b, entrySide(world, b), t),
+      );
     }
     for (final b in belts) {
       final from = entrySide(world, b);
@@ -194,7 +234,12 @@ class FinWorldPainter extends CustomPainter {
       }
     }
     for (final m in others) {
-      paintBuilding(canvas, m, t, active: m.status == FinStatus.working);
+      _scaled(
+        canvas,
+        m,
+        () =>
+            paintBuilding(canvas, m, t, active: m.status == FinStatus.working),
+      );
       // A small status light; the words are in the inspector.
       canvas.drawCircle(
         Offset(m.x + .82, m.y + .18),
@@ -207,6 +252,8 @@ class FinWorldPainter extends CustomPainter {
         Paint()..color = FinNames.statusColor(m.status),
       );
     }
+
+    fx?.paint(canvas);
 
     // Belt line preview and the ghost of the building to place.
     for (final (x, y, dir) in overlay.beltPreview) {
