@@ -842,6 +842,16 @@ const _flowAssets = <String, FlowAssetInfo>{
     null,
     true,
   ),
+  'match3_drone': FlowAssetInfo(
+    'assets/finora/match3/special/match3_drone.png',
+    1254,
+    1254,
+    [0, 0, 1254, 1254],
+    null,
+    null,
+    null,
+    true,
+  ),
   'match3_rocket_horizontal': FlowAssetInfo(
     'assets/finora/match3/special/match3_rocket_horizontal.png',
     1024,

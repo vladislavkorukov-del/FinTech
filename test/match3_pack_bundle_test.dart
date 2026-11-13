@@ -11,7 +11,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   testWidgets(
-    'all 86 source records load original PNG bytes from the real bundle',
+    'all 87 source records load original PNG bytes from the real bundle',
     (tester) async {
       final index =
           jsonDecode(
@@ -19,7 +19,7 @@ void main() {
               )
               as Map<String, dynamic>;
       final records = (index['assets'] as List).cast<Map<String, dynamic>>();
-      expect(records.length, 86);
+      expect(records.length, 87);
       expect(FlowArt.ids.toSet(), records.map((a) => a['id']).toSet());
       final decoded = <String>{};
       await tester.runAsync(() async {
@@ -42,12 +42,22 @@ void main() {
             codec.dispose();
           }
           if (item['preserve_square'] == true && !id.startsWith('map_bg_')) {
-            expect(FlowArt.bounds(id), const Rect.fromLTWH(0, 0, 1024, 1024));
+            // Square game sprites keep their whole canvas (1024, or 1254
+            // for the 1.62 drone).
+            expect(
+              FlowArt.bounds(id),
+              Rect.fromLTWH(
+                0,
+                0,
+                (item['width'] as num).toDouble(),
+                (item['height'] as num).toDouble(),
+              ),
+            );
             expect(FlowArt.bounds(id, trim: false), FlowArt.bounds(id));
           }
         }
       });
-      expect(decoded.length, 80);
+      expect(decoded.length, 81);
       expect(
         FlowArt.path('map_star_earned'),
         FlowArt.path('victory_star_earned'),

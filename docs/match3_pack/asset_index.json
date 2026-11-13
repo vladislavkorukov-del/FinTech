@@ -1,7 +1,7 @@
 {
   "schema": 1,
-  "original_entries": 86,
-  "unique_original_png": 80,
+  "original_entries": 87,
+  "unique_original_png": 81,
   "assets": [
     {
       "id": "match3_chart",
@@ -2221,6 +2221,31 @@
       "typography": {},
       "sha256": "24c98f7a9724373fc9b6c340df7fda951ab8f5ab5a3d1d4a44d3ad735b0662e9",
       "bytes": 437204
+    },
+    {
+      "id": "match3_drone",
+      "source_pack": "Finora_Match3_Drone",
+      "source_file": "png/match3_drone.png",
+      "path": "assets/finora/match3/special/match3_drone.png",
+      "width": 1254,
+      "height": 1254,
+      "bounds": [
+        0,
+        0,
+        1254,
+        1254
+      ],
+      "visible_bounds_alpha128": [
+        0,
+        69,
+        1238,
+        1200
+      ],
+      "preserve_square": true,
+      "slice": null,
+      "typography": {},
+      "sha256": "6a61380d191f713573e279dce7c48fd203b53fd26675cd605529409d2afc8d54",
+      "bytes": 843462
     }
   ],
   "note": "All originals kept byte-identical. Aliases share a path only for identical bytes. UI visible rects include an 8-source-pixel anti-alias margin; square game sprites always retain full original canvas.",
@@ -2274,6 +2299,11 @@
       "file": "Finora_Match3_Special_Pieces_3_PNG_with_Codex.zip",
       "bytes": 2194978,
       "sha256": "15ad7810d34bb8b5588bb3740c7d8d7f87c6acc38ff6f346e8923e79a6c0d23c"
+    },
+    {
+      "file": "Finora_Match3_Drone_Paper_Plane.zip",
+      "bytes": 746730,
+      "sha256": "24328e512869302ba2d7908b6d8a37c89a96570f24d052b4bfdf260537db46a0"
     }
   ]
 }

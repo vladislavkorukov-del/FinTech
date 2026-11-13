@@ -8,6 +8,8 @@ import '../../../domain/flow/flow.dart';
 import 'flow_art.dart';
 import 'world_art.dart' show worldFontFamily;
 
+part 'flow_board_drone.dart';
+
 /// Stable names and original art, independent of matching and saved tile IDs.
 abstract final class FlowTileArt {
   static String symbol(FlowTile type) =>
@@ -156,6 +158,30 @@ class FlowBoardMotion {
       if (round(e) == 0 && e.index >= 0 && _clears(e.kind)) e.index,
   };
   int get cascades => events.fold(0, (m, e) => math.max(m, round(e)));
+
+  /// Drone flights (1.62): from the drone's cell to the one cell it strikes
+  /// — the engine reports that strike right after the drone's activation.
+  List<({int from, int to, int round})> get flights => [
+    for (var k = 0; k + 1 < events.length; k++)
+      if (events[k].kind == 'activate' &&
+          events[k].booster == FlowBooster.drone &&
+          events[k + 1].index >= 0 &&
+          events[k + 1].index != events[k].index &&
+          events[k + 1].chain == events[k].chain &&
+          (events[k + 1].kind == 'collect' ||
+              events[k + 1].kind.endsWith('Damage')))
+        (
+          from: events[k].index,
+          to: events[k + 1].index,
+          round: round(events[k]),
+        ),
+  ];
+
+  /// Cells a drone leaves in the first round; the board waits for them.
+  Set<int> get launches => {
+    for (final f in flights)
+      if (f.round == 0) f.from,
+  };
   static bool _clears(String kind) =>
       kind == 'collect' || kind == 'activate' || kind.endsWith('Damage');
 }
@@ -191,6 +217,12 @@ class FlowBoard extends StatefulWidget {
 /// Timeline of one move, in milliseconds.
 abstract final class _T {
   static const swap = 170.0, pop = 190.0, fall = 380.0, cascade = 150.0;
+
+  /// A drone's flight to its target; the target pops as it arrives.
+  static const flight = 460.0;
+
+  /// A drone set off by a cascade flies faster.
+  static const quickFlight = 300.0;
 }
 
 class _FlowBoardState extends State<FlowBoard> with TickerProviderStateMixin {
@@ -206,8 +238,7 @@ class _FlowBoardState extends State<FlowBoard> with TickerProviderStateMixin {
     // The cascade banner appears once the first round has popped.
     final motion = _playing;
     if (_comboPending > 0 && motion != null) {
-      final swap = motion.from != null ? _T.swap : 0.0;
-      if (_move.value * _moveMs >= swap + _T.pop) {
+      if (_move.value * _moveMs >= _lead(motion) + _T.pop) {
         _comboLevel = _comboPending;
         _comboPending = 0;
         _combo.forward(from: 0);
@@ -318,7 +349,7 @@ class _FlowBoardState extends State<FlowBoard> with TickerProviderStateMixin {
     _playing = motion;
     final swap = motion.from != null ? _T.swap : 0.0;
     _moveMs = motion.accepted
-        ? swap + _T.pop + _T.fall + motion.cascades * _T.cascade
+        ? _lead(motion) + _T.pop + _T.fall + motion.cascades * _T.cascade
         : swap * 2 + 120;
     _move
       ..duration = Duration(milliseconds: _moveMs.round())
@@ -327,6 +358,11 @@ class _FlowBoardState extends State<FlowBoard> with TickerProviderStateMixin {
   }
 
   bool get _busy => widget.animate && _move.isAnimating;
+
+  /// When the first round pops: after the swap and any drone flights.
+  static double _lead(FlowBoardMotion motion) =>
+      (motion.from != null ? _T.swap : 0.0) +
+      (motion.launches.isEmpty ? 0.0 : _T.flight);
 
   /// What a cell looks like right now: which board, and how it moves.
   ({FlowCell cell, Offset shift, double scale, double opacity}) _look(
@@ -360,16 +396,20 @@ class _FlowBoardState extends State<FlowBoard> with TickerProviderStateMixin {
         final p = Curves.easeInOutCubic.transform(ms / swap);
         if (i == motion.from) shift = delta(i, motion.to!) * p;
         if (i == motion.to) shift = delta(i, motion.from!) * p;
-      } else if (ms < swap + _T.pop) {
-        // The swapped board; the first round of matches pops.
+      } else if (ms < _lead(motion) + _T.pop) {
+        // The swapped board; drones take off, then the first round pops.
+        final lead = _lead(motion);
         final swapped = List<FlowCell>.of(motion.before);
         if (motion.from != null) {
           swapped[motion.from!] = motion.before[motion.to!];
           swapped[motion.to!] = motion.before[motion.from!];
         }
         cell = swapped[i];
-        if (motion.firstRound.contains(i)) {
-          final p = (ms - swap) / _T.pop;
+        if (motion.launches.contains(i)) {
+          // The plane in the air is drawn above the board.
+          opacity = 0;
+        } else if (ms >= lead && motion.firstRound.contains(i)) {
+          final p = (ms - lead) / _T.pop;
           scale = 1 + .18 * math.sin(p * math.pi) - p * .9;
           opacity = 1 - Curves.easeIn.transform(p);
         }
@@ -399,10 +439,8 @@ class _FlowBoardState extends State<FlowBoard> with TickerProviderStateMixin {
               .toSet()
               .length;
           final delay = (lowest - row) * 18.0;
-          final p = ((ms - swap - _T.pop - delay) / (_T.fall - 60)).clamp(
-            0.0,
-            1.0,
-          );
+          final p = ((ms - _lead(motion) - _T.pop - delay) / (_T.fall - 60))
+              .clamp(0.0, 1.0);
           final drop = math.max(1, count) * pitch;
           shift = Offset(0, -drop * (1 - const _Land().transform(p)));
           opacity = p == 0 ? 0 : 1;
@@ -543,6 +581,7 @@ class _FlowBoardState extends State<FlowBoard> with TickerProviderStateMixin {
                 ),
                 boardCache,
               ),
+              ..._planes(side, pitch),
               if (_combo.isAnimating && _comboLevel > 0)
                 Positioned.fill(
                   child: IgnorePointer(
@@ -581,6 +620,7 @@ class _FlowBoardState extends State<FlowBoard> with TickerProviderStateMixin {
               index: i,
               selected: widget.selected == i,
               enabled: enabled,
+              animate: widget.animate,
               onTap: () {
                 _scheduleHint();
                 widget.onSelect(i);
@@ -590,6 +630,62 @@ class _FlowBoardState extends State<FlowBoard> with TickerProviderStateMixin {
         ),
       ),
     );
+  }
+
+  /// Drones in flight (1.62): each plane lifts off its cell, arcs over the
+  /// board nose-first and dives into its target, leaving sparkles behind.
+  List<Widget> _planes(double side, double pitch) {
+    final motion = _playing;
+    if (!widget.animate || motion == null || !_move.isAnimating) return [];
+    if (!motion.accepted) return [];
+    final ms = _move.value * _moveMs;
+    final swap = motion.from != null ? _T.swap : 0.0;
+    final out = <Widget>[];
+    for (final f in motion.flights) {
+      final (start, length) = f.round == 0
+          ? (swap, _T.flight)
+          : (
+              _lead(motion) + _T.pop + f.round * _T.cascade - _T.quickFlight,
+              _T.quickFlight,
+            );
+      final raw = (ms - start) / length;
+      if (raw <= 0 || raw >= 1) continue;
+      Offset centre(int i) =>
+          FlowPlayfield.toBox(FlowPlayfield.cellRect(i), side).center;
+      final from = centre(f.from), to = centre(f.to);
+      final t = Curves.easeInOutCubic.transform(raw);
+      final pose = _Drone.pose(from, to, pitch, t);
+      final trail = [
+        for (var k = 1; k <= 7; k++)
+          if (t - k * .045 > 0)
+            (_Drone.pose(from, to, pitch, t - k * .045).at, 1 - k / 8),
+      ];
+      final size = pitch * .95 * pose.scale;
+      out
+        ..add(
+          Positioned.fill(
+            child: IgnorePointer(
+              child: CustomPaint(painter: _TrailPainter(trail)),
+            ),
+          ),
+        )
+        ..add(
+          Positioned(
+            key: ValueKey('flow-drone-flight-${f.from}'),
+            left: pose.at.dx - size / 2,
+            top: pose.at.dy - size / 2,
+            width: size,
+            height: size,
+            child: IgnorePointer(
+              child: Transform.rotate(
+                angle: pose.angle,
+                child: const FlowSprite(_Drone.art, trim: false),
+              ),
+            ),
+          ),
+        );
+    }
+    return out;
   }
 
   /// Sparks where pieces burst: the first round as they pop, later
@@ -606,7 +702,11 @@ class _FlowBoardState extends State<FlowBoard> with TickerProviderStateMixin {
       if (e.index < 0 || !FlowBoardMotion._clears(e.kind)) continue;
       final round = motion.round(e);
       if (!seen.add((e.index, round))) continue;
-      final start = swap + (round == 0 ? 0 : _T.pop + round * _T.cascade);
+      // A drone's cell puffs as it takes off; everything else bursts
+      // after the flights.
+      final start = round == 0 && motion.launches.contains(e.index)
+          ? swap
+          : _lead(motion) + (round == 0 ? 0 : _T.pop + round * _T.cascade);
       final p = (ms - start) / 420;
       if (p <= 0 || p >= 1) continue;
       final center = FlowPlayfield.toBox(
@@ -769,10 +869,11 @@ class _FlowCellView extends StatelessWidget {
     required this.selected,
     required this.enabled,
     required this.onTap,
+    this.animate = false,
   });
   final FlowCell cell;
   final int index;
-  final bool selected, enabled;
+  final bool selected, enabled, animate;
   final VoidCallback onTap;
   @override
   Widget build(BuildContext context) {
@@ -816,11 +917,12 @@ class _FlowCellView extends StatelessWidget {
                     ),
                   )
                 else if (cell.booster == FlowBooster.drone)
-                  const Positioned.fill(
-                    child: Icon(
-                      Icons.flight_outlined,
-                      color: Color(0xFF4B1038),
-                    ),
+                  // 1.62: the pack's paper plane, on the full square like
+                  // every special piece.
+                  Positioned.fill(
+                    child: animate
+                        ? _DroneIdle(seed: index)
+                        : const FlowSprite(_Drone.art, trim: false),
                   )
                 else if (cell.booster != FlowBooster.none || type != null)
                   Positioned.fill(
