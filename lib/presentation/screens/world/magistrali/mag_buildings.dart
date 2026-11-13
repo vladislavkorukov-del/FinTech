@@ -259,6 +259,54 @@ ui.Picture recordIndustry(MagIndustry i) {
           color: col,
         );
       }
+    case MagIndustryKind.warehouse:
+      // A hangar with a mint band, gable roof and crates at the gate.
+      MagShapes.box(
+        c,
+        x: x + 1,
+        y: y + .9,
+        length: 1.6,
+        width: 1.1,
+        h: 15,
+        color: const Color(0xFFE4E8EA),
+      );
+      MagShapes.box(
+        c,
+        x: x + 1,
+        y: y + .9,
+        length: 1.62,
+        width: 1.12,
+        z0: 9,
+        h: 3,
+        color: MagPalette.mint,
+        outline: false,
+      );
+      MagShapes.roof(
+        c,
+        x: x + 1,
+        y: y + .9,
+        length: 1.66,
+        width: 1.16,
+        z0: 15,
+        h: 9,
+        color: const Color(0xFF51707A),
+        ridge: 1,
+      );
+      for (final (bx, by, h) in [
+        (.35, 1.75, 5.0),
+        (.6, 1.75, 8.0),
+        (1.55, 1.7, 5.0),
+      ]) {
+        MagShapes.box(
+          c,
+          x: x + bx,
+          y: y + by,
+          length: .2,
+          width: .2,
+          h: h,
+          color: const Color(0xFFC08A4E),
+        );
+      }
     case MagIndustryKind.village:
       for (final (hx, hy, col) in [
         (.55, .6, const Color(0xFFF3E6CF)),

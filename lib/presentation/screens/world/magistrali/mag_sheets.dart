@@ -6,7 +6,9 @@ import '../../../../domain/magistrali/magistrali.dart';
 import '../../../l10n_widgets.dart';
 import 'mag_art.dart';
 import 'mag_hud.dart';
+import 'mag_lore.dart';
 import 'mag_orders.dart';
+import 'mag_warehouse.dart';
 import 'mag_routes.dart';
 import 'mag_screen.dart';
 
@@ -26,6 +28,7 @@ String kindName(MagIndustryKind k) => switch (k) {
   MagIndustryKind.factory => 'Завод',
   MagIndustryKind.city => 'Город',
   MagIndustryKind.village => 'Деревня',
+  MagIndustryKind.warehouse => 'Склад',
 };
 
 IconData kindIcon(MagIndustryKind k) => switch (k) {
@@ -36,6 +39,7 @@ IconData kindIcon(MagIndustryKind k) => switch (k) {
   MagIndustryKind.factory => Icons.precision_manufacturing_rounded,
   MagIndustryKind.city => Icons.location_city_rounded,
   MagIndustryKind.village => Icons.cottage_rounded,
+  MagIndustryKind.warehouse => Icons.warehouse_rounded,
 };
 
 const magMuted = TextStyle(fontSize: 12, color: Color(0xFF5B6B70));
@@ -136,6 +140,11 @@ Future<void> showIndustrySheet(
         ],
       ),
       Text(kindName(i.kind), style: magMuted),
+      const SizedBox(height: 4),
+      Text(
+        industryLore(i.kind),
+        style: magMuted.copyWith(fontStyle: FontStyle.italic),
+      ),
       const SizedBox(height: 10),
       if (spec.produces.isNotEmpty) ...[
         const Text('Производит в день', style: magMuted),
@@ -262,7 +271,11 @@ Future<void> showIndustriesSheet(MagistraliScreenState state) =>
                 Navigator.pop(context);
                 state.centerOn(i.centerX, i.centerY);
                 state.overlay.industry = i.id;
-                unawaited(showIndustrySheet(state, i.id));
+                unawaited(
+                  i.spec.stores
+                      ? showWarehouseSheet(state, i.id)
+                      : showIndustrySheet(state, i.id),
+                );
               },
             ),
         ],
@@ -346,6 +359,8 @@ const _expenseNames = {
   'service': 'Ремонт',
   'roads_upkeep': 'Содержание дорог',
   'contracts': 'Замена контрактов',
+  'research': 'Исследования',
+  'warehouses': 'Строительство складов',
 };
 const _incomeNames = {
   'delivery': 'Перевозки',

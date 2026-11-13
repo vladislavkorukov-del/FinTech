@@ -135,7 +135,7 @@ extension MagWorldProgress on MagWorld {
 
   void _gainXp(int n) {
     final before = level;
-    xp += n;
+    xp += (n * factor(MagBonus.xp)).round();
     final after = level;
     if (after > before) {
       _say('Уровень компании $after!');
@@ -158,7 +158,7 @@ extension MagWorldProgress on MagWorld {
     if (rng == 1) rng = seed & 0x7fffffff | 1;
     while (contracts.length < contractSlots) {
       final targets = map.industries
-          .where((i) => i.spec.accepts.isNotEmpty)
+          .where((i) => i.spec.accepts.isNotEmpty && !i.spec.stores)
           .toList();
       final to = targets[_random(targets.length)];
       final cargos = to.spec.accepts.toList()
@@ -187,7 +187,7 @@ extension MagWorldProgress on MagWorld {
       c.delivered = math.min(c.amount, c.delivered + n);
       if (c.done) {
         contracts.remove(c);
-        _earn(c.reward, 'contracts');
+        _earn((c.reward * factor(MagBonus.contract)).round(), 'contracts');
         _gainXp(c.xp);
         _say('Контракт выполнен: +${c.reward} кр');
       }

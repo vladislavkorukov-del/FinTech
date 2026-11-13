@@ -6,4 +6,5 @@ export 'entities.dart';
 export 'map.dart';
 export 'orders.dart';
 export 'pathfinding.dart';
+export 'tech.dart';
 export 'world.dart';

@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'dart:typed_data';
 
 import 'config.dart';
+import 'entities.dart';
 
 /// A place on the map that makes or takes cargo.
 class MagIndustry {
@@ -25,6 +26,9 @@ class MagIndustry {
   /// Delivered cargo waiting to be processed.
   final Map<MagCargo, int> input = {};
 
+  /// A warehouse's rules per cargo.
+  final Map<MagCargo, MagStockRule> rules = {};
+
   /// Fractional production carried between days is not needed: production
   /// is whole units per day.
   MagIndustrySpec get spec => MagRules.industries[kind]!;
@@ -37,6 +41,7 @@ class MagIndustry {
 
   /// Cargo this place hands to trucks.
   Set<MagCargo> get supplies => {
+    if (spec.stores) ...MagCargo.values,
     ...spec.produces.keys,
     ...spec.converts.values,
   };
@@ -238,6 +243,7 @@ class MagMap {
             MagIndustryKind.mine => 'Рудник №$n',
             MagIndustryKind.foodPlant => 'Пищевой завод №$n',
             MagIndustryKind.factory => 'Завод №$n',
+            MagIndustryKind.warehouse => 'Склад №$n',
           });
           break;
         }

@@ -6,6 +6,7 @@ import '../../../../domain/magistrali/magistrali.dart';
 import '../../../l10n_widgets.dart';
 import 'mag_art.dart';
 import 'mag_hud.dart';
+import 'mag_lore.dart';
 import 'mag_orders.dart';
 import 'mag_screen.dart';
 import 'mag_sheets.dart';
@@ -136,6 +137,14 @@ Widget _shopCard(MagistraliScreenState state, MagTruckModel m) {
               Text(
                 'Скорость ${m.speed.toStringAsFixed(2)} · груз ${m.capacity} · расход ${m.runningCost}/кл.',
                 style: magMuted,
+              ),
+              const SizedBox(height: 2),
+              Text(
+                truckLore(m.id),
+                style: magMuted.copyWith(
+                  fontStyle: FontStyle.italic,
+                  fontSize: 11.5,
+                ),
               ),
             ],
           ),

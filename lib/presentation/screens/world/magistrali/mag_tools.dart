@@ -97,9 +97,16 @@ class MagConfirmBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final w = state.world;
     final road = state.pendingRoad;
+    final wh = state.pendingWarehouse;
+    final removing = wh == null && (road == null || road.cells.isEmpty);
     final String title;
     String? problem;
-    if (road != null && road.cells.isNotEmpty) {
+    if (wh != null) {
+      title = 'Склад · ${magMoney(w.warehousePrice)} кр';
+      problem =
+          w.warehouseBlocker(w.cx(wh), w.cy(wh)) ??
+          (w.warehousePrice > w.money ? 'Не хватает кредитов' : null);
+    } else if (road != null && road.cells.isNotEmpty) {
       final cost = road.cost;
       title =
           '${roadName(road.type)} · ${road.cells.length} кл. · ${magMoney(cost)} кр';
@@ -153,12 +160,12 @@ class MagConfirmBar extends StatelessWidget {
               FilledButton(
                 key: const ValueKey('mag-confirm-build'),
                 style: FilledButton.styleFrom(
-                  backgroundColor: road == null
+                  backgroundColor: removing
                       ? const Color(0xFFE0566B)
                       : MagPalette.mint,
                 ),
                 onPressed: problem == null ? state.confirmPending : null,
-                child: Text(road == null ? 'Снести' : 'Построить'),
+                child: Text(removing ? 'Снести' : 'Построить'),
               ),
             ],
           ),

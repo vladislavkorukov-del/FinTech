@@ -12,6 +12,7 @@ extension MagWorldSim on MagWorld {
   void _tick() {
     tick++;
     if (tick % MagRules.ticksPerDay == 0) _day();
+    if (tick % MagRules.planEveryTicks == 0) _planLogistics();
     for (final v in vehicles.values.toList()) {
       switch (v.state) {
         case MagVehicleState.garage:
@@ -62,6 +63,7 @@ extension MagWorldSim on MagWorld {
     for (final r in roads) {
       if (r != 0) roadUpkeep += MagRules.roads[MagRoad.values[r]]!.upkeep;
     }
+    roadUpkeep = (roadUpkeep * factor(MagBonus.roadUpkeep)).round();
     if (roadUpkeep >= 10) _spend(roadUpkeep ~/ 10, 'roads_upkeep');
     if (day % MagRules.daysPerMonth == 0) {
       months.add(MagMonth(day ~/ MagRules.daysPerMonth));
@@ -207,26 +209,51 @@ extension MagWorldSim on MagWorld {
       _spend(serviceCost(v), 'service');
       v.wear = 0;
     }
-    if (v.load > 0 && here.spec.accepts.contains(v.cargo)) _deliver(v, here);
+    if (v.load > 0 && here.spec.accepts.contains(v.cargo)) {
+      // A warehouse takes only what fits (orders keep their own room).
+      final limit = here.spec.stores ? _warehouseRoom(here, v.cargo!) : null;
+      if (limit != 0) _deliver(v, here, limit: limit);
+    }
   }
 
-  void _deliver(MagVehicle v, MagIndustry here) {
-    final cargo = v.cargo!, n = v.load;
+  /// Unloads [limit] (all by default). Into a warehouse it is an internal
+  /// transfer: stored, not paid — the pay comes when the cargo reaches the
+  /// place that uses it.
+  void _deliver(MagVehicle v, MagIndustry here, {int? limit}) {
+    final cargo = v.cargo!;
+    final n = limit == null ? v.load : math.min(v.load, limit);
+    if (here.spec.stores) {
+      here.stock[cargo] = (here.stock[cargo] ?? 0) + n;
+      v.load -= n;
+      if (v.load == 0) {
+        v
+          ..cargo = null
+          ..loadFrom = null
+          ..trips += 1;
+      }
+      _say('На склад: ${here.name} +$n');
+      _checkTasks();
+      return;
+    }
     final from = map.industry(v.loadFrom ?? -1);
     final dist = math.max(
       MagRules.minPayDistance,
       from == null ? 0 : from.distanceTo(here),
     );
-    final pay = (n * MagRules.cargoRate[cargo]! * dist).round();
+    final pay = (n * MagRules.cargoRate[cargo]! * dist * factor(MagBonus.pay))
+        .round();
     if (here.spec.converts.containsKey(cargo)) {
       here.input[cargo] = (here.input[cargo] ?? 0) + n;
     } else {
       destroyed[cargo] = (destroyed[cargo] ?? 0) + n; // towns use it up
     }
+    v.load -= n;
+    if (v.load == 0) {
+      v
+        ..cargo = null
+        ..loadFrom = null;
+    }
     v
-      ..load = 0
-      ..cargo = null
-      ..loadFrom = null
       ..income += pay
       ..trips += 1;
     final r = routes[v.routeId];
@@ -278,7 +305,7 @@ extension MagWorldSim on MagWorld {
     if (cargo != null && v.load < cap) {
       // Cargo reserved by orders is not for route trucks.
       final have = availableOf(here, cargo);
-      final n = math.min(math.min(MagRules.handlePerTick, cap - v.load), have);
+      final n = math.min(math.min(handleRate, cap - v.load), have);
       if (n > 0) {
         here.stock[cargo] = (here.stock[cargo] ?? 0) - n;
         if (v.load == 0) {

@@ -10,6 +10,8 @@ import 'mag_routes.dart';
 import 'mag_screen.dart';
 import 'mag_sheets.dart';
 import 'mag_tools.dart';
+import 'mag_lore.dart';
+import 'mag_tech.dart';
 
 /// Credits as people read them: 12 345.
 String magMoney(int v) {
@@ -291,7 +293,9 @@ class MagBottomPanel extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (road != null && road.cells.isNotEmpty || removing.isNotEmpty) ...[
+          if (road != null && road.cells.isNotEmpty ||
+              removing.isNotEmpty ||
+              state.pendingWarehouse != null) ...[
             MagConfirmBar(state: state),
             const SizedBox(height: 8),
           ],
@@ -322,6 +326,20 @@ class MagBottomPanel extends StatelessWidget {
                                   ),
                           ),
                         MagToolChip(
+                          key: const ValueKey('mag-tool-warehouse'),
+                          label: 'Склад',
+                          locked: w.warehouseSlots == 0,
+                          lockLevel: 2,
+                          on: state.tool == MagTool.warehouse,
+                          color: MagPalette.mint,
+                          icon: Icons.warehouse_rounded,
+                          onTap: () => w.warehouseSlots == 0
+                              ? state.say(
+                                  'Склады открывает технология «Складское дело»',
+                                )
+                              : state.setTool(MagTool.warehouse),
+                        ),
+                        MagToolChip(
                           key: const ValueKey('mag-remove'),
                           label: 'Снос',
                           on: state.tool == MagTool.remove,
@@ -334,9 +352,13 @@ class MagBottomPanel extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    state.tool == MagTool.road
-                        ? 'Проведите пальцем по карте · ${MagRules.roads[state.roadType]!.cost} кр за клетку'
-                        : 'Проведите по дороге, которую нужно снести',
+                    switch (state.tool) {
+                      MagTool.road =>
+                        '${roadLore(state.roadType)} Проведите пальцем · ${MagRules.roads[state.roadType]!.cost} кр/кл.',
+                      MagTool.warehouse =>
+                        'Коснитесь клетки — там встанет склад 2×2 (${magMoney(w.warehousePrice)} кр, ${w.warehouses.length} из ${w.warehouseSlots})',
+                      _ => 'Проведите по дороге, которую нужно снести',
+                    },
                     style: const TextStyle(
                       fontSize: 11.5,
                       color: Color(0xFF52646A),
@@ -387,7 +409,7 @@ class MagBottomPanel extends StatelessWidget {
                   Icons.rocket_launch_rounded,
                   'Улучшения',
                   false,
-                  () => unawaited(showUpgradesSheet(state)),
+                  () => unawaited(showTechSheet(state)),
                 ),
                 _nav(
                   'mag-tab-contracts',

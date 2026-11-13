@@ -68,6 +68,22 @@ Future<void> showOrdersSheet(
         'Заказ резервирует груз у поставщика и место у получателя. Оплата — после доставки. Свободных машин: $free.',
         style: magMuted,
       ),
+      if (active.any((o) => o.status == MagOrderStatus.pending) && free > 0)
+        Padding(
+          padding: const EdgeInsets.only(top: 6),
+          child: OutlinedButton.icon(
+            key: const ValueKey('mag-assign-free'),
+            onPressed: () {
+              final n = w.assignFreeTrucks();
+              state.report(
+                null,
+                n == 0 ? 'Нет подходящих машин' : 'Назначено заказов: $n',
+              );
+            },
+            icon: const Icon(Icons.bolt_rounded),
+            label: const Text('Раздать свободным машинам'),
+          ),
+        ),
       const SizedBox(height: 8),
       if (active.isEmpty)
         const Padding(

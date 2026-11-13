@@ -9,7 +9,18 @@ enum MagTerrain { grass, forest, hill, river, lake }
 /// Road surfaces; [none] is a cell without a road.
 enum MagRoad { none, dirt, asphalt, highway, motorway }
 
-enum MagIndustryKind { farm, sawmill, mine, foodPlant, factory, city, village }
+enum MagIndustryKind {
+  farm,
+  sawmill,
+  mine,
+  foodPlant,
+  factory,
+  city,
+  village,
+
+  /// Built by the player (stage 2): stores any cargo.
+  warehouse,
+}
 
 /// Upgrade lines of a truck.
 enum MagUpgrade { engine, body, economy, reliability }
@@ -42,7 +53,11 @@ class MagIndustrySpec {
     this.produces = const {},
     this.accepts = const {},
     this.converts = const {},
+    this.stores = false,
   });
+
+  /// A warehouse: takes any cargo into its stock and hands it out again.
+  final bool stores;
 
   /// Footprint in cells (square).
   final int size;
@@ -102,6 +117,18 @@ abstract final class MagRules {
 
   /// An order whose truck finds no road this many days fails.
   static const orderNoRoadDays = 3;
+
+  /// Warehouses: room before technologies, price of the first, ids kept
+  /// apart from the map's places.
+  static const warehouseBase = 200;
+  static const warehousePrice = 3000;
+  static const warehouseIdBase = 100000;
+
+  /// Open automatic orders per warehouse rule, the smallest one sent on,
+  /// and how often warehouses plan (ticks).
+  static const autoOrdersPerRule = 3;
+  static const minAutoBatch = 5;
+  static const planEveryTicks = 20;
   static const processPerDay = 14;
 
   /// Loading and unloading: units per tick, and the shortest stop.
@@ -158,6 +185,11 @@ abstract final class MagRules {
       accepts: {MagCargo.food, MagCargo.goods},
     ),
     MagIndustryKind.village: MagIndustrySpec(size: 2, accepts: {MagCargo.food}),
+    MagIndustryKind.warehouse: MagIndustrySpec(
+      size: 2,
+      accepts: {...MagCargo.values},
+      stores: true,
+    ),
   };
 
   /// Credits per unit per cell of distance between the two places.

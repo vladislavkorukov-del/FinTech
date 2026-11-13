@@ -14,6 +14,7 @@ extension MagWorldOrders on MagWorld {
   /// what they get, so they never fill; plants have an input store.
   int? roomOf(MagIndustry i, MagCargo c) {
     if (!i.spec.accepts.contains(c)) return null;
+    if (i.spec.stores) return _warehouseRoom(i, c);
     if (!i.spec.converts.containsKey(c)) return 1 << 30;
     return MagRules.inputCap - (i.input[c] ?? 0) - orders.reservedIn(i.id, c);
   }
@@ -202,7 +203,7 @@ extension MagWorldOrders on MagWorld {
     v.wait++;
     final dwell = math.max(
       MagRules.minStopTicks,
-      (o.amount / MagRules.handlePerTick).ceil(),
+      (o.amount / handleRate).ceil(),
     );
     if (v.wait < dwell) return;
     if (o.status == MagOrderStatus.loading) {

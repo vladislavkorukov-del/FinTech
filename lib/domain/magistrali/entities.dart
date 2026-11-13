@@ -17,6 +17,51 @@ enum MagVehicleState {
   idle,
 }
 
+/// How a warehouse keeps one cargo.
+enum MagStockMode {
+  /// Only what routes and the player bring and take.
+  manual,
+
+  /// Orders more when below the minimum, up to the target.
+  autoSupply,
+
+  /// Sends what is above the target to places that use it.
+  distribute,
+}
+
+class MagStockRule {
+  MagStockRule({
+    this.mode = MagStockMode.manual,
+    this.min = 0,
+    this.target = 0,
+    this.max,
+    this.priority = 1,
+  });
+  final MagStockMode mode;
+  final int min, target;
+
+  /// Most of this cargo the warehouse holds (null: the whole warehouse).
+  final int? max;
+
+  /// 0 low, 1 normal, 2 high (passed to the orders it writes).
+  final int priority;
+
+  MagStockRule copyWith({
+    MagStockMode? mode,
+    int? min,
+    int? target,
+    int? max,
+    bool clearMax = false,
+    int? priority,
+  }) => MagStockRule(
+    mode: mode ?? this.mode,
+    min: min ?? this.min,
+    target: target ?? this.target,
+    max: clearMax ? null : max ?? this.max,
+    priority: priority ?? this.priority,
+  );
+}
+
 class MagVehicle {
   MagVehicle({required this.id, required this.model, required this.name});
   final int id;

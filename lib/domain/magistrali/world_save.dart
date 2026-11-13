@@ -6,7 +6,8 @@ part of 'world.dart';
 extension MagWorldSave on MagWorld {
   /// 1: 1.68.0. 2: logistics orders (trucks may carry an order, a truck
   /// may stand idle on the map).
-  static const version = 2;
+  /// 3: technologies and warehouses with their rules.
+  static const version = 3;
 
   Map<String, Object?> toJson() => {
     'version': version,
@@ -66,6 +67,26 @@ extension MagWorldSave on MagWorld {
           'stops': r.stops,
           'income': r.income,
           'deliveries': r.deliveries,
+        },
+    ],
+    'techs': techs.toList()..sort(),
+    'warehouses': [
+      for (final w in warehouses)
+        {
+          'id': w.id,
+          'x': w.x,
+          'y': w.y,
+          'name': w.name,
+          'rules': {
+            for (final e in w.rules.entries)
+              e.key.name: {
+                'mode': e.value.mode.name,
+                'min': e.value.min,
+                'target': e.value.target,
+                if (e.value.max != null) 'max': e.value.max,
+                'priority': e.value.priority,
+              },
+          },
         },
     ],
     'orders': [
@@ -131,7 +152,17 @@ extension MagWorldSave on MagWorld {
 Map<String, dynamic> migrateMagSave(Map<String, dynamic> j) {
   final v = j['version'];
   if (v == MagWorldSave.version) return j;
-  if (v == 1) return {...j, 'version': 2, 'orders': const <Object>[]};
+  if (v == 1) {
+    return migrateMagSave({...j, 'version': 2, 'orders': const <Object>[]});
+  }
+  if (v == 2) {
+    return {
+      ...j,
+      'version': 3,
+      'techs': const <Object>[],
+      'warehouses': const <Object>[],
+    };
+  }
   throw const FormatException('Unsupported Magistrali save version');
 }
 
@@ -171,6 +202,47 @@ MagWorld magWorldFromJson(Map<String, dynamic> raw) {
   w.speed = const [0, 1, 2, 4].contains(j['speed']) ? j['speed'] as int : 1;
   w.rng = whole(j['rng'] ?? 1, 0, 0x7fffffff);
   w.roadVersion = whole(j['roadVersion'] ?? 0, 0, 1 << 40);
+  for (final t in j['techs'] as List? ?? const []) {
+    if (MagTechTree.byId(t as String) == null) {
+      throw const FormatException('Unknown technology');
+    }
+    w.techs.add(t);
+  }
+  // Warehouses stand before roads are read, so no road may lie under one.
+  for (final raw in j['warehouses'] as List? ?? const []) {
+    final m = raw as Map;
+    final x = whole(m['x'], 0, size - 2), y = whole(m['y'], 0, size - 2);
+    final id = whole(m['id'], MagRules.warehouseIdBase, 1 << 40);
+    for (var yy = y; yy < y + 2; yy++) {
+      for (var xx = x; xx < x + 2; xx++) {
+        if (!w.map.roadable(xx, yy)) {
+          throw const FormatException('Bad warehouse in Magistrali save');
+        }
+      }
+    }
+    if (w.map.industry(id) != null) {
+      throw const FormatException('Bad warehouse in Magistrali save');
+    }
+    final wh = MagIndustry(
+      id: id,
+      kind: MagIndustryKind.warehouse,
+      x: x,
+      y: y,
+      name: m['name'] as String,
+    );
+    for (final e in (m['rules'] as Map? ?? const {}).entries) {
+      final r = e.value as Map;
+      final max = r['max'];
+      wh.rules[MagCargo.values.byName(e.key as String)] = MagStockRule(
+        mode: MagStockMode.values.byName(r['mode'] as String),
+        min: whole(r['min'], 0, 1 << 30),
+        target: whole(r['target'], 0, 1 << 30),
+        max: max == null ? null : whole(max, 0, 1 << 30),
+        priority: whole(r['priority'] ?? 1, 0, 2),
+      );
+    }
+    w.map.industries.add(wh);
+  }
   final roads = base64Decode(j['roads'] as String);
   if (roads.length != size * size) {
     throw const FormatException('Bad roads in Magistrali save');

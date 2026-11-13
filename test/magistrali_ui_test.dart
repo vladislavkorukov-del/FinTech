@@ -237,6 +237,8 @@ void main() {
     final truck = w.vehicles.values.first;
     final speed = w.speedOf(truck);
     await tap(tester, 'mag-tab-upgrades');
+    expect(find.byKey(const ValueKey('mag-tech')), findsOneWidget);
+    await tap(tester, 'mag-tech-trucks');
     await tap(tester, 'mag-truck-${truck.id}');
     await tap(tester, 'mag-upgrade-engine');
     expect(truck.level(MagUpgrade.engine), 1);
@@ -326,5 +328,109 @@ void main() {
     await tap(tester, 'mag-tab-fleet');
     await tap(tester, 'mag-open-orders');
     expect(find.byKey(ValueKey('mag-order-done-${o.id}')), findsOneWidget);
+  });
+
+  testWidgets('stage 2 by touch: research, place a warehouse, auto-refill', (
+    tester,
+  ) async {
+    await mount(tester, const MagistraliScreen(seed: MagRules.defaultSeed));
+    final s = await ready(tester);
+    final w = s.world;
+    final farm = w.map.startFarm, plant = w.map.startPlant;
+    w.buildRoad(
+      w.planRoad(
+        farm.x + farm.size,
+        farm.y,
+        plant.x - 1,
+        plant.y,
+        MagRoad.dirt,
+      ),
+    );
+    w
+      ..money = 200000
+      ..xp = MagWorldProgress.xpFor(6);
+    s.changed();
+    await tester.pump();
+
+    // The tree: storage branch, learn «Складское дело» and «Автопополнение».
+    await tap(tester, 'mag-tab-upgrades');
+    await tap(tester, 'mag-branch-storage');
+    await tap(tester, 'mag-research-storage');
+    expect(w.techs, contains('storage'));
+    await tap(tester, 'mag-research-autosupply');
+    expect(w.techs, contains('autosupply'));
+    await closeSheet(tester);
+
+    // Find free 2×2 ground next to the start road and build there.
+    late int wx, wy;
+    search:
+    for (var r = 2; r < 10; r++) {
+      for (var dx = -r; dx <= r; dx++) {
+        final x = plant.x + dx, y = plant.y + r;
+        if (w.warehouseBlocker(x, y) == null &&
+            w
+                    .planRoad(
+                      x,
+                      y - 1,
+                      plant.x,
+                      plant.y + plant.size,
+                      MagRoad.dirt,
+                    )
+                    .error ==
+                null) {
+          wx = x;
+          wy = y;
+          break search;
+        }
+      }
+    }
+    s.camera.zoom = 1.2;
+    s.centerOn(wx + 1.0, wy + 1.0);
+    await tap(tester, 'mag-tab-build');
+    await tap(tester, 'mag-tool-warehouse');
+    await tester.tapAt(at(tester, s, wx, wy));
+    await tester.pump();
+    expect(find.byKey(const ValueKey('mag-confirm')), findsOneWidget);
+    await tap(tester, 'mag-confirm-build');
+    expect(w.warehouses.length, 1);
+    final wh = w.warehouses.first;
+    expect(find.byKey(ValueKey('mag-warehouse-${wh.id}')), findsOneWidget);
+
+    // Auto-refill grain: the mode chip, then raise the target and minimum.
+    await tap(tester, 'mag-rule-grain-autoSupply');
+    expect(w.ruleOf(wh, MagCargo.grain).mode, MagStockMode.autoSupply);
+    await tap(tester, 'mag-rule-grain-target-plus');
+    await tap(tester, 'mag-rule-grain-target-plus');
+    await tap(tester, 'mag-rule-grain-min-plus');
+    expect(w.ruleOf(wh, MagCargo.grain).target, 20);
+    expect(w.ruleOf(wh, MagCargo.grain).min, 10);
+    await closeSheet(tester);
+
+    // A road to it, then the warehouse writes its own orders.
+    w.buildRoad(
+      w.planRoad(wx, wy - 1, plant.x, plant.y + plant.size, MagRoad.dirt),
+    );
+    s.changed();
+    await tap(tester, 'mag-speed-4');
+    for (var i = 0; i < 20 && w.orders.active.isEmpty; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    await tap(tester, 'mag-speed-0');
+    final auto = w.orders.active.where((o) => o.receiver == wh.id).toList();
+    expect(auto, isNotEmpty);
+    expect(auto.first.tag, 'wh:${wh.id}:grain');
+    // «Раздать свободным машинам» puts the pickup on one.
+    await tap(tester, 'mag-tab-fleet');
+    await tap(tester, 'mag-open-orders');
+    await tap(tester, 'mag-assign-free');
+    expect(w.vehicles.values.first.orderId, isNotNull);
+    // Level 5 earned its Finora world reward: let the write finish.
+    for (var i = 0; i < 5; i++) {
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 50)),
+      );
+      await tester.pump();
+    }
+    expect(c.data.world.rewards.containsKey('magistrali:level:5:v1'), isTrue);
   });
 }

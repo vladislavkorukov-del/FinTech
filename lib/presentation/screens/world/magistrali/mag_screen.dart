@@ -15,9 +15,10 @@ import 'mag_fleet.dart';
 import 'mag_sheets.dart';
 import 'mag_sprites.dart';
 import 'mag_tools.dart';
+import 'mag_warehouse.dart';
 
 /// What a finger on the map does.
-enum MagTool { view, road, remove }
+enum MagTool { view, road, remove, warehouse }
 
 /// «Магистрали»: a transport company on an isometric map. Roads are drawn
 /// with a finger, trucks run their routes by themselves, deliveries pay,
@@ -60,6 +61,9 @@ class MagistraliScreenState extends State<MagistraliScreen>
   /// A road or a removal waiting for «Построить» / «Снести».
   MagRoadPlan? pendingRoad;
   List<int> pendingRemove = const [];
+
+  /// Corner cell of a warehouse waiting for «Построить».
+  int? pendingWarehouse;
   int? _tapStart;
   String? message;
   Timer? _messageTimer;
@@ -246,6 +250,7 @@ class MagistraliScreenState extends State<MagistraliScreen>
   void _clearPending() {
     pendingRoad = null;
     pendingRemove = const [];
+    pendingWarehouse = null;
     _tapStart = null;
     overlay
       ..plan = const []
@@ -255,6 +260,18 @@ class MagistraliScreenState extends State<MagistraliScreen>
   void cancelPending() => setState(_clearPending);
 
   void confirmPending() {
+    final wh = pendingWarehouse;
+    if (wh != null) {
+      if (report(world.buildWarehouse(world.cx(wh), world.cy(wh)))) {
+        setState(() {
+          _clearPending();
+          tool = MagTool.view;
+        });
+        final built = world.warehouses.last;
+        unawaited(showWarehouseSheet(this, built.id));
+      }
+      return;
+    }
     final road = pendingRoad;
     if (road != null) {
       if (report(world.buildRoad(road), 'Дорога построена')) {
@@ -284,7 +301,8 @@ class MagistraliScreenState extends State<MagistraliScreen>
   }
 
   void _scaleStart(ScaleStartDetails d, Size size) {
-    if (tool != MagTool.view && d.pointerCount == 1) {
+    if ((tool == MagTool.road || tool == MagTool.remove) &&
+        d.pointerCount == 1) {
       _drawFrom = _cellAt(_downAt ?? d.localFocalPoint, size);
       if (_drawFrom != null) {
         _drawing = true;
@@ -389,6 +407,21 @@ class MagistraliScreenState extends State<MagistraliScreen>
           _drawTo(cell);
           _tapStart = null;
         }
+      case MagTool.warehouse:
+        // The tapped cell is the warehouse's top corner (2×2).
+        final x = w.cx(cell), y = w.cy(cell);
+        final why = w.warehouseBlocker(x, y);
+        setState(() {
+          pendingWarehouse = cell;
+          overlay
+            ..plan = [
+              for (var dy = 0; dy < 2; dy++)
+                for (var dx = 0; dx < 2; dx++)
+                  if (w.map.inside(x + dx, y + dy)) w.cellOf(x + dx, y + dy),
+            ]
+            ..planOk = why == null && w.money >= w.warehousePrice;
+        });
+        if (why != null) say(why);
       case MagTool.remove:
         if (w.roads[cell] == 0) return say('Здесь нет дороги');
         setState(() {
@@ -414,7 +447,13 @@ class MagistraliScreenState extends State<MagistraliScreen>
           overlay.industry = i?.id;
           overlay.vehicle = null;
         });
-        if (i != null) unawaited(showIndustrySheet(this, i.id));
+        if (i != null) {
+          unawaited(
+            i.spec.stores
+                ? showWarehouseSheet(this, i.id)
+                : showIndustrySheet(this, i.id),
+          );
+        }
     }
   }
 

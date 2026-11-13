@@ -51,7 +51,13 @@ void main() {
     }
     expect(a.industries.length, b.industries.length);
     final kinds = a.industries.map((i) => i.kind).toSet();
-    expect(kinds, containsAll(MagIndustryKind.values));
+    expect(
+      kinds,
+      containsAll(
+        MagIndustryKind.values.where((k) => k != MagIndustryKind.warehouse),
+      ),
+    );
+    expect(kinds, isNot(contains(MagIndustryKind.warehouse))); // built later
     expect(a.startFarm.kind, MagIndustryKind.farm);
     expect(a.startPlant.kind, MagIndustryKind.foodPlant);
     final terrain = {
