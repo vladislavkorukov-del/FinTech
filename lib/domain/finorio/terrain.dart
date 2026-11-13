@@ -6,10 +6,24 @@ import 'config.dart';
 /// The ground of one map, made from its seed. Stored as one byte per cell
 /// and read by chunks, so later maps can grow chunk by chunk.
 class FinTerrainMap {
-  FinTerrainMap._(this.seed, this.width, this.height, this._cells);
+  FinTerrainMap._(
+    this.seed,
+    this.width,
+    this.height,
+    this._cells, [
+    Uint8List? biomes,
+  ]) : _biomes = biomes ?? _makeBiomes(seed, width);
 
   final int seed, width, height;
   final Uint8List _cells;
+
+  /// The landscape of each cell (index into [FinConfig.terrainThemes]):
+  /// large regions with soft borders, drawn blended on screen. View only:
+  /// it never changes what can be built or mined.
+  final Uint8List _biomes;
+  int biomeAt(int x, int y) =>
+      _biomes[(y.clamp(0, height - 1)) * width + x.clamp(0, width - 1)];
+  List<int> get biomeBytes => List.unmodifiable(_biomes);
 
   FinTerrain at(int x, int y) =>
       inside(x, y) ? FinTerrain.values[_cells[y * width + x]] : FinTerrain.rock;
@@ -24,36 +38,84 @@ class FinTerrainMap {
   ) {
     final cells = Uint8List(size * size);
     marks.forEach((c, t) => cells[c.$2 * size + c.$1] = t.index);
-    return FinTerrainMap._(seed, size, size, cells);
+    return FinTerrainMap._(seed, size, size, cells, Uint8List(size * size));
   }
 
   /// The cells as saved (one byte each).
   List<int> get bytes => List.unmodifiable(_cells);
 
   /// A saved map; refuses a wrong size or unknown terrain.
-  factory FinTerrainMap.fromBytes(int seed, int size, List<int> bytes) {
+  factory FinTerrainMap.fromBytes(
+    int seed,
+    int size,
+    List<int> bytes, {
+    List<int>? biomes,
+  }) {
     if (bytes.length != size * size ||
-        bytes.any((b) => b < 0 || b >= FinTerrain.values.length)) {
+        bytes.any((b) => b < 0 || b >= FinTerrain.values.length) ||
+        biomes != null &&
+            (biomes.length != size * size ||
+                biomes.any(
+                  (b) => b < 0 || b >= FinConfig.terrainThemes.length,
+                ))) {
       throw const FormatException('Bad Finorio map');
     }
-    return FinTerrainMap._(seed, size, size, Uint8List.fromList(bytes));
+    return FinTerrainMap._(
+      seed,
+      size,
+      size,
+      Uint8List.fromList(bytes),
+      biomes == null ? null : Uint8List.fromList(biomes),
+    );
   }
 
-  /// The start area: always holds every deposit the tutorial needs.
-  static const startX = 32, startY = 32, startRadius = 9;
+  /// The start area at the centre: always holds every deposit the
+  /// tutorial needs.
+  int get startX => width ~/ 2;
+  int get startY => height ~/ 2;
+  static const startRadius = 9;
+
+  /// Landscapes: six soft noise fields, warped so borders meander; each
+  /// cell takes the strongest. Large regions (about 25 cells across).
+  static Uint8List _makeBiomes(int seed, int size) {
+    final out = Uint8List(size * size);
+    final noise = _Noise(seed ^ 0x5bd1e995);
+    final n = FinConfig.terrainThemes.length;
+    for (var y = 0; y < size; y++) {
+      for (var x = 0; x < size; x++) {
+        final wx = x + 9 * (noise.at(x / 17, y / 17, 40) - .5);
+        final wy = y + 9 * (noise.at(x / 17, y / 17, 41) - .5);
+        var best = 0;
+        var top = -1.0;
+        for (var b = 0; b < n; b++) {
+          final v =
+              noise.at(wx / 24, wy / 24, 50 + b) * .8 +
+              noise.at(wx / 9, wy / 9, 60 + b) * .2;
+          if (v > top) {
+            top = v;
+            best = b;
+          }
+        }
+        out[y * size + x] = best;
+      }
+    }
+    return out;
+  }
 
   static FinTerrainMap generate(int seed, {int size = FinRules.mapSize}) {
     final cells = Uint8List(size * size);
     final noise = _Noise(seed);
     for (var y = 0; y < size; y++) {
       for (var x = 0; x < size; x++) {
-        final rock = noise.at(x / 9, y / 9, 1);
-        final ore = noise.at(x / 6, y / 6, 2);
-        final kind = noise.at(x / 11, y / 11, 3);
+        final rock =
+            noise.at(x / 10, y / 10, 1) * .75 + noise.at(x / 4, y / 4, 4) * .25;
+        final ore =
+            noise.at(x / 7, y / 7, 2) * .7 + noise.at(x / 3, y / 3, 5) * .3;
+        final kind = noise.at(x / 13, y / 13, 3);
         var t = FinTerrain.ground;
-        if (rock > .72) {
+        if (rock > .73) {
           t = FinTerrain.rock;
-        } else if (ore > .74) {
+        } else if (ore > .64) {
           t = [
             FinTerrain.iron,
             FinTerrain.copper,

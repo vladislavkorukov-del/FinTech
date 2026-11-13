@@ -91,9 +91,10 @@ void main() {
   }
 
   (int, int) deposit(FinWorld w, FinTerrain t) {
-    for (var r = 0; r < 12; r++) {
-      for (var y = 32 - r; y <= 32 + r; y++) {
-        for (var x = 32 - r; x <= 32 + r; x++) {
+    final cx = w.terrain.startX, cy = w.terrain.startY;
+    for (var r = 0; r < 16; r++) {
+      for (var y = cy - r; y <= cy + r; y++) {
+        for (var x = cx - r; x <= cx + r; x++) {
           if (w.terrain.at(x, y) == t && w.machineAt(x, y) == null) {
             return (x, y);
           }
@@ -129,6 +130,60 @@ void main() {
     }
     expect(find.byType(FinorioScreen), findsNothing);
     expect(File('${dir.path}/finorio/world.json').existsSync(), isTrue);
+  });
+
+  testWidgets('a finger draws belts; a tap turns a building', (tester) async {
+    await mount(tester, const FinorioScreen(seed: 42));
+    final s = await ready(tester);
+    final w = s.world!;
+    // A free row of five cells near the start.
+    late int bx, by;
+    search:
+    for (var r = 0; r < 16; r++) {
+      for (var y = w.terrain.startY - r; y <= w.terrain.startY + r; y++) {
+        for (var x = w.terrain.startX - r; x <= w.terrain.startX + r; x++) {
+          if ([
+            for (var k = 0; k < 6; k++) w.whyNot(FinBuilding.belt, x + k, y),
+          ].every((e) => e == null)) {
+            bx = x;
+            by = y;
+            break search;
+          }
+        }
+      }
+    }
+    s.centerOn(bx + 2, by);
+    await tester.pump();
+    final tile = find.byKey(const ValueKey('finorio-build-belt'));
+    await tester.ensureVisible(tile);
+    await tester.pump();
+    await tester.tap(tile);
+    await tester.pump();
+    final g = await tester.startGesture(at(tester, s, bx, by));
+    for (var k = 1; k <= 4; k++) {
+      await g.moveTo(at(tester, s, bx + k, by));
+      await tester.pump();
+    }
+    await g.up();
+    await tester.pump();
+    for (var k = 0; k <= 4; k++) {
+      expect(w.machineAt(bx + k, by)?.isBelt, isTrue, reason: 'cell $k');
+      expect(w.machineAt(bx + k, by)?.dir, 1); // right
+    }
+    // A store at the line's end.
+    final store = find.byKey(const ValueKey('finorio-build-storage'));
+    await tester.ensureVisible(store);
+    await tester.pump();
+    await tester.tap(store);
+    await tester.pump();
+    await tester.tapAt(at(tester, s, bx + 5, by));
+    await tester.pump();
+    final m = w.machineAt(bx + 5, by)!;
+    final before = m.dir;
+    // Tapping it again with the tool still chosen turns it.
+    await tester.tapAt(at(tester, s, bx + 5, by));
+    await tester.pump();
+    expect(m.dir, (before + 1) % 4);
   });
 
   testWidgets('build with taps, never by dragging; a powered line runs', (
@@ -185,6 +240,11 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('finorio-tool-select')));
     await tester.pump();
     await tapCell(gen.x, gen.y);
+    // Quick actions float above it; the full panel opens from there.
+    expect(find.byKey(ValueKey('finorio-quick-${gen.id}')), findsOneWidget);
+    expect(find.byKey(ValueKey('finorio-inspector-${gen.id}')), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('finorio-quick-info')));
+    await tester.pump();
     expect(find.byKey(ValueKey('finorio-inspector-${gen.id}')), findsOneWidget);
     await tester.tap(find.byKey(const ValueKey('finorio-fuel')));
     await tester.pump();
@@ -221,6 +281,8 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('finorio-tool-select')));
     await tester.pump();
     await tapCell(ix, iy);
+    await tester.tap(find.byKey(const ValueKey('finorio-quick-info')));
+    await tester.pump();
     expect(find.text('Работает'), findsOneWidget);
     expect(find.textContaining('/ мин'), findsOneWidget);
 

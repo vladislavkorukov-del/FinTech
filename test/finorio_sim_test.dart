@@ -297,9 +297,11 @@ void main() {
   test('maps come from their seed; the start always has every deposit', () {
     for (final seed in [1, 42, 2024, 99991, 123456789]) {
       final a = FinTerrainMap.generate(seed), b = FinTerrainMap.generate(seed);
-      for (var y = 0; y < 64; y++) {
-        for (var x = 0; x < 64; x++) {
+      expect(a.width, FinRules.mapSize);
+      for (var y = 0; y < a.height; y++) {
+        for (var x = 0; x < a.width; x++) {
           expect(a.at(x, y), b.at(x, y));
+          expect(a.biomeAt(x, y), b.biomeAt(x, y));
         }
       }
       final near = a.depositsNearStart();
@@ -307,13 +309,30 @@ void main() {
         expect(near[t] ?? 0, greaterThanOrEqualTo(4), reason: '$t seed $seed');
       }
       // Room to build around the start.
-      for (var y = 29; y <= 35; y++) {
-        for (var x = 29; x <= 35; x++) {
-          if ((x - 32) * (x - 32) + (y - 32) * (y - 32) <= 9) {
+      final cx = a.startX, cy = a.startY;
+      for (var y = cy - 3; y <= cy + 3; y++) {
+        for (var x = cx - 3; x <= cx + 3; x++) {
+          if ((x - cx) * (x - cx) + (y - cy) * (y - cy) <= 9) {
             expect(a.at(x, y), FinTerrain.ground);
           }
         }
       }
+      // A bigger map with plenty of ore, and several landscapes on it.
+      final cells = a.width * a.height;
+      var ore = 0;
+      final biomes = <int>{};
+      for (var y = 0; y < a.height; y++) {
+        for (var x = 0; x < a.width; x++) {
+          if (FinConfig.deposits.containsKey(a.at(x, y))) ore++;
+          biomes.add(a.biomeAt(x, y));
+        }
+      }
+      expect(ore / cells, greaterThan(.08), reason: 'ore share seed $seed');
+      expect(
+        biomes.length,
+        greaterThanOrEqualTo(4),
+        reason: 'landscapes seed $seed',
+      );
     }
     expect(
       FinTerrainMap.generate(1).at(10, 10) ==
@@ -326,6 +345,17 @@ void main() {
               FinTerrainMap.generate(2).at(60, 3),
       isFalse,
     );
+  });
+
+  test('landscapes are kept by the save, and old saves get them back', () {
+    final w = FinWorld.start(99);
+    final j = w.toJson();
+    final again = finWorldFromJson(
+      jsonDecode(jsonEncode(j)) as Map<String, dynamic>,
+    );
+    expect(again.terrain.biomeBytes, w.terrain.biomeBytes);
+    final old = Map<String, dynamic>.of(j)..remove('biomes');
+    expect(finWorldFromJson(old).terrain.biomeBytes, w.terrain.biomeBytes);
   });
 }
 

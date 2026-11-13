@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import '../../../../domain/finorio/finorio.dart';
 import 'finorio_art.dart';
 import 'finorio_fx.dart';
+import 'finorio_ground.dart';
 import 'finorio_names.dart';
 
 /// The camera: where the view is centred (in cells) and its zoom.
@@ -23,8 +24,11 @@ class FinCamera {
 
 /// Ground pictures, one per 16×16 chunk, recorded once and reused.
 class FinTerrainCache {
-  FinTerrainCache(this.map);
+  FinTerrainCache(this.map, {this.ground});
   final FinTerrainMap map;
+
+  /// The blended landscapes under the map (null: plain colours).
+  final FinGround? ground;
   final _chunks = <int, ui.Picture>{};
 
   ui.Picture chunk(int cx, int cy) => _chunks.putIfAbsent(cy * 1000 + cx, () {
@@ -40,6 +44,7 @@ class FinTerrainCache {
   });
 
   void dispose() {
+    ground?.dispose();
     for (final p in _chunks.values) {
       p.dispose();
     }
@@ -111,7 +116,15 @@ class FinWorldPainter extends CustomPainter {
     canvas.scale(s);
     canvas.translate(-camera.x, -camera.y);
 
-    paintGroundBackground(canvas, world.terrain);
+    cache.ground?.paint(
+      canvas,
+      Rect.fromLTRB(
+        camera.x - halfW,
+        camera.y - halfH,
+        camera.x + halfW,
+        camera.y + halfH,
+      ),
+    );
     const n = FinRules.chunk;
     for (var cy = y0 ~/ n; cy <= y1 ~/ n; cy++) {
       for (var cx = x0 ~/ n; cx <= x1 ~/ n; cx++) {

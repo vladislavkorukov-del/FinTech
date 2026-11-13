@@ -12,8 +12,10 @@ import 'finorio_art.dart';
 import 'finorio_names.dart';
 import 'finorio_painter.dart';
 import 'finorio_fx.dart';
+import 'finorio_ground.dart';
 import 'finorio_inspector.dart';
 import 'finorio_panels.dart';
+import 'finorio_quick.dart';
 import 'finorio_sheets.dart';
 import 'finorio_sprites.dart';
 
@@ -54,6 +56,22 @@ class FinorioScreenState extends State<FinorioScreen>
   final frame = ValueNotifier(0), ticks = ValueNotifier(0);
 
   FinTool tool = FinTool.select;
+
+  /// The building whose quick actions float above it (select mode).
+  int? quick;
+  bool _drawing = false;
+
+  /// Where the last finger went down (a drawn line starts there, not where
+  /// the drag was recognised).
+  Offset? _downAt;
+
+  FinCamera? get camera => _camera;
+
+  /// Opens the full panel of a building (from its quick actions).
+  void openInspector(int id) => setState(() {
+    inspected = id;
+    quick = null;
+  });
   FinBuilding? building;
   int dir = 1;
   int? inspected;
@@ -76,11 +94,15 @@ class FinorioScreenState extends State<FinorioScreen>
         loaded ??
         FinWorld.start(widget.seed ?? math.Random().nextInt(0x7ffffff0) + 1);
     await _loadArt(w.terrainTheme);
-    if (!mounted) return;
+    final ground = await _ground(w.terrain);
+    if (!mounted) {
+      ground?.dispose();
+      return;
+    }
     setState(() {
       world = w;
       _camera = FinCamera(w.cameraX, w.cameraY, w.zoom);
-      _cache = FinTerrainCache(w.terrain);
+      _cache = FinTerrainCache(w.terrain, ground: ground);
     });
     _ticker.start();
     _autosave = Timer.periodic(const Duration(seconds: 30), (_) => save());
@@ -104,18 +126,14 @@ class FinorioScreenState extends State<FinorioScreen>
     }
   }
 
-  /// Switches the painted ground; the map's cells do not change.
-  Future<void> setTerrainTheme(String theme) async {
-    final w = world;
-    if (w == null || w.terrainTheme == theme) return;
-    w.terrainTheme = theme;
-    await _loadArt(theme);
-    if (!mounted) return;
-    setState(() {
-      _cache?.dispose();
-      _cache = FinTerrainCache(w.terrain);
-    });
-    frame.value++;
+  /// The blended landscapes of a map (none when the art is missing).
+  Future<FinGround?> _ground(FinTerrainMap map) async {
+    if (FinSpriteBank.current == null) return null;
+    try {
+      return await FinGround.build(map);
+    } on Object {
+      return null;
+    }
   }
 
   @override
@@ -246,8 +264,23 @@ class FinorioScreenState extends State<FinorioScreen>
   double _zoomStart = 1;
   Offset _worldStart = Offset.zero;
 
+  bool get _beltTool =>
+      tool == FinTool.build &&
+      (building == FinBuilding.belt || building == FinBuilding.fastBelt);
+
   void _scaleStart(ScaleStartDetails d, Size size) {
     final cam = _camera!;
+    // With a belt chosen, one finger draws the line; two fingers move the map.
+    if (_beltTool && d.pointerCount == 1) {
+      _drawing = true;
+      _focalStart = null;
+      final (x, y) = _cellAt(_downAt ?? d.localFocalPoint, size);
+      _beltDragStart(x, y);
+      final (nx, ny) = _cellAt(d.localFocalPoint, size);
+      _beltDragMove(nx, ny);
+      return;
+    }
+    _drawing = false;
     _focalStart = d.localFocalPoint;
     _zoomStart = cam.zoom;
     _worldStart = cam.toWorld(d.localFocalPoint, size);
@@ -255,6 +288,23 @@ class FinorioScreenState extends State<FinorioScreen>
 
   void _scaleUpdate(ScaleUpdateDetails d, Size size) {
     final cam = _camera!, w = world!;
+    if (_drawing) {
+      if (d.pointerCount > 1) {
+        // A second finger: drop the line, the map moves instead.
+        _drawing = false;
+        overlay
+          ..beltStartX = null
+          ..beltStartY = null
+          ..beltPreview = const [];
+        _focalStart = d.localFocalPoint;
+        _zoomStart = cam.zoom / d.scale;
+        _worldStart = cam.toWorld(d.localFocalPoint, size);
+        return;
+      }
+      final (x, y) = _cellAt(d.localFocalPoint, size);
+      _beltDragMove(x, y);
+      return;
+    }
     if (_focalStart == null) return;
     cam.zoom = (_zoomStart * d.scale).clamp(
       FinCamera.minZoom,
@@ -282,10 +332,13 @@ class FinorioScreenState extends State<FinorioScreen>
     final m = w.machineAt(x, y);
     switch (tool) {
       case FinTool.select:
+        // A building gets its quick actions right above it; the full panel
+        // opens from there.
         setState(() {
           overlay.selectedX = x;
           overlay.selectedY = y;
-          inspected = m?.id;
+          quick = m?.id;
+          inspected = null;
         });
       case FinTool.remove:
         if (m == null) return;
@@ -326,17 +379,42 @@ class FinorioScreenState extends State<FinorioScreen>
           changed();
           return;
         }
+        // Tapping a building while building turns it.
+        if (m != null && !m.isBelt) {
+          w.rotate(m.id);
+          say('${FinNames.short(m.kind)}: выход ${_dirName(m.dir)}');
+          changed();
+          return;
+        }
         final why = w.whyNot(kind, x, y);
         if (why != null) {
           say(why);
           return;
         }
-        w.place(kind, x, y, dir: dir);
+        final facing = _smartDir(x, y);
+        w.place(kind, x, y, dir: facing);
+        if (facing != dir) {
+          say('Выход сразу на конвейер · коснитесь, чтобы повернуть');
+        }
         overlay
           ..selectedX = x
           ..selectedY = y;
         changed();
     }
+  }
+
+  static String _dirName(int d) =>
+      const ['вверх', 'вправо', 'вниз', 'влево'][d];
+
+  /// A new machine faces a belt next to it that leads away, if there is
+  /// one; otherwise the chosen direction.
+  int _smartDir(int x, int y) {
+    final w = world!;
+    for (final d in [dir, (dir + 1) % 4, (dir + 3) % 4, (dir + 2) % 4]) {
+      final n = w.machineAt(x + FinDir.dx[d], y + FinDir.dy[d]);
+      if (n != null && n.isBelt && n.dir == d) return d;
+    }
+    return dir;
   }
 
   void _beltDragStart(int x, int y) {
@@ -384,11 +462,12 @@ class FinorioScreenState extends State<FinorioScreen>
       _cache?.dispose();
       final w = FinWorld.start(math.Random().nextInt(0x7ffffff0) + 1);
       w.claimed.addAll(world?.claimed ?? const {});
-      w.terrainTheme = world?.terrainTheme ?? w.terrainTheme;
+      final ground = await _ground(w.terrain);
+      if (!mounted) return;
       setState(() {
         world = w;
         _camera = FinCamera(w.cameraX, w.cameraY, w.zoom);
-        _cache = FinTerrainCache(w.terrain);
+        _cache = FinTerrainCache(w.terrain, ground: ground);
         inspected = null;
       });
       await save();
@@ -419,44 +498,59 @@ class FinorioScreenState extends State<FinorioScreen>
               child: LayoutBuilder(
                 builder: (context, box) {
                   final size = box.biggest;
-                  return GestureDetector(
-                    key: const ValueKey('finorio-map'),
-                    behavior: HitTestBehavior.opaque,
-                    onScaleStart: (d) => _scaleStart(d, size),
-                    onScaleUpdate: (d) => _scaleUpdate(d, size),
-                    onScaleEnd: (_) => _focalStart = null,
-                    onTapUp: (d) {
-                      final (x, y) = _cellAt(d.localPosition, size);
-                      tapCell(x, y);
-                    },
-                    onLongPressStart: (d) {
-                      final (x, y) = _cellAt(d.localPosition, size);
-                      _beltDragStart(x, y);
-                    },
-                    onLongPressMoveUpdate: (d) {
-                      final (x, y) = _cellAt(d.localPosition, size);
-                      _beltDragMove(x, y);
-                    },
-                    onLongPressEnd: (_) => _beltDragEnd(),
-                    child: RepaintBoundary(
-                      child: CustomPaint(
-                        size: size,
-                        painter: FinWorldPainter(
-                          world: w,
-                          camera: cam,
-                          cache: cache,
-                          overlay: overlay,
-                          time: () =>
-                              (w.tick + _acc / FinRules.tickMs) /
-                              FinRules.ticksPerSecond,
-                          alpha: () => running ? _acc / FinRules.tickMs : 0,
-                          repaint: frame,
-                          fx: _fx,
+                  return Listener(
+                    onPointerDown: (e) => _downAt = e.localPosition,
+                    child: GestureDetector(
+                      key: const ValueKey('finorio-map'),
+                      behavior: HitTestBehavior.opaque,
+                      onScaleStart: (d) => _scaleStart(d, size),
+                      onScaleUpdate: (d) => _scaleUpdate(d, size),
+                      onScaleEnd: (_) {
+                        _focalStart = null;
+                        if (_drawing) {
+                          _drawing = false;
+                          _beltDragEnd();
+                        }
+                      },
+                      onTapUp: (d) {
+                        final (x, y) = _cellAt(d.localPosition, size);
+                        tapCell(x, y);
+                      },
+                      onLongPressStart: (d) {
+                        final (x, y) = _cellAt(d.localPosition, size);
+                        _beltDragStart(x, y);
+                      },
+                      onLongPressMoveUpdate: (d) {
+                        final (x, y) = _cellAt(d.localPosition, size);
+                        _beltDragMove(x, y);
+                      },
+                      onLongPressEnd: (_) => _beltDragEnd(),
+                      child: RepaintBoundary(
+                        child: CustomPaint(
+                          size: size,
+                          painter: FinWorldPainter(
+                            world: w,
+                            camera: cam,
+                            cache: cache,
+                            overlay: overlay,
+                            time: () =>
+                                (w.tick + _acc / FinRules.tickMs) /
+                                FinRules.ticksPerSecond,
+                            alpha: () => running ? _acc / FinRules.tickMs : 0,
+                            repaint: frame,
+                            fx: _fx,
+                          ),
                         ),
                       ),
                     ),
                   );
                 },
+              ),
+            ),
+            Positioned.fill(
+              child: LayoutBuilder(
+                builder: (context, box) =>
+                    FinQuickBar(state: this, size: box.biggest),
               ),
             ),
             Positioned(

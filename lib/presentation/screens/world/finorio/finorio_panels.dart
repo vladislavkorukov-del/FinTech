@@ -309,6 +309,7 @@ class FinBuildBar extends StatelessWidget {
 
   void _setTool(FinTool tool, FinBuilding? kind) => state.update(() {
     state.tool = tool;
+    state.quick = null;
     state.building = kind;
     state.overlay
       ..ghost = kind

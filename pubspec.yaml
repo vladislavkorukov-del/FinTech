@@ -1,7 +1,7 @@
 name: finora
 description: Offline-first personal and family finance for Android.
 publish_to: none
-version: 1.66.0+78
+version: 1.67.0+79
 
 environment:
   sdk: '>=3.8.0 <4.0.0'
@@ -69,6 +69,7 @@ flutter:
     - assets/finorio/png/belts/
     - assets/finorio/png/items/
     - assets/finorio/png/terrain/
+    - assets/finorio/png/objects/
     - assets/finorio/backgrounds/
     - assets/finorio/covers/
     - assets/finora/match3/chapters/sakura/

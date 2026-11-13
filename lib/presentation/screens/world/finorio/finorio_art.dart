@@ -78,89 +78,43 @@ void _sprite(
   c.restore();
 }
 
-/// The painted ground under the whole map (one texture, world coordinates).
-void paintGroundBackground(Canvas c, FinTerrainMap map) {
-  final bg = FinSpriteBank.current?.background;
-  if (bg == null) return;
-  c.drawImageRect(
-    bg,
-    Rect.fromLTWH(0, 0, bg.width.toDouble(), bg.height.toDouble()),
-    Rect.fromLTWH(0, 0, map.width.toDouble(), map.height.toDouble()),
-    Paint()..filterQuality = FilterQuality.medium,
-  );
-}
-
-/// A painted terrain tile; free ground stays clear over the background,
-/// and edges towards a different terrain fade out (14% of the cell).
+/// A deposit or rock lying on the landscape: the cut-out object only, so
+/// ore reads as stones on grass, sand or snow. Free ground draws nothing.
 bool _paintTile(Canvas c, FinTerrainMap map, FinTerrain t, int x, int y) {
   final bank = FinSpriteBank.current;
-  if (bank == null || bank.background == null) return false;
+  if (bank == null || bank.landscape(0) == null) return false;
   if (t == FinTerrain.ground) return true;
-  final img = bank.tile(t, x, y, map.seed);
+  final img = bank.object(t, x, y, map.seed);
   if (img == null) return false;
-  final r = Rect.fromLTWH(x.toDouble(), y.toDouble(), 1, 1);
-  bool same(int dx, int dy) =>
-      !map.inside(x + dx, y + dy) || map.at(x + dx, y + dy) == t;
-  c.saveLayer(r, Paint());
-  _sprite(c, img, r);
-  const band = .14;
-  final cut = Paint()..blendMode = BlendMode.dstOut;
-  void edge(Rect band0, Alignment from, Alignment to) => c.drawRect(
-    band0,
-    cut
-      ..shader = ui.Gradient.linear(
-        from.withinRect(band0),
-        to.withinRect(band0),
-        [const Color(0xFF000000), const Color(0x00000000)],
-      ),
-  );
-  if (!same(0, -1)) {
-    edge(
-      Rect.fromLTWH(r.left, r.top, 1, band),
-      Alignment.topCenter,
-      Alignment.bottomCenter,
-    );
-  }
-  if (!same(0, 1)) {
-    edge(
-      Rect.fromLTWH(r.left, r.bottom - band, 1, band),
-      Alignment.bottomCenter,
-      Alignment.topCenter,
-    );
-  }
-  if (!same(-1, 0)) {
-    edge(
-      Rect.fromLTWH(r.left, r.top, band, 1),
-      Alignment.centerLeft,
-      Alignment.centerRight,
-    );
-  }
-  if (!same(1, 0)) {
-    edge(
-      Rect.fromLTWH(r.right - band, r.top, band, 1),
-      Alignment.centerRight,
-      Alignment.centerLeft,
-    );
-  }
-  // A corner whose two sides match but whose diagonal does not.
-  for (final (dx, dy) in const [(-1, -1), (1, -1), (-1, 1), (1, 1)]) {
-    if (same(dx, 0) && same(0, dy) && !same(dx, dy)) {
-      final corner = Offset(
-        dx < 0 ? r.left : r.right,
-        dy < 0 ? r.top : r.bottom,
-      );
-      c.drawCircle(
-        corner,
-        band,
-        cut
-          ..shader = ui.Gradient.radial(corner, band, [
-            const Color(0xFF000000),
-            const Color(0x00000000),
-          ]),
-      );
+  // Natural scatter: each cell's object is larger than the cell, shifted
+  // and mirrored by a stable hash, and deposits get a second smaller one,
+  // so a patch reads as a drift of stones rather than a grid.
+  final h = (x * 92821 + y * 68917 + map.seed * 31) & 0xffff;
+  double jitter(int shift) => (((h >> shift) & 0xf) / 15 - .5) * .32;
+  void place(ui.Image img, double cx, double cy, double scale, bool mirror) {
+    final r = Rect.fromCenter(center: Offset(cx, cy), width: 1, height: 1);
+    c.save();
+    if (mirror) {
+      c.translate(r.center.dx, 0);
+      c.scale(-1, 1);
+      c.translate(-r.center.dx, 0);
     }
+    _sprite(c, img, r, scale: scale);
+    c.restore();
   }
-  c.restore();
+
+  final rock = t == FinTerrain.rock;
+  place(
+    img,
+    x + .5 + jitter(0),
+    y + .5 + jitter(4),
+    (rock ? 1.45 : 1.35) + (h % 7) / 50,
+    h & 1 == 1,
+  );
+  if (!rock && (h >> 8) & 3 != 0) {
+    final second = bank.object(t, x + 1, y, map.seed) ?? img;
+    place(second, x + .5 - jitter(4), y + .5 - jitter(0), .85, h & 2 == 2);
+  }
   return true;
 }
 

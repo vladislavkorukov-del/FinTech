@@ -54,10 +54,14 @@ class FinSpriteBank {
           '${b}_$f': ('png/belts/${b}_$f.png', 384),
       for (final i in FinItem.values)
         itemArt(i): ('png/items/${itemArt(i)}.png', 96),
+      // Deposits and rocks as objects lying on the ground (cut out of the
+      // terrain tiles), and the six landscapes blended under the map.
       for (final t in FinTerrain.values)
-        for (final v in [1, 2])
-          '${t.name}_$v': ('png/terrain/${t.name}_$v.png', 192),
-      'background': ('backgrounds/terrain_$theme.webp', 1280),
+        if (t != FinTerrain.ground)
+          for (final v in [1, 2])
+            'obj_${t.name}_$v': ('png/objects/${t.name}_$v.png', 192),
+      for (final key in FinConfig.terrainThemes)
+        'land_$key': ('backgrounds/terrain_$key.webp', 512),
     };
     final images = <String, ui.Image>{};
     try {
@@ -90,9 +94,14 @@ class FinSpriteBank {
 
   ui.Image? operator [](String key) => _images[key];
   ui.Image? item(FinItem i) => _images[itemArt(i)];
-  ui.Image? tile(FinTerrain t, int x, int y, int seed) =>
-      _images['${t.name}_${((x * 7 + y * 13 + seed) & 1) + 1}'];
-  ui.Image? get background => _images['background'];
+
+  /// The object lying on a deposit or rock cell (a stable variant).
+  ui.Image? object(FinTerrain t, int x, int y, int seed) =>
+      _images['obj_${t.name}_${((x * 7 + y * 13 + seed) & 1) + 1}'];
+
+  /// A landscape texture by its index in [FinConfig.terrainThemes].
+  ui.Image? landscape(int index) =>
+      _images['land_${FinConfig.terrainThemes[index]}'];
 
   void dispose() {
     for (final img in _images.values) {

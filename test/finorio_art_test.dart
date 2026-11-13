@@ -7,11 +7,13 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('every sprite and each terrain background loads', (tester) async {
-    for (final theme in FinConfig.terrainThemes) {
+  testWidgets('every sprite and each landscape loads', (tester) async {
+    for (final theme in [FinConfig.terrainThemes.first]) {
       final bank = (await tester.runAsync(() => FinSpriteBank.load(theme)))!;
-      expect(bank.background, isNotNull, reason: theme);
-      if (theme == FinConfig.terrainThemes.first) {
+      for (var i = 0; i < FinConfig.terrainThemes.length; i++) {
+        expect(bank.landscape(i), isNotNull, reason: '$i');
+      }
+      {
         for (final art in FinSpriteBank.buildingArt.values) {
           expect(bank[art.$1], isNotNull, reason: art.$1);
           if (art.$2 != null) expect(bank[art.$2!], isNotNull, reason: art.$2);
@@ -24,9 +26,11 @@ void main() {
         for (final i in FinItem.values) {
           expect(bank.item(i), isNotNull, reason: '$i');
         }
+        // Deposits and rocks lie on the ground as objects.
         for (final t in FinTerrain.values) {
+          if (t == FinTerrain.ground) continue;
           for (var x = 0; x < 2; x++) {
-            expect(bank.tile(t, x, 0, 1), isNotNull, reason: '$t');
+            expect(bank.object(t, x, 0, 1), isNotNull, reason: '$t');
           }
         }
       }

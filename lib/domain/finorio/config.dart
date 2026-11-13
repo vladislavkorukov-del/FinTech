@@ -94,7 +94,7 @@ abstract final class FinRules {
   /// The fixed simulation step.
   static const tickMs = 100;
   static const ticksPerSecond = 1000 ~/ tickMs;
-  static const mapSize = 64;
+  static const mapSize = 128;
   static const chunk = 16;
 
   /// Mining: 1 unit every 2 seconds at full power.

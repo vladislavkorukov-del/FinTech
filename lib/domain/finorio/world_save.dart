@@ -11,6 +11,7 @@ extension FinWorldSave on FinWorld {
     'seed': seed,
     'size': terrain.width,
     'terrain': base64Encode(terrain.bytes),
+    'biomes': base64Encode(terrain.biomeBytes),
     'tick': tick,
     'nextId': nextId,
     'kits': {for (final e in kits.entries) e.key.name: e.value},
@@ -81,6 +82,10 @@ FinWorld finWorldFromJson(Map<String, dynamic> j) {
           seed,
           size,
           base64Decode(j['terrain'] as String),
+          // Saves from before 1.67 have no landscapes: made from the seed.
+          biomes: j['biomes'] is String
+              ? base64Decode(j['biomes'] as String)
+              : null,
         )
       : FinTerrainMap.generate(seed);
   final w = FinWorld(seed: seed, terrain: map);

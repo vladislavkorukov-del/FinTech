@@ -181,34 +181,6 @@ Future<String?> showFinorioMenu(
               value: w.showGrid,
               onChanged: (v) => setLocal(() => w.showGrid = v),
             ),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                'Местность',
-                style: TextStyle(
-                  fontSize: 13,
-                  color: _ink.withValues(alpha: .7),
-                ),
-              ),
-            ),
-            const SizedBox(height: 6),
-            Wrap(
-              spacing: 6,
-              runSpacing: 6,
-              children: [
-                for (final key in FinConfig.terrainThemes)
-                  ChoiceChip(
-                    key: ValueKey('finorio-theme-$key'),
-                    label: Text(FinNames.terrainTheme(key)),
-                    selected: w.terrainTheme == key,
-                    onSelected: (_) async {
-                      await state.setTerrainTheme(key);
-                      setLocal(() {});
-                    },
-                  ),
-              ],
-            ),
-            const SizedBox(height: 6),
             SwitchListTile(
               title: const Text('Подсказки Финоры'),
               value: w.tips,
