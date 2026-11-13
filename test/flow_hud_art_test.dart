@@ -1,7 +1,38 @@
+import 'dart:io';
+
+import 'package:finora/domain/flow/flow.dart';
+import 'package:finora/presentation/screens/world/flow_dialogs.dart';
 import 'package:finora/presentation/screens/world/flow_hud.dart';
 import 'package:finora/presentation/screens/world/flow_art.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+Finder _sprite(String id) =>
+    find.byWidgetPredicate((w) => w is FlowSprite && w.id == id);
+
+Future<void> _mount(
+  WidgetTester tester,
+  Widget child, {
+  required Size size,
+  double scale = 1,
+}) async {
+  tester.view.physicalSize = size;
+  tester.view.devicePixelRatio = 1;
+  addTearDown(tester.view.reset);
+  await tester.pumpWidget(
+    MaterialApp(
+      home: MediaQuery(
+        data: MediaQueryData(
+          size: size,
+          disableAnimations: true,
+          textScaler: TextScaler.linear(scale),
+        ),
+        child: Scaffold(body: child),
+      ),
+    ),
+  );
+  await tester.pumpAndSettle();
+}
 
 void main() {
   testWidgets(
@@ -50,6 +81,189 @@ void main() {
         );
         expect(tester.takeException(), isNull);
       }
+      await tester.pumpWidget(const SizedBox.shrink());
+    },
+  );
+
+  final level = FlowLevels.decode(
+    File('assets/flow/levels.json').readAsStringSync(),
+  ).first;
+  FlowSession session({int moves = 9, int score = 0}) {
+    final base = FlowEngine.newGame(level);
+    return FlowSession(
+      levelId: level.id,
+      board: base.board,
+      remainingMoves: moves,
+      score: score,
+      progress: const {},
+      rngState: base.rngState,
+    );
+  }
+
+  testWidgets(
+    '1.62: separate moves and goals cards from the pack with live numbers',
+    (tester) async {
+      for (final (width, scale) in [(320.0, 2.0), (430.0, 1.0)]) {
+        await _mount(
+          tester,
+          Align(
+            alignment: Alignment.topCenter,
+            child: SizedBox(
+              width: width - 16,
+              child: FlowTopHud(
+                level: level,
+                session: session(moves: 123, score: 98765),
+                onPause: () {},
+              ),
+            ),
+          ),
+          size: Size(width, 700),
+          scale: scale,
+        );
+        final moves = find.byKey(const ValueKey('flow-hud-moves'));
+        final goals = find.byKey(const ValueKey('flow-hud-goals'));
+        expect(
+          find.descendant(of: moves, matching: _sprite('hud_moves_card')),
+          findsOneWidget,
+        );
+        expect(
+          find.descendant(of: goals, matching: _sprite('hud_goals_card')),
+          findsOneWidget,
+        );
+        // Two cards side by side, moves ≈ 29% of the row.
+        final m = tester.getRect(moves), g = tester.getRect(goals);
+        expect(m.right, lessThan(g.left));
+        expect(m.height, closeTo(g.height, .5));
+        expect(m.width / (m.width + g.width), closeTo(.29, .02));
+        // Baked lettering is not repeated as text; numbers are live.
+        expect(find.text('ХОДЫ'), findsNothing);
+        expect(find.text('ЦЕЛИ'), findsNothing);
+        expect(
+          find.descendant(of: moves, matching: find.text('123')),
+          findsOneWidget,
+        );
+        expect(_sprite('hud_level_label'), findsOneWidget);
+        expect(_sprite('hud_level_header'), findsNothing); // nine-slice art
+        expect(
+          tester.getSize(find.byType(FlowTopHud)).height,
+          closeTo(FlowTopHud.heightFor(width - 16), .5),
+        );
+        expect(
+          tester.getSize(find.byKey(const ValueKey('flow-pause'))),
+          const Size(48, 48),
+        );
+        expect(tester.takeException(), isNull);
+      }
+      await tester.pumpWidget(const SizedBox.shrink());
+    },
+  );
+
+  testWidgets(
+    '1.62: booster slots hold badge bottom-left and «+» bottom-right with apart targets',
+    (tester) async {
+      for (final width in [320.0, 390.0, 430.0]) {
+        final used = <FlowTool>[], more = <FlowTool>[];
+        await _mount(
+          tester,
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: SizedBox(
+              width: width - 16,
+              child: FlowBottomTools(
+                flow: const FlowProgress(),
+                onUse: used.add,
+                onMore: more.add,
+              ),
+            ),
+          ),
+          size: Size(width, 400),
+        );
+        expect(
+          tester
+              .getSize(find.byKey(const ValueKey('flow-bottom-panel')))
+              .height,
+          closeTo(FlowBottomTools.heightFor(width - 16), .5),
+        );
+        expect(_sprite('booster_slot'), findsNWidgets(4));
+        expect(_sprite('booster_counter_badge'), findsNWidgets(4));
+        expect(_sprite('booster_plus_button'), findsNWidgets(4));
+        for (final tool in FlowTool.values) {
+          final button = find.byKey(ValueKey('flow-tool-${tool.name}'));
+          final plus = find.byKey(ValueKey('flow-tool-more-${tool.name}'));
+          final slot = tester.getRect(button);
+          expect(tester.getSize(plus), const Size(48, 48));
+          // The slot's centre belongs to the booster, not to its «+».
+          expect(tester.getRect(plus).contains(slot.center), isFalse);
+          final badge = tester.getRect(
+            find
+                .descendant(
+                  of: find.ancestor(of: button, matching: find.byType(Stack)),
+                  matching: _sprite('booster_counter_badge'),
+                )
+                .first,
+          );
+          final plusArt = tester.getRect(
+            find.descendant(of: plus, matching: _sprite('booster_plus_button')),
+          );
+          expect(badge.center.dx, lessThan(slot.center.dx));
+          expect(badge.center.dy, greaterThan(slot.center.dy));
+          expect(plusArt.center.dx, greaterThan(slot.center.dx));
+          expect(plusArt.center.dy, greaterThan(slot.center.dy));
+          expect(slot.inflate(1).contains(plusArt.center), isTrue);
+          await tester.tapAt(slot.center);
+          await tester.tapAt(tester.getRect(plus).center);
+          await tester.pump();
+        }
+        expect(used, FlowTool.values);
+        expect(more, FlowTool.values);
+        expect(tester.takeException(), isNull);
+      }
+      await tester.pumpWidget(const SizedBox.shrink());
+    },
+  );
+
+  testWidgets(
+    '1.62: victory uses the pack lettering and keeps four actions on a small phone',
+    (tester) async {
+      final taps = <String>[];
+      final won = session(moves: 3, score: 1234567);
+      await _mount(
+        tester,
+        FlowOverlay(
+          art: 'victory_panel_base',
+          child: FlowVictoryContent(
+            level: level,
+            session: won,
+            reward: 100000,
+            onNext: () => taps.add('next'),
+            onLevels: () => taps.add('levels'),
+            onReplay: () => taps.add('replay'),
+            onExitWorld: () => taps.add('world'),
+          ),
+        ),
+        size: const Size(320, 568),
+        scale: 1.3,
+      );
+      expect(_sprite('victory_label_next'), findsOneWidget);
+      expect(_sprite('victory_label_levels'), findsOneWidget);
+      expect(find.text('Дальше'), findsNothing);
+      expect(find.text(flowNumber(1234567)), findsOneWidget);
+      expect(find.text(flowNumber(100000)), findsOneWidget);
+      for (final (key, name) in [
+        ('flow-next', 'next'),
+        ('flow-map', 'levels'),
+        ('flow-replay', 'replay'),
+        ('flow-exit-world', 'world'),
+      ]) {
+        final target = find.byKey(ValueKey(key));
+        await tester.ensureVisible(target);
+        await tester.pumpAndSettle();
+        expect(tester.getSize(target).height, greaterThanOrEqualTo(48));
+        await tester.tap(target);
+        await tester.pump();
+        expect(taps.last, name);
+      }
+      expect(tester.takeException(), isNull);
       await tester.pumpWidget(const SizedBox.shrink());
     },
   );

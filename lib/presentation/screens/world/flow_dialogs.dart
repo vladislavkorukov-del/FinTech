@@ -8,6 +8,8 @@ import '../../l10n_widgets.dart';
 import 'flow_art.dart';
 import 'flow_hud.dart';
 
+part 'flow_dialogs_fx.dart';
+
 /// All modal content stays over the real map/board and blocks pointer input.
 class FlowOverlay extends StatelessWidget {
   const FlowOverlay({
@@ -44,11 +46,12 @@ class FlowOverlay extends StatelessWidget {
                   horizontal: 14,
                   vertical: 12,
                 ),
-                // 1.60: a compact card, never wider than 360.
+                // 1.62: about 78% of the phone (the packs' 72–80%), never
+                // wider than 360; a little wider on very narrow phones.
                 child: SizedBox(
                   width: math.min(
                     360,
-                    box.maxWidth * (box.maxWidth < 360 ? .92 : .82),
+                    box.maxWidth * (box.maxWidth < 340 ? .9 : .78),
                   ),
                   // 1.61: the card rises and settles into place.
                   child: TweenAnimationBuilder<double>(
@@ -208,7 +211,7 @@ class FlowVictoryContent extends StatelessWidget {
             label: 'Очки',
             child: const FlowLabel('victory_label_score', capitalHeight: 13),
           ),
-          SizedBox(height: 32, child: FlowNumber(session.score, size: 24)),
+          SizedBox(height: 38, child: FlowNumber(session.score, size: 30)),
           const SizedBox(height: 8),
           Semantics(
             label: 'Награда',
@@ -219,22 +222,19 @@ class FlowVictoryContent extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const FlowSprite('victory_reward_coin', width: 30, height: 30),
+                const FlowSprite('victory_reward_coin', width: 36, height: 36),
                 const SizedBox(width: 8),
                 Flexible(
                   child: SizedBox(
-                    height: 32,
-                    child: FlowNumber(reward, size: 24),
+                    height: 38,
+                    child: FlowNumber(reward, size: 30),
                   ),
                 ),
               ],
             ),
           ),
           if (reward == 0)
-            const Text(
-              'Награда уже получена',
-              style: TextStyle(fontSize: 12, color: flowInk),
-            ),
+            Text('Награда уже получена', style: flowText(12, bold: false)),
           const SizedBox(height: 12),
           if (onNext != null) ...[
             FlowArtButton(
@@ -243,15 +243,20 @@ class FlowVictoryContent extends StatelessWidget {
               label: 'Следующий уровень',
               onPressed: busy ? null : onNext,
               width: double.infinity,
-              height: 50,
-              // 1.60: live text in Finora Potok, like every button in the game.
-              child: Text('Дальше', style: flowText(17)),
+              height: 52,
+              // 1.62: the pack's lettering; both labels share an x-height.
+              labelArt: 'victory_label_next',
+              labelCapHeight: 12.5,
             ),
             const SizedBox(height: 8),
           ] else
-            const Text(
-              'Все 20 уровней пройдены',
-              style: TextStyle(color: flowInk),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Text(
+                'Все 20 уровней пройдены',
+                textAlign: TextAlign.center,
+                style: flowText(13),
+              ),
             ),
           FlowArtButton(
             key: const ValueKey('flow-map'),
@@ -259,30 +264,56 @@ class FlowVictoryContent extends StatelessWidget {
             label: 'К уровням',
             onPressed: busy ? null : onLevels,
             width: double.infinity,
-            height: 50,
-            // 1.60: live text in Finora Potok, like every button in the game.
-            child: Text('К уровням', style: flowText(17)),
+            height: 52,
+            labelArt: 'victory_label_levels',
+            labelCapHeight: 12.5,
           ),
-          TextButton(
-            key: const ValueKey('flow-replay'),
+          const SizedBox(height: 8),
+          // The game's own two extra actions: the same pearl base with live
+          // Finora Potok text (the pack has no lettering for them).
+          _VictorySecondary(
+            buttonKey: const ValueKey('flow-replay'),
+            text: 'Повторить уровень',
             onPressed: busy ? null : onReplay,
-            child: Text(
-              'Повторить уровень',
-              style: flowText(14, color: const Color(0xFF27896C)),
-            ),
           ),
-          if (onExitWorld != null)
-            TextButton(
-              key: const ValueKey('flow-exit-world'),
+          if (onExitWorld != null) ...[
+            const SizedBox(height: 6),
+            _VictorySecondary(
+              buttonKey: const ValueKey('flow-exit-world'),
+              text: 'В Мир Финоры',
               onPressed: busy ? null : onExitWorld,
-              child: Text(
-                'В Мир Финоры',
-                style: flowText(14, color: const Color(0xFF27896C)),
-              ),
             ),
+          ],
         ],
       ),
     ],
+  );
+}
+
+class _VictorySecondary extends StatelessWidget {
+  const _VictorySecondary({
+    required this.buttonKey,
+    required this.text,
+    required this.onPressed,
+  });
+  final Key buttonKey;
+  final String text;
+  final VoidCallback? onPressed;
+  @override
+  Widget build(BuildContext context) => FlowArtButton(
+    key: buttonKey,
+    art: 'victory_button_secondary_base',
+    label: text,
+    onPressed: onPressed,
+    width: double.infinity,
+    height: 48,
+    child: Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 22),
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Text(text, maxLines: 1, style: flowText(15)),
+      ),
+    ),
   );
 }
 
@@ -334,12 +365,13 @@ class FlowLossContent extends StatelessWidget {
         onPressed: busy ? null : onExtraMoves,
         width: double.infinity,
         height: 50,
-        // 1.60: live text in Finora Potok, like every button in the game.
-        child: Text('Ещё 5 ходов', style: flowText(17)),
+        // 1.62: the pack's lettering, all three at one cap height.
+        labelArt: 'out_of_moves_label_extra_moves',
+        labelCapHeight: 14,
       ),
-      Text(
-        'Запас: $stock',
-        style: const TextStyle(fontSize: 12, color: flowInk),
+      Padding(
+        padding: const EdgeInsets.only(top: 2),
+        child: Text('Запас: $stock', style: flowText(12, bold: false)),
       ),
       const SizedBox(height: 8),
       FlowArtButton(
@@ -349,8 +381,9 @@ class FlowLossContent extends StatelessWidget {
         onPressed: busy ? null : onRestart,
         width: double.infinity,
         height: 50,
-        // 1.60: live text in Finora Potok, like every button in the game.
-        child: Text('Заново', style: flowText(17)),
+        // 1.62: the pack's lettering, all three at one cap height.
+        labelArt: 'out_of_moves_label_restart',
+        labelCapHeight: 14,
       ),
       const SizedBox(height: 8),
       FlowArtButton(
@@ -360,8 +393,9 @@ class FlowLossContent extends StatelessWidget {
         onPressed: busy ? null : onLevels,
         width: double.infinity,
         height: 50,
-        // 1.60: live text in Finora Potok, like every button in the game.
-        child: Text('К уровням', style: flowText(17)),
+        // 1.62: the pack's lettering, all three at one cap height.
+        labelArt: 'out_of_moves_label_levels',
+        labelCapHeight: 14,
       ),
     ],
   );
@@ -415,9 +449,9 @@ class _FlowVictoryStarsState extends State<FlowVictoryStars>
               final scale = earned
                   ? Curves.easeOutBack.transform(p)
                   : Curves.easeOutCubic.transform(p);
-              final size = i == 1 ? 52.0 : 42.0;
+              final size = i == 1 ? 66.0 : 54.0;
               return Padding(
-                padding: EdgeInsets.only(bottom: i == 1 ? 8 : 0),
+                padding: EdgeInsets.only(bottom: i == 1 ? 10 : 0),
                 child: Opacity(
                   opacity: p,
                   child: Transform.rotate(
@@ -438,89 +472,4 @@ class _FlowVictoryStarsState extends State<FlowVictoryStars>
       ],
     ),
   );
-}
-
-/// 1.61: a short shower of confetti in the game's colors behind a victory.
-class FlowConfetti extends StatefulWidget {
-  const FlowConfetti({super.key});
-  @override
-  State<FlowConfetti> createState() => _FlowConfettiState();
-}
-
-class _FlowConfettiState extends State<FlowConfetti>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _c = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 2200),
-  );
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (_c.isAnimating || _c.value > 0) return;
-    if (MediaQuery.disableAnimationsOf(context)) {
-      _c.value = 1;
-    } else {
-      _c.forward();
-    }
-  }
-
-  @override
-  void dispose() {
-    _c.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) => AnimatedBuilder(
-    animation: _c,
-    builder: (context, _) => _c.value >= 1
-        ? const SizedBox.shrink()
-        : CustomPaint(painter: _ConfettiPainter(_c.value)),
-  );
-}
-
-class _ConfettiPainter extends CustomPainter {
-  const _ConfettiPainter(this.t);
-  final double t;
-  static const _colors = [
-    Color(0xFFFFC93C),
-    Color(0xFF3FD6EA),
-    Color(0xFFFF7FB0),
-    Color(0xFF7AE0B8),
-    Color(0xFFA77BF6),
-    Colors.white,
-  ];
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final rng = math.Random(7);
-    final origin = Offset(size.width / 2, size.height * .32);
-    for (var i = 0; i < 46; i++) {
-      final angle = -math.pi / 2 + (rng.nextDouble() - .5) * math.pi * 1.1;
-      final speed = size.width * (.45 + rng.nextDouble() * .55);
-      final spin = rng.nextDouble() * math.pi * 6;
-      final delay = rng.nextDouble() * .12;
-      final p = ((t - delay) / (1 - delay)).clamp(0.0, 1.0);
-      if (p <= 0) continue;
-      final x = origin.dx + math.cos(angle) * speed * p;
-      final y =
-          origin.dy + math.sin(angle) * speed * p + size.height * 1.1 * p * p;
-      final fade = (1 - p).clamp(0.0, 1.0);
-      canvas.save();
-      canvas.translate(x, y);
-      canvas.rotate(spin * p);
-      canvas.drawRRect(
-        RRect.fromRectAndRadius(
-          Rect.fromCenter(center: Offset.zero, width: 8, height: 4.5),
-          const Radius.circular(1.5),
-        ),
-        Paint()..color = _colors[i % _colors.length].withValues(alpha: fade),
-      );
-      canvas.restore();
-    }
-  }
-
-  @override
-  bool shouldRepaint(_ConfettiPainter old) => old.t != t;
 }

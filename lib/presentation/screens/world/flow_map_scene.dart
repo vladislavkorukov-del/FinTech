@@ -7,7 +7,6 @@ import 'package:flutter/services.dart';
 import '../../../domain/flow/flow.dart';
 import '../../l10n_widgets.dart';
 import 'flow_art.dart';
-import 'flow_hud.dart' show FlowPearl, flowText;
 import 'world_art.dart';
 
 /// The supplied terraces and the live nodes share one world coordinate system.
@@ -333,6 +332,7 @@ class _FlowTerraceMapState extends State<FlowTerraceMap> {
                                   child: Text(
                                     'Продолжить уровень ${widget.progress.session!.levelId}',
                                     style: const TextStyle(
+                                      fontFamily: worldFontFamily,
                                       color: worldPlum,
                                       fontWeight: FontWeight.w700,
                                     ),
@@ -497,6 +497,7 @@ class _TerraceNode extends StatelessWidget {
                             '${level.id}',
                             textScaler: TextScaler.noScaling,
                             style: TextStyle(
+                              fontFamily: worldFontFamily,
                               fontSize: width * (level.id >= 100 ? .32 : .4),
                               fontWeight: FontWeight.w700,
                               color: const Color(0xFF610738),
@@ -548,18 +549,29 @@ class _MapHeader extends StatelessWidget {
   const _MapHeader({required this.onBack});
   final VoidCallback onBack;
 
-  /// 1.60: the same compact pearl bar as the level screen — a back button
-  /// and the live title «Уровни» in Finora Potok.
+  /// 1.62: the pack's header — the pearl bar, the «Уровни» lettering and
+  /// the round back button (its target widened to 48×48).
   @override
-  Widget build(BuildContext context) => FlowPearl(
+  Widget build(BuildContext context) => FlowArtPanel(
     key: const ValueKey('flow-map-header'),
+    art: 'map_header_base',
     padding: EdgeInsets.zero,
     child: Stack(
       alignment: Alignment.center,
       children: [
-        Semantics(header: true, child: Text('Уровни', style: flowText(18))),
+        Positioned.fill(
+          left: 56,
+          right: 56,
+          child: Semantics(
+            header: true,
+            label: 'Уровни',
+            child: const Center(
+              child: FlowSprite('map_label_levels', height: 30),
+            ),
+          ),
+        ),
         Positioned(
-          left: 0,
+          left: 4,
           top: 0,
           bottom: 0,
           child: Semantics(
@@ -575,7 +587,7 @@ class _MapHeader extends StatelessWidget {
                   width: 48,
                   height: 48,
                   child: Center(
-                    child: FlowSprite('map_button_back', width: 34, height: 34),
+                    child: FlowSprite('map_button_back', width: 36, height: 36),
                   ),
                 ),
               ),

@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart' hide Text;
 
 import '../../../domain/finora_world.dart';
@@ -190,8 +192,9 @@ class _FlowPreparationScreenState extends State<FlowPreparationScreen> {
     return WorldTheme(
       child: FlowOverlay(
         blur: true,
-        // 1.60: a compact start card — live text in Finora Potok, moves and
-        // goals on one plate, boosters on small tiles that hold their icons.
+        // 1.62: the approved start card — the «Уровень» lettering with a
+        // live number, the lavender «Ходы:» pill, «Цели уровня» with the
+        // pieces and counts on badges, then «Усилители».
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -201,10 +204,28 @@ class _FlowPreparationScreenState extends State<FlowPreparationScreen> {
                 Expanded(
                   child: Semantics(
                     header: true,
-                    child: Text(
-                      'Уровень ${level.id}',
-                      textAlign: TextAlign.center,
-                      style: flowText(22),
+                    label: 'Уровень ${level.id}',
+                    excludeSemantics: true,
+                    child: Center(
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            const FlowSprite('hud_level_label', height: 32),
+                            const SizedBox(width: 8),
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 4),
+                              child: Text(
+                                '${level.id}',
+                                textScaler: TextScaler.noScaling,
+                                style: flowText(30).copyWith(height: 1),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -224,84 +245,59 @@ class _FlowPreparationScreenState extends State<FlowPreparationScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 10),
-            FlowPearl(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-              child: Row(
-                children: [
-                  Semantics(
-                    label: 'Ходы: ${level.moves}',
-                    excludeSemantics: true,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          'ХОДЫ',
-                          style: flowText(
-                            10,
-                            color: flowInk.withValues(alpha: .6),
-                          ).copyWith(letterSpacing: .8),
-                        ),
-                        SizedBox(
-                          height: 26,
-                          child: FlowNumber(level.moves, size: 24),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    width: 1,
-                    height: 32,
-                    margin: const EdgeInsets.symmetric(horizontal: 14),
-                    color: const Color(0xFFE3C9A0),
-                  ),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          'ЦЕЛИ УРОВНЯ',
-                          style: flowText(
-                            10,
-                            color: flowInk.withValues(alpha: .6),
-                          ).copyWith(letterSpacing: .8),
-                        ),
-                        const SizedBox(height: 2),
-                        FittedBox(
-                          fit: BoxFit.scaleDown,
-                          alignment: Alignment.centerLeft,
-                          child: Row(
-                            children: [
-                              for (final goal in level.goals)
-                                Semantics(
-                                  label: '${goal.title}: ${goal.target}',
-                                  excludeSemantics: true,
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(right: 12),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        FlowGoalIcon(goal.key, size: 30),
-                                        const SizedBox(width: 4),
-                                        FlowNumber(goal.target, size: 18),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                            ],
+            const SizedBox(height: 8),
+            Semantics(
+              label: 'Ходы: ${level.moves}',
+              excludeSemantics: true,
+              child: SizedBox(
+                key: const ValueKey('flow-prelevel-moves'),
+                width: 168,
+                height: 40,
+                child: FlowArtPanel(
+                  art: 'out_of_moves_button_restart_base',
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Center(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          const FlowSprite('prelevel_label_moves', height: 22),
+                          const SizedBox(width: 5),
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 2),
+                            child: Text(
+                              '${level.moves}',
+                              textScaler: TextScaler.noScaling,
+                              style: flowText(
+                                19,
+                                color: _number,
+                              ).copyWith(height: 1),
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
-                ],
+                ),
               ),
             ),
-            const SizedBox(height: 14),
+            const SizedBox(height: 12),
             Semantics(
               header: true,
-              child: Text('Усилители', style: flowText(15)),
+              label: 'Цели уровня',
+              child: const FlowSprite('prelevel_label_goals', height: 22),
+            ),
+            const SizedBox(height: 8),
+            _PrelevelGoals(goals: level.goals),
+            const SizedBox(height: 12),
+            const Divider(height: 1, thickness: 1, color: Color(0x66C9A46A)),
+            const SizedBox(height: 12),
+            Semantics(
+              header: true,
+              label: 'Усилители',
+              child: const FlowSprite('prelevel_label_boosters', height: 22),
             ),
             const SizedBox(height: 8),
             Row(
@@ -316,8 +312,8 @@ class _FlowPreparationScreenState extends State<FlowPreparationScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 4),
                       child: Semantics(
                         selected: _tools.contains(tool),
-                        child: SizedBox(
-                          height: 64,
+                        child: AspectRatio(
+                          aspectRatio: 1,
                           child: FlowToolTile(
                             tool: tool,
                             stock: flow.available(tool),
@@ -353,8 +349,10 @@ class _FlowPreparationScreenState extends State<FlowPreparationScreen> {
               label: _busy ? 'Сохраняем' : 'Играть',
               onPressed: _busy ? null : _start,
               width: double.infinity,
-              height: 50,
-              child: Text(_busy ? 'Сохраняем' : 'Играть', style: flowText(19)),
+              height: 56,
+              // 1.62: the pack's «Играть» lettering; live text while saving.
+              labelArt: _busy ? null : 'prelevel_label_play',
+              child: _busy ? Text('Сохраняем', style: flowText(19)) : null,
             ),
             if (_busy) const LinearProgressIndicator(),
             const SizedBox(height: 10),
@@ -381,6 +379,69 @@ class _FlowPreparationScreenState extends State<FlowPreparationScreen> {
   }
 }
 
+const _number = Color(0xFF610738);
+
+/// The level's goals: the approved pieces in an even row, each count on the
+/// pack's empty badge, all numbers at one size and baseline.
+class _PrelevelGoals extends StatelessWidget {
+  const _PrelevelGoals({required this.goals});
+  final List<FlowGoal> goals;
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, box) {
+      final perRow = math.min(3, math.max(1, goals.length));
+      final cell = math.min(96.0, box.maxWidth / perRow);
+      return Wrap(
+        alignment: WrapAlignment.center,
+        runSpacing: 8,
+        children: [
+          for (final goal in goals)
+            SizedBox(
+              width: cell,
+              child: Semantics(
+                label: '${goal.title}: ${goal.target}',
+                excludeSemantics: true,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    FlowGoalIcon(goal.key, size: cell * .62),
+                    const SizedBox(height: 4),
+                    SizedBox(
+                      width: cell * .68,
+                      height: cell * .68 / 1.85,
+                      child: Stack(
+                        children: [
+                          const Positioned.fill(
+                            child: FlowSprite('booster_counter_badge'),
+                          ),
+                          Center(
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: cell * .1,
+                              ),
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  flowNumber(goal.target),
+                                  textScaler: TextScaler.noScaling,
+                                  style: flowText(cell * .2, color: _number),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+        ],
+      );
+    },
+  );
+}
+
 class FlowLegend extends StatelessWidget {
   const FlowLegend({super.key, required this.types});
   final List<FlowTile> types;
@@ -399,10 +460,7 @@ class FlowLegend extends StatelessWidget {
               height: 28,
               trim: false,
             ),
-            Text(
-              FlowTileArt.name(type),
-              style: const TextStyle(color: flowInk, fontSize: 13),
-            ),
+            Text(FlowTileArt.name(type), style: flowText(13, bold: false)),
           ],
         ),
     ],

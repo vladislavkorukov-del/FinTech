@@ -196,6 +196,8 @@ class FlowArtButton extends StatelessWidget {
     this.width,
     this.height = 56,
     this.visualSize,
+    this.visualAlignment = Alignment.center,
+    this.labelCapHeight = 16,
   });
   final String art, label;
   final String? labelArt;
@@ -204,6 +206,12 @@ class FlowArtButton extends StatelessWidget {
   final double? width;
   final double height;
   final double? visualSize;
+
+  /// Where a small [visualSize] icon sits inside its (larger) hit target.
+  final Alignment visualAlignment;
+
+  /// Cap height (or x-height, when the label art has one) of [labelArt].
+  final double labelCapHeight;
 
   @override
   Widget build(BuildContext context) => LayoutBuilder(
@@ -227,10 +235,10 @@ class FlowArtButton extends StatelessWidget {
                         ? actualHeight * .5
                         : FlowArt.labelHeight(
                             textArt,
-                            capitalHeight: 16,
+                            capitalHeight: labelCapHeight,
                             xHeight: FlowArt.info(textArt).xHeight == null
                                 ? null
-                                : 16,
+                                : labelCapHeight,
                           ),
                   ),
                 ));
@@ -259,7 +267,8 @@ class FlowArtButton extends StatelessWidget {
                     children: [
                       Positioned.fill(
                         child: visualSize != null
-                            ? Center(
+                            ? Align(
+                                alignment: visualAlignment,
                                 child: SizedBox.square(
                                   dimension: visualSize,
                                   child: FlowSprite(art),

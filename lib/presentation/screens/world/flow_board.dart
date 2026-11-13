@@ -858,6 +858,7 @@ class _FlowCellView extends StatelessWidget {
                       '${cell.stack}',
                       textScaler: TextScaler.noScaling,
                       style: const TextStyle(
+                        fontFamily: worldFontFamily,
                         color: Color(0xFF4B1038),
                         fontSize: 10,
                         fontWeight: FontWeight.w700,

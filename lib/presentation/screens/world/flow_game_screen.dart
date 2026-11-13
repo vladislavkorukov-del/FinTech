@@ -428,20 +428,24 @@ class _FlowGameScreenState extends State<FlowGameScreen>
                               ),
                             );
                           }
-                          // 1.60: the compact top (≈146) and tool bar (≈80)
-                          // leave the board most of the screen.
-                          const hudHeight = 152.0;
-                          final boardSize = math.min(
-                            box.maxWidth - 12,
-                            box.maxHeight - hudHeight - 100,
-                          );
+                          // 1.62: the pack's HUD and booster panel keep
+                          // their proportions; the board takes the rest.
                           return Padding(
                             padding: const EdgeInsets.fromLTRB(8, 4, 8, 6),
                             child: Column(
                               children: [
                                 hud,
                                 const SizedBox(height: 6),
-                                Expanded(child: board(boardSize)),
+                                Expanded(
+                                  child: LayoutBuilder(
+                                    builder: (_, area) => board(
+                                      math.min(
+                                        area.maxWidth - 4,
+                                        area.maxHeight,
+                                      ),
+                                    ),
+                                  ),
+                                ),
                                 if (_feedback != null)
                                   SizedBox(
                                     height: 22,
@@ -449,10 +453,7 @@ class _FlowGameScreenState extends State<FlowGameScreen>
                                       fit: BoxFit.scaleDown,
                                       child: Text(
                                         _feedback!,
-                                        style: const TextStyle(
-                                          color: flowInk,
-                                          fontSize: 13,
-                                        ),
+                                        style: flowText(13, bold: false),
                                       ),
                                     ),
                                   ),
