@@ -94,6 +94,48 @@ class FlowPearl extends StatelessWidget {
   );
 }
 
+/// 1.61: a number that counts to its new value (or, with reduced motion,
+/// changes at once).
+class FlowCountUp extends StatelessWidget {
+  const FlowCountUp(this.value, {super.key, this.size = 24});
+  final int value;
+  final double size;
+  @override
+  Widget build(BuildContext context) => TweenAnimationBuilder<double>(
+    tween: Tween(end: value.toDouble()),
+    duration: MediaQuery.disableAnimationsOf(context)
+        ? Duration.zero
+        : const Duration(milliseconds: 520),
+    curve: Curves.easeOutCubic,
+    builder: (context, v, _) => FlowNumber(v.round(), size: size),
+  );
+}
+
+/// 1.61: a number that gives a little bump when it changes.
+class FlowBump extends StatelessWidget {
+  const FlowBump(this.value, {super.key, this.size = 24});
+  final int value;
+  final double size;
+  @override
+  Widget build(BuildContext context) => AnimatedSwitcher(
+    duration: MediaQuery.disableAnimationsOf(context)
+        ? Duration.zero
+        : const Duration(milliseconds: 260),
+    switchInCurve: Curves.easeOutBack,
+    switchOutCurve: Curves.easeIn,
+    transitionBuilder: (child, animation) => FadeTransition(
+      opacity: animation,
+      child: ScaleTransition(
+        scale: Tween(begin: .6, end: 1.0).animate(animation),
+        child: child,
+      ),
+    ),
+    layoutBuilder: (current, previous) =>
+        Stack(alignment: Alignment.center, children: [...previous, ?current]),
+    child: FlowNumber(value, key: ValueKey(value), size: size),
+  );
+}
+
 class FlowGoalIcon extends StatelessWidget {
   const FlowGoalIcon(this.goalKey, {super.key, this.size = 42});
   final String goalKey;
@@ -254,7 +296,7 @@ class FlowTopHud extends StatelessWidget {
                         ),
                         SizedBox(
                           height: 26,
-                          child: FlowNumber(session.remainingMoves, size: 24),
+                          child: FlowBump(session.remainingMoves, size: 24),
                         ),
                       ],
                     ),
@@ -296,7 +338,7 @@ class FlowTopHud extends StatelessWidget {
                               children: [
                                 FlowGoalIcon(goal.key, size: 30),
                                 const SizedBox(width: 4),
-                                FlowNumber(
+                                FlowBump(
                                   math.max(
                                     0,
                                     goal.target -
@@ -325,14 +367,21 @@ class FlowTopHud extends StatelessWidget {
               width: 56,
               child: Semantics(
                 label: 'Счёт: ${session.score}',
-                child: FlowNumber(session.score, size: 15),
+                child: FlowCountUp(session.score, size: 15),
               ),
             ),
             const SizedBox(width: 6),
             Expanded(
-              child: FlowScoreTrack(
-                score: session.score,
-                thresholds: level.scoreThresholds,
+              child: TweenAnimationBuilder<double>(
+                tween: Tween(end: session.score.toDouble()),
+                duration: MediaQuery.disableAnimationsOf(context)
+                    ? Duration.zero
+                    : const Duration(milliseconds: 620),
+                curve: Curves.easeOutCubic,
+                builder: (context, score, _) => FlowScoreTrack(
+                  score: score.round(),
+                  thresholds: level.scoreThresholds,
+                ),
               ),
             ),
           ],

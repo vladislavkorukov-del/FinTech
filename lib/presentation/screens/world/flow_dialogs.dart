@@ -50,10 +50,28 @@ class FlowOverlay extends StatelessWidget {
                     360,
                     box.maxWidth * (box.maxWidth < 360 ? .92 : .82),
                   ),
-                  child: FlowArtPanel(
-                    art: art,
-                    padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
-                    child: child,
+                  // 1.61: the card rises and settles into place.
+                  child: TweenAnimationBuilder<double>(
+                    tween: Tween(begin: 0, end: 1),
+                    duration: MediaQuery.disableAnimationsOf(context)
+                        ? Duration.zero
+                        : const Duration(milliseconds: 340),
+                    curve: Curves.easeOutCubic,
+                    builder: (context, t, panel) => Opacity(
+                      opacity: t,
+                      child: Transform.translate(
+                        offset: Offset(0, 28 * (1 - t)),
+                        child: Transform.scale(
+                          scale: .94 + .06 * t,
+                          child: panel,
+                        ),
+                      ),
+                    ),
+                    child: FlowArtPanel(
+                      art: art,
+                      padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
+                      child: child,
+                    ),
                   ),
                 ),
               ),
@@ -161,107 +179,109 @@ class FlowVictoryContent extends StatelessWidget {
   final VoidCallback? onNext, onExitWorld;
   final bool busy;
   @override
-  Widget build(BuildContext context) => Column(
-    key: const ValueKey('flow-result'),
-    mainAxisSize: MainAxisSize.min,
+  Widget build(BuildContext context) => Stack(
+    clipBehavior: Clip.none,
     children: [
-      Semantics(
-        header: true,
-        label: 'Уровень пройден!',
-        child: const FlowSprite('victory_title', height: 46),
+      const Positioned(
+        left: -40,
+        right: -40,
+        top: -60,
+        height: 320,
+        child: IgnorePointer(child: FlowConfetti()),
       ),
-      const SizedBox(height: 10),
-      Semantics(
-        label: 'Звёзд: ${session.stars(level)} из 3',
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            for (var i = 0; i < 3; i++)
-              Padding(
-                padding: EdgeInsets.only(bottom: i == 1 ? 8 : 0),
-                child: FlowSprite(
-                  i < session.stars(level)
-                      ? 'victory_star_earned'
-                      : 'victory_star_empty',
-                  width: i == 1 ? 52 : 42,
-                  height: i == 1 ? 52 : 42,
-                ),
-              ),
-          ],
-        ),
-      ),
-      const SizedBox(height: 12),
-      Semantics(
-        label: 'Очки',
-        child: const FlowLabel('victory_label_score', capitalHeight: 13),
-      ),
-      SizedBox(height: 32, child: FlowNumber(session.score, size: 24)),
-      const SizedBox(height: 8),
-      Semantics(
-        label: 'Награда',
-        child: const FlowLabel('victory_label_reward', capitalHeight: 13),
-      ),
-      Semantics(
-        label: 'Награда: $reward игровых искр',
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const FlowSprite('victory_reward_coin', width: 30, height: 30),
-            const SizedBox(width: 8),
-            Flexible(
-              child: SizedBox(height: 32, child: FlowNumber(reward, size: 24)),
-            ),
-          ],
-        ),
-      ),
-      if (reward == 0)
-        const Text(
-          'Награда уже получена',
-          style: TextStyle(fontSize: 12, color: flowInk),
-        ),
-      const SizedBox(height: 12),
-      if (onNext != null) ...[
-        FlowArtButton(
-          key: const ValueKey('flow-next'),
-          art: 'victory_button_primary_base',
-          label: 'Следующий уровень',
-          onPressed: busy ? null : onNext,
-          width: double.infinity,
-          height: 50,
-          // 1.60: live text in Finora Potok, like every button in the game.
-          child: Text('Дальше', style: flowText(17)),
-        ),
-        const SizedBox(height: 8),
-      ] else
-        const Text('Все 20 уровней пройдены', style: TextStyle(color: flowInk)),
-      FlowArtButton(
-        key: const ValueKey('flow-map'),
-        art: 'victory_button_secondary_base',
-        label: 'К уровням',
-        onPressed: busy ? null : onLevels,
-        width: double.infinity,
-        height: 50,
-        // 1.60: live text in Finora Potok, like every button in the game.
-        child: Text('К уровням', style: flowText(17)),
-      ),
-      TextButton(
-        key: const ValueKey('flow-replay'),
-        onPressed: busy ? null : onReplay,
-        child: Text(
-          'Повторить уровень',
-          style: flowText(14, color: const Color(0xFF27896C)),
-        ),
-      ),
-      if (onExitWorld != null)
-        TextButton(
-          key: const ValueKey('flow-exit-world'),
-          onPressed: busy ? null : onExitWorld,
-          child: Text(
-            'В Мир Финоры',
-            style: flowText(14, color: const Color(0xFF27896C)),
+      Column(
+        key: const ValueKey('flow-result'),
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Semantics(
+            header: true,
+            label: 'Уровень пройден!',
+            child: const FlowSprite('victory_title', height: 46),
           ),
-        ),
+          const SizedBox(height: 10),
+          Semantics(
+            label: 'Звёзд: ${session.stars(level)} из 3',
+            child: FlowVictoryStars(stars: session.stars(level)),
+          ),
+          const SizedBox(height: 12),
+          Semantics(
+            label: 'Очки',
+            child: const FlowLabel('victory_label_score', capitalHeight: 13),
+          ),
+          SizedBox(height: 32, child: FlowNumber(session.score, size: 24)),
+          const SizedBox(height: 8),
+          Semantics(
+            label: 'Награда',
+            child: const FlowLabel('victory_label_reward', capitalHeight: 13),
+          ),
+          Semantics(
+            label: 'Награда: $reward игровых искр',
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const FlowSprite('victory_reward_coin', width: 30, height: 30),
+                const SizedBox(width: 8),
+                Flexible(
+                  child: SizedBox(
+                    height: 32,
+                    child: FlowNumber(reward, size: 24),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (reward == 0)
+            const Text(
+              'Награда уже получена',
+              style: TextStyle(fontSize: 12, color: flowInk),
+            ),
+          const SizedBox(height: 12),
+          if (onNext != null) ...[
+            FlowArtButton(
+              key: const ValueKey('flow-next'),
+              art: 'victory_button_primary_base',
+              label: 'Следующий уровень',
+              onPressed: busy ? null : onNext,
+              width: double.infinity,
+              height: 50,
+              // 1.60: live text in Finora Potok, like every button in the game.
+              child: Text('Дальше', style: flowText(17)),
+            ),
+            const SizedBox(height: 8),
+          ] else
+            const Text(
+              'Все 20 уровней пройдены',
+              style: TextStyle(color: flowInk),
+            ),
+          FlowArtButton(
+            key: const ValueKey('flow-map'),
+            art: 'victory_button_secondary_base',
+            label: 'К уровням',
+            onPressed: busy ? null : onLevels,
+            width: double.infinity,
+            height: 50,
+            // 1.60: live text in Finora Potok, like every button in the game.
+            child: Text('К уровням', style: flowText(17)),
+          ),
+          TextButton(
+            key: const ValueKey('flow-replay'),
+            onPressed: busy ? null : onReplay,
+            child: Text(
+              'Повторить уровень',
+              style: flowText(14, color: const Color(0xFF27896C)),
+            ),
+          ),
+          if (onExitWorld != null)
+            TextButton(
+              key: const ValueKey('flow-exit-world'),
+              onPressed: busy ? null : onExitWorld,
+              child: Text(
+                'В Мир Финоры',
+                style: flowText(14, color: const Color(0xFF27896C)),
+              ),
+            ),
+        ],
+      ),
     ],
   );
 }
@@ -345,4 +365,162 @@ class FlowLossContent extends StatelessWidget {
       ),
     ],
   );
+}
+
+/// 1.61: the three stars arrive one after another and the earned ones pop.
+class FlowVictoryStars extends StatefulWidget {
+  const FlowVictoryStars({super.key, required this.stars});
+  final int stars;
+  @override
+  State<FlowVictoryStars> createState() => _FlowVictoryStarsState();
+}
+
+class _FlowVictoryStarsState extends State<FlowVictoryStars>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _c = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1100),
+  );
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_c.isAnimating || _c.value > 0) return;
+    if (MediaQuery.disableAnimationsOf(context)) {
+      _c.value = 1;
+    } else {
+      _c.forward();
+    }
+  }
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => AnimatedBuilder(
+    animation: _c,
+    builder: (context, _) => Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        for (var i = 0; i < 3; i++)
+          Builder(
+            builder: (context) {
+              final start = .12 + i * .2;
+              final p = ((_c.value - start) / .4).clamp(0.0, 1.0);
+              final earned = i < widget.stars;
+              final scale = earned
+                  ? Curves.easeOutBack.transform(p)
+                  : Curves.easeOutCubic.transform(p);
+              final size = i == 1 ? 52.0 : 42.0;
+              return Padding(
+                padding: EdgeInsets.only(bottom: i == 1 ? 8 : 0),
+                child: Opacity(
+                  opacity: p,
+                  child: Transform.rotate(
+                    angle: earned ? (1 - p) * -.6 : 0,
+                    child: Transform.scale(
+                      scale: (earned ? .2 : .7) + (earned ? .8 : .3) * scale,
+                      child: FlowSprite(
+                        earned ? 'victory_star_earned' : 'victory_star_empty',
+                        width: size,
+                        height: size,
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+      ],
+    ),
+  );
+}
+
+/// 1.61: a short shower of confetti in the game's colors behind a victory.
+class FlowConfetti extends StatefulWidget {
+  const FlowConfetti({super.key});
+  @override
+  State<FlowConfetti> createState() => _FlowConfettiState();
+}
+
+class _FlowConfettiState extends State<FlowConfetti>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _c = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 2200),
+  );
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_c.isAnimating || _c.value > 0) return;
+    if (MediaQuery.disableAnimationsOf(context)) {
+      _c.value = 1;
+    } else {
+      _c.forward();
+    }
+  }
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => AnimatedBuilder(
+    animation: _c,
+    builder: (context, _) => _c.value >= 1
+        ? const SizedBox.shrink()
+        : CustomPaint(painter: _ConfettiPainter(_c.value)),
+  );
+}
+
+class _ConfettiPainter extends CustomPainter {
+  const _ConfettiPainter(this.t);
+  final double t;
+  static const _colors = [
+    Color(0xFFFFC93C),
+    Color(0xFF3FD6EA),
+    Color(0xFFFF7FB0),
+    Color(0xFF7AE0B8),
+    Color(0xFFA77BF6),
+    Colors.white,
+  ];
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final rng = math.Random(7);
+    final origin = Offset(size.width / 2, size.height * .32);
+    for (var i = 0; i < 46; i++) {
+      final angle = -math.pi / 2 + (rng.nextDouble() - .5) * math.pi * 1.1;
+      final speed = size.width * (.45 + rng.nextDouble() * .55);
+      final spin = rng.nextDouble() * math.pi * 6;
+      final delay = rng.nextDouble() * .12;
+      final p = ((t - delay) / (1 - delay)).clamp(0.0, 1.0);
+      if (p <= 0) continue;
+      final x = origin.dx + math.cos(angle) * speed * p;
+      final y =
+          origin.dy + math.sin(angle) * speed * p + size.height * 1.1 * p * p;
+      final fade = (1 - p).clamp(0.0, 1.0);
+      canvas.save();
+      canvas.translate(x, y);
+      canvas.rotate(spin * p);
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(
+          Rect.fromCenter(center: Offset.zero, width: 8, height: 4.5),
+          const Radius.circular(1.5),
+        ),
+        Paint()..color = _colors[i % _colors.length].withValues(alpha: fade),
+      );
+      canvas.restore();
+    }
+  }
+
+  @override
+  bool shouldRepaint(_ConfettiPainter old) => old.t != t;
 }

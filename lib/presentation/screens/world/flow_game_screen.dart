@@ -41,6 +41,9 @@ class _FlowGameScreenState extends State<FlowGameScreen>
       _navigating = false;
   String? _feedback;
   late int _earned = widget.initialReward;
+  // 1.61: the last move, played by the board.
+  FlowBoardMotion? _motion;
+  var _motionId = 0;
   final _audio = FlowAudio();
   @override
   void initState() {
@@ -117,6 +120,14 @@ class _FlowGameScreenState extends State<FlowGameScreen>
         unawaited(_audio.effect(success: turn.session.finished));
       }
       setState(() {
+        _motion = FlowBoardMotion(
+          id: ++_motionId,
+          before: session.board,
+          accepted: turn.accepted,
+          from: from,
+          to: to,
+          events: turn.events,
+        );
         _earned += c.data.world.sparks - sparks;
         _feedback = turn.accepted
             ? turn.shuffled
@@ -166,6 +177,14 @@ class _FlowGameScreenState extends State<FlowGameScreen>
       if (!mounted) return;
       if (turn.accepted) unawaited(_audio.effect());
       setState(() {
+        if (turn.accepted) {
+          _motion = FlowBoardMotion(
+            id: ++_motionId,
+            before: session.board,
+            accepted: true,
+            events: turn.events,
+          );
+        }
         _earned += c.data.world.sparks - sparks;
         if (turn.accepted) {
           _tool = null;
@@ -367,6 +386,12 @@ class _FlowGameScreenState extends State<FlowGameScreen>
                               child: FlowBoard(
                                 session: session,
                                 selected: _selected,
+                                motion: _motion,
+                                animate:
+                                    !MediaQuery.disableAnimationsOf(context) &&
+                                    !FinanceScope.of(
+                                      context,
+                                    ).data.world.reducedMotion,
                                 enabled: !_blocked && !session.finished,
                                 onSelect: _select,
                                 onExchange: (from, to) =>
