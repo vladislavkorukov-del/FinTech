@@ -68,6 +68,8 @@ abstract final class WorldCatalog {
     'review_month': WorldRewardAmount(20, 25),
     'goal': WorldRewardAmount(30, 40),
     'game': WorldRewardAmount(5, 10),
+    'finorio_task': WorldRewardAmount(10, 15),
+    'finorio_research': WorldRewardAmount(30, 50),
   };
 
   static WorldCosmetic? cosmetic(String id) =>
@@ -116,8 +118,17 @@ abstract final class WorldCatalog {
     ).hasMatch(id)) {
       return rewards['game'];
     }
-    if (RegExp(r'^flow:level:([1-9]|1[0-9]|20):v1$').hasMatch(id)) {
+    // 1.62: «Поток» has 500 levels; each pays its first-pass reward once.
+    final flow = RegExp(r'^flow:level:([1-9][0-9]{0,2}):v1$').firstMatch(id);
+    if (flow != null && int.parse(flow[1]!) <= flowLevelCount) {
       return rewards['game'];
+    }
+    // Finorio: one reward per tutorial task and for the first technology.
+    if (RegExp(r'^finorio:task:([1-9]|10):v1$').hasMatch(id)) {
+      return rewards['finorio_task'];
+    }
+    if (id == 'finorio:research:logistics:v1') {
+      return rewards['finorio_research'];
     }
     return null;
   }

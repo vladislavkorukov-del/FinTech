@@ -15,6 +15,7 @@ import '../wardrobe_screen.dart';
 import 'world_collections.dart';
 import 'world_components.dart';
 import 'world_customization.dart';
+import 'finorio/finorio_screen.dart';
 import 'flow_screens.dart';
 import 'world_garden_album.dart';
 import 'world_home_scene.dart';
@@ -312,22 +313,14 @@ class _FinoraWorldScreenState extends State<FinoraWorldScreen>
                                 const WorldAlbumScreen(),
                                 landscape,
                               ),
-                              // 1.55: «Поток» is the only game; it opens
-                              // straight from the house.
+                              // 1.63: the games: «Поток» and Finorio.
                               _homeNav(
                                 'world-destination-5',
                                 'games',
-                                'Поток',
-                                FlowMapScreen(
-                                  onExitWorld: () =>
-                                      Navigator.of(context).popUntil(
-                                        (route) => identical(
-                                          route,
-                                          ModalRoute.of(context),
-                                        ),
-                                      ),
-                                ),
+                                'Игры',
+                                const SizedBox.shrink(),
                                 landscape,
+                                onTap: () => _showGames(context),
                               ),
                             ],
                           ),
@@ -391,13 +384,62 @@ class _FinoraWorldScreenState extends State<FinoraWorldScreen>
     if (page != null && mounted) await _open(page);
   }
 
+  /// The games of the world: «Поток» and Finorio.
+  Future<void> _showGames(BuildContext themedContext) async {
+    final flow = FlowMapScreen(
+      onExitWorld: () => Navigator.of(
+        context,
+      ).popUntil((route) => identical(route, ModalRoute.of(context))),
+    );
+    final page = await showModalBottomSheet<Widget>(
+      context: themedContext,
+      showDragHandle: true,
+      builder: (_) => WorldTheme(
+        child: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (final item in <(String, String, String, IconData, Widget)>[
+                (
+                  'world-game-flow',
+                  'Поток',
+                  'Три в ряд: 500 уровней',
+                  Icons.grid_view_rounded,
+                  flow,
+                ),
+                (
+                  'world-game-finorio',
+                  'Finorio',
+                  'Заводы, конвейеры и технологии',
+                  Icons.precision_manufacturing_outlined,
+                  const FinorioScreen(),
+                ),
+              ])
+                ListTile(
+                  key: ValueKey(item.$1),
+                  leading: Icon(item.$4, color: worldJade),
+                  title: Text(item.$2),
+                  subtitle: Text(item.$3),
+                  trailing: const Icon(Icons.chevron_right_rounded),
+                  onTap: () => Navigator.pop(themedContext, item.$5),
+                ),
+              const SizedBox(height: 8),
+            ],
+          ),
+        ),
+      ),
+    );
+    if (page != null && mounted) await _open(page);
+  }
+
   Widget _homeNav(
     String id,
     String image,
     String label,
     Widget page,
-    bool compact,
-  ) => Expanded(
+    bool compact, {
+    VoidCallback? onTap,
+  }) => Expanded(
     child: Semantics(
       button: true,
       label: label,
@@ -405,7 +447,7 @@ class _FinoraWorldScreenState extends State<FinoraWorldScreen>
         message: label,
         child: InkWell(
           key: ValueKey(id),
-          onTap: () => _open(page),
+          onTap: onTap ?? () => _open(page),
           borderRadius: BorderRadius.circular(16),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 2),

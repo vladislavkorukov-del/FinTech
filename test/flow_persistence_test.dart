@@ -240,7 +240,11 @@ void main() {
       expect(recovered.flow.session, isNull);
       expect(recovered.sparks, 20);
       expect(WorldCatalog.rewardFor('flow:level:20:v1'), isNotNull);
-      expect(WorldCatalog.rewardFor('flow:level:21:v1'), isNull);
+      // 1.62: generated levels pay their first-pass reward too.
+      expect(WorldCatalog.rewardFor('flow:level:21:v1'), isNotNull);
+      expect(WorldCatalog.rewardFor('flow:level:500:v1'), isNotNull);
+      expect(WorldCatalog.rewardFor('flow:level:501:v1'), isNull);
+      expect(WorldCatalog.rewardFor('flow:level:0:v1'), isNull);
       expect(WorldCatalog.rewardFor('flow:level:1:v2'), isNull);
     },
   );

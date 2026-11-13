@@ -349,6 +349,21 @@ class FinanceController extends ChangeNotifier {
     return turn!;
   }
 
+  /// Finorio rewards go to the world's one shared wallet. Each id pays
+  /// once: an id already in the world's rewards is skipped, so loading a
+  /// save again never pays twice.
+  Future<void> claimFinorioRewards(Iterable<String> ids) {
+    final fresh = ids.where((id) => !data.world.rewards.containsKey(id));
+    if (fresh.isEmpty) return Future.value();
+    return _world((d) {
+      var world = d.world;
+      for (final id in fresh) {
+        world = WorldEngine.reward(world, id, now: achievementClock());
+      }
+      return world;
+    });
+  }
+
   Future<void> setFlowPreferences({bool? music, bool? sound, bool? haptics}) =>
       _world(
         (d) => d.world.copyWith(
@@ -810,4 +825,8 @@ class FinanceScope extends InheritedNotifier<FinanceController> {
   }) : super(notifier: controller);
   static FinanceController of(BuildContext context) =>
       context.dependOnInheritedWidgetOfExactType<FinanceScope>()!.notifier!;
+
+  /// The controller without listening to it (null outside the app).
+  static FinanceController? maybeOf(BuildContext context) =>
+      context.getInheritedWidgetOfExactType<FinanceScope>()?.notifier;
 }
