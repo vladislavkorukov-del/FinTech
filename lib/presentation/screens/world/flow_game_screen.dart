@@ -445,7 +445,7 @@ class _FlowGameScreenState extends State<FlowGameScreen>
                                         _feedback!,
                                         style: const TextStyle(
                                           color: flowInk,
-                                          fontSize: 12,
+                                          fontSize: 13,
                                         ),
                                       ),
                                     ),

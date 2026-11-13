@@ -304,6 +304,7 @@ abstract final class BankStatementParser {
   static final _historyHeading = RegExp(
     r'истори[яи]\s+(?:операц|платеж)|список\s+операц|все\s+операции|операции\s+по\s+(?:карте|сч[её]ту)|выписка|bank\s+statement|transaction\s+history|recent\s+transactions|\bоперации\b',
   );
+
   /// Field labels of a single operation's details page in bank apps.
   static final _detailLabel = RegExp(
     r'сч[её]т\s+(?:списания|зачисления|получателя|отправителя)|карт[аы]\s+(?:списания|зачисления|получателя)|дата\s+и\s+время|телефон\s+получателя|банк\s+(?:получателя|отправителя)|номер\s+(?:операции|документа)|идентификатор\s+операции|статус\s+операции|квитанц|чек\s+по\s+операции|сумма\s+в\s+валюте|(?<![а-я])комиссия(?![а-я])|к[эе]шб[эе]к|сообщение\s+получателю|реквизиты\s+операции',
@@ -433,7 +434,10 @@ abstract final class BankStatementParser {
     // 1.55: a round avatar or logo left of the name is read as «C)», «()»,
     // «©» or «@»; it is not part of the merchant.
     candidate = candidate.replaceAll(
-      RegExp(r'^\s*(?:[(\[]?[cсoо0©®@][)\]]|\(\s*\)|[©®@])\s+', caseSensitive: false),
+      RegExp(
+        r'^\s*(?:[(\[]?[cсoо0©®@][)\]]|\(\s*\)|[©®@])\s+',
+        caseSensitive: false,
+      ),
       '',
     );
     candidate = candidate.replaceAll(

@@ -118,6 +118,32 @@ class WorldTheme extends StatelessWidget {
       platform: Theme.of(context).platform,
       visualDensity: VisualDensity.standard,
     );
+    TextStyle type(double size, {bool bold = false, double height = 1.3}) =>
+        TextStyle(
+          fontFamily: worldFontFamily,
+          fontSize: size,
+          height: height,
+          fontWeight: bold ? FontWeight.w700 : FontWeight.w400,
+          color: worldPlum,
+          fontFeatures: const [FontFeature.tabularFigures()],
+        );
+    final worldText = TextTheme(
+      displayLarge: type(40, bold: true, height: 1.1),
+      displayMedium: type(36, bold: true, height: 1.1),
+      displaySmall: type(32, bold: true, height: 1.15),
+      headlineLarge: type(28, bold: true, height: 1.15),
+      headlineMedium: type(26, bold: true, height: 1.2),
+      headlineSmall: type(24, bold: true, height: 1.2),
+      titleLarge: type(20, bold: true, height: 1.25),
+      titleMedium: type(17, bold: true),
+      titleSmall: type(15, bold: true),
+      bodyLarge: type(16, height: 1.4),
+      bodyMedium: type(15, height: 1.4),
+      bodySmall: type(13, height: 1.35),
+      labelLarge: type(15, bold: true, height: 1.2),
+      labelMedium: type(13, bold: true, height: 1.2),
+      labelSmall: type(12, bold: true, height: 1.2),
+    );
     final outline = OutlineInputBorder(
       borderRadius: BorderRadius.circular(16),
       borderSide: const BorderSide(color: worldChampagne),
@@ -151,18 +177,14 @@ class WorldTheme extends StatelessWidget {
         canvasColor: worldPearl,
         disabledColor: mutedInk,
         dividerColor: const Color(0xFFDECFDE),
-        textTheme: base.textTheme.apply(
-          bodyColor: worldPlum,
-          displayColor: worldPlum,
-        ),
+        // 1.56: one type scale for the whole world, in Finora Potok's two
+        // weights (400 for text, 700 for titles, buttons and numbers).
+        textTheme: worldText,
         appBarTheme: base.appBarTheme.copyWith(
           backgroundColor: worldPearl,
           foregroundColor: worldPlum,
           surfaceTintColor: Colors.transparent,
-          titleTextStyle: base.textTheme.titleLarge?.copyWith(
-            color: worldPlum,
-            fontWeight: FontWeight.w700,
-          ),
+          titleTextStyle: worldText.titleLarge,
         ),
         iconTheme: const IconThemeData(color: worldPlum),
         primaryIconTheme: const IconThemeData(color: worldPlum),
@@ -178,10 +200,8 @@ class WorldTheme extends StatelessWidget {
           iconColor: worldJade,
           selectedColor: worldJade,
           selectedTileColor: mintSurface,
-          titleTextStyle: base.textTheme.bodyLarge?.copyWith(color: worldPlum),
-          subtitleTextStyle: base.textTheme.bodyMedium?.copyWith(
-            color: mutedInk,
-          ),
+          titleTextStyle: worldText.bodyLarge,
+          subtitleTextStyle: worldText.bodySmall?.copyWith(color: mutedInk),
         ),
         inputDecorationTheme: inputTheme,
         dropdownMenuTheme: DropdownMenuThemeData(
@@ -202,7 +222,8 @@ class WorldTheme extends StatelessWidget {
                 : fieldSurface;
           }),
           labelStyle: TextStyle(
-            fontFamily: base.textTheme.labelLarge?.fontFamily,
+            fontFamily: worldFontFamily,
+            fontSize: 14,
             color: WidgetStateColor.resolveWith(
               (states) => states.contains(WidgetState.disabled)
                   ? mutedInk
@@ -215,10 +236,8 @@ class WorldTheme extends StatelessWidget {
           checkmarkColor: worldJade,
           secondaryLabelStyle: const TextStyle(color: worldJade),
           side: const BorderSide(color: worldChampagne),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          shape: const StadiumBorder(),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         ),
         cardTheme: CardThemeData(
           color: fieldSurface,
@@ -230,14 +249,10 @@ class WorldTheme extends StatelessWidget {
         dialogTheme: DialogThemeData(
           backgroundColor: worldPearl,
           surfaceTintColor: Colors.transparent,
-          titleTextStyle: base.textTheme.headlineSmall?.copyWith(
-            color: worldPlum,
-          ),
-          contentTextStyle: base.textTheme.bodyMedium?.copyWith(
-            color: worldPlum,
-          ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
+          titleTextStyle: worldText.titleLarge,
+          contentTextStyle: worldText.bodyMedium,
+          shape: RoundedSuperellipseBorder(
+            borderRadius: BorderRadius.circular(26),
           ),
         ),
         bottomSheetTheme: const BottomSheetThemeData(
@@ -245,6 +260,9 @@ class WorldTheme extends StatelessWidget {
           modalBackgroundColor: worldPearl,
           surfaceTintColor: Colors.transparent,
           dragHandleColor: mutedInk,
+          shape: RoundedSuperellipseBorder(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(26)),
+          ),
         ),
         menuTheme: const MenuThemeData(
           style: MenuStyle(
@@ -257,17 +275,19 @@ class WorldTheme extends StatelessWidget {
           surfaceTintColor: Colors.transparent,
           textStyle: TextStyle(color: worldPlum),
         ),
+        // 1.56: every button is a capsule; primary actions 50 high,
+        // secondary 48, one label size.
         filledButtonTheme: FilledButtonThemeData(
           style: FilledButton.styleFrom(
             backgroundColor: const Color(0xFFB3E2CF),
             foregroundColor: worldJade,
             disabledForegroundColor: mutedInk,
             disabledBackgroundColor: const Color(0xFFE8E0EA),
-            minimumSize: const Size(48, 48),
-            side: const BorderSide(color: worldChampagne),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(22),
-            ),
+            minimumSize: const Size(48, 50),
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            elevation: 0,
+            textStyle: worldText.labelLarge?.copyWith(fontSize: 16),
+            shape: const StadiumBorder(),
           ),
         ),
         outlinedButtonTheme: OutlinedButtonThemeData(
@@ -275,7 +295,10 @@ class WorldTheme extends StatelessWidget {
             foregroundColor: worldPlum,
             disabledForegroundColor: mutedInk,
             minimumSize: const Size(48, 48),
+            padding: const EdgeInsets.symmetric(horizontal: 22),
+            textStyle: worldText.labelLarge,
             side: const BorderSide(color: worldChampagne),
+            shape: const StadiumBorder(),
           ),
         ),
         textButtonTheme: TextButtonThemeData(
@@ -283,6 +306,8 @@ class WorldTheme extends StatelessWidget {
             foregroundColor: worldJade,
             disabledForegroundColor: mutedInk,
             minimumSize: const Size(48, 44),
+            textStyle: worldText.labelLarge,
+            shape: const StadiumBorder(),
           ),
         ),
         switchTheme: SwitchThemeData(
@@ -373,15 +398,18 @@ class WorldPearlSurface extends StatelessWidget {
   final VoidCallback? onTap;
   @override
   Widget build(BuildContext context) => Container(
-    decoration: BoxDecoration(
+    // 1.56: continuous corners, like the rest of the app.
+    decoration: ShapeDecoration(
       gradient: const LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
         colors: [Color(0xFFFFFBFE), Color(0xFFF0E6F2), Color(0xFFF8F2F5)],
       ),
-      border: Border.all(color: worldChampagne.withValues(alpha: .75)),
-      borderRadius: BorderRadius.circular(24),
-      boxShadow: [
+      shape: RoundedSuperellipseBorder(
+        side: BorderSide(color: worldChampagne.withValues(alpha: .75)),
+        borderRadius: BorderRadius.circular(24),
+      ),
+      shadows: [
         BoxShadow(
           color: worldPlum.withValues(alpha: .09),
           blurRadius: 16,
@@ -391,10 +419,13 @@ class WorldPearlSurface extends StatelessWidget {
     ),
     child: Material(
       color: Colors.transparent,
-      borderRadius: BorderRadius.circular(24),
+      shape: RoundedSuperellipseBorder(borderRadius: BorderRadius.circular(24)),
+      clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(24),
+        customBorder: RoundedSuperellipseBorder(
+          borderRadius: BorderRadius.circular(24),
+        ),
         child: Padding(padding: padding, child: child),
       ),
     ),

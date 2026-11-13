@@ -37,5 +37,14 @@ Future<void> loadScreenshotFonts() async {
       ).readAsBytes().then((bytes) => ByteData.sublistView(bytes)),
     );
   }
-  await Future.wait([text.load(), icons.load(), inter.load()]);
+  // Finora's world: the bundled brand face Finora Potok.
+  final potok = FontLoader('FinoraPotok');
+  for (final weight in ['Regular', 'Bold']) {
+    potok.addFont(
+      File(
+        'assets/fonts/finora_potok/FinoraPotok-$weight.ttf',
+      ).readAsBytes().then((bytes) => ByteData.sublistView(bytes)),
+    );
+  }
+  await Future.wait([text.load(), icons.load(), inter.load(), potok.load()]);
 }

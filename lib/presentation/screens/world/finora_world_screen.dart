@@ -319,8 +319,8 @@ class _FinoraWorldScreenState extends State<FinoraWorldScreen>
                                 'games',
                                 'Поток',
                                 FlowMapScreen(
-                                  onExitWorld: () => Navigator.of(context)
-                                      .popUntil(
+                                  onExitWorld: () =>
+                                      Navigator.of(context).popUntil(
                                         (route) => identical(
                                           route,
                                           ModalRoute.of(context),
@@ -432,7 +432,7 @@ class _FinoraWorldScreenState extends State<FinoraWorldScreen>
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.center,
                     style: const TextStyle(
-                      fontSize: 11,
+                      fontSize: 12,
                       color: worldPlum,
                       fontWeight: FontWeight.w600,
                     ),

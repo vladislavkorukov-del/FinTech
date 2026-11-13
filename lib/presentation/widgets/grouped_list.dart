@@ -88,7 +88,8 @@ class GroupedSection extends StatelessWidget {
   }
 }
 
-/// A row: colored icon tile, title, optional subtitle or value, chevron.
+/// A row: icon tile, title, optional subtitle or value, chevron. [color] is
+/// kept for callers but no longer paints the tile (1.56: one color solution).
 class GroupedRow extends StatelessWidget {
   const GroupedRow({
     super.key,
@@ -127,14 +128,27 @@ class GroupedRow extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(14, 10, 12, 10),
             child: Row(
               children: [
+                // 1.56: one color solution for every row — the theme's icon
+                // tile colors (as on the account icons), not a rainbow; only
+                // destructive rows stay red.
                 Container(
                   width: 32,
                   height: 32,
-                  decoration: BoxDecoration(
-                    color: color,
-                    borderRadius: BorderRadius.circular(9),
+                  decoration: ShapeDecoration(
+                    color: destructive
+                        ? scheme.error.withValues(alpha: .16)
+                        : FinanceColors.of(context).iconBackground,
+                    shape: RoundedSuperellipseBorder(
+                      borderRadius: BorderRadius.circular(9),
+                    ),
                   ),
-                  child: Icon(icon, size: 19, color: Colors.white),
+                  child: Icon(
+                    icon,
+                    size: 19,
+                    color: destructive
+                        ? scheme.error
+                        : FinanceColors.of(context).iconForeground,
+                  ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(

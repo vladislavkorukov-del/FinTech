@@ -110,7 +110,7 @@ class WorldStat extends StatelessWidget {
       children: [
         Icon(icon, size: 17, color: worldMint),
         const SizedBox(width: 7),
-        Flexible(child: Text(text, style: const TextStyle(fontSize: 13))),
+        Flexible(child: Text(text, style: const TextStyle(fontSize: 14))),
       ],
     ),
   );

@@ -217,7 +217,7 @@ class FlowVictoryContent extends StatelessWidget {
       if (reward == 0)
         const Text(
           'Награда уже получена',
-          style: TextStyle(fontSize: 12, color: flowInk),
+          style: TextStyle(fontSize: 13, color: flowInk),
         ),
       const SizedBox(height: 16),
       if (onNext != null) ...[
@@ -309,7 +309,7 @@ class FlowLossContent extends StatelessWidget {
       ),
       Text(
         'Запас: $stock',
-        style: const TextStyle(fontSize: 12, color: flowInk),
+        style: const TextStyle(fontSize: 13, color: flowInk),
       ),
       const SizedBox(height: 8),
       FlowArtButton(

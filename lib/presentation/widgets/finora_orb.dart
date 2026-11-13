@@ -384,11 +384,7 @@ class FinoraOrbPainter extends CustomPainter {
           ..shader = const LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFF05201C),
-              Color(0xFF0A4A3C),
-              Color(0xFF1FB386),
-            ],
+            colors: [Color(0xFF05201C), Color(0xFF0A4A3C), Color(0xFF1FB386)],
             stops: [0, .55, 1],
           ).createShader(eye),
       );

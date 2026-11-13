@@ -45,7 +45,7 @@ class WorldHomeHeader extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
-                      fontSize: 12,
+                      fontSize: 13,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -53,7 +53,7 @@ class WorldHomeHeader extends StatelessWidget {
                     '$points опыта',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 10, color: worldJade),
+                    style: const TextStyle(fontSize: 11, color: worldJade),
                   ),
                   if (progress != null) ...[
                     const SizedBox(height: 3),

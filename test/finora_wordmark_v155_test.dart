@@ -8,7 +8,9 @@ void main() {
     tester,
   ) async {
     await tester.pumpWidget(
-      const MaterialApp(home: Scaffold(body: Center(child: FinoraWordmark()))),
+      const MaterialApp(
+        home: Scaffold(body: Center(child: FinoraWordmark())),
+      ),
     );
     expect(find.bySemanticsLabel('Finora'), findsOneWidget);
     await tester.pump(const Duration(milliseconds: 100));

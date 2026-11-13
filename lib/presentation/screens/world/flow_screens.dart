@@ -348,7 +348,7 @@ class _FlowPreparationScreenState extends State<FlowPreparationScreen> {
                 child: Text(
                   'Бомба сработает в центре поля',
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: flowInk, fontSize: 12),
+                  style: TextStyle(color: flowInk, fontSize: 13),
                 ),
               ),
             const SizedBox(height: 14),
@@ -368,7 +368,7 @@ class _FlowPreparationScreenState extends State<FlowPreparationScreen> {
                   ? 'Награда первого прохождения уже получена'
                   : 'Первое прохождение: ${reward.xp} опыта и ${reward.sparks} искр',
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 11, color: flowInk),
+              style: const TextStyle(fontSize: 12, color: flowInk),
             ),
             if (level.tutorial.isNotEmpty)
               Padding(
@@ -376,7 +376,7 @@ class _FlowPreparationScreenState extends State<FlowPreparationScreen> {
                 child: Text(
                   level.tutorial,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 11, color: flowInk),
+                  style: const TextStyle(fontSize: 12, color: flowInk),
                 ),
               ),
           ],
@@ -406,7 +406,7 @@ class FlowLegend extends StatelessWidget {
             ),
             Text(
               FlowTileArt.name(type),
-              style: const TextStyle(color: flowInk, fontSize: 12),
+              style: const TextStyle(color: flowInk, fontSize: 13),
             ),
           ],
         ),

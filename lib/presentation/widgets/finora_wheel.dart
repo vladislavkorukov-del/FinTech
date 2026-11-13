@@ -138,8 +138,10 @@ class _WheelState extends State<_Wheel> with SingleTickerProviderStateMixin {
     return AnimatedBuilder(
       animation: _open,
       builder: (context, _) {
-        final t = Curves.easeOutBack.transform(_open.value.clamp(0.0, 1.0));
+        // 1.56: a calm, premium opening — a slight zoom and fade on the iOS
+        // curve, no overshoot or spin; the actions arrive around the ring.
         final fade = _open.value;
+        final t = const Cubic(.32, .72, 0, 1).transform(fade.clamp(0.0, 1.0));
         return Material(
           type: MaterialType.transparency,
           child: Stack(
@@ -151,11 +153,23 @@ class _WheelState extends State<_Wheel> with SingleTickerProviderStateMixin {
                   onTap: widget.onDismiss,
                   child: BackdropFilter(
                     filter: ui.ImageFilter.blur(
-                      sigmaX: 6 * fade,
-                      sigmaY: 6 * fade,
+                      sigmaX: 18 * fade,
+                      sigmaY: 18 * fade,
                     ),
-                    child: ColoredBox(
-                      color: Colors.black.withValues(alpha: .45 * fade),
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        gradient: RadialGradient(
+                          center: Alignment(
+                            0,
+                            (_center.dy / size.height) * 2 - 1,
+                          ),
+                          radius: 1.1,
+                          colors: [
+                            Colors.black.withValues(alpha: .38 * fade),
+                            Colors.black.withValues(alpha: .7 * fade),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -168,60 +182,67 @@ class _WheelState extends State<_Wheel> with SingleTickerProviderStateMixin {
                 child: Opacity(
                   opacity: fade,
                   child: Transform.scale(
-                    scale: .6 + .4 * t,
-                    child: Transform.rotate(
-                      angle: (1 - t) * -.5,
-                      child: Stack(
-                        children: [
-                          Positioned.fill(
-                            child: CustomPaint(
-                              painter: _RingPainter(
-                                count: n,
-                                hovered: _hovered,
-                                outer: _outer,
-                                inner: _inner,
-                                fill: scheme.surface.withValues(alpha: .9),
-                                accent: scheme.primary,
-                                rim: scheme.onSurface.withValues(alpha: .12),
-                              ),
+                    scale: .88 + .12 * t,
+                    child: Stack(
+                      children: [
+                        Positioned.fill(
+                          child: CustomPaint(
+                            painter: _RingPainter(
+                              count: n,
+                              hovered: _hovered,
+                              outer: _outer,
+                              inner: _inner,
+                              accent: scheme.primary,
                             ),
                           ),
-                          for (var i = 0; i < n; i++)
-                            _item(context, i, step, scheme),
-                          Center(
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                FinoraCharacter(
-                                  size: 62,
-                                  moods: [
-                                    _hovered == null
-                                        ? FinoraMood.thinking
-                                        : FinoraMood.delight,
-                                  ],
-                                ),
-                              ],
-                            ),
+                        ),
+                        for (var i = 0; i < n; i++)
+                          _item(context, i, step, scheme, fade),
+                        Center(
+                          child: FinoraCharacter(
+                            size: 62,
+                            moods: [
+                              _hovered == null
+                                  ? FinoraMood.thinking
+                                  : FinoraMood.delight,
+                            ],
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
               ),
               Positioned(
-                left: 0,
-                right: 0,
-                top: _center.dy - _outer - 70,
+                left: 24,
+                right: 24,
+                top: _center.dy - _outer - 86,
                 child: Opacity(
                   opacity: fade,
-                  child: Text(
-                    label ?? 'Что сделать?',
-                    textAlign: TextAlign.center,
-                    style: theme.textTheme.titleLarge?.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w700,
-                    ),
+                  child: Column(
+                    children: [
+                      AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 160),
+                        child: Text(
+                          label ?? 'Что сделать?',
+                          key: ValueKey(label),
+                          textAlign: TextAlign.center,
+                          style: theme.textTheme.titleLarge?.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: -.3,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Проведите к действию или коснитесь его',
+                        textAlign: TextAlign.center,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: Colors.white.withValues(alpha: .6),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -232,18 +253,30 @@ class _WheelState extends State<_Wheel> with SingleTickerProviderStateMixin {
     );
   }
 
-  Widget _item(BuildContext context, int i, double step, ColorScheme scheme) {
+  Widget _item(
+    BuildContext context,
+    int i,
+    double step,
+    ColorScheme scheme,
+    double open,
+  ) {
     final a = step * i;
     final r = (_outer + _inner) / 2;
     const c = Offset(_outer + 20, _outer + 20);
     final p = c + Offset(math.sin(a) * r, -math.cos(a) * r);
     final hovered = _hovered == i;
     final action = widget.actions[i];
+    // Each action arrives a moment after the previous one, around the ring.
+    final arrive = ((open - i * .04) / .6).clamp(0.0, 1.0);
+    final onAccent =
+        ThemeData.estimateBrightnessForColor(scheme.primary) == Brightness.dark
+        ? Colors.white
+        : const Color(0xFF14110D);
     return Positioned(
-      left: p.dx - 34,
-      top: p.dy - 30,
-      width: 68,
-      height: 60,
+      left: p.dx - 36,
+      top: p.dy - 34,
+      width: 72,
+      height: 68,
       child: GestureDetector(
         key: ValueKey('wheel-${action.id}'),
         behavior: HitTestBehavior.opaque,
@@ -251,32 +284,59 @@ class _WheelState extends State<_Wheel> with SingleTickerProviderStateMixin {
           Haptics.medium();
           widget.onSelected(action.id);
         },
-        child: AnimatedScale(
-          scale: hovered ? 1.18 : 1,
-          duration: const Duration(milliseconds: 140),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                action.icon,
-                size: 26,
-                color: hovered ? scheme.onPrimary : scheme.onSurface,
-              ),
-              const SizedBox(height: 2),
-              Text(
-                action.label,
-                maxLines: 1,
-                overflow: TextOverflow.fade,
-                softWrap: false,
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: hovered
-                      ? scheme.onPrimary
-                      : scheme.onSurface.withValues(alpha: .8),
+        child: Opacity(
+          opacity: arrive,
+          child: AnimatedScale(
+            scale: hovered ? 1.1 : 1,
+            duration: const Duration(milliseconds: 180),
+            curve: Curves.easeOutCubic,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 180),
+                  curve: Curves.easeOutCubic,
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: hovered
+                        ? scheme.primary
+                        : Colors.white.withValues(alpha: .1),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: hovered ? 0 : .16),
+                      width: .8,
+                    ),
+                    boxShadow: hovered
+                        ? [
+                            BoxShadow(
+                              color: scheme.primary.withValues(alpha: .5),
+                              blurRadius: 16,
+                            ),
+                          ]
+                        : null,
+                  ),
+                  child: Icon(
+                    action.icon,
+                    size: 21,
+                    color: hovered ? onAccent : Colors.white,
+                  ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 5),
+                Text(
+                  action.label,
+                  maxLines: 1,
+                  overflow: TextOverflow.fade,
+                  softWrap: false,
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: .1,
+                    color: Colors.white.withValues(alpha: hovered ? 1 : .78),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -284,67 +344,109 @@ class _WheelState extends State<_Wheel> with SingleTickerProviderStateMixin {
   }
 }
 
+/// 1.56: one ring of dark glass with light catching its edges, thin
+/// separators between the actions, and the chosen sector lit from within.
 class _RingPainter extends CustomPainter {
   const _RingPainter({
     required this.count,
     required this.hovered,
     required this.outer,
     required this.inner,
-    required this.fill,
     required this.accent,
-    required this.rim,
   });
   final int count;
   final int? hovered;
   final double outer, inner;
-  final Color fill, accent, rim;
+  final Color accent;
 
   @override
   void paint(Canvas canvas, Size size) {
     final c = size.center(Offset.zero);
-    final step = 2 * math.pi / count;
-    const gap = .035;
-    for (var i = 0; i < count; i++) {
-      final start = -math.pi / 2 + step * i - step / 2 + gap;
-      final sweep = step - gap * 2;
-      final lift = i == hovered ? 8.0 : 0.0;
-      final mid = start + sweep / 2;
-      final shift = Offset(math.cos(mid), math.sin(mid)) * lift;
-      final o = outer + lift / 2;
-      final path = Path()
+    final ring = Path()
+      ..addOval(Rect.fromCircle(center: c, radius: outer))
+      ..addOval(Rect.fromCircle(center: c, radius: inner))
+      ..fillType = PathFillType.evenOdd;
+    final bounds = Rect.fromCircle(center: c, radius: outer);
+    // A soft shadow under the ring lifts it off the blurred screen.
+    canvas.drawPath(
+      ring.shift(const Offset(0, 10)),
+      Paint()
+        ..color = Colors.black.withValues(alpha: .35)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 22),
+    );
+    // Smoky glass, lighter at the top.
+    canvas.drawPath(
+      ring,
+      Paint()
+        ..shader = const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Color(0x40FFFFFF), Color(0x1AFFFFFF), Color(0x26FFFFFF)],
+          stops: [0, .55, 1],
+        ).createShader(bounds),
+    );
+    // The chosen sector, lit from within with the accent.
+    if (hovered != null) {
+      final step = 2 * math.pi / count;
+      final start = -math.pi / 2 + step * hovered! - step / 2;
+      final sector = Path()
+        ..arcTo(Rect.fromCircle(center: c, radius: outer), start, step, true)
         ..arcTo(
-          Rect.fromCircle(center: c + shift, radius: o),
-          start,
-          sweep,
-          true,
-        )
-        ..arcTo(
-          Rect.fromCircle(center: c + shift, radius: inner),
-          start + sweep,
-          -sweep,
+          Rect.fromCircle(center: c, radius: inner),
+          start + step,
+          -step,
           false,
         )
         ..close();
-      if (i == hovered) {
-        canvas.drawPath(
-          path,
-          Paint()
-            ..color = accent.withValues(alpha: .55)
-            ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 14),
-        );
-      }
-      canvas.drawPath(path, Paint()..color = i == hovered ? accent : fill);
       canvas.drawPath(
-        path,
+        sector,
+        Paint()
+          ..color = accent.withValues(alpha: .45)
+          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 18),
+      );
+      canvas.drawPath(
+        sector,
+        Paint()
+          ..shader = RadialGradient(
+            colors: [
+              accent.withValues(alpha: .55),
+              accent.withValues(alpha: .2),
+            ],
+          ).createShader(bounds),
+      );
+    }
+    // Thin separators between the actions.
+    final step = 2 * math.pi / count;
+    final line = Paint()
+      ..color = Colors.white.withValues(alpha: .1)
+      ..strokeWidth = 1;
+    for (var i = 0; i < count; i++) {
+      final a = -math.pi / 2 + step * i - step / 2;
+      final dir = Offset(math.cos(a), math.sin(a));
+      canvas.drawLine(c + dir * (inner + 6), c + dir * (outer - 6), line);
+    }
+    // Light catching the outer and inner edges of the glass.
+    for (final radius in [outer - .5, inner + .5]) {
+      canvas.drawCircle(
+        c,
+        radius,
         Paint()
           ..style = PaintingStyle.stroke
           ..strokeWidth = 1
-          ..color = rim,
+          ..shader = SweepGradient(
+            colors: [
+              Colors.white.withValues(alpha: .08),
+              Colors.white.withValues(alpha: .45),
+              Colors.white.withValues(alpha: .08),
+              Colors.white.withValues(alpha: .22),
+              Colors.white.withValues(alpha: .08),
+            ],
+          ).createShader(bounds),
       );
     }
   }
 
   @override
   bool shouldRepaint(_RingPainter old) =>
-      old.hovered != hovered || old.fill != fill || old.accent != accent;
+      old.hovered != hovered || old.accent != accent || old.count != count;
 }

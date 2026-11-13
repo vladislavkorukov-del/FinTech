@@ -286,7 +286,7 @@ class _SceneAction extends StatelessWidget {
               child: Text(
                 label,
                 style: const TextStyle(
-                  fontSize: 12,
+                  fontSize: 13,
                   fontWeight: FontWeight.w600,
                 ),
               ),

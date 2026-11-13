@@ -123,7 +123,10 @@ class GlassRimPainter extends CustomPainter {
     // 1.37: the hairline catches light at the top edge, like glass.
     final rect = Offset.zero & size;
     canvas.drawRSuperellipse(
-      RSuperellipse.fromRectAndRadius(rect, Radius.circular(radius)).deflate(.5),
+      RSuperellipse.fromRectAndRadius(
+        rect,
+        Radius.circular(radius),
+      ).deflate(.5),
       Paint()
         ..style = PaintingStyle.stroke
         ..strokeWidth = 1
