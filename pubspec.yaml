@@ -1,7 +1,7 @@
 name: finora
 description: Offline-first personal and family finance for Android.
 publish_to: none
-version: 1.58.0+70
+version: 1.59.0+71
 
 environment:
   sdk: '>=3.8.0 <4.0.0'
@@ -64,6 +64,7 @@ flutter:
     - assets/finora/match3/prelevel/
     - assets/finora/match3/obstacles/
     - assets/finora/match3/special/
+    - assets/finora/match3/playfield/
   # Inter 4.1 (SIL OFL 1.1, assets/fonts/inter/OFL.txt): the app's text face.
   fonts:
     - family: Inter

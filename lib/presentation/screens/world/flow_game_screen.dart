@@ -325,16 +325,14 @@ class _FlowGameScreenState extends State<FlowGameScreen>
           child: Scaffold(
             body: Stack(
               children: [
+                // 1.59: the pack's sky background under the whole level.
                 Positioned.fill(
                   child: Image.asset(
-                    WorldArt.background('garden').asset,
+                    FlowPlayfield.background,
                     fit: BoxFit.cover,
-                    cacheWidth: 960,
+                    cacheWidth: 1080,
                     excludeFromSemantics: true,
                   ),
-                ),
-                const Positioned.fill(
-                  child: ColoredBox(color: Color(0xBDDEDCE7)),
                 ),
                 ExcludeSemantics(
                   excluding: modal,
@@ -364,33 +362,15 @@ class _FlowGameScreenState extends State<FlowGameScreen>
                           Widget board(double side) => Center(
                             child: SizedBox.square(
                               dimension: math.max(80, side),
-                              child: DecoratedBox(
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFF4EDF5),
-                                  borderRadius: BorderRadius.circular(16),
-                                  border: Border.all(
-                                    color: const Color(0xFFD4B592),
-                                    width: 2,
-                                  ),
-                                  boxShadow: const [
-                                    BoxShadow(
-                                      color: Color(0x324B2346),
-                                      blurRadius: 14,
-                                      offset: Offset(0, 6),
-                                    ),
-                                  ],
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(6),
-                                  child: FlowBoard(
-                                    session: session,
-                                    selected: _selected,
-                                    enabled: !_blocked && !session.finished,
-                                    onSelect: _select,
-                                    onExchange: (from, to) =>
-                                        unawaited(_exchange(from, to)),
-                                  ),
-                                ),
+                              // The playfield draws its own backplate, cells
+                              // and pearl frame.
+                              child: FlowBoard(
+                                session: session,
+                                selected: _selected,
+                                enabled: !_blocked && !session.finished,
+                                onSelect: _select,
+                                onExchange: (from, to) =>
+                                    unawaited(_exchange(from, to)),
                               ),
                             ),
                           );

@@ -38,6 +38,91 @@ abstract final class FlowTileArt {
   };
 }
 
+/// The playfield pack (1.59): four layers drawn on one 1254 × 1254 canvas —
+/// the plum backplate, a lavender cell repeated 8 × 8, the pieces and
+/// obstacles, then the pearl frame. Rectangles come from the pack's
+/// PLAYFIELD_LAYOUT.json and scale together with one factor.
+abstract final class FlowPlayfield {
+  static const folder = 'assets/finora/match3/playfield';
+  static const background = '$folder/gameplay_background.png';
+  static const backplate = '$folder/board_backplate.png';
+  static const cell = '$folder/board_cell.png';
+  static const frame = '$folder/board_frame_pearl.png';
+
+  static const canvas = 1254.0;
+  static const size = 8;
+  static const backplateDest = Rect.fromLTRB(151, 158, 1098, 1102);
+  static const backplateVisible = Rect.fromLTRB(56, 56, 1198, 1198);
+  static const grid = Rect.fromLTRB(190, 195, 1060, 1065);
+  static const cellVisible = Rect.fromLTRB(103, 114, 1149, 1154);
+  static const frameVisible = Rect.fromLTRB(94, 102, 1156, 1159);
+  static const gapFraction = .085;
+
+  /// The square of the canvas shown in the board's box: the frame's visible
+  /// part fills it, so the transparent margins of the PNGs take no space.
+  static Rect get view {
+    final side = math.max(frameVisible.width, frameVisible.height);
+    return Rect.fromCenter(
+      center: frameVisible.center,
+      width: side,
+      height: side,
+    );
+  }
+
+  /// Distance between neighbouring cell centers on the canvas.
+  static double get pitch => math.min(grid.width / size, grid.height / size);
+
+  /// The cell [index] on the canvas, centered in the grid with the gap.
+  static Rect cellRect(int index) {
+    final step = pitch;
+    final gap = step * gapFraction;
+    final left = grid.left + (grid.width - step * size) / 2;
+    final top = grid.top + (grid.height - step * size) / 2;
+    return Rect.fromLTWH(
+      left + (index % size) * step + gap / 2,
+      top + (index ~/ size) * step + gap / 2,
+      step - gap,
+      step - gap,
+    );
+  }
+
+  /// Where to draw a whole canvas image so its [visible] part fills [dest].
+  static Rect place(Rect visible, Rect dest) {
+    final sx = dest.width / visible.width, sy = dest.height / visible.height;
+    return Rect.fromLTWH(
+      dest.left - visible.left * sx,
+      dest.top - visible.top * sy,
+      canvas * sx,
+      canvas * sy,
+    );
+  }
+
+  /// The cell under a canvas point, clamped to the board's edge cells.
+  static int cellAt(Offset point) {
+    final step = pitch;
+    final left = grid.left + (grid.width - step * size) / 2;
+    final top = grid.top + (grid.height - step * size) / 2;
+    final column = ((point.dx - left) / step).floor().clamp(0, size - 1);
+    final row = ((point.dy - top) / step).floor().clamp(0, size - 1);
+    return row * size + column;
+  }
+
+  /// A canvas rectangle in a board box [side] wide.
+  static Rect toBox(Rect r, double side) {
+    final v = view, k = side / v.width;
+    return Rect.fromLTRB(
+      (r.left - v.left) * k,
+      (r.top - v.top) * k,
+      (r.right - v.left) * k,
+      (r.bottom - v.top) * k,
+    );
+  }
+
+  /// A point in a board box [side] wide, on the canvas.
+  static Offset toCanvas(Offset p, double side) =>
+      p * (view.width / side) + view.topLeft;
+}
+
 class FlowBoard extends StatefulWidget {
   const FlowBoard({
     super.key,
@@ -66,21 +151,35 @@ class _FlowBoardState extends State<FlowBoard> {
     aspectRatio: 1,
     child: LayoutBuilder(
       builder: (context, box) {
-        final width = box.maxWidth;
+        final side = box.maxWidth;
+        final k = side / FlowPlayfield.view.width;
+        final dpr = MediaQuery.devicePixelRatioOf(context);
+        // One decode per layer size: every cell shares the same cache width.
+        final cellCanvas = FlowPlayfield.place(
+          FlowPlayfield.cellVisible,
+          FlowPlayfield.cellRect(0),
+        );
+        final cellCache = math.max(1, (cellCanvas.width * k * dpr).ceil());
+        final boardCache = math.max(1, (FlowPlayfield.canvas * k * dpr).ceil());
+        Widget layer(String asset, Rect rect, int cache) => Positioned.fromRect(
+          rect: FlowPlayfield.toBox(rect, side),
+          child: IgnorePointer(
+            child: Image.asset(
+              asset,
+              fit: BoxFit.fill,
+              cacheWidth: cache,
+              filterQuality: FilterQuality.medium,
+              excludeFromSemantics: true,
+            ),
+          ),
+        );
         return GestureDetector(
           dragStartBehavior: DragStartBehavior.down,
           onPanStart: widget.enabled
               ? (details) {
-                  _dragCell =
-                      (details.localPosition.dy / width * 8).floor().clamp(
-                            0,
-                            7,
-                          ) *
-                          8 +
-                      (details.localPosition.dx / width * 8).floor().clamp(
-                        0,
-                        7,
-                      );
+                  _dragCell = FlowPlayfield.cellAt(
+                    FlowPlayfield.toCanvas(details.localPosition, side),
+                  );
                   _drag = Offset.zero;
                 }
               : null,
@@ -104,24 +203,51 @@ class _FlowBoardState extends State<FlowBoard> {
                   }
                 }
               : null,
-          child: GridView.builder(
+          child: Stack(
             key: const ValueKey('flow-board'),
-            padding: EdgeInsets.zero,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 8,
-              mainAxisSpacing: 3,
-              crossAxisSpacing: 3,
-            ),
-            itemCount: 64,
-            itemBuilder: (context, i) => _FlowCellView(
-              key: ValueKey('flow-cell-$i'),
-              cell: widget.session.board[i],
-              index: i,
-              selected: widget.selected == i,
-              enabled: widget.enabled,
-              onTap: () => widget.onSelect(i),
-            ),
+            clipBehavior: Clip.none,
+            children: [
+              layer(
+                FlowPlayfield.backplate,
+                FlowPlayfield.place(
+                  FlowPlayfield.backplateVisible,
+                  FlowPlayfield.backplateDest,
+                ),
+                boardCache,
+              ),
+              for (var i = 0; i < 64; i++)
+                layer(
+                  FlowPlayfield.cell,
+                  FlowPlayfield.place(
+                    FlowPlayfield.cellVisible,
+                    FlowPlayfield.cellRect(i),
+                  ),
+                  cellCache,
+                ),
+              for (var i = 0; i < 64; i++)
+                Positioned.fromRect(
+                  rect: FlowPlayfield.toBox(FlowPlayfield.cellRect(i), side),
+                  child: _FlowCellView(
+                    key: ValueKey('flow-cell-$i'),
+                    cell: widget.session.board[i],
+                    index: i,
+                    selected: widget.selected == i,
+                    enabled: widget.enabled,
+                    onTap: () => widget.onSelect(i),
+                  ),
+                ),
+              // The frame on top never takes a touch from the pieces.
+              layer(
+                FlowPlayfield.frame,
+                const Rect.fromLTWH(
+                  0,
+                  0,
+                  FlowPlayfield.canvas,
+                  FlowPlayfield.canvas,
+                ),
+                boardCache,
+              ),
+            ],
           ),
         );
       },
@@ -168,15 +294,6 @@ class _FlowCellView extends StatelessWidget {
           child: LayoutBuilder(
             builder: (context, box) => Stack(
               children: [
-                Positioned.fill(
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFEEE8F3).withValues(alpha: .64),
-                      borderRadius: BorderRadius.circular(7),
-                      border: Border.all(color: const Color(0xFFE1D8DF)),
-                    ),
-                  ),
-                ),
                 if (cell.stack > 0)
                   for (var layer = 0; layer < math.min(cell.stack, 3); layer++)
                     Positioned.fill(
