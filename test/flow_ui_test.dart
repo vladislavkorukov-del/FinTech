@@ -190,7 +190,7 @@ void main() {
     (tester) async {
       await mount(tester, const FinoraWorldScreen());
       await touch(tester, find.byKey(const ValueKey('world-destination-5')));
-      // 1.63: «Игры» offers «Поток» and Finorio.
+      // 1.63: «Игры» offers «Поток» and (1.68) «Магистрали».
       await touch(tester, find.byKey(const ValueKey('world-game-flow')));
       await wait(
         tester,

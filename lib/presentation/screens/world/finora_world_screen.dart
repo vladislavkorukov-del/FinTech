@@ -15,7 +15,8 @@ import '../wardrobe_screen.dart';
 import 'world_collections.dart';
 import 'world_components.dart';
 import 'world_customization.dart';
-import 'finorio/finorio_screen.dart';
+import 'magistrali/mag_cover.dart';
+import 'magistrali/mag_screen.dart';
 import 'flow_screens.dart';
 import 'world_garden_album.dart';
 import 'world_home_scene.dart';
@@ -313,7 +314,7 @@ class _FinoraWorldScreenState extends State<FinoraWorldScreen>
                                 const WorldAlbumScreen(),
                                 landscape,
                               ),
-                              // 1.63: the games: «Поток» and Finorio.
+                              // 1.63: the games: «Поток» and (1.68) «Магистрали».
                               _homeNav(
                                 'world-destination-5',
                                 'games',
@@ -384,7 +385,7 @@ class _FinoraWorldScreenState extends State<FinoraWorldScreen>
     if (page != null && mounted) await _open(page);
   }
 
-  /// The games of the world: «Поток» and Finorio.
+  /// The games of the world: «Поток» and «Магистрали».
   Future<void> _showGames(BuildContext themedContext) async {
     final flow = FlowMapScreen(
       onExitWorld: () => Navigator.of(
@@ -407,54 +408,39 @@ class _FinoraWorldScreenState extends State<FinoraWorldScreen>
                 trailing: const Icon(Icons.chevron_right_rounded),
                 onTap: () => Navigator.pop(themedContext, flow),
               ),
-              // Finorio's card: the «Мой завод» cover, the title on its
-              // dark left side.
+              // «Магистрали»: a drawn isometric scene, the title on the left.
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
                 child: Semantics(
                   button: true,
-                  label: 'Finorio, мой завод',
+                  label: 'Магистрали, транспортная компания',
                   excludeSemantics: true,
                   child: Material(
-                    color: Colors.black,
+                    color: const Color(0xFF16302C),
                     clipBehavior: Clip.antiAlias,
                     shape: RoundedSuperellipseBorder(
                       borderRadius: BorderRadius.circular(22),
                     ),
                     child: InkWell(
-                      key: const ValueKey('world-game-finorio'),
-                      onTap: () =>
-                          Navigator.pop(themedContext, const FinorioScreen()),
-                      child: SizedBox(
+                      key: const ValueKey('world-game-magistrali'),
+                      onTap: () => Navigator.pop(
+                        themedContext,
+                        const MagistraliScreen(),
+                      ),
+                      child: const SizedBox(
                         height: 150,
                         child: Stack(
                           fit: StackFit.expand,
                           children: [
-                            Image.asset(
-                              'assets/finorio/covers/my_factory_cover.webp',
-                              fit: BoxFit.cover,
-                              alignment: Alignment.centerRight,
-                              excludeFromSemantics: true,
-                            ),
-                            const DecoratedBox(
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [
-                                    Color(0xE6101014),
-                                    Color(0x00101014),
-                                  ],
-                                  stops: [.25, .75],
-                                ),
-                              ),
-                            ),
-                            const Padding(
+                            MagistraliCover(),
+                            Padding(
                               padding: EdgeInsets.fromLTRB(20, 16, 16, 16),
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'FINORIO',
+                                    'FINORA',
                                     style: TextStyle(
                                       color: Color(0xFF8FE9D9),
                                       fontSize: 12,
@@ -464,7 +450,7 @@ class _FinoraWorldScreenState extends State<FinoraWorldScreen>
                                   ),
                                   SizedBox(height: 4),
                                   Text(
-                                    'Мой завод',
+                                    'Магистрали',
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontSize: 24,
@@ -473,7 +459,7 @@ class _FinoraWorldScreenState extends State<FinoraWorldScreen>
                                   ),
                                   SizedBox(height: 2),
                                   Text(
-                                    'Заводы, конвейеры и технологии',
+                                    'Дороги, грузовики и маршруты',
                                     style: TextStyle(
                                       color: Color(0xCCFFFFFF),
                                       fontSize: 12,

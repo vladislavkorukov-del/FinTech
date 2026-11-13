@@ -70,6 +70,7 @@ abstract final class WorldCatalog {
     'game': WorldRewardAmount(5, 10),
     'finorio_task': WorldRewardAmount(10, 15),
     'finorio_research': WorldRewardAmount(30, 50),
+    'magistrali_level': WorldRewardAmount(15, 20),
   };
 
   static WorldCosmetic? cosmetic(String id) =>
@@ -123,7 +124,18 @@ abstract final class WorldCatalog {
     if (flow != null && int.parse(flow[1]!) <= flowLevelCount) {
       return rewards['game'];
     }
-    // Finorio: one reward per tutorial task and for the first technology.
+    // «Магистрали»: the first delivery and every fifth company level up
+    // to 100, each once.
+    if (id == 'magistrali:first_delivery:v1') return rewards['game'];
+    final mag = RegExp(
+      r'^magistrali:level:([1-9][0-9]{0,2}):v1$',
+    ).firstMatch(id);
+    if (mag != null) {
+      final n = int.parse(mag[1]!);
+      if (n % 5 == 0 && n <= 100) return rewards['magistrali_level'];
+    }
+    // Finorio (1.63–1.67, removed in 1.68): its rewards already paid stay
+    // valid so saved worlds keep loading.
     if (RegExp(r'^finorio:task:([1-9]|10):v1$').hasMatch(id)) {
       return rewards['finorio_task'];
     }

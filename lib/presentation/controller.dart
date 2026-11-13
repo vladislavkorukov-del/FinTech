@@ -349,10 +349,10 @@ class FinanceController extends ChangeNotifier {
     return turn!;
   }
 
-  /// Finorio rewards go to the world's one shared wallet. Each id pays
-  /// once: an id already in the world's rewards is skipped, so loading a
-  /// save again never pays twice.
-  Future<void> claimFinorioRewards(Iterable<String> ids) {
+  /// Game rewards («Магистрали») go to the world's one shared wallet. Each
+  /// id pays once: an id already in the world's rewards is skipped, so
+  /// loading a save again never pays twice.
+  Future<void> claimGameRewards(Iterable<String> ids) {
     final fresh = ids.where((id) => !data.world.rewards.containsKey(id));
     if (fresh.isEmpty) return Future.value();
     return _world((d) {
