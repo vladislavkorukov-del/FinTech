@@ -4,6 +4,7 @@ import 'package:flutter/material.dart' hide Text;
 
 import '../../../../domain/magistrali/magistrali.dart';
 import '../../../l10n_widgets.dart';
+import 'mag_advice.dart';
 import 'mag_art.dart';
 import 'mag_business.dart';
 import 'mag_hud.dart';
@@ -35,6 +36,7 @@ class _MagFinanceCenterState extends State<MagFinanceCenter> {
     'Производства',
     'Поселения',
     'Активы',
+    'Советы',
   ];
 
   @override
@@ -74,7 +76,8 @@ class _MagFinanceCenterState extends State<MagFinanceCenter> {
           1 => _transport(w),
           2 => _industries(w),
           3 => _towns(w),
-          _ => _assets(w),
+          4 => _assets(w),
+          _ => adviceCards(widget.state, context),
         },
       ],
     );
@@ -201,7 +204,22 @@ class _MagFinanceCenterState extends State<MagFinanceCenter> {
       if (w.routes.isNotEmpty) ...[
         _head('Маршруты'),
         for (final r in w.routes.values)
-          magRow(r.name, '${magMoney(r.income)} кр · ${r.deliveries} дост.'),
+          _card(key: ValueKey('mag-fin-route-${r.id}'), [
+            _head(r.name),
+            magRow('Доход', '+${magMoney(r.income)}'),
+            magRow('Расходы машин на линии', '−${magMoney(r.costs)}'),
+            magRow('Прибыль линии', _signed(r.profit), color: _tone(r.profit)),
+            magRow(
+              'Порожний пробег',
+              r.emptyShare == null
+                  ? 'ещё не ездили'
+                  : '${(r.emptyShare! * 100).round()}% из ${magMoney(r.cells)} кл.',
+            ),
+            magRow(
+              'Доставок · машин',
+              '${r.deliveries} · ${w.vehicles.values.where((v) => v.routeId == r.id).length}',
+            ),
+          ]),
       ],
     ];
   }

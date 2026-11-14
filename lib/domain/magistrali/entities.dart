@@ -134,6 +134,16 @@ class MagRoute {
   /// Credits earned by its deliveries.
   int income = 0;
   int deliveries = 0;
+
+  /// What its vehicles cost while on it (fuel or feed, upkeep, repairs),
+  /// and cells they drove on it, empty and in all (ROUTE-11, ROUTE-14).
+  int costs = 0;
+  int cells = 0, emptyCells = 0;
+
+  int get profit => income - costs;
+
+  /// Share of the distance driven empty (null: not driven yet).
+  double? get emptyShare => cells == 0 ? null : emptyCells / cells;
 }
 
 class MagContract {

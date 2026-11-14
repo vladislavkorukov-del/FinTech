@@ -52,6 +52,10 @@ enum MagIndustryKind {
   brickworks,
   steelMill,
   partsFactory,
+
+  /// Built by the player (stage S7): orders supplies for the company's
+  /// plants and the settlements around it.
+  logisticsCenter,
 }
 
 /// Upgrade lines of a truck.
@@ -207,6 +211,11 @@ abstract final class MagRules {
   static const maxUpgrade = 10;
   static const maxContracts = 3;
 
+  /// Logistics centre: the radius it serves and the orders it keeps open,
+  /// at level 1 and more with each level.
+  static const centerRadius = 8, centerRadiusStep = 3;
+  static const centerOrders = 3, centerOrdersStep = 2;
+
   /// Days a city waits before its next order after one ends.
   static const cityOrderPause = 4;
 
@@ -329,6 +338,11 @@ abstract final class MagRules {
       extra: {MagCargo.planks: 1},
       price: 12000,
       buildLevel: 5,
+    ),
+    MagIndustryKind.logisticsCenter: MagIndustrySpec(
+      size: 2,
+      price: 9000,
+      buildLevel: 6,
     ),
   };
 

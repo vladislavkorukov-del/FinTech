@@ -96,6 +96,7 @@ extension MagWorldSim on MagWorld {
         v
           ..unpaid -= n
           ..costs += n;
+        routes[v.routeId]?.costs += n;
         _spend(n, 'running', source: 'vehicle', sourceId: v.id);
       }
     }
@@ -104,6 +105,7 @@ extension MagWorldSim on MagWorld {
     for (final v in vehicles.values) {
       upkeep += upkeepOf(v);
       v.costs += upkeepOf(v);
+      routes[v.routeId]?.costs += upkeepOf(v);
     }
     if (upkeep > 0) _spend(upkeep, 'upkeep');
     var roadUpkeep = 0;
@@ -226,6 +228,11 @@ extension MagWorldSim on MagWorld {
         ..wear = math.min(100, v.wear + wearRateOf(v))
         ..unpaid += runningCostOf(v);
       if (v.load == 0) v.emptyCells += 1;
+      final line = routes[v.routeId];
+      if (line != null) {
+        line.cells++;
+        if (v.load == 0) line.emptyCells++;
+      }
 
       if (v.pathIndex == v.path.length - 1) {
         _arrive(v);
@@ -254,6 +261,7 @@ extension MagWorldSim on MagWorld {
       ..progress = 0;
     if (autoService && v.wear >= 50 && money >= serviceCost(v)) {
       v.costs += serviceCost(v);
+      routes[v.routeId]?.costs += serviceCost(v);
       _spend(serviceCost(v), 'service');
       v.wear = 0;
     }

@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'config.dart';
 import 'dispatcher.dart';
+import 'economy_catalog.dart';
 import 'ledger.dart';
 import 'entities.dart';
 import 'map.dart';
@@ -12,7 +13,9 @@ import 'pathfinding.dart';
 import 'settlements.dart';
 import 'tech.dart';
 
+part 'world_centers.dart';
 part 'world_cities.dart';
+part 'world_advice.dart';
 part 'world_dispatch.dart';
 part 'world_finance.dart';
 part 'world_fleet.dart';

@@ -7,6 +7,7 @@ import 'package:flutter/material.dart' hide Text;
 import '../../../../domain/magistrali/magistrali.dart';
 import '../../../../services/magistrali_store.dart';
 import '../../../controller.dart';
+import 'mag_center.dart';
 import 'mag_art.dart';
 import 'mag_game.dart';
 import 'mag_hud.dart';
@@ -54,6 +55,7 @@ class MagistraliScreenState extends State<MagistraliScreen>
   bool _foreground = true, _dirty = false;
   final _incomeSeen = <int, int>{};
   final _townLevels = <int, int>{};
+  int _problemsDay = -1;
   int _rewardsSeen = -1;
 
   MagTool tool = MagTool.view;
@@ -185,6 +187,11 @@ class MagistraliScreenState extends State<MagistraliScreen>
       }
       _incomeSeen[v.id] = v.income;
     }
+    // Problem marks on the map, worked out once a game day.
+    if (w.day != _problemsDay) {
+      _problemsDay = w.day;
+      overlay.problems = w.problemPlaces;
+    }
     // A settlement that grew shows its new level over it.
     for (final i in w.settlements) {
       final level = i.town!.level, seen = _townLevels[i.id];
@@ -297,7 +304,12 @@ class MagistraliScreenState extends State<MagistraliScreen>
           _clearPending();
           tool = MagTool.view;
         });
-        unawaited(showIndustrySheet(this, world.map.industries.last.id));
+        final built = world.map.industries.last;
+        unawaited(
+          built.kind == MagIndustryKind.logisticsCenter
+              ? showCenterSheet(this, built.id)
+              : showIndustrySheet(this, built.id),
+        );
       }
       return;
     }

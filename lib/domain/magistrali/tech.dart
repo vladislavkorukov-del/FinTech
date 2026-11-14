@@ -30,6 +30,9 @@ abstract final class MagBonus {
 
   /// The automatic dispatcher (stage 3).
   static const dispatcher = 'dispatcher';
+
+  /// Logistics centres the company may build (stage S7).
+  static const logistics = 'logistics';
 }
 
 class MagTech {

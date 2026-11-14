@@ -311,6 +311,20 @@ const magTechNodes = <MagTech>[
     requires: ['autosupply'],
   ),
   MagTech(
+    id: 'logcenter',
+    branch: MagBranch.storage,
+    title: 'Логистический центр',
+    lore:
+        'Отдел снабжения со своими картами и телефонами. Центр сам следит, '
+        'чтобы заводам хватало сырья, а поселениям — товаров.',
+    effect: 'Постройка «Логистический центр» (до 2 центров)',
+    effects: {MagBonus.logistics: 2},
+    cost: 6000,
+    level: 6,
+    requires: ['dispatch'],
+    deliveries: 100,
+  ),
+  MagTech(
     id: 'racks',
     branch: MagBranch.storage,
     title: 'Высотные стеллажи',

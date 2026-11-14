@@ -49,6 +49,10 @@ class MagIndustry {
   /// Tick it became the company's (null: not known, e.g. an older save).
   int? since;
 
+  /// A logistics centre: what it supplies, and how many orders it wrote.
+  bool supplyPlants = true, supplyTowns = true;
+  int ordersMade = 0;
+
   /// Fractional production carried between days is not needed: production
   /// is whole units per day.
   MagIndustrySpec get spec => MagRules.industries[kind]!;
@@ -447,6 +451,7 @@ class MagMap {
             MagIndustryKind.brickworks => 'Кирпичный завод №$n',
             MagIndustryKind.steelMill => 'Сталелитейный завод №$n',
             MagIndustryKind.partsFactory => 'Завод деталей №$n',
+            MagIndustryKind.logisticsCenter => 'Логистический центр №$n',
           });
           break;
         }

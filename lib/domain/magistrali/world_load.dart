@@ -192,7 +192,10 @@ MagWorld magWorldFromJson(Map<String, dynamic> raw) {
       ..costs = whole(m['costs'] ?? 0, 0, 1 << 50)
       ..produced = whole(m['produced'] ?? 0, 0, 1 << 50)
       ..sold = whole(m['sold'] ?? 0, 0, 1 << 50)
-      ..since = m['since'] == null ? null : whole(m['since'], 0, 1 << 50);
+      ..since = m['since'] == null ? null : whole(m['since'], 0, 1 << 50)
+      ..supplyPlants = m['noPlants'] != true
+      ..supplyTowns = m['noTowns'] != true
+      ..ordersMade = whole(m['ordersMade'] ?? 0, 0, 1 << 40);
     if (i.owned && (i.town != null || i.spec.stores || i.spec.price == 0)) {
       throw const FormatException('Bad owner in Magistrali save');
     }
@@ -210,7 +213,10 @@ MagWorld magWorldFromJson(Map<String, dynamic> raw) {
             stops: stops,
           )
           ..income = whole(m['income'] ?? 0, 0, 1 << 50)
-          ..deliveries = whole(m['deliveries'] ?? 0, 0, 1 << 40);
+          ..deliveries = whole(m['deliveries'] ?? 0, 0, 1 << 40)
+          ..costs = whole(m['costs'] ?? 0, 0, 1 << 50)
+          ..cells = whole(m['cells'] ?? 0, 0, 1 << 50)
+          ..emptyCells = whole(m['empty'] ?? 0, 0, 1 << 50);
     w.routes[r.id] = r;
   }
   final cells = size * size;

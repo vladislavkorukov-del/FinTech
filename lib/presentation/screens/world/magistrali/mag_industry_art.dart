@@ -243,6 +243,49 @@ void paintIndustryBuilding(Canvas c, MagIndustryKind k, double x, double y) {
         color: const Color(0xFFE8B23E),
         outline: false,
       );
+    case MagIndustryKind.logisticsCenter:
+      // An office block with a mint band and a radio mast.
+      MagShapes.box(
+        c,
+        x: x + 1,
+        y: y + .95,
+        length: 1.3,
+        width: .95,
+        h: 18,
+        color: const Color(0xFFE9EEF0),
+      );
+      MagShapes.box(
+        c,
+        x: x + 1,
+        y: y + .95,
+        length: 1.32,
+        width: .97,
+        z0: 12,
+        h: 3,
+        color: const Color(0xFF2BB59A),
+        outline: false,
+      );
+      MagShapes.box(
+        c,
+        x: x + .55,
+        y: y + .5,
+        length: .05,
+        width: .05,
+        z0: 18,
+        h: 22,
+        color: const Color(0xFF51707A),
+        outline: false,
+      );
+      MagShapes.cylinder(
+        c,
+        x: x + .55,
+        y: y + .5,
+        r: .06,
+        z0: 40,
+        h: 2,
+        color: const Color(0xFFD64B5C),
+        dome: true,
+      );
     default:
       break;
   }

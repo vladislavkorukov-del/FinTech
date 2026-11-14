@@ -233,6 +233,8 @@ extension _MagScreenInput on MagistraliScreenState {
                 ? showTownSheet(this, i.id)
                 : i.spec.stores
                 ? showWarehouseSheet(this, i.id)
+                : i.kind == MagIndustryKind.logisticsCenter
+                ? showCenterSheet(this, i.id)
                 : showIndustrySheet(this, i.id),
           );
         }

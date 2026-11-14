@@ -275,6 +275,7 @@ ui.Picture recordIndustry(MagIndustry i) {
     case MagIndustryKind.brickworks:
     case MagIndustryKind.steelMill:
     case MagIndustryKind.partsFactory:
+    case MagIndustryKind.logisticsCenter:
       paintIndustryBuilding(c, i.kind, x, y);
     case MagIndustryKind.warehouse:
       // A hangar with a mint band, gable roof and crates at the gate.

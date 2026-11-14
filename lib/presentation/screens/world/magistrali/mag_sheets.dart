@@ -4,6 +4,7 @@ import 'package:flutter/material.dart' hide Text;
 
 import '../../../../domain/magistrali/magistrali.dart';
 import '../../../l10n_widgets.dart';
+import 'mag_center.dart';
 import 'mag_art.dart';
 import 'mag_development.dart';
 import 'mag_hud.dart';
@@ -50,6 +51,7 @@ String kindName(MagIndustryKind k) => switch (k) {
   MagIndustryKind.brickworks => 'Кирпичный завод',
   MagIndustryKind.steelMill => 'Сталелитейный завод',
   MagIndustryKind.partsFactory => 'Завод деталей',
+  MagIndustryKind.logisticsCenter => 'Логистический центр',
 };
 
 IconData kindIcon(MagIndustryKind k) => switch (k) {
@@ -70,6 +72,7 @@ IconData kindIcon(MagIndustryKind k) => switch (k) {
   MagIndustryKind.brickworks => Icons.foundation_rounded,
   MagIndustryKind.steelMill => Icons.factory_rounded,
   MagIndustryKind.partsFactory => Icons.settings_rounded,
+  MagIndustryKind.logisticsCenter => Icons.hub_rounded,
 };
 
 const magMuted = TextStyle(fontSize: 12, color: Color(0xFF5B6B70));
@@ -310,6 +313,8 @@ Future<void> showIndustriesSheet(
                   ? showTownSheet(state, i.id)
                   : i.spec.stores
                   ? showWarehouseSheet(state, i.id)
+                  : i.kind == MagIndustryKind.logisticsCenter
+                  ? showCenterSheet(state, i.id)
                   : showIndustrySheet(state, i.id),
             );
           },

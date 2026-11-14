@@ -266,4 +266,66 @@ void main() {
     await tap(tester, 'mag-place-${hamlet.id}');
     expect(find.byKey(const ValueKey('mag-town-future')), findsOneWidget);
   });
+
+  testWidgets('S7: a logistics centre and the advice tab', (tester) async {
+    await mount(tester, const MagistraliScreen(seed: MagRules.defaultSeed));
+    final s = await ready(tester);
+    final w = s.world
+      ..money = 500000
+      ..xp = MagWorldProgress.xpFor(8)
+      ..techs.addAll(['storage', 'autosupply', 'dispatch', 'logcenter']);
+    final p = w.map.startPlant;
+    late int cx, cy;
+    search:
+    for (var r = 3; r < 20; r++) {
+      for (var d = -r; d <= r; d++) {
+        if (w.buildBlocker(MagIndustryKind.logisticsCenter, p.x + d, p.y + r) ==
+            null) {
+          cx = p.x + d;
+          cy = p.y + r;
+          break search;
+        }
+      }
+    }
+    expect(w.buildIndustry(MagIndustryKind.logisticsCenter, cx, cy), isNull);
+    final c = w.centers.single;
+    s.changed();
+    // Level 8 pays the world's level rewards: let the database finish.
+    for (var k = 0; k < 20; k++) {
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 20)),
+      );
+    }
+    s.centerOn(c.centerX, c.centerY);
+    await tester.pump();
+    await tester.tapAt(at(tester, s, c.x, c.y));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(find.byKey(const ValueKey('mag-center-sheet')), findsOneWidget);
+    expect(find.textContaining('автопарке'), findsOneWidget);
+    expect(s.overlay.plan, isNotEmpty); // its reach is lit
+    await tap(tester, 'mag-center-plants');
+    expect(c.supplyPlants, isFalse);
+    await closeSheet(tester);
+    expect(s.overlay.plan, isEmpty);
+
+    // The advice tab: the idle cart is advised; a tap opens it.
+    await tap(tester, 'mag-balance');
+    await tap(tester, 'mag-fin-tab-5');
+    expect(find.byKey(const ValueKey('mag-advice-0')), findsOneWidget);
+    final idle = w.advice.indexWhere(
+      (a) => a.kind == MagAdviceKind.idleVehicle,
+    );
+    expect(idle, isNonNegative);
+    await tap(tester, 'mag-advice-$idle');
+    expect(
+      find.byKey(ValueKey('mag-vehicle-${w.vehicles.keys.single}')),
+      findsOneWidget,
+    );
+    for (var k = 0; k < 20; k++) {
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 20)),
+      );
+    }
+  });
 }

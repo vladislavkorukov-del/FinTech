@@ -92,6 +92,10 @@ extension MagWorldIndustry on MagWorld {
   String? buildBlocker(MagIndustryKind k, int x, int y) {
     final spec = MagRules.industries[k]!;
     if (spec.price == 0 || spec.stores) return 'Это не строят';
+    if (k == MagIndustryKind.logisticsCenter) {
+      if (centerSlots == 0) return 'Нужна технология «Логистический центр»';
+      if (centers.length >= centerSlots) return 'Больше центров не разрешено';
+    }
     if (level < spec.buildLevel) {
       return 'Строить можно с ${spec.buildLevel} уровня компании';
     }
@@ -165,6 +169,7 @@ extension MagWorldIndustry on MagWorld {
     MagIndustryKind.brickworks => 'Кирпичный завод',
     MagIndustryKind.steelMill => 'Сталелитейный завод',
     MagIndustryKind.partsFactory => 'Завод деталей',
+    MagIndustryKind.logisticsCenter => 'Логистический центр',
     _ => 'Предприятие',
   };
 

@@ -20,6 +20,9 @@ class MagOverlay {
   List<int> removing = const [];
   int? industry, vehicle;
 
+  /// Places with a problem (advice), marked over their names.
+  Set<int> problems = const {};
+
   /// Income popping up over a truck: (x, y, text, start time).
   final floats = <(double, double, String, double)>[];
 }
@@ -273,6 +276,24 @@ class MagRenderer {
           Paint()..color = const Color(0xE6FFFFFF),
         );
         label.paint(canvas, box.topLeft + const Offset(6, 2.5));
+        if (o.problems.contains(i.id)) {
+          // A red mark: something here needs the player (see «Советы»).
+          final m = box.centerRight + const Offset(7, 0);
+          canvas.drawCircle(m, 6.5, Paint()..color = const Color(0xFFD64B5C));
+          canvas.drawRect(
+            Rect.fromCenter(
+              center: m - const Offset(0, 1),
+              width: 1.8,
+              height: 5,
+            ),
+            Paint()..color = const Color(0xFFFFFFFF),
+          );
+          canvas.drawCircle(
+            m + const Offset(0, 3),
+            1,
+            Paint()..color = const Color(0xFFFFFFFF),
+          );
+        }
       }
     }
 
