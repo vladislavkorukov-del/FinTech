@@ -87,7 +87,7 @@ extension MagWorldDispatch on MagWorld {
             ? roadPath([v.cell, ..._yardAround(v.cell)], from) != null
             : accessCells(from).isNotEmpty;
         if (!reach) continue;
-        if (assignOrder(o.id, v.id) != null) continue;
+        if (assignOrder(o.id, v.id, split: false) != null) continue;
         free.remove(v);
         n++;
         dispatchLog.add(

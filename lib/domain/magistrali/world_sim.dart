@@ -15,17 +15,19 @@ extension MagWorldSim on MagWorld {
     if (tick % MagRules.planEveryTicks == 0) _planLogistics();
     if (tick % MagDispatch.everyTicks == 0) dispatch();
     for (final v in vehicles.values.toList()) {
-      switch (v.state) {
-        case MagVehicleState.garage:
-        case MagVehicleState.idle:
-          break;
-        case MagVehicleState.noRoad:
-          if (--v.wait <= 0) _tryStart(v);
-        case MagVehicleState.driving:
-          _drive(v);
-        case MagVehicleState.atStop:
-          _atStop(v);
-      }
+      _safely(v, () {
+        switch (v.state) {
+          case MagVehicleState.garage:
+          case MagVehicleState.idle:
+            break;
+          case MagVehicleState.noRoad:
+            if (--v.wait <= 0) _tryStart(v);
+          case MagVehicleState.driving:
+            _drive(v);
+          case MagVehicleState.atStop:
+            _atStop(v);
+        }
+      });
     }
   }
 
@@ -125,6 +127,8 @@ extension MagWorldSim on MagWorld {
     }
     roadUpkeep = (roadUpkeep * factor(MagBonus.roadUpkeep)).round();
     if (roadUpkeep >= 10) _spend(roadUpkeep ~/ 10, 'roads_upkeep');
+    _dayExport(); // LOG-13: after the day's output
+    _checkLedger(); // CORE-10
     if (day % MagRules.daysPerMonth == 0) {
       months.add(MagMonth(day ~/ MagRules.daysPerMonth));
       if (months.length > 12) months.removeAt(0);

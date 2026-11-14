@@ -217,7 +217,9 @@ Future<void> _pickTruck(
   BuildContext context,
 ) async {
   final w = state.world;
-  final free = w.vehicles.values.where(w.isFree).toList();
+  final free = w.vehicles.values
+      .where((v) => w.isFree(v) && !v.spec.rail && !v.spec.water)
+      .toList();
   if (free.isEmpty) {
     state.say(
       'Свободных машин нет: снимите машину с маршрута или купите новую',
@@ -234,14 +236,21 @@ Future<void> _pickTruck(
           for (final v in free)
             ListTile(
               key: ValueKey('mag-order-truck-${v.id}'),
-              enabled: w.capacityOf(v) >= o.amount,
+              enabled: w.canCarry(v, o.cargo),
               leading: Icon(
                 Icons.local_shipping_rounded,
                 color: Color(v.spec.color),
               ),
               title: Text(v.name),
               subtitle: Text(
-                'груз до ${w.capacityOf(v)} · ${v.onMap ? 'на карте' : 'в гараже'}',
+                [
+                  'груз до ${w.capacityOf(v)}',
+                  v.onMap ? 'на карте' : 'в гараже',
+                  if (!w.canCarry(v, o.cargo))
+                    'не возит этот груз'
+                  else if (w.capacityOf(v) < o.amount)
+                    'заберёт ${w.capacityOf(v)}, остаток — отдельным заказом',
+                ].join(' · '),
               ),
               onTap: () => Navigator.pop(c, v.id),
             ),

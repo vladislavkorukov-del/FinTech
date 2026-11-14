@@ -296,9 +296,10 @@ void _crag(Canvas c, double x, double y, double r, double h, double seed) {
 
 /// Trees on a forest cell with volume: firs of shaded tiers, broadleaves of
 /// overlapping crowns lit from the upper left, each with a soft shadow.
-void paintForest(Canvas c, MagMap map, int x, int y, double zoom) {
+/// The trees of a forest cell: position, size, fir or not; back first.
+List<(double, double, double, bool)> forestTrees(MagMap map, int x, int y) {
   final n = 2 + (_hash(x, y, map.seed + 9) * 2.2).floor();
-  final trees = <(double, double, double, bool)>[
+  return <(double, double, double, bool)>[
     for (var i = 0; i < n; i++)
       (
         x + .18 + _hash(x * 3 + i, y, map.seed + 11) * .64,
@@ -307,7 +308,10 @@ void paintForest(Canvas c, MagMap map, int x, int y, double zoom) {
         _hash(x - i, y + 2 * i, map.seed + 17) > .45,
       ),
   ]..sort((a, b) => (a.$1 + a.$2).compareTo(b.$1 + b.$2));
-  for (final (px, py, s, fir) in trees) {
+}
+
+void paintForest(Canvas c, MagMap map, int x, int y, double zoom) {
+  for (final (px, py, s, fir) in forestTrees(map, x, y)) {
     final p = MagIso.project(px, py);
     if (zoom < .55) {
       c.drawCircle(

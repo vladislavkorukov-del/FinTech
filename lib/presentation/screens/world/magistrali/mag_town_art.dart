@@ -7,6 +7,7 @@ import 'mag_art.dart';
 import 'mag_iso.dart';
 import 'mag_shapes.dart';
 import 'mag_city_art.dart';
+import 'mag_town_levels.dart';
 
 /// The first production chains (master plan stage 3): quarry, windmill,
 /// bakery and lumber mill.
@@ -213,6 +214,7 @@ void paintTown(Canvas c, MagIndustry i) {
     final fx = x.toDouble(), fy = y.toDouble();
     if (centre) {
       _landmark(c, fx, fy, t.level);
+      paintLandmarkDetail(c, fx, fy, t.level); // CITY-06
       continue;
     }
     // A city shows its specialization on its first cell.
@@ -276,6 +278,7 @@ void paintTown(Canvas c, MagIndustry i) {
         outline: false,
       );
     }
+    paintLevelDetail(c, fx, fy, t.level, h); // CITY-06
   }
 }
 

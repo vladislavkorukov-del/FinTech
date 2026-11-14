@@ -38,6 +38,7 @@ enum MagTool {
   station,
   port,
   route,
+  terrain,
 }
 
 /// «Магистрали»: a transport company on an isometric map. Roads are laid
@@ -79,6 +80,7 @@ class MagistraliScreenState extends State<MagistraliScreen>
   bool taskFolded = false;
   void toggleTask() => setState(() => taskFolded = !taskFolded);
   MagRoad roadType = MagRoad.dirt;
+  MagTerrain terrainBrush = MagTerrain.forest; // MAP-11
 
   /// A road or a removal waiting for «Построить» / «Снести».
   MagRoadPlan? pendingRoad;

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:finora/data/finance_repository.dart';
@@ -5,6 +6,7 @@ import 'package:finora/domain/magistrali/magistrali.dart';
 import 'package:finora/domain/models.dart';
 import 'package:finora/presentation/controller.dart';
 import 'package:finora/presentation/screens/world/magistrali/mag_screen.dart';
+import 'package:finora/presentation/screens/world/magistrali/mag_town.dart';
 import 'package:finora/presentation/theme/app_theme.dart';
 import 'package:finora/services/magistrali_store.dart';
 import 'package:finora/services/notification_service.dart';
@@ -222,6 +224,57 @@ void main() {
     await tap(tester, 'mag-open-orders');
     await tap(tester, 'mag-auto-merge');
     expect(w.autoMerge, isFalse);
+    await closeSheet(tester);
+    await settle(tester);
+  });
+
+  testWidgets('S20: a big order to a small truck, growth, editor, report', (
+    tester,
+  ) async {
+    await mount(tester, const MagistraliScreen(seed: MagRules.defaultSeed));
+    final s = await ready(tester);
+    final w = s.world
+      ..money = 1000000
+      ..techs.add('combustion');
+    w.speed = 0;
+    final f = w.map.startFarm, p = w.map.startPlant;
+    w.buildRoad(w.planRoad(f.x + f.size, f.y, p.x - 1, p.y, MagRoad.dirt));
+    w.vehicles.clear();
+    w.buyTruck('pickup');
+    final truck = w.vehicles.values.single;
+    f.stock[MagCargo.grain] = (f.stock[MagCargo.grain] ?? 0) + 60;
+    w.created[MagCargo.grain] = (w.created[MagCargo.grain] ?? 0) + 60;
+    expect(
+      w.createOrder(cargo: MagCargo.grain, from: f.id, to: p.id, amount: 52),
+      isNull,
+    );
+    final o = w.orders.orders.last;
+    s.changed();
+    // The reported bug: a truck smaller than the order can be chosen now.
+    await tap(tester, 'mag-tab-fleet');
+    await tap(tester, 'mag-open-orders');
+    await tap(tester, 'mag-order-assign-${o.id}');
+    expect(find.textContaining('остаток — отдельным заказом'), findsOneWidget);
+    await tap(tester, 'mag-order-truck-${truck.id}');
+    expect(o.vehicle, truck.id);
+    expect(o.amount, w.capacityOf(truck));
+    expect(w.orders.orders.last.amount, 52 - w.capacityOf(truck));
+    await closeSheet(tester);
+    // A settlement: one growth bar and what to bring.
+    final v = w.settlements.firstWhere((t) => t.town!.level == 1);
+    unawaited(showTownSheet(s, v.id));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(find.byKey(const ValueKey('mag-town-growth')), findsOneWidget);
+    expect(find.textContaining('Привезите:'), findsOneWidget);
+    expect(find.byKey(const ValueKey('mag-town-access')), findsOneWidget);
+    await closeSheet(tester);
+    // The map report from the settings.
+    await tap(tester, 'mag-settings');
+    await tap(tester, 'mag-map-report');
+    expect(find.byKey(const ValueKey('mag-map-viable')), findsOneWidget);
+    expect(find.byKey(const ValueKey('mag-errors-none')), findsOneWidget);
+    await closeSheet(tester);
     await closeSheet(tester);
     await settle(tester);
   });

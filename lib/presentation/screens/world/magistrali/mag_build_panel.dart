@@ -11,13 +11,14 @@ import 'mag_tools.dart';
 
 /// The groups of the build tools (1.83): one row of groups, one row of the
 /// chosen group's tools, and a line about what the tool does.
-enum MagBuildGroup { roads, rail, water, buildings, remove }
+enum MagBuildGroup { roads, rail, water, buildings, remove, editor }
 
 MagBuildGroup groupOf(MagTool t) => switch (t) {
   MagTool.rail || MagTool.station => MagBuildGroup.rail,
   MagTool.port => MagBuildGroup.water,
   MagTool.warehouse || MagTool.industry => MagBuildGroup.buildings,
   MagTool.remove => MagBuildGroup.remove,
+  MagTool.terrain => MagBuildGroup.editor,
   _ => MagBuildGroup.roads,
 };
 
@@ -134,6 +135,25 @@ class MagBuildPanel extends StatelessWidget {
         ),
       ],
       MagBuildGroup.remove => const <Widget>[],
+      // MAP-11: the map editor's brushes (sandbox).
+      MagBuildGroup.editor => [
+        for (final (t, label, color) in const [
+          (MagTerrain.grass, 'Луг', Color(0xFF9CCB6B)),
+          (MagTerrain.forest, 'Лес', Color(0xFF3E8240)),
+          (MagTerrain.hill, 'Горы', Color(0xFF9A8F80)),
+          (MagTerrain.lake, 'Озеро', Color(0xFF5BA6D6)),
+        ])
+          MagToolChip(
+            key: ValueKey('mag-brush-${t.name}'),
+            label: label,
+            on: state.tool == MagTool.terrain && state.terrainBrush == t,
+            color: color,
+            onTap: () {
+              state.terrainBrush = t;
+              state.setTool(MagTool.terrain);
+            },
+          ),
+      ],
     };
 
     return Container(
@@ -186,6 +206,13 @@ class MagBuildPanel extends StatelessWidget {
                 Icons.delete_outline_rounded,
                 () => state.setTool(MagTool.remove),
               ),
+              if (w.editorOpen)
+                tab(
+                  MagBuildGroup.editor,
+                  'Карта',
+                  Icons.brush_rounded,
+                  () => state.setTool(MagTool.terrain),
+                ),
             ],
           ),
           if (tools.isNotEmpty) ...[

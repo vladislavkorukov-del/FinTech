@@ -173,8 +173,10 @@ void main() {
       days++;
     }
     expect(t.level, 2);
-    // Twenty to sixty people at full supply: about a month and a bit.
-    expect(days, inInclusiveRange(25, 60));
+    // S20: the growth delivery in — it grows the next day, people come
+    // with the level.
+    expect(days, 1);
+    expect(t.population, greaterThanOrEqualTo(MagTowns.of(2).population));
     expect(t.cells.length, 2);
     expect(t.devPaid, isFalse); // the new level's contract is open
     expectBalanced(w);

@@ -19,6 +19,20 @@ class NetChain {
   final List<int> cells;
   final MagRoad road;
   late final List<Offset> points;
+  Rect? _bounds;
+
+  /// The cells it covers, worked out once (S20: no scan every frame).
+  Rect bounds(int size) => _bounds ??= () {
+    var x0 = size, y0 = size, x1 = 0, y1 = 0;
+    for (final c in cells) {
+      final x = c % size, y = c ~/ size;
+      if (x < x0) x0 = x;
+      if (y < y0) y0 = y;
+      if (x > x1) x1 = x;
+      if (y > y1) y1 = y;
+    }
+    return Rect.fromLTRB(x0.toDouble(), y0.toDouble(), x1 + 1.0, y1 + 1.0);
+  }();
 }
 
 /// The chains of a network. [type] gives a cell's kind (0: none); a chain

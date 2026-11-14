@@ -16,7 +16,10 @@ extension MagWorldWorks on MagWorld {
     return h % MagRules.richOneIn == 0;
   }
 
-  double richFactor(MagIndustry i) => isRich(i) ? MagRules.richYield : 1;
+  double richFactor(MagIndustry i) =>
+      (isRich(i) ? MagRules.richYield : 1) *
+      mountainFactor(i) * // MAP-07
+      regionFactor(i); // BIZ-12
 
   // ---- BIZ-06 ----
 

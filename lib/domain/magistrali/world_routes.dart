@@ -196,6 +196,7 @@ extension MagWorldRoutes on MagWorld {
     ..._saveComplex(),
     ..._saveNetwork(),
     ..._saveRivals(),
+    ..._saveFinish(),
     if (map.industries.any((i) => i.staff > 0))
       'staff': {
         for (final i in map.industries)

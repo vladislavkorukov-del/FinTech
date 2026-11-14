@@ -230,6 +230,7 @@ extension MagWorldComplex on MagWorld {
   void loadHulls(Map<String, dynamic> j) {
     loadNetwork(j); // paints too need the vehicles
     loadRivals(j); // the collection of an old save comes from its fleet
+    loadFinish(j);
     for (final e in (j['hulls'] as Map? ?? const {}).entries) {
       final v = vehicles[int.parse('${e.key}')];
       final n = e.value;

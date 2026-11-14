@@ -45,6 +45,12 @@ Future<void> showWarehouseSheet(
         'Заполнено $stored из $cap',
         style: const TextStyle(fontWeight: FontWeight.w700),
       ),
+      if (w.isMultimodal(wh))
+        const Text(
+          'Мультимодальный терминал: станция и причал — места +50%',
+          key: ValueKey('mag-multimodal'),
+          style: TextStyle(fontWeight: FontWeight.w700, color: MagPalette.teal),
+        ),
       const SizedBox(height: 4),
       LinearProgressIndicator(
         value: stored / cap,

@@ -3,6 +3,22 @@ part of 'world.dart';
 /// The state the later stages added to a world (S12 onwards), kept apart
 /// so the world's own file stays short.
 mixin _MagWorldLater {
+  /// Connected pieces of the road network and what they were built from
+  /// (S20, not saved).
+  Int32List? _roadComp;
+  int _roadCompKey = -1;
+  final _pathCache = <String, List<int>>{};
+
+  /// S20: the journal of simulation errors (tick, text), the map editor's
+  /// changes (cell → terrain), own places exporting surplus; mountain
+  /// ranges worked out from the map (not saved).
+  final simErrors = <(int, String)>[];
+  final terrainEdits = <int, int>{};
+  final autoExport = <int>{};
+  List<MagMountain>? _mountains;
+  Int32List? _mountainComp;
+  int _mountainKey = -1;
+
   /// The one road cell each place (not a settlement) is entered by (S12).
   final entrances = <int, int>{};
 

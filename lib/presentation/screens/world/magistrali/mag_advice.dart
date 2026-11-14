@@ -41,6 +41,7 @@ IconData _icon(MagAdviceKind k) => switch (k) {
   MagAdviceKind.centerIdle => Icons.hub_rounded,
   MagAdviceKind.trainsBlocked => Icons.train_rounded,
   MagAdviceKind.cityDemand => Icons.trending_up_rounded,
+  MagAdviceKind.jam => Icons.traffic_rounded,
 };
 
 /// The finance centre's «Советы» tab: problems first, then chances.

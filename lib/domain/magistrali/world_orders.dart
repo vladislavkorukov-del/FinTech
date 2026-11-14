@@ -68,7 +68,7 @@ extension MagWorldOrders on MagWorld {
   }
 
   /// Puts a free truck on a waiting order.
-  String? assignOrder(int orderId, int vehicleId) {
+  String? assignOrder(int orderId, int vehicleId, {bool split = true}) {
     final o = orders.byId(orderId);
     final v = vehicles[vehicleId];
     if (o == null) return 'Нет такой заявки';
@@ -79,8 +79,26 @@ extension MagWorldOrders on MagWorld {
     }
     if (!canCarry(v, o.cargo)) return '${v.name} не возит такой груз';
     if (!isFree(v)) return '${v.name} занят';
-    if (capacityOf(v) < o.amount) {
-      return '${v.name} возьмёт только ${capacityOf(v)} ед.';
+    final cap = capacityOf(v);
+    if (cap <= 0) return '${v.name} не возит груз';
+    if (cap < o.amount && !split) {
+      return '${v.name} возьмёт только $cap ед.';
+    }
+    if (cap < o.amount) {
+      // A big order is split (S20): the truck takes what it holds, the
+      // rest waits as a new order with the same reservation in total.
+      orders.orders.add(
+        MagOrder(
+          id: nextId++,
+          cargo: o.cargo,
+          amount: o.amount - cap,
+          supplier: o.supplier,
+          receiver: o.receiver,
+          createdTick: o.createdTick,
+          priority: o.priority,
+        ),
+      );
+      o.amount = cap;
     }
     o
       ..status = MagOrderStatus.assigned

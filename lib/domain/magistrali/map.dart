@@ -160,6 +160,17 @@ class MagMap {
   final List<MagIndustry> industries;
 
   MagTerrain at(int x, int y) => MagTerrain.values[_terrain[y * size + x]];
+
+  /// Changes made by the map editor (MAP-11) bump this; drawings of the
+  /// ground are made again.
+  int terrainVersion = 0;
+
+  /// The map editor (MAP-11): changes one cell's ground.
+  void setTerrain(int x, int y, MagTerrain t) {
+    _terrain[y * size + x] = t.index;
+    terrainVersion++;
+  }
+
   bool inside(int x, int y) => x >= 0 && y >= 0 && x < size && y < size;
 
   MagIndustry? industryAt(int x, int y) {

@@ -34,7 +34,8 @@ extension MagWorldSettlements on MagWorld {
   /// Regular needs today that the world can meet.
   Map<MagCargo, int> needsOf(MagIndustry i) => {
     for (final e in i.town!.spec.needs.entries)
-      if (cargoAvailable(e.key)) e.key: e.value,
+      if (cargoAvailable(e.key))
+        e.key: (e.value * populationFactor(i.town!)).round(), // CITY-07
   };
 
   /// What growth to the next level still asks for (only cargo the world
@@ -54,6 +55,24 @@ extension MagWorldSettlements on MagWorld {
     for (final e in i.town!.spec.development.entries)
       if (cargoAvailable(e.key)) e.key: e.value,
   };
+
+  /// How far growth to the next level has come, 0..1 (S20: one bar — the
+  /// share of the growth delivery brought in).
+  double growthProgress(MagIndustry i) {
+    final t = i.town!;
+    if (t.level >= MagTowns.maxLevel) return 1;
+    final asks = developmentAsks(i);
+    if (asks.isEmpty) {
+      final next = MagTowns.of(t.level + 1).population;
+      return (t.population / next).clamp(0, 1).toDouble();
+    }
+    var have = 0, want = 0;
+    for (final e in asks.entries) {
+      want += e.value;
+      have += math.min(e.value, t.devStock[e.key] ?? 0);
+    }
+    return have / want;
+  }
 
   /// Reward of the current development contract (0 at the top level).
   int developmentReward(MagIndustry i) {
@@ -78,23 +97,24 @@ extension MagWorldSettlements on MagWorld {
     _say('${i.name}: контракт развития выполнен, +$reward кр');
   }
 
-  /// Delivered cargo arrives in a settlement: first its pantry for regular
-  /// needs (a few days' worth), then what growth asks for (kept until
-  /// growth), the rest is sold in its market (used up). Each unit goes to
-  /// exactly one of these.
+  /// Delivered cargo arrives in a settlement: first what growth asks for
+  /// (S20: growth comes first, so every delivery moves the bar), then its
+  /// pantry for regular needs (a few days' worth), the rest is sold in its
+  /// market (used up). Each unit goes to exactly one of these.
   void _townReceive(MagIndustry i, MagCargo c, int n) {
     final t = i.town!;
-    final need = needsOf(i)[c] ?? 0;
-    final room = need * MagTowns.pantryDays - (t.pantry[c] ?? 0);
-    final regular = math.max(0, math.min(n, room));
-    if (regular > 0) t.pantry[c] = (t.pantry[c] ?? 0) + regular;
-    var rest = n - regular;
-    final want = t.spec.development[c];
+    var rest = n;
+    final want = t.level < MagTowns.maxLevel ? t.spec.development[c] : null;
     if (want != null && cargoAvailable(c)) {
       final dev = math.min(rest, math.max(0, want - (t.devStock[c] ?? 0)));
       if (dev > 0) t.devStock[c] = (t.devStock[c] ?? 0) + dev;
       rest -= dev;
     }
+    final need = needsOf(i)[c] ?? 0;
+    final room = need * MagTowns.pantryDays - (t.pantry[c] ?? 0);
+    final regular = math.max(0, math.min(rest, room));
+    if (regular > 0) t.pantry[c] = (t.pantry[c] ?? 0) + regular;
+    rest -= regular;
     if (c == MagCargo.passengers) rest -= transferAt(i, rest); // PASS-06
     destroyed[c] = (destroyed[c] ?? 0) + rest; // sold in its market
     t.received[c] = (t.received[c] ?? 0) + n;
@@ -188,16 +208,18 @@ extension MagWorldSettlements on MagWorld {
       if (avg >= MagTowns.growAt) {
         final gain = math.max(
           1,
-          (t.population * MagTowns.growth * avg).round(),
+          (t.population * MagTowns.growth * avg * accessFactor(i)).round(),
         );
         t.population = math.min(cap, t.population + gain);
       } else if (avg < MagTowns.shrinkAt) {
         final loss = (t.population * MagTowns.decline).round();
         t.population = math.max(floor, t.population - loss);
       }
+      // S20: a settlement grows once its growth delivery is in (people
+      // come with the new level); with nothing to deliver, by people.
       if (t.level < MagTowns.maxLevel &&
-          t.population >= cap &&
-          missingForGrowth(i).isEmpty) {
+          missingForGrowth(i).isEmpty &&
+          (developmentAsks(i).isNotEmpty || t.population >= cap)) {
         _growTown(i);
       }
     }
@@ -240,6 +262,7 @@ extension MagWorldSettlements on MagWorld {
       ..clear()
       ..addAll(land);
     t.level++;
+    t.population = math.max(t.population, next.population);
     t
       ..blocked = null
       ..devPaid = false;

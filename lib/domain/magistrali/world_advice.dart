@@ -12,6 +12,7 @@ enum MagAdviceKind {
   centerIdle,
   trainsBlocked,
   cityDemand,
+  jam,
 }
 
 /// One piece of advice: what is wrong (or what could pay), the figures it
@@ -213,6 +214,18 @@ extension MagWorldAdvice on MagWorld {
           'Спрос недели, ещё $weekDaysLeft дн. Груз есть: ${source.first.name} (${availableOf(source.first, c)}). Это оценка, а не обещание прибыли.',
           place: i.id,
           weight: 1,
+        ),
+      );
+    }
+    // ROAD-09: jams — a road over twice its capacity.
+    final jammed = jams;
+    if (jammed.isNotEmpty) {
+      out.add(
+        MagAdvice(
+          MagAdviceKind.jam,
+          'Пробки: ${jammed.length} кл. дороги',
+          'Движение вдвое выше пропускной способности — машины стоят в очереди. Улучшите покрытие или проложите объезд (слой «Загруженность» на карте).',
+          weight: 2,
         ),
       );
     }

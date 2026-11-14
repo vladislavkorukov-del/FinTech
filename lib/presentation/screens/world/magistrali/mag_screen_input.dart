@@ -204,6 +204,19 @@ extension _MagScreenInput on MagistraliScreenState {
         });
       case MagTool.route:
         routeTap(this, cell);
+      case MagTool.terrain:
+        // MAP-11: the brush paints a 3×3 patch.
+        String? why;
+        for (var dy = -1; dy <= 1; dy++) {
+          for (var dx = -1; dx <= 1; dx++) {
+            final x = w.cx(cell) + dx, y = w.cy(cell) + dy;
+            if (!w.map.inside(x, y)) continue;
+            final e = w.editTerrain(x, y, terrainBrush);
+            if (dx == 0 && dy == 0) why = e;
+          }
+        }
+        if (why != null) say(why);
+        changed();
       case MagTool.view:
         // A closed region (MAP-08): offer to open it.
         if (!w.regionOpen(w.cx(cell), w.cy(cell))) {

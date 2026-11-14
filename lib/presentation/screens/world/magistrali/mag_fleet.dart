@@ -169,6 +169,11 @@ Future<void> showFleetSheet(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('Транспорт · ${w.vehicles.length}', style: magTitle),
+          Text(
+            w.eraName,
+            key: const ValueKey('mag-era'),
+            style: magMuted,
+          ), // TECH-05
           const SizedBox(height: 6),
           MagFilterChips(
             keyPrefix: 'mag-fleet-kind',

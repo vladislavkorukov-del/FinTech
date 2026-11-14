@@ -7,6 +7,7 @@ import '../../../l10n_widgets.dart';
 import 'mag_mega_ui.dart';
 import 'mag_art.dart';
 import 'mag_city.dart';
+import 'mag_finish_ui.dart';
 import 'mag_hud.dart';
 import 'mag_route_map.dart';
 import 'mag_screen.dart';
@@ -25,8 +26,6 @@ Future<void> showTownSheet(
   final served = w.accessCells(i).isNotEmpty;
   final needs = w.needsOf(i);
   final missing = w.missingForGrowth(i);
-  final from = t.spec.population;
-  final to = next?.population ?? from;
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
@@ -64,29 +63,49 @@ Future<void> showTownSheet(
         ],
       ),
       const SizedBox(height: 10),
+      // S20: growth is one bar — bring what it asks for, it grows.
       Text(
         next == null
-            ? 'Население ${magMoney(t.population)} — высший уровень'
-            : 'Население ${magMoney(t.population)} из ${magMoney(to)} для уровня «${next.name}»',
-        key: const ValueKey('mag-town-population'),
-        style: const TextStyle(fontWeight: FontWeight.w700),
+            ? 'Высший уровень'
+            : 'Рост до «${next.name}»: ${(w.growthProgress(i) * 100).round()}%',
+        key: const ValueKey('mag-town-growth'),
+        style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15),
       ),
       const SizedBox(height: 4),
       LinearProgressIndicator(
-        value: next == null
-            ? 1
-            : ((t.population - from) / (to - from)).clamp(0, 1),
-        minHeight: 8,
-        borderRadius: BorderRadius.circular(4),
+        value: w.growthProgress(i),
+        minHeight: 10,
+        borderRadius: BorderRadius.circular(5),
         color: MagPalette.mint,
         backgroundColor: const Color(0x1F2BB59A),
       ),
+      if (next != null) ...[
+        const SizedBox(height: 6),
+        Text(
+          missing.isEmpty
+              ? (t.blocked ?? 'Всё привезено — город растёт')
+              : 'Привезите: ${missing.entries.map((e) => '${cargoName(e.key)} ${e.value}').join(', ')}',
+          key: const ValueKey('mag-town-bring'),
+          style: TextStyle(
+            fontWeight: FontWeight.w700,
+            color: t.blocked != null
+                ? const Color(0xFFD64B5C)
+                : MagPalette.teal,
+          ),
+        ),
+        const Text(
+          'Всё, что нужно для роста, засчитывается первым. Привезли всё — город растёт сам, жители приходят вместе с уровнем.',
+          style: magMuted,
+        ),
+      ],
       const SizedBox(height: 4),
       Text(
-        'Снабжение за неделю: ${(t.averageSatisfaction * 100).round()}% · репутация ${t.reputation}'
+        'Население ${magMoney(t.population)} · снабжение за неделю ${(t.averageSatisfaction * 100).round()}% · репутация ${t.reputation}'
         '${served ? '' : ' · нет дороги'}',
+        key: const ValueKey('mag-town-population'),
         style: magMuted,
       ),
+      ...townAccessInfo(w, i),
       ...cityInfo(w, i),
       ...marketInfo(w, i),
       ...megaprojectSection(state, i),
@@ -104,14 +123,14 @@ Future<void> showTownSheet(
               : const Color(0xFFD64B5C),
         ),
       const Text(
-        'Поставки сначала наполняют кладовую на 5 дней, потом идут в рост, остальное — на рынок.',
+        'Ежедневные поставки держат жителей довольными: это звёзды, репутация и пассажиры.',
         style: magMuted,
       ),
       if (next != null) ...[
         const SizedBox(height: 10),
-        Text(
-          'Рост до «${next.name}»',
-          style: const TextStyle(fontWeight: FontWeight.w800),
+        const Text(
+          'Контракт развития',
+          style: TextStyle(fontWeight: FontWeight.w800),
         ),
         Text(
           t.devPaid
@@ -130,19 +149,6 @@ Future<void> showTownSheet(
                 ? '${t.devStock[e.key] ?? 0} из ${e.value}'
                 : 'не требуется (никто не производит)',
             color: missing.containsKey(e.key) ? null : MagPalette.teal,
-          ),
-        magRow(
-          'Население',
-          '${magMoney(t.population)} из ${magMoney(next.population)}',
-          color: t.population >= next.population ? MagPalette.teal : null,
-        ),
-        if (t.blocked != null)
-          Padding(
-            padding: const EdgeInsets.only(top: 4),
-            child: Text(
-              t.blocked!,
-              style: const TextStyle(fontSize: 12.5, color: Color(0xFFD64B5C)),
-            ),
           ),
         const SizedBox(height: 6),
         Text(

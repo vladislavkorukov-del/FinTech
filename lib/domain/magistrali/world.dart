@@ -38,6 +38,8 @@ part 'world_water.dart';
 part 'world_works.dart';
 part 'world_roads.dart';
 part 'world_rivals.dart';
+part 'world_finish.dart';
+part 'world_paths.dart';
 part 'world_routes.dart';
 part 'world_plans.dart';
 part 'world_save.dart';
@@ -255,31 +257,6 @@ class MagWorld with _MagWorldLater {
     return r == MagRoad.none
         ? 0
         : MagRules.roads[r]!.speed * factor(MagBonus.roadSpeed);
-  }
-
-  /// The quickest way by road from any of [from] to any stop of [to]. A
-  /// place joins all roads that reach it, so a truck leaving a stop may
-  /// start from any of its stop cells.
-  List<int>? roadPath(List<int> from, MagIndustry to) {
-    from = [
-      for (final c in from)
-        if (roads[c] != 0) c,
-    ];
-    if (from.isEmpty) return null;
-    final l = to.left, r = to.right, t = to.top, b = to.bottom;
-    return magAStar(
-      width: size,
-      height: size,
-      starts: from,
-      isGoal: (c) => _touches(c, to),
-      step: (a, b) => roads[b] == 0 ? null : 1 / _roadSpeed(b),
-      heuristic: (c) {
-        final x = cx(c), y = cy(c);
-        final dx = math.max(0, math.max(l - x, x - r));
-        final dy = math.max(0, math.max(t - y, y - b));
-        return math.max(0, dx + dy - 1) / (1.6 * factor(MagBonus.roadSpeed));
-      },
-    );
   }
 
   /// Are two places joined by road?

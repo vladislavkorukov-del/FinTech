@@ -181,7 +181,7 @@ void main() {
     final routed = w.vehicles.values.last;
     w.assign(routed.id, w.routes.keys.first);
     expect(w.assignOrder(b.id, routed.id), contains('занят'));
-    // Too much for a pickup.
+    // Too much for a pickup: the order is split (S20).
     w.buyTruck('pickup');
     final small = w.vehicles.values.last;
     // Give the farm enough grain (recorded in the ledger).
@@ -189,7 +189,15 @@ void main() {
     farm.stock[MagCargo.grain] = farm.stock[MagCargo.grain]! + 30;
     w.created[MagCargo.grain] = w.created[MagCargo.grain]! + 30;
     final big = order(w, amount: 20);
-    expect(w.assignOrder(big.id, small.id), contains('возьмёт только'));
+    final count = w.orders.orders.length;
+    final held = w.orders.reservedOut(farm.id, MagCargo.grain);
+    expect(w.assignOrder(big.id, small.id), isNull);
+    expect(big.amount, w.capacityOf(small));
+    expect(w.orders.orders.length, count + 1);
+    final rest = w.orders.orders.last;
+    expect(rest.amount, 20 - w.capacityOf(small));
+    expect(rest.status, MagOrderStatus.pending);
+    expect(w.orders.reservedOut(farm.id, MagCargo.grain), held);
   });
 
   test('the full life of an order on real roads, paid only on delivery', () {

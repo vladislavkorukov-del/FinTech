@@ -5,6 +5,7 @@ import '../../../l10n_widgets.dart';
 import 'mag_lore.dart';
 import 'mag_art.dart';
 import 'mag_guide.dart';
+import 'mag_finish_ui.dart';
 import 'mag_hud.dart';
 import 'mag_screen.dart';
 import 'mag_sheets.dart';
@@ -250,6 +251,17 @@ Future<void> showSettingsSheet(
         'Игра сохраняется сама. Пока игра закрыта, компания не работает.',
         style: magMuted,
       ),
+      const SizedBox(height: 8),
+      OutlinedButton.icon(
+        key: const ValueKey('mag-map-report'),
+        onPressed: () => showMapReportSheet(state),
+        icon: const Icon(Icons.map_outlined),
+        label: Text(
+          w.simErrors.isEmpty
+              ? 'Карта, регионы и журнал'
+              : 'Карта, регионы и журнал · ошибок ${w.simErrors.length}',
+        ),
+      ),
       const SizedBox(height: 14),
       OutlinedButton.icon(
         key: const ValueKey('mag-new-game'),
@@ -337,6 +349,8 @@ String toolHint(MagistraliScreenState state) {
       'Рельсы: коснитесь начала и конца · ${MagRules.railCost} кр/кл. Можно пересекать дороги.',
     MagTool.port =>
       'Коснитесь воды рядом (до 2 клеток) с предприятием или поселением · ${magMoney(MagRules.portPrice)} кр',
+    MagTool.terrain =>
+      'Редактор карты: коснитесь — кисть 3×3 рисует выбранную местность. Предприятия, дороги и станции не трогает.',
     MagTool.station =>
       'Коснитесь пути рядом (до 2 клеток) с предприятием или поселением · ${magMoney(MagRules.stationPrice)} кр',
     _ =>

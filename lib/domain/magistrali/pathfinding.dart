@@ -1,4 +1,4 @@
-import 'dart:collection';
+import 'dart:typed_data';
 
 /// A* on a grid of [width]×[height] cells, 4-connected. [step] gives the
 /// cost of entering a cell from a neighbour (null: impassable); [heuristic]
@@ -22,9 +22,12 @@ List<int>? magAStar({
   for (final s in from) {
     if (isGoal(s)) return [s];
   }
-  final g = HashMap<int, double>();
-  final came = HashMap<int, int>();
-  final closed = HashSet<int>();
+  // Flat arrays instead of hash maps (S20): the same search, several times
+  // faster on the big map.
+  final total = width * height;
+  final g = Float64List(total)..fillRange(0, total, double.infinity);
+  final came = Int32List(total)..fillRange(0, total, -1);
+  final closed = Uint8List(total);
   final open = _Heap();
   for (final s in from) {
     g[s] = 0;
@@ -33,12 +36,13 @@ List<int>? magAStar({
   var expanded = 0;
   while (open.isNotEmpty) {
     final cur = open.pop();
-    if (!closed.add(cur)) continue;
+    if (closed[cur] == 1) continue;
+    closed[cur] = 1;
     if (isGoal(cur)) {
       final path = <int>[cur];
       var c = cur;
-      while (came.containsKey(c)) {
-        c = came[c]!;
+      while (came[c] >= 0) {
+        c = came[c];
         path.add(c);
       }
       return path.reversed.toList();
@@ -50,11 +54,11 @@ List<int>? magAStar({
       final ny = cy + const [-1, 0, 1, 0, -1, 1, 1, -1][d];
       if (nx < 0 || ny < 0 || nx >= width || ny >= height) continue;
       final n = ny * width + nx;
-      if (closed.contains(n)) continue;
+      if (closed[n] == 1) continue;
       final cost = step(cur, n);
       if (cost == null) continue;
-      final ng = g[cur]! + cost;
-      if (ng < (g[n] ?? double.infinity)) {
+      final ng = g[cur] + cost;
+      if (ng < g[n]) {
         g[n] = ng;
         came[n] = cur;
         open.push(n, ng + heuristic(n));
@@ -62,6 +66,35 @@ List<int>? magAStar({
     }
   }
   return null;
+}
+
+/// Connected pieces of a network (S20): [isWay] tells a passable cell;
+/// each such cell gets the number of its piece, others −1. Lets a search
+/// that cannot succeed be refused at once instead of walking the map.
+Int32List magComponents(int width, int height, bool Function(int cell) isWay) {
+  final total = width * height;
+  final comp = Int32List(total)..fillRange(0, total, -1);
+  final stack = <int>[];
+  var id = 0;
+  for (var c = 0; c < total; c++) {
+    if (comp[c] >= 0 || !isWay(c)) continue;
+    comp[c] = id;
+    stack.add(c);
+    while (stack.isNotEmpty) {
+      final cur = stack.removeLast();
+      final x = cur % width, y = cur ~/ width;
+      for (var d = 0; d < 4; d++) {
+        final nx = x + const [0, 1, 0, -1][d], ny = y + const [-1, 0, 1, 0][d];
+        if (nx < 0 || ny < 0 || nx >= width || ny >= height) continue;
+        final n = ny * width + nx;
+        if (comp[n] >= 0 || !isWay(n)) continue;
+        comp[n] = id;
+        stack.add(n);
+      }
+    }
+    id++;
+  }
+  return comp;
 }
 
 /// A binary min-heap of (cell, priority); ties go to the cell pushed first,

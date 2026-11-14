@@ -8,6 +8,7 @@ import '../../../../domain/magistrali/magistrali.dart';
 import 'mag_network_art.dart';
 import 'mag_structures_art.dart';
 import 'mag_curve.dart';
+import 'mag_decor_cache.dart';
 import 'mag_route_art.dart';
 import 'mag_sea_art.dart';
 import 'mag_terrain_art.dart';
@@ -84,9 +85,11 @@ class MagRenderer {
   final _chunks = <int, ui.Picture>{};
   final _industries = <String, ui.Picture>{};
   final _labels = <String, TextPainter>{};
+  final _decor = MagDecorCache();
   int _netVersion = -1;
   List<NetChain> _roadChains = const [], _railChains = const [];
   MagMap? _map;
+  int _terrain = 0;
 
   void dispose() {
     for (final p in [..._chunks.values, ..._industries.values]) {
@@ -98,6 +101,7 @@ class MagRenderer {
       l.dispose();
     }
     _labels.clear();
+    _decor.dispose();
   }
 
   ui.Picture _chunk(MagMap map, int cx, int cy) =>
@@ -108,7 +112,6 @@ class MagRenderer {
         final y1 = math.min(map.size, (cy + 1) * chunk);
         c.save();
         c.transform(MagIso.ground);
-        // One smooth surface: colours blend across cells (no squares).
         paintTerrain(c, map, cx * chunk, cy * chunk, x1, y1);
         c.restore();
         return rec.endRecording();
@@ -116,9 +119,10 @@ class MagRenderer {
 
   void paint(Canvas canvas, Size size, MagHost host) {
     final w = host.world, cam = host.camera, o = host.overlay;
-    if (!identical(_map, w.map)) {
+    if (!identical(_map, w.map) || _terrain != w.map.terrainVersion) {
       dispose();
       _map = w.map;
+      _terrain = w.map.terrainVersion; // MAP-11: the editor changed it
     }
     final map = w.map;
     final view = cam.visibleCells(size, map.size);
@@ -144,16 +148,13 @@ class MagRenderer {
 
     canvas.save();
     canvas.transform(MagIso.ground);
-    // Roads and track as whole smooth lines (rebuilt when they change).
     if (_netVersion != w.roadVersion) {
       _netVersion = w.roadVersion;
       _roadChains = netChains(w, (c) => w.roads[c]);
       _railChains = netChains(w, (c) => w.rails[c]);
     }
     final netView = Rect.fromLTRB(x0 - 2.0, y0 - 2.0, x1 + 3.0, y1 + 3.0);
-    bool seen(NetChain ch) => ch.cells.any(
-      (c) => netView.contains(Offset(w.cx(c) + .5, w.cy(c) + .5)),
-    );
+    bool seen(NetChain ch) => netView.overlaps(ch.bounds(w.size));
     for (var pass = 0; pass < 3; pass++) {
       for (final ch in _roadChains) {
         if (seen(ch)) paintRoadChain(canvas, ch, pass);
@@ -170,7 +171,6 @@ class MagRenderer {
           final place = map.inside(nx, ny) && !w.hasRoad(nx, ny)
               ? map.industryAt(nx, ny)
               : null;
-          // A business has one entrance (S12); a settlement many.
           if (place != null &&
               (place.town != null || w.entranceOf(place) == w.cellOf(x, y))) {
             paintRoadStub(canvas, r, x, y, d);
@@ -224,6 +224,8 @@ class MagRenderer {
     }
     canvas.restore();
 
+    final far = cam.zoom < MagDecorCache.farZoom;
+    if (far) _decor.paint(canvas, w, cam.zoom, x0, y0, x1, y1);
     final t = host.time;
     final objects = <(double, void Function())>[];
     for (var y = y0; y <= y1; y++) {
@@ -258,9 +260,7 @@ class MagRenderer {
             }
           }
         }
-        if (ground != MagTerrain.forest && ground != MagTerrain.hill) continue;
-        if (ground == MagTerrain.forest && way) continue;
-        if (map.industryAt(x, y) != null) continue;
+        if (far || !decorAt(w, x, y)) continue;
         objects.add((
           x + y + .5,
           ground == MagTerrain.forest
@@ -378,7 +378,7 @@ class MagRenderer {
       draw();
     }
 
-    // Names over places, when close enough to read.
+    paintMountainNames(canvas, w, cam.zoom); // MAP-07
     if (cam.zoom >= .7) {
       for (final i in map.industries) {
         if (i.left > x1 ||

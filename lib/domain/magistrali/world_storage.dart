@@ -17,7 +17,10 @@ extension MagWorldStorage on MagWorld {
 
   /// Room of one warehouse: the base room, more with each level.
   int warehouseCapacityOf(MagIndustry w) =>
-      (warehouseCapacity * storageFactor(w)).round();
+      (warehouseCapacity *
+              storageFactor(w) *
+              (isMultimodal(w) ? MagRules.multimodalRoom : 1)) // SEA-06
+          .round();
 
   /// Price of the next warehouse level (null at the top level).
   int? warehouseUpgradePrice(MagIndustry w) =>
@@ -276,7 +279,14 @@ extension MagWorldStorage on MagWorld {
           });
     for (final o in waiting) {
       final free = vehicles.values
-          .where((v) => isFree(v) && capacityOf(v) >= o.amount)
+          .where(
+            (v) =>
+                isFree(v) &&
+                capacityOf(v) > 0 &&
+                canCarry(v, o.cargo) &&
+                !v.spec.rail &&
+                !v.spec.water,
+          )
           .toList();
       if (free.isEmpty) continue;
       final from = map.industry(o.supplier)!;
