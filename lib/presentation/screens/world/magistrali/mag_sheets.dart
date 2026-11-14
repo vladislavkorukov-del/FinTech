@@ -119,13 +119,18 @@ Widget magRow(String label, String value, {Color? color}) => Padding(
   child: Row(
     children: [
       Expanded(child: Text(label, style: magMuted.copyWith(fontSize: 13))),
-      Text(
-        value,
-        style: TextStyle(
-          fontSize: 13,
-          fontWeight: FontWeight.w700,
-          color: color ?? MagPalette.ink,
-          fontFeatures: const [FontFeature.tabularFigures()],
+      const SizedBox(width: 8),
+      // A long value wraps instead of running off the sheet.
+      Flexible(
+        child: Text(
+          value,
+          textAlign: TextAlign.right,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
+            color: color ?? MagPalette.ink,
+            fontFeatures: const [FontFeature.tabularFigures()],
+          ),
         ),
       ),
     ],

@@ -47,3 +47,14 @@ void _carveBigRiver(Uint8List t, int size, int seed, math.Random rnd) {
     }
   }
 }
+
+/// Is there terrain [k] within two cells of the s×s square at (x, y)?
+bool _nearTerrain(Uint8List t, int size, int x, int y, int s, MagTerrain k) {
+  for (var yy = y - 2; yy < y + s + 2; yy++) {
+    for (var xx = x - 2; xx < x + s + 2; xx++) {
+      if (xx < 0 || yy < 0 || xx >= size || yy >= size) continue;
+      if (t[yy * size + xx] == k.index) return true;
+    }
+  }
+  return false;
+}

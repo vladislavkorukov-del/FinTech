@@ -117,38 +117,39 @@ void main() {
     final to = (plant.x - 1, plant.y);
     final mid = ((from.$1 + to.$1) ~/ 2, from.$2);
 
-    // A short wobble on one cell draws nothing.
+    // Moving the map in build mode never lays a road.
+    final camX = s.camera.x;
     final p0 = at(tester, s, from.$1, from.$2);
-    final wobble = await tester.startGesture(p0);
-    await wobble.moveTo(p0 + const Offset(9, 0));
-    await wobble.moveTo(p0 + const Offset(-9, 3));
-    await wobble.up();
+    final g = await tester.startGesture(p0);
+    for (var k = 1; k <= 6; k++) {
+      await g.moveTo(p0 + Offset(-20.0 * k, 6.0 * k));
+      await tester.pump();
+    }
+    await g.up();
     await tester.pump();
     expect(find.byKey(const ValueKey('mag-confirm')), findsNothing);
     expect(s.pendingRoad, isNull);
+    expect(s.camera.x, isNot(camX));
+    s.centerOn(
+      (farm.centerX + plant.centerX) / 2,
+      (farm.centerY + plant.centerY) / 2 + 1,
+    );
+    await tester.pump();
 
-    // Draw half the road.
-    Future<void> drag((int, int) a, (int, int) b) async {
-      final g = await tester.startGesture(at(tester, s, a.$1, a.$2));
-      for (var k = 1; k <= 6; k++) {
-        final x = a.$1 + (b.$1 - a.$1) * k / 6;
-        final y = a.$2 + (b.$2 - a.$2) * k / 6;
-        await g.moveTo(at(tester, s, x.round(), y.round()));
-        await tester.pump();
-      }
-      await g.up();
-      await tester.pump();
-    }
-
-    await drag(from, mid);
+    // Tap the start and half way: half the road is planned.
+    await tester.tapAt(at(tester, s, from.$1, from.$2));
+    await tester.pump();
+    await tester.tapAt(at(tester, s, mid.$1, mid.$2));
+    await tester.pump();
     expect(find.byKey(const ValueKey('mag-confirm')), findsOneWidget);
     final half = s.pendingRoad!.cells.length;
-    // A stray tap far away does not throw the drawn road away.
-    await tester.tapAt(at(tester, s, from.$1, from.$2 + 6));
+    // A tap on its end only reminds what to do.
+    await tester.tapAt(at(tester, s, mid.$1, mid.$2));
     await tester.pump();
     expect(s.pendingRoad!.cells.length, half);
-    // Carry it on from its end.
-    await drag(mid, to);
+    // A further tap carries it on from its end.
+    await tester.tapAt(at(tester, s, to.$1, to.$2));
+    await tester.pump();
     expect(s.pendingRoad!.cells.length, greaterThan(half));
     expect(s.pendingRoad!.cells.first, w.cellOf(from.$1, from.$2));
     await tap(tester, 'mag-confirm-build');
@@ -212,6 +213,7 @@ void main() {
     // The build list shows the new industry; the steel mill waits for
     // level 4.
     await tap(tester, 'mag-tab-build');
+    await tap(tester, 'mag-cat-buildings');
     await tap(tester, 'mag-tool-industry');
     expect(find.byKey(const ValueKey('mag-build-brickworks')), findsOneWidget);
     await tester.ensureVisible(

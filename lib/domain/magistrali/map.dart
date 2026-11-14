@@ -429,7 +429,9 @@ class MagMap {
           final y = 2 + rnd.nextInt(size - s - 4);
           // Logging camps want forest, mines and quarries hills nearby.
           final near = MagRules.industries[kind]!.near;
-          if (near != null && !_near(t, size, x, y, s, near) && tries < 200) {
+          if (near != null &&
+              !_nearTerrain(t, size, x, y, s, near) &&
+              tries < 200) {
             continue;
           }
           if (!free(x, y, s, gap: kind == MagIndustryKind.city ? 4 : 3)) {
@@ -488,15 +490,5 @@ class MagMap {
       }
     }
     return MagMap._(seed, size, t, places, version);
-  }
-
-  static bool _near(Uint8List t, int size, int x, int y, int s, MagTerrain k) {
-    for (var yy = y - 2; yy < y + s + 2; yy++) {
-      for (var xx = x - 2; xx < x + s + 2; xx++) {
-        if (xx < 0 || yy < 0 || xx >= size || yy >= size) continue;
-        if (t[yy * size + xx] == k.index) return true;
-      }
-    }
-    return false;
   }
 }

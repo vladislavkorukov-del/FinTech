@@ -158,7 +158,7 @@ void main() {
     expect(s.camera.zoom, greaterThan(zoom));
     expect(w.roads.every((r) => r == 0), isTrue);
 
-    // Build: a finger draws the road, «Построить» builds it.
+    // Build: a tap at the start, a tap at the end, «Построить» builds it.
     s.camera.zoom = 1;
     s.centerOn(
       (farm.centerX + plant.centerX) / 2,
@@ -168,14 +168,9 @@ void main() {
     expect(find.byKey(const ValueKey('mag-road-dirt')), findsOneWidget);
     final from = (farm.x + farm.size, farm.y);
     final to = (plant.x - 1, plant.y);
-    final g = await tester.startGesture(at(tester, s, from.$1, from.$2));
-    for (var k = 1; k <= 8; k++) {
-      final x = from.$1 + (to.$1 - from.$1) * k / 8;
-      final y = from.$2 + (to.$2 - from.$2) * k / 8;
-      await g.moveTo(at(tester, s, x.round(), y.round()));
-      await tester.pump();
-    }
-    await g.up();
+    await tester.tapAt(at(tester, s, from.$1, from.$2));
+    await tester.pump();
+    await tester.tapAt(at(tester, s, to.$1, to.$2));
     await tester.pump();
     expect(find.byKey(const ValueKey('mag-confirm')), findsOneWidget);
     expect(w.roads.every((r) => r == 0), isTrue); // not yet
@@ -387,6 +382,7 @@ void main() {
     s.camera.zoom = 1.2;
     s.centerOn(wx + 1.0, wy + 1.0);
     await tap(tester, 'mag-tab-build');
+    await tap(tester, 'mag-cat-buildings');
     await tap(tester, 'mag-tool-warehouse');
     await tester.tapAt(at(tester, s, wx, wy));
     await tester.pump();
@@ -556,7 +552,8 @@ void main() {
       final w = s.world;
       w
         ..money = 200000
-        ..xp = MagWorldProgress.xpFor(3);
+        ..xp = MagWorldProgress.xpFor(3)
+        ..techs.add('milling');
       s.changed();
       await tester.pump();
       final farm = w.map.startFarm;
@@ -589,6 +586,7 @@ void main() {
       }
       s.centerOn(bx + 1.0, by + 1.0);
       await tap(tester, 'mag-tab-build');
+      await tap(tester, 'mag-cat-buildings');
       await tap(tester, 'mag-tool-industry');
       await tap(tester, 'mag-build-mill');
       await tester.tapAt(at(tester, s, bx, by));

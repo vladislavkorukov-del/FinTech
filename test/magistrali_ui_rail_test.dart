@@ -134,16 +134,11 @@ void main() {
     s.centerOn((w.cx(a) + w.cx(b)) / 2 + .5, (w.cy(a) + w.cy(b)) / 2 + .5);
     await tester.pump();
     await tap(tester, 'mag-tab-build');
-    await tap(tester, 'mag-tool-rail');
+    await tap(tester, 'mag-cat-rail');
     expect(s.tool, MagTool.rail);
-    final g = await tester.startGesture(at(tester, s, w.cx(a), w.cy(a)));
-    for (var k = 1; k <= 8; k++) {
-      final x = w.cx(a) + (w.cx(b) - w.cx(a)) * k / 8;
-      final y = w.cy(a) + (w.cy(b) - w.cy(a)) * k / 8;
-      await g.moveTo(at(tester, s, x.round(), y.round()));
-      await tester.pump();
-    }
-    await g.up();
+    await tester.tapAt(at(tester, s, w.cx(a), w.cy(a)));
+    await tester.pump();
+    await tester.tapAt(at(tester, s, w.cx(b), w.cy(b)));
     await tester.pump();
     expect(find.textContaining('Ж/д путь'), findsWidgets);
     await tap(tester, 'mag-confirm-build');
@@ -212,7 +207,7 @@ void main() {
     s.centerOn(w.cx(berth) + .5, w.cy(berth) + .5);
     await tester.pump();
     await tap(tester, 'mag-tab-build');
-    await tap(tester, 'mag-tool-port');
+    await tap(tester, 'mag-cat-water');
     await tester.tapAt(at(tester, s, w.cx(berth), w.cy(berth)));
     await tester.pump();
     expect(s.pendingPortPlace, place.id);
@@ -323,6 +318,66 @@ void main() {
     await tap(tester, 'mag-tab-fleet');
     await tap(tester, 'mag-buy-bus');
     expect(w.vehicles.values.last.spec.passengers, isTrue);
+    await settle(tester);
+  });
+
+  testWidgets('P1: build groups, filters, removal by taps with a refund', (
+    tester,
+  ) async {
+    await mount(tester, const MagistraliScreen(seed: MagRules.defaultSeed));
+    final s = await ready(tester);
+    final w = s.world..money = 100000;
+    final f = w.map.startFarm, p = w.map.startPlant;
+    final plan = w.planRoad(f.x + f.size, f.y, p.x - 1, p.y, MagRoad.dirt);
+    expect(w.buildRoad(plan), isNull);
+    s.changed();
+    s.camera.zoom = 1;
+    s.centerOn((f.centerX + p.centerX) / 2, (f.centerY + p.centerY) / 2 + 1);
+    await tester.pump();
+    // Groups: roads first; the rail group is locked; buildings and removal.
+    await tap(tester, 'mag-tab-build');
+    expect(find.byKey(const ValueKey('mag-road-dirt')), findsOneWidget);
+    await tap(tester, 'mag-cat-rail');
+    expect(s.tool, MagTool.road);
+    await tap(tester, 'mag-cat-buildings');
+    expect(find.byKey(const ValueKey('mag-tool-industry')), findsOneWidget);
+    expect(find.byKey(const ValueKey('mag-road-dirt')), findsNothing);
+    await tap(tester, 'mag-cat-remove');
+    expect(s.tool, MagTool.remove);
+    // Two taps in line mark the whole stretch; the bar shows the refund.
+    var i = 0;
+    while (!List.generate(
+      4,
+      (k) =>
+          w.cy(plan.cells[i + k]) == w.cy(plan.cells[i]) &&
+          w.cx(plan.cells[i + k]) == w.cx(plan.cells[i]) + k,
+    ).every((e) => e)) {
+      i++;
+    }
+    final a = plan.cells[i], b = plan.cells[i + 3];
+    await tester.tapAt(at(tester, s, w.cx(a), w.cy(a)));
+    await tester.pump();
+    await tester.tapAt(at(tester, s, w.cx(b), w.cy(b)));
+    await tester.pump();
+    expect(s.pendingRemove.length, 4);
+    final refund = w.demolishRefund(s.pendingRemove);
+    expect(find.textContaining('вернётся'), findsOneWidget);
+    final money = w.money;
+    await tap(tester, 'mag-confirm-build');
+    expect(w.money, money + refund);
+    await tap(tester, 'mag-tab-build'); // back to looking
+    // The fleet by kind; the places by kind.
+    await tap(tester, 'mag-tab-fleet');
+    await tap(tester, 'mag-fleet-kind-3');
+    expect(find.byKey(const ValueKey('mag-shop-bus')), findsOneWidget);
+    expect(find.byKey(const ValueKey('mag-shop-cart')), findsNothing);
+    await tap(tester, 'mag-fleet-kind-0');
+    await closeSheet(tester);
+    await tap(tester, 'mag-tab-places');
+    await tap(tester, 'mag-place-kind-1');
+    expect(find.byKey(ValueKey('mag-place-${f.id}')), findsNothing);
+    await tap(tester, 'mag-place-kind-0');
+    await closeSheet(tester);
     await settle(tester);
   });
 }

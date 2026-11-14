@@ -7,22 +7,22 @@
 
 Статусы: NOT_STARTED — не начато; PARTIAL — частично; IN_PROGRESS — в работе;
 READY_FOR_REVIEW — готово, ждёт проверки игроком; VERIFIED — проверено игроком
-(этапы, которые игрок подтвердил: 1.68–1.81); BLOCKED — заблокировано.
+(этапы, которые игрок подтвердил: 1.68–1.82); BLOCKED — заблокировано.
 
 Файлы домена — `lib/domain/magistrali/`, интерфейса —
 `lib/presentation/screens/world/magistrali/`. Тесты — `test/magistrali_<имя>_test.dart`
 (sim, orders, storage, dispatch, towns, horses, production, growth,
-industry, cities, logistics, rail, water, megapolis, passengers, ui, ui_stage5, ui_rail).
+industry, cities, logistics, rail, water, megapolis, passengers, p1, ui, ui_stage5, ui_rail).
 
-Аудит: 1.77.0, обновлено в 1.78.0 (S7) и 1.79.0 (S8), 1.80.0 (S9 и доводка ЖД), 1.81.0 (S10 и графика), 1.82.0 (S11); точка восстановления — тег `restore/magistrali-1.77.0-pre-s7`.
+Аудит: 1.77.0, обновлено в 1.78.0 (S7) и 1.79.0 (S8), 1.80.0 (S9 и доводка ЖД), 1.81.0 (S10 и графика), 1.82.0 (S11), 1.83.0 (доделка P1); точка восстановления — тег `restore/magistrali-1.77.0-pre-s7`.
 
 ## Сводка
 
 | Статус | Механик |
 |---|---|
-| VERIFIED | 125 |
-| READY_FOR_REVIEW | 8 |
-| PARTIAL | 27 |
+| VERIFIED | 130 |
+| READY_FOR_REVIEW | 6 |
+| PARTIAL | 24 |
 | NOT_STARTED | 43 |
 | Всего | 203 |
 
@@ -75,19 +75,19 @@ industry, cities, logistics, rail, water, megapolis, passengers, ui, ui_stage5, 
 | TECH-07 | Дерево исследований | P1 | VERIFIED | 1.70 | — | tech.dart, tech_nodes.dart (36 узлов) | storage: «tree integrity» | — |
 | TECH-08 | Исследования через достижения | P2 | PARTIAL | 1.70 | META-02 | tech.dart (`deliveries`) | storage | Учитывается только число доставок |
 | TECH-09 | Сохранение старой техники | P1 | VERIFIED | 1.73 | — | world_tech.dart (`motorUnlocked`) | horses | — |
-| TECH-10 | Новые рецепты по эпохам | P1 | PARTIAL | 1.76 | PROD-13 | config.dart (`buildLevel`) | industry | Рецепты открывает уровень компании, а не технологии |
+| TECH-10 | Новые рецепты по эпохам | P1 | READY_FOR_REVIEW | 1.83 | PROD-13 | tech_nodes_recipes.dart (5 технологий), config.dart (`MagIndustrySpec.tech`), world_industry.dart | p1, industry | Старые сохранения получают рецепты, доступные их уровню |
 
 ## D. Дороги и инфраструктура
 
 | ID | Механика | P | Статус | Версия | Зависимости | Файлы | Тесты | Проблемы |
 |---|---|---|---|---|---|---|---|---|
-| ROAD-01 | Строительство дорог | P1 | VERIFIED | 1.68 | — | world.dart (`planRoad`, `buildRoad`), mag_screen_input.dart | sim, ui | — |
+| ROAD-01 | Строительство дорог | P1 | READY_FOR_REVIEW | 1.83 | — | world.dart (`planRoad`, `buildRoad`), mag_screen_input.dart (только касания: начало, конец, продолжение; перетаскивание двигает карту), mag_build_panel.dart | sim, ui, ui_stage5 | Режим стройки переделан в 1.83 |
 | ROAD-02 | Грунтовые дороги | P1 | VERIFIED | 1.68 | — | config.dart (`MagRoad.dirt`) | sim | — |
 | ROAD-03 | Улучшение покрытия | P1 | VERIFIED | 1.76 | ROAD-01 | world_roads.dart (`upgradePlan`), mag_road.dart | industry, ui_stage5 | — |
 | ROAD-04 | Перекрёстки | P1 | VERIFIED | 1.68 | — | world.dart (граф клеток), pathfinding.dart | sim | — |
-| ROAD-05 | Удаление и возврат части стоимости | P1 | PARTIAL | 1.68 | — | world.dart (`removeRoad`) | sim | Снос бесплатный, без возврата |
-| ROAD-06 | Мосты | P1 | READY_FOR_REVIEW | 1.82 | — | config.dart (река ×9), mag_network_art.dart (`paintBridge`: настил, перила, опоры; ж/д ферма) | passengers | — |
-| ROAD-07 | Тоннели | P3 | READY_FOR_REVIEW | 1.82 | ROAD-01 | config.dart (холм ×7), mag_network_art.dart (порталы, гора над дорогой) | passengers | Тоннель — дорога или путь на клетке холма |
+| ROAD-05 | Удаление и возврат части стоимости | P1 | READY_FOR_REVIEW | 1.83 | — | world_roads.dart (`removeRoad`, `demolishRefund`: 30%), world_rails.dart | p1, ui_rail | — |
+| ROAD-06 | Мосты | P1 | VERIFIED | 1.82 | — | config.dart (река ×9), mag_network_art.dart (`paintBridge`: настил, перила, опоры; ж/д ферма) | passengers | — |
+| ROAD-07 | Тоннели | P3 | VERIFIED | 1.82 | ROAD-01 | config.dart (холм ×7), mag_network_art.dart (порталы, гора над дорогой) | passengers | Тоннель — дорога или путь на клетке холма |
 | ROAD-08 | Пропускная способность | P2 | NOT_STARTED | — | — | — | — | — |
 | ROAD-09 | Дорожные заторы | P3 | NOT_STARTED | — | ROAD-08 | — | — | — |
 | ROAD-10 | Подсветка загруженности | P2 | NOT_STARTED | — | ROAD-08 | — | — | — |
@@ -101,7 +101,7 @@ industry, cities, logistics, rail, water, megapolis, passengers, ui, ui_stage5, 
 | VEH-01 | Лошадь и повозка | P1 | VERIFIED | 1.73 | — | config.dart (`cart`) | horses | — |
 | VEH-02 | Улучшенные повозки | P1 | VERIFIED | 1.73 | — | config.dart (`wagon`) | horses | — |
 | VEH-03 | Ранние грузовики | P1 | VERIFIED | 1.68 | TECH-04 | config.dart (pickup, lorry) | sim, horses | — |
-| VEH-04 | Современные грузовики | P1 | PARTIAL | 1.68 | TECH-05 | config.dart (tractor) | sim | Одна модель |
+| VEH-04 | Современные грузовики | P1 | READY_FOR_REVIEW | 1.83 | TECH-05 | config_vehicles.dart (`semi`, `electric`), world_fleet.dart (`tech`) | p1 | — |
 | VEH-05 | Специализированные кузова | P2 | NOT_STARTED | — | — | — | — | — |
 | VEH-06 | Покупка и продажа | P1 | VERIFIED | 1.68 | — | world_fleet.dart | sim | — |
 | VEH-07 | Прокачка транспорта | P1 | VERIFIED | 1.68 | — | world_fleet.dart (`upgrade`) | sim: «upgrades really change» | — |
@@ -169,9 +169,9 @@ industry, cities, logistics, rail, water, megapolis, passengers, ui, ui_stage5, 
 | BIZ-06 | Приоритеты производства | P2 | NOT_STARTED | — | — | — | — | Завод с двумя рецептами перерабатывает в порядке конфигурации |
 | BIZ-07 | Внутренние поставки | P0 | VERIFIED | 1.74 | FIN-01 | world_sim.dart (`_deliver`: transfer) | production | — |
 | BIZ-08 | Продажа независимым потребителям | P1 | VERIFIED | 1.74 | — | world_sim.dart (`goods_sale`) | production | — |
-| BIZ-09 | Динамические цены | P2 | READY_FOR_REVIEW | 1.82 | — | world_cities.dart (`glutFactor`, затоваривание до −30% с затуханием), world_settlements.dart | passengers | — |
+| BIZ-09 | Динамические цены | P2 | VERIFIED | 1.82 | — | world_cities.dart (`glutFactor`, затоваривание до −30% с затуханием), world_settlements.dart | passengers | — |
 | BIZ-10 | Перепроизводство | P1 | VERIFIED | 1.74 | PROD-14 | world_sim.dart (склад продукции ограничивает выпуск) | production | — |
-| BIZ-11 | Рыночный дефицит | P2 | READY_FOR_REVIEW | 1.82 | BIZ-09 | world_cities.dart (`deficitBonusOf`: +25% за кончившийся нужный товар) | passengers, ui_rail | — |
+| BIZ-11 | Рыночный дефицит | P2 | VERIFIED | 1.82 | BIZ-09 | world_cities.dart (`deficitBonusOf`: +25% за кончившийся нужный товар) | passengers, ui_rail | — |
 | BIZ-12 | Специализация регионов | P2 | PARTIAL | 1.77 | CITY-11 | world_cities.dart | cities | Специализация по городам, а не регионам |
 | BIZ-13 | Аукционы предприятий | P3 | NOT_STARTED | — | — | — | — | — |
 | BIZ-14 | Промышленные комплексы | P2 | NOT_STARTED | — | LOG-08 | — | — | — |
@@ -240,10 +240,10 @@ industry, cities, logistics, rail, water, megapolis, passengers, ui, ui_stage5, 
 
 | ID | Механика | P | Статус | Версия | Зависимости | Файлы | Тесты | Проблемы |
 |---|---|---|---|---|---|---|---|---|
-| PASS-01 | Пассажирский спрос | P2 | READY_FOR_REVIEW | 1.82 | CITY-07, ROUTE-01 | world_settlements.dart (жители из населения, только при остановке), map.dart | passengers | — |
-| PASS-02 | Конные экипажи | P2 | READY_FOR_REVIEW | 1.82 | PASS-01 | config_vehicles.dart (`coach`) | passengers | — |
-| PASS-03 | Автобусы | P2 | READY_FOR_REVIEW | 1.82 | PASS-01, TECH-04 | config_vehicles.dart (`bus`), world_fleet.dart (`canCarry`) | passengers, ui_rail | — |
-| PASS-04 | Пассажирские поезда | P2 | READY_FOR_REVIEW | 1.82 | PASS-01, RAIL-06 | world_fleet.dart (`canCarry`: поезда и суда возят людей) | passengers | Отдельных пассажирских вагонов нет |
+| PASS-01 | Пассажирский спрос | P2 | VERIFIED | 1.82 | CITY-07, ROUTE-01 | world_settlements.dart (жители из населения, только при остановке), map.dart | passengers | — |
+| PASS-02 | Конные экипажи | P2 | VERIFIED | 1.82 | PASS-01 | config_vehicles.dart (`coach`) | passengers | — |
+| PASS-03 | Автобусы | P2 | VERIFIED | 1.82 | PASS-01, TECH-04 | config_vehicles.dart (`bus`), world_fleet.dart (`canCarry`) | passengers, ui_rail | — |
+| PASS-04 | Пассажирские поезда | P2 | VERIFIED | 1.82 | PASS-01, RAIL-06 | world_fleet.dart (`canCarry`: поезда и суда возят людей) | passengers | Отдельных пассажирских вагонов нет |
 | PASS-05 | Перевозка работников | P2 | NOT_STARTED | — | население, маршруты | — | — | — |
 | PASS-06 | Пересадки | P3 | NOT_STARTED | — | население, маршруты | — | — | — |
 | PASS-07 | Комфорт и время ожидания | P3 | NOT_STARTED | — | население, маршруты | — | — | — |
@@ -274,11 +274,11 @@ industry, cities, logistics, rail, water, megapolis, passengers, ui, ui_stage5, 
 
 | ID | Механика | P | Статус | Версия | Зависимости | Файлы | Тесты | Проблемы |
 |---|---|---|---|---|---|---|---|---|
-| MAP-01 | Процедурная генерация | P1 | VERIFIED | 1.68 | — | map.dart | sim | — |
+| MAP-01 | Процедурная генерация | P1 | READY_FOR_REVIEW | 1.83 | — | map.dart (генератор 5: карта 112×112, втрое больше) | p1, sim | Генераторы 1–4 не изменились |
 | MAP-02 | Seed мира | P1 | VERIFIED | 1.68 | — | map.dart, world_save.dart | sim | — |
 | MAP-03 | Распределение ресурсов | P1 | VERIFIED | 1.68 | — | map.dart (план предприятий, `near`) | industry | — |
 | MAP-04 | Проверка жизнеспособности карты | P0 | PARTIAL | 1.68 | — | map.dart (гарантированная первая линия) | sim: «start line is possible» | Цепочки этапов 3–5 не проверяются на каждой карте |
-| MAP-05 | Реки и озёра | P1 | VERIFIED | 1.68 | — | map.dart, config.dart | sim | — |
+| MAP-05 | Реки и озёра | P1 | READY_FOR_REVIEW | 1.83 | — | map.dart, map_noise.dart (`_carveBigRiver`: большая река делит карту) | p1, sim | — |
 | MAP-06 | Леса и поля | P1 | VERIFIED | 1.68 | — | map.dart | sim | — |
 | MAP-07 | Горные регионы | P2 | PARTIAL | 1.68 | — | map.dart (холмы) | — | Холмы без отдельных регионов |
 | MAP-08 | Открытие новых регионов | P2 | NOT_STARTED | — | — | — | — | — |
