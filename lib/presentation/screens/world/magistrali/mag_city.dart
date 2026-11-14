@@ -11,7 +11,7 @@ import 'mag_sheets.dart';
 /// it will become, judging by what the company brings.
 List<Widget> cityInfo(MagWorld w, MagIndustry i) {
   final t = i.town!;
-  final spec = MagTowns.specializationName(t.specialization).toLowerCase();
+  final spec = MagTowns.cityAdjective(t.specialization);
   String names(Iterable<MagCargo> list) =>
       list.map((c) => cargoName(c).toLowerCase()).join(', ');
   if (!w.isCity(i)) {
@@ -25,7 +25,7 @@ List<Widget> cityInfo(MagWorld w, MagIndustry i) {
       Text(
         next == null
             ? 'На ${MagTowns.cityLevel} уровне поселение станет городом и выберет специализацию по тому, что вы привозите чаще всего.'
-            : 'На ${MagTowns.cityLevel} уровне станет городом. Сейчас больше всего привозят то, что ценит ${MagTowns.specializationName(next).toLowerCase()} город (${names(MagTowns.favoured(next))}).',
+            : 'На ${MagTowns.cityLevel} уровне станет городом. Сейчас больше всего привозят то, что ценит ${MagTowns.cityAdjective(next)} город (${names(MagTowns.favoured(next))}).',
         key: const ValueKey('mag-town-future'),
         style: magMuted,
       ),

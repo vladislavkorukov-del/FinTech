@@ -146,7 +146,7 @@ List<Widget> cityOrderCards(MagistraliScreenState state, BuildContext context) {
     for (final c in list) _order(state, context, w, c),
     const SizedBox(height: 6),
     const Text(
-      'Контракты',
+      'Обычные контракты',
       style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
     ),
     const SizedBox(height: 6),

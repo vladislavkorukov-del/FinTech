@@ -55,10 +55,7 @@ extension MagWorldCities on MagWorld {
     final s = MagTowns.specializationFor(t.received);
     if (s == null || s == t.specialization) return;
     t.specialization = s;
-    t.remember(
-      tick,
-      'Специализация: ${MagTowns.specializationName(s).toLowerCase()} город',
-    );
+    t.remember(tick, 'Специализация: ${MagTowns.cityAdjective(s)} город');
   }
 
   // ---- City orders ----

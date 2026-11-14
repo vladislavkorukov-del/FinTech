@@ -334,6 +334,15 @@ abstract final class MagTowns {
     return best;
   }
 
+  /// «промышленный» — as in «промышленный город».
+  static String cityAdjective(MagSpecialization s) => switch (s) {
+    MagSpecialization.farming => 'аграрный',
+    MagSpecialization.forestry => 'лесной',
+    MagSpecialization.mining => 'горняцкий',
+    MagSpecialization.trade => 'торговый',
+    MagSpecialization.industry => 'промышленный',
+  };
+
   static String specializationName(MagSpecialization s) => switch (s) {
     MagSpecialization.farming => 'Аграрное',
     MagSpecialization.forestry => 'Лесное',

@@ -92,7 +92,7 @@ void main() {
     expect(t.specialization, MagSpecialization.mining);
     expect(
       t.history.map((e) => e.text),
-      contains('Специализация: горняцкое город'),
+      contains('Специализация: горняцкий город'),
     );
     // Its market now buys its own cargo.
     expect(v.accepts, containsAll([MagCargo.ore, MagCargo.coal]));
