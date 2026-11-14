@@ -175,9 +175,12 @@ Future<MagIndustryKind?> showBuildPicker(MagistraliScreenState state) {
                   kindName(k),
                   style: const TextStyle(fontWeight: FontWeight.w700),
                 ),
-                subtitle: Text(_recipe(k), style: magMuted),
+                subtitle: Text(_recipe(k, w), style: magMuted),
                 trailing: Text('${magMoney(w.buildPrice(k))} кр'),
-                enabled: w.level >= MagRules.industries[k]!.buildLevel,
+                enabled:
+                    w.level >= MagRules.industries[k]!.buildLevel &&
+                    (MagRules.industries[k]!.tech == null ||
+                        w.techs.contains(MagRules.industries[k]!.tech)),
                 onTap: () => Navigator.pop(context, k),
               ),
           ],
@@ -197,8 +200,9 @@ String recipeLine(MagIndustrySpec s, MagCargo input) {
   return '$inputs → 1 ${cargoName(s.converts[input]!).toLowerCase()}';
 }
 
-String _recipe(MagIndustryKind k) {
+String _recipe(MagIndustryKind k, MagWorld w) {
   final s = MagRules.industries[k]!;
+  final tech = s.tech;
   final parts = [
     for (final e in s.produces.entries) '${cargoName(e.key)} ${e.value} в день',
     for (final e in s.converts.entries) recipeLine(s, e.key),
@@ -207,6 +211,8 @@ String _recipe(MagIndustryKind k) {
     if (s.near == MagTerrain.river) 'у реки',
     '${s.size}×${s.size}',
     if (s.buildLevel > 2) 'с ${s.buildLevel} уровня',
+    if (tech != null && !w.techs.contains(tech))
+      'нужна технология «${MagTechTree.byId(tech)?.title}»',
   ];
   return parts.join(' · ');
 }

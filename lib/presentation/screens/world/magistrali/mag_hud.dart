@@ -6,11 +6,11 @@ import '../../../../domain/magistrali/magistrali.dart';
 import '../../../l10n_widgets.dart';
 import 'mag_finance.dart';
 import 'mag_art.dart';
+import 'mag_build_panel.dart';
 import 'mag_fleet.dart';
 import 'mag_routes.dart';
 import 'mag_screen.dart';
 import 'mag_sheets.dart';
-import 'mag_business.dart';
 import 'mag_tools.dart';
 import 'mag_tech.dart';
 
@@ -284,7 +284,6 @@ class MagBottomPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final w = state.world;
     final pad = MediaQuery.of(context).padding.bottom;
     final road = state.pendingRoad;
     final removing = state.pendingRemove;
@@ -304,85 +303,7 @@ class MagBottomPanel extends StatelessWidget {
             const SizedBox(height: 8),
           ],
           if (state.tool != MagTool.view) ...[
-            Container(
-              decoration: magCard(),
-              padding: const EdgeInsets.fromLTRB(8, 8, 8, 6),
-              child: Column(
-                children: [
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
-                        for (final r in MagRoad.values.skip(1))
-                          MagToolChip(
-                            key: ValueKey('mag-road-${r.name}'),
-                            label: roadName(r),
-                            locked: !w.roadUnlocked(r),
-                            lockLevel: MagRules.roads[r]!.level,
-                            on:
-                                state.tool == MagTool.road &&
-                                state.roadType == r,
-                            color: roadColor(r),
-                            onTap: () => w.roadUnlocked(r)
-                                ? state.setTool(MagTool.road, r)
-                                : state.say(
-                                    '${roadName(r)} откроется на ${MagRules.roads[r]!.level} уровне',
-                                  ),
-                          ),
-                        ...railChips(state),
-                        MagToolChip(
-                          key: const ValueKey('mag-tool-warehouse'),
-                          label: 'Склад',
-                          locked: w.warehouseSlots == 0,
-                          lockLevel: 2,
-                          on: state.tool == MagTool.warehouse,
-                          color: MagPalette.mint,
-                          icon: Icons.warehouse_rounded,
-                          onTap: () => w.warehouseSlots == 0
-                              ? state.say(
-                                  'Склады открывает технология «Складское дело»',
-                                )
-                              : state.setTool(MagTool.warehouse),
-                        ),
-                        MagToolChip(
-                          key: const ValueKey('mag-tool-industry'),
-                          label:
-                              state.tool == MagTool.industry &&
-                                  state.buildKind != null
-                              ? kindName(state.buildKind!)
-                              : 'Предприятие',
-                          locked: w.level < 2,
-                          lockLevel: 2,
-                          on: state.tool == MagTool.industry,
-                          color: MagPalette.teal,
-                          icon: Icons.factory_outlined,
-                          onTap: () async {
-                            final k = await showBuildPicker(state);
-                            if (k != null) state.chooseBuild(k);
-                          },
-                        ),
-                        MagToolChip(
-                          key: const ValueKey('mag-remove'),
-                          label: 'Снос',
-                          on: state.tool == MagTool.remove,
-                          color: const Color(0xFFE0566B),
-                          icon: Icons.delete_outline_rounded,
-                          onTap: () => state.setTool(MagTool.remove),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    toolHint(state),
-                    style: const TextStyle(
-                      fontSize: 11.5,
-                      color: Color(0xFF52646A),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            MagBuildPanel(state: state),
             const SizedBox(height: 8),
           ],
           Container(
@@ -416,14 +337,14 @@ class MagBottomPanel extends StatelessWidget {
                 _nav(
                   'mag-tab-places',
                   Icons.factory_rounded,
-                  'Предприятия',
+                  'Объекты',
                   false,
                   () => unawaited(showIndustriesSheet(state)),
                 ),
                 _nav(
                   'mag-tab-upgrades',
                   Icons.rocket_launch_rounded,
-                  'Улучшения',
+                  'Развитие',
                   false,
                   () => unawaited(showTechSheet(state)),
                 ),

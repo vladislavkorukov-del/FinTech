@@ -6,11 +6,12 @@ import '../../../../domain/magistrali/magistrali.dart';
 import '../../../l10n_widgets.dart';
 import 'mag_art.dart';
 import 'mag_dispatch.dart';
+import 'mag_filters.dart';
 import 'mag_hud.dart';
-import 'mag_lore.dart';
 import 'mag_orders.dart';
 import 'mag_rail_ui.dart';
 import 'mag_screen.dart';
+import 'mag_shop.dart';
 import 'mag_sheets.dart';
 
 String stateName(MagWorld w, MagVehicle v) {
@@ -100,153 +101,120 @@ Widget _truckTile(
   );
 }
 
-/// The fleet and the truck shop.
+/// Which kind of transport the fleet sheet shows (kept while the game is
+/// open): all, horses, trucks, people, rail, water.
+var _fleetKind = 0;
+
+bool _ofKind(MagTruckModel m, int k) => switch (k) {
+  1 => m.horse && !m.passengers,
+  2 => m.motorGoods,
+  3 => m.passengers,
+  4 => m.rail,
+  5 => m.water,
+  _ => true,
+};
+
+/// The fleet and the truck shop, by kind of transport (1.83).
 Future<void> showFleetSheet(
   MagistraliScreenState state,
 ) => magSheet(state, 'mag-fleet', (context) {
   final w = state.world;
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Text('Транспорт · ${w.vehicles.length}', style: magTitle),
-      const SizedBox(height: 6),
-      MagDispatchPanel(state: state),
-      for (final v in w.vehicles.values) _truckTile(state, v, context),
-      const SizedBox(height: 10),
-      const Text(
-        'Купить грузовик',
-        style: TextStyle(fontWeight: FontWeight.w800),
-      ),
-      const SizedBox(height: 6),
-      const Text('Эпоха I — гужевой транспорт', style: magMuted),
-      for (final m in MagRules.trucks.where((m) => m.horse && !m.passengers))
-        _shopCard(state, m),
-      Text(
-        w.motorUnlocked
-            ? 'Грузовики'
-            : 'Грузовики — после технологии «Двигатель внутреннего сгорания»',
-        style: magMuted,
-      ),
-      for (final m in MagRules.trucks.where((m) => m.motorGoods))
-        _shopCard(state, m),
-      Text(
-        w.railsUnlocked
-            ? 'Эпоха II — железная дорога: локомотив и вагоны'
-            : 'Железная дорога — после технологии «Паровая тяга»',
-        style: magMuted,
-      ),
-      for (final m in MagRules.trucks.where((m) => m.rail)) _shopCard(state, m),
-      const Text(
-        'Пассажиры: экипаж и автобус возят только людей между поселениями (поезда и суда — и людей, и грузы)',
-        style: magMuted,
-      ),
-      for (final m in MagRules.trucks.where((m) => m.passengers))
-        _shopCard(state, m),
-      Text(
-        w.shippingUnlocked
-            ? 'Вода: суда ходят по рекам и озёрам между портами'
-            : 'Суда — после технологии «Речное судоходство»',
-        style: magMuted,
-      ),
-      for (final m in MagRules.trucks.where((m) => m.water))
-        _shopCard(state, m),
-      const SizedBox(height: 4),
-      OutlinedButton.icon(
-        key: const ValueKey('mag-open-orders'),
-        onPressed: () {
-          Navigator.pop(context);
-          unawaited(showOrdersSheet(state));
-        },
-        icon: const Icon(Icons.assignment_turned_in_rounded),
-        label: Text('Логистические заказы · ${w.orders.active.length}'),
-      ),
-      const SizedBox(height: 4),
-      const Text(
-        'Перевалка: поставьте станцию или порт у склада — поезда и суда разгружаются в него, а грузовики развозят дальше.',
-        style: magMuted,
-      ),
-    ],
+  return StatefulBuilder(
+    builder: (context, setLocal) {
+      final k = _fleetKind;
+      final mine = w.vehicles.values.where((v) => _ofKind(v.spec, k));
+      String? note(int g, bool open, String locked, String text) =>
+          k == 0 || k == g ? (open ? text : locked) : null;
+      final groups = [
+        (1, note(1, true, '', 'Эпоха I — гужевой транспорт')),
+        (
+          2,
+          note(
+            2,
+            w.motorUnlocked,
+            'Грузовики — после технологии «Двигатель внутреннего сгорания»',
+            'Грузовики (новые модели открывают технологии)',
+          ),
+        ),
+        (
+          3,
+          note(
+            3,
+            true,
+            '',
+            'Пассажиры: экипаж и автобус возят только людей между поселениями (поезда и суда — и людей, и грузы)',
+          ),
+        ),
+        (
+          4,
+          note(
+            4,
+            w.railsUnlocked,
+            'Железная дорога — после технологии «Паровая тяга»',
+            'Эпоха II — железная дорога: локомотив и вагоны',
+          ),
+        ),
+        (
+          5,
+          note(
+            5,
+            w.shippingUnlocked,
+            'Суда — после технологии «Речное судоходство»',
+            'Вода: суда ходят по рекам и озёрам между портами',
+          ),
+        ),
+      ];
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Транспорт · ${w.vehicles.length}', style: magTitle),
+          const SizedBox(height: 6),
+          MagFilterChips(
+            keyPrefix: 'mag-fleet-kind',
+            labels: const [
+              'Все',
+              'Повозки',
+              'Грузовики',
+              'Пассажиры',
+              'Ж/д',
+              'Суда',
+            ],
+            selected: k,
+            onSelect: (i) => setLocal(() => _fleetKind = i),
+          ),
+          MagDispatchPanel(state: state),
+          for (final v in mine) _truckTile(state, v, context),
+          if (mine.isEmpty)
+            const Text('Такого транспорта пока нет.', style: magMuted),
+          const SizedBox(height: 10),
+          const Text('Купить', style: TextStyle(fontWeight: FontWeight.w800)),
+          const SizedBox(height: 6),
+          for (final (g, text) in groups)
+            if (text != null) ...[
+              Text(text, style: magMuted),
+              for (final m in MagRules.trucks.where((m) => _ofKind(m, g)))
+                shopCard(state, m),
+            ],
+          const SizedBox(height: 4),
+          OutlinedButton.icon(
+            key: const ValueKey('mag-open-orders'),
+            onPressed: () {
+              Navigator.pop(context);
+              unawaited(showOrdersSheet(state));
+            },
+            icon: const Icon(Icons.assignment_turned_in_rounded),
+            label: Text('Логистические заказы · ${w.orders.active.length}'),
+          ),
+          const SizedBox(height: 4),
+          const Text(
+            'Перевалка: поставьте станцию или порт у склада — поезда и суда разгружаются в него, а грузовики развозят дальше.',
+            style: magMuted,
+          ),
+        ],
+      );
+    },
   );
 });
-
-Widget _shopCard(MagistraliScreenState state, MagTruckModel m) {
-  final w = state.world;
-  final open =
-      w.level >= m.level &&
-      (m.water
-          ? w.shippingUnlocked && (m.id != 'freighter' || w.shipyardUnlocked)
-          : m.rail
-          ? w.railsUnlocked && (m.id != 'diesel' || w.dieselUnlocked)
-          : m.horse || w.motorUnlocked);
-  return Container(
-    key: ValueKey('mag-shop-${m.id}'),
-    margin: const EdgeInsets.only(bottom: 8),
-    padding: const EdgeInsets.all(12),
-    decoration: magCard(16),
-    child: Row(
-      children: [
-        Icon(
-          m.water
-              ? Icons.directions_boat_rounded
-              : m.rail
-              ? Icons.train_rounded
-              : m.passengers
-              ? Icons.directions_bus_rounded
-              : m.horse
-              ? Icons.agriculture_rounded
-              : Icons.local_shipping_rounded,
-          size: 34,
-          color: open ? Color(m.color) : const Color(0xFFB6BEC1),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(m.name, style: const TextStyle(fontWeight: FontWeight.w800)),
-              Text(
-                m.rail
-                    ? 'Скорость ${m.speed.toStringAsFixed(2)} · вагон ${m.wagonCapacity} ед., до ${m.maxWagons} вагонов · расход ${m.runningCost}/кл. + ${MagRules.wagonRunning} за вагон'
-                    : 'Скорость ${m.speed.toStringAsFixed(2)} · груз ${m.capacity} · ${m.horse ? 'корм' : 'расход'} ${m.runningCost}/кл.',
-                style: magMuted,
-              ),
-              const SizedBox(height: 2),
-              Text(
-                truckLore(m.id),
-                style: magMuted.copyWith(
-                  fontStyle: FontStyle.italic,
-                  fontSize: 11.5,
-                ),
-              ),
-            ],
-          ),
-        ),
-        FilledButton(
-          key: ValueKey('mag-buy-${m.id}'),
-          style: FilledButton.styleFrom(
-            backgroundColor: MagPalette.mint,
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-          ),
-          onPressed: open
-              ? () => state.report(
-                  w.buyTruck(m.id),
-                  'Куплен ${m.name} — назначьте его на маршрут',
-                )
-              : null,
-          child: Text(
-            open
-                ? magMoney(m.price + m.wagonPrice)
-                : w.level < m.level
-                ? 'ур. ${m.level}'
-                : m.rail || m.water
-                ? 'техн.'
-                : 'мотор',
-          ),
-        ),
-      ],
-    ),
-  );
-}
 
 /// One truck: what it does, its stats, the four upgrade lines, route,
 /// repair and sale.

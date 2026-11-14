@@ -8,6 +8,8 @@ import 'mag_mega_ui.dart';
 import 'mag_center.dart';
 import 'mag_art.dart';
 import 'mag_development.dart';
+import 'mag_filters.dart';
+import 'mag_iso.dart';
 import 'mag_hud.dart';
 import 'mag_business.dart';
 import 'mag_lore.dart';
@@ -272,12 +274,35 @@ Future<void> showIndustrySheet(
   );
 });
 
-/// All places, nearest to the view first.
-Future<void> showIndustriesSheet(
+/// Which places the list shows (kept while the game is open).
+var _placeKind = 0;
+
+bool _placeOf(MagIndustry i, int k) => switch (k) {
+  1 => i.town != null,
+  2 => i.town == null && i.spec.produces.isNotEmpty,
+  3 => i.spec.converts.isNotEmpty,
+  4 => i.town == null && i.spec.produces.isEmpty && i.spec.converts.isEmpty,
+  _ => true,
+};
+
+/// All places by kind (1.83), nearest to the view first.
+Future<void> showIndustriesSheet(MagistraliScreenState state) =>
+    magSheet(state, 'mag-industries', (context) {
+      final w = state.world, cam = state.camera;
+      return StatefulBuilder(
+        builder: (context, setLocal) =>
+            _places(state, context, setLocal, w, cam),
+      );
+    });
+
+Widget _places(
   MagistraliScreenState state,
-) => magSheet(state, 'mag-industries', (context) {
-  final w = state.world, cam = state.camera;
-  final list = [...w.map.industries]
+  BuildContext context,
+  StateSetter setLocal,
+  MagWorld w,
+  MagCamera cam,
+) {
+  final list = [...w.map.industries.where((i) => _placeOf(i, _placeKind))]
     ..sort((a, b) {
       double d(MagIndustry i) =>
           (i.centerX - cam.x).abs() + (i.centerY - cam.y).abs();
@@ -286,8 +311,20 @@ Future<void> showIndustriesSheet(
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      const Text('Предприятия', style: magTitle),
+      Text('Объекты · ${list.length}', style: magTitle),
       const SizedBox(height: 6),
+      MagFilterChips(
+        keyPrefix: 'mag-place-kind',
+        labels: const [
+          'Все',
+          'Поселения',
+          'Сырьё',
+          'Переработка',
+          'Склады и центры',
+        ],
+        selected: _placeKind,
+        onSelect: (i) => setLocal(() => _placeKind = i),
+      ),
       for (final i in list)
         ListTile(
           key: ValueKey('mag-place-${i.id}'),
@@ -327,7 +364,7 @@ Future<void> showIndustriesSheet(
         ),
     ],
   );
-});
+}
 
 Future<void> showContractsSheet(
   MagistraliScreenState state,

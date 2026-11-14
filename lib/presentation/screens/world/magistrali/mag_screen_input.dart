@@ -1,7 +1,7 @@
 part of 'mag_screen.dart';
 
-/// Touch on the map: pan and pinch, drawing roads and removals, tapping
-/// to place buildings or open a place or a truck.
+/// Touch on the map: a finger moves it and two zoom (in every mode); taps
+/// plan roads and removals, place buildings or open a place or a truck.
 extension _MagScreenInput on MagistraliScreenState {
   int? _cellAt(Offset p, Size size) {
     final c = camera.toCell(p, size);
@@ -9,65 +9,19 @@ extension _MagScreenInput on MagistraliScreenState {
     return world.map.inside(x, y) ? world.cellOf(x, y) : null;
   }
 
-  void _scaleStart(ScaleStartDetails d, Size size) {
-    if ((tool == MagTool.road ||
-            tool == MagTool.rail ||
-            tool == MagTool.remove) &&
-        d.pointerCount == 1) {
-      final at = _downAt ?? d.localFocalPoint;
-      var from = _cellAt(at, size);
-      // Starting at (or right next to) the end of a drawn road carries it
-      // on instead of starting a new one.
-      final plan = pendingRoad;
-      _extending = null;
-      if (from != null &&
-          (tool == MagTool.road || tool == MagTool.rail) &&
-          plan != null) {
-        final end = plan.cells.isEmpty ? null : plan.cells.last;
-        if (end != null && _near(from, end)) {
-          _extending = plan;
-          from = end;
-        }
-      }
-      if (from != null) {
-        // Nothing is drawn until the finger reaches another cell: a short
-        // wobble on one cell never makes a road.
-        _drawFrom = from;
-        _drawing = true;
-        _drawStarted = false;
-        return;
-      }
-    }
-    _beginPan(d.localFocalPoint, size);
-  }
-
-  /// The same cell or one of its eight neighbours.
-  bool _near(int a, int b) =>
-      (world.cx(a) - world.cx(b)).abs() <= 1 &&
-      (world.cy(a) - world.cy(b)).abs() <= 1;
+  /// A finger on the map always moves it (and two fingers zoom), in every
+  /// mode: building is done by taps only, so moving the map never lays a
+  /// road by mistake.
+  void _scaleStart(ScaleStartDetails d, Size size) =>
+      _beginPan(d.localFocalPoint, size);
 
   void _beginPan(Offset focal, Size size) {
-    _drawing = false;
     _focalStart = focal;
     _zoomStart = camera.zoom;
     _cellStart = camera.toCell(focal, size);
   }
 
   void _scaleUpdate(ScaleUpdateDetails d, Size size) {
-    if (_drawing) {
-      if (d.pointerCount > 1) {
-        _refresh(_clearPending);
-        _beginPan(d.localFocalPoint, size);
-        _zoomStart = camera.zoom / d.scale;
-      } else {
-        final c = _cellAt(d.localFocalPoint, size);
-        if (c != null && (_drawStarted || c != _drawFrom)) {
-          _drawStarted = true;
-          _drawTo(c);
-        }
-        return;
-      }
-    }
     if (_focalStart == null) return;
     final cam = camera;
     cam.zoom = (_zoomStart * d.scale).clamp(
@@ -82,14 +36,7 @@ extension _MagScreenInput on MagistraliScreenState {
       ..y = (cam.y + _cellStart.dy - now.dy).clamp(0, n);
   }
 
-  void _scaleEnd() {
-    _focalStart = null;
-    if (!_drawing) return;
-    _drawing = false;
-    _extending = null;
-    if (!_drawStarted) return; // stayed on one cell: nothing drawn
-    _refresh(() {}); // shows the confirm bar
-  }
+  void _scaleEnd() => _focalStart = null;
 
   void _drawTo(int to) {
     final w = world, from = _drawFrom!;
@@ -133,8 +80,10 @@ extension _MagScreenInput on MagistraliScreenState {
         if (plan != null) {
           // A drawn road is never lost to a stray tap: a tap next to its
           // end carries it on, anywhere else only reminds what to do.
+          // A tap carries the planned road on from its end to the tapped
+          // cell; its end again — a reminder.
           final end = plan.cells.isEmpty ? null : plan.cells.last;
-          if (end != null && cell != end && _near(cell, end)) {
+          if (end != null && cell != end) {
             _extending = plan;
             _drawFrom = end;
             _drawTo(cell);
@@ -144,8 +93,8 @@ extension _MagScreenInput on MagistraliScreenState {
           }
           return;
         }
-        // Two taps also make a road: start, then end. The same cell twice
-        // drops the start.
+        // Two taps make a road: start, then end. The same cell twice drops
+        // the start.
         final start = _tapStart;
         if (start == null) {
           _refresh(() {
@@ -228,8 +177,30 @@ extension _MagScreenInput on MagistraliScreenState {
         if (w.roads[cell] == 0 && w.rails[cell] == 0) {
           return say('Здесь нет дороги или пути');
         }
+        // A tap marks a cell (again: unmarks it); a tap in line with the
+        // last mark takes the whole straight stretch between them.
+        final marks = [...pendingRemove];
+        if (marks.contains(cell)) {
+          marks.remove(cell);
+        } else {
+          final last = marks.isEmpty ? null : marks.last;
+          if (last != null &&
+              (w.cx(last) == w.cx(cell) || w.cy(last) == w.cy(cell))) {
+            final dx = (w.cx(cell) - w.cx(last)).sign;
+            final dy = (w.cy(cell) - w.cy(last)).sign;
+            var x = w.cx(last) + dx, y = w.cy(last) + dy;
+            while (x != w.cx(cell) || y != w.cy(cell)) {
+              final c = w.cellOf(x, y);
+              if (w.roads[c] == 0 && w.rails[c] == 0) break;
+              if (!marks.contains(c)) marks.add(c);
+              x += dx;
+              y += dy;
+            }
+          }
+          marks.add(cell);
+        }
         _refresh(() {
-          pendingRemove = [...pendingRemove, cell];
+          pendingRemove = marks;
           overlay.removing = pendingRemove;
         });
       case MagTool.view:

@@ -226,7 +226,8 @@ class MagRenderer {
           continue;
         }
         if (ground == MagTerrain.hill && way) {
-          // A tunnel: the hill stays over the way, a portal where it leaves.
+          // A tunnel: rock covers the way, a portal where it leaves.
+          objects.add((x + y + .45, () => paintTunnelCover(canvas, x, y)));
           for (var d = 0; d < 4; d++) {
             final nx = x + MagDir.dx[d], ny = y + MagDir.dy[d];
             if (!map.inside(nx, ny) || map.at(nx, ny) == MagTerrain.hill) {

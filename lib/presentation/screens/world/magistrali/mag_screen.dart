@@ -27,8 +27,8 @@ part 'mag_screen_input.dart';
 /// What a finger on the map does.
 enum MagTool { view, road, remove, warehouse, industry, rail, station, port }
 
-/// «Магистрали»: a transport company on an isometric map. Roads are drawn
-/// with a finger, trucks run their routes by themselves, deliveries pay,
+/// «Магистрали»: a transport company on an isometric map. Roads are laid
+/// by taps, trucks run their routes by themselves, deliveries pay,
 /// and the money goes into new trucks, upgrades and roads.
 class MagistraliScreen extends StatefulWidget {
   const MagistraliScreen({super.key, this.seed});
@@ -385,10 +385,9 @@ class MagistraliScreenState extends State<MagistraliScreen>
 
   // ---- Gestures ----
 
-  Offset? _downAt, _focalStart;
+  Offset? _focalStart;
   Offset _cellStart = Offset.zero;
   double _zoomStart = 1;
-  bool _drawing = false, _drawStarted = false;
   MagRoadPlan? _extending;
   int? _drawFrom;
 
@@ -418,17 +417,14 @@ class MagistraliScreenState extends State<MagistraliScreen>
               child: LayoutBuilder(
                 builder: (context, box) {
                   final size = box.biggest;
-                  return Listener(
-                    onPointerDown: (e) => _downAt = e.localPosition,
-                    child: GestureDetector(
-                      key: const ValueKey('mag-map'),
-                      behavior: HitTestBehavior.opaque,
-                      onScaleStart: (d) => _scaleStart(d, size),
-                      onScaleUpdate: (d) => _scaleUpdate(d, size),
-                      onScaleEnd: (_) => _scaleEnd(),
-                      onTapUp: (d) => _tap(d.localPosition, size),
-                      child: GameWidget<MagGame>(game: g),
-                    ),
+                  return GestureDetector(
+                    key: const ValueKey('mag-map'),
+                    behavior: HitTestBehavior.opaque,
+                    onScaleStart: (d) => _scaleStart(d, size),
+                    onScaleUpdate: (d) => _scaleUpdate(d, size),
+                    onScaleEnd: (_) => _scaleEnd(),
+                    onTapUp: (d) => _tap(d.localPosition, size),
+                    child: GameWidget<MagGame>(game: g),
                   );
                 },
               ),

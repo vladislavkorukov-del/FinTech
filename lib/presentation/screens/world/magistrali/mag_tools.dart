@@ -145,7 +145,8 @@ class MagConfirmBar extends StatelessWidget {
               ? 'Не хватает ${magMoney(cost - w.money)} кр'
               : null);
     } else {
-      title = 'Снести ${state.pendingRemove.length} кл.';
+      title =
+          'Снести ${state.pendingRemove.length} кл. · вернётся ${magMoney(w.demolishRefund(state.pendingRemove))} кр';
     }
     return Container(
       key: const ValueKey('mag-confirm'),
@@ -296,18 +297,19 @@ String toolHint(MagistraliScreenState state) {
   final w = state.world;
   return switch (state.tool) {
     MagTool.road =>
-      '${roadLore(state.roadType)} Проведите пальцем · ${MagRules.roads[state.roadType]!.cost} кр/кл.',
+      '${roadLore(state.roadType)} Коснитесь начала и конца, потом «Построить» · ${MagRules.roads[state.roadType]!.cost} кр/кл., тоннель ×7, мост ×9',
     MagTool.industry =>
       'Коснитесь клетки — там встанет ${state.buildKind == null ? 'предприятие' : kindName(state.buildKind!).toLowerCase()} (${state.buildKind == null ? '' : '${magMoney(w.buildPrice(state.buildKind!))} кр'})',
     MagTool.warehouse =>
       'Коснитесь клетки — там встанет склад 2×2 (${magMoney(w.warehousePrice)} кр, ${w.warehouses.length} из ${w.warehouseSlots})',
     MagTool.rail =>
-      'Рельсы: проведите пальцем · ${MagRules.railCost} кр/кл. Можно пересекать дороги.',
+      'Рельсы: коснитесь начала и конца · ${MagRules.railCost} кр/кл. Можно пересекать дороги.',
     MagTool.port =>
       'Коснитесь воды рядом (до 2 клеток) с предприятием или поселением · ${magMoney(MagRules.portPrice)} кр',
     MagTool.station =>
       'Коснитесь пути рядом (до 2 клеток) с предприятием или поселением · ${magMoney(MagRules.stationPrice)} кр',
-    _ => 'Проведите по дороге или пути, которые нужно снести',
+    _ =>
+      'Коснитесь клеток дороги или пути (две в линию — весь отрезок). Вернётся ${(MagRules.demolishRefund * 100).round()}% цены',
   };
 }
 
