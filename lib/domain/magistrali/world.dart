@@ -23,6 +23,7 @@ part 'world_industry.dart';
 part 'world_load.dart';
 part 'world_orders.dart';
 part 'world_progress.dart';
+part 'world_rails.dart';
 part 'world_roads.dart';
 part 'world_save.dart';
 part 'world_settlements.dart';
@@ -45,7 +46,9 @@ class MagRoadPlan {
 /// Everything changes through its methods, on a fixed 100 ms step, so the
 /// same actions always give the same result.
 class MagWorld {
-  MagWorld({required this.map}) : roads = Uint8List(map.size * map.size);
+  MagWorld({required this.map})
+    : roads = Uint8List(map.size * map.size),
+      rails = Uint8List(map.size * map.size);
 
   factory MagWorld.start([int seed = MagRules.defaultSeed]) {
     // New games: generator 4 — hamlets and villages with room to grow,
@@ -82,6 +85,12 @@ class MagWorld {
 
   /// Road surface per cell (MagRoad index).
   final Uint8List roads;
+
+  /// Railway track: 1 on a cell with rails (stage S8).
+  final Uint8List rails;
+
+  /// Station cells (on track) and the place each serves.
+  final stations = <int, int>{};
 
   int tick = 0;
   int money = 0;

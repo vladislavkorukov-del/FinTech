@@ -113,6 +113,13 @@ class MagVehicle {
   /// Running cost not yet charged (fractions of a credit).
   double unpaid = 0;
 
+  /// Wagons behind a locomotive (stage S8; 0 for road vehicles).
+  int wagons = 0;
+
+  /// Ticks a train has waited for the track ahead to clear, and how many
+  /// times it gave way head to head (a sign the line needs a second track).
+  int blocked = 0, yields = 0;
+
   /// Money it has cost (fuel or feed, upkeep, repairs) and cells driven
   /// empty — for the finance centre.
   int costs = 0;

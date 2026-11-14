@@ -9,6 +9,7 @@ import 'mag_dispatch.dart';
 import 'mag_hud.dart';
 import 'mag_lore.dart';
 import 'mag_orders.dart';
+import 'mag_rail_ui.dart';
 import 'mag_screen.dart';
 import 'mag_sheets.dart';
 
@@ -61,7 +62,10 @@ Widget _truckTile(
     contentPadding: EdgeInsets.zero,
     leading: CircleAvatar(
       backgroundColor: Color(v.spec.color).withValues(alpha: .18),
-      child: Icon(Icons.local_shipping_rounded, color: Color(v.spec.color)),
+      child: Icon(
+        v.spec.rail ? Icons.train_rounded : Icons.local_shipping_rounded,
+        color: Color(v.spec.color),
+      ),
     ),
     title: Text(v.name, style: const TextStyle(fontWeight: FontWeight.w700)),
     subtitle: Text(
@@ -88,58 +92,67 @@ Widget _truckTile(
 }
 
 /// The fleet and the truck shop.
-Future<void> showFleetSheet(MagistraliScreenState state) => magSheet(
-  state,
-  'mag-fleet',
-  (context) {
-    final w = state.world;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('Транспорт · ${w.vehicles.length}', style: magTitle),
-        const SizedBox(height: 6),
-        MagDispatchPanel(state: state),
-        for (final v in w.vehicles.values) _truckTile(state, v, context),
-        const SizedBox(height: 10),
-        const Text(
-          'Купить грузовик',
-          style: TextStyle(fontWeight: FontWeight.w800),
-        ),
-        const SizedBox(height: 6),
-        const Text('Эпоха I — гужевой транспорт', style: magMuted),
-        for (final m in MagRules.trucks.where((m) => m.horse))
-          _shopCard(state, m),
-        Text(
-          w.motorUnlocked
-              ? 'Грузовики'
-              : 'Грузовики — после технологии «Двигатель внутреннего сгорания»',
-          style: magMuted,
-        ),
-        for (final m in MagRules.trucks.where((m) => !m.horse))
-          _shopCard(state, m),
-        const SizedBox(height: 4),
-        OutlinedButton.icon(
-          key: const ValueKey('mag-open-orders'),
-          onPressed: () {
-            Navigator.pop(context);
-            unawaited(showOrdersSheet(state));
-          },
-          icon: const Icon(Icons.assignment_turned_in_rounded),
-          label: Text('Логистические заказы · ${w.orders.active.length}'),
-        ),
-        const SizedBox(height: 4),
-        const Text(
-          'Поезда и корабли появятся на следующих этапах развития.',
-          style: magMuted,
-        ),
-      ],
-    );
-  },
-);
+Future<void> showFleetSheet(
+  MagistraliScreenState state,
+) => magSheet(state, 'mag-fleet', (context) {
+  final w = state.world;
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text('Транспорт · ${w.vehicles.length}', style: magTitle),
+      const SizedBox(height: 6),
+      MagDispatchPanel(state: state),
+      for (final v in w.vehicles.values) _truckTile(state, v, context),
+      const SizedBox(height: 10),
+      const Text(
+        'Купить грузовик',
+        style: TextStyle(fontWeight: FontWeight.w800),
+      ),
+      const SizedBox(height: 6),
+      const Text('Эпоха I — гужевой транспорт', style: magMuted),
+      for (final m in MagRules.trucks.where((m) => m.horse))
+        _shopCard(state, m),
+      Text(
+        w.motorUnlocked
+            ? 'Грузовики'
+            : 'Грузовики — после технологии «Двигатель внутреннего сгорания»',
+        style: magMuted,
+      ),
+      for (final m in MagRules.trucks.where((m) => !m.horse && !m.rail))
+        _shopCard(state, m),
+      Text(
+        w.railsUnlocked
+            ? 'Эпоха II — железная дорога: локомотив и вагоны'
+            : 'Железная дорога — после технологии «Паровая тяга»',
+        style: magMuted,
+      ),
+      for (final m in MagRules.trucks.where((m) => m.rail)) _shopCard(state, m),
+      const SizedBox(height: 4),
+      OutlinedButton.icon(
+        key: const ValueKey('mag-open-orders'),
+        onPressed: () {
+          Navigator.pop(context);
+          unawaited(showOrdersSheet(state));
+        },
+        icon: const Icon(Icons.assignment_turned_in_rounded),
+        label: Text('Логистические заказы · ${w.orders.active.length}'),
+      ),
+      const SizedBox(height: 4),
+      const Text(
+        'Корабли появятся на следующих этапах развития.',
+        style: magMuted,
+      ),
+    ],
+  );
+});
 
 Widget _shopCard(MagistraliScreenState state, MagTruckModel m) {
   final w = state.world;
-  final open = w.level >= m.level && (m.horse || w.motorUnlocked);
+  final open =
+      w.level >= m.level &&
+      (m.rail
+          ? w.railsUnlocked && (m.id != 'diesel' || w.dieselUnlocked)
+          : m.horse || w.motorUnlocked);
   return Container(
     key: ValueKey('mag-shop-${m.id}'),
     margin: const EdgeInsets.only(bottom: 8),
@@ -148,7 +161,11 @@ Widget _shopCard(MagistraliScreenState state, MagTruckModel m) {
     child: Row(
       children: [
         Icon(
-          m.horse ? Icons.agriculture_rounded : Icons.local_shipping_rounded,
+          m.rail
+              ? Icons.train_rounded
+              : m.horse
+              ? Icons.agriculture_rounded
+              : Icons.local_shipping_rounded,
           size: 34,
           color: open ? Color(m.color) : const Color(0xFFB6BEC1),
         ),
@@ -159,7 +176,9 @@ Widget _shopCard(MagistraliScreenState state, MagTruckModel m) {
             children: [
               Text(m.name, style: const TextStyle(fontWeight: FontWeight.w800)),
               Text(
-                'Скорость ${m.speed.toStringAsFixed(2)} · груз ${m.capacity} · ${m.horse ? 'корм' : 'расход'} ${m.runningCost}/кл.',
+                m.rail
+                    ? 'Скорость ${m.speed.toStringAsFixed(2)} · вагон ${m.wagonCapacity} ед., до ${m.maxWagons} вагонов · расход ${m.runningCost}/кл. + ${MagRules.wagonRunning} за вагон'
+                    : 'Скорость ${m.speed.toStringAsFixed(2)} · груз ${m.capacity} · ${m.horse ? 'корм' : 'расход'} ${m.runningCost}/кл.',
                 style: magMuted,
               ),
               const SizedBox(height: 2),
@@ -187,9 +206,11 @@ Widget _shopCard(MagistraliScreenState state, MagTruckModel m) {
               : null,
           child: Text(
             open
-                ? magMoney(m.price)
+                ? magMoney(m.price + m.wagonPrice)
                 : w.level < m.level
                 ? 'ур. ${m.level}'
+                : m.rail
+                ? 'техн.'
                 : 'мотор',
           ),
         ),
@@ -234,25 +255,27 @@ Future<void> showVehicleSheet(MagistraliScreenState state, int id) => magSheet(
           color: MagPalette.teal,
         ),
         magRow('Маршрут', route?.name ?? 'нет'),
-        SwitchListTile(
-          key: const ValueKey('mag-auto-toggle'),
-          contentPadding: EdgeInsets.zero,
-          value: v.auto,
-          activeThumbColor: MagPalette.mint,
-          title: const Text('Автопарк'),
-          subtitle: Text(
-            w.dispatcherUnlocked
-                ? 'Диспетчер сам даёт машине заявки. Маршрут снимается.'
-                : 'Откроет технология «Диспетчерская»',
-            style: magMuted,
+        if (v.spec.rail) ...trainPanel(state, v),
+        if (!v.spec.rail)
+          SwitchListTile(
+            key: const ValueKey('mag-auto-toggle'),
+            contentPadding: EdgeInsets.zero,
+            value: v.auto,
+            activeThumbColor: MagPalette.mint,
+            title: const Text('Автопарк'),
+            subtitle: Text(
+              w.dispatcherUnlocked
+                  ? 'Диспетчер сам даёт машине заявки. Маршрут снимается.'
+                  : 'Откроет технология «Диспетчерская»',
+              style: magMuted,
+            ),
+            onChanged: (on) => state.report(
+              w.setAuto(v.id, on),
+              on
+                  ? '${v.name} в автопарке'
+                  : '${v.name} снова под вашим управлением',
+            ),
           ),
-          onChanged: (on) => state.report(
-            w.setAuto(v.id, on),
-            on
-                ? '${v.name} в автопарке'
-                : '${v.name} снова под вашим управлением',
-          ),
-        ),
         const SizedBox(height: 8),
         Text(
           'Улучшения · доступно до ${w.maxUpgradeLevel} ур.',

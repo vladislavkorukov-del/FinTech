@@ -75,7 +75,15 @@ extension MagWorldRoads on MagWorld {
       for (final c in [...first.cells, ...more.cells])
         if (seen.add(c)) c,
     ];
-    final cost = cells.fold(0, (s, c) => s + cellCost(c, first.type));
+    // Track is planned with no road surface (MagRoad.none).
+    final cost = cells.fold(
+      0,
+      (s, c) =>
+          s +
+          (first.type == MagRoad.none
+              ? railCellCost(c)
+              : cellCost(c, first.type)),
+    );
     return MagRoadPlan(cells, cost, first.type, first.error);
   }
 }

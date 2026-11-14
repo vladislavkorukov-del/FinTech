@@ -10,6 +10,7 @@ enum MagAdviceKind {
   emptyRoute,
   warehouseFull,
   centerIdle,
+  trainsBlocked,
   cityDemand,
 }
 
@@ -151,6 +152,19 @@ extension MagWorldAdvice on MagWorld {
             'Без маршрута и заказа, а содержание ${upkeepOf(v)} кр в день идёт. Поставьте на маршрут, в автопарк или продайте.',
             vehicle: v.id,
             weight: 3,
+          ),
+        );
+      }
+    }
+    for (final v in vehicles.values) {
+      if (v.spec.rail && v.yields >= 2) {
+        out.add(
+          MagAdvice(
+            MagAdviceKind.trainsBlocked,
+            '${v.name} уступает путь встречным',
+            'Уже ${v.yields} раз: на одной колее поезда мешают друг другу. Проложите второй путь или второй перрон — они разъедутся.',
+            vehicle: v.id,
+            weight: 4,
           ),
         );
       }

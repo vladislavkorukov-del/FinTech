@@ -178,6 +178,31 @@ MagWorld magWorldFromJson(Map<String, dynamic> raw) {
     }
     w.roads[c] = roads[c];
   }
+  // Railways (stage S8): track on free land, stations on track by a place.
+  final rails = j['rails'] == null
+      ? Uint8List(size * size)
+      : base64Decode(j['rails'] as String);
+  if (rails.length != size * size) {
+    throw const FormatException('Bad rails in Magistrali save');
+  }
+  for (var c = 0; c < rails.length; c++) {
+    if (rails[c] > 1 ||
+        rails[c] != 0 &&
+            (!w.map.roadable(c % size, c ~/ size) ||
+                w.map.industryAt(c % size, c ~/ size) != null)) {
+      throw const FormatException('Bad rail in Magistrali save');
+    }
+    w.rails[c] = rails[c];
+  }
+  for (final raw in j['stations'] as List? ?? const []) {
+    final pair = raw as List;
+    final cell = whole(pair[0], 0, size * size - 1);
+    final place = whole(pair[1], 1, 1 << 50);
+    if (w.rails[cell] == 0 || w.map.industry(place) == null) {
+      throw const FormatException('Bad station in Magistrali save');
+    }
+    w.stations[cell] = place;
+  }
   for (final raw in j['industries'] as List? ?? const []) {
     final m = raw as Map;
     final i = w.map.industry(whole(m['id'], 1, 1 << 20));
@@ -249,6 +274,9 @@ MagWorld magWorldFromJson(Map<String, dynamic> raw) {
       ..progress = real(m['progress'], 0, 1)
       ..dir = whole(m['dir'], 0, 3)
       ..wait = whole(m['wait'], -(1 << 40), 1 << 40)
+      ..wagons = whole(m['wagons'] ?? 0, 0, 64)
+      ..blocked = whole(m['blocked'] ?? 0, 0, 1 << 40)
+      ..yields = whole(m['yields'] ?? 0, 0, 1 << 40)
       ..unpaid = real(m['unpaid'], 0, 1e6)
       ..costs = whole(m['costs'] ?? 0, 0, 1 << 50)
       ..emptyCells = real(m['empty'] ?? 0, 0, 1e15);
@@ -276,14 +304,16 @@ MagWorld magWorldFromJson(Map<String, dynamic> raw) {
     }
     final driving = v.state == MagVehicleState.driving;
     final idle = v.state == MagVehicleState.idle;
+    // Trucks stand on roads, trains on track.
+    final net = v.spec.rail ? w.rails : w.roads;
     if (v.state != MagVehicleState.garage &&
             !idle &&
             v.routeId == null &&
             v.orderId == null ||
         idle && (!v.onMap || v.routeId != null || v.orderId != null) ||
         driving && v.pathIndex + 1 >= v.path.length ||
-        v.onMap && w.roads[v.cell] == 0 ||
-        driving && v.path.any((c) => w.roads[c] == 0)) {
+        v.onMap && net[v.cell] == 0 ||
+        driving && v.path.any((c) => net[c] == 0)) {
       throw const FormatException('Inconsistent truck in Magistrali save');
     }
     w.vehicles[v.id] = v;

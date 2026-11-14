@@ -167,7 +167,7 @@ extension MagWorldSettlements on MagWorld {
     if (x < 1 || y < 1 || x >= size - 1 || y >= size - 1) return false;
     final k = map.at(x, y);
     if (k == MagTerrain.lake || k == MagTerrain.river) return false;
-    if (hasRoad(x, y)) return false;
+    if (hasRoad(x, y) || hasRail(x, y)) return false;
     final other = map.industryAt(x, y);
     return other == null || other == i;
   }

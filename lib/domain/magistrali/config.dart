@@ -2,6 +2,8 @@
 /// changes never touch the simulation.
 library;
 
+import 'config_vehicles.dart';
+
 enum MagCargo {
   grain,
   wood,
@@ -146,8 +148,17 @@ class MagTruckModel {
     required this.level,
     required this.color,
     this.horse = false,
+    this.rail = false,
+    this.wagonCapacity = 0,
+    this.maxWagons = 0,
+    this.wagonPrice = 0,
   });
   final String id, name;
+
+  /// A locomotive (stage S8): it runs on rails between stations and pulls
+  /// wagons; its capacity is in the wagons.
+  final bool rail;
+  final int wagonCapacity, maxWagons, wagonPrice;
 
   /// Drawn by horses (era I): the road surface hardly changes its pace,
   /// it eats feed instead of fuel, and needs no engine technology.
@@ -215,6 +226,14 @@ abstract final class MagRules {
   /// at level 1 and more with each level.
   static const centerRadius = 8, centerRadiusStep = 3;
   static const centerOrders = 3, centerOrdersStep = 2;
+
+  /// Railways (stage S8): a cell of track on grass, a station, what each
+  /// wagon costs to run and keep, how much each wagon slows a train, and
+  /// how long a train waits for a blocked track before looking for
+  /// another way.
+  static const railCost = 60, stationPrice = 1500, stationReach = 2;
+  static const wagonRunning = .08, wagonUpkeep = 1, wagonDrag = .04;
+  static const trainWaitTicks = 20;
 
   /// Days a city waits before its next order after one ends.
   static const cityOrderPause = 4;
@@ -395,68 +414,7 @@ abstract final class MagRules {
 
   static const minPayDistance = 4;
 
-  static const trucks = <MagTruckModel>[
-    // Era I — horses.
-    MagTruckModel(
-      id: 'cart',
-      name: 'Телега «Гнедко»',
-      speed: .75,
-      capacity: 6,
-      price: 650,
-      runningCost: .08,
-      upkeep: 2,
-      level: 1,
-      color: 0xFF9A6A3A,
-      horse: true,
-    ),
-    MagTruckModel(
-      id: 'wagon',
-      name: 'Фургон «Пара гнедых»',
-      speed: .9,
-      capacity: 12,
-      price: 1800,
-      runningCost: .14,
-      upkeep: 4,
-      level: 2,
-      color: 0xFF6F4E37,
-      horse: true,
-    ),
-    // Era III — trucks (open with «Двигатель внутреннего сгорания» in new
-    // games; older companies have them already).
-    MagTruckModel(
-      id: 'pickup',
-      name: 'Пикап «Старт»',
-      speed: 1.25,
-      capacity: 10,
-      price: 2200,
-      runningCost: .5,
-      upkeep: 4,
-      level: 1,
-      color: 0xFF2BB59A,
-    ),
-    MagTruckModel(
-      id: 'lorry',
-      name: 'Грузовик «Терра»',
-      speed: 1.4,
-      capacity: 22,
-      price: 6800,
-      runningCost: .9,
-      upkeep: 8,
-      level: 3,
-      color: 0xFFE28A3B,
-    ),
-    MagTruckModel(
-      id: 'tractor',
-      name: 'Тягач «Магистраль»',
-      speed: 1.6,
-      capacity: 38,
-      price: 16500,
-      runningCost: 1.4,
-      upkeep: 14,
-      level: 6,
-      color: 0xFF4A6FD8,
-    ),
-  ];
+  static const trucks = magTruckModels;
 
   /// How much a road surface speeds a horse (hooves care little for
   /// asphalt).

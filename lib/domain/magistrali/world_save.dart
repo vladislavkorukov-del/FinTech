@@ -49,6 +49,11 @@ extension MagWorldSave on MagWorld {
     'rng': rng,
     'roadVersion': roadVersion,
     'roads': base64Encode(roads),
+    if (rails.any((r) => r != 0)) 'rails': base64Encode(rails),
+    if (stations.isNotEmpty)
+      'stations': [
+        for (final e in stations.entries) [e.key, e.value],
+      ],
     'industries': [
       for (final i in map.industries)
         {
@@ -97,6 +102,9 @@ extension MagWorldSave on MagWorld {
           'dir': v.dir,
           'wait': v.wait,
           'unpaid': v.unpaid,
+          if (v.wagons != 0) 'wagons': v.wagons,
+          if (v.blocked != 0) 'blocked': v.blocked,
+          if (v.yields != 0) 'yields': v.yields,
           if (v.costs != 0) 'costs': v.costs,
           if (v.emptyCells != 0) 'empty': v.emptyCells,
         },

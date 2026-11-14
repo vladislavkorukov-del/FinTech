@@ -5,6 +5,7 @@ import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../domain/magistrali/magistrali.dart';
+import 'mag_rail_art.dart';
 import 'mag_art.dart';
 import 'mag_buildings.dart';
 import 'mag_town_art.dart';
@@ -148,6 +149,18 @@ class MagRenderer {
         );
       }
     }
+    // Railway track and platforms (stage S8).
+    for (var y = y0; y <= y1; y++) {
+      for (var x = x0; x <= x1; x++) {
+        final cell = w.cellOf(x, y);
+        if (w.rails[cell] == 0) continue;
+        var mask = 0;
+        for (var d = 0; d < 4; d++) {
+          if (w.hasRail(x + MagDir.dx[d], y + MagDir.dy[d])) mask |= 1 << d;
+        }
+        paintRail(canvas, mask, x, y, station: w.stations.containsKey(cell));
+      }
+    }
     final sel = o.industry == null ? null : map.industry(o.industry!);
     if (sel != null) {
       canvas.drawRRect(
@@ -213,9 +226,29 @@ class MagRenderer {
         },
       ));
     }
+    for (final s in w.stations.keys) {
+      final x = w.cx(s), y = w.cy(s);
+      if (x < x0 - 1 || y < y0 - 1 || x > x1 + 1 || y > y1 + 1) continue;
+      objects.add((x + y + .3, () => paintStationHouse(canvas, x, y)));
+    }
     for (final v in w.vehicles.values) {
       if (!v.onMap) continue;
       final (px, py) = w.positionOf(v);
+      if (v.spec.rail) {
+        if (px < x0 - 2 || py < y0 - 2 || px > x1 + 3 || py > y1 + 3) continue;
+        final cars = trainCars(w, v);
+        objects.add((
+          px + py,
+          () => paintTrain(
+            canvas,
+            cars,
+            v.spec,
+            v.load > 0 ? MagPalette.cargo(v.cargo!) : null,
+            selected: o.vehicle == v.id,
+          ),
+        ));
+        continue;
+      }
       if (px < x0 - 1 || py < y0 - 1 || px > x1 + 2 || py > y1 + 2) continue;
       objects.add((
         px + py,

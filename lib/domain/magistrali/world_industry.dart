@@ -101,7 +101,7 @@ extension MagWorldIndustry on MagWorld {
     }
     for (var yy = y; yy < y + spec.size; yy++) {
       for (var xx = x; xx < x + spec.size; xx++) {
-        if (!map.roadable(xx, yy) || hasRoad(xx, yy)) {
+        if (!map.roadable(xx, yy) || hasRoad(xx, yy) || hasRail(xx, yy)) {
           return 'Нужно ${spec.size}×${spec.size} свободных клеток без дорог';
         }
       }

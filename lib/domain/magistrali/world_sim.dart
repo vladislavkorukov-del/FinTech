@@ -149,7 +149,11 @@ extension MagWorldSim on MagWorld {
     final target = _target(v);
     if (target == null) return _lost(v);
     if (!v.onMap) {
-      final access = accessCells(target);
+      // A train starts only on a free platform.
+      final access = [
+        for (final c in _stopCells(v, target))
+          if (!v.spec.rail || !occupied.contains(c)) c,
+      ];
       if (access.isEmpty) {
         v
           ..state = MagVehicleState.noRoad
@@ -176,10 +180,10 @@ extension MagWorldSim on MagWorld {
     final last = v.orderId != null ? null : _stopOf(v, v.stop - 1);
     final yard = v.orderId != null
         ? _yardAround(v.cell)
-        : last != null && _touches(v.cell, last)
-        ? accessCells(last)
+        : last != null && _atPlace(v, v.cell, last)
+        ? _stopCells(v, last)
         : const <int>[];
-    final path = roadPath([v.cell, ...yard], target);
+    final path = _pathFor(v, [v.cell, ...yard], target);
     if (path == null) {
       v
         ..state = MagVehicleState.noRoad
@@ -210,8 +214,14 @@ extension MagWorldSim on MagWorld {
     while (dist > 0 && v.state == MagVehicleState.driving) {
       final next = v.path[v.pathIndex + 1];
       v.dir = _dirTo(v.cell, next);
-      // Horses keep their own pace on any surface.
-      final roadK = v.spec.horse
+      // A train waits for the track ahead to clear (it never shares a
+      // cell with another train).
+      if (v.progress == 0 && !_trackClear(v, next)) break;
+      // Horses keep their own pace on any surface; trains their own on
+      // the track.
+      final roadK = v.spec.rail
+          ? 1.0
+          : v.spec.horse
           ? math.max(MagRules.horseRoad(MagRoad.values[roads[next]]), .4)
           : math.max(_roadSpeed(next), .4);
       final need = (1 - v.progress) / roadK;

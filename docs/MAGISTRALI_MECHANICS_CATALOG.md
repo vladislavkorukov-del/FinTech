@@ -7,23 +7,23 @@
 
 Статусы: NOT_STARTED — не начато; PARTIAL — частично; IN_PROGRESS — в работе;
 READY_FOR_REVIEW — готово, ждёт проверки игроком; VERIFIED — проверено игроком
-(этапы, которые игрок подтвердил: 1.68–1.76); BLOCKED — заблокировано.
+(этапы, которые игрок подтвердил: 1.68–1.78); BLOCKED — заблокировано.
 
 Файлы домена — `lib/domain/magistrali/`, интерфейса —
 `lib/presentation/screens/world/magistrali/`. Тесты — `test/magistrali_<имя>_test.dart`
 (sim, orders, storage, dispatch, towns, horses, production, growth,
-industry, cities, logistics, ui, ui_stage5).
+industry, cities, logistics, rail, ui, ui_stage5, ui_rail).
 
-Аудит: 1.77.0, обновлено в 1.78.0 (этап S7); точка восстановления — тег `restore/magistrali-1.77.0-pre-s7`.
+Аудит: 1.77.0, обновлено в 1.78.0 (S7) и 1.79.0 (S8); точка восстановления — тег `restore/magistrali-1.77.0-pre-s7`.
 
 ## Сводка
 
 | Статус | Механик |
 |---|---|
-| VERIFIED | 94 |
-| READY_FOR_REVIEW | 13 |
-| PARTIAL | 27 |
-| NOT_STARTED | 69 |
+| VERIFIED | 107 |
+| READY_FOR_REVIEW | 9 |
+| PARTIAL | 28 |
+| NOT_STARTED | 59 |
 | Всего | 203 |
 
 ## A. Фундамент игры и безопасность
@@ -52,10 +52,10 @@ industry, cities, logistics, ui, ui_stage5).
 | CITY-05 | Защита инфраструктуры | P0 | VERIFIED | 1.72 | CITY-04 | world_settlements.dart (`_townLandFree`) | towns: «growth blocked by roads» | — |
 | CITY-06 | Изменение застройки | P1 | PARTIAL | 1.72 | CITY-03 | mag_town_art.dart, mag_city_art.dart | — | Застройка меняется группами уровней (1–2, 3–4, 5–7, 8–10) и площадью |
 | CITY-07 | Население | P1 | PARTIAL | 1.72 | CITY-01 | world_settlements.dart (`_dayTowns`) | towns, growth | Спрос задан уровнем, а не числом жителей |
-| CITY-08 | Потребности города | P1 | READY_FOR_REVIEW | 1.77 | CITY-02, CORE-03 | settlements.dart (`needs`, `marketGoods`), world_cities.dart | cities | — |
+| CITY-08 | Потребности города | P1 | VERIFIED | 1.77 | CITY-02, CORE-03 | settlements.dart (`needs`, `marketGoods`), world_cities.dart | cities | — |
 | CITY-09 | Контракты развития | P1 | VERIFIED | 1.75 | CITY-08 | world_settlements.dart (`_payDevelopment`) | growth | — |
 | CITY-10 | Транспортная доступность | P1 | PARTIAL | 1.72 | ROAD-12 | world_settlements.dart, mag_development.dart («нет дороги») | growth | Учитывается только через реальные поставки |
-| CITY-11 | Специализации поселений | P2 | READY_FOR_REVIEW | 1.77 | CITY-08 | world_cities.dart, settlements.dart (`favoured`) | cities | — |
+| CITY-11 | Специализации поселений | P2 | VERIFIED | 1.77 | CITY-08 | world_cities.dart, settlements.dart (`favoured`) | cities | — |
 | CITY-12 | Репутация в городе | P2 | PARTIAL | 1.72 | — | settlements.dart (`reputation`) | — | Растёт, но преимуществ не даёт |
 | CITY-13 | Несколько точек разгрузки | P2 | NOT_STARTED | — | LOG, ROUTE | — | — | Сейчас разгрузка у любой клетки города |
 | CITY-14 | История поселения | P2 | VERIFIED | 1.72 | — | settlements.dart (`history`) | towns | — |
@@ -68,7 +68,7 @@ industry, cities, logistics, ui, ui_stage5).
 |---|---|---|---|---|---|---|---|---|
 | TECH-01 | Независимый технологический прогресс компании | P1 | VERIFIED | 1.70 | — | tech.dart, world_tech.dart | storage | — |
 | TECH-02 | Эпоха гужевого транспорта | P1 | VERIFIED | 1.73 | — | config.dart (cart, wagon), world.dart (`start`) | horses | — |
-| TECH-03 | Паровая эпоха | P1 | NOT_STARTED | — | RAIL-01 | — | — | Нет железных дорог |
+| TECH-03 | Паровая эпоха | P1 | READY_FOR_REVIEW | 1.79 | RAIL-01 | tech_nodes.dart (`steam`), world_rails.dart | rail | — |
 | TECH-04 | Эпоха автомобилизации | P1 | VERIFIED | 1.73 | TECH-07 | tech_nodes.dart (`combustion`), config.dart (асфальт) | horses | — |
 | TECH-05 | Современная логистика | P1 | PARTIAL | 1.71 | LOG-07 | tech_nodes.dart (диспетчерская), шоссе, магистраль, тягач | dispatch | Нет отдельной эпохи |
 | TECH-06 | Транспорт будущего | P3 | NOT_STARTED | — | — | — | — | — |
@@ -127,10 +127,10 @@ industry, cities, logistics, ui, ui_stage5).
 | ROUTE-08 | Обратные грузовые рейсы | P1 | VERIFIED | 1.68 | — | world_sim.dart (`_loadable` на каждой остановке) | sim | — |
 | ROUTE-09 | Приоритетные грузы | P2 | NOT_STARTED | — | ROUTE-05 | — | — | — |
 | ROUTE-10 | Условные остановки | P3 | NOT_STARTED | — | — | — | — | — |
-| ROUTE-11 | Статистика линии | P1 | READY_FOR_REVIEW | 1.78 | FIN-01 | entities.dart (`costs`, `cells`, `emptyCells`), mag_finance.dart | logistics | Нет времени круга |
+| ROUTE-11 | Статистика линии | P1 | VERIFIED | 1.78 | FIN-01 | entities.dart (`costs`, `cells`, `emptyCells`), mag_finance.dart | logistics | Нет времени круга |
 | ROUTE-12 | Копирование маршрутов | P2 | NOT_STARTED | — | — | — | — | — |
 | ROUTE-13 | Перерасчёт после изменения дорог | P0 | VERIFIED | 1.68 | ROAD-12 | world_sim.dart (`roadVersion`, `noRoad`) | sim: «a broken road stops the truck» | — |
-| ROUTE-14 | Показатель порожнего пробега | P2 | READY_FOR_REVIEW | 1.78 | — | entities.dart (`emptyShare`), mag_finance.dart | logistics, industry | — |
+| ROUTE-14 | Показатель порожнего пробега | P2 | VERIFIED | 1.78 | — | entities.dart (`emptyShare`), mag_finance.dart | logistics, industry | — |
 
 ## G. Ресурсы, добыча и производство
 
@@ -181,7 +181,7 @@ industry, cities, logistics, ui, ui_stage5).
 | ID | Механика | P | Статус | Версия | Зависимости | Файлы | Тесты | Проблемы |
 |---|---|---|---|---|---|---|---|---|
 | CONT-01 | Простые транспортные контракты | P1 | VERIFIED | 1.68 | — | world_progress.dart | sim | — |
-| CONT-02 | Срочные заказы | P1 | READY_FOR_REVIEW | 1.77 | CONT-01 | world_cities.dart (городские заказы со сроком) | cities | — |
+| CONT-02 | Срочные заказы | P1 | VERIFIED | 1.77 | CONT-01 | world_cities.dart (городские заказы со сроком) | cities | — |
 | CONT-03 | Контракты развития поселений | P1 | VERIFIED | 1.75 | CITY-09 | world_settlements.dart | growth | — |
 | CONT-04 | Производственные заказы | P1 | NOT_STARTED | — | PROD-13 | — | — | — |
 | CONT-05 | Регулярное снабжение | P1 | NOT_STARTED | — | LOG-12 | — | — | Кладовая города — регулярный спрос, но не контракт |
@@ -204,37 +204,37 @@ industry, cities, logistics, ui, ui_stage5).
 | LOG-05 | Автоматические заявки | P1 | VERIFIED | 1.70 | LOG-04 | world_storage.dart (`_planLogistics`) | storage | — |
 | LOG-06 | Автопоиск поставщика | P1 | VERIFIED | 1.70 | ROAD-12 | world_storage.dart (ближайший связанный поставщик) | storage | — |
 | LOG-07 | Автоподбор транспорта | P1 | VERIFIED | 1.71 | — | world_dispatch.dart, dispatcher.dart | dispatch | — |
-| LOG-08 | Логистические центры | P1 | READY_FOR_REVIEW | 1.78 | LOG-05, LOG-07 | world_centers.dart, mag_center.dart | logistics, ui_stage5 | — |
-| LOG-09 | Прокачка центра | P1 | READY_FOR_REVIEW | 1.78 | LOG-08 | world_centers.dart (радиус и число заявок по уровню) | logistics | — |
+| LOG-08 | Логистические центры | P1 | VERIFIED | 1.78 | LOG-05, LOG-07 | world_centers.dart, mag_center.dart | logistics, ui_stage5 | — |
+| LOG-09 | Прокачка центра | P1 | VERIFIED | 1.78 | LOG-08 | world_centers.dart (радиус и число заявок по уровню) | logistics | — |
 | LOG-10 | Приоритеты доставки | P1 | VERIFIED | 1.69 | — | orders.dart (`priority`) | dispatch | — |
-| LOG-11 | Автоснабжение производств | P1 | READY_FOR_REVIEW | 1.78 | LOG-08 | world_centers.dart (`shortages`), world_storage.dart | logistics, storage | — |
-| LOG-12 | Автоснабжение городов | P1 | READY_FOR_REVIEW | 1.78 | LOG-08, CITY-08 | world_centers.dart (кладовая и рост) | logistics | — |
+| LOG-11 | Автоснабжение производств | P1 | VERIFIED | 1.78 | LOG-08 | world_centers.dart (`shortages`), world_storage.dart | logistics, storage | — |
+| LOG-12 | Автоснабжение городов | P1 | VERIFIED | 1.78 | LOG-08, CITY-08 | world_centers.dart (кладовая и рост) | logistics | — |
 | LOG-13 | Автоэкспорт излишков | P2 | PARTIAL | 1.70 | — | world_storage.dart (режим «Распределение») | storage | Только со склада |
 | LOG-14 | Перегрузочные терминалы | P2 | NOT_STARTED | — | RAIL, SEA | — | — | — |
 | LOG-15 | Объединение заказов | P2 | NOT_STARTED | — | — | — | — | — |
 | LOG-16 | Экономный режим диспетчера | P2 | VERIFIED | 1.71 | LOG-07 | dispatcher.dart | dispatch | — |
 | LOG-17 | Быстрый режим диспетчера | P2 | VERIFIED | 1.71 | LOG-07 | dispatcher.dart | dispatch | — |
-| LOG-18 | Карта логистических проблем | P2 | READY_FOR_REVIEW | 1.78 | FIN-11 | world_advice.dart (`problemPlaces`), mag_game.dart (красные метки) | logistics | Метки только у мест, не у дорог |
+| LOG-18 | Карта логистических проблем | P2 | VERIFIED | 1.78 | FIN-11 | world_advice.dart (`problemPlaces`), mag_game.dart (красные метки) | logistics | Метки только у мест, не у дорог |
 
 ## K. Железные дороги и морской транспорт
 
 | ID | Механика | P | Статус | Версия | Зависимости | Файлы | Тесты | Проблемы |
 |---|---|---|---|---|---|---|---|---|
-| RAIL-01 | Строительство железных дорог | P1 | NOT_STARTED | — | общие грузы, маршруты | — | — | — |
-| RAIL-02 | Железнодорожные станции | P1 | NOT_STARTED | — | общие грузы, маршруты | — | — | — |
-| RAIL-03 | Паровозы | P1 | NOT_STARTED | — | общие грузы, маршруты | — | — | — |
-| RAIL-04 | Современные локомотивы | P1 | NOT_STARTED | — | общие грузы, маршруты | — | — | — |
-| RAIL-05 | Грузовые вагоны | P1 | NOT_STARTED | — | общие грузы, маршруты | — | — | — |
-| RAIL-06 | Сборка поездов | P1 | NOT_STARTED | — | общие грузы, маршруты | — | — | — |
-| RAIL-07 | Безопасное движение по путям | P1 | NOT_STARTED | — | общие грузы, маршруты | — | — | — |
-| RAIL-08 | Разъезды и сигналы | P2 | NOT_STARTED | — | общие грузы, маршруты | — | — | — |
-| RAIL-09 | Модернизация поездов | P1 | NOT_STARTED | — | общие грузы, маршруты | — | — | — |
+| RAIL-01 | Строительство железных дорог | P1 | READY_FOR_REVIEW | 1.79 | ROAD-12, TECH-03 | world_rails.dart (`planRail`, `buildRail`, `removeRail`), mag_screen_input.dart | rail, ui_rail | Снос без возврата денег |
+| RAIL-02 | Железнодорожные станции | P1 | READY_FOR_REVIEW | 1.79 | RAIL-01 | world_rails.dart (`buildStation`, станция в 2 клетках от места), mag_rail_ui.dart | rail, ui_rail | — |
+| RAIL-03 | Паровозы | P1 | READY_FOR_REVIEW | 1.79 | TECH-03 | config.dart (`steam`) | rail | — |
+| RAIL-04 | Современные локомотивы | P1 | READY_FOR_REVIEW | 1.79 | RAIL-03 | config.dart (`diesel`), tech «Тепловозная тяга» | rail | — |
+| RAIL-05 | Грузовые вагоны | P1 | READY_FOR_REVIEW | 1.79 | RAIL-03 | world_fleet.dart (`setWagons`, `capacityOf`) | rail, ui_rail | Вагоны одного типа |
+| RAIL-06 | Сборка поездов | P1 | READY_FOR_REVIEW | 1.79 | RAIL-05 | world_fleet.dart (локомотив + 1…N вагонов, замедление за вагон) | rail | — |
+| RAIL-07 | Безопасное движение по путям | P1 | READY_FOR_REVIEW | 1.79 | RAIL-01 | world_rails.dart (`_trackClear`: ожидание, обход, уступить путь) | rail: «never meet in a cell», «give way» | На одной колее без разъездов поезда уступают, но работают плохо |
+| RAIL-08 | Разъезды и сигналы | P2 | PARTIAL | 1.79 | RAIL-07 | обход по второму пути и второй перрон | rail: «double track» | Нет сигналов и разъездов как отдельных объектов |
+| RAIL-09 | Модернизация поездов | P1 | READY_FOR_REVIEW | 1.79 | RAIL-03 | world_fleet.dart (общие линии улучшений) | rail | — |
 | SEA-01 | Порты | P1 | NOT_STARTED | — | общие грузы, маршруты | — | — | — |
-| SEA-02 | Баржи | P1 | NOT_STARTED | — | общие грузы, маршруты | — | — | — |
-| SEA-03 | Грузовые корабли | P1 | NOT_STARTED | — | общие грузы, маршруты | — | — | — |
-| SEA-04 | Морские маршруты | P1 | NOT_STARTED | — | общие грузы, маршруты | — | — | — |
-| SEA-05 | Модернизация судов | P2 | NOT_STARTED | — | общие грузы, маршруты | — | — | — |
-| SEA-06 | Мультимодальные терминалы | P2 | NOT_STARTED | — | общие грузы, маршруты | — | — | — |
+| SEA-02 | Баржи | P1 | NOT_STARTED | — | SEA-01 | — | — | — |
+| SEA-03 | Грузовые корабли | P1 | NOT_STARTED | — | SEA-01 | — | — | — |
+| SEA-04 | Морские маршруты | P1 | NOT_STARTED | — | SEA-01 | — | — | — |
+| SEA-05 | Модернизация судов | P2 | NOT_STARTED | — | SEA-02 | — | — | — |
+| SEA-06 | Мультимодальные терминалы | P2 | NOT_STARTED | — | SEA-01, RAIL-02 | — | — | — |
 
 ## L. Пассажирские перевозки
 
@@ -256,15 +256,15 @@ industry, cities, logistics, ui, ui_stage5).
 | FIN-01 | Единый журнал операций | P0 | VERIFIED | 1.74 | — | ledger.dart | production | — |
 | FIN-02 | Доходы и расходы | P1 | VERIFIED | 1.68 | FIN-01 | entities.dart (`MagMonth`), world_finance.dart | production, industry | — |
 | FIN-03 | Прибыльность транспорта | P1 | VERIFIED | 1.76 | FIN-01 | entities.dart (`costs`), world_finance.dart | industry | — |
-| FIN-04 | Прибыльность маршрутов | P1 | READY_FOR_REVIEW | 1.78 | ROUTE-11 | entities.dart (`MagRoute.profit`), mag_finance.dart | logistics | — |
+| FIN-04 | Прибыльность маршрутов | P1 | VERIFIED | 1.78 | ROUTE-11 | entities.dart (`MagRoute.profit`), mag_finance.dart | logistics | — |
 | FIN-05 | Прибыльность предприятий | P1 | VERIFIED | 1.74 | BIZ-02 | map.dart (`revenue`, `costs`), world_finance.dart | production, industry | — |
 | FIN-06 | Себестоимость продукции | P1 | PARTIAL | 1.74 | FIN-05 | world_sim.dart (закупка, переработка, содержание) | production | Нет себестоимости единицы |
 | FIN-07 | Стоимость активов | P1 | VERIFIED | 1.76 | — | world_finance.dart | industry | Склады не входят в стоимость компании |
 | FIN-08 | Финансовый центр | P1 | VERIFIED | 1.76 | FIN-01 | mag_finance.dart | ui_stage5 | — |
 | FIN-09 | Исторические графики | P1 | VERIFIED | 1.76 | FIN-02 | mag_finance.dart (12 месяцев) | — | — |
 | FIN-10 | Региональная статистика | P2 | PARTIAL | 1.76 | — | mag_finance.dart (вкладка «Поселения») | industry | По поселениям, без регионов |
-| FIN-11 | Анализ убыточности | P2 | READY_FOR_REVIEW | 1.78 | FIN-05 | world_advice.dart (убыток с причиной) | logistics | — |
-| FIN-12 | Финансовые рекомендации | P2 | READY_FOR_REVIEW | 1.78 | FIN-11 | world_advice.dart, mag_advice.dart (вкладка «Советы») | logistics, ui_stage5 | — |
+| FIN-11 | Анализ убыточности | P2 | VERIFIED | 1.78 | FIN-05 | world_advice.dart (убыток с причиной) | logistics | — |
+| FIN-12 | Финансовые рекомендации | P2 | VERIFIED | 1.78 | FIN-11 | world_advice.dart, mag_advice.dart (вкладка «Советы») | logistics, ui_stage5 | — |
 | FIN-13 | Оценка окупаемости | P2 | VERIFIED | 1.76 | FIN-05 | world_finance.dart (`paybackDays`) | industry | — |
 | FIN-14 | Инвестиционное планирование | P3 | NOT_STARTED | — | FIN-13 | — | — | — |
 | FIN-15 | Кредиты и проценты | P3 | NOT_STARTED | — | — | — | — | — |

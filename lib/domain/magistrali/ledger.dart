@@ -82,6 +82,8 @@ class MagJournal {
     return const {
           'vehicles',
           'roads',
+          'rails',
+          'stations',
           'upgrades',
           'warehouses',
           'warehouse_upgrade',

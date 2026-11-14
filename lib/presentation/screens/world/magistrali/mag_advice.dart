@@ -36,6 +36,7 @@ IconData _icon(MagAdviceKind k) => switch (k) {
   MagAdviceKind.emptyRoute => Icons.swap_horiz_rounded,
   MagAdviceKind.warehouseFull => Icons.warehouse_rounded,
   MagAdviceKind.centerIdle => Icons.hub_rounded,
+  MagAdviceKind.trainsBlocked => Icons.train_rounded,
   MagAdviceKind.cityDemand => Icons.trending_up_rounded,
 };
 

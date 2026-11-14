@@ -12,6 +12,7 @@ import 'mag_art.dart';
 import 'mag_game.dart';
 import 'mag_hud.dart';
 import 'mag_iso.dart';
+import 'mag_rail_ui.dart';
 import 'mag_road.dart';
 import 'mag_fleet.dart';
 import 'mag_sheets.dart';
@@ -23,7 +24,7 @@ import 'mag_warehouse.dart';
 part 'mag_screen_input.dart';
 
 /// What a finger on the map does.
-enum MagTool { view, road, remove, warehouse, industry }
+enum MagTool { view, road, remove, warehouse, industry, rail, station }
 
 /// «Магистрали»: a transport company on an isometric map. Roads are drawn
 /// with a finger, trucks run their routes by themselves, deliveries pay,
@@ -75,6 +76,9 @@ class MagistraliScreenState extends State<MagistraliScreen>
   /// What the «Предприятие» tool builds, and where (waiting to confirm).
   MagIndustryKind? buildKind;
   int? pendingIndustry;
+
+  /// A station waiting for «Построить»: its track cell and the place.
+  int? pendingStation, pendingStationPlace;
   int? _tapStart;
   String? message;
   Timer? _messageTimer;
@@ -288,6 +292,8 @@ class MagistraliScreenState extends State<MagistraliScreen>
     pendingRemove = const [];
     pendingWarehouse = null;
     pendingIndustry = null;
+    pendingStation = null;
+    pendingStationPlace = null;
     _tapStart = null;
     overlay
       ..plan = const []
@@ -325,7 +331,20 @@ class MagistraliScreenState extends State<MagistraliScreen>
       }
       return;
     }
+    final st = pendingStation, place = pendingStationPlace;
+    if (st != null && place != null) {
+      if (report(world.buildStation(st, place), 'Станция построена')) {
+        setState(_clearPending);
+      }
+      return;
+    }
     final road = pendingRoad;
+    if (road != null && road.type == MagRoad.none) {
+      if (report(world.buildRail(road), 'Путь проложен')) {
+        setState(_clearPending);
+      }
+      return;
+    }
     if (road != null) {
       if (report(world.buildRoad(road), 'Дорога построена')) {
         setState(_clearPending);
@@ -333,7 +352,19 @@ class MagistraliScreenState extends State<MagistraliScreen>
       return;
     }
     if (pendingRemove.isNotEmpty) {
-      if (report(world.removeRoad(pendingRemove), 'Дорога снесена')) {
+      final w = world;
+      final roadCells = [
+        for (final c in pendingRemove)
+          if (w.roads[c] != 0) c,
+      ];
+      final railCells = [
+        for (final c in pendingRemove)
+          if (w.rails[c] != 0) c,
+      ];
+      final error =
+          (railCells.isEmpty ? null : w.removeRail(railCells)) ??
+          (roadCells.isEmpty ? null : w.removeRoad(roadCells));
+      if (report(error, 'Снесено')) {
         setState(_clearPending);
       }
     }

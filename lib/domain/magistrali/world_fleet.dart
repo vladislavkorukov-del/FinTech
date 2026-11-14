@@ -9,24 +9,27 @@ extension MagWorldFleet on MagWorld {
     return v;
   }
 
+  /// A train is slowed a little by each wagon.
   double speedOf(MagVehicle v) =>
       v.spec.speed *
       (1 + .08 * v.level(MagUpgrade.engine)) *
-      factor(v.spec.horse ? MagBonus.horseSpeed : MagBonus.speed);
+      factor(v.spec.horse ? MagBonus.horseSpeed : MagBonus.speed) *
+      (1 - MagRules.wagonDrag * v.wagons);
 
+  /// A train carries what its wagons hold.
   int capacityOf(MagVehicle v) =>
-      (v.spec.capacity *
+      ((v.spec.rail ? v.spec.wagonCapacity * v.wagons : v.spec.capacity) *
               (1 + .1 * v.level(MagUpgrade.body)) *
               factor(v.spec.horse ? MagBonus.horseCapacity : MagBonus.capacity))
           .round();
 
   double runningCostOf(MagVehicle v) =>
-      v.spec.runningCost *
+      (v.spec.runningCost + MagRules.wagonRunning * v.wagons) *
       (1 - .06 * v.level(MagUpgrade.economy)) *
       factor(MagBonus.fuel);
 
   int upkeepOf(MagVehicle v) =>
-      (v.spec.upkeep *
+      ((v.spec.upkeep + MagRules.wagonUpkeep * v.wagons) *
               (1 - .05 * v.level(MagUpgrade.economy)) *
               factor(MagBonus.upkeep))
           .round();
@@ -49,18 +52,29 @@ extension MagWorldFleet on MagWorld {
       (v.spec.price * .0016 * v.wear * factor(MagBonus.service)).round();
 
   int valueOf(MagVehicle v) =>
-      (v.spec.price * .55 * (1 - v.wear / 200) + v.upgradeSpent * .3).round();
+      ((v.spec.price + v.spec.wagonPrice * v.wagons) *
+                  .55 *
+                  (1 - v.wear / 200) +
+              v.upgradeSpent * .3)
+          .round();
 
   String? buyTruck(String modelId) {
     final m = MagRules.truck(modelId);
     if (m == null) return 'Нет такой модели';
     if (level < m.level) return 'Откроется на ${m.level} уровне';
-    if (!m.horse && !motorUnlocked) {
+    if (m.rail) {
+      if (!railsUnlocked) return 'Поезда откроет технология «Паровая тяга»';
+      if (m.id == 'diesel' && !dieselUnlocked) {
+        return 'Тепловозы откроет технология «Тепловозная тяга»';
+      }
+    } else if (!m.horse && !motorUnlocked) {
       return 'Грузовики откроет технология «Двигатель внутреннего сгорания»';
     }
-    if (money < m.price) return 'Не хватает кредитов';
-    _spend(m.price, 'vehicles');
-    final v = _newVehicle(m);
+    // A locomotive comes with one wagon.
+    final price = m.price + m.wagonPrice;
+    if (money < price) return 'Не хватает кредитов';
+    _spend(price, 'vehicles');
+    final v = _newVehicle(m)..wagons = m.rail ? 1 : 0;
     final same = vehicles.values.where((o) => o.model == m.id).length;
     v.name = '${m.name.split(' ').first} №$same';
     _say('Куплен ${m.name}');
@@ -145,6 +159,10 @@ extension MagWorldFleet on MagWorld {
     final v = vehicles[vehicleId];
     if (v == null) return 'Нет такой машины';
     if (routeId != null && !routes.containsKey(routeId)) return 'Нет маршрута';
+    if (routeId != null && v.spec.rail) {
+      final why = railRouteBlocker(routeId);
+      if (why != null) return why;
+    }
     _park(v);
     if (routeId == null) return null;
     v.auto = false; // a route means the player drives it again
@@ -154,6 +172,39 @@ extension MagWorldFleet on MagWorld {
       ..state = MagVehicleState.noRoad
       ..wait = 0;
     _tryStart(v);
+    return null;
+  }
+
+  /// Couples or uncouples wagons (RAIL-05, RAIL-06): each new wagon is
+  /// bought, a wagon taken off is sold for half; cargo on board must still
+  /// fit.
+  String? setWagons(int id, int n) {
+    final v = vehicles[id];
+    if (v == null || !v.spec.rail) return 'Это не поезд';
+    if (n < 1 || n > v.spec.maxWagons) {
+      return 'Вагонов может быть от 1 до ${v.spec.maxWagons}';
+    }
+    final diff = n - v.wagons;
+    if (diff == 0) return null;
+    if (diff > 0) {
+      final cost = diff * v.spec.wagonPrice;
+      if (money < cost) return 'Не хватает кредитов: нужно $cost';
+      _spend(cost, 'vehicles', source: 'vehicle', sourceId: id);
+    } else {
+      final keep = v.wagons;
+      v.wagons = n;
+      if (v.load > capacityOf(v)) {
+        v.wagons = keep;
+        return 'Сначала разгрузите поезд';
+      }
+      _assetSale(
+        (-diff * v.spec.wagonPrice * .5).round(),
+        'sales',
+        source: 'vehicle',
+        sourceId: id,
+      );
+    }
+    v.wagons = n;
     return null;
   }
 }

@@ -12,7 +12,6 @@ import 'mag_screen.dart';
 import 'mag_sheets.dart';
 import 'mag_business.dart';
 import 'mag_tools.dart';
-import 'mag_lore.dart';
 import 'mag_tech.dart';
 
 /// Credits as people read them: 12 345.
@@ -298,7 +297,8 @@ class MagBottomPanel extends StatelessWidget {
           if (road != null && road.cells.isNotEmpty ||
               removing.isNotEmpty ||
               state.pendingWarehouse != null ||
-              state.pendingIndustry != null) ...[
+              state.pendingIndustry != null ||
+              state.pendingStation != null) ...[
             MagConfirmBar(state: state),
             const SizedBox(height: 8),
           ],
@@ -328,6 +328,7 @@ class MagBottomPanel extends StatelessWidget {
                                     '${roadName(r)} откроется на ${MagRules.roads[r]!.level} уровне',
                                   ),
                           ),
+                        ...railChips(state),
                         MagToolChip(
                           key: const ValueKey('mag-tool-warehouse'),
                           label: 'Склад',
@@ -372,15 +373,7 @@ class MagBottomPanel extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    switch (state.tool) {
-                      MagTool.road =>
-                        '${roadLore(state.roadType)} Проведите пальцем · ${MagRules.roads[state.roadType]!.cost} кр/кл.',
-                      MagTool.industry =>
-                        'Коснитесь клетки — там встанет ${state.buildKind == null ? 'предприятие' : kindName(state.buildKind!).toLowerCase()} (${state.buildKind == null ? '' : '${magMoney(w.buildPrice(state.buildKind!))} кр'})',
-                      MagTool.warehouse =>
-                        'Коснитесь клетки — там встанет склад 2×2 (${magMoney(w.warehousePrice)} кр, ${w.warehouses.length} из ${w.warehouseSlots})',
-                      _ => 'Проведите по дороге, которую нужно снести',
-                    },
+                    toolHint(state),
                     style: const TextStyle(
                       fontSize: 11.5,
                       color: Color(0xFF52646A),

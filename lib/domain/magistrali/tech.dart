@@ -31,6 +31,10 @@ abstract final class MagBonus {
   /// The automatic dispatcher (stage 3).
   static const dispatcher = 'dispatcher';
 
+  /// Railways (stage S8): track, stations and steam engines; diesel
+  /// engines.
+  static const rails = 'rails', diesel = 'diesel';
+
   /// Logistics centres the company may build (stage S7).
   static const logistics = 'logistics';
 }

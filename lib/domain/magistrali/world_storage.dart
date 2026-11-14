@@ -79,7 +79,7 @@ extension MagWorldStorage on MagWorld {
     const s = 2;
     for (var yy = y; yy < y + s; yy++) {
       for (var xx = x; xx < x + s; xx++) {
-        if (!map.roadable(xx, yy) || hasRoad(xx, yy)) {
+        if (!map.roadable(xx, yy) || hasRoad(xx, yy) || hasRail(xx, yy)) {
           return 'Нужны 2×2 свободные клетки без дорог';
         }
       }

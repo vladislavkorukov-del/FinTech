@@ -2,6 +2,7 @@ import 'package:flutter/material.dart' hide Text;
 
 import '../../../../domain/magistrali/magistrali.dart';
 import '../../../l10n_widgets.dart';
+import 'mag_lore.dart';
 import 'mag_art.dart';
 import 'mag_hud.dart';
 import 'mag_screen.dart';
@@ -99,11 +100,21 @@ class MagConfirmBar extends StatelessWidget {
     final road = state.pendingRoad;
     final wh = state.pendingWarehouse;
     final at = state.pendingIndustry, kind = state.buildKind;
+    final st = state.pendingStation, place = state.pendingStationPlace;
     final removing =
-        wh == null && at == null && (road == null || road.cells.isEmpty);
+        wh == null &&
+        at == null &&
+        st == null &&
+        (road == null || road.cells.isEmpty);
     final String title;
     String? problem;
-    if (at != null && kind != null) {
+    if (st != null && place != null) {
+      title =
+          'Станция у «${w.map.industry(place)?.name ?? ''}» · ${magMoney(MagRules.stationPrice)} кр';
+      problem =
+          w.stationBlocker(st, place) ??
+          (MagRules.stationPrice > w.money ? 'Не хватает кредитов' : null);
+    } else if (at != null && kind != null) {
       title = '${kindName(kind)} · ${magMoney(w.buildPrice(kind))} кр';
       problem =
           w.buildBlocker(kind, w.cx(at), w.cy(at)) ??
@@ -115,8 +126,9 @@ class MagConfirmBar extends StatelessWidget {
           (w.warehousePrice > w.money ? 'Не хватает кредитов' : null);
     } else if (road != null && road.cells.isNotEmpty) {
       final cost = road.cost;
-      title =
-          '${roadName(road.type)} · ${road.cells.length} кл. · ${magMoney(cost)} кр';
+      title = road.type == MagRoad.none
+          ? 'Ж/д путь · ${road.cells.length} кл. · ${magMoney(cost)} кр'
+          : '${roadName(road.type)} · ${road.cells.length} кл. · ${magMoney(cost)} кр';
       problem =
           road.error ??
           (cost == 0
@@ -125,7 +137,7 @@ class MagConfirmBar extends StatelessWidget {
               ? 'Не хватает ${magMoney(cost - w.money)} кр'
               : null);
     } else {
-      title = 'Снести ${state.pendingRemove.length} кл. дороги';
+      title = 'Снести ${state.pendingRemove.length} кл.';
     }
     return Container(
       key: const ValueKey('mag-confirm'),
@@ -269,4 +281,53 @@ class MagToast extends StatelessWidget {
       ),
     ),
   );
+}
+
+/// The line under the build tools: what the chosen tool does and costs.
+String toolHint(MagistraliScreenState state) {
+  final w = state.world;
+  return switch (state.tool) {
+    MagTool.road =>
+      '${roadLore(state.roadType)} Проведите пальцем · ${MagRules.roads[state.roadType]!.cost} кр/кл.',
+    MagTool.industry =>
+      'Коснитесь клетки — там встанет ${state.buildKind == null ? 'предприятие' : kindName(state.buildKind!).toLowerCase()} (${state.buildKind == null ? '' : '${magMoney(w.buildPrice(state.buildKind!))} кр'})',
+    MagTool.warehouse =>
+      'Коснитесь клетки — там встанет склад 2×2 (${magMoney(w.warehousePrice)} кр, ${w.warehouses.length} из ${w.warehouseSlots})',
+    MagTool.rail =>
+      'Рельсы: проведите пальцем · ${MagRules.railCost} кр/кл. Можно пересекать дороги.',
+    MagTool.station =>
+      'Коснитесь пути рядом (до 2 клеток) с предприятием или поселением · ${magMoney(MagRules.stationPrice)} кр',
+    _ => 'Проведите по дороге или пути, которые нужно снести',
+  };
+}
+
+/// The railway tools (stage S8): track and station.
+List<Widget> railChips(MagistraliScreenState state) {
+  final w = state.world;
+  return [
+    MagToolChip(
+      key: const ValueKey('mag-tool-rail'),
+      label: 'Ж/д путь',
+      locked: !w.railsUnlocked,
+      lockLevel: 6,
+      on: state.tool == MagTool.rail,
+      color: const Color(0xFF6E4E35),
+      icon: Icons.linear_scale_rounded,
+      onTap: () => w.railsUnlocked
+          ? state.setTool(MagTool.rail)
+          : state.say('Железные дороги открывает технология «Паровая тяга»'),
+    ),
+    MagToolChip(
+      key: const ValueKey('mag-tool-station'),
+      label: 'Станция',
+      locked: !w.railsUnlocked,
+      lockLevel: 6,
+      on: state.tool == MagTool.station,
+      color: const Color(0xFF6E4E35),
+      icon: Icons.train_rounded,
+      onTap: () => w.railsUnlocked
+          ? state.setTool(MagTool.station)
+          : state.say('Станции открывает технология «Паровая тяга»'),
+    ),
+  ];
 }

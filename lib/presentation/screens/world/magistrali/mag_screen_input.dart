@@ -10,7 +10,9 @@ extension _MagScreenInput on MagistraliScreenState {
   }
 
   void _scaleStart(ScaleStartDetails d, Size size) {
-    if ((tool == MagTool.road || tool == MagTool.remove) &&
+    if ((tool == MagTool.road ||
+            tool == MagTool.rail ||
+            tool == MagTool.remove) &&
         d.pointerCount == 1) {
       final at = _downAt ?? d.localFocalPoint;
       var from = _cellAt(at, size);
@@ -18,7 +20,9 @@ extension _MagScreenInput on MagistraliScreenState {
       // on instead of starting a new one.
       final plan = pendingRoad;
       _extending = null;
-      if (from != null && tool == MagTool.road && plan != null) {
+      if (from != null &&
+          (tool == MagTool.road || tool == MagTool.rail) &&
+          plan != null) {
         final end = plan.cells.isEmpty ? null : plan.cells.last;
         if (end != null && _near(from, end)) {
           _extending = plan;
@@ -89,14 +93,10 @@ extension _MagScreenInput on MagistraliScreenState {
 
   void _drawTo(int to) {
     final w = world, from = _drawFrom!;
-    if (tool == MagTool.road) {
-      final plan = w.planRoad(
-        w.cx(from),
-        w.cy(from),
-        w.cx(to),
-        w.cy(to),
-        roadType,
-      );
+    if (tool == MagTool.road || tool == MagTool.rail) {
+      final plan = tool == MagTool.rail
+          ? w.planRail(w.cx(from), w.cy(from), w.cx(to), w.cy(to))
+          : w.planRoad(w.cx(from), w.cy(from), w.cx(to), w.cy(to), roadType);
       final base = _extending;
       final full = base == null ? plan : w.joinPlans(base, plan);
       pendingRoad = full;
@@ -115,7 +115,7 @@ extension _MagScreenInput on MagistraliScreenState {
       }
       pendingRemove = [
         for (final c in cells)
-          if (w.roads[c] != 0) c,
+          if (w.roads[c] != 0 || w.rails[c] != 0) c,
       ];
       overlay.removing = pendingRemove;
     }
@@ -128,6 +128,7 @@ extension _MagScreenInput on MagistraliScreenState {
     final w = world;
     switch (tool) {
       case MagTool.road:
+      case MagTool.rail:
         final plan = pendingRoad;
         if (plan != null) {
           // A drawn road is never lost to a stray tap: a tap next to its
@@ -193,8 +194,25 @@ extension _MagScreenInput on MagistraliScreenState {
             ..planOk = why == null && w.money >= w.buildPrice(kind);
         });
         if (why != null) say(why);
+      case MagTool.station:
+        if (w.rails[cell] == 0) return say('Станция ставится на путь');
+        final targets = w.stationTargets(cell);
+        if (targets.isEmpty) {
+          return say('Рядом (2 клетки) нет предприятия или поселения');
+        }
+        final why = w.stationBlocker(cell, targets.first.id);
+        _refresh(() {
+          pendingStation = cell;
+          pendingStationPlace = targets.first.id;
+          overlay
+            ..plan = [cell]
+            ..planOk = why == null && w.money >= MagRules.stationPrice;
+        });
+        if (why != null) say(why);
       case MagTool.remove:
-        if (w.roads[cell] == 0) return say('Здесь нет дороги');
+        if (w.roads[cell] == 0 && w.rails[cell] == 0) {
+          return say('Здесь нет дороги или пути');
+        }
         _refresh(() {
           pendingRemove = [...pendingRemove, cell];
           overlay.removing = pendingRemove;
@@ -214,6 +232,10 @@ extension _MagScreenInput on MagistraliScreenState {
           }
         }
         final i = w.map.industryAt(w.cx(cell), w.cy(cell));
+        if (i == null && w.stations.containsKey(cell)) {
+          unawaited(showStationSheet(this, cell));
+          return;
+        }
         if (i == null && w.roads[cell] != 0) {
           _refresh(() {
             overlay
