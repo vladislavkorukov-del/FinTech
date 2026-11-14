@@ -19,6 +19,7 @@ import 'tech.dart';
 part 'world_centers.dart';
 part 'world_cities.dart';
 part 'world_advice.dart';
+part 'world_deals.dart';
 part 'world_dispatch.dart';
 part 'world_entrances.dart';
 part 'world_finance.dart';
@@ -31,6 +32,7 @@ part 'world_orders.dart';
 part 'world_progress.dart';
 part 'world_rails.dart';
 part 'world_water.dart';
+part 'world_works.dart';
 part 'world_roads.dart';
 part 'world_routes.dart';
 part 'world_plans.dart';
@@ -134,11 +136,16 @@ class MagWorld {
   /// The one road cell each place (not a settlement) is entered by (S12).
   final entrances = <int, int>{};
 
-  /// Achievements reached (id → tick), the company's chronicle and its
-  /// debt to the bank (S15).
+  /// Achievements reached (id → tick), the chronicle, the debt (S15).
   final achieved = <String, int>{};
   final chronicle = <(int, String)>[];
   int debt = 0;
+
+  /// Special contracts, first inputs, depots, order merging (S16).
+  final deals = <MagDeal>[];
+  final firstInput = <int, MagCargo>{};
+  final depots = <int>{};
+  bool autoMerge = true;
 
   /// Vehicles that entered each road cell yesterday and today (ROAD-08).
   final traffic = <int, int>{}, trafficToday = <int, int>{};

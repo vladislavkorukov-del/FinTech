@@ -66,7 +66,9 @@ class MagOrder {
 
   final int id;
   final MagCargo cargo;
-  final int amount;
+
+  /// Grows when waiting orders are joined (LOG-15).
+  int amount;
 
   /// Industry ids.
   final int supplier, receiver;

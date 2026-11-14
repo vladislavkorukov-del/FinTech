@@ -31,7 +31,8 @@ extension MagWorldFleet on MagWorld {
   int upkeepOf(MagVehicle v) =>
       ((v.spec.upkeep + MagRules.wagonUpkeep * v.wagons) *
               (1 - .05 * v.level(MagUpgrade.economy)) *
-              factor(MagBonus.upkeep))
+              factor(MagBonus.upkeep) *
+              depotUpkeep)
           .round();
 
   /// Wear in percent per cell driven.

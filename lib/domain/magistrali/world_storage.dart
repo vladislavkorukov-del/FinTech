@@ -158,6 +158,7 @@ extension MagWorldStorage on MagWorld {
 
   /// The planning pass: every warehouse rule writes the orders it needs.
   void _planLogistics() {
+    if (autoMerge) mergeOrders();
     _planCenters();
     for (final w in warehouses.toList()) {
       for (final e in w.rules.entries.toList()) {

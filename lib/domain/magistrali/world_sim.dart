@@ -34,6 +34,7 @@ extension MagWorldSim on MagWorld {
   void _day() {
     _dayTrafficAndStaff();
     _dayLoan();
+    _dayDeals();
     _checkAchievements();
     _dayTowns();
     _dayCities();
@@ -43,7 +44,7 @@ extension MagWorldSim on MagWorld {
       // output; nothing is made without its input or beyond the store.
       final k = outputFactor(i), cap = outputCapOf(i);
       var budget = (MagRules.processPerDay * k).round();
-      for (final e in i.spec.converts.entries) {
+      for (final e in _recipesOf(i)) {
         final ratio = i.spec.ratio[e.key] ?? 1;
         final have = i.input[e.key] ?? 0;
         final room = cap - (i.stock[e.value] ?? 0);
@@ -65,6 +66,7 @@ extension MagWorldSim on MagWorld {
         destroyed[e.key] = (destroyed[e.key] ?? 0) + n * ratio;
         created[e.value] = (created[e.value] ?? 0) + n;
         if (i.owned) {
+          _countProduction(i, e.value, n);
           i.produced += n;
           final cost = (n * MagRules.processCost).round();
           i.costs += cost;
@@ -80,7 +82,7 @@ extension MagWorldSim on MagWorld {
       }
       for (final e in i.spec.produces.entries) {
         final room = cap - (i.stock[e.key] ?? 0);
-        final n = math.min((e.value * k).round(), room);
+        final n = math.min((e.value * k * richFactor(i)).round(), room);
         if (n <= 0) continue;
         i.stock[e.key] = (i.stock[e.key] ?? 0) + n;
         created[e.key] = (created[e.key] ?? 0) + n;
@@ -425,6 +427,7 @@ extension MagWorldSim on MagWorld {
     month.deliveries++;
     _gainXp(math.max(1, pay ~/ 10));
     _countContracts(cargo, here.id, n);
+    _countDeals(cargo, here, n);
     _say('+$pay кр · ${here.name}');
     _checkTasks();
   }

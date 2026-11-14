@@ -171,6 +171,13 @@ abstract final class MagRules {
   static const defaultSeed = 20261113;
   static const startMoney = 6000;
 
+  /// S16: one raw producer in [richOneIn] sits on a rich deposit
+  /// ([richYield]); depots — price, the wear they repair from, the share of
+  /// the repair price paid there, and the upkeep cut each brings.
+  static const richOneIn = 6, richYield = 1.5;
+  static const depotPrice = 4000, depotWear = 30;
+  static const depotService = .7, depotUpkeepCut = .05;
+
   /// Loans (FIN-15): the bank lends this plus so much a company level, at
   /// this interest a day on the debt.
   static const loanBase = 10000, loanPerLevel = 5000, loanRate = .004;

@@ -169,6 +169,7 @@ extension MagWorldRoutes on MagWorld {
   }
 
   void _countTraffic(MagVehicle v, int cell) {
+    _atDepot(v, cell);
     if (v.spec.rail || v.spec.water || roads[cell] == 0) return;
     trafficToday[cell] = (trafficToday[cell] ?? 0) + 1;
   }
@@ -190,6 +191,7 @@ extension MagWorldRoutes on MagWorld {
 
   Map<String, Object> _saveExtras() => {
     ..._saveMeta(),
+    ..._saveWorks(),
     if (map.industries.any((i) => i.staff > 0))
       'staff': {
         for (final i in map.industries)
@@ -232,6 +234,7 @@ extension MagWorldRoutes on MagWorld {
   /// Reads what S13 added to a save (all optional).
   void loadExtras(Map<String, dynamic> j) {
     loadMeta(j);
+    loadWorks(j);
     int cellOfKey(Object k) {
       final c = int.tryParse('$k');
       if (c == null || c < 0 || c >= size * size) {
