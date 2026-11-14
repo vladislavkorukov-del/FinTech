@@ -118,14 +118,17 @@ class _MagFinanceCenterState extends State<MagFinanceCenter> {
         _card(key: ValueKey('mag-fin-period-${p.title}'), [
           _head(p.title),
           magRow('Выручка', '+${magMoney(p.revenue)}', color: MagPalette.teal),
-          magRow('Операционные расходы', '−${magMoney(p.opex)}'),
+          magRow(
+            'Операционные расходы',
+            p.opex == 0 ? '0' : '−${magMoney(p.opex)}',
+          ),
           magRow(
             'Операционная прибыль',
             _signed(p.operating),
             color: _tone(p.operating),
           ),
           magRow('Рентабельность', '${(p.margin * 100).round()}%'),
-          magRow('Вложения', '−${magMoney(p.capex)}'),
+          magRow('Вложения', p.capex == 0 ? '0' : '−${magMoney(p.capex)}'),
           if (p.assetSales > 0)
             magRow('Продажа активов', '+${magMoney(p.assetSales)}'),
           magRow(
