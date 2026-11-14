@@ -96,6 +96,7 @@ extension MagWorldSettlements on MagWorld {
       rest -= dev;
     }
     destroyed[c] = (destroyed[c] ?? 0) + rest; // sold in its market
+    t.received[c] = (t.received[c] ?? 0) + n;
     _payDevelopment(i);
     if (t.reputation == 0) {
       t.remember(tick, 'Первая поставка от вашей компании');
@@ -202,6 +203,7 @@ extension MagWorldSettlements on MagWorld {
       ..blocked = null
       ..devPaid = false;
     t.remember(tick, 'Вырос до уровня ${t.level}: ${next.name}');
+    if (t.level == MagTowns.cityLevel) _chooseSpecialization(i);
     roadVersion++; // its stop cells changed
     _say('${i.name} вырос: ${next.name}');
     return true;

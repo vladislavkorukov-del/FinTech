@@ -34,6 +34,8 @@ extension MagWorldSave on MagWorld {
           if (i.town!.devPaid) 'devPaid': true,
           if (i.town!.revenue != 0) 'revenue': i.town!.revenue,
           if (i.town!.delivered != 0) 'delivered': i.town!.delivered,
+          if (i.town!.received.isNotEmpty) 'received': _cargo(i.town!.received),
+          if (i.town!.orderAt != 0) 'orderAt': i.town!.orderAt,
           if (i.town!.blocked != null) 'blocked': i.town!.blocked,
           'history': [
             for (final e in i.town!.history) [e.tick, e.text],
@@ -178,6 +180,7 @@ extension MagWorldSave on MagWorld {
           'reward': c.reward,
           'xp': c.xp,
           'delivered': c.delivered,
+          if (c.deadline != null) 'deadline': c.deadline,
         },
     ],
     'tasks': tasksDone.toList()..sort(),

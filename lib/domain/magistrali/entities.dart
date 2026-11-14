@@ -145,12 +145,16 @@ class MagContract {
     required this.reward,
     required this.xp,
     this.delivered = 0,
+    this.deadline,
   });
   final int id;
   final MagCargo cargo;
   final int to;
   final int amount, reward, xp;
   int delivered;
+
+  /// A city order: the tick by which it must be done (null: no deadline).
+  final int? deadline;
   bool get done => delivered >= amount;
 }
 

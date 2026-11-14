@@ -234,4 +234,36 @@ void main() {
     }
     expect(find.textContaining('Склады (1)'), findsOneWidget);
   });
+
+  testWidgets('stage 6: a city, its specialization and its order', (
+    tester,
+  ) async {
+    await mount(tester, const MagistraliScreen(seed: MagRules.defaultSeed));
+    final s = await ready(tester);
+    final w = s.world;
+    final v = w.settlements.firstWhere((t) => t.name == 'Луговое');
+    v.town!
+      ..level = 5
+      ..specialization = MagSpecialization.industry;
+    w.step(MagRules.ticksPerDay);
+    s.changed();
+    await tester.pump();
+    final order = w.cityOrders.single;
+    expect(order.to, v.id);
+    await tap(tester, 'mag-tab-contracts');
+    expect(find.text('Городские заказы'), findsOneWidget);
+    await tap(tester, 'mag-city-order-${order.id}');
+    expect(find.byKey(ValueKey('mag-town-${v.id}')), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('mag-town-specialization')),
+      findsOneWidget,
+    );
+    expect(find.textContaining('Спрос недели'), findsOneWidget);
+    await closeSheet(tester);
+    // A hamlet tells what it will become.
+    final hamlet = w.settlements.firstWhere((t) => t.town!.level == 1);
+    await tap(tester, 'mag-tab-places');
+    await tap(tester, 'mag-place-${hamlet.id}');
+    expect(find.byKey(const ValueKey('mag-town-future')), findsOneWidget);
+  });
 }

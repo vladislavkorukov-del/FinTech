@@ -6,6 +6,7 @@ import '../../../../domain/magistrali/magistrali.dart';
 import 'mag_art.dart';
 import 'mag_iso.dart';
 import 'mag_shapes.dart';
+import 'mag_city_art.dart';
 
 /// The first production chains (master plan stage 3): quarry, windmill,
 /// bakery and lumber mill.
@@ -202,6 +203,9 @@ void paintTown(Canvas c, MagIndustry i) {
     );
   }
   c.restore();
+  final accent = t.level >= MagTowns.cityLevel
+      ? cells.where((k) => k != MagSettlement.key(i.x, i.y)).firstOrNull
+      : null;
   for (final k in cells) {
     final x = MagSettlement.keyX(k), y = MagSettlement.keyY(k);
     final h = _h(x, y, i.id);
@@ -209,6 +213,11 @@ void paintTown(Canvas c, MagIndustry i) {
     final fx = x.toDouble(), fy = y.toDouble();
     if (centre) {
       _landmark(c, fx, fy, t.level);
+      continue;
+    }
+    // A city shows its specialization on its first cell.
+    if (k == accent) {
+      paintCityAccent(c, t.specialization, fx, fy, t.level);
       continue;
     }
     if (t.level <= 2) {

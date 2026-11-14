@@ -96,7 +96,7 @@ class MagIndustry {
       : {
           ...town!.spec.needs.keys,
           ...town!.spec.development.keys,
-          ...MagTowns.marketGoods(town!.level),
+          ...MagTowns.marketGoods(town!.level, town!.specialization),
         };
 
   /// Cargo this place hands to trucks.

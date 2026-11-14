@@ -20,6 +20,7 @@
 | `ledger.dart` | Единый журнал операций |
 | `world_finance.dart` | Финансовый центр: периоды, транспорт, предприятия, поселения, активы |
 | `world_sim.dart` | Фиксированный шаг 100 мс: производство, движение, погрузка, доставка |
+| `world_cities.dart` | Города: специализация, рынок, спрос недели, городские заказы |
 | `world_settlements.dart` | Жизнь поселений: кладовая, удовлетворённость, население, рост с расширением |
 | `world_fleet.dart` | Машины, улучшения, покупка, ремонт, продажа |
 | `orders.dart`, `world_orders.dart` | Логистические заказы и резервы |
@@ -59,7 +60,8 @@
   `mag_fleet.dart`, `mag_routes.dart`, `mag_orders.dart`,
   `mag_warehouse.dart`, `mag_tech.dart`, `mag_dispatch.dart`, `mag_town.dart`,
   `mag_development.dart` (контракты развития), `mag_road.dart` (окно дороги),
-  `mag_finance.dart` (финансовый центр), `mag_industry_art.dart` (рисунки
+  `mag_finance.dart` (финансовый центр), `mag_city.dart` (город в окне
+  поселения), `mag_city_art.dart` (постройка специализации), `mag_industry_art.dart` (рисунки
   предприятий промышленности).
 
 ## Журнал и финансовый центр

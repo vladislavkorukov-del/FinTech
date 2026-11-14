@@ -207,6 +207,9 @@ abstract final class MagRules {
   static const maxUpgrade = 10;
   static const maxContracts = 3;
 
+  /// Days a city waits before its next order after one ends.
+  static const cityOrderPause = 4;
+
   static const roads = <MagRoad, MagRoadSpec>{
     MagRoad.dirt: MagRoadSpec(20, .75, 1, 1),
     MagRoad.asphalt: MagRoadSpec(55, 1, 2, 2),

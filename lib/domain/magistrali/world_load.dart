@@ -81,9 +81,11 @@ MagWorld magWorldFromJson(Map<String, dynamic> raw) {
       ..devPaid = m['devPaid'] as bool? ?? false
       ..revenue = whole(m['revenue'] ?? 0, 0, 1 << 50)
       ..delivered = whole(m['delivered'] ?? 0, 0, 1 << 50)
+      ..orderAt = whole(m['orderAt'] ?? 0, 0, 1 << 50)
       ..blocked = m['blocked'] as String?;
     t.pantry.addAll(cargo(m['pantry']));
     t.devStock.addAll(cargo(m['dev']));
+    t.received.addAll(cargo(m['received']));
     for (final s in m['satisfaction'] as List? ?? const []) {
       t.satisfaction.add(real(s, 0, 1));
     }
@@ -369,6 +371,9 @@ MagWorld magWorldFromJson(Map<String, dynamic> raw) {
         reward: whole(m['reward'], 0, 1 << 40),
         xp: whole(m['xp'], 0, 1 << 40),
         delivered: whole(m['delivered'], 0, 1 << 20),
+        deadline: m['deadline'] == null
+            ? null
+            : whole(m['deadline'], 0, 1 << 50),
       ),
     );
   }

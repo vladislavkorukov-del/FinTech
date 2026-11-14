@@ -125,3 +125,97 @@ Widget _card(
     ),
   );
 }
+
+/// Big orders of the cities, with the days left. Shown above the regular
+/// contracts.
+List<Widget> cityOrderCards(MagistraliScreenState state, BuildContext context) {
+  final w = state.world;
+  final list = w.cityOrders.toList()
+    ..sort((a, b) => a.deadline!.compareTo(b.deadline!));
+  if (list.isEmpty) return const [];
+  return [
+    const Text(
+      'Городские заказы',
+      style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
+    ),
+    const Text(
+      'Крупные заказы городов со сроком: платят больше обычных контрактов. Не успели — заказ уходит без штрафа.',
+      style: magMuted,
+    ),
+    const SizedBox(height: 8),
+    for (final c in list) _order(state, context, w, c),
+    const SizedBox(height: 6),
+    const Text(
+      'Контракты',
+      style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
+    ),
+    const SizedBox(height: 6),
+  ];
+}
+
+Widget _order(
+  MagistraliScreenState state,
+  BuildContext context,
+  MagWorld w,
+  MagContract c,
+) {
+  final i = w.map.industry(c.to);
+  final days = ((c.deadline! - w.tick) / MagRules.ticksPerDay).ceil();
+  return InkWell(
+    key: ValueKey('mag-city-order-${c.id}'),
+    borderRadius: BorderRadius.circular(16),
+    onTap: i == null
+        ? null
+        : () {
+            Navigator.pop(context);
+            state.centerOn(i.centerX, i.centerY);
+            state.overlay.industry = i.id;
+            unawaited(showTownSheet(state, i.id));
+          },
+    child: Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(12),
+      decoration: magCard(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              cargoChip(c.cargo),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  '+${magMoney(c.reward)} кр · ${c.xp} оп.',
+                  textAlign: TextAlign.end,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w800,
+                    color: MagPalette.teal,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          Text(
+            '${c.amount} ед. → ${i?.name ?? '—'}',
+            style: const TextStyle(fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(height: 6),
+          LinearProgressIndicator(
+            value: c.delivered / c.amount,
+            minHeight: 6,
+            borderRadius: BorderRadius.circular(3),
+            color: MagPalette.mint,
+            backgroundColor: const Color(0x1F2BB59A),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            '${c.delivered} из ${c.amount} · осталось $days дн.',
+            style: days <= 3
+                ? const TextStyle(fontSize: 12, color: Color(0xFFD64B5C))
+                : magMuted,
+          ),
+        ],
+      ),
+    ),
+  );
+}

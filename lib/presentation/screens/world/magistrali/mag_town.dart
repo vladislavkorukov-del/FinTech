@@ -5,6 +5,7 @@ import 'package:flutter/material.dart' hide Text;
 import '../../../../domain/magistrali/magistrali.dart';
 import '../../../l10n_widgets.dart';
 import 'mag_art.dart';
+import 'mag_city.dart';
 import 'mag_hud.dart';
 import 'mag_routes.dart';
 import 'mag_screen.dart';
@@ -85,6 +86,7 @@ Future<void> showTownSheet(
         '${served ? '' : ' · нет дороги'}',
         style: magMuted,
       ),
+      ...cityInfo(w, i),
       const SizedBox(height: 10),
       const Text(
         'Каждый день нужно',

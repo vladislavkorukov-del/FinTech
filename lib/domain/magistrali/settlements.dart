@@ -110,13 +110,23 @@ abstract final class MagTowns {
       name: 'Торговый посёлок',
       cells: 5,
       population: 350,
-      needs: {MagCargo.food: 6, MagCargo.wood: 3, MagCargo.goods: 1},
+      needs: {
+        MagCargo.food: 6,
+        MagCargo.wood: 3,
+        MagCargo.goods: 1,
+        MagCargo.bread: 2,
+        MagCargo.planks: 2,
+      },
       development: {
         MagCargo.goods: 40,
         MagCargo.food: 120,
         MagCargo.bricks: 60,
       },
-      opens: ['Первый спрос на промтовары', 'Торговые контракты'],
+      opens: [
+        'Первый спрос на промтовары',
+        'Специализация города',
+        'Городские заказы и спрос недели',
+      ],
       payBonus: .06,
     ),
     MagTownLevel(
@@ -124,7 +134,13 @@ abstract final class MagTowns {
       name: 'Малый город',
       cells: 7,
       population: 700,
-      needs: {MagCargo.food: 8, MagCargo.wood: 4, MagCargo.goods: 3},
+      needs: {
+        MagCargo.food: 8,
+        MagCargo.wood: 4,
+        MagCargo.goods: 3,
+        MagCargo.bread: 3,
+        MagCargo.bricks: 2,
+      },
       development: {MagCargo.goods: 90, MagCargo.wood: 150, MagCargo.steel: 40},
       opens: ['Городской рынок: выше оплата', 'Контракты городского снабжения'],
       payBonus: .08,
@@ -139,6 +155,8 @@ abstract final class MagTowns {
         MagCargo.wood: 5,
         MagCargo.goods: 5,
         MagCargo.ore: 2,
+        MagCargo.bricks: 3,
+        MagCargo.steel: 1,
       },
       development: {
         MagCargo.goods: 160,
@@ -159,8 +177,15 @@ abstract final class MagTowns {
         MagCargo.wood: 6,
         MagCargo.goods: 8,
         MagCargo.ore: 3,
+        MagCargo.steel: 2,
+        MagCargo.parts: 1,
       },
-      development: {MagCargo.goods: 280, MagCargo.food: 380, MagCargo.ore: 200},
+      development: {
+        MagCargo.goods: 280,
+        MagCargo.food: 380,
+        MagCargo.ore: 200,
+        MagCargo.parts: 60,
+      },
       opens: ['Дорогие контракты', 'Спрос на быстрые доставки'],
       payBonus: .12,
     ),
@@ -222,13 +247,15 @@ abstract final class MagTowns {
   /// Goods its market buys besides its needs: bread and planks from the
   /// start, stone and bricks once it builds in earnest, steel and parts in
   /// cities.
-  static Set<MagCargo> marketGoods(int level) => {
+  static Set<MagCargo> marketGoods(int level, [MagSpecialization? s]) => {
     MagCargo.bread,
     MagCargo.planks,
     if (level >= 3) MagCargo.stone,
     if (level >= 3) MagCargo.bricks,
     if (level >= 5) MagCargo.steel,
     if (level >= 6) MagCargo.parts,
+    // A city's specialization opens its own market.
+    if (s != null && level >= cityLevel) ...favoured(s),
   };
 
   /// Days of regular needs a settlement's pantry holds.
@@ -255,6 +282,56 @@ abstract final class MagTowns {
       value += e.value * MagRules.cargoValue[e.key]!;
     }
     return (value * .5 + 200 * level).round();
+  }
+
+  /// Cities (from this level) have a specialization that matters, a
+  /// demand of the week and their own big orders.
+  static const cityLevel = 4;
+
+  /// Cargo a city of this specialization pays more for, and what it is
+  /// glad to buy besides its level's goods.
+  static Set<MagCargo> favoured(MagSpecialization s) => switch (s) {
+    MagSpecialization.farming => {
+      MagCargo.food,
+      MagCargo.grain,
+      MagCargo.bread,
+      MagCargo.flour,
+    },
+    MagSpecialization.forestry => {MagCargo.wood, MagCargo.planks},
+    MagSpecialization.mining => {MagCargo.ore, MagCargo.coal, MagCargo.stone},
+    MagSpecialization.trade => {MagCargo.goods, MagCargo.bread},
+    MagSpecialization.industry => {
+      MagCargo.steel,
+      MagCargo.parts,
+      MagCargo.bricks,
+      MagCargo.coal,
+    },
+  };
+
+  /// Extra pay for favoured cargo in a city; trade cities pay a little
+  /// more for everything.
+  static const favouredBonus = .15, tradeBonus = .04;
+
+  /// The demand of the week pays this much more.
+  static const weeklyBonus = .3;
+  static const daysPerWeek = 7;
+
+  /// What a city's deliveries make it: the specialization whose cargo it
+  /// received most (null: nothing yet). Ties keep the order of the enum.
+  static MagSpecialization? specializationFor(Map<MagCargo, int> received) {
+    MagSpecialization? best;
+    var top = 0;
+    for (final s in MagSpecialization.values) {
+      var n = 0;
+      for (final c in favoured(s)) {
+        n += received[c] ?? 0;
+      }
+      if (n > top) {
+        top = n;
+        best = s;
+      }
+    }
+    return best;
   }
 
   static String specializationName(MagSpecialization s) => switch (s) {
@@ -307,6 +384,12 @@ class MagSettlement {
   /// What the company earned here (deliveries, sales, contracts) and how
   /// many units it brought — for the finance centre.
   int revenue = 0, delivered = 0;
+
+  /// Units the company brought, by cargo (decides a city's specialization).
+  final Map<MagCargo, int> received = {};
+
+  /// Earliest tick for the next city order (cities only).
+  int orderAt = 0;
 
   /// Why the last growth could not happen (null: no problem).
   String? blocked;

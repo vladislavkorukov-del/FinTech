@@ -331,7 +331,8 @@ Future<void> showContractsSheet(
         style: magMuted,
       ),
       const SizedBox(height: 10),
-      for (final c in w.contracts)
+      ...cityOrderCards(state, context),
+      for (final c in w.regularContracts)
         Container(
           key: ValueKey('mag-contract-${c.id}'),
           margin: const EdgeInsets.only(bottom: 10),

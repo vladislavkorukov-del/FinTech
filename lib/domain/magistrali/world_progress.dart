@@ -158,7 +158,7 @@ extension MagWorldProgress on MagWorld {
 
   void _refillContracts() {
     if (rng == 1) rng = seed & 0x7fffffff | 1;
-    while (contracts.length < contractSlots) {
+    while (regularContracts.length < contractSlots) {
       var targets = map.industries
           .where(
             (i) => !i.spec.stores && !i.owned && i.accepts.any(cargoAvailable),
@@ -201,10 +201,22 @@ extension MagWorldProgress on MagWorld {
       if (c.done) {
         contracts.remove(c);
         final paid = (c.reward * factor(MagBonus.contract)).round();
-        _earn(paid, 'contracts');
-        map.industry(to)?.town?.revenue += paid;
+        final city = c.deadline != null;
+        _earn(paid, city ? 'city_orders' : 'contracts');
+        final t = map.industry(to)?.town;
+        t?.revenue += paid;
+        if (city && t != null) {
+          t
+            ..orderAt = tick + MagRules.ticksPerDay * MagRules.cityOrderPause
+            ..reputation += 100
+            ..remember(tick, 'Городской заказ выполнен: +$paid кр');
+        }
         _gainXp(c.xp);
-        _say('Контракт выполнен: +${c.reward} кр');
+        _say(
+          city
+              ? 'Городской заказ выполнен: +$paid кр'
+              : 'Контракт выполнен: +${c.reward} кр',
+        );
       }
     }
     _refillContracts();
@@ -214,6 +226,7 @@ extension MagWorldProgress on MagWorld {
   String? replaceContract(int id) {
     final c = contracts.where((c) => c.id == id).firstOrNull;
     if (c == null) return 'Нет такого контракта';
+    if (c.deadline != null) return 'Городской заказ заменить нельзя';
     const fee = 150;
     if (money < fee) return 'Не хватает кредитов';
     _spend(fee, 'contracts');

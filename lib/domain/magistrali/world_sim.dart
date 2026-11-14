@@ -33,6 +33,7 @@ extension MagWorldSim on MagWorld {
 
   void _day() {
     _dayTowns();
+    _dayCities();
     for (final i in map.industries) {
       // Processing first, so delivered goods turn into new cargo. A level
       // adds output and storage; a recipe may need several inputs per
@@ -331,8 +332,9 @@ extension MagWorldSim on MagWorld {
       MagRules.minPayDistance,
       from == null ? 0 : from.distanceTo(here),
     );
-    // A bigger settlement is a richer market.
-    final market = 1 + (here.town?.spec.payBonus ?? 0);
+    // A bigger settlement is a richer market; a city pays more for its own
+    // cargo and for the demand of the week.
+    final market = marketFactor(here, cargo);
     final pay =
         (n * MagRules.cargoRate[cargo]! * dist * factor(MagBonus.pay) * market)
             .round();

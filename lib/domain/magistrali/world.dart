@@ -12,6 +12,7 @@ import 'pathfinding.dart';
 import 'settlements.dart';
 import 'tech.dart';
 
+part 'world_cities.dart';
 part 'world_dispatch.dart';
 part 'world_finance.dart';
 part 'world_fleet.dart';
