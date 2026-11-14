@@ -33,6 +33,8 @@ extension MagWorldSim on MagWorld {
 
   void _day() {
     _dayTrafficAndStaff();
+    _dayLoan();
+    _checkAchievements();
     _dayTowns();
     _dayCities();
     for (final i in map.industries) {
@@ -449,14 +451,18 @@ extension MagWorldSim on MagWorld {
       }
     }
     if (v.wait < MagRules.minStopTicks) return;
-    final full = v.load >= cap;
+    final r = routes[v.routeId]!;
+    // The line's minimum load (ROUTE-06): 100% — until full; less — as
+    // soon as that share is aboard; 0 — never waits.
+    final need = (cap * r.minLoad / 100).ceil();
     final waitedLong =
         v.wait >= MagRules.partialWaitDays * MagRules.ticksPerDay;
-    // Stay while there is cargo to wait for: until full, or with a part
-    // load after a while; an empty truck waits for its first unit.
-    if (cargo != null && !full && (v.load == 0 || !waitedLong)) return;
-    final r = routes[v.routeId]!;
-    v.stop = (v.stop + 1) % r.stops.length;
+    // Stay while there is cargo to wait for: until the minimum, or with a
+    // part load after a while; an empty truck waits for its first unit.
+    if (cargo != null && v.load < need && (v.load == 0 || !waitedLong)) {
+      return;
+    }
+    v.stop = _nextStop(v, r);
     _plan(v);
   }
 

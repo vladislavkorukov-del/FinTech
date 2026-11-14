@@ -171,6 +171,10 @@ abstract final class MagRules {
   static const defaultSeed = 20261113;
   static const startMoney = 6000;
 
+  /// Loans (FIN-15): the bank lends this plus so much a company level, at
+  /// this interest a day on the debt.
+  static const loanBase = 10000, loanPerLevel = 5000, loanRate = .004;
+
   /// The big map (S12): a new company starts with more, the first bridge
   /// in mind; contracts reach this far from the start, plus 2 cells a level.
   static const startMoneyBig = 8000, contractReach = 22;

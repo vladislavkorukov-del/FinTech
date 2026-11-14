@@ -1,6 +1,7 @@
 /// «Магистрали»: the transport game's rules and simulation, pure Dart.
 library;
 
+export 'achievements.dart';
 export 'config.dart';
 export 'dispatcher.dart';
 export 'economy_catalog.dart';

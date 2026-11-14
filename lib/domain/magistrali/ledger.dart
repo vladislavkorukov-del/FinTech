@@ -25,6 +25,9 @@ enum MagEntryKind {
   /// Money from selling a vehicle or a business (changes assets, not
   /// profit).
   assetSale,
+
+  /// A loan taken or paid back (FIN-15): money, not profit.
+  financing,
 }
 
 class MagEntry {

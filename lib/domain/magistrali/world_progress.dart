@@ -141,6 +141,7 @@ extension MagWorldProgress on MagWorld {
     final after = level;
     if (after > before) {
       _say('Уровень компании $after!');
+      _remember('Компания достигла $after уровня');
       _refillContracts();
     }
   }

@@ -223,6 +223,7 @@ String entryKindName(MagEntryKind k) => switch (k) {
   MagEntryKind.capex => 'Вложения',
   MagEntryKind.transfer => 'Внутренние передачи',
   MagEntryKind.assetSale => 'Продажа активов',
+  MagEntryKind.financing => 'Кредиты',
 };
 
 /// The journal: this month by kind (revenue, running costs, investments,

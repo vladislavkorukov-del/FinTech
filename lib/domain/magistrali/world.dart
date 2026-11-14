@@ -8,6 +8,7 @@ import 'economy_catalog.dart';
 import 'ledger.dart';
 import 'entities.dart';
 import 'map.dart';
+import 'achievements.dart';
 import 'megaprojects.dart';
 import 'tech_nodes_recipes.dart';
 import 'orders.dart';
@@ -25,6 +26,7 @@ part 'world_fleet.dart';
 part 'world_industry.dart';
 part 'world_load.dart';
 part 'world_mega.dart';
+part 'world_meta.dart';
 part 'world_orders.dart';
 part 'world_progress.dart';
 part 'world_rails.dart';
@@ -131,6 +133,12 @@ class MagWorld {
 
   /// The one road cell each place (not a settlement) is entered by (S12).
   final entrances = <int, int>{};
+
+  /// Achievements reached (id → tick), the company's chronicle and its
+  /// debt to the bank (S15).
+  final achieved = <String, int>{};
+  final chronicle = <(int, String)>[];
+  int debt = 0;
 
   /// Vehicles that entered each road cell yesterday and today (ROAD-08).
   final traffic = <int, int>{}, trafficToday = <int, int>{};
@@ -442,6 +450,7 @@ class MagWorld {
       stops: List.of(stops),
     )..since = tick;
     routes[r.id] = r;
+    _remember('Открыт маршрут «${r.name}»');
     return null;
   }
 

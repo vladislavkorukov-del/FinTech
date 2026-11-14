@@ -13,6 +13,7 @@ extension MagWorldRoutes on MagWorld {
     MagCargo? pick,
     bool noPick = false,
     bool noDrop = false,
+    bool ifCargo = false,
   }) {
     final r = routes[id];
     if (r == null) return 'Нет такого маршрута';
@@ -24,18 +25,57 @@ extension MagWorldRoutes on MagWorld {
     r.pickAt.remove(index);
     r.noPick.remove(index);
     r.noDrop.remove(index);
+    r.ifCargo.remove(index);
+    if (ifCargo) r.ifCargo.add(index);
     if (pick != null) r.pickAt[index] = pick;
     if (noPick) r.noPick.add(index);
     if (noDrop) r.noDrop.add(index);
     return null;
   }
 
+  /// The share of the capacity a line's vehicles wait for (ROUTE-06).
+  String? setMinLoad(int id, int percent) {
+    final r = routes[id];
+    if (r == null) return 'Нет такого маршрута';
+    if (percent < 0 || percent > 100) return 'От 0 до 100%';
+    r.minLoad = percent;
+    return null;
+  }
+
+  /// The next stop to drive to: stops visited only when needed
+  /// (ROUTE-10) are passed by when there is nothing to load or unload.
+  int _nextStop(MagVehicle v, MagRoute r) {
+    final n = r.stops.length;
+    var next = (v.stop + 1) % n;
+    for (var guard = 0; guard < n - 1; guard++) {
+      if (!r.ifCargo.contains(next) || _needed(v, r, next)) break;
+      next = (next + 1) % n;
+    }
+    return next;
+  }
+
+  bool _needed(MagVehicle v, MagRoute r, int index) {
+    final here = map.industry(r.stops[index]);
+    if (here == null) return false;
+    if (v.load > 0 &&
+        !r.noDrop.contains(index) &&
+        here.accepts.contains(v.cargo)) {
+      return true;
+    }
+    if (v.load >= capacityOf(v)) return false;
+    final c = _loadableAt(v, here, index);
+    return c != null && availableOf(here, c) > 0;
+  }
+
   /// Cargo this stop can hand to the vehicle: what its orders allow, made
   /// here and taken by another stop of the route.
-  MagCargo? _loadable(MagVehicle v, MagIndustry here) {
+  MagCargo? _loadable(MagVehicle v, MagIndustry here) =>
+      _loadableAt(v, here, v.stop);
+
+  MagCargo? _loadableAt(MagVehicle v, MagIndustry here, int index) {
     final r = routes[v.routeId]!;
-    if (r.noPick.contains(v.stop)) return null;
-    final only = r.pickAt[v.stop];
+    if (r.noPick.contains(index)) return null;
+    final only = r.pickAt[index];
     final wanted = <MagCargo>{};
     for (var k = 0; k < r.stops.length; k++) {
       final id = r.stops[k];
@@ -149,19 +189,22 @@ extension MagWorldRoutes on MagWorld {
   // ---- Saves ----
 
   Map<String, Object> _saveExtras() => {
+    ..._saveMeta(),
     if (map.industries.any((i) => i.staff > 0))
       'staff': {
         for (final i in map.industries)
           if (i.staff > 0) '${i.id}': i.staff,
       },
-    if (routes.values.any((r) => r.priority.isNotEmpty || r.since != 0))
+    if (routes.values.any(_hasPlan))
       'routePlans': {
         for (final r in routes.values)
-          if (r.priority.isNotEmpty || r.since != 0)
+          if (_hasPlan(r))
             '${r.id}': {
               if (r.priority.isNotEmpty)
                 'priority': [for (final c in r.priority) c.name],
               if (r.since != 0) 'since': r.since,
+              if (r.minLoad != 100) 'minLoad': r.minLoad,
+              if (r.ifCargo.isNotEmpty) 'ifCargo': r.ifCargo.toList()..sort(),
             },
       },
     if (routes.values.any(
@@ -188,6 +231,7 @@ extension MagWorldRoutes on MagWorld {
 
   /// Reads what S13 added to a save (all optional).
   void loadExtras(Map<String, dynamic> j) {
+    loadMeta(j);
     int cellOfKey(Object k) {
       final c = int.tryParse('$k');
       if (c == null || c < 0 || c >= size * size) {
@@ -237,6 +281,17 @@ extension MagWorldRoutes on MagWorld {
       for (final c in m['priority'] as List? ?? const []) {
         r.priority.add(MagCargo.values.byName(c as String));
       }
+      final min = m['minLoad'] ?? 100;
+      if (min is! int || min < 0 || min > 100) {
+        throw const FormatException('Bad route plan in Magistrali save');
+      }
+      r.minLoad = min;
+      for (final k in m['ifCargo'] as List? ?? const []) {
+        if (k is! int || k < 0 || k >= r.stops.length) {
+          throw const FormatException('Bad route plan in Magistrali save');
+        }
+        r.ifCargo.add(k);
+      }
       final since = m['since'];
       if (since != null) {
         if (since is! int || since < 0) {
@@ -258,4 +313,10 @@ extension MagWorldRoutes on MagWorld {
       }
     }
   }
+
+  bool _hasPlan(MagRoute r) =>
+      r.priority.isNotEmpty ||
+      r.since != 0 ||
+      r.minLoad != 100 ||
+      r.ifCargo.isNotEmpty;
 }

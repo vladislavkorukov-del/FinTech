@@ -65,6 +65,7 @@ extension MagWorldIndustry on MagWorld {
       ..since = tick
       ..invested += price;
     _say('${i.name} теперь ваше');
+    _remember('Куплено: ${i.name}');
     return null;
   }
 

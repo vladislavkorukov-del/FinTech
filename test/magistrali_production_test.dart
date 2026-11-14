@@ -244,7 +244,11 @@ void main() {
     w.buyTruck('pickup');
     w.assign(w.vehicles.values.last.id, w.routes.keys.last);
     final revenue = trade(w);
-    int bonus() => w.months.fold(0, (n, m) => n + (m.income['bonus'] ?? 0));
+    // Task rewards and achievements (S15) are not trade.
+    int bonus() => w.months.fold(
+      0,
+      (n, m) => n + (m.income['bonus'] ?? 0) + (m.income['achievements'] ?? 0),
+    );
     final money = w.money, rewards = bonus();
     for (var t = 0; t < 3000; t++) {
       w.step();

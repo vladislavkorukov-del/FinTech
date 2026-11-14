@@ -54,7 +54,9 @@ extension MagWorldPlans on MagWorld {
     }
     c.noPick.addAll(r.noPick.map(map));
     c.noDrop.addAll(r.noDrop.map(map));
+    c.ifCargo.addAll(r.ifCargo.map(map));
     c.priority.addAll(r.priority);
+    c.minLoad = r.minLoad;
     _say('Маршрут скопирован: ${c.name}');
     return null;
   }

@@ -148,6 +148,12 @@ class MagRoute {
   /// Cargo taken first where there is any, in order (ROUTE-09).
   final List<MagCargo> priority = [];
 
+  /// Share of the capacity (%) a vehicle waits for before it leaves a
+  /// stop (ROUTE-06), and stops it visits only when there is something to
+  /// load or unload there (ROUTE-10).
+  int minLoad = 100;
+  final Set<int> ifCargo = {};
+
   /// The tick it was made (FIN-14: profit a day; 0 for older lines).
   int since = 0;
 

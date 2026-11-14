@@ -92,6 +92,7 @@ extension MagWorldMega on MagWorld {
     final p = MagMegaprojects.byId(site.project ?? '');
     if (p == null) return;
     site.projectDone = true;
+    _remember('Мегапроект завершён: ${site.name}');
     _earn(p.reward, 'infrastructure', source: 'industry', sourceId: site.id);
     _gainXp(p.reward ~/ 20);
     final town = map.industry(site.projectTown ?? -1);
