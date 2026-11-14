@@ -260,13 +260,6 @@ extension MagWorldSim on MagWorld {
     }
   }
 
-  int _dirTo(int from, int to) {
-    final d = to - from;
-    if (d == 1) return 1;
-    if (d == -1) return 3;
-    return d > 0 ? 2 : 0;
-  }
-
   /// At a stop: deliver what this place takes (paid now, once), then load.
   void _arrive(MagVehicle v) {
     final here = _target(v);
@@ -364,7 +357,9 @@ extension MagWorldSim on MagWorld {
     final pay =
         (n * MagRules.cargoRate[cargo]! * dist * factor(MagBonus.pay) * market)
             .round();
-    if (here.spec.takesIn(cargo)) {
+    if (here.kind == MagIndustryKind.megaproject) {
+      _megaReceive(here, cargo, n);
+    } else if (here.spec.takesIn(cargo)) {
       here.input[cargo] = (here.input[cargo] ?? 0) + n;
     } else if (here.town != null) {
       _townReceive(here, cargo, n);

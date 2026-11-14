@@ -149,6 +149,7 @@ extension MagWorldProgress on MagWorld {
   List<String> get earnedRewards => [
     if (deliveries > 0) 'magistrali:first_delivery:v1',
     for (var l = 5; l <= math.min(level, 100); l += 5) 'magistrali:level:$l:v1',
+    if (firstMegapolis != null) 'magistrali:megapolis:v1',
   ];
 
   int _random(int max) {
@@ -161,7 +162,11 @@ extension MagWorldProgress on MagWorld {
     while (regularContracts.length < contractSlots) {
       var targets = map.industries
           .where(
-            (i) => !i.spec.stores && !i.owned && i.accepts.any(cargoAvailable),
+            (i) =>
+                !i.spec.stores &&
+                !i.owned &&
+                i.kind != MagIndustryKind.megaproject &&
+                i.accepts.any(cargoAvailable),
           )
           .toList();
       // A young company gets contracts near its start, reachable by cart.

@@ -7,6 +7,7 @@ import 'package:flutter/material.dart' hide Text;
 import '../../../../domain/magistrali/magistrali.dart';
 import '../../../../services/magistrali_store.dart';
 import '../../../controller.dart';
+import 'mag_mega_ui.dart';
 import 'mag_center.dart';
 import 'mag_art.dart';
 import 'mag_game.dart';

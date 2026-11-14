@@ -8,6 +8,7 @@ import 'economy_catalog.dart';
 import 'ledger.dart';
 import 'entities.dart';
 import 'map.dart';
+import 'megaprojects.dart';
 import 'orders.dart';
 import 'pathfinding.dart';
 import 'settlements.dart';
@@ -21,6 +22,7 @@ part 'world_finance.dart';
 part 'world_fleet.dart';
 part 'world_industry.dart';
 part 'world_load.dart';
+part 'world_mega.dart';
 part 'world_orders.dart';
 part 'world_progress.dart';
 part 'world_rails.dart';
@@ -95,6 +97,11 @@ class MagWorld {
 
   /// Port cells (on water) and the place each serves (stage S9).
   final ports = <int, int>{};
+
+  /// «От хутора до мегаполиса» (stage S10): the first settlement of the
+  /// game that grew from a hamlet to a megalopolis, and when (null: none
+  /// yet). Kept for ever in the save.
+  int? firstMegapolis, firstMegapolisTick;
 
   int tick = 0;
   int money = 0;

@@ -5,6 +5,9 @@ import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../domain/magistrali/magistrali.dart';
+import 'mag_curve.dart';
+import 'mag_route_art.dart';
+import 'mag_terrain_art.dart';
 import 'mag_rail_art.dart';
 import 'mag_art.dart';
 import 'mag_buildings.dart';
@@ -95,17 +98,9 @@ class MagRenderer {
         final y1 = math.min(map.size, (cy + 1) * chunk);
         c.save();
         c.transform(MagIso.ground);
-        for (var y = cy * chunk; y < y1; y++) {
-          for (var x = cx * chunk; x < x1; x++) {
-            paintGround(c, map, x, y);
-          }
-        }
+        // One smooth surface: colours blend across cells (no squares).
+        paintTerrain(c, map, cx * chunk, cy * chunk, x1, y1);
         c.restore();
-        for (var y = cy * chunk; y < y1; y++) {
-          for (var x = cx * chunk; x < x1; x++) {
-            if (map.at(x, y) == MagTerrain.hill) paintHill(c, map, x, y);
-          }
-        }
         return rec.endRecording();
       });
 
@@ -139,7 +134,7 @@ class MagRenderer {
       for (var x = x0; x <= x1; x++) {
         final r = w.roadAt(x, y);
         if (r == MagRoad.none) continue;
-        paintRoad(
+        paintRoadCurved(
           canvas,
           r,
           w.connections(x, y),
@@ -158,7 +153,13 @@ class MagRenderer {
         for (var d = 0; d < 4; d++) {
           if (w.hasRail(x + MagDir.dx[d], y + MagDir.dy[d])) mask |= 1 << d;
         }
-        paintRail(canvas, mask, x, y, station: w.stations.containsKey(cell));
+        paintRailCurved(
+          canvas,
+          mask,
+          x,
+          y,
+          station: w.stations.containsKey(cell),
+        );
       }
     }
     // Piers of ports (stage S9).
@@ -201,13 +202,16 @@ class MagRenderer {
     final objects = <(double, void Function())>[];
     for (var y = y0; y <= y1; y++) {
       for (var x = x0; x <= x1; x++) {
-        if (map.at(x, y) == MagTerrain.forest &&
-            w.roadAt(x, y) == MagRoad.none) {
-          objects.add((
-            x + y + .5,
-            () => paintTrees(canvas, map, x, y, cam.zoom),
-          ));
-        }
+        final ground = map.at(x, y);
+        if (ground != MagTerrain.forest && ground != MagTerrain.hill) continue;
+        if (w.roadAt(x, y) != MagRoad.none || w.hasRail(x, y)) continue;
+        if (map.industryAt(x, y) != null) continue;
+        objects.add((
+          x + y + .5,
+          ground == MagTerrain.forest
+              ? () => paintForest(canvas, map, x, y, cam.zoom)
+              : () => paintRocks(canvas, map, x, y),
+        ));
       }
     }
     for (final i in map.industries) {
@@ -218,9 +222,11 @@ class MagRenderer {
         continue;
       }
       // A settlement is redrawn when it grows.
-      final key = i.town == null
-          ? '${i.id}'
-          : '${i.id}:${i.town!.level}:${i.town!.cells.length}';
+      final key = i.town != null
+          ? '${i.id}:${i.town!.level}:${i.town!.cells.length}'
+          : i.kind == MagIndustryKind.megaproject
+          ? '${i.id}:${i.projectDone}:${i.projectProgress.values.fold(0, (a, b) => a + b) ~/ 40}'
+          : '${i.id}';
       objects.add((
         i.right + i.bottom + .5,
         () {
@@ -244,7 +250,9 @@ class MagRenderer {
     }
     for (final v in w.vehicles.values) {
       if (!v.onMap) continue;
-      final (px, py) = w.positionOf(v);
+      // On the curve of its way, facing along it.
+      final (pose, heading) = vehiclePose(w, v);
+      final px = pose.dx, py = pose.dy, dir = dirOf(heading);
       if (v.spec.water) {
         if (px < x0 - 2 || py < y0 - 2 || px > x1 + 3 || py > y1 + 3) continue;
         objects.add((
@@ -253,7 +261,7 @@ class MagRenderer {
             canvas,
             px,
             py,
-            v.dir,
+            dir,
             v.spec,
             v.load > 0 ? MagPalette.cargo(v.cargo!) : null,
             selected: o.vehicle == v.id,
@@ -283,13 +291,17 @@ class MagRenderer {
           canvas,
           px,
           py,
-          v.dir,
+          dir,
           v.spec,
           v.load > 0 ? MagPalette.cargo(v.cargo!) : null,
           selected: o.vehicle == v.id,
         ),
       ));
     }
+    // The selected vehicle's way, dashed: the leg it drives now and the
+    // rest of its route, with its stops numbered.
+    final chosen = o.vehicle == null ? null : w.vehicles[o.vehicle!];
+    if (chosen != null && chosen.onMap) paintVehicleRoute(canvas, w, chosen);
     objects.sort((a, b) => a.$1.compareTo(b.$1));
     for (final (_, draw) in objects) {
       draw();
@@ -336,6 +348,23 @@ class MagRenderer {
           Paint()..color = const Color(0xE6FFFFFF),
         );
         label.paint(canvas, box.topLeft + const Offset(6, 2.5));
+        if (w.firstMegapolis == i.id) {
+          // The first megalopolis: a golden crown for ever (META-04).
+          final cp = box.centerLeft - const Offset(12, 0);
+          canvas.drawCircle(cp, 9, Paint()..color = const Color(0xFFD4A017));
+          canvas.drawPath(
+            Path()
+              ..moveTo(cp.dx - 5, cp.dy + 3)
+              ..lineTo(cp.dx - 5, cp.dy - 3)
+              ..lineTo(cp.dx - 2, cp.dy)
+              ..lineTo(cp.dx, cp.dy - 4)
+              ..lineTo(cp.dx + 2, cp.dy)
+              ..lineTo(cp.dx + 5, cp.dy - 3)
+              ..lineTo(cp.dx + 5, cp.dy + 3)
+              ..close(),
+            Paint()..color = const Color(0xFFFFFFFF),
+          );
+        }
         if (o.problems.contains(i.id)) {
           // A red mark: something here needs the player (see «Советы»).
           final m = box.centerRight + const Offset(7, 0);

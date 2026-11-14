@@ -7,6 +7,7 @@ export 'economy_catalog.dart';
 export 'entities.dart';
 export 'ledger.dart';
 export 'map.dart';
+export 'megaprojects.dart';
 export 'orders.dart';
 export 'pathfinding.dart';
 export 'settlements.dart';

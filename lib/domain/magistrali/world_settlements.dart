@@ -204,6 +204,7 @@ extension MagWorldSettlements on MagWorld {
       ..devPaid = false;
     t.remember(tick, 'Вырос до уровня ${t.level}: ${next.name}');
     if (t.level == MagTowns.cityLevel) _chooseSpecialization(i);
+    if (t.level == MagTowns.maxLevel) _megapolisReached(i);
     roadVersion++; // its stop cells changed
     _say('${i.name} вырос: ${next.name}');
     return true;

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart' hide Text;
 
 import '../../../../domain/magistrali/magistrali.dart';
 import '../../../l10n_widgets.dart';
+import 'mag_mega_ui.dart';
 import 'mag_art.dart';
 import 'mag_city.dart';
 import 'mag_hud.dart';
@@ -87,6 +88,7 @@ Future<void> showTownSheet(
         style: magMuted,
       ),
       ...cityInfo(w, i),
+      ...megaprojectSection(state, i),
       const SizedBox(height: 10),
       const Text(
         'Каждый день нужно',

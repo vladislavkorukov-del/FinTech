@@ -5,6 +5,7 @@ import 'config.dart';
 import 'entities.dart';
 import 'settlements.dart';
 
+part 'map_names.dart';
 part 'map_noise.dart';
 
 /// A place on the map that makes or takes cargo.
@@ -48,6 +49,20 @@ class MagIndustry {
 
   /// Tick it became the company's (null: not known, e.g. an older save).
   int? since;
+
+  /// A megaproject (stage S10): which, the city it is for, what it needs,
+  /// what has arrived, and whether it is done.
+  String? project;
+  int? projectTown;
+  final Map<MagCargo, int> projectNeeds = {}, projectProgress = {};
+  bool projectDone = false;
+
+  /// Cargo a megaproject still waits for.
+  Map<MagCargo, int> get projectLeft => {
+    for (final e in projectNeeds.entries)
+      if ((projectProgress[e.key] ?? 0) < e.value)
+        e.key: e.value - (projectProgress[e.key] ?? 0),
+  };
 
   /// A logistics centre: what it supplies, and how many orders it wrote.
   bool supplyPlants = true, supplyTowns = true;
@@ -95,7 +110,9 @@ class MagIndustry {
 
   /// Cargo it takes: a settlement takes what its level needs and what
   /// its growth asks for.
-  Set<MagCargo> get accepts => town == null
+  Set<MagCargo> get accepts => kind == MagIndustryKind.megaproject
+      ? projectLeft.keys.toSet()
+      : town == null
       ? spec.accepts
       : {
           ...town!.spec.needs.keys,
@@ -152,25 +169,6 @@ class MagMap {
   late final MagIndustry startFarm = industries[0];
   late final MagIndustry startPlant = industries[1];
 
-  static const _cities = [
-    'Северск',
-    'Бирюзов',
-    'Мятноград',
-    'Заречье',
-    'Ясногорск',
-    'Сосновка',
-    'Каменск',
-    'Озёрный',
-  ];
-  static const _villages = [
-    'Луговое',
-    'Ольховка',
-    'Рябиновка',
-    'Ключи',
-    'Подгорье',
-    'Тихий Брод',
-  ];
-
   /// Grows a set of cells to [target] cells: the free neighbour touching
   /// the most cells already in it goes first (compact land), ties by
   /// position, so the result is always the same. Returns false if not
@@ -212,19 +210,6 @@ class MagMap {
     }
     return true;
   }
-
-  static const _hamlets = [
-    'Сосновый хутор',
-    'Липки',
-    'Ручей',
-    'Заимка',
-    'Овражки',
-    'Берёзовка',
-    'Медвежий угол',
-    'Камышинка',
-    'Росинка',
-    'Дубки',
-  ];
 
   static MagMap generate(
     int seed, {
@@ -452,6 +437,7 @@ class MagMap {
             MagIndustryKind.steelMill => 'Сталелитейный завод №$n',
             MagIndustryKind.partsFactory => 'Завод деталей №$n',
             MagIndustryKind.logisticsCenter => 'Логистический центр №$n',
+            MagIndustryKind.megaproject => 'Мегапроект №$n',
           });
           break;
         }

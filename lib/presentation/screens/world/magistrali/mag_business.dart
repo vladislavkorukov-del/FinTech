@@ -324,6 +324,10 @@ const magExpenseNames = {
   'contracts': 'Замена контрактов',
   'research': 'Исследования',
   'warehouses': 'Строительство складов',
+  'megaprojects': 'Мегапроекты',
+  'rails': 'Железные дороги',
+  'stations': 'Станции',
+  'ports': 'Порты',
 };
 const magIncomeNames = {
   'goods_sale': 'Продажа продукции',
@@ -332,6 +336,8 @@ const magIncomeNames = {
   'delivery': 'Перевозки',
   'contracts': 'Контракты',
   'city_orders': 'Городские заказы',
+  'infrastructure': 'Контракты инфраструктуры',
+  'achievement': 'Достижения',
   'development': 'Контракты развития',
   'bonus': 'Задания и премии',
   'sales': 'Продажа техники',

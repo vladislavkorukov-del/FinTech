@@ -118,7 +118,11 @@ MagWorld magWorldFromJson(Map<String, dynamic> raw) {
     final id = whole(m['id'], MagRules.builtIdBase, 1 << 40);
     final x = whole(m['x'], 0, size - spec.size);
     final y = whole(m['y'], 0, size - spec.size);
-    if (spec.price == 0 || spec.stores || w.map.industry(id) != null) {
+    final mega = kind == MagIndustryKind.megaproject;
+    if ((spec.price == 0 && !mega) ||
+        spec.stores ||
+        w.map.industry(id) != null ||
+        mega && MagMegaprojects.byId(m['project'] as String? ?? '') == null) {
       throw const FormatException('Bad building in Magistrali save');
     }
     for (var yy = y; yy < y + spec.size; yy++) {
@@ -128,10 +132,22 @@ MagWorld magWorldFromJson(Map<String, dynamic> raw) {
         }
       }
     }
-    w.map.industries.add(
-      MagIndustry(id: id, kind: kind, x: x, y: y, name: m['name'] as String)
-        ..built = true,
-    );
+    final b = MagIndustry(
+      id: id,
+      kind: kind,
+      x: x,
+      y: y,
+      name: m['name'] as String,
+    )..built = true;
+    if (mega) {
+      b
+        ..project = m['project'] as String
+        ..projectTown = whole(m['town'], 1, 1 << 50)
+        ..projectDone = m['done'] == true;
+      b.projectNeeds.addAll(cargo(m['needs']));
+      b.projectProgress.addAll(cargo(m['progress']));
+    }
+    w.map.industries.add(b);
   }
   for (final raw in j['warehouses'] as List? ?? const []) {
     final m = raw as Map;
@@ -213,6 +229,16 @@ MagWorld magWorldFromJson(Map<String, dynamic> raw) {
     w.ports[cell] = place;
   }
   final water = w.waterMask;
+  final mp = j['megapolis'] as List?;
+  if (mp != null) {
+    final town = w.map.industry(whole(mp[0], 1, 1 << 50));
+    if (town?.town == null) {
+      throw const FormatException('Bad megalopolis in Magistrali save');
+    }
+    w
+      ..firstMegapolis = town!.id
+      ..firstMegapolisTick = whole(mp[1], 0, 1 << 50);
+  }
   for (final raw in j['industries'] as List? ?? const []) {
     final m = raw as Map;
     final i = w.map.industry(whole(m['id'], 1, 1 << 20));

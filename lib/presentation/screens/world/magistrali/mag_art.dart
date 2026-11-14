@@ -1,5 +1,3 @@
-import 'dart:ui' as ui;
-
 import 'package:flutter/material.dart';
 
 import '../../../../domain/magistrali/magistrali.dart';
@@ -32,100 +30,6 @@ abstract final class MagPalette {
     MagCargo.steel => const Color(0xFF8A96A3),
     MagCargo.parts => const Color(0xFFE8B23E),
   };
-}
-
-double _hash(int x, int y, int seed) {
-  var n = x * 73856093 ^ y * 19349663 ^ seed * 83492791;
-  n = (n ^ (n >> 13)) * 1274126177;
-  return ((n ^ (n >> 16)) & 0xffff) / 0xffff;
-}
-
-/// Ground of one cell (drawn under the ground transform: one cell = 1).
-void paintGround(Canvas c, MagMap map, int x, int y) {
-  final t = map.at(x, y);
-  final h = _hash(x, y, map.seed);
-  final water = t == MagTerrain.river || t == MagTerrain.lake;
-  var color = switch (t) {
-    MagTerrain.grass => Color.lerp(
-      const Color(0xFF9FCF72),
-      const Color(0xFF8CC266),
-      h,
-    )!,
-    MagTerrain.forest => Color.lerp(
-      const Color(0xFF7DB45C),
-      const Color(0xFF71A853),
-      h,
-    )!,
-    MagTerrain.hill => Color.lerp(
-      const Color(0xFFB7B47C),
-      const Color(0xFFA9A86F),
-      h,
-    )!,
-    MagTerrain.river => const Color(0xFF63B9DA),
-    MagTerrain.lake => const Color(0xFF4FA6D2),
-  };
-  if (water) {
-    // Shallows next to land.
-    var shore = false;
-    for (var d = 0; d < 4; d++) {
-      final nx = x + MagDir.dx[d], ny = y + MagDir.dy[d];
-      if (!map.inside(nx, ny)) continue;
-      final n = map.at(nx, ny);
-      if (n != MagTerrain.river && n != MagTerrain.lake) shore = true;
-    }
-    if (shore) color = Color.lerp(color, const Color(0xFFA9DCE6), .35)!;
-  }
-  final r = Rect.fromLTWH(x.toDouble(), y.toDouble(), 1.02, 1.02);
-  c.drawRect(r, Paint()..color = color);
-  if (t == MagTerrain.grass && h > .82) {
-    // A few flowers.
-    c.drawCircle(
-      Offset(x + h, y + (1 - h)),
-      .05,
-      Paint()..color = const Color(0xFFF6E9A6),
-    );
-  }
-  if (water && h > .6) {
-    c.drawLine(
-      Offset(x + .2, y + h * .8),
-      Offset(x + .55, y + h * .8),
-      Paint()
-        ..color = const Color(0x55FFFFFF)
-        ..strokeWidth = .05,
-    );
-  }
-}
-
-/// A low mound on a hill cell (drawn in iso space, part of the terrain).
-void paintHill(Canvas c, MagMap map, int x, int y) {
-  final h = _hash(x, y, map.seed + 5);
-  final p = MagIso.project(x + .5, y + .5);
-  final w = MagIso.hw * (1.3 + h * .3), hgt = 8 + h * 8;
-  final mound = Path()
-    ..moveTo(p.dx - w / 2, p.dy + 4)
-    ..quadraticBezierTo(p.dx - w * .1, p.dy - hgt * 1.6, p.dx + w / 2, p.dy + 4)
-    ..close();
-  c.drawPath(
-    mound,
-    Paint()
-      ..shader = ui.Gradient.linear(
-        Offset(p.dx - w / 2, p.dy - hgt),
-        Offset(p.dx + w / 2, p.dy),
-        [const Color(0xFFC9C38B), const Color(0xFF8F8C5B)],
-      ),
-  );
-  if (h > .55) {
-    MagShapes.box(
-      c,
-      x: x + .3 + h * .3,
-      y: y + .6,
-      length: .18,
-      width: .14,
-      h: 5,
-      color: const Color(0xFF9EA1A3),
-      outline: false,
-    );
-  }
 }
 
 /// The road on one cell, under the ground transform. Arms go to the
@@ -191,71 +95,6 @@ void paintRoad(Canvas c, MagRoad r, int mask, int x, int y, bool bridge) {
       ),
       dash,
     );
-  }
-}
-
-/// Trees of a forest cell (objects: drawn in depth order).
-void paintTrees(Canvas c, MagMap map, int x, int y, double zoom) {
-  final n = 1 + (_hash(x, y, map.seed + 9) * 2.2).floor();
-  for (var i = 0; i < n; i++) {
-    final hx = _hash(x * 3 + i, y, map.seed + 11);
-    final hy = _hash(x, y * 3 + i, map.seed + 13);
-    final px = x + .2 + hx * .6, py = y + .2 + hy * .6;
-    final p = MagIso.project(px, py);
-    final s = .8 + _hash(x + i, y + i, map.seed) * .5;
-    if (zoom < .55) {
-      // Far away: one shape per tree is enough.
-      c.drawCircle(
-        Offset(p.dx, p.dy - 10 * s),
-        7 * s,
-        Paint()
-          ..color = hx > .45
-              ? const Color(0xFF357F4C)
-              : const Color(0xFF4E9A48),
-      );
-      continue;
-    }
-    c.drawOval(
-      Rect.fromCenter(
-        center: p + const Offset(3, 1),
-        width: 16 * s,
-        height: 7 * s,
-      ),
-      Paint()..color = const Color(0x33203024),
-    );
-    c.drawRect(
-      Rect.fromLTWH(p.dx - 1.2, p.dy - 6 * s, 2.4, 6 * s),
-      Paint()..color = const Color(0xFF7A5634),
-    );
-    if (hx > .45) {
-      // A fir: stacked triangles.
-      for (var k = 0; k < 3; k++) {
-        final w = (13 - k * 3) * s, top = p.dy - (8 + k * 6) * s;
-        c.drawPath(
-          Path()
-            ..moveTo(p.dx - w / 2, top + 7 * s)
-            ..lineTo(p.dx, top - 4 * s)
-            ..lineTo(p.dx + w / 2, top + 7 * s)
-            ..close(),
-          Paint()
-            ..color = Color.lerp(
-              const Color(0xFF2F7D4A),
-              const Color(0xFF3F9A5A),
-              k / 3,
-            )!,
-        );
-      }
-    } else {
-      final center = Offset(p.dx, p.dy - 12 * s);
-      c.drawCircle(center, 7.5 * s, Paint()..color = const Color(0xFF4E9A48));
-      if (zoom > .6) {
-        c.drawCircle(
-          center + Offset(-2.5 * s, -2.5 * s),
-          4 * s,
-          Paint()..color = const Color(0xFF6DBA5A),
-        );
-      }
-    }
   }
 }
 

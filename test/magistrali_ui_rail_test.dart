@@ -248,4 +248,57 @@ void main() {
     expect(w.rails.every((r) => r == 0), isTrue);
     await settle(tester);
   });
+
+  testWidgets(
+    'S10: a megaproject from a city, the megalopolis badge, a route drawn',
+    (tester) async {
+      await mount(tester, const MagistraliScreen(seed: MagRules.defaultSeed));
+      final s = await ready(tester);
+      final w = s.world..money = 500000;
+      final city = w.settlements.firstWhere((t) => t.name == 'Луговое');
+      city.town!.level = 7;
+      w.firstMegapolis = city.id; // as if it had grown from a hamlet
+      // A truck on a route, selected: its way is drawn dashed (no errors).
+      final farm = w.map.startFarm, plant = w.map.startPlant;
+      w.buildRoad(
+        w.planRoad(
+          farm.x + farm.size,
+          farm.y,
+          plant.x - 1,
+          plant.y,
+          MagRoad.dirt,
+        ),
+      );
+      w.createRoute([farm.id, plant.id]);
+      w.assign(w.vehicles.values.single.id, w.routes.keys.single);
+      w.step(30);
+      s.overlay.vehicle = w.vehicles.keys.single;
+      s.changed();
+      s.centerOn(farm.centerX + 3, farm.centerY);
+      for (var k = 0; k < 5; k++) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
+      expect(tester.takeException(), isNull);
+      s.overlay.vehicle = null;
+
+      // The city's sheet: the megalopolis badge and a megaproject to start.
+      await tap(tester, 'mag-tab-places');
+      await tap(tester, 'mag-place-${city.id}');
+      expect(find.byKey(const ValueKey('mag-megapolis-badge')), findsOneWidget);
+      await tap(tester, 'mag-mega-start-bridge');
+      final site = w.siteOf('bridge');
+      expect(site, isNotNull);
+      expect(find.byKey(const ValueKey('mag-mega-sheet')), findsOneWidget);
+      await closeSheet(tester);
+      await closeSheet(tester);
+      // The site on the map opens its sheet too.
+      s.centerOn(site!.centerX, site.centerY);
+      await tester.pump();
+      await tester.tapAt(at(tester, s, site.x + 1, site.y + 1));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(find.byKey(const ValueKey('mag-mega-sheet')), findsOneWidget);
+      await settle(tester);
+    },
+  );
 }

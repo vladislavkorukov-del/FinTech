@@ -8,6 +8,11 @@ extension MagWorldTech on MagWorld {
     for (final id in techs) {
       sum += MagTechTree.byId(id)?.effects[key] ?? 0;
     }
+    // Finished megaprojects work for ever (stage S10).
+    for (final i in map.industries) {
+      if (!i.projectDone) continue;
+      sum += MagMegaprojects.byId(i.project ?? '')?.effects[key] ?? 0;
+    }
     return sum;
   }
 

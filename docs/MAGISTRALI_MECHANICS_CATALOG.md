@@ -7,23 +7,23 @@
 
 Статусы: NOT_STARTED — не начато; PARTIAL — частично; IN_PROGRESS — в работе;
 READY_FOR_REVIEW — готово, ждёт проверки игроком; VERIFIED — проверено игроком
-(этапы, которые игрок подтвердил: 1.68–1.79); BLOCKED — заблокировано.
+(этапы, которые игрок подтвердил: 1.68–1.80); BLOCKED — заблокировано.
 
 Файлы домена — `lib/domain/magistrali/`, интерфейса —
 `lib/presentation/screens/world/magistrali/`. Тесты — `test/magistrali_<имя>_test.dart`
 (sim, orders, storage, dispatch, towns, horses, production, growth,
-industry, cities, logistics, rail, water, ui, ui_stage5, ui_rail).
+industry, cities, logistics, rail, water, megapolis, ui, ui_stage5, ui_rail).
 
-Аудит: 1.77.0, обновлено в 1.78.0 (S7) и 1.79.0 (S8), 1.80.0 (S9 и доводка ЖД); точка восстановления — тег `restore/magistrali-1.77.0-pre-s7`.
+Аудит: 1.77.0, обновлено в 1.78.0 (S7) и 1.79.0 (S8), 1.80.0 (S9 и доводка ЖД), 1.81.0 (S10 и графика); точка восстановления — тег `restore/magistrali-1.77.0-pre-s7`.
 
 ## Сводка
 
 | Статус | Механик |
 |---|---|
-| VERIFIED | 116 |
-| READY_FOR_REVIEW | 6 |
+| VERIFIED | 121 |
+| READY_FOR_REVIEW | 5 |
 | PARTIAL | 28 |
-| NOT_STARTED | 53 |
+| NOT_STARTED | 49 |
 | Всего | 203 |
 
 ## A. Фундамент игры и безопасность
@@ -46,11 +46,11 @@ industry, cities, logistics, rail, water, ui, ui_stage5, ui_rail).
 | ID | Механика | P | Статус | Версия | Зависимости | Файлы | Тесты | Проблемы |
 |---|---|---|---|---|---|---|---|---|
 | CITY-01 | Независимое состояние поселений | P0 | VERIFIED | 1.72 | CITY-03 | settlements.dart, world_settlements.dart | towns | — |
-| CITY-02 | Десять уровней развития | P1 | VERIFIED | 1.72 | — | settlements.dart (`MagTowns.levels`) | towns | Уровни 8–10 пока только в конфигурации, без своего контента |
+| CITY-02 | Десять уровней развития | P1 | READY_FOR_REVIEW | 1.81 | — | settlements.dart (уровни 8–10: сталь, детали, кирпич в нуждах и росте; мегапроекты) | towns, megapolis | — |
 | CITY-03 | Многоклеточная территория | P0 | VERIFIED | 1.72 | — | settlements.dart (`cells`), map.dart | towns | — |
 | CITY-04 | Автоматическое расширение | P1 | VERIFIED | 1.72 | CITY-03 | world_settlements.dart (`_growTown`), map.dart (`expandCells`) | towns, growth | — |
 | CITY-05 | Защита инфраструктуры | P0 | VERIFIED | 1.72 | CITY-04 | world_settlements.dart (`_townLandFree`) | towns: «growth blocked by roads» | — |
-| CITY-06 | Изменение застройки | P1 | PARTIAL | 1.72 | CITY-03 | mag_town_art.dart, mag_city_art.dart | — | Застройка меняется группами уровней (1–2, 3–4, 5–7, 8–10) и площадью |
+| CITY-06 | Изменение застройки | P1 | PARTIAL | 1.72 | CITY-03 | mag_town_art.dart, mag_city_art.dart | — | Застройка меняется группами уровней; в 1.81 — плавная земля и дороги вокруг |
 | CITY-07 | Население | P1 | PARTIAL | 1.72 | CITY-01 | world_settlements.dart (`_dayTowns`) | towns, growth | Спрос задан уровнем, а не числом жителей |
 | CITY-08 | Потребности города | P1 | VERIFIED | 1.77 | CITY-02, CORE-03 | settlements.dart (`needs`, `marketGoods`), world_cities.dart | cities | — |
 | CITY-09 | Контракты развития | P1 | VERIFIED | 1.75 | CITY-08 | world_settlements.dart (`_payDevelopment`) | growth | — |
@@ -187,7 +187,7 @@ industry, cities, logistics, rail, water, ui, ui_stage5, ui_rail).
 | CONT-05 | Регулярное снабжение | P1 | NOT_STARTED | — | LOG-12 | — | — | Кладовая города — регулярный спрос, но не контракт |
 | CONT-06 | Многоэтапные контракты | P2 | NOT_STARTED | — | — | — | — | — |
 | CONT-07 | Региональные контракты | P2 | NOT_STARTED | — | — | — | — | — |
-| CONT-08 | Контракты инфраструктуры | P1 | NOT_STARTED | — | META-06 | — | — | — |
+| CONT-08 | Контракты инфраструктуры | P1 | READY_FOR_REVIEW | 1.81 | CITY-02 | world_mega.dart (стройка города принимает материалы, награда по завершении) | megapolis | — |
 | CONT-09 | Репутация заказчика | P2 | PARTIAL | 1.72 | CITY-12 | settlements.dart (`reputation`) | — | Не влияет на условия |
 | CONT-10 | Субсидируемые маршруты | P2 | PARTIAL | 1.77 | — | world_cities.dart (спрос недели +30%) | cities | — |
 | CONT-11 | Уникальные дорогие заказы | P2 | PARTIAL | 1.77 | — | world_cities.dart (городские заказы) | cities | Не уникальные, повторяются |
@@ -210,7 +210,7 @@ industry, cities, logistics, rail, water, ui, ui_stage5, ui_rail).
 | LOG-11 | Автоснабжение производств | P1 | VERIFIED | 1.78 | LOG-08 | world_centers.dart (`shortages`), world_storage.dart | logistics, storage | — |
 | LOG-12 | Автоснабжение городов | P1 | VERIFIED | 1.78 | LOG-08, CITY-08 | world_centers.dart (кладовая и рост) | logistics | — |
 | LOG-13 | Автоэкспорт излишков | P2 | PARTIAL | 1.70 | — | world_storage.dart (режим «Распределение») | storage | Только со склада |
-| LOG-14 | Перегрузочные терминалы | P2 | READY_FOR_REVIEW | 1.80 | RAIL-02, SEA-01, LOG-01 | склад со станцией или портом (world_rails.dart, world_water.dart, world_storage.dart) | water: «a train and a truck meet at a warehouse» | Терминал — склад, отдельной постройки нет |
+| LOG-14 | Перегрузочные терминалы | P2 | VERIFIED | 1.80 | RAIL-02, SEA-01, LOG-01 | склад со станцией или портом (world_rails.dart, world_water.dart, world_storage.dart) | water: «a train and a truck meet at a warehouse» | Терминал — склад, отдельной постройки нет |
 | LOG-15 | Объединение заказов | P2 | NOT_STARTED | — | — | — | — | — |
 | LOG-16 | Экономный режим диспетчера | P2 | VERIFIED | 1.71 | LOG-07 | dispatcher.dart | dispatch | — |
 | LOG-17 | Быстрый режим диспетчера | P2 | VERIFIED | 1.71 | LOG-07 | dispatcher.dart | dispatch | — |
@@ -227,12 +227,12 @@ industry, cities, logistics, rail, water, ui, ui_stage5, ui_rail).
 | RAIL-05 | Грузовые вагоны | P1 | VERIFIED | 1.79 | RAIL-03 | world_fleet.dart (`setWagons`, `capacityOf`) | rail, ui_rail | Вагоны одного типа |
 | RAIL-06 | Сборка поездов | P1 | VERIFIED | 1.79 | RAIL-05 | world_fleet.dart (локомотив + 1…N вагонов, замедление за вагон) | rail | — |
 | RAIL-07 | Безопасное движение по путям | P1 | VERIFIED | 1.79 | RAIL-01 | world_rails.dart (`_trackClear`: ожидание, обход, уступить путь) | rail: «never meet in a cell», «give way» | На одной колее без разъездов поезда уступают, но работают плохо |
-| RAIL-08 | Разъезды и сигналы | P2 | READY_FOR_REVIEW | 1.80 | RAIL-07 | world_rails.dart (`_departure`: станция — сигнал; `_oncoming`; обход по второму пути и перрону) | rail: «double track», «give way» | Нет отдельных светофоров и разъездов без станции |
+| RAIL-08 | Разъезды и сигналы | P2 | VERIFIED | 1.80 | RAIL-07 | world_rails.dart (`_departure`: станция — сигнал; `_oncoming`; обход по второму пути и перрону) | rail: «double track», «give way» | Нет отдельных светофоров и разъездов без станции |
 | RAIL-09 | Модернизация поездов | P1 | VERIFIED | 1.79 | RAIL-03 | world_fleet.dart (общие линии улучшений) | rail | — |
-| SEA-01 | Порты | P1 | READY_FOR_REVIEW | 1.80 | общие грузы, маршруты | world_water.dart (`buildPort`), mag_rail_ui.dart | water, ui_rail | — |
-| SEA-02 | Баржи | P1 | READY_FOR_REVIEW | 1.80 | SEA-01 | config_vehicles.dart (`barge`) | water | — |
-| SEA-03 | Грузовые корабли | P1 | READY_FOR_REVIEW | 1.80 | SEA-01 | config_vehicles.dart (`freighter`), tech «Судоверфь» | water | — |
-| SEA-04 | Морские маршруты | P1 | READY_FOR_REVIEW | 1.80 | SEA-01 | world_water.dart (`waterPath`, диагональные шаги по реке) | water | Моря на карте нет: реки и озёра |
+| SEA-01 | Порты | P1 | VERIFIED | 1.80 | общие грузы, маршруты | world_water.dart (`buildPort`), mag_rail_ui.dart | water, ui_rail | — |
+| SEA-02 | Баржи | P1 | VERIFIED | 1.80 | SEA-01 | config_vehicles.dart (`barge`) | water | — |
+| SEA-03 | Грузовые корабли | P1 | VERIFIED | 1.80 | SEA-01 | config_vehicles.dart (`freighter`), tech «Судоверфь» | water | — |
+| SEA-04 | Морские маршруты | P1 | VERIFIED | 1.80 | SEA-01 | world_water.dart (`waterPath`, диагональные шаги по реке) | water | Моря на карте нет: реки и озёра |
 | SEA-05 | Модернизация судов | P2 | NOT_STARTED | — | SEA-02 | — | — | — |
 | SEA-06 | Мультимодальные терминалы | P2 | PARTIAL | 1.80 | SEA-01, RAIL-02 | склад со станцией и портом | water | Через склад |
 
@@ -282,7 +282,7 @@ industry, cities, logistics, rail, water, ui, ui_stage5, ui_rail).
 | MAP-06 | Леса и поля | P1 | VERIFIED | 1.68 | — | map.dart | sim | — |
 | MAP-07 | Горные регионы | P2 | PARTIAL | 1.68 | — | map.dart (холмы) | — | Холмы без отдельных регионов |
 | MAP-08 | Открытие новых регионов | P2 | NOT_STARTED | — | — | — | — | — |
-| MAP-09 | Разнообразные биомы | P2 | PARTIAL | 1.68 | — | map.dart (5 видов местности) | — | — |
+| MAP-09 | Разнообразные биомы | P2 | PARTIAL | 1.81 | — | mag_terrain_art.dart (плавные переходы, берега, скалы, лес) | — | Набор местности прежний |
 | MAP-10 | Редкие месторождения | P2 | NOT_STARTED | — | — | — | — | — |
 | MAP-11 | Редактор карты | P3 | NOT_STARTED | — | — | — | — | — |
 | MAP-12 | Режим песочницы | P3 | NOT_STARTED | — | — | — | — | — |
@@ -293,10 +293,10 @@ industry, cities, logistics, rail, water, ui, ui_stage5, ui_rail).
 |---|---|---|---|---|---|---|---|---|
 | META-01 | Уровень компании | P1 | VERIFIED | 1.68 | — | world_progress.dart | sim | — |
 | META-02 | Достижения | P1 | PARTIAL | 1.68 | — | world_progress.dart (задания, награды Мира Финоры) | sim | Нет раздела достижений |
-| META-03 | Первый мегаполис | P1 | NOT_STARTED | — | CITY-02 | — | — | — |
-| META-04 | Постоянная отметка первого мегаполиса | P1 | NOT_STARTED | — | META-03 | — | — | — |
+| META-03 | Первый мегаполис | P1 | READY_FOR_REVIEW | 1.81 | CITY-02 | world_mega.dart (`_megapolisReached`, только поселение-хутор), settlements.dart (`origin`) | megapolis | — |
+| META-04 | Постоянная отметка первого мегаполиса | P1 | READY_FOR_REVIEW | 1.81 | META-03 | world_save.dart (`megapolis`), mag_game.dart (золотая корона), награда Мира Финоры | megapolis, ui_rail | Отметка живёт в сохранении партии; новая компания начинает заново (награда в Мире Финоры остаётся) |
 | META-05 | История транспортной империи | P2 | PARTIAL | 1.74 | — | ledger.dart, история поселений | — | Нет общей летописи |
-| META-06 | Мегапроекты | P1 | NOT_STARTED | — | CONT-08 | — | — | — |
+| META-06 | Мегапроекты | P1 | READY_FOR_REVIEW | 1.81 | CONT-08 | megaprojects.dart, world_mega.dart, mag_mega_ui.dart, mag_mega_art.dart | megapolis, ui_rail | — |
 | META-07 | Уникальные исторические контракты | P2 | NOT_STARTED | — | — | — | — | — |
 | META-08 | Коллекция исторической техники | P3 | NOT_STARTED | — | — | — | — | — |
 | META-09 | Конкурирующие компании | P3 | NOT_STARTED | — | — | — | — | — |

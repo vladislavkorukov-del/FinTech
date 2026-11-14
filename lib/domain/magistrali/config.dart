@@ -58,6 +58,9 @@ enum MagIndustryKind {
   /// Built by the player (stage S7): orders supplies for the company's
   /// plants and the settlements around it.
   logisticsCenter,
+
+  /// A city's great work (stage S10), built by the company's deliveries.
+  megaproject,
 }
 
 /// Upgrade lines of a truck.
@@ -239,6 +242,9 @@ abstract final class MagRules {
   static const wagonRunning = .08, wagonUpkeep = 1, wagonDrag = .04;
   static const trainWaitTicks = 20;
 
+  /// The one-time reward for the first megalopolis grown from a hamlet.
+  static const megapolisReward = 150000;
+
   /// Water (stage S9): a port, and how far from its place it may stand.
   static const portPrice = 3000, portReach = 2;
 
@@ -370,6 +376,7 @@ abstract final class MagRules {
       price: 9000,
       buildLevel: 6,
     ),
+    MagIndustryKind.megaproject: MagIndustrySpec(size: 3),
   };
 
   /// Credits per unit per cell of distance between the two places.

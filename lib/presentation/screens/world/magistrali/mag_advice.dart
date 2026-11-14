@@ -4,6 +4,7 @@ import 'package:flutter/material.dart' hide Text;
 
 import '../../../../domain/magistrali/magistrali.dart';
 import '../../../l10n_widgets.dart';
+import 'mag_mega_ui.dart';
 import 'mag_art.dart';
 import 'mag_center.dart';
 import 'mag_fleet.dart';
@@ -24,6 +25,8 @@ Future<void> showPlaceSheet(MagistraliScreenState state, MagIndustry i) {
       ? showWarehouseSheet(state, i.id)
       : i.kind == MagIndustryKind.logisticsCenter
       ? showCenterSheet(state, i.id)
+      : i.kind == MagIndustryKind.megaproject
+      ? showMegaprojectSheet(state, i.id)
       : showIndustrySheet(state, i.id);
 }
 

@@ -86,4 +86,11 @@ extension MagWorldRoads on MagWorld {
     );
     return MagRoadPlan(cells, cost, first.type, first.error);
   }
+
+  int _dirTo(int from, int to) {
+    final d = to - from;
+    if (d == 1) return 1;
+    if (d == -1) return 3;
+    return d > 0 ? 2 : 0;
+  }
 }

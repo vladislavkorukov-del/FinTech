@@ -19,6 +19,8 @@ extension MagWorldSave on MagWorld {
     'size': size,
     'tick': tick,
     'mapVersion': map.version,
+    if (firstMegapolis != null)
+      'megapolis': [firstMegapolis, firstMegapolisTick],
     'settlements': [
       for (final i in settlements)
         {
@@ -168,7 +170,20 @@ extension MagWorldSave on MagWorld {
     'built': [
       for (final i in map.industries)
         if (i.built)
-          {'id': i.id, 'kind': i.kind.name, 'x': i.x, 'y': i.y, 'name': i.name},
+          {
+            'id': i.id,
+            'kind': i.kind.name,
+            'x': i.x,
+            'y': i.y,
+            'name': i.name,
+            if (i.project != null) ...{
+              'project': i.project,
+              'town': i.projectTown,
+              'needs': _cargo(i.projectNeeds),
+              'progress': _cargo(i.projectProgress),
+              if (i.projectDone) 'done': true,
+            },
+          },
     ],
     'journal': {
       'seq': journal.seq,

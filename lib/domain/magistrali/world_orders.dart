@@ -15,6 +15,9 @@ extension MagWorldOrders on MagWorld {
   int? roomOf(MagIndustry i, MagCargo c) {
     if (!i.accepts.contains(c)) return null;
     if (i.spec.stores) return _warehouseRoom(i, c);
+    if (i.kind == MagIndustryKind.megaproject) {
+      return (i.projectLeft[c] ?? 0) - orders.reservedIn(i.id, c);
+    }
     if (!i.spec.takesIn(c)) return 1 << 30;
     return MagRules.inputCap - (i.input[c] ?? 0) - orders.reservedIn(i.id, c);
   }

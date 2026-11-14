@@ -185,8 +185,13 @@ abstract final class MagTowns {
         MagCargo.food: 380,
         MagCargo.ore: 200,
         MagCargo.parts: 60,
+        MagCargo.steel: 120,
       },
-      opens: ['Дорогие контракты', 'Спрос на быстрые доставки'],
+      opens: [
+        'Дорогие контракты',
+        'Спрос на быстрые доставки',
+        'Мегапроекты «Большой мост» и «Центральный вокзал»',
+      ],
       payBonus: .12,
     ),
     MagTownLevel(
@@ -199,13 +204,22 @@ abstract final class MagTowns {
         MagCargo.wood: 8,
         MagCargo.goods: 12,
         MagCargo.ore: 4,
+        MagCargo.steel: 3,
+        MagCargo.parts: 2,
+        MagCargo.bricks: 4,
       },
       development: {
         MagCargo.goods: 450,
         MagCargo.food: 600,
         MagCargo.wood: 400,
+        MagCargo.parts: 150,
+        MagCargo.bricks: 300,
       },
-      opens: ['Региональные поставки', 'Крупные логистические заказы'],
+      opens: [
+        'Региональные поставки',
+        'Крупные логистические заказы',
+        'Мегапроект «Товарная биржа»',
+      ],
       payBonus: .15,
     ),
     MagTownLevel(
@@ -218,9 +232,22 @@ abstract final class MagTowns {
         MagCargo.wood: 10,
         MagCargo.goods: 17,
         MagCargo.ore: 5,
+        MagCargo.steel: 4,
+        MagCargo.parts: 3,
+        MagCargo.bricks: 5,
       },
-      development: {MagCargo.goods: 700, MagCargo.food: 900, MagCargo.ore: 500},
-      opens: ['Главный рынок региона', 'Огромные объёмы снабжения'],
+      development: {
+        MagCargo.goods: 700,
+        MagCargo.food: 900,
+        MagCargo.ore: 500,
+        MagCargo.steel: 400,
+        MagCargo.parts: 300,
+      },
+      opens: [
+        'Главный рынок региона',
+        'Огромные объёмы снабжения',
+        'Мегапроект «Телебашня»',
+      ],
       payBonus: .18,
     ),
     MagTownLevel(
@@ -233,9 +260,16 @@ abstract final class MagTowns {
         MagCargo.wood: 12,
         MagCargo.goods: 24,
         MagCargo.ore: 6,
+        MagCargo.steel: 5,
+        MagCargo.parts: 4,
+        MagCargo.bricks: 6,
       },
       development: {},
-      opens: ['Источник самых крупных заказов', 'Высшая оплата перевозок'],
+      opens: [
+        'Источник самых крупных заказов',
+        'Высшая оплата перевозок',
+        'Мегапроект «Выставка достижений»',
+      ],
       payBonus: .22,
     ),
   ];
@@ -365,7 +399,11 @@ class MagSettlement {
     required this.level,
     required this.population,
     required this.specialization,
-  });
+  }) : origin = level;
+
+  /// The level it was founded at (the map gives it; «От хутора до
+  /// мегаполиса» needs a hamlet).
+  final int origin;
 
   int level;
   int population;
