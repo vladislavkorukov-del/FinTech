@@ -53,8 +53,16 @@ abstract final class MagTowns {
       cells: 1,
       population: 20,
       needs: {MagCargo.grain: 2},
-      development: {MagCargo.grain: 30},
-      opens: ['Перевозка зерна жителям', 'Первые простые контракты'],
+      development: {
+        MagCargo.grain: 20,
+        MagCargo.planks: 15,
+        MagCargo.bread: 10,
+      },
+      opens: [
+        'Перевозка зерна жителям',
+        'Первые простые контракты',
+        'Контракт развития: доски и хлеб на первые дома',
+      ],
     ),
     MagTownLevel(
       level: 2,
@@ -62,8 +70,18 @@ abstract final class MagTowns {
       cells: 2,
       population: 60,
       needs: {MagCargo.grain: 2, MagCargo.food: 2},
-      development: {MagCargo.food: 40, MagCargo.wood: 30},
-      opens: ['Спрос на продукты с пищевых заводов', 'Доставка древесины'],
+      development: {
+        MagCargo.food: 30,
+        MagCargo.wood: 20,
+        MagCargo.planks: 30,
+        MagCargo.stone: 20,
+        MagCargo.bread: 20,
+      },
+      opens: [
+        'Спрос на продукты и хлеб',
+        'Доставка древесины и досок',
+        'Контракт развития: камень и доски на село',
+      ],
       payBonus: .02,
     ),
     MagTownLevel(
@@ -72,8 +90,17 @@ abstract final class MagTowns {
       cells: 3,
       population: 150,
       needs: {MagCargo.food: 4, MagCargo.wood: 2},
-      development: {MagCargo.food: 80, MagCargo.wood: 60},
-      opens: ['Постоянный спрос на древесину', 'Контракты крупнее'],
+      development: {
+        MagCargo.food: 80,
+        MagCargo.wood: 60,
+        MagCargo.stone: 50,
+        MagCargo.planks: 40,
+      },
+      opens: [
+        'Постоянный спрос на древесину',
+        'Рынок камня: стройка идёт всерьёз',
+        'Контракты крупнее',
+      ],
       payBonus: .04,
     ),
     MagTownLevel(
@@ -205,6 +232,16 @@ abstract final class MagTowns {
   /// Free ring kept round each settlement on new maps, so it can grow.
   static const room = 4;
 
+  /// Reward of a development contract: half the market value of what it
+  /// asks for, plus a bonus by level.
+  static int devReward(int level, Map<MagCargo, int> asks) {
+    var value = 0.0;
+    for (final e in asks.entries) {
+      value += e.value * MagRules.cargoValue[e.key]!;
+    }
+    return (value * .5 + 200 * level).round();
+  }
+
   static String specializationName(MagSpecialization s) => switch (s) {
     MagSpecialization.farming => 'Аграрное',
     MagSpecialization.forestry => 'Лесное',
@@ -247,6 +284,10 @@ class MagSettlement {
 
   /// Grows with every delivery by the player.
   int reputation = 0;
+
+  /// The development contract of the current level has been paid (once
+  /// per level).
+  bool devPaid = false;
 
   /// Why the last growth could not happen (null: no problem).
   String? blocked;

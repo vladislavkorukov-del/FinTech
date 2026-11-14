@@ -319,6 +319,7 @@ const magIncomeNames = {
   'warehouse_sale': 'Снос складов',
   'delivery': 'Перевозки',
   'contracts': 'Контракты',
+  'development': 'Контракты развития',
   'bonus': 'Задания и премии',
   'sales': 'Продажа техники',
 };

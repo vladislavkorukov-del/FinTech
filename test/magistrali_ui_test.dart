@@ -611,4 +611,41 @@ void main() {
       // Level 3 earned no 5-level reward: nothing to wait for in the database.
     },
   );
+
+  testWidgets('master plan stage 4: development contracts and growth', (
+    tester,
+  ) async {
+    await mount(tester, const MagistraliScreen(seed: MagRules.defaultSeed));
+    final s = await ready(tester);
+    final w = s.world;
+    final village = w.settlements.firstWhere((t) => t.name == 'Луговое');
+    final t = village.town!;
+    // The contracts list has the settlements' development section.
+    await tap(tester, 'mag-tab-contracts');
+    expect(find.text('Развитие поселений'), findsOneWidget);
+    await tap(tester, 'mag-dev-${village.id}');
+    expect(find.byKey(ValueKey('mag-town-${village.id}')), findsOneWidget);
+    expect(find.byKey(const ValueKey('mag-town-dev-reward')), findsOneWidget);
+    await closeSheet(tester);
+    // Everything delivered: the contract pays, the village grows.
+    final reward = w.developmentReward(village);
+    final money = w.money;
+    for (final e in w.developmentAsks(village).entries) {
+      t.devStock[e.key] = e.value;
+      w.created[e.key] = (w.created[e.key] ?? 0) + e.value;
+    }
+    t
+      ..population = MagTowns.of(3).population
+      ..satisfaction.addAll(List.filled(6, 1.0));
+    w.step(MagRules.ticksPerDay);
+    s.changed();
+    await tester.pump();
+    expect(w.money, greaterThanOrEqualTo(money + reward - 200));
+    expect(
+      w.journal.entries.where((e) => e.category == 'development').length,
+      1,
+    );
+    expect(t.level, 3);
+    expect(s.overlay.floats.any((f) => f.$3.contains('Большое село')), isTrue);
+  });
 }

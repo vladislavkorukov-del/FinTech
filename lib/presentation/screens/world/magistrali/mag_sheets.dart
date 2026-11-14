@@ -5,6 +5,7 @@ import 'package:flutter/material.dart' hide Text;
 import '../../../../domain/magistrali/magistrali.dart';
 import '../../../l10n_widgets.dart';
 import 'mag_art.dart';
+import 'mag_development.dart';
 import 'mag_hud.dart';
 import 'mag_business.dart';
 import 'mag_lore.dart';
@@ -327,12 +328,15 @@ Future<void> showContractsSheet(
               Row(
                 children: [
                   cargoChip(c.cargo),
-                  const Spacer(),
-                  Text(
-                    '+${magMoney(c.reward)} кр · ${c.xp} оп.',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w800,
-                      color: MagPalette.teal,
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      '+${magMoney(c.reward)} кр · ${c.xp} оп.',
+                      textAlign: TextAlign.end,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w800,
+                        color: MagPalette.teal,
+                      ),
                     ),
                   ),
                 ],
@@ -352,8 +356,12 @@ Future<void> showContractsSheet(
               const SizedBox(height: 4),
               Row(
                 children: [
-                  Text('${c.delivered} из ${c.amount}', style: magMuted),
-                  const Spacer(),
+                  Expanded(
+                    child: Text(
+                      '${c.delivered} из ${c.amount}',
+                      style: magMuted,
+                    ),
+                  ),
                   TextButton(
                     onPressed: () => state.report(
                       w.replaceContract(c.id),
@@ -366,6 +374,7 @@ Future<void> showContractsSheet(
             ],
           ),
         ),
+      ...developmentCards(state, context),
     ],
   );
 });

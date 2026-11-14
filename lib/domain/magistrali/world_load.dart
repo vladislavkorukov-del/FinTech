@@ -78,6 +78,7 @@ MagWorld magWorldFromJson(Map<String, dynamic> raw) {
         m['specialization'] as String,
       )
       ..reputation = whole(m['reputation'] ?? 0, 0, 1 << 50)
+      ..devPaid = m['devPaid'] as bool? ?? false
       ..blocked = m['blocked'] as String?;
     t.pantry.addAll(cargo(m['pantry']));
     t.devStock.addAll(cargo(m['dev']));

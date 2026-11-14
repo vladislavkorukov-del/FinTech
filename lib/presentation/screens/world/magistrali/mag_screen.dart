@@ -52,6 +52,7 @@ class MagistraliScreenState extends State<MagistraliScreen>
   double _time = 0, _acc = 0, _sinceSave = 0, _sincePanel = 0;
   bool _foreground = true, _dirty = false;
   final _incomeSeen = <int, int>{};
+  final _townLevels = <int, int>{};
   int _rewardsSeen = -1;
 
   MagTool tool = MagTool.view;
@@ -183,6 +184,19 @@ class MagistraliScreenState extends State<MagistraliScreen>
       }
       _incomeSeen[v.id] = v.income;
     }
+    // A settlement that grew shows its new level over it.
+    for (final i in w.settlements) {
+      final level = i.town!.level, seen = _townLevels[i.id];
+      if (seen != null && level > seen) {
+        overlay.floats.add((
+          i.centerX,
+          i.centerY,
+          '▲ ${i.town!.spec.name}',
+          _time,
+        ));
+      }
+      _townLevels[i.id] = level;
+    }
     final events = w.takeEvents().where((e) => !e.startsWith('+')).toList();
     if (events.isNotEmpty) say(events.last);
     final earned = w.earnedRewards;
@@ -231,6 +245,7 @@ class MagistraliScreenState extends State<MagistraliScreen>
       _world = w;
       _camera = MagCamera(w.cameraX, w.cameraY, w.zoom);
       _incomeSeen.clear();
+      _townLevels.clear();
       _rewardsSeen = -1;
       overlay
         ..industry = null

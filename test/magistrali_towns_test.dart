@@ -268,7 +268,7 @@ void main() {
     expect(t.devStock, isEmpty);
     expect(
       w.destroyed[MagCargo.food]! - (destroyed[MagCargo.food] ?? 0),
-      greaterThanOrEqualTo(40),
+      greaterThanOrEqualTo(MagTowns.of(2).development[MagCargo.food]!),
     );
     expect(w.roadVersion, greaterThan(version));
     expect(t.history.last.text, contains('Большое село'));

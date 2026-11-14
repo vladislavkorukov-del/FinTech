@@ -31,6 +31,7 @@ extension MagWorldSave on MagWorld {
           'satisfaction': i.town!.satisfaction,
           if (i.town!.devStock.isNotEmpty) 'dev': _cargo(i.town!.devStock),
           'reputation': i.town!.reputation,
+          if (i.town!.devPaid) 'devPaid': true,
           if (i.town!.blocked != null) 'blocked': i.town!.blocked,
           'history': [
             for (final e in i.town!.history) [e.tick, e.text],

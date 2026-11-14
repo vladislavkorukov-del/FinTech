@@ -46,6 +46,35 @@ extension MagWorldSettlements on MagWorld {
     };
   }
 
+  /// What the development contract of this level asks for (only cargo the
+  /// world can make).
+  Map<MagCargo, int> developmentAsks(MagIndustry i) => {
+    for (final e in i.town!.spec.development.entries)
+      if (cargoAvailable(e.key)) e.key: e.value,
+  };
+
+  /// Reward of the current development contract (0 at the top level).
+  int developmentReward(MagIndustry i) {
+    final asks = developmentAsks(i);
+    return asks.isEmpty ? 0 : MagTowns.devReward(i.town!.level, asks);
+  }
+
+  /// Pays the development contract once, when everything it asks for has
+  /// been delivered.
+  void _payDevelopment(MagIndustry i) {
+    final t = i.town!;
+    if (t.devPaid || t.level >= MagTowns.maxLevel) return;
+    if (developmentAsks(i).isEmpty || missingForGrowth(i).isNotEmpty) return;
+    final reward = developmentReward(i);
+    t
+      ..devPaid = true
+      ..reputation += 50;
+    _earn(reward, 'development', source: 'settlement', sourceId: i.id);
+    _gainXp(math.max(1, reward ~/ 10));
+    t.remember(tick, 'Контракт развития выполнен: +$reward кр');
+    _say('${i.name}: контракт развития выполнен, +$reward кр');
+  }
+
   /// Delivered cargo arrives in a settlement: first its pantry for regular
   /// needs (a few days' worth), then what growth asks for (kept until
   /// growth), the rest is sold in its market (used up). Each unit goes to
@@ -60,10 +89,11 @@ extension MagWorldSettlements on MagWorld {
     final want = t.spec.development[c];
     if (want != null && cargoAvailable(c)) {
       final dev = math.min(rest, math.max(0, want - (t.devStock[c] ?? 0)));
-      t.devStock[c] = (t.devStock[c] ?? 0) + dev;
+      if (dev > 0) t.devStock[c] = (t.devStock[c] ?? 0) + dev;
       rest -= dev;
     }
     destroyed[c] = (destroyed[c] ?? 0) + rest; // sold in its market
+    _payDevelopment(i);
     if (t.reputation == 0) {
       t.remember(tick, 'Первая поставка от вашей компании');
     }
@@ -74,6 +104,17 @@ extension MagWorldSettlements on MagWorld {
   void _dayTowns() {
     for (final i in settlements.toList()) {
       final t = i.town!;
+      // Growth stock beyond what this level asks for goes to the market.
+      final asks = developmentAsks(i);
+      for (final c in t.devStock.keys.toList()) {
+        final extra = t.devStock[c]! - (asks[c] ?? 0);
+        if (extra > 0) {
+          t.devStock[c] = t.devStock[c]! - extra;
+          if (t.devStock[c] == 0) t.devStock.remove(c);
+          destroyed[c] = (destroyed[c] ?? 0) + extra;
+        }
+      }
+      _payDevelopment(i);
       final needs = needsOf(i);
       var met = 1.0;
       if (needs.isNotEmpty) {
@@ -154,7 +195,9 @@ extension MagWorldSettlements on MagWorld {
       ..clear()
       ..addAll(land);
     t.level++;
-    t.blocked = null;
+    t
+      ..blocked = null
+      ..devPaid = false;
     t.remember(tick, 'Вырос до уровня ${t.level}: ${next.name}');
     roadVersion++; // its stop cells changed
     _say('${i.name} вырос: ${next.name}');

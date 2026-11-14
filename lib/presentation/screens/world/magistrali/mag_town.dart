@@ -108,6 +108,16 @@ Future<void> showTownSheet(
           'Рост до «${next.name}»',
           style: const TextStyle(fontWeight: FontWeight.w800),
         ),
+        Text(
+          t.devPaid
+              ? 'Контракт развития выполнен: +${magMoney(w.developmentReward(i))} кр получено'
+              : 'Контракт развития: +${magMoney(w.developmentReward(i))} кр, когда всё доставлено',
+          key: const ValueKey('mag-town-dev-reward'),
+          style: const TextStyle(
+            fontWeight: FontWeight.w700,
+            color: MagPalette.teal,
+          ),
+        ),
         for (final e in t.spec.development.entries)
           magRow(
             cargoName(e.key),

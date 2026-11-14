@@ -160,7 +160,9 @@ extension MagWorldProgress on MagWorld {
     if (rng == 1) rng = seed & 0x7fffffff | 1;
     while (contracts.length < contractSlots) {
       var targets = map.industries
-          .where((i) => i.accepts.isNotEmpty && !i.spec.stores && !i.owned)
+          .where(
+            (i) => !i.spec.stores && !i.owned && i.accepts.any(cargoAvailable),
+          )
           .toList();
       // A young company gets contracts near its start, reachable by cart.
       if (level < 5 && map.version >= 2) {
@@ -169,7 +171,9 @@ extension MagWorldProgress on MagWorld {
         targets = targets.take(6).toList();
       }
       final to = targets[_random(targets.length)];
-      final cargos = to.accepts.toList()..sort((a, b) => a.index - b.index);
+      // Never a cargo nobody in the world can make.
+      final cargos = to.accepts.where(cargoAvailable).toList()
+        ..sort((a, b) => a.index - b.index);
       final cargo = cargos[_random(cargos.length)];
       final big = level >= 40 ? 2 : 1;
       final amount = level < 5 && map.version >= 2
