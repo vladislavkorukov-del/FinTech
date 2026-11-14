@@ -254,9 +254,9 @@ class MagistraliScreenState extends State<MagistraliScreen>
   }
 
   /// A new company on a new map (rewards already paid stay paid).
-  Future<void> restart() async {
+  Future<void> restart([MagScenario scenario = MagScenario.classic]) async {
     await _store.clear();
-    final w = MagWorld.start(math.Random().nextInt(0x7ffffff0) + 1);
+    final w = MagWorld.start(math.Random().nextInt(0x7ffffff0) + 1, scenario);
     if (!mounted) return;
     setState(() {
       _world = w;

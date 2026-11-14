@@ -90,7 +90,9 @@ List<Widget> marketInfo(MagWorld w, MagIndustry i) {
     Text(
       served
           ? 'Ждут поездки: $waiting · в день ${daily < 1 ? 1 : daily}. Отвезите их в другое поселение экипажем, автобусом, поездом или судном. '
-                'Ищут работу: $workers — их ждут на предприятиях.'
+                'Ищут работу: $workers — их ждут на предприятиях. '
+                'Долго ждущие уходят: ${(MagRules.waitLeave * 100).round()}% в день. '
+                'Терминалы: ${w.terminalsOf(i)} из ${w.terminalSlots(i)} (+${(w.terminalBonusOf(i) * 100).round()}% к оплате).'
           : 'Без дороги, станции или порта жители никуда не едут.',
       key: const ValueKey('mag-town-passengers'),
       style: magMuted,

@@ -311,6 +311,18 @@ Future<void> showVehicleSheet(
                   state.report(w.assign(v.id, null), 'Машина в гараже'),
               child: const Text('В гараж'),
             ),
+          // A better hull for a vessel (SEA-05).
+          if (w.hullPrice(v) != null)
+            TextButton(
+              key: const ValueKey('mag-hull'),
+              onPressed: () => state.report(
+                w.upgradeHull(v.id),
+                'Корпус улучшен: +15% груза',
+              ),
+              child: Text(
+                'Корпус ${v.hull + 1}/${MagRules.maxHull} · ${magMoney(w.hullPrice(v)!)} кр',
+              ),
+            ),
           // A newer model of the same kind (VEH-12).
           if (w.newerModelFor(v) != null)
             TextButton(

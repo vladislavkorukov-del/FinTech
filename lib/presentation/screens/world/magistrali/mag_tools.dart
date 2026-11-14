@@ -254,28 +254,31 @@ Future<void> showSettingsSheet(
       OutlinedButton.icon(
         key: const ValueKey('mag-new-game'),
         onPressed: () async {
-          final ok = await showDialog<bool>(
+          // A start scenario for the new company (META-11).
+          final s = await showDialog<MagScenario>(
             context: context,
-            builder: (d) => AlertDialog(
-              title: const Text('Начать заново?'),
-              content: const Text(
-                'Текущая компания будет удалена. Полученные искры останутся.',
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(d, false),
-                  child: const Text('Отмена'),
+            builder: (d) => SimpleDialog(
+              title: const Text('Новая компания'),
+              children: [
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 24),
+                  child: Text(
+                    'Текущая компания будет удалена, полученные искры останутся. Выберите старт:',
+                    style: magMuted,
+                  ),
                 ),
-                TextButton(
-                  onPressed: () => Navigator.pop(d, true),
-                  child: const Text('Начать'),
-                ),
+                for (final (sc, text) in scenarioChoices)
+                  SimpleDialogOption(
+                    key: ValueKey('mag-scenario-${sc.name}'),
+                    onPressed: () => Navigator.pop(d, sc),
+                    child: Text(text),
+                  ),
               ],
             ),
           );
-          if (ok == true && context.mounted) {
+          if (s != null && context.mounted) {
             Navigator.pop(context);
-            await state.restart();
+            await state.restart(s);
           }
         },
         icon: const Icon(Icons.restart_alt_rounded),
@@ -284,6 +287,15 @@ Future<void> showSettingsSheet(
     ],
   );
 });
+
+/// The start scenarios of a new company (META-11) in words.
+const scenarioChoices = [
+  (MagScenario.classic, 'Классический — телега и 8 000 кр'),
+  (MagScenario.rich, 'Богатый наследник — 30 000 кр'),
+  (MagScenario.railway, 'Железнодорожник — паровая тяга и 25 000 кр'),
+  (MagScenario.river, 'Речник — судоходство и 25 000 кр'),
+  (MagScenario.industrial, 'Промышленник — свой пищевой завод, 5 000 кр'),
+];
 
 /// A short message over the map.
 class MagToast extends StatelessWidget {

@@ -53,6 +53,18 @@ Widget shopCard(MagistraliScreenState state, MagTruckModel m) {
                 style: magMuted,
               ),
               const SizedBox(height: 2),
+              if (m.body != null || m.passengers || m.horse)
+                Text(
+                  switch (m.body) {
+                    'tank' => 'Цистерна: только нефть и топливо',
+                    'reefer' =>
+                      'Рефрижератор: продукты, хлеб, мука · оплата +15%',
+                    'dump' => 'Самосвал: руда, уголь, камень, глина, зерно',
+                    _ => 'Комфорт для людей ×${m.comfort.toStringAsFixed(2)}',
+                  },
+                  key: ValueKey('mag-shop-body-${m.id}'),
+                  style: magMuted.copyWith(color: MagPalette.teal),
+                ),
               if (m.tech != null && !w.techs.contains(m.tech))
                 Text(
                   'Нужна технология «${MagTechTree.byId(m.tech!)?.title}»',

@@ -18,15 +18,33 @@ void paintOilBuilding(Canvas c, MagIndustryKind k, double x, double y) {
         h: 1,
         color: const Color(0xFF8A8478),
       );
+      // A derrick tapering up in three tiers, light braces between.
+      for (final (z, w, h) in [
+        (1.0, .34, 12.0),
+        (13.0, .24, 11.0),
+        (24.0, .14, 11.0),
+      ]) {
+        MagShapes.box(
+          c,
+          x: x + .7,
+          y: y + .8,
+          length: w,
+          width: w,
+          z0: z,
+          h: h,
+          color: const Color(0xFF8D96A0),
+          top: const Color(0xFFD9DEE2),
+        );
+      }
       MagShapes.box(
         c,
         x: x + .7,
         y: y + .8,
-        length: .18,
-        width: .18,
-        z0: 1,
-        h: 34,
-        color: const Color(0xFF4A4F55),
+        length: .2,
+        width: .2,
+        z0: 35,
+        h: 3,
+        color: const Color(0xFFE0B83E),
       );
       MagShapes.box(
         c,

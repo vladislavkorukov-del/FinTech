@@ -215,6 +215,12 @@ extension MagWorldComplex on MagWorld {
       }
       terminals[cell] = t!.id;
     }
+    final s = j['scenario'];
+    if (s is String) scenario = MagScenario.values.byName(s);
+  }
+
+  /// Vessel hulls, read once the vehicles are there.
+  void loadHulls(Map<String, dynamic> j) {
     for (final e in (j['hulls'] as Map? ?? const {}).entries) {
       final v = vehicles[int.parse('${e.key}')];
       final n = e.value;
@@ -223,7 +229,5 @@ extension MagWorldComplex on MagWorld {
       }
       v.hull = n;
     }
-    final s = j['scenario'];
-    if (s is String) scenario = MagScenario.values.byName(s);
   }
 }

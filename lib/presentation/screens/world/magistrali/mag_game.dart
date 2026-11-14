@@ -273,11 +273,14 @@ class MagRenderer {
         ));
       }
     }
-    // Depots (VEH-10).
-    for (final c in w.depots) {
+    // Depots (VEH-10) and terminals (CITY-13) by their road cells.
+    for (final (c, art) in [
+      for (final c in w.depots) (c, paintDepot),
+      for (final c in w.terminals.keys) (c, paintTerminal),
+    ]) {
       final x = w.cx(c), y = w.cy(c);
       if (x < x0 || x > x1 || y < y0 || y > y1) continue;
-      objects.add((x + y + .6, () => paintDepot(canvas, w, c)));
+      objects.add((x + y + .6, () => art(canvas, w, c)));
     }
     for (final i in map.industries) {
       if (i.left > x1 + 1 ||
@@ -368,8 +371,7 @@ class MagRenderer {
         ),
       ));
     }
-    // The selected vehicle's way, dashed: the leg it drives now and the
-    // rest of its route, with its stops numbered.
+    // The selected vehicle's way, dashed, its stops numbered.
     final chosen = o.vehicle == null ? null : w.vehicles[o.vehicle!];
     if (chosen != null && chosen.onMap) paintVehicleRoute(canvas, w, chosen);
     objects.sort((a, b) => a.$1.compareTo(b.$1));

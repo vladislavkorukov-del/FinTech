@@ -137,6 +137,34 @@ Future<void> showRoadSheet(MagistraliScreenState state, int cell) async {
           'Депо: машины с износом от 30% чинятся, проезжая через него, на 30% дешевле; каждое депо снижает содержание автопарка на 5%.',
           style: magMuted,
         ),
+        // A terminal by a settlement (CITY-13).
+        for (final t in w.townsBeside(cell))
+          if (w.terminals[cell] == t.id)
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                key: const ValueKey('mag-terminal-remove'),
+                icon: const Icon(Icons.store_mall_directory_outlined),
+                onPressed: () =>
+                    state.report(w.removeTerminal(cell), 'Терминал снесён'),
+                label: Text('Терминал у «${t.name}»: снести'),
+              ),
+            )
+          else
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                key: ValueKey('mag-terminal-build-${t.id}'),
+                icon: const Icon(Icons.store_mall_directory_rounded),
+                onPressed: w.terminalBlocker(cell, t.id) != null
+                    ? null
+                    : () => state.report(w.buildTerminal(cell, t.id)),
+                label: Text(
+                  w.terminalBlocker(cell, t.id) ??
+                      'Терминал у «${t.name}» · ${magMoney(MagRules.terminalPrice)} кр (+5% к оплате)',
+                ),
+              ),
+            ),
         // One entrance to a business (S12): this cell can become it.
         for (final i in w.placesBeside(cell)) ...[
           const SizedBox(height: 8),

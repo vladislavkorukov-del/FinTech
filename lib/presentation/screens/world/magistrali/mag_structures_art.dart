@@ -211,3 +211,38 @@ void paintGem(Canvas c, Offset p) {
 abstract final class MagPaletteSign {
   static const depot = Color(0xFFE09A3E);
 }
+
+/// A city terminal (CITY-13, in iso space): a loading shed with a teal
+/// awning by its road cell.
+void paintTerminal(Canvas c, MagWorld w, int cell) {
+  final x = w.cx(cell) + .5, y = w.cy(cell) + .5;
+  var ox = 0.0, oy = .32;
+  for (var d = 0; d < 4; d++) {
+    final nx = w.cx(cell) + MagDir.dx[d], ny = w.cy(cell) + MagDir.dy[d];
+    if (w.map.inside(nx, ny) && w.roads[w.cellOf(nx, ny)] == 0) {
+      ox = MagDir.dx[d] * .3;
+      oy = MagDir.dy[d] * .3;
+      break;
+    }
+  }
+  MagShapes.box(
+    c,
+    x: x + ox,
+    y: y + oy,
+    length: .5,
+    width: .36,
+    h: 8,
+    color: const Color(0xFFE9E2D2),
+  );
+  MagShapes.box(
+    c,
+    x: x + ox,
+    y: y + oy,
+    length: .58,
+    width: .44,
+    z0: 8,
+    h: 2,
+    color: const Color(0xFF2BB59A),
+    top: const Color(0xFF5FD0B8),
+  );
+}

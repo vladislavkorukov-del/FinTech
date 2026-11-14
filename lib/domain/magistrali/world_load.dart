@@ -479,5 +479,6 @@ MagWorld magWorldFromJson(Map<String, dynamic> raw) {
       throw const FormatException('Magistrali save does not balance');
     }
   }
+  w.loadHulls(j); // after the vehicles (S17)
   return w;
 }

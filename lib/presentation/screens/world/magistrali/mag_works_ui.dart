@@ -122,6 +122,15 @@ List<Widget> worksInfo(MagistraliScreenState state, MagIndustry i) {
           ],
         ),
       ),
+    if (w.complexPartner(i) case final p?)
+      Padding(
+        padding: const EdgeInsets.only(bottom: 6),
+        child: Text(
+          'Промышленный комплекс с «${p.name}»: выработка +${(MagRules.complexBonus * 100).round()}%, до ${MagRules.conveyorPerDay} ед. в день идут напрямую',
+          key: const ValueKey('mag-complex'),
+          style: const TextStyle(fontWeight: FontWeight.w700),
+        ),
+      ),
     if (i.owned && i.spec.converts.length > 1) ...[
       const Text('Сначала перерабатывать', style: magMuted),
       Wrap(
