@@ -7,23 +7,23 @@
 
 Статусы: NOT_STARTED — не начато; PARTIAL — частично; IN_PROGRESS — в работе;
 READY_FOR_REVIEW — готово, ждёт проверки игроком; VERIFIED — проверено игроком
-(этапы, которые игрок подтвердил: 1.68–1.83); BLOCKED — заблокировано.
+(этапы, которые игрок подтвердил: 1.68–1.84); BLOCKED — заблокировано.
 
 Файлы домена — `lib/domain/magistrali/`, интерфейса —
 `lib/presentation/screens/world/magistrali/`. Тесты — `test/magistrali_<имя>_test.dart`
 (sim, orders, storage, dispatch, towns, horses, production, growth,
-industry, cities, logistics, rail, water, megapolis, passengers, p1, s12, ui, ui_stage5, ui_rail).
+industry, cities, logistics, rail, water, megapolis, passengers, p1, s12, s13, ui, ui_s13, ui_stage5, ui_rail).
 
-Аудит: 1.77.0, обновлено в 1.78.0 (S7) и 1.79.0 (S8), 1.80.0 (S9 и доводка ЖД), 1.81.0 (S10 и графика), 1.82.0 (S11), 1.83.0 (доделка P1), 1.84.0 (S12); точка восстановления — тег `restore/magistrali-1.77.0-pre-s7`.
+Аудит: 1.77.0, обновлено в 1.78.0 (S7) и 1.79.0 (S8), 1.80.0 (S9 и доводка ЖД), 1.81.0 (S10 и графика), 1.82.0 (S11), 1.83.0 (доделка P1), 1.84.0 (S12), 1.85.0 (S13); точка восстановления — тег `restore/magistrali-1.77.0-pre-s7`.
 
 ## Сводка
 
 | Статус | Механик |
 |---|---|
-| VERIFIED | 132 |
-| READY_FOR_REVIEW | 4 |
-| PARTIAL | 24 |
-| NOT_STARTED | 43 |
+| VERIFIED | 135 |
+| READY_FOR_REVIEW | 5 |
+| PARTIAL | 25 |
+| NOT_STARTED | 38 |
 | Всего | 203 |
 
 ## A. Фундамент игры и безопасность
@@ -38,7 +38,7 @@ industry, cities, logistics, rail, water, megapolis, passengers, p1, s12, ui, ui
 | CORE-06 | Версионирование сохранений | P0 | VERIFIED | 1.69 | — | world_save.dart (формат 6), magistrali_store.dart (world.vN.json) | orders, production | — |
 | CORE-07 | Миграции сохранений | P0 | VERIFIED | 1.69 | CORE-06 | world_save.dart (`migrateMagSave` 1→6), world_load.dart | фикстуры v1, v2, v3, v5_map2 | — |
 | CORE-08 | Детерминированные тестовые сценарии | P0 | VERIFIED | 1.68 | CORE-02 | весь домен — чистый Dart, seed карты | sim, все тесты логики | — |
-| CORE-09 | Конфигурация игрового баланса | P0 | READY_FOR_REVIEW | 1.84 | — | config.dart (`startMoneyBig`, `contractReach`), settlements.dart, tech_nodes.dart, economy_catalog.dart | s12 | Баланс большой карты — 1.84 |
+| CORE-09 | Конфигурация игрового баланса | P0 | VERIFIED | 1.84 | — | config.dart (`startMoneyBig`, `contractReach`), settlements.dart, tech_nodes.dart, economy_catalog.dart | s12 | Баланс большой карты — 1.84 |
 | CORE-10 | Лог ошибок симуляции | P1 | PARTIAL | 1.68 | — | world_load.dart (проверки целостности и баланса грузов) | sim: «broken files» | Нет журнала ошибок во время игры |
 
 ## B. Поселения и развитие городов
@@ -82,15 +82,15 @@ industry, cities, logistics, rail, water, megapolis, passengers, p1, s12, ui, ui
 | ID | Механика | P | Статус | Версия | Зависимости | Файлы | Тесты | Проблемы |
 |---|---|---|---|---|---|---|---|---|
 | ROAD-01 | Строительство дорог | P1 | VERIFIED | 1.83 | — | world.dart (`planRoad`, `buildRoad`), mag_screen_input.dart (только касания: начало, конец, продолжение; перетаскивание двигает карту), mag_build_panel.dart | sim, ui, ui_stage5 | Режим стройки переделан в 1.83 |
-| ROAD-02 | Грунтовые дороги | P1 | READY_FOR_REVIEW | 1.84 | — | config.dart (`MagRoad.dirt`), mag_network_art.dart (разметка всех покрытий: колеи, пунктир, края, полосы) | — | — |
+| ROAD-02 | Грунтовые дороги | P1 | VERIFIED | 1.84 | — | config.dart (`MagRoad.dirt`), mag_network_art.dart (разметка всех покрытий: колеи, пунктир, края, полосы) | — | — |
 | ROAD-03 | Улучшение покрытия | P1 | VERIFIED | 1.76 | ROAD-01 | world_roads.dart (`upgradePlan`), mag_road.dart | industry, ui_stage5 | — |
-| ROAD-04 | Перекрёстки | P1 | READY_FOR_REVIEW | 1.84 | — | world.dart (граф клеток), world_entrances.dart (один въезд к предприятию), pathfinding.dart | s12, sim | Въезд переносится в окне дороги |
+| ROAD-04 | Перекрёстки | P1 | VERIFIED | 1.84 | — | world.dart (граф клеток), world_entrances.dart (один въезд к предприятию), pathfinding.dart | s12, sim | Въезд переносится в окне дороги |
 | ROAD-05 | Удаление и возврат части стоимости | P1 | VERIFIED | 1.83 | — | world_roads.dart (`removeRoad`, `demolishRefund`: 30%), world_rails.dart | p1, ui_rail | — |
 | ROAD-06 | Мосты | P1 | VERIFIED | 1.82 | — | config.dart (река ×9), mag_network_art.dart (`paintBridge`: настил, перила, опоры; ж/д ферма) | passengers | — |
 | ROAD-07 | Тоннели | P3 | VERIFIED | 1.82 | ROAD-01 | config.dart (холм ×7), mag_network_art.dart (порталы, гора над дорогой) | passengers | Тоннель — дорога или путь на клетке холма |
-| ROAD-08 | Пропускная способность | P2 | NOT_STARTED | — | — | — | — | — |
-| ROAD-09 | Дорожные заторы | P3 | NOT_STARTED | — | ROAD-08 | — | — | — |
-| ROAD-10 | Подсветка загруженности | P2 | NOT_STARTED | — | ROAD-08 | — | — | — |
+| ROAD-08 | Пропускная способность | P2 | READY_FOR_REVIEW | 1.85 | — | config.dart (`MagRoadSpec.capacity`: 24/48/96/192 машин в день), world_routes.dart (`trafficOf`, `loadOf`, `congestionOf`), world_sim.dart | s13 | — |
+| ROAD-09 | Дорожные заторы | P3 | PARTIAL | 1.85 | ROAD-08 | world_routes.dart (`congestionOf`: сверх пропускной способности — медленнее, до половины скорости) | s13 | Без очередей и аварий |
+| ROAD-10 | Подсветка загруженности | P2 | READY_FOR_REVIEW | 1.85 | ROAD-08 | mag_network_art.dart (`paintTraffic`), mag_build_panel.dart («Загруженность»), mag_road.dart | s13, ui_s13 | — |
 | ROAD-11 | Предварительная стоимость строительства | P1 | VERIFIED | 1.68 | — | mag_tools.dart (панель подтверждения), mag_road.dart | ui | — |
 | ROAD-12 | Проверка доступности маршрута | P0 | VERIFIED | 1.68 | — | world.dart (`roadPath`, `connected`) | sim | — |
 
@@ -117,11 +117,11 @@ industry, cities, logistics, rail, water, megapolis, passengers, p1, s12, ui, ui
 
 | ID | Механика | P | Статус | Версия | Зависимости | Файлы | Тесты | Проблемы |
 |---|---|---|---|---|---|---|---|---|
-| ROUTE-01 | Создание маршрутов | P1 | READY_FOR_REVIEW | 1.84 | ROAD-12 | world.dart (`createRoute`), mag_routes.dart, mag_route_create.dart (поиск, группы, предложения по грузу) | sim, ui, ui_rail | — |
-| ROUTE-02 | Несколько остановок | P1 | VERIFIED | 1.68 | — | entities.dart (`MagRoute.stops`) | sim: «two-line network» | — |
+| ROUTE-01 | Создание маршрутов | P1 | VERIFIED | 1.84 | ROAD-12 | world.dart (`createRoute`), mag_routes.dart, mag_route_create.dart (поиск, группы, предложения по грузу) | sim, ui, ui_rail | — |
+| ROUTE-02 | Несколько остановок | P1 | READY_FOR_REVIEW | 1.85 | — | entities.dart (`MagRoute.stops`), mag_stop_orders.dart (`routeSteps`: план по шагам) | sim, s13 | Длинные цепочки: забрал — переработка — забрал готовое — в город |
 | ROUTE-03 | Кольцевые маршруты | P1 | VERIFIED | 1.68 | — | world_sim.dart | sim | — |
 | ROUTE-04 | Несколько машин на линии | P1 | VERIFIED | 1.68 | — | world_fleet.dart (`assign`) | — | — |
-| ROUTE-05 | Настройки погрузки | P1 | NOT_STARTED | — | ROUTE-01 | — | — | Машина берёт любой груз, нужный следующей остановке |
+| ROUTE-05 | Настройки погрузки | P1 | READY_FOR_REVIEW | 1.85 | ROUTE-01 | entities.dart (`pickAt`, `noPick`, `noDrop`), world_routes.dart (`setStopOrder`, `_loadable`), mag_stop_orders.dart | s13, ui_s13 | — |
 | ROUTE-06 | Минимальная загрузка | P2 | PARTIAL | 1.68 | — | world_sim.dart (ждёт полной загрузки) | sim | Не настраивается |
 | ROUTE-07 | Максимальное время ожидания | P1 | VERIFIED | 1.68 | — | config.dart (`partialWaitDays`) | sim | — |
 | ROUTE-08 | Обратные грузовые рейсы | P1 | VERIFIED | 1.68 | — | world_sim.dart (`_loadable` на каждой остановке) | sim | — |
@@ -244,7 +244,7 @@ industry, cities, logistics, rail, water, megapolis, passengers, p1, s12, ui, ui
 | PASS-02 | Конные экипажи | P2 | VERIFIED | 1.82 | PASS-01 | config_vehicles.dart (`coach`) | passengers | — |
 | PASS-03 | Автобусы | P2 | VERIFIED | 1.82 | PASS-01, TECH-04 | config_vehicles.dart (`bus`), world_fleet.dart (`canCarry`) | passengers, ui_rail | — |
 | PASS-04 | Пассажирские поезда | P2 | VERIFIED | 1.82 | PASS-01, RAIL-06 | world_fleet.dart (`canCarry`: поезда и суда возят людей) | passengers | Отдельных пассажирских вагонов нет |
-| PASS-05 | Перевозка работников | P2 | NOT_STARTED | — | население, маршруты | — | — | — |
+| PASS-05 | Перевозка работников | P2 | READY_FOR_REVIEW | 1.85 | PASS-01 | config.dart (`MagCargo.workers`), world_settlements.dart, world_routes.dart (`_deliverWorkers`), world_industry.dart (`staffBonusOf`: до +30%) | s13, ui_s13 | — |
 | PASS-06 | Пересадки | P3 | NOT_STARTED | — | население, маршруты | — | — | — |
 | PASS-07 | Комфорт и время ожидания | P3 | NOT_STARTED | — | население, маршруты | — | — | — |
 | PASS-08 | Трамваи | P3 | NOT_STARTED | — | население, маршруты | — | — | — |

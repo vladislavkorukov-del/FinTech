@@ -32,6 +32,9 @@ class MagOverlay {
   /// Places the tutorial points at (S12).
   List<int> guide = const [];
 
+  /// Road load shown over the roads (ROAD-10).
+  bool traffic = false;
+
   /// Income popping up over a truck: (x, y, text, start time).
   final floats = <(double, double, String, double)>[];
 }
@@ -157,6 +160,7 @@ class MagRenderer {
         if (seen(ch)) paintRoadChain(canvas, ch, pass);
       }
     }
+    if (o.traffic) paintTraffic(canvas, w, x0, y0, x1, y1);
     // Short pieces into the places a road serves.
     for (var y = y0; y <= y1; y++) {
       for (var x = x0; x <= x1; x++) {

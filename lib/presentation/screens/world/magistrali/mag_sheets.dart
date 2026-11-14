@@ -6,6 +6,7 @@ import '../../../../domain/magistrali/magistrali.dart';
 import '../../../l10n_widgets.dart';
 import 'mag_mega_ui.dart';
 import 'mag_center.dart';
+import 'mag_city.dart';
 import 'mag_art.dart';
 import 'mag_development.dart';
 import 'mag_filters.dart';
@@ -209,6 +210,7 @@ Future<void> showIndustrySheet(
           ),
         const SizedBox(height: 6),
       ],
+      ...staffInfo(w, i),
       if (spec.accepts.isNotEmpty) ...[
         const Text('Принимает', style: magMuted),
         Wrap(children: [for (final c in spec.accepts) cargoChip(c)]),

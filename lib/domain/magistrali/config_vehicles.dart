@@ -2,7 +2,6 @@
 /// locomotive (see config.dart).
 library;
 
-
 class MagTruckModel {
   const MagTruckModel({
     required this.id,

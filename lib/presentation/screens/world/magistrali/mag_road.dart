@@ -59,6 +59,22 @@ Future<void> showRoadSheet(MagistraliScreenState state, int cell) async {
         ),
         const SizedBox(height: 8),
         magRow('Скорость машин', '×${spec.speed.toStringAsFixed(2)}'),
+        // Traffic (ROAD-08, ROAD-10): yesterday's vehicles against capacity.
+        magRow(
+          'Загруженность',
+          '${w.trafficOf(cell)} машин в день из ${spec.capacity} · ${(w.loadOf(cell) * 100).round()}%',
+          color: w.loadOf(cell) > 1
+              ? const Color(0xFFD64B5C)
+              : w.loadOf(cell) > .6
+              ? const Color(0xFFE09A3E)
+              : MagPalette.teal,
+        ),
+        if (w.loadOf(cell) > 1)
+          Text(
+            'Пробка: машины едут на ${((1 - w.congestionOf(cell)) * 100).round()}% медленнее. Улучшите покрытие или проложите объезд.',
+            key: const ValueKey('mag-road-jam'),
+            style: const TextStyle(fontSize: 12.5, color: Color(0xFFD64B5C)),
+          ),
         magRow(
           'Содержание участка',
           '${magMoney((segment.length * spec.upkeep / 10).ceil())} кр в день',

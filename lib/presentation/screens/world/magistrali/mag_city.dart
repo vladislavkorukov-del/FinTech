@@ -71,6 +71,7 @@ List<Widget> cityInfo(MagWorld w, MagIndustry i) {
 List<Widget> marketInfo(MagWorld w, MagIndustry i) {
   final t = i.town!;
   final waiting = i.stock[MagCargo.passengers] ?? 0;
+  final workers = i.stock[MagCargo.workers] ?? 0;
   final daily = t.population ~/ MagRules.peoplePerTraveller;
   final served =
       w.accessCells(i).isNotEmpty ||
@@ -88,7 +89,8 @@ List<Widget> marketInfo(MagWorld w, MagIndustry i) {
     const Text('Пассажиры', style: TextStyle(fontWeight: FontWeight.w800)),
     Text(
       served
-          ? 'Ждут поездки: $waiting · в день ${daily < 1 ? 1 : daily}. Отвезите их в другое поселение экипажем, автобусом, поездом или судном.'
+          ? 'Ждут поездки: $waiting · в день ${daily < 1 ? 1 : daily}. Отвезите их в другое поселение экипажем, автобусом, поездом или судном. '
+                'Ищут работу: $workers — их ждут на предприятиях.'
           : 'Без дороги, станции или порта жители никуда не едут.',
       key: const ValueKey('mag-town-passengers'),
       style: magMuted,
@@ -112,6 +114,27 @@ List<Widget> marketInfo(MagWorld w, MagIndustry i) {
     const Text(
       'Много одного груза подряд — оплата падает до −30% и восстанавливается, когда завоз стихает; '
       'если нужный товар кончился в кладовой — платят на 25% больше.',
+      style: magMuted,
+    ),
+  ];
+}
+
+/// Workers at a business (PASS-05): how many, and the extra output.
+List<Widget> staffInfo(MagWorld w, MagIndustry i) {
+  if (!i.accepts.contains(MagCargo.workers)) return const [];
+  final need = MagRules.staffPerCell * i.size * i.size;
+  final bonus = (w.staffBonusOf(i) * 100).round();
+  return [
+    magRow(
+      'Работники: ${i.staff.round()} из $need',
+      bonus > 0 ? 'выработка +$bonus%' : 'без надбавки',
+      color: bonus > 0 ? MagPalette.teal : null,
+    ),
+    const Text(
+      'Привезите работников из поселений автобусом, экипажем или поездом: '
+      'полный штат даёт до +30% выработки, без новых смен штат за день '
+      'уменьшается на 20%.',
+      key: ValueKey('mag-staff'),
       style: magMuted,
     ),
   ];

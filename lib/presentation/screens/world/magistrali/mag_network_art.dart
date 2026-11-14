@@ -464,3 +464,31 @@ void paintPortal(Canvas c, MagWorld w, int cell, int outDir) {
       ..color = const Color(0xFF6F6A61),
   );
 }
+
+/// Road load over the roads (ROAD-10, under the ground transform): each
+/// road cell is tinted green, yellow or red by yesterday's vehicles against
+/// its capacity; empty roads stay as they are.
+void paintTraffic(Canvas c, MagWorld w, int x0, int y0, int x1, int y1) {
+  for (var y = y0; y <= y1; y++) {
+    for (var x = x0; x <= x1; x++) {
+      final cell = w.cellOf(x, y);
+      if (w.roads[cell] == 0 || w.trafficOf(cell) == 0) continue;
+      final l = w.loadOf(cell);
+      final color = l > 1
+          ? const Color(0xCCE0453C)
+          : l > .6
+          ? const Color(0xCCF0B43C)
+          : const Color(0xCC3CB878);
+      final p = _stroke(color, roadWidth(MagRoad.values[w.roads[cell]]) * .45);
+      final a = Offset(x + .5, y + .5);
+      var linked = false;
+      for (var d = 0; d < 4; d++) {
+        final nx = x + MagDir.dx[d], ny = y + MagDir.dy[d];
+        if (!w.map.inside(nx, ny) || w.roads[w.cellOf(nx, ny)] == 0) continue;
+        linked = true;
+        c.drawLine(a, a + Offset(MagDir.dx[d] * .5, MagDir.dy[d] * .5), p);
+      }
+      if (!linked) c.drawCircle(a, .15, Paint()..color = color);
+    }
+  }
+}

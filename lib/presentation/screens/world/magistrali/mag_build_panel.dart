@@ -89,6 +89,18 @@ class MagBuildPanel extends StatelessWidget {
                     '${roadName(r)} откроется на ${MagRules.roads[r]!.level} уровне',
                   ),
           ),
+        // Road load over the map (ROAD-10).
+        MagToolChip(
+          key: const ValueKey('mag-traffic'),
+          label: 'Загруженность',
+          on: state.overlay.traffic,
+          color: const Color(0xFFE0453C),
+          icon: Icons.traffic_rounded,
+          onTap: () {
+            state.overlay.traffic = !state.overlay.traffic;
+            state.changed();
+          },
+        ),
       ],
       MagBuildGroup.rail => railChips(state).take(2).toList(),
       MagBuildGroup.water => railChips(state).skip(2).toList(),

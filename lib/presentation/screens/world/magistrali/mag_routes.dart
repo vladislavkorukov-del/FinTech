@@ -10,6 +10,7 @@ import 'mag_hud.dart';
 import 'mag_route_create.dart';
 import 'mag_screen.dart';
 import 'mag_sheets.dart';
+import 'mag_stop_orders.dart';
 
 /// What moves between consecutive stops of a line (for the preview).
 List<String> routeFlows(MagWorld w, List<int> stops) {
@@ -97,36 +98,72 @@ Widget _routeCard(
           Text(r.name, style: const TextStyle(fontWeight: FontWeight.w800)),
           const SizedBox(height: 4),
           for (var k = 0; k < r.stops.length; k++)
-            Row(
-              children: [
-                Icon(
-                  linked[k]
-                      ? Icons.radio_button_checked_rounded
-                      : Icons.link_off_rounded,
-                  size: 16,
-                  color: linked[k] ? MagPalette.mint : const Color(0xFFE0566B),
-                ),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: Text(
-                    w.map.industry(r.stops[k])!.name,
-                    style: const TextStyle(fontSize: 13),
+            InkWell(
+              key: ValueKey('mag-route-${r.id}-stop-$k'),
+              // A tap: what to do at this stop (S13).
+              onTap: () async {
+                final o = await pickStopOrder(
+                  context,
+                  w.map.industry(r.stops[k])!,
+                  StopOrder.of(r, k),
+                );
+                if (o == null) return;
+                state.report(
+                  w.setStopOrder(
+                    r.id,
+                    k,
+                    pick: o.pick,
+                    noPick: o.noPick,
+                    noDrop: o.noDrop,
                   ),
-                ),
-                if (!linked[k])
-                  const Text(
-                    'нет дороги дальше',
-                    style: TextStyle(fontSize: 11, color: Color(0xFFE0566B)),
+                );
+              },
+              child: Row(
+                children: [
+                  Icon(
+                    linked[k]
+                        ? Icons.radio_button_checked_rounded
+                        : Icons.link_off_rounded,
+                    size: 16,
+                    color: linked[k]
+                        ? MagPalette.mint
+                        : const Color(0xFFE0566B),
                   ),
-              ],
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      w.map.industry(r.stops[k])!.name,
+                      style: const TextStyle(fontSize: 13),
+                    ),
+                  ),
+                  if (!linked[k])
+                    const Text(
+                      'нет дороги дальше',
+                      style: TextStyle(fontSize: 11, color: Color(0xFFE0566B)),
+                    ),
+                  Icon(
+                    StopOrder.of(r, k).auto
+                        ? Icons.tune_rounded
+                        : Icons.rule_rounded,
+                    size: 16,
+                    color: StopOrder.of(r, k).auto
+                        ? const Color(0xFF8A9599)
+                        : MagPalette.mint,
+                  ),
+                ],
+              ),
             ),
           const SizedBox(height: 4),
-          Text(
-            flows.isEmpty
-                ? 'Грузы: нечего возить между этими остановками'
-                : 'Грузы: ${flows.join('; ')}',
-            style: magMuted,
-          ),
+          if (flows.isEmpty)
+            const Text(
+              'Грузы: нечего возить между этими остановками',
+              style: magMuted,
+            )
+          else
+            for (final s in routeSteps(w, r.stops, [
+              for (var k = 0; k < r.stops.length; k++) StopOrder.of(r, k),
+            ]))
+              Text(s, style: magMuted),
           magRow(
             'Доход маршрута',
             '${magMoney(r.income)} кр',

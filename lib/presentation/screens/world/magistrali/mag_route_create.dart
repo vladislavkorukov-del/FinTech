@@ -9,6 +9,7 @@ import 'mag_filters.dart';
 import 'mag_routes.dart';
 import 'mag_screen.dart';
 import 'mag_sheets.dart';
+import 'mag_stop_orders.dart';
 
 /// Places that take what [from] gives: (place, the cargo that matches),
 /// connected by road first, then the nearest (S12, 1.84).
@@ -56,6 +57,7 @@ const _kinds = ['Все', 'Поселения', 'Сырьё', 'Перерабо�
 /// offers the places that need its wood, connected ones first.
 Future<void> showCreateRouteSheet(MagistraliScreenState state, {int? first}) {
   final stops = <int>[?first];
+  final orders = <StopOrder>[if (first != null) const StopOrder()];
   var query = '';
   var kind = 0;
   var roadOnly = false;
@@ -98,9 +100,13 @@ Future<void> showCreateRouteSheet(MagistraliScreenState state, {int? first}) {
                 w,
                 last,
               ).where((e) => keep(e.$1)).take(6).toList();
-        final flows = stops.length >= 2
-            ? routeFlows(w, stops)
+        final steps = stops.length >= 2
+            ? routeSteps(w, stops, orders)
             : const <String>[];
+        void add(int id) {
+          stops.add(id);
+          orders.add(const StopOrder());
+        }
 
         Widget tile(MagIndustry i, {List<MagCargo>? match}) => ListTile(
           key: ValueKey(
@@ -134,7 +140,7 @@ Future<void> showCreateRouteSheet(MagistraliScreenState state, {int? first}) {
           trailing: match == null
               ? null
               : const Icon(Icons.add_circle_outline, color: MagPalette.mint),
-          onTap: () => setSheet(() => stops.add(i.id)),
+          onTap: () => setSheet(() => add(i.id)),
         );
 
         return SafeArea(
@@ -163,26 +169,51 @@ Future<void> showCreateRouteSheet(MagistraliScreenState state, {int? first}) {
                   children: [
                     for (var k = 0; k < stops.length; k++)
                       InputChip(
+                        key: ValueKey('mag-route-stop-$k'),
+                        avatar: Icon(
+                          orders[k].auto
+                              ? Icons.tune_rounded
+                              : Icons.rule_rounded,
+                          size: 16,
+                          color: orders[k].auto
+                              ? MagPalette.ink
+                              : MagPalette.mint,
+                        ),
                         label: Text(
                           '${k + 1}. ${w.map.industry(stops[k])!.name}',
                         ),
-                        onDeleted: () => setSheet(() => stops.removeAt(k)),
+                        // A tap: what to do at this stop.
+                        onPressed: () async {
+                          final o = await pickStopOrder(
+                            context,
+                            w.map.industry(stops[k])!,
+                            orders[k],
+                          );
+                          if (o != null) setSheet(() => orders[k] = o);
+                        },
+                        onDeleted: () => setSheet(() {
+                          stops.removeAt(k);
+                          orders.removeAt(k);
+                        }),
                       ),
                   ],
                 ),
                 if (stops.length >= 2) ...[
                   const SizedBox(height: 6),
-                  Text(
-                    flows.isEmpty
-                        ? 'Между этими остановками нечего возить'
-                        : 'Повезут: ${flows.join('; ')}',
-                    style: TextStyle(
-                      fontSize: 12.5,
-                      color: flows.isEmpty
-                          ? const Color(0xFFD64B5C)
-                          : MagPalette.teal,
-                    ),
+                  const Text(
+                    'Повезут по шагам (коснитесь остановки, чтобы задать, что забрать):',
+                    style: magMuted,
                   ),
+                  for (final s in steps)
+                    Text(
+                      s,
+                      style: TextStyle(
+                        fontSize: 12.5,
+                        color: s.endsWith('проезд')
+                            ? const Color(0xFF8A9599)
+                            : MagPalette.teal,
+                      ),
+                    ),
                 ],
                 const SizedBox(height: 8),
                 TextField(
@@ -243,8 +274,23 @@ Future<void> showCreateRouteSheet(MagistraliScreenState state, {int? first}) {
                     onPressed: stops.length < 2
                         ? null
                         : () {
+                            final made = w.createRoute(stops);
+                            if (made == null) {
+                              final r = w.routes.values.last;
+                              for (var k = 0; k < orders.length; k++) {
+                                final o = orders[k];
+                                if (o.auto) continue;
+                                w.setStopOrder(
+                                  r.id,
+                                  k,
+                                  pick: o.pick,
+                                  noPick: o.noPick,
+                                  noDrop: o.noDrop,
+                                );
+                              }
+                            }
                             if (state.report(
-                              w.createRoute(stops),
+                              made,
                               'Маршрут создан — назначьте на него машину',
                             )) {
                               Navigator.pop(context);
