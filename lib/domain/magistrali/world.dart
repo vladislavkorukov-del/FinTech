@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'config.dart';
 import 'dispatcher.dart';
+import 'ledger.dart';
 import 'entities.dart';
 import 'map.dart';
 import 'orders.dart';
@@ -13,6 +14,8 @@ import 'tech.dart';
 
 part 'world_dispatch.dart';
 part 'world_fleet.dart';
+part 'world_industry.dart';
+part 'world_load.dart';
 part 'world_orders.dart';
 part 'world_progress.dart';
 part 'world_save.dart';
@@ -39,8 +42,10 @@ class MagWorld {
   MagWorld({required this.map}) : roads = Uint8List(map.size * map.size);
 
   factory MagWorld.start([int seed = MagRules.defaultSeed]) {
-    // New games: generator 2 — hamlets and villages with room to grow.
-    final w = MagWorld(map: MagMap.generate(seed, version: 2));
+    // New games: generator 3 — hamlets and villages with room to grow,
+    // and the first production chains (quarries, mills, bakeries,
+    // lumber mills).
+    final w = MagWorld(map: MagMap.generate(seed, version: 3));
     for (final s in w.settlements) {
       s.town!.remember(0, 'Основано: ${s.town!.spec.name}');
     }
@@ -87,6 +92,9 @@ class MagWorld {
   /// How the dispatcher weighs trucks, and its latest choices.
   MagDispatchMode dispatchMode = MagDispatchMode.balanced;
   final dispatchLog = <MagDispatchNote>[];
+
+  /// The journal of every money operation (stage 3 of the master plan).
+  final journal = MagJournal();
 
   /// Technologies learned (ids of MagTechTree).
   final techs = <String>{};
@@ -328,15 +336,72 @@ class MagWorld {
 
   // ---- Money ----
 
-  void _spend(int amount, String category) {
+  /// Every credit goes through these three, each writing one journal
+  /// entry (and the month's figures).
+  void _spend(
+    int amount,
+    String category, {
+    String? source,
+    int? sourceId,
+    MagCargo? cargo,
+    int units = 0,
+  }) {
+    if (amount == 0) return;
     money -= amount;
     month.expense[category] = (month.expense[category] ?? 0) + amount;
+    journal.add(
+      tick: tick,
+      kind: MagJournal.kindOf(category, income: false),
+      category: category,
+      amount: -amount,
+      source: source,
+      sourceId: sourceId,
+      cargo: cargo,
+      units: units,
+    );
   }
 
-  void _earn(int amount, String category) {
+  void _earn(
+    int amount,
+    String category, {
+    String? source,
+    int? sourceId,
+    MagCargo? cargo,
+    int units = 0,
+  }) {
+    if (amount == 0) return;
     money += amount;
     earnedTotal += amount;
     month.income[category] = (month.income[category] ?? 0) + amount;
+    journal.add(
+      tick: tick,
+      kind: MagEntryKind.revenue,
+      category: category,
+      amount: amount,
+      source: source,
+      sourceId: sourceId,
+      cargo: cargo,
+      units: units,
+    );
+  }
+
+  /// Money from selling an asset: not revenue, not profit.
+  void _assetSale(
+    int amount,
+    String category, {
+    String? source,
+    int? sourceId,
+  }) {
+    money += amount;
+    month.income[category] = (month.income[category] ?? 0) + amount;
+    journal.add(
+      tick: tick,
+      kind: MagEntryKind.assetSale,
+      category: category,
+      amount: amount,
+      source: source,
+      sourceId: sourceId,
+    );
   }
 
   // ---- Routes ----
@@ -393,6 +458,7 @@ class MagWorld {
     }
     return money +
         roadsValue +
+        industriesValue +
         vehicles.values.fold(0, (s, v) => s + valueOf(v));
   }
 }

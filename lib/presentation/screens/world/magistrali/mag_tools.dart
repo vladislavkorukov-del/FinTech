@@ -98,10 +98,17 @@ class MagConfirmBar extends StatelessWidget {
     final w = state.world;
     final road = state.pendingRoad;
     final wh = state.pendingWarehouse;
-    final removing = wh == null && (road == null || road.cells.isEmpty);
+    final at = state.pendingIndustry, kind = state.buildKind;
+    final removing =
+        wh == null && at == null && (road == null || road.cells.isEmpty);
     final String title;
     String? problem;
-    if (wh != null) {
+    if (at != null && kind != null) {
+      title = '${kindName(kind)} · ${magMoney(w.buildPrice(kind))} кр';
+      problem =
+          w.buildBlocker(kind, w.cx(at), w.cy(at)) ??
+          (w.buildPrice(kind) > w.money ? 'Не хватает кредитов' : null);
+    } else if (wh != null) {
       title = 'Склад · ${magMoney(w.warehousePrice)} кр';
       problem =
           w.warehouseBlocker(w.cx(wh), w.cy(wh)) ??

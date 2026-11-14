@@ -134,8 +134,7 @@ extension MagWorldFleet on MagWorld {
     final value = valueOf(v);
     _park(v);
     vehicles.remove(id);
-    money += value;
-    month.income['sales'] = (month.income['sales'] ?? 0) + value;
+    _assetSale(value, 'sales', source: 'vehicle', sourceId: id);
     return null;
   }
 

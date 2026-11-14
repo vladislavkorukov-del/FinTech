@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import '../../../../domain/magistrali/magistrali.dart';
 import 'mag_art.dart';
 import 'mag_buildings.dart';
+import 'mag_town_art.dart';
 import 'mag_iso.dart';
 
 /// What the screen wants drawn over the world.
@@ -205,6 +206,7 @@ class MagRenderer {
             _industries.putIfAbsent(key, () => recordIndustry(i)),
           );
           paintSmoke(canvas, i, t);
+          if (i.owned) paintOwnerFlag(canvas, i);
         },
       ));
     }

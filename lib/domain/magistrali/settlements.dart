@@ -181,6 +181,14 @@ abstract final class MagTowns {
 
   static MagTownLevel of(int level) => levels[level.clamp(1, maxLevel) - 1];
 
+  /// Goods its market buys besides its needs: bread and planks from the
+  /// start, stone once it builds in earnest.
+  static Set<MagCargo> marketGoods(int level) => {
+    MagCargo.bread,
+    MagCargo.planks,
+    if (level >= 3) MagCargo.stone,
+  };
+
   /// Days of regular needs a settlement's pantry holds.
   static const pantryDays = 5;
 

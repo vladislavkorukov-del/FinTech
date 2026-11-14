@@ -8,6 +8,7 @@ import 'mag_art.dart';
 import 'mag_iso.dart';
 import 'mag_shapes.dart';
 import 'mag_sprites.dart';
+import 'mag_town_art.dart';
 
 /// A place: ground pad and buildings, as a picture recorded once.
 ui.Picture recordIndustry(MagIndustry i) {
@@ -263,6 +264,11 @@ ui.Picture recordIndustry(MagIndustry i) {
           color: col,
         );
       }
+    case MagIndustryKind.quarry:
+    case MagIndustryKind.mill:
+    case MagIndustryKind.bakery:
+    case MagIndustryKind.lumbermill:
+      paintChainBuilding(c, i.kind, x, y);
     case MagIndustryKind.warehouse:
       // A hangar with a mint band, gable roof and crates at the gate.
       MagShapes.box(
@@ -362,237 +368,5 @@ void paintSmoke(Canvas c, MagIndustry i, double t) {
         Paint()..color = Colors.white.withValues(alpha: .55 * (1 - f)),
       );
     }
-  }
-}
-
-double _h(int x, int y, int salt) {
-  var n = x * 73856093 ^ y * 19349663 ^ salt * 83492791;
-  n = (n ^ (n >> 13)) * 1274126177;
-  return ((n ^ (n >> 16)) & 0xffff) / 0xffff;
-}
-
-/// A settlement drawn cell by cell over its own land: cottages for a
-/// hamlet, houses for a village, blocks for a town, towers for a
-/// metropolis — each cell different, the centre with a landmark.
-void paintTown(Canvas c, MagIndustry i) {
-  final t = i.town!;
-  final cells = t.cells.toList()
-    ..sort((a, b) {
-      final s = MagSettlement.keyX(a) + MagSettlement.keyY(a);
-      final o = MagSettlement.keyX(b) + MagSettlement.keyY(b);
-      return s != o ? s.compareTo(o) : a.compareTo(b);
-    });
-  // Ground: soft yards, paved as the town grows.
-  c.save();
-  c.transform(MagIso.ground);
-  final yard = t.level >= 5
-      ? const Color(0xFFD5D7D0)
-      : t.level >= 3
-      ? const Color(0xFFC9D59A)
-      : const Color(0xFFB7D58A);
-  for (final k in cells) {
-    final x = MagSettlement.keyX(k).toDouble(),
-        y = MagSettlement.keyY(k).toDouble();
-    c.drawRRect(
-      RRect.fromRectAndRadius(
-        Rect.fromLTWH(x + .04, y + .04, .92, .92),
-        const Radius.circular(.12),
-      ),
-      Paint()..color = yard,
-    );
-  }
-  c.restore();
-  for (final k in cells) {
-    final x = MagSettlement.keyX(k), y = MagSettlement.keyY(k);
-    final h = _h(x, y, i.id);
-    final centre = x == i.x && y == i.y;
-    final fx = x.toDouble(), fy = y.toDouble();
-    if (centre) {
-      _landmark(c, fx, fy, t.level);
-      continue;
-    }
-    if (t.level <= 2) {
-      // A cottage and a haystack.
-      _house(c, fx + .45, fy + .5, .42, .36, 8, h);
-      MagShapes.cylinder(
-        c,
-        x: fx + .8,
-        y: fy + .2,
-        r: .1,
-        h: 5,
-        color: const Color(0xFFD9B95A),
-      );
-    } else if (t.level <= 4) {
-      _house(c, fx + .3, fy + .35, .36, .3, 8, h);
-      _house(c, fx + .7, fy + .7, .38, .32, 10, 1 - h);
-    } else if (t.level <= 7) {
-      final floors = 2 + (h * (t.level - 3)).floor();
-      MagShapes.box(
-        c,
-        x: fx + .5,
-        y: fy + .5,
-        length: .62,
-        width: .6,
-        h: 7.0 * floors,
-        color: [
-          const Color(0xFFE8DCC8),
-          const Color(0xFFCFD8DC),
-          const Color(0xFFF1E3C8),
-        ][(h * 3).floor() % 3],
-      );
-    } else {
-      final tall = 40 + h * 14 * (t.level - 6);
-      MagShapes.box(
-        c,
-        x: fx + .5,
-        y: fy + .5,
-        length: .58,
-        width: .58,
-        h: tall,
-        color: [
-          const Color(0xFF8FB8C9),
-          const Color(0xFFB9C7D6),
-          const Color(0xFF9FD3C7),
-        ][(h * 3).floor() % 3],
-      );
-      MagShapes.box(
-        c,
-        x: fx + .5,
-        y: fy + .5,
-        length: .6,
-        width: .6,
-        z0: tall,
-        h: 2,
-        color: MagPalette.mint,
-        outline: false,
-      );
-    }
-  }
-}
-
-void _house(
-  Canvas c,
-  double x,
-  double y,
-  double l,
-  double w,
-  double h,
-  double tone,
-) {
-  MagShapes.box(
-    c,
-    x: x,
-    y: y,
-    length: l,
-    width: w,
-    h: h,
-    color: Color.lerp(const Color(0xFFF3E6CF), const Color(0xFFE2CDB0), tone)!,
-  );
-  MagShapes.roof(
-    c,
-    x: x,
-    y: y,
-    length: l + .06,
-    width: w + .06,
-    z0: h,
-    h: 7,
-    color: Color.lerp(const Color(0xFFB4533E), const Color(0xFF7E5A44), tone)!,
-    ridge: .3,
-  );
-}
-
-/// The settlement's centre: a well, a chapel, a town hall, a tower.
-void _landmark(Canvas c, double x, double y, int level) {
-  if (level <= 1) {
-    _house(c, x + .5, y + .5, .5, .42, 9, .2);
-    MagShapes.cylinder(
-      c,
-      x: x + .15,
-      y: y + .85,
-      r: .08,
-      h: 4,
-      color: const Color(0xFF9EA1A3),
-    );
-  } else if (level <= 4) {
-    MagShapes.box(
-      c,
-      x: x + .5,
-      y: y + .5,
-      length: .5,
-      width: .4,
-      h: 12,
-      color: const Color(0xFFF6EEDD),
-    );
-    MagShapes.roof(
-      c,
-      x: x + .5,
-      y: y + .5,
-      length: .56,
-      width: .46,
-      z0: 12,
-      h: 8,
-      color: const Color(0xFF5E8C7A),
-      ridge: .3,
-    );
-    MagShapes.box(
-      c,
-      x: x + .25,
-      y: y + .5,
-      length: .14,
-      width: .14,
-      h: 24,
-      color: const Color(0xFFF6EEDD),
-    );
-  } else if (level <= 7) {
-    MagShapes.box(
-      c,
-      x: x + .5,
-      y: y + .5,
-      length: .7,
-      width: .6,
-      h: 18,
-      color: const Color(0xFFEDE3D2),
-    );
-    MagShapes.box(
-      c,
-      x: x + .5,
-      y: y + .5,
-      length: .2,
-      width: .2,
-      z0: 18,
-      h: 16,
-      color: const Color(0xFFEDE3D2),
-    );
-    MagShapes.roof(
-      c,
-      x: x + .5,
-      y: y + .5,
-      length: .24,
-      width: .24,
-      z0: 34,
-      h: 8,
-      color: MagPalette.teal,
-      ridge: .1,
-    );
-  } else {
-    MagShapes.box(
-      c,
-      x: x + .5,
-      y: y + .5,
-      length: .62,
-      width: .62,
-      h: 90 + 6.0 * level,
-      color: const Color(0xFF7FB3C8),
-    );
-    MagShapes.box(
-      c,
-      x: x + .5,
-      y: y + .5,
-      length: .2,
-      width: .2,
-      z0: 90 + 6.0 * level,
-      h: 18,
-      color: MagPalette.mint,
-    );
   }
 }

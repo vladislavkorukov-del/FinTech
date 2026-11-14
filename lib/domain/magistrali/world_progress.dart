@@ -160,7 +160,7 @@ extension MagWorldProgress on MagWorld {
     if (rng == 1) rng = seed & 0x7fffffff | 1;
     while (contracts.length < contractSlots) {
       var targets = map.industries
-          .where((i) => i.accepts.isNotEmpty && !i.spec.stores)
+          .where((i) => i.accepts.isNotEmpty && !i.spec.stores && !i.owned)
           .toList();
       // A young company gets contracts near its start, reachable by cart.
       if (level < 5 && map.version >= 2) {

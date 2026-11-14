@@ -6,6 +6,7 @@ import '../../../../domain/magistrali/magistrali.dart';
 import '../../../l10n_widgets.dart';
 import 'mag_art.dart';
 import 'mag_hud.dart';
+import 'mag_business.dart';
 import 'mag_lore.dart';
 import 'mag_orders.dart';
 import 'mag_town.dart';
@@ -19,17 +20,25 @@ String cargoName(MagCargo c) => switch (c) {
   MagCargo.ore => 'Железная руда',
   MagCargo.food => 'Продукты',
   MagCargo.goods => 'Промтовары',
+  MagCargo.stone => 'Камень',
+  MagCargo.planks => 'Доски',
+  MagCargo.flour => 'Мука',
+  MagCargo.bread => 'Хлеб',
 };
 
 String kindName(MagIndustryKind k) => switch (k) {
   MagIndustryKind.farm => 'Ферма',
-  MagIndustryKind.sawmill => 'Лесопилка',
+  MagIndustryKind.sawmill => 'Лесозаготовка',
   MagIndustryKind.mine => 'Рудник',
   MagIndustryKind.foodPlant => 'Пищевой завод',
   MagIndustryKind.factory => 'Завод',
   MagIndustryKind.city => 'Город',
   MagIndustryKind.village => 'Деревня',
   MagIndustryKind.warehouse => 'Склад',
+  MagIndustryKind.quarry => 'Каменоломня',
+  MagIndustryKind.mill => 'Мельница',
+  MagIndustryKind.bakery => 'Пекарня',
+  MagIndustryKind.lumbermill => 'Лесопилка',
 };
 
 IconData kindIcon(MagIndustryKind k) => switch (k) {
@@ -41,6 +50,10 @@ IconData kindIcon(MagIndustryKind k) => switch (k) {
   MagIndustryKind.city => Icons.location_city_rounded,
   MagIndustryKind.village => Icons.cottage_rounded,
   MagIndustryKind.warehouse => Icons.warehouse_rounded,
+  MagIndustryKind.quarry => Icons.terrain_rounded,
+  MagIndustryKind.mill => Icons.wind_power_rounded,
+  MagIndustryKind.bakery => Icons.breakfast_dining_rounded,
+  MagIndustryKind.lumbermill => Icons.carpenter_rounded,
 };
 
 const magMuted = TextStyle(fontSize: 12, color: Color(0xFF5B6B70));
@@ -151,7 +164,8 @@ Future<void> showIndustrySheet(
         const Text('Производит в день', style: magMuted),
         Wrap(
           children: [
-            for (final e in spec.produces.entries) cargoChip(e.key, e.value),
+            for (final e in spec.produces.entries)
+              cargoChip(e.key, (e.value * w.outputFactor(i)).round()),
           ],
         ),
       ],
@@ -159,7 +173,7 @@ Future<void> showIndustrySheet(
         const Text('Перерабатывает', style: magMuted),
         for (final e in spec.converts.entries)
           Text(
-            '${cargoName(e.key)} → ${cargoName(e.value)} · до ${MagRules.processPerDay} в день',
+            '${spec.ratio[e.key] ?? 1} ${cargoName(e.key).toLowerCase()} → 1 ${cargoName(e.value).toLowerCase()} · до ${(MagRules.processPerDay * w.outputFactor(i)).round()} в день',
             style: const TextStyle(fontSize: 13),
           ),
         const SizedBox(height: 6),
@@ -203,6 +217,7 @@ Future<void> showIndustrySheet(
           ),
         ],
       ),
+      MagOwnershipPanel(state: state, place: i),
       const SizedBox(height: 12),
       SizedBox(
         width: double.infinity,
@@ -355,25 +370,6 @@ Future<void> showContractsSheet(
   );
 });
 
-const _expenseNames = {
-  'vehicles': 'Покупка транспорта',
-  'roads': 'Строительство дорог',
-  'upgrades': 'Модернизация',
-  'upkeep': 'Обслуживание машин',
-  'running': 'Топливо и пробег',
-  'service': 'Ремонт',
-  'roads_upkeep': 'Содержание дорог',
-  'contracts': 'Замена контрактов',
-  'research': 'Исследования',
-  'warehouses': 'Строительство складов',
-};
-const _incomeNames = {
-  'delivery': 'Перевозки',
-  'contracts': 'Контракты',
-  'bonus': 'Задания и премии',
-  'sales': 'Продажа техники',
-};
-
 /// Money of this month and the last: income, costs, profit.
 Future<void> showFinanceSheet(
   MagistraliScreenState state,
@@ -389,12 +385,12 @@ Future<void> showFinanceSheet(
         Text(title, style: const TextStyle(fontWeight: FontWeight.w800)),
         for (final e in m.income.entries)
           magRow(
-            _incomeNames[e.key] ?? e.key,
+            magIncomeNames[e.key] ?? e.key,
             '+${magMoney(e.value)}',
             color: MagPalette.teal,
           ),
         for (final e in m.expense.entries)
-          magRow(_expenseNames[e.key] ?? e.key, '−${magMoney(e.value)}'),
+          magRow(magExpenseNames[e.key] ?? e.key, '−${magMoney(e.value)}'),
         const Divider(),
         magRow('Доход', magMoney(m.totalIncome)),
         magRow('Расход', magMoney(m.totalExpense)),
@@ -423,6 +419,7 @@ Future<void> showFinanceSheet(
       ),
       if (w.months.length > 1)
         month(w.months[w.months.length - 2], 'Прошлый месяц'),
+      MagJournalPanel(state: state),
     ],
   );
 });

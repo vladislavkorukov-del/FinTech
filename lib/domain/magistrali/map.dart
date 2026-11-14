@@ -33,6 +33,17 @@ class MagIndustry {
   /// A settlement's life (towns and villages); its land is [MagSettlement.cells].
   MagSettlement? town;
 
+  /// Owned by the player (bought or built) and its modernisation level.
+  bool owned = false;
+  int level = 1;
+
+  /// Built by the player (not part of the generated map).
+  bool built = false;
+
+  /// What owning it has cost and brought (management figures, credits),
+  /// and units it made and sold to outside buyers.
+  int invested = 0, revenue = 0, costs = 0, produced = 0, sold = 0;
+
   /// Fractional production carried between days is not needed: production
   /// is whole units per day.
   MagIndustrySpec get spec => MagRules.industries[kind]!;
@@ -77,7 +88,11 @@ class MagIndustry {
   /// its growth asks for.
   Set<MagCargo> get accepts => town == null
       ? spec.accepts
-      : {...town!.spec.needs.keys, ...town!.spec.development.keys};
+      : {
+          ...town!.spec.needs.keys,
+          ...town!.spec.development.keys,
+          ...MagTowns.marketGoods(town!.level),
+        };
 
   /// Cargo this place hands to trucks.
   Set<MagCargo> get supplies => {
@@ -380,6 +395,11 @@ class MagMap {
       (MagIndustryKind.mine, 3),
       (MagIndustryKind.foodPlant, 2),
       (MagIndustryKind.factory, 3),
+      // Generator 3 (1.74): the first production chains.
+      if (version >= 3) (MagIndustryKind.quarry, 3),
+      if (version >= 3) (MagIndustryKind.mill, 2),
+      if (version >= 3) (MagIndustryKind.bakery, 2),
+      if (version >= 3) (MagIndustryKind.lumbermill, 2),
     ];
     var cityName = 0, villageName = 1, n = 0;
     for (final (kind, count) in plan) {
@@ -388,15 +408,9 @@ class MagMap {
         for (var tries = 0; tries < 300; tries++) {
           final x = 2 + rnd.nextInt(size - s - 4);
           final y = 2 + rnd.nextInt(size - s - 4);
-          // Sawmills want forest, mines want hills nearby.
-          if (kind == MagIndustryKind.sawmill &&
-              !_near(t, size, x, y, s, MagTerrain.forest) &&
-              tries < 200) {
-            continue;
-          }
-          if (kind == MagIndustryKind.mine &&
-              !_near(t, size, x, y, s, MagTerrain.hill) &&
-              tries < 200) {
+          // Logging camps want forest, mines and quarries hills nearby.
+          final near = MagRules.industries[kind]!.near;
+          if (near != null && !_near(t, size, x, y, s, near) && tries < 200) {
             continue;
           }
           if (!free(x, y, s, gap: kind == MagIndustryKind.city ? 4 : 3)) {
@@ -408,11 +422,15 @@ class MagMap {
             MagIndustryKind.village =>
               _villages[villageName++ % _villages.length],
             MagIndustryKind.farm => 'Ферма №$n',
-            MagIndustryKind.sawmill => 'Лесопилка №$n',
+            MagIndustryKind.sawmill => 'Лесозаготовка №$n',
             MagIndustryKind.mine => 'Рудник №$n',
             MagIndustryKind.foodPlant => 'Пищевой завод №$n',
             MagIndustryKind.factory => 'Завод №$n',
             MagIndustryKind.warehouse => 'Склад №$n',
+            MagIndustryKind.quarry => 'Каменоломня №$n',
+            MagIndustryKind.mill => 'Мельница №$n',
+            MagIndustryKind.bakery => 'Пекарня №$n',
+            MagIndustryKind.lumbermill => 'Лесопилка №$n',
           });
           break;
         }

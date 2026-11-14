@@ -56,7 +56,8 @@ void main() {
     expect(
       kinds,
       containsAll(
-        MagIndustryKind.values.where((k) => k != MagIndustryKind.warehouse),
+        // Generator 1 (old maps): the seven kinds it always had.
+        MagIndustryKind.values.take(7),
       ),
     );
     expect(kinds, isNot(contains(MagIndustryKind.warehouse))); // built later

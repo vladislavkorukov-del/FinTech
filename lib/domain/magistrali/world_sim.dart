@@ -34,25 +34,56 @@ extension MagWorldSim on MagWorld {
   void _day() {
     _dayTowns();
     for (final i in map.industries) {
-      // Processing first, so delivered goods turn into new cargo.
-      var budget = MagRules.processPerDay;
+      // Processing first, so delivered goods turn into new cargo. A level
+      // adds output and storage; a recipe may need several inputs per
+      // output; nothing is made without its input or beyond the store.
+      final k = outputFactor(i), cap = outputCapOf(i);
+      var budget = (MagRules.processPerDay * k).round();
       for (final e in i.spec.converts.entries) {
+        final ratio = i.spec.ratio[e.key] ?? 1;
         final have = i.input[e.key] ?? 0;
-        final room = MagRules.outputCap - (i.stock[e.value] ?? 0);
-        final n = math.min(math.min(have, budget), room);
+        final room = cap - (i.stock[e.value] ?? 0);
+        final n = math.min(math.min(have ~/ ratio, budget), room);
         if (n <= 0) continue;
         budget -= n;
-        i.input[e.key] = have - n;
+        i.input[e.key] = have - n * ratio;
         i.stock[e.value] = (i.stock[e.value] ?? 0) + n;
-        destroyed[e.key] = (destroyed[e.key] ?? 0) + n;
+        destroyed[e.key] = (destroyed[e.key] ?? 0) + n * ratio;
         created[e.value] = (created[e.value] ?? 0) + n;
+        if (i.owned) {
+          i.produced += n;
+          final cost = (n * MagRules.processCost).round();
+          i.costs += cost;
+          _spend(
+            cost,
+            'production',
+            source: 'industry',
+            sourceId: i.id,
+            cargo: e.value,
+            units: n,
+          );
+        }
       }
       for (final e in i.spec.produces.entries) {
-        final room = MagRules.outputCap - (i.stock[e.key] ?? 0);
-        final n = math.min(e.value, room);
+        final room = cap - (i.stock[e.key] ?? 0);
+        final n = math.min((e.value * k).round(), room);
         if (n <= 0) continue;
         i.stock[e.key] = (i.stock[e.key] ?? 0) + n;
         created[e.key] = (created[e.key] ?? 0) + n;
+        if (i.owned) i.produced += n;
+      }
+      if (i.owned) {
+        final c = upkeepOfIndustry(i);
+        i.costs += c;
+        _spend(c, 'industry_upkeep', source: 'industry', sourceId: i.id);
+      }
+    }
+    // Fuel and feed of the day, one entry per vehicle.
+    for (final v in vehicles.values) {
+      final n = v.unpaid.floor();
+      if (n > 0) {
+        v.unpaid -= n;
+        _spend(n, 'running', source: 'vehicle', sourceId: v.id);
       }
     }
     // Upkeep: trucks and roads.
@@ -180,11 +211,7 @@ extension MagWorldSim on MagWorld {
         ..odometer += 1
         ..wear = math.min(100, v.wear + wearRateOf(v))
         ..unpaid += runningCostOf(v);
-      if (v.unpaid >= 1) {
-        final n = v.unpaid.floor();
-        v.unpaid -= n;
-        _spend(n, 'running');
-      }
+
       if (v.pathIndex == v.path.length - 1) {
         _arrive(v);
       } else if (v.wait != roadVersion) {
@@ -227,6 +254,35 @@ extension MagWorldSim on MagWorld {
   void _deliver(MagVehicle v, MagIndustry here, {int? limit}) {
     final cargo = v.cargo!;
     final n = limit == null ? v.load : math.min(v.load, limit);
+    final from = map.industry(v.loadFrom ?? -1);
+    final fromOwn = ownedPlace(from), toOwn = ownedPlace(here);
+    // Into an own place: own goods are only moved (a transfer); an
+    // independent producer's goods are bought at market price.
+    if (toOwn) {
+      if (fromOwn) {
+        journal.add(
+          tick: tick,
+          kind: MagEntryKind.transfer,
+          category: 'transfer',
+          amount: 0,
+          source: 'industry',
+          sourceId: here.id,
+          cargo: cargo,
+          units: n,
+        );
+      } else {
+        final cost = (n * MagRules.cargoValue[cargo]!).round();
+        if (here.owned) here.costs += cost;
+        _spend(
+          cost,
+          'purchase',
+          source: 'industry',
+          sourceId: from?.id,
+          cargo: cargo,
+          units: n,
+        );
+      }
+    }
     if (here.spec.stores) {
       here.stock[cargo] = (here.stock[cargo] ?? 0) + n;
       v.load -= n;
@@ -240,7 +296,22 @@ extension MagWorldSim on MagWorld {
       _checkTasks();
       return;
     }
-    final from = map.industry(v.loadFrom ?? -1);
+    if (toOwn) {
+      // Into an own plant: no freight to pay anyone, no outside sale.
+      here.input[cargo] = (here.input[cargo] ?? 0) + n;
+      v.load -= n;
+      if (v.load == 0) {
+        v
+          ..cargo = null
+          ..loadFrom = null;
+      }
+      v.trips += 1;
+      deliveries++;
+      month.deliveries++;
+      _say('${here.name}: принято $n');
+      _checkTasks();
+      return;
+    }
     final dist = math.max(
       MagRules.minPayDistance,
       from == null ? 0 : from.distanceTo(here),
@@ -271,7 +342,31 @@ extension MagWorldSim on MagWorld {
       r.income += pay;
       r.deliveries++;
     }
-    _earn(pay, 'delivery');
+    _earn(
+      pay,
+      'delivery',
+      source: 'vehicle',
+      sourceId: v.id,
+      cargo: cargo,
+      units: n,
+    );
+    // Own goods sold to an outside buyer: the goods' price too.
+    if (fromOwn) {
+      final sale = (n * MagRules.cargoValue[cargo]!).round();
+      if (from!.owned) {
+        from
+          ..revenue += sale
+          ..sold += n;
+      }
+      _earn(
+        sale,
+        'goods_sale',
+        source: 'industry',
+        sourceId: from.id,
+        cargo: cargo,
+        units: n,
+      );
+    }
     delivered[cargo] = (delivered[cargo] ?? 0) + n;
     deliveries++;
     month.deliveries++;

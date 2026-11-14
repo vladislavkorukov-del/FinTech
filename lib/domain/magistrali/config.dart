@@ -2,7 +2,19 @@
 /// changes never touch the simulation.
 library;
 
-enum MagCargo { grain, wood, ore, food, goods }
+enum MagCargo {
+  grain,
+  wood,
+  ore,
+  food,
+  goods,
+
+  // Stage 3 of the master plan: the first production chains.
+  stone,
+  planks,
+  flour,
+  bread,
+}
 
 enum MagTerrain { grass, forest, hill, river, lake }
 
@@ -20,6 +32,12 @@ enum MagIndustryKind {
 
   /// Built by the player (stage 2): stores any cargo.
   warehouse,
+
+  // Master plan stage 3: first production chains.
+  quarry,
+  mill,
+  bakery,
+  lumbermill,
 }
 
 /// Upgrade lines of a truck.
@@ -54,7 +72,21 @@ class MagIndustrySpec {
     this.accepts = const {},
     this.converts = const {},
     this.stores = false,
+    this.ratio = const {},
+    this.price = 0,
+    this.near,
   });
+
+  /// Input units per output unit (1 when missing): a mill turns 2 grain
+  /// into 1 flour.
+  final Map<MagCargo, int> ratio;
+
+  /// Price to buy it from its independent owner (0: not for sale). Building
+  /// a new one costs more ([MagRules.buildFactor]).
+  final int price;
+
+  /// Terrain it must stand near to be built (a quarry by hills).
+  final MagTerrain? near;
 
   /// A warehouse: takes any cargo into its stock and hands it out again.
   final bool stores;
@@ -169,21 +201,31 @@ abstract final class MagRules {
     MagIndustryKind.farm: MagIndustrySpec(
       size: 2,
       produces: {MagCargo.grain: 9},
+      price: 3500,
     ),
     MagIndustryKind.sawmill: MagIndustrySpec(
       size: 2,
       produces: {MagCargo.wood: 8},
+      price: 3500,
+      near: MagTerrain.forest,
     ),
-    MagIndustryKind.mine: MagIndustrySpec(size: 2, produces: {MagCargo.ore: 8}),
+    MagIndustryKind.mine: MagIndustrySpec(
+      size: 2,
+      produces: {MagCargo.ore: 8},
+      price: 6000,
+      near: MagTerrain.hill,
+    ),
     MagIndustryKind.foodPlant: MagIndustrySpec(
       size: 2,
       accepts: {MagCargo.grain},
       converts: {MagCargo.grain: MagCargo.food},
+      price: 9000,
     ),
     MagIndustryKind.factory: MagIndustrySpec(
       size: 3,
       accepts: {MagCargo.wood, MagCargo.ore},
       converts: {MagCargo.wood: MagCargo.goods, MagCargo.ore: MagCargo.goods},
+      price: 16000,
     ),
     MagIndustryKind.city: MagIndustrySpec(
       size: 3,
@@ -195,6 +237,32 @@ abstract final class MagRules {
       accepts: {...MagCargo.values},
       stores: true,
     ),
+    MagIndustryKind.quarry: MagIndustrySpec(
+      size: 2,
+      produces: {MagCargo.stone: 7},
+      price: 4000,
+      near: MagTerrain.hill,
+    ),
+    MagIndustryKind.mill: MagIndustrySpec(
+      size: 2,
+      accepts: {MagCargo.grain},
+      converts: {MagCargo.grain: MagCargo.flour},
+      ratio: {MagCargo.grain: 2},
+      price: 4500,
+    ),
+    MagIndustryKind.bakery: MagIndustrySpec(
+      size: 2,
+      accepts: {MagCargo.flour},
+      converts: {MagCargo.flour: MagCargo.bread},
+      price: 5000,
+    ),
+    MagIndustryKind.lumbermill: MagIndustrySpec(
+      size: 2,
+      accepts: {MagCargo.wood},
+      converts: {MagCargo.wood: MagCargo.planks},
+      ratio: {MagCargo.wood: 2},
+      price: 4500,
+    ),
   };
 
   /// Credits per unit per cell of distance between the two places.
@@ -204,7 +272,35 @@ abstract final class MagRules {
     MagCargo.ore: 2.2,
     MagCargo.food: 2.9,
     MagCargo.goods: 3.8,
+    MagCargo.stone: 2.0,
+    MagCargo.planks: 2.6,
+    MagCargo.flour: 2.4,
+    MagCargo.bread: 3.2,
   };
+
+  /// Market price of a unit: what a buyer pays for goods the company owns,
+  /// and what the company pays an independent producer for its goods.
+  static const cargoValue = <MagCargo, double>{
+    MagCargo.grain: 3,
+    MagCargo.wood: 3.5,
+    MagCargo.ore: 4.5,
+    MagCargo.food: 8,
+    MagCargo.goods: 12,
+    MagCargo.stone: 4,
+    MagCargo.planks: 9,
+    MagCargo.flour: 8,
+    MagCargo.bread: 13,
+  };
+
+  /// Own production (master plan stage 3): building costs more than
+  /// buying, levels 1–5 add output and storage, every level costs upkeep;
+  /// processing has a small cost per unit made.
+  static const buildFactor = 1.3;
+  static const maxIndustryLevel = 5;
+  static const levelOutput = .4, levelStorage = .5;
+  static const upkeepShare = 250;
+  static const processCost = .5;
+  static const builtIdBase = 200000;
 
   static const minPayDistance = 4;
 

@@ -9,6 +9,7 @@ import 'mag_fleet.dart';
 import 'mag_routes.dart';
 import 'mag_screen.dart';
 import 'mag_sheets.dart';
+import 'mag_business.dart';
 import 'mag_tools.dart';
 import 'mag_lore.dart';
 import 'mag_tech.dart';
@@ -295,7 +296,8 @@ class MagBottomPanel extends StatelessWidget {
         children: [
           if (road != null && road.cells.isNotEmpty ||
               removing.isNotEmpty ||
-              state.pendingWarehouse != null) ...[
+              state.pendingWarehouse != null ||
+              state.pendingIndustry != null) ...[
             MagConfirmBar(state: state),
             const SizedBox(height: 8),
           ],
@@ -340,6 +342,23 @@ class MagBottomPanel extends StatelessWidget {
                               : state.setTool(MagTool.warehouse),
                         ),
                         MagToolChip(
+                          key: const ValueKey('mag-tool-industry'),
+                          label:
+                              state.tool == MagTool.industry &&
+                                  state.buildKind != null
+                              ? kindName(state.buildKind!)
+                              : 'Предприятие',
+                          locked: w.level < 2,
+                          lockLevel: 2,
+                          on: state.tool == MagTool.industry,
+                          color: MagPalette.teal,
+                          icon: Icons.factory_outlined,
+                          onTap: () async {
+                            final k = await showBuildPicker(state);
+                            if (k != null) state.chooseBuild(k);
+                          },
+                        ),
+                        MagToolChip(
                           key: const ValueKey('mag-remove'),
                           label: 'Снос',
                           on: state.tool == MagTool.remove,
@@ -355,6 +374,8 @@ class MagBottomPanel extends StatelessWidget {
                     switch (state.tool) {
                       MagTool.road =>
                         '${roadLore(state.roadType)} Проведите пальцем · ${MagRules.roads[state.roadType]!.cost} кр/кл.',
+                      MagTool.industry =>
+                        'Коснитесь клетки — там встанет ${state.buildKind == null ? 'предприятие' : kindName(state.buildKind!).toLowerCase()} (${state.buildKind == null ? '' : '${magMoney(w.buildPrice(state.buildKind!))} кр'})',
                       MagTool.warehouse =>
                         'Коснитесь клетки — там встанет склад 2×2 (${magMoney(w.warehousePrice)} кр, ${w.warehouses.length} из ${w.warehouseSlots})',
                       _ => 'Проведите по дороге, которую нужно снести',

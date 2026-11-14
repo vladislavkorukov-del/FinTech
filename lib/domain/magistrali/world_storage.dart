@@ -96,7 +96,7 @@ extension MagWorldStorage on MagWorld {
     }
     map.industries.remove(w);
     final back = (MagRules.warehousePrice * .5).round();
-    money += back;
+    _assetSale(back, 'warehouse_sale', source: 'industry', sourceId: id);
     roadVersion++;
     return null;
   }

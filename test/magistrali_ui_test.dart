@@ -547,4 +547,68 @@ void main() {
     await tap(tester, 'mag-upgrade-body');
     expect(w.vehicles.values.first.level(MagUpgrade.body), 1);
   });
+
+  testWidgets(
+    'master plan stage 3: buy a business, build a mill, the journal',
+    (tester) async {
+      await mount(tester, const MagistraliScreen(seed: MagRules.defaultSeed));
+      final s = await ready(tester);
+      final w = s.world;
+      w
+        ..money = 200000
+        ..xp = MagWorldProgress.xpFor(3);
+      s.changed();
+      await tester.pump();
+      final farm = w.map.startFarm;
+
+      // Buy the start farm from its card.
+      s.centerOn(farm.centerX, farm.centerY);
+      await tester.pump();
+      await tester.tapAt(at(tester, s, farm.x, farm.y));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(find.byKey(ValueKey('mag-business-${farm.id}')), findsOneWidget);
+      await tap(tester, 'mag-business-buy');
+      expect(farm.owned, isTrue);
+      await tap(tester, 'mag-business-upgrade');
+      expect(farm.level, 2);
+      await closeSheet(tester);
+
+      // Build a mill with the «Предприятие» tool.
+      late int bx, by;
+      search:
+      for (var r = 3; r < 14; r++) {
+        for (var dx = -r; dx <= r; dx++) {
+          if (w.buildBlocker(MagIndustryKind.mill, farm.x + dx, farm.y + r) ==
+              null) {
+            bx = farm.x + dx;
+            by = farm.y + r;
+            break search;
+          }
+        }
+      }
+      s.centerOn(bx + 1.0, by + 1.0);
+      await tap(tester, 'mag-tab-build');
+      await tap(tester, 'mag-tool-industry');
+      await tap(tester, 'mag-build-mill');
+      await tester.tapAt(at(tester, s, bx, by));
+      await tester.pump();
+      expect(find.byKey(const ValueKey('mag-confirm')), findsOneWidget);
+      await tap(tester, 'mag-confirm-build');
+      final mill = w.map.industries.last;
+      expect(mill.kind, MagIndustryKind.mill);
+      expect(mill.built && mill.owned, isTrue);
+      expect(find.byKey(ValueKey('mag-business-${mill.id}')), findsOneWidget);
+      await closeSheet(tester);
+
+      // The journal in the finances.
+      await tap(tester, 'mag-balance');
+      expect(find.byKey(const ValueKey('mag-journal')), findsOneWidget);
+      expect(
+        w.journal.entries.map((e) => e.category),
+        containsAll(['industry_buy', 'industry_upgrade', 'industry_build']),
+      );
+      // Level 3 earned no 5-level reward: nothing to wait for in the database.
+    },
+  );
 }
