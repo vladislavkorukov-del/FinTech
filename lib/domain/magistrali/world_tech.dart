@@ -14,6 +14,10 @@ extension MagWorldTech on MagWorld {
   /// Multiplier from a fractional bonus (never below 10 %).
   double factor(String key) => math.max(.1, 1 + bonus(key));
 
+  /// Can the company buy motor vehicles? Companies from before the horse
+  /// era (old maps) always could; new games learn the engine first.
+  bool get motorUnlocked => map.version < 2 || bonus(MagBonus.motors) > 0;
+
   /// Units moved per tick when loading or unloading.
   int get handleRate =>
       math.max(1, (MagRules.handlePerTick * factor(MagBonus.handling)).round());

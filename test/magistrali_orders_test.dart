@@ -5,13 +5,15 @@ import 'package:finora/domain/magistrali/magistrali.dart';
 import 'package:finora/services/magistrali_store.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'support/magistrali_world.dart';
+
 /// Stage 1 of automation: logistics orders. Reservations, the rules that
 /// guard them, the full life of an order on real roads, cancelling,
 /// failing, living beside route trucks, and saves old and new.
 void main() {
   /// The start line built; the starting pickup still in the garage.
   MagWorld world() {
-    final w = MagWorld.start();
+    final w = motorStart();
     final f = w.map.startFarm, p = w.map.startPlant;
     expect(
       w.buildRoad(w.planRoad(f.x + f.size, f.y, p.x - 1, p.y, MagRoad.dirt)),
@@ -303,7 +305,7 @@ void main() {
   });
 
   test('without a road an order fails after a while and frees its hold', () {
-    final w = MagWorld.start()..money = 100000;
+    final w = motorStart()..money = 100000;
     final truck = w.vehicles.values.first;
     final o = order(w, amount: 5);
     w.assignOrder(o.id, truck.id);

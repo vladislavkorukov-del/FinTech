@@ -45,8 +45,9 @@ class MagWorld {
       s.town!.remember(0, 'Основано: ${s.town!.spec.name}');
     }
     w.money = MagRules.startMoney;
-    final v = w._newVehicle(MagRules.trucks.first);
-    v.name = 'Пикап №1';
+    // Era I: a new company starts with a horse cart.
+    final v = w._newVehicle(MagRules.truck('cart')!);
+    v.name = 'Телега №1';
     for (final i in w.map.industries) {
       for (final c in i.supplies) {
         if (i.spec.produces.containsKey(c)) {

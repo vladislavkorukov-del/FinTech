@@ -88,10 +88,10 @@ class _Cover extends CustomPainter {
       2.6,
       2.5,
       1,
-      MagRules.trucks[1],
+      MagRules.truck('lorry')!,
       MagPalette.cargo(MagCargo.grain),
     );
-    paintTruck(canvas, .4, 2.5, 3, MagRules.trucks.first, null);
+    paintTruck(canvas, .4, 2.5, 3, MagRules.truck('cart')!, null);
     canvas.restore();
     canvas.drawRect(
       Offset.zero & size,

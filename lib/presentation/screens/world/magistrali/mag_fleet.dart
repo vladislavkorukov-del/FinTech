@@ -29,12 +29,19 @@ String stateName(MagWorld w, MagVehicle v) {
   };
 }
 
-String upgradeName(MagUpgrade u) => switch (u) {
-  MagUpgrade.engine => 'Двигатель',
-  MagUpgrade.body => 'Кузов',
-  MagUpgrade.economy => 'Экономичность',
-  MagUpgrade.reliability => 'Надёжность',
-};
+String upgradeName(MagUpgrade u, [bool horse = false]) => horse
+    ? switch (u) {
+        MagUpgrade.engine => 'Порода лошадей',
+        MagUpgrade.body => 'Повозка побольше',
+        MagUpgrade.economy => 'Корм и упряжь',
+        MagUpgrade.reliability => 'Подковы и колёса',
+      }
+    : switch (u) {
+        MagUpgrade.engine => 'Двигатель',
+        MagUpgrade.body => 'Кузов',
+        MagUpgrade.economy => 'Экономичность',
+        MagUpgrade.reliability => 'Надёжность',
+      };
 
 IconData upgradeIcon(MagUpgrade u) => switch (u) {
   MagUpgrade.engine => Icons.speed_rounded,
@@ -81,45 +88,58 @@ Widget _truckTile(
 }
 
 /// The fleet and the truck shop.
-Future<void> showFleetSheet(MagistraliScreenState state) =>
-    magSheet(state, 'mag-fleet', (context) {
-      final w = state.world;
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Транспорт · ${w.vehicles.length}', style: magTitle),
-          const SizedBox(height: 6),
-          MagDispatchPanel(state: state),
-          for (final v in w.vehicles.values) _truckTile(state, v, context),
-          const SizedBox(height: 10),
-          const Text(
-            'Купить грузовик',
-            style: TextStyle(fontWeight: FontWeight.w800),
-          ),
-          const SizedBox(height: 6),
-          for (final m in MagRules.trucks) _shopCard(state, m),
-          const SizedBox(height: 4),
-          OutlinedButton.icon(
-            key: const ValueKey('mag-open-orders'),
-            onPressed: () {
-              Navigator.pop(context);
-              unawaited(showOrdersSheet(state));
-            },
-            icon: const Icon(Icons.assignment_turned_in_rounded),
-            label: Text('Логистические заказы · ${w.orders.active.length}'),
-          ),
-          const SizedBox(height: 4),
-          const Text(
-            'Поезда и корабли появятся на следующих этапах развития.',
-            style: magMuted,
-          ),
-        ],
-      );
-    });
+Future<void> showFleetSheet(MagistraliScreenState state) => magSheet(
+  state,
+  'mag-fleet',
+  (context) {
+    final w = state.world;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Транспорт · ${w.vehicles.length}', style: magTitle),
+        const SizedBox(height: 6),
+        MagDispatchPanel(state: state),
+        for (final v in w.vehicles.values) _truckTile(state, v, context),
+        const SizedBox(height: 10),
+        const Text(
+          'Купить грузовик',
+          style: TextStyle(fontWeight: FontWeight.w800),
+        ),
+        const SizedBox(height: 6),
+        const Text('Эпоха I — гужевой транспорт', style: magMuted),
+        for (final m in MagRules.trucks.where((m) => m.horse))
+          _shopCard(state, m),
+        Text(
+          w.motorUnlocked
+              ? 'Грузовики'
+              : 'Грузовики — после технологии «Двигатель внутреннего сгорания»',
+          style: magMuted,
+        ),
+        for (final m in MagRules.trucks.where((m) => !m.horse))
+          _shopCard(state, m),
+        const SizedBox(height: 4),
+        OutlinedButton.icon(
+          key: const ValueKey('mag-open-orders'),
+          onPressed: () {
+            Navigator.pop(context);
+            unawaited(showOrdersSheet(state));
+          },
+          icon: const Icon(Icons.assignment_turned_in_rounded),
+          label: Text('Логистические заказы · ${w.orders.active.length}'),
+        ),
+        const SizedBox(height: 4),
+        const Text(
+          'Поезда и корабли появятся на следующих этапах развития.',
+          style: magMuted,
+        ),
+      ],
+    );
+  },
+);
 
 Widget _shopCard(MagistraliScreenState state, MagTruckModel m) {
   final w = state.world;
-  final open = w.level >= m.level;
+  final open = w.level >= m.level && (m.horse || w.motorUnlocked);
   return Container(
     key: ValueKey('mag-shop-${m.id}'),
     margin: const EdgeInsets.only(bottom: 8),
@@ -128,7 +148,7 @@ Widget _shopCard(MagistraliScreenState state, MagTruckModel m) {
     child: Row(
       children: [
         Icon(
-          Icons.local_shipping_rounded,
+          m.horse ? Icons.agriculture_rounded : Icons.local_shipping_rounded,
           size: 34,
           color: open ? Color(m.color) : const Color(0xFFB6BEC1),
         ),
@@ -139,7 +159,7 @@ Widget _shopCard(MagistraliScreenState state, MagTruckModel m) {
             children: [
               Text(m.name, style: const TextStyle(fontWeight: FontWeight.w800)),
               Text(
-                'Скорость ${m.speed.toStringAsFixed(2)} · груз ${m.capacity} · расход ${m.runningCost}/кл.',
+                'Скорость ${m.speed.toStringAsFixed(2)} · груз ${m.capacity} · ${m.horse ? 'корм' : 'расход'} ${m.runningCost}/кл.',
                 style: magMuted,
               ),
               const SizedBox(height: 2),
@@ -165,7 +185,13 @@ Widget _shopCard(MagistraliScreenState state, MagTruckModel m) {
                   'Куплен ${m.name} — назначьте его на маршрут',
                 )
               : null,
-          child: Text(open ? magMoney(m.price) : 'ур. ${m.level}'),
+          child: Text(
+            open
+                ? magMoney(m.price)
+                : w.level < m.level
+                ? 'ур. ${m.level}'
+                : 'мотор',
+          ),
         ),
       ],
     ),
@@ -308,7 +334,7 @@ Widget _upgradeRow(MagistraliScreenState state, MagVehicle v, MagUpgrade u) {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                '${upgradeName(u)} · $level/${MagRules.maxUpgrade}',
+                '${upgradeName(u, v.spec.horse)} · $level/${MagRules.maxUpgrade}',
                 style: const TextStyle(fontWeight: FontWeight.w800),
               ),
               Text(effect, style: magMuted),
@@ -346,7 +372,7 @@ Widget _upgradeRow(MagistraliScreenState state, MagVehicle v, MagUpgrade u) {
               ? null
               : () => state.report(
                   w.upgrade(v.id, u),
-                  '${upgradeName(u)}: уровень ${level + 1}',
+                  '${upgradeName(u, v.spec.horse)}: уровень ${level + 1}',
                 ),
           child: Text(
             cost == null

@@ -4,6 +4,8 @@ import 'dart:io';
 import 'package:finora/domain/magistrali/magistrali.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'support/magistrali_world.dart';
+
 /// Stage 3: the automatic dispatcher. Only fleet trucks, the score of each
 /// mode, urgency, capacity, road reach, a fully automatic warehouse, and
 /// saves of every earlier format.
@@ -21,7 +23,7 @@ void main() {
 
   /// Start line built, rich, level 10, dispatcher learned.
   MagWorld world() {
-    final w = MagWorld.start();
+    final w = motorStart();
     final f = w.map.startFarm, p = w.map.startPlant;
     expect(
       w.buildRoad(w.planRoad(f.x + f.size, f.y, p.x - 1, p.y, MagRoad.dirt)),

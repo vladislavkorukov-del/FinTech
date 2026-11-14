@@ -276,6 +276,10 @@ void paintTruck(
     );
     return;
   }
+  if (m.horse) {
+    paintCart(c, px, py, ax, ay, m, load, selected: selected);
+    return;
+  }
   MagShapes.shadow(c, px, py, .33, .26);
   if (selected) {
     c.drawOval(
@@ -329,5 +333,123 @@ void paintTruck(
   } else {
     front();
     cargo();
+  }
+}
+
+/// A horse (or a pair) pulling a wooden cart, facing (ax, ay).
+void paintCart(
+  Canvas c,
+  double px,
+  double py,
+  double ax,
+  double ay,
+  MagTruckModel m,
+  Color? load, {
+  bool selected = false,
+}) {
+  final pair = m.capacity > 8;
+  MagShapes.shadow(c, px, py, .36, .24);
+  if (selected) {
+    c.drawOval(
+      Rect.fromCenter(center: MagIso.project(px, py), width: 46, height: 23),
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2
+        ..color = MagPalette.mint,
+    );
+  }
+  final bx = -ay, by = ax; // across
+  // Cart behind, horse(s) in front; draw the farther one first.
+  final cartX = px - ax * .14, cartY = py - ay * .14;
+  final horseX = px + ax * .2, horseY = py + ay * .2;
+  void cart() {
+    // Two wheels on the visible side, then the box and its load.
+    for (final side in [-1.0, 1.0]) {
+      final w = MagIso.project(
+        cartX + bx * .15 * side,
+        cartY + by * .15 * side,
+        3,
+      );
+      c.drawCircle(w, 3.2, Paint()..color = const Color(0xFF4E3524));
+      c.drawCircle(w, 1.4, Paint()..color = const Color(0xFFB08A5A));
+    }
+    MagShapes.box(
+      c,
+      x: cartX,
+      y: cartY,
+      ax: ax,
+      ay: ay,
+      length: pair ? .34 : .28,
+      width: .26,
+      z0: 3,
+      h: 5,
+      color: Color(m.color),
+    );
+    if (load != null) {
+      MagShapes.box(
+        c,
+        x: cartX,
+        y: cartY,
+        ax: ax,
+        ay: ay,
+        length: pair ? .28 : .22,
+        width: .2,
+        z0: 8,
+        h: 3,
+        color: load,
+        outline: false,
+      );
+    }
+  }
+
+  void horses() {
+    for (final side in pair ? [-1.0, 1.0] : [0.0]) {
+      final hx = horseX + bx * .07 * side, hy = horseY + by * .07 * side;
+      // Legs, body, neck and head.
+      for (final k in [-1.0, 1.0]) {
+        final leg = MagIso.project(hx + ax * .06 * k, hy + ay * .06 * k);
+        c.drawLine(
+          leg,
+          leg - const Offset(0, 5),
+          Paint()
+            ..color = const Color(0xFF5A3A26)
+            ..strokeWidth = 1.6,
+        );
+      }
+      MagShapes.box(
+        c,
+        x: hx,
+        y: hy,
+        ax: ax,
+        ay: ay,
+        length: .2,
+        width: .07,
+        z0: 5,
+        h: 4,
+        color: const Color(0xFF8B5A33),
+        outline: false,
+      );
+      MagShapes.box(
+        c,
+        x: hx + ax * .12,
+        y: hy + ay * .12,
+        ax: ax,
+        ay: ay,
+        length: .07,
+        width: .05,
+        z0: 7,
+        h: 5,
+        color: const Color(0xFF7A4E2D),
+        outline: false,
+      );
+    }
+  }
+
+  if (ax + ay > 0) {
+    cart();
+    horses();
+  } else {
+    horses();
+    cart();
   }
 }

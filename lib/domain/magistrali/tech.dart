@@ -21,6 +21,11 @@ abstract final class MagBonus {
   static const warehouses = 'warehouses', storage = 'storage';
   static const autoSupply = 'autoSupply', distribute = 'distribute';
 
+  /// Horses: their own pace and load (motor bonuses do not apply), and
+  /// motor vehicles themselves (era III) in new games.
+  static const horseSpeed = 'horseSpeed', horseCapacity = 'horseCapacity';
+  static const motors = 'motors';
+
   /// The automatic dispatcher (stage 3).
   static const dispatcher = 'dispatcher';
 }
@@ -67,7 +72,59 @@ abstract final class MagTechTree {
   static Iterable<MagTech> of(MagBranch b) => all.where((t) => t.branch == b);
 
   static const all = <MagTech>[
-    // ---- Автопарк ----
+    // ---- Автопарк: эпоха I — лошади ----
+    MagTech(
+      id: 'stud',
+      branch: MagBranch.fleet,
+      title: 'Конный завод',
+      lore:
+          'Свой табун и знающий конюх. Лошади крепче, шаг бодрее — '
+          'телеги доходят засветло.',
+      effect: 'Скорость гужевого транспорта +12%',
+      effects: {MagBonus.horseSpeed: .12},
+      cost: 700,
+      level: 2,
+    ),
+    MagTech(
+      id: 'springs',
+      branch: MagBranch.fleet,
+      title: 'Рессоры и железные оси',
+      lore:
+          'Кузнец перековал оси и поставил рессоры. Телега не трещит под '
+          'лишним мешком.',
+      effect: 'Вместимость повозок +20%',
+      effects: {MagBonus.horseCapacity: .2},
+      cost: 1100,
+      level: 3,
+    ),
+    MagTech(
+      id: 'harness',
+      branch: MagBranch.fleet,
+      title: 'Хомуты и упряжь',
+      lore:
+          'Мягкий хомут не натирает шею — лошадь тянет дольше и не '
+          'устаёт к вечеру.',
+      effect: 'Скорость повозок +10%, износ −10%',
+      effects: {MagBonus.horseSpeed: .1, MagBonus.wear: -.1},
+      cost: 2000,
+      level: 5,
+      requires: ['stud'],
+    ),
+    MagTech(
+      id: 'combustion',
+      branch: MagBranch.fleet,
+      title: 'Двигатель внутреннего сгорания',
+      lore:
+          'Из столицы привезли чертежи и первый мотор. Он чихает и дымит, '
+          'но не просит овса и не устаёт.',
+      effect: 'Открывает грузовики (пикап, «Терра», тягач)',
+      effects: {MagBonus.motors: 1},
+      cost: 4000,
+      level: 4,
+      requires: ['stud'],
+      deliveries: 30,
+    ),
+    // ---- Автопарк: моторы ----
     MagTech(
       id: 'turbo',
       branch: MagBranch.fleet,

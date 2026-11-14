@@ -186,9 +186,9 @@ void main() {
     expect(w.tasksDone, contains(1));
     await tap(tester, 'mag-tab-build'); // back to looking
 
-    // Buy a second truck.
+    // Buy a second cart (era I: trucks wait for the engine).
     await tap(tester, 'mag-tab-fleet');
-    await tap(tester, 'mag-buy-pickup');
+    await tap(tester, 'mag-buy-cart');
     expect(w.vehicles.length, 2);
     await closeSheet(tester);
 
@@ -524,5 +524,27 @@ void main() {
     await tap(tester, 'mag-tab-places');
     await tap(tester, 'mag-place-${village.id}');
     expect(find.byKey(ValueKey('mag-town-${village.id}')), findsOneWidget);
+  });
+
+  testWidgets('master plan stage 2: era I — carts in the shop, trucks locked', (
+    tester,
+  ) async {
+    await mount(tester, const MagistraliScreen(seed: MagRules.defaultSeed));
+    final s = await ready(tester);
+    final w = s.world;
+    expect(w.vehicles.values.single.model, 'cart');
+    await tap(tester, 'mag-tab-fleet');
+    expect(find.byKey(const ValueKey('mag-shop-cart')), findsOneWidget);
+    final pickup = tester.widget<FilledButton>(
+      find.byKey(const ValueKey('mag-buy-pickup')),
+    );
+    expect(pickup.onPressed, isNull); // needs the combustion engine
+    await tap(tester, 'mag-buy-cart');
+    expect(w.vehicles.length, 2);
+    expect(w.vehicles.values.last.name, 'Телега №2');
+    // The cart's card shows horse upgrades.
+    await tap(tester, 'mag-truck-${w.vehicles.keys.first}');
+    await tap(tester, 'mag-upgrade-body');
+    expect(w.vehicles.values.first.level(MagUpgrade.body), 1);
   });
 }

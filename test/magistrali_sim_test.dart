@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:finora/domain/magistrali/magistrali.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'support/magistrali_world.dart';
+
 /// «Магистрали» rules: map, road graph, A*, trucks on real roads, paid
 /// deliveries, upgrades, saving, and cargo that never appears or vanishes.
 void main() {
@@ -25,7 +27,7 @@ void main() {
 
   /// A world with the start line built, routed and one truck on it.
   MagWorld running() {
-    final w = MagWorld.start();
+    final w = motorStart();
     expect(w.buildRoad(startRoad(w)), isNull);
     expect(w.createRoute([w.map.startFarm.id, w.map.startPlant.id]), isNull);
     final truck = w.vehicles.values.first;
@@ -80,7 +82,7 @@ void main() {
     }
     // Every seed allows the first line on dry land.
     for (final seed in [1, 2, 3, 99, 12345, MagRules.defaultSeed]) {
-      final w = MagWorld.start(seed);
+      final w = motorStart(seed);
       final plan = startRoad(w);
       expect(plan.error, isNull, reason: 'seed $seed');
       expect(plan.cost, lessThan(MagRules.startMoney ~/ 3));
@@ -129,7 +131,7 @@ void main() {
   });
 
   test('roads: plan, cost, money, terrain, joins and removal', () {
-    final w = MagWorld.start();
+    final w = motorStart();
     final plan = startRoad(w);
     expect(plan.cells, isNotEmpty);
     expect(plan.cost, greaterThan(0));
@@ -334,7 +336,7 @@ void main() {
   });
 
   test('economy: upkeep, stats, levels, contracts and unlocks', () {
-    final w = MagWorld.start();
+    final w = motorStart();
     final money = w.money;
     w.step(MagRules.ticksPerDay);
     expect(w.money, money - w.upkeepOf(w.vehicles.values.first));
@@ -351,7 +353,7 @@ void main() {
     expect(w.level, 140);
     expect(w.maxUpgradeLevel, MagRules.maxUpgrade);
     // Trucks open with levels.
-    final fresh = MagWorld.start()..money = 1000000;
+    final fresh = motorStart()..money = 1000000;
     expect(fresh.buyTruck('lorry'), contains('уровне'));
     fresh.xp = MagWorldProgress.xpFor(3);
     expect(fresh.buyTruck('lorry'), isNull);

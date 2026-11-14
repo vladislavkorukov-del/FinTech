@@ -4,6 +4,8 @@ import 'dart:io';
 import 'package:finora/domain/magistrali/magistrali.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'support/magistrali_world.dart';
+
 /// Master plan stage 1: independent settlements. The ten levels and the
 /// production chains as configuration, new maps with hamlets and room to
 /// grow, old maps keeping their towns, supply and growth that each
@@ -131,7 +133,7 @@ void main() {
 
   test('new games: hamlets and villages with room to grow', () {
     for (final seed in [MagRules.defaultSeed, 3, 77, 2026]) {
-      final w = MagWorld.start(seed);
+      final w = motorStart(seed);
       expect(w.map.version, 2);
       final towns = w.settlements.toList();
       expect(towns.length, greaterThanOrEqualTo(7), reason: 'seed $seed');
@@ -195,7 +197,7 @@ void main() {
   });
 
   test('settlements live on their own: supplied ones grow, others wait', () {
-    final w = MagWorld.start()..money = 100000;
+    final w = motorStart()..money = 100000;
     final farm = w.map.startFarm,
         plant = w.map.startPlant,
         village = startVillage(w);
@@ -245,7 +247,7 @@ void main() {
   });
 
   test('growth: real land, the delivery used once, never over a road', () {
-    final w = MagWorld.start();
+    final w = motorStart();
     final village = startVillage(w);
     final t = village.town!;
     // Ready to grow: people and the growth delivery (recorded as made).
@@ -333,7 +335,7 @@ void main() {
   });
 
   test('saves: format 5 round trip; old formats keep their towns', () {
-    final w = MagWorld.start();
+    final w = motorStart();
     final t = startVillage(w).town!;
     t.population = MagTowns.of(3).population;
     t.satisfaction.addAll(List.filled(6, 1.0)); // well supplied lately

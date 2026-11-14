@@ -4,6 +4,8 @@ import 'dart:io';
 import 'package:finora/domain/magistrali/magistrali.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'support/magistrali_world.dart';
+
 /// Stage 2: smart warehouses and the technology tree. Building and rules,
 /// storing without pay, refilling and sending on by writing orders, never
 /// an endless stream of requests, technologies changing real numbers, and
@@ -37,7 +39,7 @@ void main() {
 
   /// Start line built, rich, level 10, the storage technologies learned.
   MagWorld world({List<String> techs = const ['storage', 'autosupply']}) {
-    final w = MagWorld.start();
+    final w = motorStart();
     final f = w.map.startFarm, p = w.map.startPlant;
     expect(
       w.buildRoad(w.planRoad(f.x + f.size, f.y, p.x - 1, p.y, MagRoad.dirt)),
@@ -111,7 +113,7 @@ void main() {
   });
 
   test('research: level, earlier nodes, deliveries, money; real effects', () {
-    final w = MagWorld.start()..money = 1000000;
+    final w = motorStart()..money = 1000000;
     final truck = w.vehicles.values.first;
     expect(w.research('turbo'), contains('уровень'));
     w.xp = MagWorldProgress.xpFor(30);

@@ -12,12 +12,12 @@ extension MagWorldFleet on MagWorld {
   double speedOf(MagVehicle v) =>
       v.spec.speed *
       (1 + .08 * v.level(MagUpgrade.engine)) *
-      factor(MagBonus.speed);
+      factor(v.spec.horse ? MagBonus.horseSpeed : MagBonus.speed);
 
   int capacityOf(MagVehicle v) =>
       (v.spec.capacity *
               (1 + .1 * v.level(MagUpgrade.body)) *
-              factor(MagBonus.capacity))
+              factor(v.spec.horse ? MagBonus.horseCapacity : MagBonus.capacity))
           .round();
 
   double runningCostOf(MagVehicle v) =>
@@ -55,6 +55,9 @@ extension MagWorldFleet on MagWorld {
     final m = MagRules.truck(modelId);
     if (m == null) return 'Нет такой модели';
     if (level < m.level) return 'Откроется на ${m.level} уровне';
+    if (!m.horse && !motorUnlocked) {
+      return 'Грузовики откроет технология «Двигатель внутреннего сгорания»';
+    }
     if (money < m.price) return 'Не хватает кредитов';
     _spend(m.price, 'vehicles');
     final v = _newVehicle(m);

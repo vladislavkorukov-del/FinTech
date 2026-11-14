@@ -83,8 +83,13 @@ class MagTruckModel {
     required this.upkeep,
     required this.level,
     required this.color,
+    this.horse = false,
   });
   final String id, name;
+
+  /// Drawn by horses (era I): the road surface hardly changes its pace,
+  /// it eats feed instead of fuel, and needs no engine technology.
+  final bool horse;
 
   /// Cells per second at 1× on asphalt.
   final double speed;
@@ -204,6 +209,33 @@ abstract final class MagRules {
   static const minPayDistance = 4;
 
   static const trucks = <MagTruckModel>[
+    // Era I — horses.
+    MagTruckModel(
+      id: 'cart',
+      name: 'Телега «Гнедко»',
+      speed: .75,
+      capacity: 6,
+      price: 650,
+      runningCost: .08,
+      upkeep: 2,
+      level: 1,
+      color: 0xFF9A6A3A,
+      horse: true,
+    ),
+    MagTruckModel(
+      id: 'wagon',
+      name: 'Фургон «Пара гнедых»',
+      speed: .9,
+      capacity: 12,
+      price: 1800,
+      runningCost: .14,
+      upkeep: 4,
+      level: 2,
+      color: 0xFF6F4E37,
+      horse: true,
+    ),
+    // Era III — trucks (open with «Двигатель внутреннего сгорания» in new
+    // games; older companies have them already).
     MagTruckModel(
       id: 'pickup',
       name: 'Пикап «Старт»',
@@ -238,6 +270,14 @@ abstract final class MagRules {
       color: 0xFF4A6FD8,
     ),
   ];
+
+  /// How much a road surface speeds a horse (hooves care little for
+  /// asphalt).
+  static double horseRoad(MagRoad r) => switch (r) {
+    MagRoad.none => 0,
+    MagRoad.dirt => 1,
+    _ => 1.05,
+  };
 
   static MagTruckModel? truck(String id) =>
       trucks.where((t) => t.id == id).firstOrNull;

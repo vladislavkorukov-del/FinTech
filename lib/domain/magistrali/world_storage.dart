@@ -121,7 +121,7 @@ extension MagWorldStorage on MagWorld {
 
   /// Largest load one order may carry (the biggest truck the company has).
   int get _batch => math.max(
-    MagRules.trucks.first.capacity,
+    MagRules.truck('cart')!.capacity,
     vehicles.values.fold(0, (m, v) => math.max(m, capacityOf(v))),
   );
 

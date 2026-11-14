@@ -163,7 +163,10 @@ extension MagWorldSim on MagWorld {
     while (dist > 0 && v.state == MagVehicleState.driving) {
       final next = v.path[v.pathIndex + 1];
       v.dir = _dirTo(v.cell, next);
-      final roadK = math.max(_roadSpeed(next), .4);
+      // Horses keep their own pace on any surface.
+      final roadK = v.spec.horse
+          ? math.max(MagRules.horseRoad(MagRoad.values[roads[next]]), .4)
+          : math.max(_roadSpeed(next), .4);
       final need = (1 - v.progress) / roadK;
       if (dist < need) {
         v.progress += dist * roadK;

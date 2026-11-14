@@ -31,7 +31,9 @@ extension MagWorldProgress on MagWorld {
   int get contractSlots => 1 + (level >= 4 ? 1 : 0) + (level >= 8 ? 1 : 0);
 
   static const unlocks = [
-    MagUnlock(1, 'Пикап «Старт» и грунтовые дороги'),
+    MagUnlock(1, 'Телега «Гнедко» и грунтовые дороги'),
+    MagUnlock(2, 'Фургон «Пара гнедых»'),
+    MagUnlock(4, 'Технология «Двигатель внутреннего сгорания»: грузовики'),
     MagUnlock(2, 'Асфальтовые дороги'),
     MagUnlock(3, 'Грузовик «Терра»'),
     MagUnlock(4, 'Второй контракт'),
@@ -63,8 +65,8 @@ extension MagWorldProgress on MagWorld {
     ),
     MagTask(
       3,
-      'Грузовик в рейс',
-      'Назначьте пикап на маршрут — дальше он ездит сам.',
+      'Первый рейс',
+      'Назначьте телегу (или машину) на маршрут — дальше она ездит сама.',
       200,
       20,
     ),
@@ -78,7 +80,7 @@ extension MagWorldProgress on MagWorld {
     MagTask(
       5,
       'Прокачка',
-      'В «Улучшениях» поднимите двигатель или кузов пикапа.',
+      'Откройте свою повозку или машину и улучшите её — например, кузов.',
       300,
       30,
     ),
@@ -89,7 +91,7 @@ extension MagWorldProgress on MagWorld {
       800,
       60,
     ),
-    MagTask(7, 'Автопарк растёт', 'Купите второй грузовик.', 600, 40),
+    MagTask(7, 'Обоз растёт', 'Купите вторую повозку или машину.', 600, 40),
     MagTask(
       8,
       'Компания 5 уровня',
@@ -157,14 +159,22 @@ extension MagWorldProgress on MagWorld {
   void _refillContracts() {
     if (rng == 1) rng = seed & 0x7fffffff | 1;
     while (contracts.length < contractSlots) {
-      final targets = map.industries
+      var targets = map.industries
           .where((i) => i.accepts.isNotEmpty && !i.spec.stores)
           .toList();
+      // A young company gets contracts near its start, reachable by cart.
+      if (level < 5 && map.version >= 2) {
+        final f = map.startFarm;
+        targets.sort((a, b) => a.distanceTo(f).compareTo(b.distanceTo(f)));
+        targets = targets.take(6).toList();
+      }
       final to = targets[_random(targets.length)];
       final cargos = to.accepts.toList()..sort((a, b) => a.index - b.index);
       final cargo = cargos[_random(cargos.length)];
       final big = level >= 40 ? 2 : 1;
-      final amount = (30 + _random(40) + level * 3) * big;
+      final amount = level < 5 && map.version >= 2
+          ? 12 + _random(18) + level * 2
+          : (30 + _random(40) + level * 3) * big;
       final reward = (amount * MagRules.cargoRate[cargo]! * 22 + level * 60)
           .round();
       contracts.add(
