@@ -423,7 +423,7 @@ void main() {
       (i) => i.kind == MagIndustryKind.sawmill,
     );
     await tap(tester, 'mag-tab-routes');
-    await tap(tester, 'mag-new-route');
+    await tap(tester, 'mag-new-route-list');
     // Search by name narrows the list to the sawmill.
     await tester.enterText(
       find.byKey(const ValueKey('mag-route-search')),

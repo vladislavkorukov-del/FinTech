@@ -80,6 +80,9 @@ extension MagWorldFleet on MagWorld {
     } else if (!m.horse && !motorUnlocked) {
       return 'Грузовики откроет технология «Двигатель внутреннего сгорания»';
     }
+    if (m.id == 'veteran' && collected.length < MagRules.veteranAfter) {
+      return 'Откроется в коллекции из ${MagRules.veteranAfter} моделей';
+    }
     final tech = m.tech;
     if (tech != null && !techs.contains(tech)) {
       return 'Нужна технология «${MagTechTree.byId(tech)?.title ?? tech}»';
@@ -89,6 +92,7 @@ extension MagWorldFleet on MagWorld {
     if (money < price) return 'Не хватает кредитов';
     _spend(price, 'vehicles');
     final v = _newVehicle(m)..wagons = m.rail ? 1 : 0;
+    _collect(m); // VEH-14
     final same = vehicles.values.where((o) => o.model == m.id).length;
     v.name = '${m.name.split(' ').first} №$same';
     _say('Куплен ${m.name}');

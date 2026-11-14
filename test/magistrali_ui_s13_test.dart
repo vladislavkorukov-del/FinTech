@@ -119,7 +119,7 @@ void main() {
     s.changed();
     // A new line: farm, plant; the plant keeps the load (an order).
     await tap(tester, 'mag-tab-routes');
-    await tap(tester, 'mag-new-route');
+    await tap(tester, 'mag-new-route-list');
     await tester.enterText(
       find.byKey(const ValueKey('mag-route-search')),
       f.name,

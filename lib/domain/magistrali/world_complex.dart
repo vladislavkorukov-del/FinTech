@@ -3,7 +3,7 @@ part of 'world.dart';
 /// Special bodies and comfort (VEH-05, PASS-07), waiting passengers,
 /// industrial complexes (BIZ-14), city terminals (CITY-13), ship hulls
 /// (SEA-05) and start scenarios (META-11) — stage S17.
-enum MagScenario { classic, rich, railway, river, industrial }
+enum MagScenario { classic, rich, railway, river, industrial, sandbox }
 
 extension MagWorldComplex on MagWorld {
   // ---- VEH-05 / PASS-07: what a vehicle may carry and how it pays ----
@@ -40,6 +40,7 @@ extension MagWorldComplex on MagWorld {
     if (v.spec.body == 'reefer' && fresh.contains(c)) {
       return MagRules.reeferBonus;
     }
+    if (v.spec.body == 'retro') return MagRules.veteranBonus; // VEH-14
     return 1;
   }
 
@@ -173,6 +174,11 @@ extension MagWorldComplex on MagWorld {
         xp = MagWorldProgress.xpFor(8);
         techs.addAll(['stud', 'shipping', 'milling']);
         money = 25000;
+      case MagScenario.sandbox:
+        // MAP-12: everything open, money without end, no rewards.
+        money = 10000000;
+        xp = MagWorldProgress.xpFor(30);
+        techs.addAll(MagTechTree.all.map((t) => t.id));
       case MagScenario.industrial:
         final p = map.startPlant;
         p
@@ -191,6 +197,7 @@ extension MagWorldComplex on MagWorld {
     MagScenario.railway => 'железнодорожник',
     MagScenario.river => 'речник',
     MagScenario.industrial => 'промышленник',
+    MagScenario.sandbox => 'песочница',
   };
 
   // ---- Saves ----
@@ -222,6 +229,7 @@ extension MagWorldComplex on MagWorld {
   /// Vessel hulls, read once the vehicles are there.
   void loadHulls(Map<String, dynamic> j) {
     loadNetwork(j); // paints too need the vehicles
+    loadRivals(j); // the collection of an old save comes from its fleet
     for (final e in (j['hulls'] as Map? ?? const {}).entries) {
       final v = vehicles[int.parse('${e.key}')];
       final n = e.value;

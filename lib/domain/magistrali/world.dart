@@ -37,6 +37,7 @@ part 'world_rails.dart';
 part 'world_water.dart';
 part 'world_works.dart';
 part 'world_roads.dart';
+part 'world_rivals.dart';
 part 'world_routes.dart';
 part 'world_plans.dart';
 part 'world_save.dart';

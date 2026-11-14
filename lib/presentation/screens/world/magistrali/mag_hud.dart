@@ -7,6 +7,7 @@ import '../../../l10n_widgets.dart';
 import 'mag_company.dart';
 import 'mag_finance.dart';
 import 'mag_guide.dart';
+import 'mag_route_map.dart';
 import 'mag_art.dart';
 import 'mag_build_panel.dart';
 import 'mag_fleet.dart';
@@ -308,7 +309,10 @@ class MagBottomPanel extends StatelessWidget {
             MagConfirmBar(state: state),
             const SizedBox(height: 8),
           ],
-          if (state.tool != MagTool.view) ...[
+          if (state.tool == MagTool.route) ...[
+            MagRouteBar(state: state),
+            const SizedBox(height: 8),
+          ] else if (state.tool != MagTool.view) ...[
             MagBuildPanel(state: state),
             const SizedBox(height: 8),
           ],

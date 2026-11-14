@@ -233,7 +233,9 @@ void main() {
     final paid = w.journal.entries.where((e) => e.category == 'city_orders');
     expect(paid.length, 1);
     expect(paid.single.kind, MagEntryKind.revenue);
-    expect(paid.single.amount, (2000 * w.factor(MagBonus.contract)).round());
+    // CONT-09: the customer's reputation adds a little.
+    final base = (2000 * w.factor(MagBonus.contract)).round();
+    expect(paid.single.amount, inInclusiveRange(base, (base * 1.1).round()));
     expect(t.revenue, greaterThanOrEqualTo(paid.single.amount));
     expect(t.orderAt, greaterThan(w.tick - MagRules.ticksPerDay * 5));
     expect(t.received[MagCargo.food], greaterThan(0));

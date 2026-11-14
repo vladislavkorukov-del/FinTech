@@ -8,6 +8,7 @@ import 'mag_art.dart';
 import 'mag_fleet.dart';
 import 'mag_hud.dart';
 import 'mag_route_create.dart';
+import 'mag_route_map.dart';
 import 'mag_screen.dart';
 import 'mag_sheets.dart';
 import 'mag_stop_orders.dart';
@@ -43,15 +44,25 @@ Future<void> showRoutesSheet(
       Row(
         children: [
           const Expanded(child: Text('Маршруты', style: magTitle)),
+          // A line by taps on the map — the main way (S19); a list too.
+          IconButton(
+            key: const ValueKey('mag-new-route-list'),
+            tooltip: 'Списком',
+            onPressed: () {
+              Navigator.pop(context);
+              unawaited(showCreateRouteSheet(state));
+            },
+            icon: const Icon(Icons.list_alt_rounded),
+          ),
           FilledButton.icon(
             key: const ValueKey('mag-new-route'),
             style: FilledButton.styleFrom(backgroundColor: MagPalette.mint),
             onPressed: () {
               Navigator.pop(context);
-              unawaited(showCreateRouteSheet(state));
+              startRouteOnMap(state);
             },
-            icon: const Icon(Icons.add_rounded),
-            label: const Text('Новый'),
+            icon: const Icon(Icons.touch_app_rounded),
+            label: const Text('На карте'),
           ),
         ],
       ),

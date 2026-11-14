@@ -216,12 +216,12 @@ Widget _node(MagistraliScreenState state, MagTech t, bool last) {
                       Expanded(
                         child: Text(
                           blocker ??
-                              (t.cost > w.money
+                              (w.techCost(t) > w.money
                                   ? 'Не хватает кредитов'
                                   : 'Можно изучить'),
                           style: TextStyle(
                             fontSize: 12,
-                            color: blocker == null && t.cost <= w.money
+                            color: blocker == null && w.techCost(t) <= w.money
                                 ? MagPalette.teal
                                 : const Color(0xFF8A9599),
                           ),
@@ -232,13 +232,13 @@ Widget _node(MagistraliScreenState state, MagTech t, bool last) {
                         style: FilledButton.styleFrom(
                           backgroundColor: MagPalette.mint,
                         ),
-                        onPressed: ready && t.cost <= w.money
+                        onPressed: ready && w.techCost(t) <= w.money
                             ? () => state.report(
                                 w.research(t.id),
                                 'Изучено: ${t.title}',
                               )
                             : null,
-                        child: Text('${magMoney(t.cost)} кр'),
+                        child: Text('${magMoney(w.techCost(t))} кр'),
                       ),
                     ],
                   ),

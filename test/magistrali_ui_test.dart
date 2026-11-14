@@ -189,7 +189,7 @@ void main() {
 
     // A route: farm → plant, from the routes section.
     await tap(tester, 'mag-tab-routes');
-    await tap(tester, 'mag-new-route');
+    await tap(tester, 'mag-new-route-list');
     await tap(tester, 'mag-stop-${farm.id}');
     // The plant takes the farm's grain: it is offered first.
     await tap(tester, 'mag-suggest-${plant.id}');

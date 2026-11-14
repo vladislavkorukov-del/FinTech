@@ -36,11 +36,13 @@ extension MagWorldCities on MagWorld {
   /// city's own cargo, a trade city, the demand of the week.
   double marketFactor(MagIndustry i, MagCargo c) {
     final t = i.town;
-    if (t == null) return 1;
+    if (t == null) return rivalFactor(i); // META-09
     var k =
         (1 + t.spec.payBonus) * glutFactor(i, c) +
         deficitBonusOf(i, c) +
-        terminalBonusOf(i);
+        terminalBonusOf(i) +
+        reputationBonus(i) + // CITY-12
+        MagRules.starBonus * starsOf(i); // META-12
     if (isCity(i)) {
       if (MagTowns.favoured(t.specialization).contains(c)) {
         k += MagTowns.favouredBonus;

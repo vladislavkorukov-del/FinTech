@@ -33,8 +33,9 @@ class MagOverlay {
   /// Places the tutorial points at (S12).
   List<int> guide = const [];
 
-  /// Road load shown over the roads (ROAD-10).
+  /// Road load over the roads (ROAD-10); a line made on the map (S19).
   bool traffic = false;
+  List<int> draft = const [];
 
   /// Income popping up over a truck: (x, y, text, start time).
   final floats = <(double, double, String, double)>[];
@@ -191,7 +192,6 @@ class MagRenderer {
     for (final ch in _railChains) {
       if (seen(ch)) paintRailChain(canvas, ch);
     }
-    // Piers of ports (stage S9).
     for (final p in w.ports.keys) {
       final x = w.cx(p), y = w.cy(p);
       if (x < x0 - 1 || y < y0 - 1 || x > x1 + 1 || y > y1 + 1) continue;
@@ -226,7 +226,6 @@ class MagRenderer {
     }
     canvas.restore();
 
-    // Objects in depth order: trees, places and trucks.
     final t = host.time;
     final objects = <(double, void Function())>[];
     for (var y = y0; y <= y1; y++) {
@@ -375,6 +374,7 @@ class MagRenderer {
     // The selected vehicle's way, dashed, its stops numbered.
     final chosen = o.vehicle == null ? null : w.vehicles[o.vehicle!];
     if (chosen != null && chosen.onMap) paintVehicleRoute(canvas, w, chosen);
+    if (o.draft.isNotEmpty) paintRouteDraft(canvas, w, o.draft);
     objects.sort((a, b) => a.$1.compareTo(b.$1));
     for (final (_, draw) in objects) {
       draw();

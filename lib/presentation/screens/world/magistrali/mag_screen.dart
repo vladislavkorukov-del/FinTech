@@ -16,6 +16,7 @@ import 'mag_hud.dart';
 import 'mag_iso.dart';
 import 'mag_rail_ui.dart';
 import 'mag_road.dart';
+import 'mag_route_map.dart';
 import 'mag_fleet.dart';
 import 'mag_sheets.dart';
 import 'mag_sprites.dart';
@@ -27,7 +28,17 @@ import 'mag_works_ui.dart';
 part 'mag_screen_input.dart';
 
 /// What a finger on the map does.
-enum MagTool { view, road, remove, warehouse, industry, rail, station, port }
+enum MagTool {
+  view,
+  road,
+  remove,
+  warehouse,
+  industry,
+  rail,
+  station,
+  port,
+  route,
+}
 
 /// «Магистрали»: a transport company on an isometric map. Roads are laid
 /// by taps, trucks run their routes by themselves, deliveries pay,
@@ -86,6 +97,9 @@ class MagistraliScreenState extends State<MagistraliScreen>
   /// A port waiting for «Построить»: its water cell and the place.
   int? pendingPort, pendingPortPlace;
   int? _tapStart;
+
+  /// A line being made by taps on the map (S19).
+  final routeDraft = MagRouteDraft();
   String? message;
   Timer? _messageTimer;
 
@@ -417,7 +431,11 @@ class MagistraliScreenState extends State<MagistraliScreen>
         body: Center(child: CircularProgressIndicator()),
       );
     }
-    overlay.guide = guideFor(this).places;
+    overlay
+      ..guide = tool == MagTool.route
+          ? routeSuggestions(w, routeDraft)
+          : guideFor(this).places
+      ..draft = tool == MagTool.route ? routeDraft.stops : const [];
     return PopScope(
       canPop: true,
       onPopInvokedWithResult: (didPop, _) {

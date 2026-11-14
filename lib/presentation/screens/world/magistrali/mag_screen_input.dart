@@ -202,6 +202,8 @@ extension _MagScreenInput on MagistraliScreenState {
           pendingRemove = marks;
           overlay.removing = pendingRemove;
         });
+      case MagTool.route:
+        routeTap(this, cell);
       case MagTool.view:
         // A closed region (MAP-08): offer to open it.
         if (!w.regionOpen(w.cx(cell), w.cy(cell))) {

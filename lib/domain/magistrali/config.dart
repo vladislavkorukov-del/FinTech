@@ -199,6 +199,16 @@ abstract final class MagRules {
   /// every so many days, start share of the price, daily rise, days;
   /// regions — the price step; by-products of processing.
   static const transferShare = .3, paintPrice = 300;
+
+  /// S19: rivals — from this level, every so many days a place, their cut
+  /// of the pay where they serve, income and value; megalopolis stars;
+  /// reputation; the collection; the overdraft.
+  static const rivalLevel = 5, rivalEvery = 6, rivalCut = .2;
+  static const rivalIncome = 400, rivalBase = 20000, rivalPerClaim = 9000;
+  static const starDays = 20, starBonus = .05, reputationMax = .1;
+  static const collectionSteps = [(5, 3000), (10, 10000), (15, 25000)];
+  static const veteranAfter = 8, veteranBonus = 1.1;
+  static const overdraftRate = .01, crisisDays = 30;
   static const auctionEvery = 10, auctionStart = .7, auctionRise = .05;
   static const auctionDays = 5, regionPrice = 15000;
   static const byProducts = <MagIndustryKind, (MagCargo, double)>{

@@ -96,4 +96,27 @@ const magTechRecipes = <MagTech>[
     level: 10,
     requires: ['electronics'],
   ),
+  // Transport of the future (TECH-06, 1.91).
+  MagTech(
+    id: 'autopilot',
+    branch: MagBranch.fleet,
+    title: 'Автопилот',
+    lore: 'Лидары, карты и спокойный компьютер за рулём: грузовик едет сам.',
+    effect: 'Открывает беспилотные грузовики',
+    effects: {MagBonus.speed: .03},
+    cost: 40000,
+    level: 22,
+    requires: ['electronics'],
+  ),
+  MagTech(
+    id: 'maglev',
+    branch: MagBranch.fleet,
+    title: 'Магнитная подвеска',
+    lore: 'Поезд парит над путём: ни колёс, ни трения — только скорость.',
+    effect: 'Открывает маглевы',
+    effects: {MagBonus.speed: .02},
+    cost: 60000,
+    level: 25,
+    requires: ['autopilot'],
+  ),
 ];

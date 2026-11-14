@@ -9,7 +9,7 @@ import 'mag_art.dart';
 import 'mag_hud.dart';
 import 'mag_lore.dart';
 import 'mag_orders.dart';
-import 'mag_route_create.dart';
+import 'mag_route_map.dart';
 import 'mag_screen.dart';
 import 'mag_sheets.dart';
 
@@ -109,7 +109,7 @@ Future<void> showWarehouseSheet(
             style: FilledButton.styleFrom(backgroundColor: MagPalette.mint),
             onPressed: () {
               Navigator.pop(context);
-              unawaited(showCreateRouteSheet(state, first: id));
+              startRouteOnMap(state, first: id);
             },
             icon: const Icon(Icons.alt_route_rounded),
             label: const Text('Маршрут отсюда'),

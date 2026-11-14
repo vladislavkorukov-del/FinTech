@@ -80,3 +80,63 @@ void paintVehicleRoute(Canvas c, MagWorld w, MagVehicle v) {
     tp.dispose();
   }
 }
+
+/// A line being made on the map (S19): dashed legs between the stops
+/// chosen so far, each stop with its number.
+void paintRouteDraft(Canvas c, MagWorld w, List<int> stops) {
+  final line = Paint()
+    ..style = PaintingStyle.stroke
+    ..color = const Color(0xFF2BB59A)
+    ..strokeWidth = 3
+    ..strokeCap = StrokeCap.round;
+  final halo = Paint()
+    ..style = PaintingStyle.stroke
+    ..color = const Color(0x55203038)
+    ..strokeWidth = 5
+    ..strokeCap = StrokeCap.round;
+  final places = [for (final id in stops) w.map.industry(id)];
+  for (var k = 1; k < places.length; k++) {
+    final a = places[k - 1], b = places[k];
+    if (a == null || b == null) continue;
+    final leg = w.roadPath(w.accessCells(a), b);
+    final Path p;
+    if (leg != null && leg.length > 1) {
+      p = wayAhead(w, leg, 0);
+    } else {
+      final pa = MagIso.project(a.centerX, a.centerY);
+      final pb = MagIso.project(b.centerX, b.centerY);
+      p = Path()
+        ..moveTo(pa.dx, pa.dy)
+        ..lineTo(pb.dx, pb.dy);
+    }
+    c.drawPath(dashed(p, 8, 6), halo);
+    c.drawPath(dashed(p, 8, 6), line);
+  }
+  for (var k = 0; k < places.length; k++) {
+    final i = places[k];
+    if (i == null) continue;
+    final p = MagIso.project(i.centerX, i.centerY, 34);
+    c.drawCircle(p, 11, Paint()..color = const Color(0xFF2BB59A));
+    c.drawCircle(
+      p,
+      11,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2
+        ..color = const Color(0xFFFFFFFF),
+    );
+    final tp = TextPainter(
+      text: TextSpan(
+        text: '${k + 1}',
+        style: const TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w800,
+          color: Color(0xFFFFFFFF),
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    tp.paint(c, p - Offset(tp.width / 2, tp.height / 2));
+    tp.dispose();
+  }
+}

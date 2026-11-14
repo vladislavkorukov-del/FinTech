@@ -55,6 +55,7 @@ extension MagWorldMeta on MagWorld {
 
   /// Pays the achievements reached (once each); run once a day.
   void _checkAchievements() {
+    if (scenario == MagScenario.sandbox) return; // MAP-12: no rewards
     for (final a in MagAchievements.all) {
       if (achieved.containsKey(a.id)) continue;
       if (achievementProgress(a.id) < a.goal) continue;

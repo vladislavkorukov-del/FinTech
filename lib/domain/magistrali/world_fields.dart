@@ -11,6 +11,14 @@ mixin _MagWorldLater {
   final chronicle = <(int, String)>[];
   int debt = 0;
 
+  /// Rivals, megalopolis stars, the vehicle collection, days in the
+  /// minus (S19).
+  final rivals = <MagRival>[];
+  bool rivalsMet = false;
+  final stars = <int, int>{}, starDays = <int, int>{};
+  final collection = <String>{};
+  int collectionPaid = 0, negativeDays = 0;
+
   /// The auction lot, historical contracts offered, regions (S18).
   MagAuction? auction;
   final historicOffered = <String>{};

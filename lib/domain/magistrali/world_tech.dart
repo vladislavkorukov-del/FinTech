@@ -47,8 +47,9 @@ extension MagWorldTech on MagWorld {
     if (t == null) return 'Нет такой технологии';
     final why = techBlocker(t);
     if (why != null) return why;
-    if (money < t.cost) return 'Не хватает кредитов';
-    _spend(t.cost, 'research');
+    final cost = techCost(t); // TECH-08: achievements make it cheaper
+    if (money < cost) return 'Не хватает кредитов';
+    _spend(cost, 'research');
     techs.add(id);
     _say('Изучено: ${t.title}');
     return null;

@@ -218,7 +218,10 @@ extension MagWorldProgress on MagWorld {
         contracts.remove(c);
         final paid = (c.reward * factor(MagBonus.contract)).round();
         final city = c.deadline != null;
-        _earn(paid, city ? 'city_orders' : 'contracts');
+        // CONT-09: a customer that knows the company pays more.
+        final rep = map.industry(to);
+        final bonus = rep == null ? 0.0 : reputationBonus(rep);
+        _earn((paid * (1 + bonus)).round(), city ? 'city_orders' : 'contracts');
         final t = map.industry(to)?.town;
         t?.revenue += paid;
         if (city && t != null) {

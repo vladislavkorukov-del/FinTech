@@ -37,6 +37,9 @@ extension MagWorldSim on MagWorld {
     _dayDeals();
     _dayComplexes();
     _dayAuction();
+    _dayRivals();
+    _dayStars();
+    _dayCrisis();
     _checkAchievements();
     _dayTowns();
     _dayCities();
