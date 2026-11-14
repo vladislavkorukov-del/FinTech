@@ -115,6 +115,7 @@ Widget _routeCard(
                     pick: o.pick,
                     noPick: o.noPick,
                     noDrop: o.noDrop,
+                    ifCargo: o.ifCargo,
                   ),
                 );
               },
@@ -190,6 +191,37 @@ Widget _routeCard(
                     ),
                   ),
                   const Icon(Icons.chevron_right_rounded, size: 18),
+                ],
+              ),
+            ),
+          ),
+          // Minimum load before leaving (ROUTE-06): a tap cycles it.
+          InkWell(
+            key: ValueKey('mag-route-minload-${r.id}'),
+            onTap: () {
+              const steps = [100, 75, 50, 25, 0];
+              final next = steps[(steps.indexOf(r.minLoad) + 1) % steps.length];
+              state.report(w.setMinLoad(r.id, next));
+            },
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.inventory_2_outlined,
+                    size: 16,
+                    color: MagPalette.teal,
+                  ),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      r.minLoad == 0
+                          ? 'Загрузка: не ждать'
+                          : 'Загрузка перед отправкой: ${r.minLoad}%',
+                      style: const TextStyle(fontSize: 13),
+                    ),
+                  ),
+                  const Icon(Icons.sync_rounded, size: 18),
                 ],
               ),
             ),

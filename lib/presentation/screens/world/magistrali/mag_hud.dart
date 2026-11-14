@@ -4,6 +4,7 @@ import 'package:flutter/material.dart' hide Text;
 
 import '../../../../domain/magistrali/magistrali.dart';
 import '../../../l10n_widgets.dart';
+import 'mag_company.dart';
 import 'mag_finance.dart';
 import 'mag_guide.dart';
 import 'mag_art.dart';

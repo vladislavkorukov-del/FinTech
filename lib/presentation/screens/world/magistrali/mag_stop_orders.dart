@@ -8,16 +8,25 @@ import 'mag_sheets.dart';
 /// What to do at one stop of a line (S13): load only [pick], load nothing,
 /// keep the load. All off: the stop works by itself.
 class StopOrder {
-  const StopOrder({this.pick, this.noPick = false, this.noDrop = false});
+  const StopOrder({
+    this.pick,
+    this.noPick = false,
+    this.noDrop = false,
+    this.ifCargo = false,
+  });
   final MagCargo? pick;
   final bool noPick, noDrop;
 
-  bool get auto => pick == null && !noPick && !noDrop;
+  /// Visited only when there is something to load or unload (ROUTE-10).
+  final bool ifCargo;
+
+  bool get auto => pick == null && !noPick && !noDrop && !ifCargo;
 
   static StopOrder of(MagRoute r, int k) => StopOrder(
     pick: r.pickAt[k],
     noPick: r.noPick.contains(k),
     noDrop: r.noDrop.contains(k),
+    ifCargo: r.ifCargo.contains(k),
   );
 }
 
@@ -73,7 +82,7 @@ Future<StopOrder?> pickStopOrder(
   StopOrder now,
 ) {
   var pick = now.pick;
-  var noPick = now.noPick, noDrop = now.noDrop;
+  var noPick = now.noPick, noDrop = now.noDrop, ifCargo = now.ifCargo;
   return showModalBottomSheet<StopOrder>(
     context: context,
     showDragHandle: true,
@@ -134,6 +143,18 @@ Future<StopOrder?> pickStopOrder(
                   ),
                   onChanged: (v) => set(() => noDrop = v),
                 ),
+                SwitchListTile(
+                  key: const ValueKey('mag-order-ifcargo'),
+                  contentPadding: EdgeInsets.zero,
+                  value: ifCargo,
+                  activeThumbColor: MagPalette.mint,
+                  title: const Text('Заезжать, только если есть груз'),
+                  subtitle: const Text(
+                    'Машина пропускает остановку, когда здесь нечего забрать и нечего выгрузить',
+                    style: magMuted,
+                  ),
+                  onChanged: (v) => set(() => ifCargo = v),
+                ),
                 SizedBox(
                   width: double.infinity,
                   child: FilledButton(
@@ -143,7 +164,12 @@ Future<StopOrder?> pickStopOrder(
                     ),
                     onPressed: () => Navigator.pop(
                       context,
-                      StopOrder(pick: pick, noPick: noPick, noDrop: noDrop),
+                      StopOrder(
+                        pick: pick,
+                        noPick: noPick,
+                        noDrop: noDrop,
+                        ifCargo: ifCargo,
+                      ),
                     ),
                     child: const Text('Готово'),
                   ),

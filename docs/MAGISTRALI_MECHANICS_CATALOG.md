@@ -7,23 +7,23 @@
 
 Статусы: NOT_STARTED — не начато; PARTIAL — частично; IN_PROGRESS — в работе;
 READY_FOR_REVIEW — готово, ждёт проверки игроком; VERIFIED — проверено игроком
-(этапы, которые игрок подтвердил: 1.68–1.85); BLOCKED — заблокировано.
+(этапы, которые игрок подтвердил: 1.68–1.86); BLOCKED — заблокировано.
 
 Файлы домена — `lib/domain/magistrali/`, интерфейса —
 `lib/presentation/screens/world/magistrali/`. Тесты — `test/magistrali_<имя>_test.dart`
 (sim, orders, storage, dispatch, towns, horses, production, growth,
-industry, cities, logistics, rail, water, megapolis, passengers, p1, s12, s13, s14, ui, ui_s13, ui_stage5, ui_rail).
+industry, cities, logistics, rail, water, megapolis, passengers, p1, s12, s13, s14, s15, ui, ui_s15, ui_s13, ui_stage5, ui_rail).
 
-Аудит: 1.77.0, обновлено в 1.78.0 (S7) и 1.79.0 (S8), 1.80.0 (S9 и доводка ЖД), 1.81.0 (S10 и графика), 1.82.0 (S11), 1.83.0 (доделка P1), 1.84.0 (S12), 1.85.0 (S13), 1.86.0 (S14); точка восстановления — тег `restore/magistrali-1.77.0-pre-s7`.
+Аудит: 1.77.0, обновлено в 1.78.0 (S7) и 1.79.0 (S8), 1.80.0 (S9 и доводка ЖД), 1.81.0 (S10 и графика), 1.82.0 (S11), 1.83.0 (доделка P1), 1.84.0 (S12), 1.85.0 (S13), 1.86.0 (S14), 1.87.0 (S15); точка восстановления — тег `restore/magistrali-1.77.0-pre-s7`.
 
 ## Сводка
 
 | Статус | Механик |
 |---|---|
-| VERIFIED | 140 |
-| READY_FOR_REVIEW | 3 |
-| PARTIAL | 25 |
-| NOT_STARTED | 35 |
+| VERIFIED | 143 |
+| READY_FOR_REVIEW | 7 |
+| PARTIAL | 22 |
+| NOT_STARTED | 31 |
 | Всего | 203 |
 
 ## A. Фундамент игры и безопасность
@@ -108,8 +108,8 @@ industry, cities, logistics, rail, water, megapolis, passengers, p1, s12, s13, s
 | VEH-08 | Износ | P1 | VERIFIED | 1.68 | — | world_sim.dart (`wear`) | sim | — |
 | VEH-09 | Ремонт и обслуживание | P2 | VERIFIED | 1.68 | VEH-08 | world_fleet.dart (`service`, автообслуживание) | sim | — |
 | VEH-10 | Депо | P2 | PARTIAL | 1.68 | — | состояние «в гараже» | — | Нет постройки депо |
-| VEH-11 | Массовое управление | P2 | NOT_STARTED | — | — | — | — | — |
-| VEH-12 | Автозамена устаревшей техники | P2 | NOT_STARTED | — | — | — | — | — |
+| VEH-11 | Массовое управление | P2 | READY_FOR_REVIEW | 1.87 | — | world_meta.dart (`repairAll`, `assignIdle`), mag_fleet_bulk.dart | s15, ui_s15 | — |
+| VEH-12 | Автозамена устаревшей техники | P2 | READY_FOR_REVIEW | 1.87 | — | world_meta.dart (`newerModelFor`, `replaceVehicle`, `replaceAllOutdated`), mag_fleet_bulk.dart, mag_fleet.dart | s15, ui_s15 | Замена по кнопке, не сама |
 | VEH-13 | Визуальная модернизация | P2 | NOT_STARTED | — | VEH-07 | — | — | — |
 | VEH-14 | Коллекционная историческая техника | P3 | NOT_STARTED | — | — | — | — | — |
 
@@ -122,13 +122,13 @@ industry, cities, logistics, rail, water, megapolis, passengers, p1, s12, s13, s
 | ROUTE-03 | Кольцевые маршруты | P1 | VERIFIED | 1.68 | — | world_sim.dart | sim | — |
 | ROUTE-04 | Несколько машин на линии | P1 | VERIFIED | 1.68 | — | world_fleet.dart (`assign`) | — | — |
 | ROUTE-05 | Настройки погрузки | P1 | VERIFIED | 1.85 | ROUTE-01 | entities.dart (`pickAt`, `noPick`, `noDrop`), world_routes.dart (`setStopOrder`, `_loadable`), mag_stop_orders.dart | s13, ui_s13 | — |
-| ROUTE-06 | Минимальная загрузка | P2 | PARTIAL | 1.68 | — | world_sim.dart (ждёт полной загрузки) | sim | Не настраивается |
+| ROUTE-06 | Минимальная загрузка | P2 | READY_FOR_REVIEW | 1.87 | — | entities.dart (`minLoad`), world_routes.dart (`setMinLoad`), world_sim.dart, mag_routes.dart | s15, ui_s15 | 100/75/50/25/0% |
 | ROUTE-07 | Максимальное время ожидания | P1 | VERIFIED | 1.68 | — | config.dart (`partialWaitDays`) | sim | — |
 | ROUTE-08 | Обратные грузовые рейсы | P1 | VERIFIED | 1.68 | — | world_sim.dart (`_loadable` на каждой остановке) | sim | — |
-| ROUTE-09 | Приоритетные грузы | P2 | READY_FOR_REVIEW | 1.86 | ROUTE-05 | entities.dart (`priority`), world_plans.dart (`setPriority`, `_priorityPick`), mag_stop_orders.dart (`pickPriority`) | s14, ui_s13 | — |
-| ROUTE-10 | Условные остановки | P3 | NOT_STARTED | — | — | — | — | — |
+| ROUTE-09 | Приоритетные грузы | P2 | VERIFIED | 1.86 | ROUTE-05 | entities.dart (`priority`), world_plans.dart (`setPriority`, `_priorityPick`), mag_stop_orders.dart (`pickPriority`) | s14, ui_s13 | — |
+| ROUTE-10 | Условные остановки | P3 | READY_FOR_REVIEW | 1.87 | — | entities.dart (`ifCargo`), world_routes.dart (`_nextStop`, `_needed`), mag_stop_orders.dart | s15, ui_s15 | — |
 | ROUTE-11 | Статистика линии | P1 | VERIFIED | 1.78 | FIN-01 | entities.dart (`costs`, `cells`, `emptyCells`), mag_finance.dart | logistics | Нет времени круга |
-| ROUTE-12 | Копирование маршрутов | P2 | READY_FOR_REVIEW | 1.86 | — | world_plans.dart (`copyRoute`: копия и обратный маршрут с указаниями и приоритетом), mag_routes.dart | s14, ui_s13 | — |
+| ROUTE-12 | Копирование маршрутов | P2 | VERIFIED | 1.86 | — | world_plans.dart (`copyRoute`: копия и обратный маршрут с указаниями и приоритетом), mag_routes.dart | s14, ui_s13 | — |
 | ROUTE-13 | Перерасчёт после изменения дорог | P0 | VERIFIED | 1.68 | ROAD-12 | world_sim.dart (`roadVersion`, `noRoad`) | sim: «a broken road stops the truck» | — |
 | ROUTE-14 | Показатель порожнего пробега | P2 | VERIFIED | 1.78 | — | entities.dart (`emptyShare`), mag_finance.dart | logistics, industry | — |
 
@@ -266,8 +266,8 @@ industry, cities, logistics, rail, water, megapolis, passengers, p1, s12, s13, s
 | FIN-11 | Анализ убыточности | P2 | VERIFIED | 1.78 | FIN-05 | world_advice.dart (убыток с причиной) | logistics | — |
 | FIN-12 | Финансовые рекомендации | P2 | VERIFIED | 1.78 | FIN-11 | world_advice.dart, mag_advice.dart (вкладка «Советы») | logistics, ui_stage5 | — |
 | FIN-13 | Оценка окупаемости | P2 | VERIFIED | 1.76 | FIN-05 | world_finance.dart (`paybackDays`) | industry | — |
-| FIN-14 | Инвестиционное планирование | P3 | READY_FOR_REVIEW | 1.86 | FIN-13 | world_plans.dart (`investmentIdeas`: машина на маршрут, уровень предприятия, покупка, дорога в пробке), mag_invest.dart (вкладка «Инвестиции») | s14, ui_s13 | Оценка по фактической прибыли |
-| FIN-15 | Кредиты и проценты | P3 | NOT_STARTED | — | — | — | — | — |
+| FIN-14 | Инвестиционное планирование | P3 | VERIFIED | 1.86 | FIN-13 | world_plans.dart (`investmentIdeas`: машина на маршрут, уровень предприятия, покупка, дорога в пробке), mag_invest.dart (вкладка «Инвестиции») | s14, ui_s13 | Оценка по фактической прибыли |
+| FIN-15 | Кредиты и проценты | P3 | READY_FOR_REVIEW | 1.87 | — | world_meta.dart (`takeLoan`, `repayLoan`, `dailyInterest`), ledger.dart (`financing`), mag_loan.dart | s15, ui_s15 | — |
 | FIN-16 | Мягкий финансовый кризис | P2 | PARTIAL | 1.68 | — | баланс может уйти в минус (красный), активы можно продать | — | Нет явного восстановления |
 
 ## N. Карта и развитие игрового мира
@@ -292,10 +292,10 @@ industry, cities, logistics, rail, water, megapolis, passengers, p1, s12, s13, s
 | ID | Механика | P | Статус | Версия | Зависимости | Файлы | Тесты | Проблемы |
 |---|---|---|---|---|---|---|---|---|
 | META-01 | Уровень компании | P1 | VERIFIED | 1.68 | — | world_progress.dart | sim | — |
-| META-02 | Достижения | P1 | PARTIAL | 1.68 | — | world_progress.dart (задания, награды Мира Финоры) | sim | Нет раздела достижений |
+| META-02 | Достижения | P1 | READY_FOR_REVIEW | 1.87 | — | achievements.dart (20 достижений), world_meta.dart (`achievementProgress`, `_checkAchievements`), mag_company.dart («Достижения») | s15, ui_s15 | — |
 | META-03 | Первый мегаполис | P1 | VERIFIED | 1.81 | CITY-02 | world_mega.dart (`_megapolisReached`, только поселение-хутор), settlements.dart (`origin`) | megapolis | — |
 | META-04 | Постоянная отметка первого мегаполиса | P1 | VERIFIED | 1.81 | META-03 | world_save.dart (`megapolis`), mag_game.dart (золотая корона), награда Мира Финоры | megapolis, ui_rail | Отметка живёт в сохранении партии; новая компания начинает заново (награда в Мире Финоры остаётся) |
-| META-05 | История транспортной империи | P2 | PARTIAL | 1.74 | — | ledger.dart, история поселений | — | Нет общей летописи |
+| META-05 | История транспортной империи | P2 | READY_FOR_REVIEW | 1.87 | — | world_meta.dart (`chronicle`, `_remember`), mag_company.dart («Летопись») | s15, ui_s15 | Последние 200 событий |
 | META-06 | Мегапроекты | P1 | VERIFIED | 1.81 | CONT-08 | megaprojects.dart, world_mega.dart, mag_mega_ui.dart, mag_mega_art.dart | megapolis, ui_rail | — |
 | META-07 | Уникальные исторические контракты | P2 | NOT_STARTED | — | — | — | — | — |
 | META-08 | Коллекция исторической техники | P3 | NOT_STARTED | — | — | — | — | — |

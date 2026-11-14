@@ -7,6 +7,7 @@ import '../../../l10n_widgets.dart';
 import 'mag_art.dart';
 import 'mag_dispatch.dart';
 import 'mag_filters.dart';
+import 'mag_fleet_bulk.dart';
 import 'mag_hud.dart';
 import 'mag_orders.dart';
 import 'mag_rail_ui.dart';
@@ -183,6 +184,7 @@ Future<void> showFleetSheet(
             onSelect: (i) => setLocal(() => _fleetKind = i),
           ),
           MagDispatchPanel(state: state),
+          MagFleetBulk(state: state),
           for (final v in mine) _truckTile(state, v, context),
           if (mine.isEmpty)
             const Text('Такого транспорта пока нет.', style: magMuted),
@@ -218,117 +220,127 @@ Future<void> showFleetSheet(
 
 /// One truck: what it does, its stats, the four upgrade lines, route,
 /// repair and sale.
-Future<void> showVehicleSheet(MagistraliScreenState state, int id) => magSheet(
-  state,
-  'mag-vehicle-$id',
-  (context) {
-    final w = state.world;
-    final v = w.vehicles[id];
-    if (v == null) return const Text('Машина продана');
-    final route = w.routes[v.routeId];
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(v.name, style: magTitle),
-        Text('${v.spec.name} · ${stateName(w, v)}', style: magMuted),
-        const SizedBox(height: 8),
-        magRow('Скорость', '${w.speedOf(v).toStringAsFixed(2)} кл./с'),
-        magRow('Грузоподъёмность', '${w.capacityOf(v)} ед.'),
-        magRow('Расход', '${w.runningCostOf(v).toStringAsFixed(2)} кр/кл.'),
-        magRow('Обслуживание', '${w.upkeepOf(v)} кр/день'),
-        magRow(
-          'Износ',
-          '${v.wear.round()}% (−${(35 * v.wear / 100).round()}% скорости)',
+Future<void> showVehicleSheet(
+  MagistraliScreenState state,
+  int id,
+) => magSheet(state, 'mag-vehicle-$id', (context) {
+  final w = state.world;
+  final v = w.vehicles[id];
+  if (v == null) return const Text('Машина продана');
+  final route = w.routes[v.routeId];
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(v.name, style: magTitle),
+      Text('${v.spec.name} · ${stateName(w, v)}', style: magMuted),
+      const SizedBox(height: 8),
+      magRow('Скорость', '${w.speedOf(v).toStringAsFixed(2)} кл./с'),
+      magRow('Грузоподъёмность', '${w.capacityOf(v)} ед.'),
+      magRow('Расход', '${w.runningCostOf(v).toStringAsFixed(2)} кр/кл.'),
+      magRow('Обслуживание', '${w.upkeepOf(v)} кр/день'),
+      magRow(
+        'Износ',
+        '${v.wear.round()}% (−${(35 * v.wear / 100).round()}% скорости)',
+      ),
+      magRow(
+        'Груз',
+        v.load > 0 ? '${cargoName(v.cargo!)} · ${v.load}' : 'пусто',
+      ),
+      magRow('Пробег', '${v.odometer.round()} кл.'),
+      magRow('Рейсов', '${v.trips}'),
+      magRow(
+        'Доход за всё время',
+        '${magMoney(v.income)} кр',
+        color: MagPalette.teal,
+      ),
+      magRow('Маршрут', route?.name ?? 'нет'),
+      if (v.spec.rail) ...trainPanel(state, v),
+      if (!v.spec.rail && !v.spec.water)
+        SwitchListTile(
+          key: const ValueKey('mag-auto-toggle'),
+          contentPadding: EdgeInsets.zero,
+          value: v.auto,
+          activeThumbColor: MagPalette.mint,
+          title: const Text('Автопарк'),
+          subtitle: Text(
+            w.dispatcherUnlocked
+                ? 'Диспетчер сам даёт машине заявки. Маршрут снимается.'
+                : 'Откроет технология «Диспетчерская»',
+            style: magMuted,
+          ),
+          onChanged: (on) => state.report(
+            w.setAuto(v.id, on),
+            on
+                ? '${v.name} в автопарке'
+                : '${v.name} снова под вашим управлением',
+          ),
         ),
-        magRow(
-          'Груз',
-          v.load > 0 ? '${cargoName(v.cargo!)} · ${v.load}' : 'пусто',
-        ),
-        magRow('Пробег', '${v.odometer.round()} кл.'),
-        magRow('Рейсов', '${v.trips}'),
-        magRow(
-          'Доход за всё время',
-          '${magMoney(v.income)} кр',
-          color: MagPalette.teal,
-        ),
-        magRow('Маршрут', route?.name ?? 'нет'),
-        if (v.spec.rail) ...trainPanel(state, v),
-        if (!v.spec.rail && !v.spec.water)
-          SwitchListTile(
-            key: const ValueKey('mag-auto-toggle'),
-            contentPadding: EdgeInsets.zero,
-            value: v.auto,
-            activeThumbColor: MagPalette.mint,
-            title: const Text('Автопарк'),
-            subtitle: Text(
-              w.dispatcherUnlocked
-                  ? 'Диспетчер сам даёт машине заявки. Маршрут снимается.'
-                  : 'Откроет технология «Диспетчерская»',
-              style: magMuted,
-            ),
-            onChanged: (on) => state.report(
-              w.setAuto(v.id, on),
-              on
-                  ? '${v.name} в автопарке'
-                  : '${v.name} снова под вашим управлением',
+      const SizedBox(height: 8),
+      Text(
+        'Улучшения · доступно до ${w.maxUpgradeLevel} ур.',
+        style: const TextStyle(fontWeight: FontWeight.w800),
+      ),
+      const SizedBox(height: 6),
+      for (final u in MagUpgrade.values) _upgradeRow(state, v, u),
+      const SizedBox(height: 8),
+      Wrap(
+        spacing: 8,
+        runSpacing: 8,
+        children: [
+          FilledButton.icon(
+            key: const ValueKey('mag-assign'),
+            style: FilledButton.styleFrom(backgroundColor: MagPalette.mint),
+            onPressed: () => unawaited(_pickRoute(state, v, context)),
+            icon: const Icon(Icons.alt_route_rounded),
+            label: Text(
+              route == null ? 'Назначить маршрут' : 'Сменить маршрут',
             ),
           ),
-        const SizedBox(height: 8),
-        Text(
-          'Улучшения · доступно до ${w.maxUpgradeLevel} ур.',
-          style: const TextStyle(fontWeight: FontWeight.w800),
-        ),
-        const SizedBox(height: 6),
-        for (final u in MagUpgrade.values) _upgradeRow(state, v, u),
-        const SizedBox(height: 8),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            FilledButton.icon(
-              key: const ValueKey('mag-assign'),
-              style: FilledButton.styleFrom(backgroundColor: MagPalette.mint),
-              onPressed: () => unawaited(_pickRoute(state, v, context)),
-              icon: const Icon(Icons.alt_route_rounded),
-              label: Text(
-                route == null ? 'Назначить маршрут' : 'Сменить маршрут',
-              ),
+          OutlinedButton.icon(
+            key: const ValueKey('mag-service'),
+            onPressed: w.serviceCost(v) == 0
+                ? null
+                : () => state.report(w.service(v.id), 'Машина отремонтирована'),
+            icon: const Icon(Icons.build_rounded),
+            label: Text('Ремонт · ${magMoney(w.serviceCost(v))} кр'),
+          ),
+          if (route != null)
+            OutlinedButton(
+              key: const ValueKey('mag-unassign'),
+              onPressed: () =>
+                  state.report(w.assign(v.id, null), 'Машина в гараже'),
+              child: const Text('В гараж'),
             ),
-            OutlinedButton.icon(
-              key: const ValueKey('mag-service'),
-              onPressed: w.serviceCost(v) == 0
-                  ? null
-                  : () =>
-                        state.report(w.service(v.id), 'Машина отремонтирована'),
-              icon: const Icon(Icons.build_rounded),
-              label: Text('Ремонт · ${magMoney(w.serviceCost(v))} кр'),
-            ),
-            if (route != null)
-              OutlinedButton(
-                key: const ValueKey('mag-unassign'),
-                onPressed: () =>
-                    state.report(w.assign(v.id, null), 'Машина в гараже'),
-                child: const Text('В гараж'),
-              ),
+          // A newer model of the same kind (VEH-12).
+          if (w.newerModelFor(v) != null)
             TextButton(
-              key: const ValueKey('mag-sell'),
-              onPressed: () {
-                final value = w.valueOf(v);
-                if (state.report(
-                  w.sellTruck(v.id),
-                  'Продано за ${magMoney(value)} кр',
-                )) {
-                  Navigator.pop(context);
-                }
-              },
-              child: Text('Продать · ${magMoney(w.valueOf(v))} кр'),
+              key: const ValueKey('mag-replace'),
+              onPressed: () => state.report(
+                w.replaceVehicle(v.id),
+                'Заменено на ${w.newerModelFor(v)?.name ?? 'новую модель'}',
+              ),
+              child: Text(
+                'Заменить на «${w.newerModelFor(v)!.name.split('«').last.replaceAll('»', '')}» · ${magMoney(w.replaceCost(v)!)} кр',
+              ),
             ),
-          ],
-        ),
-      ],
-    );
-  },
-);
+          TextButton(
+            key: const ValueKey('mag-sell'),
+            onPressed: () {
+              final value = w.valueOf(v);
+              if (state.report(
+                w.sellTruck(v.id),
+                'Продано за ${magMoney(value)} кр',
+              )) {
+                Navigator.pop(context);
+              }
+            },
+            child: Text('Продать · ${magMoney(w.valueOf(v))} кр'),
+          ),
+        ],
+      ),
+    ],
+  );
+});
 
 Widget _upgradeRow(MagistraliScreenState state, MagVehicle v, MagUpgrade u) {
   final w = state.world;

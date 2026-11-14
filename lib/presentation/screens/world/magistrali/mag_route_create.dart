@@ -286,6 +286,7 @@ Future<void> showCreateRouteSheet(MagistraliScreenState state, {int? first}) {
                                   pick: o.pick,
                                   noPick: o.noPick,
                                   noDrop: o.noDrop,
+                                  ifCargo: o.ifCargo,
                                 );
                               }
                             }
