@@ -79,11 +79,6 @@ void main() {
     fail('Магистрали did not open');
   }
 
-  Offset at(WidgetTester tester, MagistraliScreenState s, int x, int y) {
-    final size = tester.getSize(find.byKey(const ValueKey('mag-map')));
-    return s.camera.cellToScreen(x + .5, y + .5, size);
-  }
-
   Future<void> tap(WidgetTester tester, String key) async {
     final f = find.byKey(ValueKey(key));
     await tester.ensureVisible(f);
