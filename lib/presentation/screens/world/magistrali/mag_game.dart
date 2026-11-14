@@ -54,9 +54,7 @@ abstract interface class MagHost {
   void advance(double dt);
 }
 
-/// The Flame game: its loop drives the fixed-step simulation and draws the
-/// isometric world each frame. The world is one renderer, not a component
-/// per cell, so a 64×64 map with hundreds of trees stays light.
+/// The Flame game: its loop drives the fixed-step simulation and draws the world as one renderer.
 class MagGame extends Game {
   MagGame(this.host);
   final MagHost host;
@@ -422,6 +420,7 @@ class MagRenderer {
         );
         label.paint(canvas, box.topLeft + const Offset(6, 2.5));
         if (w.isRich(i)) paintGem(canvas, box.centerLeft - const Offset(9, 0));
+        paintRivalDot(canvas, w, i, box.centerRight);
         if (w.firstMegapolis == i.id) {
           // The first megalopolis: a golden crown for ever (META-04).
           final cp = box.centerLeft - const Offset(12, 0);

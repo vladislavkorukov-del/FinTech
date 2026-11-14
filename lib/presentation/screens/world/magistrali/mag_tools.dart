@@ -295,6 +295,7 @@ const scenarioChoices = [
   (MagScenario.railway, 'Железнодорожник — паровая тяга и 25 000 кр'),
   (MagScenario.river, 'Речник — судоходство и 25 000 кр'),
   (MagScenario.industrial, 'Промышленник — свой пищевой завод, 5 000 кр'),
+  (MagScenario.sandbox, 'Песочница — всё открыто, 10 000 000 кр, без наград'),
 ];
 
 /// A short message over the map.

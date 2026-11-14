@@ -7,23 +7,23 @@
 
 Статусы: NOT_STARTED — не начато; PARTIAL — частично; IN_PROGRESS — в работе;
 READY_FOR_REVIEW — готово, ждёт проверки игроком; VERIFIED — проверено игроком
-(этапы, которые игрок подтвердил: 1.68–1.89); BLOCKED — заблокировано.
+(этапы, которые игрок подтвердил: 1.68–1.90); BLOCKED — заблокировано.
 
 Файлы домена — `lib/domain/magistrali/`, интерфейса —
 `lib/presentation/screens/world/magistrali/`. Тесты — `test/magistrali_<имя>_test.dart`
 (sim, orders, storage, dispatch, towns, horses, production, growth,
-industry, cities, logistics, rail, water, megapolis, passengers, p1, s12, s13, s14, s15, s16, s17, s18, ui, ui_s17, ui_s15, ui_s13, ui_stage5, ui_rail).
+industry, cities, logistics, rail, water, megapolis, passengers, p1, s12, s13, s14, s15, s16, s17, s18, s19, ui, ui_s17, ui_s15, ui_s13, ui_stage5, ui_rail).
 
-Аудит: 1.77.0, обновлено в 1.78.0 (S7) и 1.79.0 (S8), 1.80.0 (S9 и доводка ЖД), 1.81.0 (S10 и графика), 1.82.0 (S11), 1.83.0 (доделка P1), 1.84.0 (S12), 1.85.0 (S13), 1.86.0 (S14), 1.87.0 (S15), 1.88.0 (S16), 1.89.0 (S17), 1.90.0 (S18); точка восстановления — тег `restore/magistrali-1.77.0-pre-s7`.
+Аудит: 1.77.0, обновлено в 1.78.0 (S7) и 1.79.0 (S8), 1.80.0 (S9 и доводка ЖД), 1.81.0 (S10 и графика), 1.82.0 (S11), 1.83.0 (доделка P1), 1.84.0 (S12), 1.85.0 (S13), 1.86.0 (S14), 1.87.0 (S15), 1.88.0 (S16), 1.89.0 (S17), 1.90.0 (S18), 1.91.0 (S19); точка восстановления — тег `restore/magistrali-1.77.0-pre-s7`.
 
 ## Сводка
 
 | Статус | Механик |
 |---|---|
-| VERIFIED | 166 |
-| READY_FOR_REVIEW | 8 |
-| PARTIAL | 21 |
-| NOT_STARTED | 8 |
+| VERIFIED | 174 |
+| READY_FOR_REVIEW | 11 |
+| PARTIAL | 17 |
+| NOT_STARTED | 1 |
 | Всего | 203 |
 
 ## A. Фундамент игры и безопасность
@@ -56,7 +56,7 @@ industry, cities, logistics, rail, water, megapolis, passengers, p1, s12, s13, s
 | CITY-09 | Контракты развития | P1 | VERIFIED | 1.75 | CITY-08 | world_settlements.dart (`_payDevelopment`) | growth | — |
 | CITY-10 | Транспортная доступность | P1 | PARTIAL | 1.72 | ROAD-12 | world_settlements.dart, mag_development.dart («нет дороги») | growth | Учитывается только через реальные поставки |
 | CITY-11 | Специализации поселений | P2 | VERIFIED | 1.77 | CITY-08 | world_cities.dart, settlements.dart (`favoured`) | cities | — |
-| CITY-12 | Репутация в городе | P2 | PARTIAL | 1.72 | — | settlements.dart (`reputation`) | — | Растёт, но преимуществ не даёт |
+| CITY-12 | Репутация в городе | P2 | READY_FOR_REVIEW | 1.91 | — | settlements.dart (`reputation`), world_rivals.dart (`reputationBonus`: до +10% к рынку), mag_city.dart | s19 | — |
 | CITY-13 | Несколько точек разгрузки | P2 | VERIFIED | 1.89 | LOG, ROUTE | world_complex.dart (терминалы: `buildTerminal`, +5% к оплате, до 1 + уровень/3), mag_road.dart, mag_structures_art.dart | s17, ui_s17 | — |
 | CITY-14 | История поселения | P2 | VERIFIED | 1.72 | — | settlements.dart (`history`) | towns | — |
 | CITY-15 | Удовлетворённость населения | P3 | VERIFIED | 1.72 | CITY-07 | world_settlements.dart (`satisfaction`, `growAt`) | towns | — |
@@ -71,9 +71,9 @@ industry, cities, logistics, rail, water, megapolis, passengers, p1, s12, s13, s
 | TECH-03 | Паровая эпоха | P1 | VERIFIED | 1.79 | RAIL-01 | tech_nodes.dart (`steam`), world_rails.dart | rail | — |
 | TECH-04 | Эпоха автомобилизации | P1 | VERIFIED | 1.73 | TECH-07 | tech_nodes.dart (`combustion`), config.dart (асфальт) | horses | — |
 | TECH-05 | Современная логистика | P1 | PARTIAL | 1.71 | LOG-07 | tech_nodes.dart (диспетчерская), шоссе, магистраль, тягач | dispatch | Нет отдельной эпохи |
-| TECH-06 | Транспорт будущего | P3 | NOT_STARTED | — | — | — | — | — |
+| TECH-06 | Транспорт будущего | P3 | READY_FOR_REVIEW | 1.91 | TECH-01 | tech_nodes_recipes.dart (`autopilot`, `maglev`), config_vehicles.dart (беспилотник 22 ур., маглев 25 ур.) | s19 | — |
 | TECH-07 | Дерево исследований | P1 | VERIFIED | 1.70 | — | tech.dart, tech_nodes.dart (36 узлов) | storage: «tree integrity» | — |
-| TECH-08 | Исследования через достижения | P2 | PARTIAL | 1.70 | META-02 | tech.dart (`deliveries`) | storage | Учитывается только число доставок |
+| TECH-08 | Исследования через достижения | P2 | READY_FOR_REVIEW | 1.91 | META-02 | world_rivals.dart (`techCost`: −1% за достижение, до −20%), mag_tech.dart | s19 | — |
 | TECH-09 | Сохранение старой техники | P1 | VERIFIED | 1.73 | — | world_tech.dart (`motorUnlocked`) | horses | — |
 | TECH-10 | Новые рецепты по эпохам | P1 | VERIFIED | 1.83 | PROD-13 | tech_nodes_recipes.dart (5 технологий), config.dart (`MagIndustrySpec.tech`), world_industry.dart | p1, industry | Старые сохранения получают рецепты, доступные их уровню |
 
@@ -110,14 +110,14 @@ industry, cities, logistics, rail, water, megapolis, passengers, p1, s12, s13, s
 | VEH-10 | Депо | P2 | VERIFIED | 1.88 | — | world_works.dart (`buildDepot`, `_atDepot`, `depotUpkeep`), mag_road.dart, mag_structures_art.dart (`paintDepot`) | s16, ui_s15 | — |
 | VEH-11 | Массовое управление | P2 | VERIFIED | 1.87 | — | world_meta.dart (`repairAll`, `assignIdle`), mag_fleet_bulk.dart | s15, ui_s15 | — |
 | VEH-12 | Автозамена устаревшей техники | P2 | VERIFIED | 1.87 | — | world_meta.dart (`newerModelFor`, `replaceVehicle`, `replaceAllOutdated`), mag_fleet_bulk.dart, mag_fleet.dart | s15, ui_s15 | Замена по кнопке, не сама |
-| VEH-13 | Визуальная модернизация | P2 | READY_FOR_REVIEW | 1.90 | VEH-07 | world_network.dart (`paintVehicle`, `visualTier`), mag_art.dart (покраска, золотые нашивки), mag_fleet_bulk.dart | s18, ui_s17 | — |
-| VEH-14 | Коллекционная историческая техника | P3 | NOT_STARTED | — | — | — | — | — |
+| VEH-13 | Визуальная модернизация | P2 | VERIFIED | 1.90 | VEH-07 | world_network.dart (`paintVehicle`, `visualTier`), mag_art.dart (покраска, золотые нашивки), mag_fleet_bulk.dart | s18, ui_s17 | — |
+| VEH-14 | Коллекционная историческая техника | P3 | READY_FOR_REVIEW | 1.91 | META-08 | config_vehicles.dart (`veteran`, кузов `retro`, +10% к оплате), world_fleet.dart (открывается при 8 моделях) | s19 | — |
 
 ## F. Маршруты и оптимизация перевозок
 
 | ID | Механика | P | Статус | Версия | Зависимости | Файлы | Тесты | Проблемы |
 |---|---|---|---|---|---|---|---|---|
-| ROUTE-01 | Создание маршрутов | P1 | VERIFIED | 1.84 | ROAD-12 | world.dart (`createRoute`), mag_routes.dart, mag_route_create.dart (поиск, группы, предложения по грузу) | sim, ui, ui_rail | — |
+| ROUTE-01 | Создание маршрутов | P1 | VERIFIED | 1.84 | ROAD-12 | world.dart (`createRoute`), mag_routes.dart, mag_route_map.dart (1.91: основной способ — касания по объектам на карте, стрелки к получателям), mag_route_create.dart (поиск, группы, предложения по грузу) | sim, ui, ui_s17, ui_rail | — |
 | ROUTE-02 | Несколько остановок | P1 | VERIFIED | 1.85 | — | entities.dart (`MagRoute.stops`), mag_stop_orders.dart (`routeSteps`: план по шагам) | sim, s13 | Длинные цепочки: забрал — переработка — забрал готовое — в город |
 | ROUTE-03 | Кольцевые маршруты | P1 | VERIFIED | 1.68 | — | world_sim.dart | sim | — |
 | ROUTE-04 | Несколько машин на линии | P1 | VERIFIED | 1.68 | — | world_fleet.dart (`assign`) | — | — |
@@ -154,8 +154,8 @@ industry, cities, logistics, rail, water, megapolis, passengers, p1, s12, s13, s
 | PROD-16 | Производственные простои | P1 | VERIFIED | 1.74 | PROD-15 | world_sim.dart | industry: «ore alone» | Простой не показан отдельно в интерфейсе |
 | PROD-17 | Улучшение производства | P1 | VERIFIED | 1.74 | BIZ-02 | world_industry.dart (`upgradeIndustry`) | production | — |
 | PROD-18 | Расширение складов предприятия | P1 | VERIFIED | 1.74 | PROD-17 | world_industry.dart (`storageFactor`) | production | — |
-| PROD-19 | Визуальные стадии завода | P2 | READY_FOR_REVIEW | 1.90 | PROD-17 | mag_structures_art.dart (`paintLevelStages`: пристройки, бак, корпус, золотой знак) | — | — |
-| PROD-20 | Побочная продукция | P3 | READY_FOR_REVIEW | 1.90 | — | config.dart (`byProducts`), world_network.dart (`_byProduct`): сталь и кирпич → щебень, НПЗ → кокс | s18 | — |
+| PROD-19 | Визуальные стадии завода | P2 | VERIFIED | 1.90 | PROD-17 | mag_structures_art.dart (`paintLevelStages`: пристройки, бак, корпус, золотой знак) | — | — |
+| PROD-20 | Побочная продукция | P3 | VERIFIED | 1.90 | — | config.dart (`byProducts`), world_network.dart (`_byProduct`): сталь и кирпич → щебень, НПЗ → кокс | s18 | — |
 
 ## H. Владение предприятиями и рынки
 
@@ -173,7 +173,7 @@ industry, cities, logistics, rail, water, megapolis, passengers, p1, s12, s13, s
 | BIZ-10 | Перепроизводство | P1 | VERIFIED | 1.74 | PROD-14 | world_sim.dart (склад продукции ограничивает выпуск) | production | — |
 | BIZ-11 | Рыночный дефицит | P2 | VERIFIED | 1.82 | BIZ-09 | world_cities.dart (`deficitBonusOf`: +25% за кончившийся нужный товар) | passengers, ui_rail | — |
 | BIZ-12 | Специализация регионов | P2 | PARTIAL | 1.77 | CITY-11 | world_cities.dart | cities | Специализация по городам, а не регионам |
-| BIZ-13 | Аукционы предприятий | P3 | READY_FOR_REVIEW | 1.90 | — | world_network.dart (`MagAuction`, `_dayAuction`, `buyAuction`), mag_works_ui.dart (вкладка «Инвестиции») | s18, ui_s17 | — |
+| BIZ-13 | Аукционы предприятий | P3 | VERIFIED | 1.90 | — | world_network.dart (`MagAuction`, `_dayAuction`, `buyAuction`), mag_works_ui.dart (вкладка «Инвестиции») | s18, ui_s17 | — |
 | BIZ-14 | Промышленные комплексы | P2 | VERIFIED | 1.89 | LOG-08 | world_complex.dart (`complexPartner`: +15% и конвейер 20 ед./день) | s17 | Свои заводы в 5 клетках, связанные рецептом |
 
 ## I. Контракты и развитие экономики
@@ -188,7 +188,7 @@ industry, cities, logistics, rail, water, megapolis, passengers, p1, s12, s13, s
 | CONT-06 | Многоэтапные контракты | P2 | VERIFIED | 1.88 | — | world_deals.dart (`MagDealKind.stages`: сырьё на переработку → продукт покупателю) | s16 | — |
 | CONT-07 | Региональные контракты | P2 | VERIFIED | 1.88 | — | world_deals.dart (`MagDealKind.region`: любые поселения в 16 клетках) | s16 | — |
 | CONT-08 | Контракты инфраструктуры | P1 | VERIFIED | 1.81 | CITY-02 | world_mega.dart (стройка города принимает материалы, награда по завершении) | megapolis | — |
-| CONT-09 | Репутация заказчика | P2 | PARTIAL | 1.72 | CITY-12 | settlements.dart (`reputation`) | — | Не влияет на условия |
+| CONT-09 | Репутация заказчика | P2 | READY_FOR_REVIEW | 1.91 | CITY-12 | world_progress.dart (выплата контракта × репутация), world_rivals.dart | s19 | — |
 | CONT-10 | Субсидируемые маршруты | P2 | PARTIAL | 1.77 | — | world_cities.dart (спрос недели +30%) | cities | — |
 | CONT-11 | Уникальные дорогие заказы | P2 | PARTIAL | 1.77 | — | world_cities.dart (городские заказы) | cities | Не уникальные, повторяются |
 | CONT-12 | Проверка достижимости контракта | P0 | VERIFIED | 1.75 | CORE-03 | world_settlements.dart (`cargoAvailable`), world_progress.dart | growth, industry, cities | — |
@@ -245,9 +245,9 @@ industry, cities, logistics, rail, water, megapolis, passengers, p1, s12, s13, s
 | PASS-03 | Автобусы | P2 | VERIFIED | 1.82 | PASS-01, TECH-04 | config_vehicles.dart (`bus`), world_fleet.dart (`canCarry`) | passengers, ui_rail | — |
 | PASS-04 | Пассажирские поезда | P2 | VERIFIED | 1.82 | PASS-01, RAIL-06 | world_fleet.dart (`canCarry`: поезда и суда возят людей) | passengers | Отдельных пассажирских вагонов нет |
 | PASS-05 | Перевозка работников | P2 | VERIFIED | 1.85 | PASS-01 | config.dart (`MagCargo.workers`), world_settlements.dart, world_routes.dart (`_deliverWorkers`), world_industry.dart (`staffBonusOf`: до +30%) | s13, ui_s13 | — |
-| PASS-06 | Пересадки | P3 | READY_FOR_REVIEW | 1.90 | население, маршруты | world_network.dart (`isHub`, `transferAt`: 30% пассажиров в узле едут дальше) | s18 | Узел — поселение двух маршрутов и больше |
+| PASS-06 | Пересадки | P3 | VERIFIED | 1.90 | население, маршруты | world_network.dart (`isHub`, `transferAt`: 30% пассажиров в узле едут дальше) | s18 | Узел — поселение двух маршрутов и больше |
 | PASS-07 | Комфорт и время ожидания | P3 | VERIFIED | 1.89 | население, маршруты | config_vehicles.dart (`comfort`), world_complex.dart (`_peopleLeave`: 20% долго ждущих в день) | s17 | — |
-| PASS-08 | Трамваи | P3 | READY_FOR_REVIEW | 1.90 | население, маршруты | config_vehicles.dart (`tram`), world_network.dart (`tramRouteBlocker`), технология «Электротранспорт» | s18 | — |
+| PASS-08 | Трамваи | P3 | VERIFIED | 1.90 | население, маршруты | config_vehicles.dart (`tram`), world_network.dart (`tramRouteBlocker`), технология «Электротранспорт» | s18 | — |
 
 ## M. Финансы и управление компанией
 
@@ -268,7 +268,7 @@ industry, cities, logistics, rail, water, megapolis, passengers, p1, s12, s13, s
 | FIN-13 | Оценка окупаемости | P2 | VERIFIED | 1.76 | FIN-05 | world_finance.dart (`paybackDays`) | industry | — |
 | FIN-14 | Инвестиционное планирование | P3 | VERIFIED | 1.86 | FIN-13 | world_plans.dart (`investmentIdeas`: машина на маршрут, уровень предприятия, покупка, дорога в пробке), mag_invest.dart (вкладка «Инвестиции») | s14, ui_s13 | Оценка по фактической прибыли |
 | FIN-15 | Кредиты и проценты | P3 | VERIFIED | 1.87 | — | world_meta.dart (`takeLoan`, `repayLoan`, `dailyInterest`), ledger.dart (`financing`), mag_loan.dart | s15, ui_s15 | — |
-| FIN-16 | Мягкий финансовый кризис | P2 | PARTIAL | 1.68 | — | баланс может уйти в минус (красный), активы можно продать | — | Нет явного восстановления |
+| FIN-16 | Мягкий финансовый кризис | P2 | READY_FOR_REVIEW | 1.91 | — | world_rivals.dart (`_dayCrisis`: овердрафт 1% в день, предупреждение на 30-й день), можно продать активы и взять кредит | s19 | — |
 
 ## N. Карта и развитие игрового мира
 
@@ -281,11 +281,11 @@ industry, cities, logistics, rail, water, megapolis, passengers, p1, s12, s13, s
 | MAP-05 | Реки и озёра | P1 | VERIFIED | 1.83 | — | map.dart, map_noise.dart (`_carveBigRiver`: большая река делит карту) | p1, sim | — |
 | MAP-06 | Леса и поля | P1 | VERIFIED | 1.68 | — | map.dart | sim | — |
 | MAP-07 | Горные регионы | P2 | PARTIAL | 1.68 | — | map.dart (холмы) | — | Холмы без отдельных регионов |
-| MAP-08 | Открытие новых регионов | P2 | READY_FOR_REVIEW | 1.90 | — | world_network.dart (`regionOf`, `openRegion`, 3×3 региона), mag_structures_art.dart, mag_works_ui.dart | s18, ui_s17 | Только в новых компаниях |
+| MAP-08 | Открытие новых регионов | P2 | VERIFIED | 1.90 | — | world_network.dart (`regionOf`, `openRegion`, 3×3 региона), mag_structures_art.dart, mag_works_ui.dart | s18, ui_s17 | Только в новых компаниях |
 | MAP-09 | Разнообразные биомы | P2 | PARTIAL | 1.84 | — | mag_terrain_art.dart (плавные переходы, берега, скалы, лес), mag_sea_art.dart (море с островами за краем карты) | — | Набор местности прежний |
 | MAP-10 | Редкие месторождения | P2 | VERIFIED | 1.88 | — | world_works.dart (`isRich`: каждый 6-й добытчик, +50%), mag_structures_art.dart (`paintGem`), mag_works_ui.dart | s16, ui_s15 | Определяются зерном карты |
 | MAP-11 | Редактор карты | P3 | NOT_STARTED | — | — | — | — | — |
-| MAP-12 | Режим песочницы | P3 | NOT_STARTED | — | — | — | — | — |
+| MAP-12 | Режим песочницы | P3 | READY_FOR_REVIEW | 1.91 | — | world_complex.dart (`MagScenario.sandbox`: 10 000 000 кр, 30 ур., все технологии, без наград и конкурентов), mag_tools.dart | s19 | — |
 
 ## O. Долгосрочный прогресс и особые события
 
@@ -297,9 +297,9 @@ industry, cities, logistics, rail, water, megapolis, passengers, p1, s12, s13, s
 | META-04 | Постоянная отметка первого мегаполиса | P1 | VERIFIED | 1.81 | META-03 | world_save.dart (`megapolis`), mag_game.dart (золотая корона), награда Мира Финоры | megapolis, ui_rail | Отметка живёт в сохранении партии; новая компания начинает заново (награда в Мире Финоры остаётся) |
 | META-05 | История транспортной империи | P2 | VERIFIED | 1.87 | — | world_meta.dart (`chronicle`, `_remember`), mag_company.dart («Летопись») | s15, ui_s15 | Последние 200 событий |
 | META-06 | Мегапроекты | P1 | VERIFIED | 1.81 | CONT-08 | megaprojects.dart, world_mega.dart, mag_mega_ui.dart, mag_mega_art.dart | megapolis, ui_rail | — |
-| META-07 | Уникальные исторические контракты | P2 | READY_FOR_REVIEW | 1.90 | — | world_network.dart (`historics`, `_offerHistorics`): 5 контрактов по уровням 5–20 | s18 | Не занимают слоты особых контрактов |
-| META-08 | Коллекция исторической техники | P3 | NOT_STARTED | — | — | — | — | — |
-| META-09 | Конкурирующие компании | P3 | NOT_STARTED | — | — | — | — | — |
-| META-10 | Поглощения компаний | P3 | NOT_STARTED | — | META-09 | — | — | — |
+| META-07 | Уникальные исторические контракты | P2 | VERIFIED | 1.90 | — | world_network.dart (`historics`, `_offerHistorics`): 5 контрактов по уровням 5–20 | s18 | Не занимают слоты особых контрактов |
+| META-08 | Коллекция исторической техники | P3 | READY_FOR_REVIEW | 1.91 | VEH-06 | world_rivals.dart (`collected`, `_collect`: награды за 5/10/15 моделей), mag_rivals_ui.dart (вкладка «Коллекция») | s19, ui_s17 | Учитываются модели, купленные с 1.91, и текущий парк |
+| META-09 | Конкурирующие компании | P3 | READY_FOR_REVIEW | 1.91 | META-01 | world_rivals.dart (`MagRival`, `_dayRivals`: 2 конкурента с 5 ур., занимают предприятие раз в 6 дней, оплата там −20%), mag_route_art.dart (цветная точка), mag_rivals_ui.dart | s19, ui_s17 | Конкуренты не возят грузы по карте — их влияние экономическое |
+| META-10 | Поглощения компаний | P3 | READY_FOR_REVIEW | 1.91 | META-09 | world_rivals.dart (`acquireRival`, `rivalValue`), mag_rivals_ui.dart (вкладка «Конкуренты») | s19, ui_s17 | — |
 | META-11 | Различные сценарии старта | P2 | VERIFIED | 1.89 | — | world_complex.dart (`MagScenario`, `_applyScenario`), mag_tools.dart (выбор при новой игре) | s17, ui_s17 | 5 сценариев |
-| META-12 | Развитие после 10-го уровня | P3 | NOT_STARTED | — | META-03 | — | — | — |
+| META-12 | Развитие после 10-го уровня | P3 | READY_FOR_REVIEW | 1.91 | META-03 | world_rivals.dart (`starsOf`, `_dayStars`: до 5 звёзд, +5% рынка и +10% жителей за звезду), mag_city.dart | s19 | — |

@@ -325,9 +325,11 @@ class MagBottomPanel extends StatelessWidget {
                   'mag-tab-build',
                   Icons.add_road_rounded,
                   'Стройка',
-                  state.tool != MagTool.view,
+                  state.tool != MagTool.view && state.tool != MagTool.route,
                   () => state.setTool(
-                    state.tool == MagTool.view ? MagTool.road : MagTool.view,
+                    state.tool == MagTool.view || state.tool == MagTool.route
+                        ? MagTool.road
+                        : MagTool.view,
                   ),
                 ),
                 _nav(
@@ -341,7 +343,7 @@ class MagBottomPanel extends StatelessWidget {
                   'mag-tab-routes',
                   Icons.alt_route_rounded,
                   'Маршруты',
-                  false,
+                  state.tool == MagTool.route,
                   () => unawaited(showRoutesSheet(state)),
                 ),
                 _nav(

@@ -5,6 +5,7 @@ import '../../../l10n_widgets.dart';
 import 'mag_art.dart';
 import 'mag_filters.dart';
 import 'mag_hud.dart';
+import 'mag_rivals_ui.dart';
 import 'mag_screen.dart';
 import 'mag_sheets.dart';
 
@@ -26,6 +27,8 @@ Future<void> showCompanySheet(MagistraliScreenState state) =>
                 'Компания',
                 'Достижения ${w.achieved.length}/${MagAchievements.all.length}',
                 'Летопись',
+                'Конкуренты',
+                'Коллекция',
               ],
               selected: _companyTab,
               onSelect: (i) => setLocal(() => _companyTab = i),
@@ -33,6 +36,8 @@ Future<void> showCompanySheet(MagistraliScreenState state) =>
             ...switch (_companyTab) {
               1 => _achievements(w),
               2 => _chronicle(w),
+              3 => rivalCards(state),
+              4 => collectionCards(state),
               _ => [_company(state, context)],
             },
           ],

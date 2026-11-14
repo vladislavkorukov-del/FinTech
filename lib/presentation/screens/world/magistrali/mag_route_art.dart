@@ -140,3 +140,15 @@ void paintRouteDraft(Canvas c, MagWorld w, List<int> stops) {
     tp.dispose();
   }
 }
+
+/// A rival's colour dot by the label of a place it serves (META-09).
+void paintRivalDot(Canvas c, MagWorld w, MagIndustry i, Offset at) {
+  final r = w.rivalAt(i);
+  if (r == null) return;
+  c.drawCircle(
+    at + const Offset(8, 0),
+    6,
+    Paint()..color = const Color(0xFFFFFFFF),
+  );
+  c.drawCircle(at + const Offset(8, 0), 4.5, Paint()..color = Color(r.color));
+}

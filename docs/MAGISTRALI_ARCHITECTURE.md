@@ -33,6 +33,8 @@
 | `dispatcher.dart`, `world_dispatch.dart` | Автопарк и диспетчер |
 | `tech.dart`, `tech_nodes.dart`, `tech_nodes_later.dart`, `world_tech.dart` | Древо технологий |
 | `world_progress.dart` | Уровень компании, задания, контракты, награды Мира |
+| `world_network.dart` | Пересадки, трамваи, окраска, аукционы, исторические контракты, регионы (S18) |
+| `world_rivals.dart` | Конкуренты и поглощения, звёзды мегаполиса, коллекция, репутация, овердрафт (S19) |
 | `world_save.dart` | Формат сохранения (версия 6), миграции 1→6, проверки целостности |
 
 ## Принципы
@@ -69,7 +71,7 @@
   поселения), `mag_city_art.dart` (постройка специализации), `mag_center.dart` (окно
   логистического центра), `mag_advice.dart` (вкладка «Советы»), `mag_terrain_art.dart` (плавная местность, вода, скалы, лес),
   `mag_network_art.dart` (дороги и рельсы цельными цепочками, мосты, порталы тоннелей),
-  `mag_build_panel.dart` (группы стройки), `mag_guide.dart` (обучение), `mag_route_create.dart` (новый маршрут), `mag_stop_orders.dart` (указания и приоритет), `mag_invest.dart` (инвестиции), `mag_company.dart` (компания, достижения, летопись), `mag_loan.dart` (кредит), `mag_fleet_bulk.dart` (автопарк целиком), `mag_works_ui.dart` (особые контракты, месторождение, рецепты), `mag_structures_art.dart` (тоннели, депо, кристалл, терминалы), `mag_oil_art.dart` (вышка, НПЗ, электроника),
+  `mag_build_panel.dart` (группы стройки), `mag_guide.dart` (обучение), `mag_route_map.dart` (маршрут касаниями по карте), `mag_route_create.dart` (новый маршрут списком), `mag_rivals_ui.dart` (конкуренты, коллекция), `mag_stop_orders.dart` (указания и приоритет), `mag_invest.dart` (инвестиции), `mag_company.dart` (компания, достижения, летопись), `mag_loan.dart` (кредит), `mag_fleet_bulk.dart` (автопарк целиком), `mag_works_ui.dart` (особые контракты, месторождение, рецепты), `mag_structures_art.dart` (тоннели, депо, кристалл, терминалы), `mag_oil_art.dart` (вышка, НПЗ, электроника),
   `mag_sea_art.dart` (море за краем карты), `mag_filters.dart` (фильтры списков),
   `mag_shop.dart` (карточка магазина транспорта),
   `mag_curve.dart` (сглаживание линий, движение по длине пути, пунктир),

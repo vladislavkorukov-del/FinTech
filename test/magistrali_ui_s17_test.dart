@@ -230,4 +230,58 @@ void main() {
     await closeSheet(tester);
     await settle(tester);
   });
+
+  testWidgets('S19: a line by taps on the map; rivals; the collection', (
+    tester,
+  ) async {
+    await mount(tester, const MagistraliScreen(seed: MagRules.defaultSeed));
+    final s = await ready(tester);
+    final w = s.world..money = 1000000;
+    w.speed = 0;
+    s.changed();
+    final f = w.map.startFarm, p = w.map.startPlant;
+    final routes = w.routes.length;
+    await tap(tester, 'mag-tab-routes');
+    await tap(tester, 'mag-new-route');
+    expect(s.tool, MagTool.route);
+    expect(find.byKey(const ValueKey('mag-route-bar')), findsOneWidget);
+    s.camera.zoom = 1;
+    s.centerOn((f.centerX + p.centerX) / 2, (f.centerY + p.centerY) / 2);
+    await tester.pump();
+    await tester.tapAt(at(tester, s, f.x, f.y));
+    await tester.pump();
+    expect(s.routeDraft.stops, [f.id]);
+    // The next good stops are pointed at.
+    expect(s.overlay.guide, contains(p.id));
+    // A tap on the last stop takes it back; again — it returns.
+    await tester.tapAt(at(tester, s, f.x, f.y));
+    await tester.pump();
+    expect(s.routeDraft.stops, isEmpty);
+    await tester.tapAt(at(tester, s, f.x, f.y));
+    await tester.pump();
+    s.centerOn(p.centerX, p.centerY - 3);
+    await tester.pump();
+    await tester.tapAt(at(tester, s, p.x, p.y));
+    await tester.pump();
+    expect(s.routeDraft.stops, [f.id, p.id]);
+    expect(find.byKey(const ValueKey('mag-draft-stop-1')), findsOneWidget);
+    await tap(tester, 'mag-route-map-create');
+    expect(w.routes.length, routes + 1);
+    expect(s.tool, MagTool.view);
+    await closeSheet(tester);
+    // Rivals and the collection in the company sheet.
+    w.xp = MagWorldProgress.xpFor(MagRules.rivalLevel);
+    w.step(MagRules.ticksPerDay * MagRules.rivalEvery);
+    s.changed();
+    await tester.pump();
+    await tap(tester, 'mag-level');
+    await tap(tester, 'mag-company-tab-3');
+    expect(find.byKey(const ValueKey('mag-rival-0')), findsOneWidget);
+    await tap(tester, 'mag-rival-buy-0');
+    expect(w.rivals.length, 1);
+    await tap(tester, 'mag-company-tab-4');
+    expect(find.byKey(const ValueKey('mag-collection-cart')), findsOneWidget);
+    await closeSheet(tester);
+    await settle(tester);
+  });
 }

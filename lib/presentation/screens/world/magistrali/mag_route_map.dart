@@ -66,6 +66,11 @@ List<int> routeSuggestions(MagWorld w, MagRouteDraft d) {
 
 /// The bar of route mode: the stops (a tap — what to do there), the plan
 /// step by step, and making the line.
+final _compact = TextButton.styleFrom(
+  visualDensity: VisualDensity.compact,
+  padding: const EdgeInsets.symmetric(horizontal: 8),
+);
+
 class MagRouteBar extends StatelessWidget {
   const MagRouteBar({super.key, required this.state});
   final MagistraliScreenState state;
@@ -141,15 +146,18 @@ class MagRouteBar extends StatelessWidget {
             ),
           Row(
             children: [
-              TextButton(
+              IconButton(
                 key: const ValueKey('mag-route-map-cancel'),
+                tooltip: 'Отмена',
+                visualDensity: VisualDensity.compact,
                 onPressed: () {
                   d.clear();
                   state.setTool(MagTool.view);
                 },
-                child: const Text('Отмена'),
+                icon: const Icon(Icons.close_rounded),
               ),
               TextButton(
+                style: _compact,
                 key: const ValueKey('mag-route-map-list'),
                 onPressed: () {
                   final first = d.stops.isEmpty ? null : d.stops.first;
@@ -162,7 +170,10 @@ class MagRouteBar extends StatelessWidget {
               const Spacer(),
               FilledButton(
                 key: const ValueKey('mag-route-map-create'),
-                style: FilledButton.styleFrom(backgroundColor: MagPalette.mint),
+                style: FilledButton.styleFrom(
+                  backgroundColor: MagPalette.mint,
+                  visualDensity: VisualDensity.compact,
+                ),
                 onPressed: d.stops.length < 2
                     ? null
                     : () {
