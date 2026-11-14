@@ -157,12 +157,13 @@ extension MagWorldAdvice on MagWorld {
       }
     }
     for (final v in vehicles.values) {
-      if (v.spec.rail && v.yields >= 2) {
+      // Waiting for oncoming trains far more than carrying: one track.
+      if (v.spec.rail && v.yields >= 3 && v.yields > v.trips * 3) {
         out.add(
           MagAdvice(
             MagAdviceKind.trainsBlocked,
-            '${v.name} уступает путь встречным',
-            'Уже ${v.yields} раз: на одной колее поезда мешают друг другу. Проложите второй путь или второй перрон — они разъедутся.',
+            '${v.name} часто ждёт встречные поезда',
+            'Ждал или уступал ${v.yields} раз за ${v.trips} рейсов: на одной колее поезда мешают друг другу. Проложите второй путь или второй перрон — они разъедутся.',
             vehicle: v.id,
             weight: 4,
           ),

@@ -194,6 +194,21 @@ extension _MagScreenInput on MagistraliScreenState {
             ..planOk = why == null && w.money >= w.buildPrice(kind);
         });
         if (why != null) say(why);
+      case MagTool.port:
+        if (!w.isWater(cell)) return say('Порт ставится на воду');
+        final targets = w.portTargets(cell);
+        if (targets.isEmpty) {
+          return say('Рядом (2 клетки) нет предприятия или поселения');
+        }
+        final why = w.portBlocker(cell, targets.first.id);
+        _refresh(() {
+          pendingPort = cell;
+          pendingPortPlace = targets.first.id;
+          overlay
+            ..plan = [cell]
+            ..planOk = why == null && w.money >= MagRules.portPrice;
+        });
+        if (why != null) say(why);
       case MagTool.station:
         if (w.rails[cell] == 0) return say('Станция ставится на путь');
         final targets = w.stationTargets(cell);
@@ -232,8 +247,16 @@ extension _MagScreenInput on MagistraliScreenState {
           }
         }
         final i = w.map.industryAt(w.cx(cell), w.cy(cell));
+        if (i == null && w.ports.containsKey(cell)) {
+          unawaited(showPortSheet(this, cell));
+          return;
+        }
         if (i == null && w.stations.containsKey(cell)) {
           unawaited(showStationSheet(this, cell));
+          return;
+        }
+        if (i == null && w.rails[cell] != 0 && w.roads[cell] == 0) {
+          unawaited(showRailSheet(this, cell));
           return;
         }
         if (i == null && w.roads[cell] != 0) {

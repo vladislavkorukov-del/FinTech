@@ -178,12 +178,20 @@ extension MagWorldSim on MagWorld {
     // From a stop a truck may leave by any road reaching that place.
     // (It stands at the place when its cell touches the last stop.)
     final last = v.orderId != null ? null : _stopOf(v, v.stop - 1);
+    // (Trains and vessels leave from where they stand, never another berth.)
     final yard = v.orderId != null
         ? _yardAround(v.cell)
-        : last != null && _atPlace(v, v.cell, last)
+        : last != null &&
+              !v.spec.rail &&
+              !v.spec.water &&
+              _atPlace(v, v.cell, last)
         ? _stopCells(v, last)
         : const <int>[];
-    final path = _pathFor(v, [v.cell, ...yard], target);
+    var path = _pathFor(v, [v.cell, ...yard], target);
+    if (path != null && v.spec.rail && stations.containsKey(v.cell)) {
+      path = _departure(v, path, target);
+      if (path == null) return;
+    }
     if (path == null) {
       v
         ..state = MagVehicleState.noRoad
@@ -219,7 +227,7 @@ extension MagWorldSim on MagWorld {
       if (v.progress == 0 && !_trackClear(v, next)) break;
       // Horses keep their own pace on any surface; trains their own on
       // the track.
-      final roadK = v.spec.rail
+      final roadK = v.spec.rail || v.spec.water
           ? 1.0
           : v.spec.horse
           ? math.max(MagRules.horseRoad(MagRoad.values[roads[next]]), .4)

@@ -7,23 +7,23 @@
 
 Статусы: NOT_STARTED — не начато; PARTIAL — частично; IN_PROGRESS — в работе;
 READY_FOR_REVIEW — готово, ждёт проверки игроком; VERIFIED — проверено игроком
-(этапы, которые игрок подтвердил: 1.68–1.78); BLOCKED — заблокировано.
+(этапы, которые игрок подтвердил: 1.68–1.79); BLOCKED — заблокировано.
 
 Файлы домена — `lib/domain/magistrali/`, интерфейса —
 `lib/presentation/screens/world/magistrali/`. Тесты — `test/magistrali_<имя>_test.dart`
 (sim, orders, storage, dispatch, towns, horses, production, growth,
-industry, cities, logistics, rail, ui, ui_stage5, ui_rail).
+industry, cities, logistics, rail, water, ui, ui_stage5, ui_rail).
 
-Аудит: 1.77.0, обновлено в 1.78.0 (S7) и 1.79.0 (S8); точка восстановления — тег `restore/magistrali-1.77.0-pre-s7`.
+Аудит: 1.77.0, обновлено в 1.78.0 (S7) и 1.79.0 (S8), 1.80.0 (S9 и доводка ЖД); точка восстановления — тег `restore/magistrali-1.77.0-pre-s7`.
 
 ## Сводка
 
 | Статус | Механик |
 |---|---|
-| VERIFIED | 107 |
-| READY_FOR_REVIEW | 9 |
+| VERIFIED | 116 |
+| READY_FOR_REVIEW | 6 |
 | PARTIAL | 28 |
-| NOT_STARTED | 59 |
+| NOT_STARTED | 53 |
 | Всего | 203 |
 
 ## A. Фундамент игры и безопасность
@@ -68,7 +68,7 @@ industry, cities, logistics, rail, ui, ui_stage5, ui_rail).
 |---|---|---|---|---|---|---|---|---|
 | TECH-01 | Независимый технологический прогресс компании | P1 | VERIFIED | 1.70 | — | tech.dart, world_tech.dart | storage | — |
 | TECH-02 | Эпоха гужевого транспорта | P1 | VERIFIED | 1.73 | — | config.dart (cart, wagon), world.dart (`start`) | horses | — |
-| TECH-03 | Паровая эпоха | P1 | READY_FOR_REVIEW | 1.79 | RAIL-01 | tech_nodes.dart (`steam`), world_rails.dart | rail | — |
+| TECH-03 | Паровая эпоха | P1 | VERIFIED | 1.79 | RAIL-01 | tech_nodes.dart (`steam`), world_rails.dart | rail | — |
 | TECH-04 | Эпоха автомобилизации | P1 | VERIFIED | 1.73 | TECH-07 | tech_nodes.dart (`combustion`), config.dart (асфальт) | horses | — |
 | TECH-05 | Современная логистика | P1 | PARTIAL | 1.71 | LOG-07 | tech_nodes.dart (диспетчерская), шоссе, магистраль, тягач | dispatch | Нет отдельной эпохи |
 | TECH-06 | Транспорт будущего | P3 | NOT_STARTED | — | — | — | — | — |
@@ -210,7 +210,7 @@ industry, cities, logistics, rail, ui, ui_stage5, ui_rail).
 | LOG-11 | Автоснабжение производств | P1 | VERIFIED | 1.78 | LOG-08 | world_centers.dart (`shortages`), world_storage.dart | logistics, storage | — |
 | LOG-12 | Автоснабжение городов | P1 | VERIFIED | 1.78 | LOG-08, CITY-08 | world_centers.dart (кладовая и рост) | logistics | — |
 | LOG-13 | Автоэкспорт излишков | P2 | PARTIAL | 1.70 | — | world_storage.dart (режим «Распределение») | storage | Только со склада |
-| LOG-14 | Перегрузочные терминалы | P2 | NOT_STARTED | — | RAIL, SEA | — | — | — |
+| LOG-14 | Перегрузочные терминалы | P2 | READY_FOR_REVIEW | 1.80 | RAIL-02, SEA-01, LOG-01 | склад со станцией или портом (world_rails.dart, world_water.dart, world_storage.dart) | water: «a train and a truck meet at a warehouse» | Терминал — склад, отдельной постройки нет |
 | LOG-15 | Объединение заказов | P2 | NOT_STARTED | — | — | — | — | — |
 | LOG-16 | Экономный режим диспетчера | P2 | VERIFIED | 1.71 | LOG-07 | dispatcher.dart | dispatch | — |
 | LOG-17 | Быстрый режим диспетчера | P2 | VERIFIED | 1.71 | LOG-07 | dispatcher.dart | dispatch | — |
@@ -220,21 +220,21 @@ industry, cities, logistics, rail, ui, ui_stage5, ui_rail).
 
 | ID | Механика | P | Статус | Версия | Зависимости | Файлы | Тесты | Проблемы |
 |---|---|---|---|---|---|---|---|---|
-| RAIL-01 | Строительство железных дорог | P1 | READY_FOR_REVIEW | 1.79 | ROAD-12, TECH-03 | world_rails.dart (`planRail`, `buildRail`, `removeRail`), mag_screen_input.dart | rail, ui_rail | Снос без возврата денег |
-| RAIL-02 | Железнодорожные станции | P1 | READY_FOR_REVIEW | 1.79 | RAIL-01 | world_rails.dart (`buildStation`, станция в 2 клетках от места), mag_rail_ui.dart | rail, ui_rail | — |
-| RAIL-03 | Паровозы | P1 | READY_FOR_REVIEW | 1.79 | TECH-03 | config.dart (`steam`) | rail | — |
-| RAIL-04 | Современные локомотивы | P1 | READY_FOR_REVIEW | 1.79 | RAIL-03 | config.dart (`diesel`), tech «Тепловозная тяга» | rail | — |
-| RAIL-05 | Грузовые вагоны | P1 | READY_FOR_REVIEW | 1.79 | RAIL-03 | world_fleet.dart (`setWagons`, `capacityOf`) | rail, ui_rail | Вагоны одного типа |
-| RAIL-06 | Сборка поездов | P1 | READY_FOR_REVIEW | 1.79 | RAIL-05 | world_fleet.dart (локомотив + 1…N вагонов, замедление за вагон) | rail | — |
-| RAIL-07 | Безопасное движение по путям | P1 | READY_FOR_REVIEW | 1.79 | RAIL-01 | world_rails.dart (`_trackClear`: ожидание, обход, уступить путь) | rail: «never meet in a cell», «give way» | На одной колее без разъездов поезда уступают, но работают плохо |
-| RAIL-08 | Разъезды и сигналы | P2 | PARTIAL | 1.79 | RAIL-07 | обход по второму пути и второй перрон | rail: «double track» | Нет сигналов и разъездов как отдельных объектов |
-| RAIL-09 | Модернизация поездов | P1 | READY_FOR_REVIEW | 1.79 | RAIL-03 | world_fleet.dart (общие линии улучшений) | rail | — |
-| SEA-01 | Порты | P1 | NOT_STARTED | — | общие грузы, маршруты | — | — | — |
-| SEA-02 | Баржи | P1 | NOT_STARTED | — | SEA-01 | — | — | — |
-| SEA-03 | Грузовые корабли | P1 | NOT_STARTED | — | SEA-01 | — | — | — |
-| SEA-04 | Морские маршруты | P1 | NOT_STARTED | — | SEA-01 | — | — | — |
+| RAIL-01 | Строительство железных дорог | P1 | VERIFIED | 1.79 | ROAD-12, TECH-03 | world_rails.dart (`planRail`, `buildRail`, `removeRail`), mag_screen_input.dart | rail, ui_rail | Снос без возврата денег |
+| RAIL-02 | Железнодорожные станции | P1 | VERIFIED | 1.79 | RAIL-01 | world_rails.dart (`buildStation`, станция в 2 клетках от места), mag_rail_ui.dart | rail, ui_rail | — |
+| RAIL-03 | Паровозы | P1 | VERIFIED | 1.79 | TECH-03 | config.dart (`steam`) | rail | — |
+| RAIL-04 | Современные локомотивы | P1 | VERIFIED | 1.79 | RAIL-03 | config.dart (`diesel`), tech «Тепловозная тяга» | rail | — |
+| RAIL-05 | Грузовые вагоны | P1 | VERIFIED | 1.79 | RAIL-03 | world_fleet.dart (`setWagons`, `capacityOf`) | rail, ui_rail | Вагоны одного типа |
+| RAIL-06 | Сборка поездов | P1 | VERIFIED | 1.79 | RAIL-05 | world_fleet.dart (локомотив + 1…N вагонов, замедление за вагон) | rail | — |
+| RAIL-07 | Безопасное движение по путям | P1 | VERIFIED | 1.79 | RAIL-01 | world_rails.dart (`_trackClear`: ожидание, обход, уступить путь) | rail: «never meet in a cell», «give way» | На одной колее без разъездов поезда уступают, но работают плохо |
+| RAIL-08 | Разъезды и сигналы | P2 | READY_FOR_REVIEW | 1.80 | RAIL-07 | world_rails.dart (`_departure`: станция — сигнал; `_oncoming`; обход по второму пути и перрону) | rail: «double track», «give way» | Нет отдельных светофоров и разъездов без станции |
+| RAIL-09 | Модернизация поездов | P1 | VERIFIED | 1.79 | RAIL-03 | world_fleet.dart (общие линии улучшений) | rail | — |
+| SEA-01 | Порты | P1 | READY_FOR_REVIEW | 1.80 | общие грузы, маршруты | world_water.dart (`buildPort`), mag_rail_ui.dart | water, ui_rail | — |
+| SEA-02 | Баржи | P1 | READY_FOR_REVIEW | 1.80 | SEA-01 | config_vehicles.dart (`barge`) | water | — |
+| SEA-03 | Грузовые корабли | P1 | READY_FOR_REVIEW | 1.80 | SEA-01 | config_vehicles.dart (`freighter`), tech «Судоверфь» | water | — |
+| SEA-04 | Морские маршруты | P1 | READY_FOR_REVIEW | 1.80 | SEA-01 | world_water.dart (`waterPath`, диагональные шаги по реке) | water | Моря на карте нет: реки и озёра |
 | SEA-05 | Модернизация судов | P2 | NOT_STARTED | — | SEA-02 | — | — | — |
-| SEA-06 | Мультимодальные терминалы | P2 | NOT_STARTED | — | SEA-01, RAIL-02 | — | — | — |
+| SEA-06 | Мультимодальные терминалы | P2 | PARTIAL | 1.80 | SEA-01, RAIL-02 | склад со станцией и портом | water | Через склад |
 
 ## L. Пассажирские перевозки
 

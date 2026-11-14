@@ -54,6 +54,10 @@ extension MagWorldSave on MagWorld {
       'stations': [
         for (final e in stations.entries) [e.key, e.value],
       ],
+    if (ports.isNotEmpty)
+      'ports': [
+        for (final e in ports.entries) [e.key, e.value],
+      ],
     'industries': [
       for (final i in map.industries)
         {

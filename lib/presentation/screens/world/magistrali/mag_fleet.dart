@@ -23,7 +23,12 @@ String stateName(MagWorld w, MagVehicle v) {
     MagVehicleState.idle =>
       v.auto ? 'Автопарк: ждёт заявку' : 'Свободен, ждёт заказ',
     MagVehicleState.garage => 'В гараже',
-    MagVehicleState.noRoad => 'Нет дороги до остановки',
+    MagVehicleState.noRoad =>
+      v.spec.rail
+          ? 'Ждёт свободный путь или станцию'
+          : v.spec.water
+          ? 'Нет водного пути до порта'
+          : 'Нет дороги до остановки',
     MagVehicleState.driving =>
       'Едет: ${w.map.industry(r?.stops[v.stop % r.stops.length] ?? -1)?.name ?? ''}',
     MagVehicleState.atStop => v.load > 0 ? 'Загружается' : 'Ждёт груз',
@@ -63,7 +68,11 @@ Widget _truckTile(
     leading: CircleAvatar(
       backgroundColor: Color(v.spec.color).withValues(alpha: .18),
       child: Icon(
-        v.spec.rail ? Icons.train_rounded : Icons.local_shipping_rounded,
+        v.spec.water
+            ? Icons.directions_boat_rounded
+            : v.spec.rail
+            ? Icons.train_rounded
+            : Icons.local_shipping_rounded,
         color: Color(v.spec.color),
       ),
     ),
@@ -118,7 +127,9 @@ Future<void> showFleetSheet(
             : 'Грузовики — после технологии «Двигатель внутреннего сгорания»',
         style: magMuted,
       ),
-      for (final m in MagRules.trucks.where((m) => !m.horse && !m.rail))
+      for (final m in MagRules.trucks.where(
+        (m) => !m.horse && !m.rail && !m.water,
+      ))
         _shopCard(state, m),
       Text(
         w.railsUnlocked
@@ -127,6 +138,14 @@ Future<void> showFleetSheet(
         style: magMuted,
       ),
       for (final m in MagRules.trucks.where((m) => m.rail)) _shopCard(state, m),
+      Text(
+        w.shippingUnlocked
+            ? 'Вода: суда ходят по рекам и озёрам между портами'
+            : 'Суда — после технологии «Речное судоходство»',
+        style: magMuted,
+      ),
+      for (final m in MagRules.trucks.where((m) => m.water))
+        _shopCard(state, m),
       const SizedBox(height: 4),
       OutlinedButton.icon(
         key: const ValueKey('mag-open-orders'),
@@ -139,7 +158,7 @@ Future<void> showFleetSheet(
       ),
       const SizedBox(height: 4),
       const Text(
-        'Корабли появятся на следующих этапах развития.',
+        'Перевалка: поставьте станцию или порт у склада — поезда и суда разгружаются в него, а грузовики развозят дальше.',
         style: magMuted,
       ),
     ],
@@ -150,7 +169,9 @@ Widget _shopCard(MagistraliScreenState state, MagTruckModel m) {
   final w = state.world;
   final open =
       w.level >= m.level &&
-      (m.rail
+      (m.water
+          ? w.shippingUnlocked && (m.id != 'freighter' || w.shipyardUnlocked)
+          : m.rail
           ? w.railsUnlocked && (m.id != 'diesel' || w.dieselUnlocked)
           : m.horse || w.motorUnlocked);
   return Container(
@@ -161,7 +182,9 @@ Widget _shopCard(MagistraliScreenState state, MagTruckModel m) {
     child: Row(
       children: [
         Icon(
-          m.rail
+          m.water
+              ? Icons.directions_boat_rounded
+              : m.rail
               ? Icons.train_rounded
               : m.horse
               ? Icons.agriculture_rounded
@@ -209,7 +232,7 @@ Widget _shopCard(MagistraliScreenState state, MagTruckModel m) {
                 ? magMoney(m.price + m.wagonPrice)
                 : w.level < m.level
                 ? 'ур. ${m.level}'
-                : m.rail
+                : m.rail || m.water
                 ? 'техн.'
                 : 'мотор',
           ),
@@ -256,7 +279,7 @@ Future<void> showVehicleSheet(MagistraliScreenState state, int id) => magSheet(
         ),
         magRow('Маршрут', route?.name ?? 'нет'),
         if (v.spec.rail) ...trainPanel(state, v),
-        if (!v.spec.rail)
+        if (!v.spec.rail && !v.spec.water)
           SwitchListTile(
             key: const ValueKey('mag-auto-toggle'),
             contentPadding: EdgeInsets.zero,

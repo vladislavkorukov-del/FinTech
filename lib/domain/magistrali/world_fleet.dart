@@ -62,7 +62,14 @@ extension MagWorldFleet on MagWorld {
     final m = MagRules.truck(modelId);
     if (m == null) return 'Нет такой модели';
     if (level < m.level) return 'Откроется на ${m.level} уровне';
-    if (m.rail) {
+    if (m.water) {
+      if (!shippingUnlocked) {
+        return 'Суда откроет технология «Речное судоходство»';
+      }
+      if (m.id == 'freighter' && !shipyardUnlocked) {
+        return 'Сухогрузы откроет технология «Судоверфь»';
+      }
+    } else if (m.rail) {
       if (!railsUnlocked) return 'Поезда откроет технология «Паровая тяга»';
       if (m.id == 'diesel' && !dieselUnlocked) {
         return 'Тепловозы откроет технология «Тепловозная тяга»';
@@ -159,8 +166,10 @@ extension MagWorldFleet on MagWorld {
     final v = vehicles[vehicleId];
     if (v == null) return 'Нет такой машины';
     if (routeId != null && !routes.containsKey(routeId)) return 'Нет маршрута';
-    if (routeId != null && v.spec.rail) {
-      final why = railRouteBlocker(routeId);
+    if (routeId != null && (v.spec.rail || v.spec.water)) {
+      final why = v.spec.rail
+          ? railRouteBlocker(routeId)
+          : portRouteBlocker(routeId);
       if (why != null) return why;
     }
     _park(v);

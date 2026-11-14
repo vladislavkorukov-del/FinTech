@@ -161,6 +161,12 @@ class MagRenderer {
         paintRail(canvas, mask, x, y, station: w.stations.containsKey(cell));
       }
     }
+    // Piers of ports (stage S9).
+    for (final p in w.ports.keys) {
+      final x = w.cx(p), y = w.cy(p);
+      if (x < x0 - 1 || y < y0 - 1 || x > x1 + 1 || y > y1 + 1) continue;
+      paintPier(canvas, x, y);
+    }
     final sel = o.industry == null ? null : map.industry(o.industry!);
     if (sel != null) {
       canvas.drawRRect(
@@ -231,9 +237,30 @@ class MagRenderer {
       if (x < x0 - 1 || y < y0 - 1 || x > x1 + 1 || y > y1 + 1) continue;
       objects.add((x + y + .3, () => paintStationHouse(canvas, x, y)));
     }
+    for (final p in w.ports.keys) {
+      final x = w.cx(p), y = w.cy(p);
+      if (x < x0 - 1 || y < y0 - 1 || x > x1 + 1 || y > y1 + 1) continue;
+      objects.add((x + y + .2, () => paintPortCrane(canvas, x, y)));
+    }
     for (final v in w.vehicles.values) {
       if (!v.onMap) continue;
       final (px, py) = w.positionOf(v);
+      if (v.spec.water) {
+        if (px < x0 - 2 || py < y0 - 2 || px > x1 + 3 || py > y1 + 3) continue;
+        objects.add((
+          px + py,
+          () => paintShip(
+            canvas,
+            px,
+            py,
+            v.dir,
+            v.spec,
+            v.load > 0 ? MagPalette.cargo(v.cargo!) : null,
+            selected: o.vehicle == v.id,
+          ),
+        ));
+        continue;
+      }
       if (v.spec.rail) {
         if (px < x0 - 2 || py < y0 - 2 || px > x1 + 3 || py > y1 + 3) continue;
         final cars = trainCars(w, v);

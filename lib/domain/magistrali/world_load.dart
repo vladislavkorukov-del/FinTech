@@ -203,6 +203,16 @@ MagWorld magWorldFromJson(Map<String, dynamic> raw) {
     }
     w.stations[cell] = place;
   }
+  for (final raw in j['ports'] as List? ?? const []) {
+    final pair = raw as List;
+    final cell = whole(pair[0], 0, size * size - 1);
+    final place = whole(pair[1], 1, 1 << 50);
+    if (!w.isWater(cell) || w.map.industry(place) == null) {
+      throw const FormatException('Bad port in Magistrali save');
+    }
+    w.ports[cell] = place;
+  }
+  final water = w.waterMask;
   for (final raw in j['industries'] as List? ?? const []) {
     final m = raw as Map;
     final i = w.map.industry(whole(m['id'], 1, 1 << 20));
@@ -305,7 +315,11 @@ MagWorld magWorldFromJson(Map<String, dynamic> raw) {
     final driving = v.state == MagVehicleState.driving;
     final idle = v.state == MagVehicleState.idle;
     // Trucks stand on roads, trains on track.
-    final net = v.spec.rail ? w.rails : w.roads;
+    final net = v.spec.rail
+        ? w.rails
+        : v.spec.water
+        ? water
+        : w.roads;
     if (v.state != MagVehicleState.garage &&
             !idle &&
             v.routeId == null &&

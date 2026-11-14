@@ -179,4 +179,73 @@ void main() {
     await closeSheet(tester);
     await settle(tester);
   });
+
+  testWidgets('S9: a port by a tap, a barge, the port and track sheets', (
+    tester,
+  ) async {
+    await mount(tester, const MagistraliScreen(seed: MagRules.defaultSeed));
+    final s = await ready(tester);
+    final w = s.world
+      ..money = 500000
+      ..xp = MagWorldProgress.xpFor(9)
+      ..techs.addAll(['stud', 'steam', 'shipping']);
+    s.changed();
+    await settle(tester);
+    // A water cell by some place.
+    late int berth;
+    late MagIndustry place;
+    search:
+    for (final i in w.map.industries) {
+      for (var y = i.top - 2; y <= i.bottom + 2; y++) {
+        for (var x = i.left - 2; x <= i.right + 2; x++) {
+          if (!w.map.inside(x, y)) continue;
+          final c = w.cellOf(x, y);
+          if (w.isWater(c) && w.portTargets(c).first == i) {
+            berth = c;
+            place = i;
+            break search;
+          }
+        }
+      }
+    }
+    s.camera.zoom = 1;
+    s.centerOn(w.cx(berth) + .5, w.cy(berth) + .5);
+    await tester.pump();
+    await tap(tester, 'mag-tab-build');
+    await tap(tester, 'mag-tool-port');
+    await tester.tapAt(at(tester, s, w.cx(berth), w.cy(berth)));
+    await tester.pump();
+    expect(s.pendingPortPlace, place.id);
+    expect(find.textContaining('Порт у'), findsOneWidget);
+    await tap(tester, 'mag-confirm-build');
+    expect(w.ports[berth], place.id);
+    await tap(tester, 'mag-tab-build'); // back to looking
+
+    await tap(tester, 'mag-tab-fleet');
+    await tap(tester, 'mag-buy-barge');
+    expect(w.vehicles.values.last.spec.water, isTrue);
+    await closeSheet(tester);
+
+    await tester.tapAt(at(tester, s, w.cx(berth), w.cy(berth)));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(find.byKey(const ValueKey('mag-port-sheet')), findsOneWidget);
+    await closeSheet(tester);
+
+    // A piece of track: its sheet lights the stretch.
+    final farm = w.map.startFarm;
+    final x = farm.x - 3, y = farm.y + 4;
+    expect(w.buildRail(w.planRail(x, y, x + 4, y)), isNull);
+    s.centerOn(x + 2.5, y + .5);
+    s.changed();
+    await tester.pump();
+    await tester.tapAt(at(tester, s, x + 2, y));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(find.byKey(const ValueKey('mag-rail-sheet')), findsOneWidget);
+    expect(s.overlay.plan.length, greaterThanOrEqualTo(5));
+    await tap(tester, 'mag-rail-remove');
+    expect(w.rails.every((r) => r == 0), isTrue);
+    await settle(tester);
+  });
 }

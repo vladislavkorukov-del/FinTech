@@ -24,6 +24,7 @@ part 'world_load.dart';
 part 'world_orders.dart';
 part 'world_progress.dart';
 part 'world_rails.dart';
+part 'world_water.dart';
 part 'world_roads.dart';
 part 'world_save.dart';
 part 'world_settlements.dart';
@@ -91,6 +92,9 @@ class MagWorld {
 
   /// Station cells (on track) and the place each serves.
   final stations = <int, int>{};
+
+  /// Port cells (on water) and the place each serves (stage S9).
+  final ports = <int, int>{};
 
   int tick = 0;
   int money = 0;

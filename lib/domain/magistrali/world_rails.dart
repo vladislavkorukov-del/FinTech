@@ -203,16 +203,24 @@ extension MagWorldRails on MagWorld {
 
   /// Where a vehicle stops at a place: its gate for trucks, its stations
   /// for trains.
-  List<int> _stopCells(MagVehicle v, MagIndustry i) =>
-      v.spec.rail ? stationCells(i) : accessCells(i);
+  List<int> _stopCells(MagVehicle v, MagIndustry i) => v.spec.rail
+      ? stationCells(i)
+      : v.spec.water
+      ? portCells(i)
+      : accessCells(i);
 
   /// Is [cell] a stop of [i] for this vehicle?
-  bool _atPlace(MagVehicle v, int cell, MagIndustry i) =>
-      v.spec.rail ? stations[cell] == i.id : _touches(cell, i);
+  bool _atPlace(MagVehicle v, int cell, MagIndustry i) => v.spec.rail
+      ? stations[cell] == i.id
+      : v.spec.water
+      ? ports[cell] == i.id
+      : _touches(cell, i);
 
   List<int>? _pathFor(MagVehicle v, List<int> from, MagIndustry to) =>
       v.spec.rail
-      ? railPath(from, to, avoid: v.blocked > 0 ? _trainCells(v) : const {})
+      ? railPath(from, to)
+      : v.spec.water
+      ? waterPath(from, to)
       : roadPath(from, to);
 
   /// Trains: may it enter [next] now? (Another train there: it waits, and
@@ -247,7 +255,14 @@ extension MagWorldRails on MagWorld {
     // still for ever; a second track lets both work.
     final facing =
         other != null && other.path.indexOf(v.cell) > other.pathIndex;
-    if (facing &&
+    // A train standing at a station in the way (waiting for this one to
+    // clear the line) counts as head to head after a longer wait.
+    final waiting =
+        other != null &&
+        other.state != MagVehicleState.driving &&
+        stations.containsKey(other.cell) &&
+        v.blocked >= 2 * MagRules.trainWaitTicks;
+    if ((facing || waiting) &&
         v.routeId != null &&
         !stations.containsKey(v.cell) &&
         (stations.containsKey(other.cell) || v.id > other.id)) {
@@ -272,6 +287,66 @@ extension MagWorldRails on MagWorld {
         return 'У «${i?.name ?? '—'}» нет станции';
       }
     }
+    return null;
+  }
+
+  /// Cells of trains coming along [path] the other way (empty: none).
+  Set<int> _oncoming(MagVehicle v, List<int> path) {
+    final edges = <int>{
+      for (var i = 0; i + 1 < path.length; i++) path[i + 1] * 1000003 + path[i],
+    };
+    final out = <int>{};
+    for (final t in vehicles.values) {
+      if (t == v || !t.spec.rail || !t.onMap) continue;
+      if (t.state != MagVehicleState.driving) continue;
+      final rest = t.path.sublist(t.pathIndex);
+      for (var j = 0; j + 1 < rest.length; j++) {
+        if (edges.contains(rest[j] * 1000003 + rest[j + 1])) {
+          out.addAll(rest);
+          break;
+        }
+      }
+    }
+    return out;
+  }
+
+  /// The stretch of track through [cell], up to the nearest junction or
+  /// station (as for roads).
+  List<int> railSegment(int cell, {int limit = 160}) {
+    if (rails[cell] == 0) return const [];
+    List<int> around(int c) => [
+      for (var d = 0; d < 4; d++)
+        if (hasRail(cx(c) + MagDir.dx[d], cy(c) + MagDir.dy[d]))
+          cellOf(cx(c) + MagDir.dx[d], cy(c) + MagDir.dy[d]),
+    ];
+    final seen = <int>{cell}, out = <int>[cell];
+    final queue = <int>[if (around(cell).length <= 2) cell];
+    while (queue.isNotEmpty && out.length < limit) {
+      final c = queue.removeLast();
+      for (final n in around(c)) {
+        if (!seen.add(n)) continue;
+        out.add(n);
+        if (around(n).length <= 2 && !stations.containsKey(n)) queue.add(n);
+      }
+    }
+    return out;
+  }
+
+  /// A train leaving a station does not go out onto track where another is
+  /// coming the other way (the station is its signal): it takes a second
+  /// track if there is one, or waits (null: it waits).
+  List<int>? _departure(MagVehicle v, List<int> path, MagIndustry target) {
+    final against = _oncoming(v, path);
+    if (against.isEmpty) return path;
+    final round = railPath([v.cell], target, avoid: against);
+    if (round != null && _oncoming(v, round).isEmpty) return round;
+    // Counted once per wait (a sign the line needs a second track).
+    if (v.state != MagVehicleState.noRoad) v.yields++;
+    v
+      ..state = MagVehicleState.noRoad
+      ..path = const []
+      ..progress = 0
+      ..wait = MagRules.trainWaitTicks ~/ 2;
     return null;
   }
 }

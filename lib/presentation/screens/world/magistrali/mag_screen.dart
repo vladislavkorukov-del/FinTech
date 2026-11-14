@@ -24,7 +24,7 @@ import 'mag_warehouse.dart';
 part 'mag_screen_input.dart';
 
 /// What a finger on the map does.
-enum MagTool { view, road, remove, warehouse, industry, rail, station }
+enum MagTool { view, road, remove, warehouse, industry, rail, station, port }
 
 /// «Магистрали»: a transport company on an isometric map. Roads are drawn
 /// with a finger, trucks run their routes by themselves, deliveries pay,
@@ -79,6 +79,9 @@ class MagistraliScreenState extends State<MagistraliScreen>
 
   /// A station waiting for «Построить»: its track cell and the place.
   int? pendingStation, pendingStationPlace;
+
+  /// A port waiting for «Построить»: its water cell and the place.
+  int? pendingPort, pendingPortPlace;
   int? _tapStart;
   String? message;
   Timer? _messageTimer;
@@ -294,6 +297,8 @@ class MagistraliScreenState extends State<MagistraliScreen>
     pendingIndustry = null;
     pendingStation = null;
     pendingStationPlace = null;
+    pendingPort = null;
+    pendingPortPlace = null;
     _tapStart = null;
     overlay
       ..plan = const []
@@ -328,6 +333,13 @@ class MagistraliScreenState extends State<MagistraliScreen>
         });
         final built = world.warehouses.last;
         unawaited(showWarehouseSheet(this, built.id));
+      }
+      return;
+    }
+    final port = pendingPort, berthOf = pendingPortPlace;
+    if (port != null && berthOf != null) {
+      if (report(world.buildPort(port, berthOf), 'Порт построен')) {
+        setState(_clearPending);
       }
       return;
     }

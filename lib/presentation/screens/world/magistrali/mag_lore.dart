@@ -3,6 +3,12 @@ import '../../../../domain/magistrali/magistrali.dart';
 /// Short stories behind the things of «Магистрали»: shown in shops,
 /// place cards, the build bar and the warehouse panel.
 String truckLore(String model) => switch (model) {
+  'barge' =>
+    'Баржа «Волжанка» — плоское дно и шестьдесят мест в трюме. Медленно, '
+        'зато самый дешёвый груз на карте — если между портами есть вода.',
+  'freighter' =>
+    'Сухогруз «Ладога» — стальной корпус и полтораста мест. Для больших '
+        'грузопотоков по рекам и озёрам.',
   'steam' =>
     'Паровоз «Искра» — пыхтит, свистит и тянет четыре вагона. Ему нужны '
         'рельсы и станции, зато за единицу груза он берёт втрое меньше грузовика.',

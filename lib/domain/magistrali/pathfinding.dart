@@ -14,6 +14,9 @@ List<int>? magAStar({
   required double? Function(int from, int to) step,
   required double Function(int cell) heuristic,
   int maxNodes = 1 << 16,
+
+  /// Also the four diagonal neighbours (water: rivers wind diagonally).
+  bool diagonal = false,
 }) {
   final from = [?start, ...?starts];
   for (final s in from) {
@@ -42,9 +45,9 @@ List<int>? magAStar({
     }
     if (++expanded > maxNodes) return null;
     final cx = cur % width, cy = cur ~/ width;
-    for (var d = 0; d < 4; d++) {
-      final nx = cx + const [0, 1, 0, -1][d];
-      final ny = cy + const [-1, 0, 1, 0][d];
+    for (var d = 0; d < (diagonal ? 8 : 4); d++) {
+      final nx = cx + const [0, 1, 0, -1, 1, 1, -1, -1][d];
+      final ny = cy + const [-1, 0, 1, 0, -1, 1, 1, -1][d];
       if (nx < 0 || ny < 0 || nx >= width || ny >= height) continue;
       final n = ny * width + nx;
       if (closed.contains(n)) continue;

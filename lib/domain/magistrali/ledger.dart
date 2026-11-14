@@ -84,6 +84,7 @@ class MagJournal {
           'roads',
           'rails',
           'stations',
+          'ports',
           'upgrades',
           'warehouses',
           'warehouse_upgrade',

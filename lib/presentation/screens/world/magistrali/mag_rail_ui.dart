@@ -54,11 +54,11 @@ List<Widget> trainPanel(MagistraliScreenState state, MagVehicle v) {
       'автопарк его не взять.',
       style: magMuted,
     ),
-    if (v.yields >= 2)
+    if (v.yields >= 3 && v.yields > v.trips * 3)
       Padding(
         padding: const EdgeInsets.only(top: 4),
         child: Text(
-          'Уступал путь встречным уже ${v.yields} раз: проложите второй путь '
+          'Ждал встречные поезда ${v.yields} раз: проложите второй путь '
           'или второй перрон, чтобы поезда разъезжались.',
           style: const TextStyle(fontSize: 12.5, color: Color(0xFFD64B5C)),
         ),
@@ -131,3 +131,98 @@ Future<void> showStationSheet(MagistraliScreenState state, int cell) =>
         ],
       );
     });
+
+/// A tapped port: the place it serves, vessels calling at it, removal.
+Future<void> showPortSheet(MagistraliScreenState state, int cell) =>
+    magSheet(state, 'mag-port-$cell', (context) {
+      final w = state.world;
+      final placeId = w.ports[cell];
+      final place = placeId == null ? null : w.map.industry(placeId);
+      if (place == null) return const Text('Порта здесь больше нет');
+      final ships = w.vehicles.values.where((v) {
+        final r = w.routes[v.routeId];
+        return v.spec.water && r != null && r.stops.contains(place.id);
+      }).toList();
+      return Column(
+        key: const ValueKey('mag-port-sheet'),
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.anchor_rounded, color: MagPalette.teal),
+              const SizedBox(width: 8),
+              Expanded(child: Text('Порт «${place.name}»', style: magTitle)),
+            ],
+          ),
+          Text(
+            'Суда у причала грузятся у «${place.name}» и разгружаются в него. '
+            'Поставьте порт у склада — и суда станут частью перевалки: '
+            'грузовики и поезда развезут груз дальше.',
+            style: magMuted,
+          ),
+          const SizedBox(height: 8),
+          magRow('Судов на маршрутах через порт', '${ships.length}'),
+          for (final t in ships) magRow(t.name, t.spec.name),
+          const SizedBox(height: 10),
+          TextButton(
+            key: const ValueKey('mag-port-remove'),
+            onPressed: () {
+              if (state.report(w.removePort(cell), 'Порт снесён')) {
+                Navigator.pop(context);
+              }
+            },
+            child: const Text('Снести порт'),
+          ),
+        ],
+      );
+    });
+
+/// A tapped stretch of track: its length, trains on it, removal.
+Future<void> showRailSheet(MagistraliScreenState state, int cell) async {
+  final w = state.world;
+  final segment = w.railSegment(cell);
+  state.overlay
+    ..plan = segment
+    ..planOk = true;
+  await magSheet<void>(state, 'mag-rail', (context) {
+    if (w.rails[cell] == 0) {
+      return const Text('Пути здесь больше нет', style: magMuted);
+    }
+    final trains = w.vehicles.values
+        .where((v) => v.spec.rail && v.onMap && segment.contains(v.cell))
+        .length;
+    return Column(
+      key: const ValueKey('mag-rail-sheet'),
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('Железнодорожный путь', style: magTitle),
+        Text(
+          'Участок ${segment.length} кл. — до ближайшей развилки или станции.',
+          style: magMuted,
+        ),
+        const SizedBox(height: 8),
+        magRow('Поездов на участке', '$trains'),
+        const Text(
+          'Чтобы два поезда разъезжались, проложите рядом второй путь или '
+          'поставьте у станции второй перрон: поезд не выходит со станции '
+          'навстречу другому и выбирает свободный путь сам.',
+          style: magMuted,
+        ),
+        const SizedBox(height: 10),
+        OutlinedButton(
+          key: const ValueKey('mag-rail-remove'),
+          onPressed: () {
+            if (state.report(w.removeRail(segment), 'Участок снесён')) {
+              Navigator.pop(context);
+            }
+          },
+          child: const Text('Снести участок'),
+        ),
+      ],
+    );
+  });
+  state.overlay
+    ..plan = const []
+    ..planOk = true;
+  state.changed();
+}

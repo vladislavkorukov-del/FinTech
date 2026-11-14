@@ -59,6 +59,34 @@ const magTechNodes = <MagTech>[
     deliveries: 80,
   ),
   MagTech(
+    id: 'shipping',
+    branch: MagBranch.fleet,
+    title: 'Речное судоходство',
+    lore:
+        'Причал из брёвен, лоцман и плоскодонная баржа. Река сама несёт '
+        'груз — только успевай грузить.',
+    effect: 'Порты и баржа «Волжанка»',
+    effects: {MagBonus.shipping: 1},
+    cost: 10000,
+    level: 8,
+    requires: ['steam'],
+    deliveries: 120,
+  ),
+  MagTech(
+    id: 'shipyard',
+    branch: MagBranch.fleet,
+    title: 'Судоверфь',
+    lore:
+        'Стальной корпус, дизель и трюм на полтораста мест. Большая вода '
+        'становится большой дорогой.',
+    effect: 'Сухогруз «Ладога»',
+    effects: {MagBonus.shipyard: 1},
+    cost: 24000,
+    level: 14,
+    requires: ['shipping', 'combustion'],
+    deliveries: 400,
+  ),
+  MagTech(
     id: 'dieseltrain',
     branch: MagBranch.fleet,
     title: 'Тепловозная тяга',

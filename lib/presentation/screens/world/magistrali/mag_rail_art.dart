@@ -191,3 +191,102 @@ List<(double, double, int)> trainCars(MagWorld w, MagVehicle v) {
   }
   return out;
 }
+
+/// A wooden pier on a water cell (under the ground transform).
+void paintPier(Canvas c, int x, int y) {
+  c.drawRect(
+    Rect.fromLTWH(x + .12, y + .12, .76, .76),
+    Paint()..color = const Color(0xFF9C7A54),
+  );
+  final plank = Paint()
+    ..color = const Color(0xFF7A5A3C)
+    ..strokeWidth = .025;
+  for (var k = 1; k < 5; k++) {
+    c.drawLine(
+      Offset(x + .12, y + .12 + k * .152),
+      Offset(x + .88, y + .12 + k * .152),
+      plank,
+    );
+  }
+}
+
+/// A small crane at a port.
+void paintPortCrane(Canvas c, int x, int y) {
+  MagShapes.box(
+    c,
+    x: x + .25,
+    y: y + .25,
+    length: .06,
+    width: .06,
+    h: 18,
+    color: const Color(0xFFE8B23E),
+    outline: false,
+  );
+  MagShapes.box(
+    c,
+    x: x + .45,
+    y: y + .25,
+    length: .45,
+    width: .05,
+    z0: 17,
+    h: 1.5,
+    color: const Color(0xFFE8B23E),
+    outline: false,
+  );
+}
+
+/// A vessel: a hull with a cabin; loaded, its hold shows the cargo.
+void paintShip(
+  Canvas c,
+  double x,
+  double y,
+  int dir,
+  MagTruckModel m,
+  Color? load, {
+  bool selected = false,
+}) {
+  final along = dir == 1 || dir == 3;
+  final big = m.capacity > 100;
+  final len = big ? .9 : .7, wid = big ? .42 : .34;
+  MagShapes.box(
+    c,
+    x: x,
+    y: y,
+    length: along ? len : wid,
+    width: along ? wid : len,
+    h: 4,
+    color: Color(m.color),
+  );
+  if (load != null) {
+    MagShapes.box(
+      c,
+      x: x + MagDir.dx[dir] * .1,
+      y: y + MagDir.dy[dir] * .1,
+      length: along ? len * .5 : wid * .7,
+      width: along ? wid * .7 : len * .5,
+      z0: 4,
+      h: 3,
+      color: load,
+      outline: false,
+    );
+  }
+  MagShapes.box(
+    c,
+    x: x - MagDir.dx[dir] * len * .32,
+    y: y - MagDir.dy[dir] * len * .32,
+    length: .18,
+    width: .2,
+    z0: 4,
+    h: big ? 8 : 6,
+    color: const Color(0xFFF1F3F4),
+  );
+  if (selected) {
+    c.drawOval(
+      Rect.fromCenter(center: MagIso.project(x, y), width: 52, height: 26),
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2
+        ..color = const Color(0xFF2BB59A),
+    );
+  }
+}

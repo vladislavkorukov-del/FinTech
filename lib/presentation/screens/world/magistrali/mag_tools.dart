@@ -101,14 +101,22 @@ class MagConfirmBar extends StatelessWidget {
     final wh = state.pendingWarehouse;
     final at = state.pendingIndustry, kind = state.buildKind;
     final st = state.pendingStation, place = state.pendingStationPlace;
+    final port = state.pendingPort, berthOf = state.pendingPortPlace;
     final removing =
         wh == null &&
         at == null &&
         st == null &&
+        port == null &&
         (road == null || road.cells.isEmpty);
     final String title;
     String? problem;
-    if (st != null && place != null) {
+    if (port != null && berthOf != null) {
+      title =
+          'Порт у «${w.map.industry(berthOf)?.name ?? ''}» · ${magMoney(MagRules.portPrice)} кр';
+      problem =
+          w.portBlocker(port, berthOf) ??
+          (MagRules.portPrice > w.money ? 'Не хватает кредитов' : null);
+    } else if (st != null && place != null) {
       title =
           'Станция у «${w.map.industry(place)?.name ?? ''}» · ${magMoney(MagRules.stationPrice)} кр';
       problem =
@@ -295,13 +303,15 @@ String toolHint(MagistraliScreenState state) {
       'Коснитесь клетки — там встанет склад 2×2 (${magMoney(w.warehousePrice)} кр, ${w.warehouses.length} из ${w.warehouseSlots})',
     MagTool.rail =>
       'Рельсы: проведите пальцем · ${MagRules.railCost} кр/кл. Можно пересекать дороги.',
+    MagTool.port =>
+      'Коснитесь воды рядом (до 2 клеток) с предприятием или поселением · ${magMoney(MagRules.portPrice)} кр',
     MagTool.station =>
       'Коснитесь пути рядом (до 2 клеток) с предприятием или поселением · ${magMoney(MagRules.stationPrice)} кр',
     _ => 'Проведите по дороге или пути, которые нужно снести',
   };
 }
 
-/// The railway tools (stage S8): track and station.
+/// The railway and water tools (stages S8, S9): track, station, port.
 List<Widget> railChips(MagistraliScreenState state) {
   final w = state.world;
   return [
@@ -328,6 +338,18 @@ List<Widget> railChips(MagistraliScreenState state) {
       onTap: () => w.railsUnlocked
           ? state.setTool(MagTool.station)
           : state.say('Станции открывает технология «Паровая тяга»'),
+    ),
+    MagToolChip(
+      key: const ValueKey('mag-tool-port'),
+      label: 'Порт',
+      locked: !w.shippingUnlocked,
+      lockLevel: 8,
+      on: state.tool == MagTool.port,
+      color: const Color(0xFF2E5E8C),
+      icon: Icons.anchor_rounded,
+      onTap: () => w.shippingUnlocked
+          ? state.setTool(MagTool.port)
+          : state.say('Порты открывает технология «Речное судоходство»'),
     ),
   ];
 }

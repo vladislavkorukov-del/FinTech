@@ -78,7 +78,7 @@ void main() {
     expect(w.buyTruck('diesel'), isNull);
     // Trains run routes only.
     w.techs.add('dispatch');
-    expect(w.setAuto(t.id, true), 'Поезда ходят только по маршрутам');
+    expect(w.setAuto(t.id, true), 'Поезда и суда ходят только по маршрутам');
   });
 
   test('track and stations: where they may go, cost, crossings, removal', () {

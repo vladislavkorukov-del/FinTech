@@ -152,7 +152,11 @@ class MagTruckModel {
     this.wagonCapacity = 0,
     this.maxWagons = 0,
     this.wagonPrice = 0,
+    this.water = false,
   });
+
+  /// A vessel (stage S9): it sails rivers and lakes between ports.
+  final bool water;
   final String id, name;
 
   /// A locomotive (stage S8): it runs on rails between stations and pulls
@@ -234,6 +238,9 @@ abstract final class MagRules {
   static const railCost = 60, stationPrice = 1500, stationReach = 2;
   static const wagonRunning = .08, wagonUpkeep = 1, wagonDrag = .04;
   static const trainWaitTicks = 20;
+
+  /// Water (stage S9): a port, and how far from its place it may stand.
+  static const portPrice = 3000, portReach = 2;
 
   /// Days a city waits before its next order after one ends.
   static const cityOrderPause = 4;

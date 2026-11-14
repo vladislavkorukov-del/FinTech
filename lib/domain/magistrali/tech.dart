@@ -35,6 +35,10 @@ abstract final class MagBonus {
   /// engines.
   static const rails = 'rails', diesel = 'diesel';
 
+  /// Water (stage S9): river shipping (ports, barges), the shipyard
+  /// (cargo ships).
+  static const shipping = 'shipping', shipyard = 'shipyard';
+
   /// Logistics centres the company may build (stage S7).
   static const logistics = 'logistics';
 }

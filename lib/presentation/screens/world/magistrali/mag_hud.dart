@@ -298,7 +298,8 @@ class MagBottomPanel extends StatelessWidget {
               removing.isNotEmpty ||
               state.pendingWarehouse != null ||
               state.pendingIndustry != null ||
-              state.pendingStation != null) ...[
+              state.pendingStation != null ||
+              state.pendingPort != null) ...[
             MagConfirmBar(state: state),
             const SizedBox(height: 8),
           ],
