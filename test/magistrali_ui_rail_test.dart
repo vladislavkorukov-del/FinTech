@@ -184,7 +184,8 @@ void main() {
     final w = s.world
       ..money = 500000
       ..xp = MagWorldProgress.xpFor(9)
-      ..techs.addAll(['stud', 'steam', 'shipping']);
+      ..techs.addAll(['stud', 'steam', 'shipping'])
+      ..regionsLocked = false; // the port is far from the start (MAP-08)
     s.changed();
     await settle(tester);
     // A water cell by some place.

@@ -165,4 +165,69 @@ void main() {
     expect(s.world.money, 30000);
     await settle(tester);
   });
+
+  testWidgets('S18: messages in the build panel, a region, paint, auction', (
+    tester,
+  ) async {
+    await mount(tester, const MagistraliScreen(seed: MagRules.defaultSeed));
+    final s = await ready(tester);
+    final w = s.world
+      ..money = 1000000
+      ..xp = MagWorldProgress.xpFor(6);
+    w.speed = 0;
+    s.changed();
+    // A new company opens regions as it grows.
+    expect(w.regionsLocked, isTrue);
+    final f = w.map.startFarm, p = w.map.startPlant;
+    // Building: a message goes to the panel's line, not over the map.
+    s.camera.zoom = 1;
+    s.centerOn((f.centerX + p.centerX) / 2, (f.centerY + p.centerY) / 2);
+    await tester.pump();
+    await tap(tester, 'mag-tab-build');
+    await tester.tapAt(at(tester, s, f.x + f.size, f.y));
+    await tester.pump();
+    await tester.tapAt(at(tester, s, p.x - 1, p.y));
+    await tester.pump();
+    final end = s.pendingRoad!.cells.last;
+    await tester.tapAt(at(tester, s, w.cx(end), w.cy(end)));
+    await tester.pump();
+    expect(s.message, isNotNull);
+    expect(find.byKey(const ValueKey('mag-message')), findsNothing);
+    expect(
+      tester.widget<Text>(find.byKey(const ValueKey('mag-build-hint'))).data,
+      s.message,
+    );
+    await tap(tester, 'mag-cancel');
+    await tap(tester, 'mag-tab-build');
+    // A closed region: a tap offers to open it.
+    final home = w.regionOf(f.x, f.y);
+    final r = home == 4 ? 3 : 4;
+    final size = (w.size / 3).ceil();
+    final cx = (r % 3) * size + size ~/ 2, cy = (r ~/ 3) * size + size ~/ 2;
+    s.camera.zoom = 1;
+    s.centerOn(cx + .5, cy + .5);
+    await tester.pump();
+    await tester.tapAt(at(tester, s, cx, cy));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    await tap(tester, 'mag-region-open');
+    expect(w.openRegions, contains(r));
+    // Paint a vehicle.
+    final v = w.vehicles.values.first;
+    await tap(tester, 'mag-tab-fleet');
+    await tap(tester, 'mag-truck-${v.id}');
+    await tap(tester, 'mag-paint-1');
+    expect(v.paint, isNotNull);
+    await closeSheet(tester);
+    // An auction lot in the investments tab.
+    final lot = w.map.industries.firstWhere((i) => !i.owned && w.forSale(i));
+    w.auction = MagAuction(lot.id, 1000, w.tick + 5 * MagRules.ticksPerDay);
+    s.changed();
+    await tap(tester, 'mag-balance');
+    await tap(tester, 'mag-fin-tab-6');
+    await tap(tester, 'mag-auction-buy');
+    expect(lot.owned, isTrue);
+    await closeSheet(tester);
+    await settle(tester);
+  });
 }

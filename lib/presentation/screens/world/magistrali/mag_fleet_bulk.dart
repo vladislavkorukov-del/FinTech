@@ -94,3 +94,46 @@ class MagFleetBulk extends StatelessWidget {
     );
   }
 }
+
+/// A vehicle's own paint (VEH-13): the model's colour or one of five.
+class MagPaintChips extends StatelessWidget {
+  const MagPaintChips({super.key, required this.state, required this.v});
+  final MagistraliScreenState state;
+  final MagVehicle v;
+
+  @override
+  Widget build(BuildContext context) {
+    final w = state.world;
+    return Wrap(
+      spacing: 6,
+      children: [
+        for (final (k, c) in [
+          (0, null),
+          (1, 0xFFD64B5C),
+          (2, 0xFF2E5E8C),
+          (3, 0xFF2BB59A),
+          (4, 0xFFE8B23E),
+          (5, 0xFF3B3F44),
+        ])
+          InkWell(
+            key: ValueKey('mag-paint-$k'),
+            onTap: () => state.report(w.paintVehicle(v.id, c)),
+            child: Container(
+              width: 26,
+              height: 26,
+              decoration: BoxDecoration(
+                color: Color(c ?? v.spec.color),
+                shape: BoxShape.circle,
+                border: Border.all(
+                  width: v.paint == c ? 3 : 1,
+                  color: v.paint == c
+                      ? const Color(0xFF2BB59A)
+                      : const Color(0x33000000),
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}

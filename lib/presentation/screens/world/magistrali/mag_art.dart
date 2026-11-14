@@ -113,12 +113,32 @@ void paintTruck(
   MagTruckModel m,
   Color? load, {
   bool selected = false,
+  Color? paint,
+  int tier = 0,
 }) {
   final ax = MagDir.dx[dir].toDouble(), ay = MagDir.dy[dir].toDouble();
+  // How upgraded it looks (VEH-13): gold stripes over it.
+  if (tier > 0) {
+    final top = MagIso.project(x, y) - const Offset(0, 30);
+    for (var k = 0; k < tier; k++) {
+      final o = top + Offset((k - (tier - 1) / 2) * 6, 0);
+      c.drawPath(
+        Path()
+          ..moveTo(o.dx - 2.5, o.dy)
+          ..lineTo(o.dx, o.dy - 3)
+          ..lineTo(o.dx + 2.5, o.dy),
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1.6
+          ..color = const Color(0xFFD4A017),
+      );
+    }
+  }
   // Keep to the right-hand lane.
   final px = x - ay * .19, py = y + ax * .19;
   final big = m.capacity / 22;
-  final img = MagSprites.current?.truck(m.id, dir);
+  // A painted vehicle is drawn, not taken from the sprites (VEH-13).
+  final img = paint == null ? MagSprites.current?.truck(m.id, dir) : null;
   if (img != null) {
     final p = MagIso.project(px, py);
     final w = 34.0 * (.8 + big * .25), h = w * img.height / img.width;
@@ -144,7 +164,7 @@ void paintTruck(
     );
   }
   final length = .46 + .12 * big, cab = .22;
-  final body = Color(m.color);
+  final body = paint ?? Color(m.color);
   // Cargo box behind, cab in front; draw the one further back first.
   final backX = px - ax * cab / 2, backY = py - ay * cab / 2;
   final cabX = px + ax * length / 2, cabY = py + ay * length / 2;

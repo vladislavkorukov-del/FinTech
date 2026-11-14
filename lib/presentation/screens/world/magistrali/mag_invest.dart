@@ -9,6 +9,7 @@ import 'mag_hud.dart';
 import 'mag_road.dart';
 import 'mag_screen.dart';
 import 'mag_sheets.dart';
+import 'mag_works_ui.dart';
 
 /// The investment planner (FIN-14), a tab of the finance centre: what to
 /// put money into next, with the cost, the profit a day and the days to
@@ -20,6 +21,7 @@ List<Widget> investmentCards(
   final w = state.world;
   final ideas = w.investmentIdeas;
   return [
+    ...auctionCards(state),
     const Text(
       'Оценка по фактам: прибыль маршрутов и предприятий за время работы. Окупаемость — сколько дней вложение будет возвращаться.',
       style: magMuted,

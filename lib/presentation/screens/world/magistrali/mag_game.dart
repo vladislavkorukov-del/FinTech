@@ -143,7 +143,6 @@ class MagRenderer {
       }
     }
 
-    // Roads and marks on the ground.
     canvas.save();
     canvas.transform(MagIso.ground);
     // Roads and track as whole smooth lines (rebuilt when they change).
@@ -162,7 +161,7 @@ class MagRenderer {
       }
     }
     if (o.traffic) paintTraffic(canvas, w, x0, y0, x1, y1);
-    // Short pieces into the places a road serves.
+    if (w.regionsLocked) paintClosedRegions(canvas, w); // MAP-08
     for (var y = y0; y <= y1; y++) {
       for (var x = x0; x <= x1; x++) {
         final r = w.roadAt(x, y);
@@ -289,7 +288,6 @@ class MagRenderer {
           i.bottom + 1 < y0) {
         continue;
       }
-      // A settlement is redrawn when it grows.
       final key = i.town != null
           ? '${i.id}:${i.town!.level}:${i.town!.cells.length}'
           : i.kind == MagIndustryKind.megaproject
@@ -303,6 +301,7 @@ class MagRenderer {
           );
           paintSmoke(canvas, i, t);
           if (i.owned) paintOwnerFlag(canvas, i);
+          if (i.owned && i.level > 1) paintLevelStages(canvas, i);
         },
       ));
     }
@@ -368,6 +367,8 @@ class MagRenderer {
           v.spec,
           v.load > 0 ? MagPalette.cargo(v.cargo!) : null,
           selected: o.vehicle == v.id,
+          paint: v.paint == null ? null : Color(v.paint!),
+          tier: w.visualTier(v),
         ),
       ));
     }
@@ -476,7 +477,6 @@ class MagRenderer {
       }
     }
 
-    // Income popping up.
     o.floats.removeWhere((f) => t - f.$4 > 1.6);
     for (final (x, y, text, start) in o.floats) {
       final k = (t - start) / 1.6;

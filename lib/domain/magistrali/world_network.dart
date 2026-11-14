@@ -35,7 +35,7 @@ extension MagWorldNetwork on MagWorld {
 
   /// Passengers brought to a hub: a share stays to ride on (they count as
   /// delivered here, and wait for the next line). Returns how many stay.
-  int _transfer(MagIndustry t, int n) {
+  int transferAt(MagIndustry t, int n) {
     if (!isHub(t)) return 0;
     final stay = (n * MagRules.transferShare).floor();
     if (stay > 0) {

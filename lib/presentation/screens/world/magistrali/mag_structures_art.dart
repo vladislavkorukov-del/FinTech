@@ -246,3 +246,79 @@ void paintTerminal(Canvas c, MagWorld w, int cell) {
     top: const Color(0xFF5FD0B8),
   );
 }
+
+/// Regions not open yet (MAP-08, under the ground transform): a grey veil
+/// with the price in the middle.
+void paintClosedRegions(Canvas c, MagWorld w) {
+  final s = (w.size / 3).ceil().toDouble();
+  for (var r = 0; r < 9; r++) {
+    if (w.openRegions.contains(r)) continue;
+    final rect = Rect.fromLTWH(
+      (r % 3) * s,
+      (r ~/ 3) * s,
+      s,
+      s,
+    ).intersect(Rect.fromLTWH(0, 0, w.size.toDouble(), w.size.toDouble()));
+    c.drawRect(rect, Paint()..color = const Color(0x7A303A40));
+    c.drawRect(
+      rect.deflate(.2),
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = .12
+        ..color = const Color(0x99FFFFFF),
+    );
+  }
+}
+
+/// An own business's level shows (PROD-19): annexes and a tank grow by
+/// its side, and at the top level a golden band.
+void paintLevelStages(Canvas c, MagIndustry i) {
+  final x = i.x.toDouble(), y = i.y.toDouble(), s = i.size.toDouble();
+  if (i.level >= 2) {
+    MagShapes.box(
+      c,
+      x: x + s - .3,
+      y: y + .3,
+      length: .4,
+      width: .4,
+      h: 7,
+      color: const Color(0xFFD7DCDF),
+      top: const Color(0xFF8C99A6),
+    );
+  }
+  if (i.level >= 3) {
+    MagShapes.cylinder(
+      c,
+      x: x + .3,
+      y: y + s - .3,
+      r: .2,
+      h: 12,
+      color: const Color(0xFFB9C2C8),
+      dome: true,
+    );
+  }
+  if (i.level >= 4) {
+    MagShapes.box(
+      c,
+      x: x + .35,
+      y: y + .35,
+      length: .5,
+      width: .45,
+      h: 10,
+      color: const Color(0xFFE2E6E8),
+      top: const Color(0xFF2BB59A),
+    );
+  }
+  if (i.level >= 5) {
+    final p = MagIso.project(x + s / 2, y + s / 2, 46);
+    c.drawCircle(p, 5, Paint()..color = const Color(0xFFD4A017));
+    c.drawCircle(
+      p,
+      5,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1
+        ..color = const Color(0xFFFFFFFF),
+    );
+  }
+}

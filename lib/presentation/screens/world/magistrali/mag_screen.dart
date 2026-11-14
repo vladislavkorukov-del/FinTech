@@ -22,6 +22,7 @@ import 'mag_sprites.dart';
 import 'mag_tools.dart';
 import 'mag_town.dart';
 import 'mag_warehouse.dart';
+import 'mag_works_ui.dart';
 
 part 'mag_screen_input.dart';
 
@@ -106,7 +107,11 @@ class MagistraliScreenState extends State<MagistraliScreen>
   Future<void> _load() async {
     MagWorld? w;
     if (widget.seed == null) w = await _store.load();
-    w ??= MagWorld.start(widget.seed ?? MagRules.defaultSeed);
+    w ??= MagWorld.start(
+      widget.seed ?? MagRules.defaultSeed,
+      MagScenario.classic,
+      true, // MAP-08: a new company opens regions as it grows
+    );
     try {
       MagSprites.current = await MagSprites.load();
     } on Object {
@@ -256,7 +261,11 @@ class MagistraliScreenState extends State<MagistraliScreen>
   /// A new company on a new map (rewards already paid stay paid).
   Future<void> restart([MagScenario scenario = MagScenario.classic]) async {
     await _store.clear();
-    final w = MagWorld.start(math.Random().nextInt(0x7ffffff0) + 1, scenario);
+    final w = MagWorld.start(
+      math.Random().nextInt(0x7ffffff0) + 1,
+      scenario,
+      true, // MAP-08
+    );
     if (!mounted) return;
     setState(() {
       _world = w;

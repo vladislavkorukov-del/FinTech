@@ -93,6 +93,7 @@ List<Widget> marketInfo(MagWorld w, MagIndustry i) {
                 'Ищут работу: $workers — их ждут на предприятиях. '
                 'Долго ждущие уходят: ${(MagRules.waitLeave * 100).round()}% в день. '
                 'Терминалы: ${w.terminalsOf(i)} из ${w.terminalSlots(i)} (+${(w.terminalBonusOf(i) * 100).round()}% к оплате).'
+                '${w.isHub(i) ? ' Пересадочный узел: ${(MagRules.transferShare * 100).round()}% пассажиров едут дальше.' : ''}'
           : 'Без дороги, станции или порта жители никуда не едут.',
       key: const ValueKey('mag-town-passengers'),
       style: magMuted,

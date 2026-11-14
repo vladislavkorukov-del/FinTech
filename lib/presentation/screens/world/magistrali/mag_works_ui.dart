@@ -122,6 +122,12 @@ List<Widget> worksInfo(MagistraliScreenState state, MagIndustry i) {
           ],
         ),
       ),
+    if (MagRules.byProducts[i.kind] case final b?)
+      Text(
+        'Побочная продукция: ${cargoName(b.$1).toLowerCase()} — ${(b.$2 * 100).round()}% от выпуска',
+        key: const ValueKey('mag-byproduct'),
+        style: magMuted,
+      ),
     if (w.complexPartner(i) case final p?)
       Padding(
         padding: const EdgeInsets.only(bottom: 6),
@@ -148,5 +154,87 @@ List<Widget> worksInfo(MagistraliScreenState state, MagIndustry i) {
       ),
       const SizedBox(height: 6),
     ],
+  ];
+}
+
+/// Opening a closed region of the map (MAP-08).
+Future<void> showRegionSheet(
+  MagistraliScreenState state,
+  int region,
+) => magSheet(state, 'mag-region', (context) {
+  final w = state.world;
+  final price = w.regionPrice;
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      const Text('Закрытый регион', style: magTitle),
+      Text(
+        'Чтобы строить здесь дороги, пути и предприятия, купите право на регион. Открыто ${w.openRegions.length} из 9, каждый следующий дороже.',
+        style: magMuted,
+      ),
+      const SizedBox(height: 10),
+      SizedBox(
+        width: double.infinity,
+        child: FilledButton(
+          key: const ValueKey('mag-region-open'),
+          style: FilledButton.styleFrom(backgroundColor: MagPalette.mint),
+          onPressed: price > w.money
+              ? null
+              : () {
+                  if (state.report(w.openRegion(region), 'Регион открыт')) {
+                    Navigator.pop(context);
+                  }
+                },
+          child: Text(
+            price > w.money
+                ? 'Нужно ${magMoney(price)} кр'
+                : 'Открыть регион · ${magMoney(price)} кр',
+          ),
+        ),
+      ),
+    ],
+  );
+});
+
+/// The auction lot (BIZ-13): rivals raise the price every day.
+List<Widget> auctionCards(MagistraliScreenState state) {
+  final w = state.world;
+  final a = w.auction;
+  if (a == null) return const [];
+  final i = w.map.industry(a.industry)!;
+  final days = ((a.end - w.tick) / MagRules.ticksPerDay).ceil();
+  return [
+    Container(
+      key: const ValueKey('mag-auction'),
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(12),
+      decoration: magCard(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Аукцион: ${i.name}',
+            style: const TextStyle(fontWeight: FontWeight.w800),
+          ),
+          Text(
+            'Цена ${magMoney(a.price)} кр вместо ${magMoney(w.buyPrice(i))} · соперники поднимают её на ${(MagRules.auctionRise * 100).round()}% в день · осталось $days дн.',
+            style: magMuted,
+          ),
+          const SizedBox(height: 6),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton(
+              key: const ValueKey('mag-auction-buy'),
+              style: FilledButton.styleFrom(backgroundColor: MagPalette.mint),
+              onPressed: a.price > w.money
+                  ? null
+                  : () => state.report(w.buyAuction(), 'Куплено на аукционе'),
+              child: const Text('Купить сейчас'),
+            ),
+          ),
+        ],
+      ),
+    ),
   ];
 }

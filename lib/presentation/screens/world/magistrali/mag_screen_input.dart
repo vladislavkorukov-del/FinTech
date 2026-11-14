@@ -203,6 +203,11 @@ extension _MagScreenInput on MagistraliScreenState {
           overlay.removing = pendingRemove;
         });
       case MagTool.view:
+        // A closed region (MAP-08): offer to open it.
+        if (!w.regionOpen(w.cx(cell), w.cy(cell))) {
+          unawaited(showRegionSheet(this, w.regionOf(w.cx(cell), w.cy(cell))));
+          return;
+        }
         // A truck under the finger first, then a place.
         for (final v in w.vehicles.values) {
           if (!v.onMap) continue;

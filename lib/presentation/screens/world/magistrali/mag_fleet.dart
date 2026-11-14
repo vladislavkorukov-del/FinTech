@@ -311,6 +311,7 @@ Future<void> showVehicleSheet(
                   state.report(w.assign(v.id, null), 'Машина в гараже'),
               child: const Text('В гараж'),
             ),
+          MagPaintChips(state: state, v: v), // VEH-13
           // A better hull for a vessel (SEA-05).
           if (w.hullPrice(v) != null)
             TextButton(
