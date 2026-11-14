@@ -8,6 +8,7 @@ import 'mag_advice.dart';
 import 'mag_art.dart';
 import 'mag_business.dart';
 import 'mag_hud.dart';
+import 'mag_invest.dart';
 import 'mag_screen.dart';
 import 'mag_sheets.dart';
 
@@ -37,6 +38,7 @@ class _MagFinanceCenterState extends State<MagFinanceCenter> {
     'Поселения',
     'Активы',
     'Советы',
+    'Инвестиции',
   ];
 
   @override
@@ -77,7 +79,8 @@ class _MagFinanceCenterState extends State<MagFinanceCenter> {
           2 => _industries(w),
           3 => _towns(w),
           4 => _assets(w),
-          _ => adviceCards(widget.state, context),
+          5 => adviceCards(widget.state, context),
+          _ => investmentCards(widget.state, context),
         },
       ],
     );

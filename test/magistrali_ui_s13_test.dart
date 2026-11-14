@@ -174,4 +174,49 @@ void main() {
     await closeSheet(tester);
     await settle(tester);
   });
+
+  testWidgets('S14: copy and reverse a line, priority, the planner', (
+    tester,
+  ) async {
+    await mount(tester, const MagistraliScreen(seed: MagRules.defaultSeed));
+    final s = await ready(tester);
+    final w = s.world
+      ..money = 100000
+      ..xp = MagWorldProgress.xpFor(5)
+      ..techs.add('combustion');
+    final f = w.map.startFarm, p = w.map.startPlant;
+    w.buildRoad(w.planRoad(f.x + f.size, f.y, p.x - 1, p.y, MagRoad.dirt));
+    w.createRoute([f.id, p.id]);
+    final r = w.routes.values.single;
+    w.assign(w.vehicles.values.single.id, r.id);
+    w.step(MagRules.ticksPerDay * 10);
+    w.speed = 0;
+    s.changed();
+    await tap(tester, 'mag-tab-routes');
+    await tap(tester, 'mag-route-copy-${r.id}');
+    expect(w.routes.length, 2);
+    await tap(tester, 'mag-route-reverse-${r.id}');
+    expect(w.routes.values.last.stops, [p.id, f.id]);
+    await tap(tester, 'mag-route-priority-${r.id}');
+    await tap(tester, 'mag-priority-grain');
+    await tap(tester, 'mag-priority-save');
+    expect(r.priority, [MagCargo.grain]);
+    expect(find.textContaining('Приоритет: зерно'), findsOneWidget);
+    await closeSheet(tester);
+    // The planner: another vehicle on the line, bought from the card.
+    await tap(tester, 'mag-balance');
+    await tap(tester, 'mag-fin-tab-6');
+    expect(find.byKey(const ValueKey('mag-invest-0')), findsOneWidget);
+    expect(find.textContaining('Окупаемость'), findsWidgets);
+    final idea = w.investmentIdeas.indexWhere(
+      (i) => i.kind == MagInvestmentKind.vehicle,
+    );
+    expect(idea, isNonNegative);
+    final before = w.vehicles.length;
+    await tap(tester, 'mag-invest-go-$idea');
+    expect(w.vehicles.length, before + 1);
+    expect(w.vehicles.values.last.routeId, r.id);
+    await closeSheet(tester);
+    await settle(tester);
+  });
 }

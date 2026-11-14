@@ -47,6 +47,8 @@ extension MagWorldRoutes on MagWorld {
     if (v.load > 0) {
       return here.supplies.contains(v.cargo) && ok(v.cargo!) ? v.cargo : null;
     }
+    final first = _priorityPick(r, here, ok);
+    if (first != null) return first;
     MagCargo? best;
     for (final c in here.supplies) {
       if (!ok(c)) continue;
@@ -152,6 +154,16 @@ extension MagWorldRoutes on MagWorld {
         for (final i in map.industries)
           if (i.staff > 0) '${i.id}': i.staff,
       },
+    if (routes.values.any((r) => r.priority.isNotEmpty || r.since != 0))
+      'routePlans': {
+        for (final r in routes.values)
+          if (r.priority.isNotEmpty || r.since != 0)
+            '${r.id}': {
+              if (r.priority.isNotEmpty)
+                'priority': [for (final c in r.priority) c.name],
+              if (r.since != 0) 'since': r.since,
+            },
+      },
     if (routes.values.any(
       (r) => r.pickAt.isNotEmpty || r.noPick.isNotEmpty || r.noDrop.isNotEmpty,
     ))
@@ -215,6 +227,23 @@ extension MagWorldRoutes on MagWorld {
       r.noDrop.addAll([
         for (final k in m['noDrop'] as List? ?? const []) index(k),
       ]);
+    }
+    for (final e in (j['routePlans'] as Map? ?? const {}).entries) {
+      final r = routes[int.tryParse('${e.key}') ?? -1];
+      final m = e.value;
+      if (r == null || m is! Map) {
+        throw const FormatException('Bad route plan in Magistrali save');
+      }
+      for (final c in m['priority'] as List? ?? const []) {
+        r.priority.add(MagCargo.values.byName(c as String));
+      }
+      final since = m['since'];
+      if (since != null) {
+        if (since is! int || since < 0) {
+          throw const FormatException('Bad route plan in Magistrali save');
+        }
+        r.since = since;
+      }
     }
     for (final (key, into) in [
       ('traffic', traffic),

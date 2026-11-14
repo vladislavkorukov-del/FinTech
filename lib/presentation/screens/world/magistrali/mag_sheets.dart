@@ -120,18 +120,26 @@ Widget magRow(String label, String value, {Color? color}) => Padding(
   padding: const EdgeInsets.symmetric(vertical: 3),
   child: Row(
     children: [
-      Expanded(child: Text(label, style: magMuted.copyWith(fontSize: 13))),
+      Expanded(
+        flex: 3,
+        child: Text(label, style: magMuted.copyWith(fontSize: 13)),
+      ),
       const SizedBox(width: 8),
-      // A long value wraps instead of running off the sheet.
+      // A long value wraps instead of running off the sheet; a short one
+      // sits at the right edge.
       Flexible(
-        child: Text(
-          value,
-          textAlign: TextAlign.right,
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w700,
-            color: color ?? MagPalette.ink,
-            fontFeatures: const [FontFeature.tabularFigures()],
+        flex: 2,
+        child: Align(
+          alignment: Alignment.centerRight,
+          child: Text(
+            value,
+            textAlign: TextAlign.right,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: color ?? MagPalette.ink,
+              fontFeatures: const [FontFeature.tabularFigures()],
+            ),
           ),
         ),
       ),

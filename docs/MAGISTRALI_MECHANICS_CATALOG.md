@@ -7,23 +7,23 @@
 
 Статусы: NOT_STARTED — не начато; PARTIAL — частично; IN_PROGRESS — в работе;
 READY_FOR_REVIEW — готово, ждёт проверки игроком; VERIFIED — проверено игроком
-(этапы, которые игрок подтвердил: 1.68–1.84); BLOCKED — заблокировано.
+(этапы, которые игрок подтвердил: 1.68–1.85); BLOCKED — заблокировано.
 
 Файлы домена — `lib/domain/magistrali/`, интерфейса —
 `lib/presentation/screens/world/magistrali/`. Тесты — `test/magistrali_<имя>_test.dart`
 (sim, orders, storage, dispatch, towns, horses, production, growth,
-industry, cities, logistics, rail, water, megapolis, passengers, p1, s12, s13, ui, ui_s13, ui_stage5, ui_rail).
+industry, cities, logistics, rail, water, megapolis, passengers, p1, s12, s13, s14, ui, ui_s13, ui_stage5, ui_rail).
 
-Аудит: 1.77.0, обновлено в 1.78.0 (S7) и 1.79.0 (S8), 1.80.0 (S9 и доводка ЖД), 1.81.0 (S10 и графика), 1.82.0 (S11), 1.83.0 (доделка P1), 1.84.0 (S12), 1.85.0 (S13); точка восстановления — тег `restore/magistrali-1.77.0-pre-s7`.
+Аудит: 1.77.0, обновлено в 1.78.0 (S7) и 1.79.0 (S8), 1.80.0 (S9 и доводка ЖД), 1.81.0 (S10 и графика), 1.82.0 (S11), 1.83.0 (доделка P1), 1.84.0 (S12), 1.85.0 (S13), 1.86.0 (S14); точка восстановления — тег `restore/magistrali-1.77.0-pre-s7`.
 
 ## Сводка
 
 | Статус | Механик |
 |---|---|
-| VERIFIED | 135 |
-| READY_FOR_REVIEW | 5 |
+| VERIFIED | 140 |
+| READY_FOR_REVIEW | 3 |
 | PARTIAL | 25 |
-| NOT_STARTED | 38 |
+| NOT_STARTED | 35 |
 | Всего | 203 |
 
 ## A. Фундамент игры и безопасность
@@ -88,9 +88,9 @@ industry, cities, logistics, rail, water, megapolis, passengers, p1, s12, s13, u
 | ROAD-05 | Удаление и возврат части стоимости | P1 | VERIFIED | 1.83 | — | world_roads.dart (`removeRoad`, `demolishRefund`: 30%), world_rails.dart | p1, ui_rail | — |
 | ROAD-06 | Мосты | P1 | VERIFIED | 1.82 | — | config.dart (река ×9), mag_network_art.dart (`paintBridge`: настил, перила, опоры; ж/д ферма) | passengers | — |
 | ROAD-07 | Тоннели | P3 | VERIFIED | 1.82 | ROAD-01 | config.dart (холм ×7), mag_network_art.dart (порталы, гора над дорогой) | passengers | Тоннель — дорога или путь на клетке холма |
-| ROAD-08 | Пропускная способность | P2 | READY_FOR_REVIEW | 1.85 | — | config.dart (`MagRoadSpec.capacity`: 24/48/96/192 машин в день), world_routes.dart (`trafficOf`, `loadOf`, `congestionOf`), world_sim.dart | s13 | — |
+| ROAD-08 | Пропускная способность | P2 | VERIFIED | 1.85 | — | config.dart (`MagRoadSpec.capacity`: 24/48/96/192 машин в день), world_routes.dart (`trafficOf`, `loadOf`, `congestionOf`), world_sim.dart | s13 | — |
 | ROAD-09 | Дорожные заторы | P3 | PARTIAL | 1.85 | ROAD-08 | world_routes.dart (`congestionOf`: сверх пропускной способности — медленнее, до половины скорости) | s13 | Без очередей и аварий |
-| ROAD-10 | Подсветка загруженности | P2 | READY_FOR_REVIEW | 1.85 | ROAD-08 | mag_network_art.dart (`paintTraffic`), mag_build_panel.dart («Загруженность»), mag_road.dart | s13, ui_s13 | — |
+| ROAD-10 | Подсветка загруженности | P2 | VERIFIED | 1.85 | ROAD-08 | mag_network_art.dart (`paintTraffic`), mag_build_panel.dart («Загруженность»), mag_road.dart | s13, ui_s13 | — |
 | ROAD-11 | Предварительная стоимость строительства | P1 | VERIFIED | 1.68 | — | mag_tools.dart (панель подтверждения), mag_road.dart | ui | — |
 | ROAD-12 | Проверка доступности маршрута | P0 | VERIFIED | 1.68 | — | world.dart (`roadPath`, `connected`) | sim | — |
 
@@ -118,17 +118,17 @@ industry, cities, logistics, rail, water, megapolis, passengers, p1, s12, s13, u
 | ID | Механика | P | Статус | Версия | Зависимости | Файлы | Тесты | Проблемы |
 |---|---|---|---|---|---|---|---|---|
 | ROUTE-01 | Создание маршрутов | P1 | VERIFIED | 1.84 | ROAD-12 | world.dart (`createRoute`), mag_routes.dart, mag_route_create.dart (поиск, группы, предложения по грузу) | sim, ui, ui_rail | — |
-| ROUTE-02 | Несколько остановок | P1 | READY_FOR_REVIEW | 1.85 | — | entities.dart (`MagRoute.stops`), mag_stop_orders.dart (`routeSteps`: план по шагам) | sim, s13 | Длинные цепочки: забрал — переработка — забрал готовое — в город |
+| ROUTE-02 | Несколько остановок | P1 | VERIFIED | 1.85 | — | entities.dart (`MagRoute.stops`), mag_stop_orders.dart (`routeSteps`: план по шагам) | sim, s13 | Длинные цепочки: забрал — переработка — забрал готовое — в город |
 | ROUTE-03 | Кольцевые маршруты | P1 | VERIFIED | 1.68 | — | world_sim.dart | sim | — |
 | ROUTE-04 | Несколько машин на линии | P1 | VERIFIED | 1.68 | — | world_fleet.dart (`assign`) | — | — |
-| ROUTE-05 | Настройки погрузки | P1 | READY_FOR_REVIEW | 1.85 | ROUTE-01 | entities.dart (`pickAt`, `noPick`, `noDrop`), world_routes.dart (`setStopOrder`, `_loadable`), mag_stop_orders.dart | s13, ui_s13 | — |
+| ROUTE-05 | Настройки погрузки | P1 | VERIFIED | 1.85 | ROUTE-01 | entities.dart (`pickAt`, `noPick`, `noDrop`), world_routes.dart (`setStopOrder`, `_loadable`), mag_stop_orders.dart | s13, ui_s13 | — |
 | ROUTE-06 | Минимальная загрузка | P2 | PARTIAL | 1.68 | — | world_sim.dart (ждёт полной загрузки) | sim | Не настраивается |
 | ROUTE-07 | Максимальное время ожидания | P1 | VERIFIED | 1.68 | — | config.dart (`partialWaitDays`) | sim | — |
 | ROUTE-08 | Обратные грузовые рейсы | P1 | VERIFIED | 1.68 | — | world_sim.dart (`_loadable` на каждой остановке) | sim | — |
-| ROUTE-09 | Приоритетные грузы | P2 | NOT_STARTED | — | ROUTE-05 | — | — | — |
+| ROUTE-09 | Приоритетные грузы | P2 | READY_FOR_REVIEW | 1.86 | ROUTE-05 | entities.dart (`priority`), world_plans.dart (`setPriority`, `_priorityPick`), mag_stop_orders.dart (`pickPriority`) | s14, ui_s13 | — |
 | ROUTE-10 | Условные остановки | P3 | NOT_STARTED | — | — | — | — | — |
 | ROUTE-11 | Статистика линии | P1 | VERIFIED | 1.78 | FIN-01 | entities.dart (`costs`, `cells`, `emptyCells`), mag_finance.dart | logistics | Нет времени круга |
-| ROUTE-12 | Копирование маршрутов | P2 | NOT_STARTED | — | — | — | — | — |
+| ROUTE-12 | Копирование маршрутов | P2 | READY_FOR_REVIEW | 1.86 | — | world_plans.dart (`copyRoute`: копия и обратный маршрут с указаниями и приоритетом), mag_routes.dart | s14, ui_s13 | — |
 | ROUTE-13 | Перерасчёт после изменения дорог | P0 | VERIFIED | 1.68 | ROAD-12 | world_sim.dart (`roadVersion`, `noRoad`) | sim: «a broken road stops the truck» | — |
 | ROUTE-14 | Показатель порожнего пробега | P2 | VERIFIED | 1.78 | — | entities.dart (`emptyShare`), mag_finance.dart | logistics, industry | — |
 
@@ -244,7 +244,7 @@ industry, cities, logistics, rail, water, megapolis, passengers, p1, s12, s13, u
 | PASS-02 | Конные экипажи | P2 | VERIFIED | 1.82 | PASS-01 | config_vehicles.dart (`coach`) | passengers | — |
 | PASS-03 | Автобусы | P2 | VERIFIED | 1.82 | PASS-01, TECH-04 | config_vehicles.dart (`bus`), world_fleet.dart (`canCarry`) | passengers, ui_rail | — |
 | PASS-04 | Пассажирские поезда | P2 | VERIFIED | 1.82 | PASS-01, RAIL-06 | world_fleet.dart (`canCarry`: поезда и суда возят людей) | passengers | Отдельных пассажирских вагонов нет |
-| PASS-05 | Перевозка работников | P2 | READY_FOR_REVIEW | 1.85 | PASS-01 | config.dart (`MagCargo.workers`), world_settlements.dart, world_routes.dart (`_deliverWorkers`), world_industry.dart (`staffBonusOf`: до +30%) | s13, ui_s13 | — |
+| PASS-05 | Перевозка работников | P2 | VERIFIED | 1.85 | PASS-01 | config.dart (`MagCargo.workers`), world_settlements.dart, world_routes.dart (`_deliverWorkers`), world_industry.dart (`staffBonusOf`: до +30%) | s13, ui_s13 | — |
 | PASS-06 | Пересадки | P3 | NOT_STARTED | — | население, маршруты | — | — | — |
 | PASS-07 | Комфорт и время ожидания | P3 | NOT_STARTED | — | население, маршруты | — | — | — |
 | PASS-08 | Трамваи | P3 | NOT_STARTED | — | население, маршруты | — | — | — |
@@ -266,7 +266,7 @@ industry, cities, logistics, rail, water, megapolis, passengers, p1, s12, s13, u
 | FIN-11 | Анализ убыточности | P2 | VERIFIED | 1.78 | FIN-05 | world_advice.dart (убыток с причиной) | logistics | — |
 | FIN-12 | Финансовые рекомендации | P2 | VERIFIED | 1.78 | FIN-11 | world_advice.dart, mag_advice.dart (вкладка «Советы») | logistics, ui_stage5 | — |
 | FIN-13 | Оценка окупаемости | P2 | VERIFIED | 1.76 | FIN-05 | world_finance.dart (`paybackDays`) | industry | — |
-| FIN-14 | Инвестиционное планирование | P3 | NOT_STARTED | — | FIN-13 | — | — | — |
+| FIN-14 | Инвестиционное планирование | P3 | READY_FOR_REVIEW | 1.86 | FIN-13 | world_plans.dart (`investmentIdeas`: машина на маршрут, уровень предприятия, покупка, дорога в пробке), mag_invest.dart (вкладка «Инвестиции») | s14, ui_s13 | Оценка по фактической прибыли |
 | FIN-15 | Кредиты и проценты | P3 | NOT_STARTED | — | — | — | — | — |
 | FIN-16 | Мягкий финансовый кризис | P2 | PARTIAL | 1.68 | — | баланс может уйти в минус (красный), активы можно продать | — | Нет явного восстановления |
 

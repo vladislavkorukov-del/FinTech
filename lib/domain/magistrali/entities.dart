@@ -145,6 +145,12 @@ class MagRoute {
   final Map<int, MagCargo> pickAt = {};
   final Set<int> noPick = {}, noDrop = {};
 
+  /// Cargo taken first where there is any, in order (ROUTE-09).
+  final List<MagCargo> priority = [];
+
+  /// The tick it was made (FIN-14: profit a day; 0 for older lines).
+  int since = 0;
+
   /// Credits earned by its deliveries.
   int income = 0;
   int deliveries = 0;

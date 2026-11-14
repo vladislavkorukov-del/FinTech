@@ -31,6 +31,7 @@ part 'world_rails.dart';
 part 'world_water.dart';
 part 'world_roads.dart';
 part 'world_routes.dart';
+part 'world_plans.dart';
 part 'world_save.dart';
 part 'world_settlements.dart';
 part 'world_sim.dart';
@@ -439,7 +440,7 @@ class MagWorld {
           name ??
           stops.map((s) => map.industry(s)!.name.split(' «').first).join(' → '),
       stops: List.of(stops),
-    );
+    )..since = tick;
     routes[r.id] = r;
     return null;
   }

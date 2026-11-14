@@ -164,6 +164,36 @@ Widget _routeCard(
               for (var k = 0; k < r.stops.length; k++) StopOrder.of(r, k),
             ]))
               Text(s, style: magMuted),
+          // Cargo priority (ROUTE-09).
+          InkWell(
+            key: ValueKey('mag-route-priority-${r.id}'),
+            onTap: () async {
+              final list = await pickPriority(context, w, r);
+              if (list != null) state.report(w.setPriority(r.id, list));
+            },
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.low_priority_rounded,
+                    size: 16,
+                    color: MagPalette.teal,
+                  ),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      r.priority.isEmpty
+                          ? 'Приоритет грузов: нет'
+                          : 'Приоритет: ${r.priority.map((c) => cargoName(c).toLowerCase()).join(' → ')}',
+                      style: const TextStyle(fontSize: 13),
+                    ),
+                  ),
+                  const Icon(Icons.chevron_right_rounded, size: 18),
+                ],
+              ),
+            ),
+          ),
           magRow(
             'Доход маршрута',
             '${magMoney(r.income)} кр',
@@ -212,6 +242,19 @@ Widget _routeCard(
                     garage.isEmpty ? 'Нет свободных машин' : 'Назначить машину',
                   ),
                 ),
+              ),
+              // Copies (ROUTE-12): the same line, or the other way round.
+              IconButton(
+                key: ValueKey('mag-route-copy-${r.id}'),
+                tooltip: 'Копия маршрута',
+                onPressed: () => state.report(w.copyRoute(r.id)),
+                icon: const Icon(Icons.copy_rounded),
+              ),
+              IconButton(
+                key: ValueKey('mag-route-reverse-${r.id}'),
+                tooltip: 'Обратный маршрут',
+                onPressed: () => state.report(w.copyRoute(r.id, reverse: true)),
+                icon: const Icon(Icons.swap_horiz_rounded),
               ),
               IconButton(
                 key: ValueKey('mag-route-delete-${r.id}'),

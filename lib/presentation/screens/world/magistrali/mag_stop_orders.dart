@@ -156,3 +156,88 @@ Future<StopOrder?> pickStopOrder(
     ),
   );
 }
+
+/// Cargo a line can carry: what a stop gives and another stop takes.
+List<MagCargo> routeCargo(MagWorld w, MagRoute r) {
+  final out = <MagCargo>{};
+  for (final a in r.stops) {
+    final here = w.map.industry(a)!;
+    for (final c in here.supplies) {
+      if (r.stops.any(
+        (b) => b != a && w.map.industry(b)!.accepts.contains(c),
+      )) {
+        out.add(c);
+      }
+    }
+  }
+  return out.toList()..sort((a, b) => a.index - b.index);
+}
+
+/// Picks the cargo a line takes first (ROUTE-09): taps put cargo in order.
+Future<List<MagCargo>?> pickPriority(
+  BuildContext context,
+  MagWorld w,
+  MagRoute r,
+) {
+  final list = [...r.priority];
+  final all = routeCargo(w, r);
+  return showModalBottomSheet<List<MagCargo>>(
+    context: context,
+    showDragHandle: true,
+    backgroundColor: const Color(0xFFF7FAF8),
+    builder: (context) => StatefulBuilder(
+      builder: (context, set) => SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(18, 0, 18, 12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('Приоритет грузов', style: magTitle),
+              const Text(
+                'Где есть груз из списка, машина берёт его первым — по порядку. Остальное — как обычно, чего больше.',
+                style: magMuted,
+              ),
+              const SizedBox(height: 8),
+              if (all.isEmpty)
+                const Text(
+                  'Этот маршрут пока ничего не возит.',
+                  style: magMuted,
+                ),
+              Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                children: [
+                  for (final c in all)
+                    FilterChip(
+                      key: ValueKey('mag-priority-${c.name}'),
+                      label: Text(
+                        list.contains(c)
+                            ? '${list.indexOf(c) + 1}. ${cargoName(c)}'
+                            : cargoName(c),
+                      ),
+                      selected: list.contains(c),
+                      selectedColor: const Color(0x332BB59A),
+                      onSelected: (on) =>
+                          set(() => on ? list.add(c) : list.remove(c)),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  key: const ValueKey('mag-priority-save'),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: MagPalette.mint,
+                  ),
+                  onPressed: () => Navigator.pop(context, list),
+                  child: const Text('Готово'),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
+}
