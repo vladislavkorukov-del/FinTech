@@ -136,6 +136,8 @@ class MagIndustry {
     ...spec.converts.values,
     // Settlements send people (stage S11).
     if (town != null) ...[MagCargo.passengers, MagCargo.workers],
+    // By-products (PROD-20).
+    ?MagRules.byProducts[kind]?.$1,
   };
 
   /// Manhattan distance between the centres of two places (pay distance).

@@ -109,6 +109,7 @@ extension MagWorldIndustry on MagWorld {
       if (centerSlots == 0) return 'Нужна технология «Логистический центр»';
       if (centers.length >= centerSlots) return 'Больше центров не разрешено';
     }
+    if (!regionOpen(x, y)) return 'Регион закрыт — откройте его на карте';
     if (level < spec.buildLevel) {
       return 'Строить можно с ${spec.buildLevel} уровня компании';
     }

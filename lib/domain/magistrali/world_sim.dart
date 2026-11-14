@@ -36,6 +36,7 @@ extension MagWorldSim on MagWorld {
     _dayLoan();
     _dayDeals();
     _dayComplexes();
+    _dayAuction();
     _checkAchievements();
     _dayTowns();
     _dayCities();
@@ -66,6 +67,7 @@ extension MagWorldSim on MagWorld {
         i.stock[e.value] = (i.stock[e.value] ?? 0) + n;
         destroyed[e.key] = (destroyed[e.key] ?? 0) + n * ratio;
         created[e.value] = (created[e.value] ?? 0) + n;
+        _byProduct(i, n);
         if (i.owned) {
           _countProduction(i, e.value, n);
           i.produced += n;

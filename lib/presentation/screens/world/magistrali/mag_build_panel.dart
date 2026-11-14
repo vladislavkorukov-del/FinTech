@@ -199,8 +199,15 @@ class MagBuildPanel extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4),
             child: Text(
-              toolHint(state),
-              style: const TextStyle(fontSize: 11.5, color: Color(0xFF52646A)),
+              state.message ?? toolHint(state),
+              key: const ValueKey('mag-build-hint'),
+              style: state.message == null
+                  ? const TextStyle(fontSize: 11.5, color: Color(0xFF52646A))
+                  : const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: MagPalette.teal,
+                    ),
             ),
           ),
         ],

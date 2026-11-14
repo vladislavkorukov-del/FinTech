@@ -40,7 +40,9 @@ class MagTruckModel {
   bool get motorGoods => !horse && !rail && !water && !passengers;
 
   /// Comfort for people (PASS-07): their fare is multiplied by it.
-  double get comfort => horse
+  double get comfort => body == 'tram'
+      ? 1.25
+      : horse
       ? .85
       : passengers
       ? 1.15
@@ -160,6 +162,21 @@ const magTruckModels = <MagTruckModel>[
     upkeep: 14,
     level: 6,
     color: 0xFF4A6FD8,
+  ),
+  // Trams (PASS-08, 1.90): people between settlements only.
+  MagTruckModel(
+    id: 'tram',
+    name: 'Трамвай «Липа»',
+    speed: 1.05,
+    capacity: 60,
+    price: 20000,
+    runningCost: .3,
+    upkeep: 10,
+    level: 10,
+    color: 0xFFD64B5C,
+    passengers: true,
+    tech: 'electrotransport',
+    body: 'tram',
   ),
   // Special bodies (VEH-05, 1.89).
   MagTruckModel(

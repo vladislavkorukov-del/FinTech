@@ -38,6 +38,9 @@ class MagDeal {
   /// Region: how far from [to] a settlement still counts (cells).
   int radius = 0;
 
+  /// A historical contract's title (META-07).
+  String? story;
+
   Map<String, Object?> toJson() => {
     'id': id,
     'kind': kind.name,
@@ -54,6 +57,7 @@ class MagDeal {
       ],
     if (stage != 0) 'stage': stage,
     if (radius != 0) 'radius': radius,
+    if (story != null) 'story': story,
   };
 
   static MagDeal fromJson(Map m) {
@@ -69,7 +73,8 @@ class MagDeal {
           )
           ..delivered = m['delivered'] as int? ?? 0
           ..stage = m['stage'] as int? ?? 0
-          ..radius = m['radius'] as int? ?? 0;
+          ..radius = m['radius'] as int? ?? 0
+          ..story = m['story'] as String?;
     final p = m['period'] as List?;
     if (p != null) {
       d
@@ -162,6 +167,7 @@ extension MagWorldDeals on MagWorld {
   }
 
   String dealTitle(MagDeal d) {
+    if (d.story case final s?) return 'Исторический контракт: $s';
     final place = map.industry(d.to)?.name ?? '';
     return switch (d.kind) {
       MagDealKind.production => 'Производственный заказ «$place»',
@@ -203,7 +209,13 @@ extension MagWorldDeals on MagWorld {
         _remember('Не выполнено в срок: ${dealTitle(d)}');
       }
     }
-    for (var tries = 0; deals.length < dealSlots && tries < 8; tries++) {
+    _offerHistorics();
+    // Historical contracts do not take a slot.
+    for (
+      var tries = 0;
+      deals.where((d) => d.story == null).length < dealSlots && tries < 8;
+      tries++
+    ) {
       // Kinds in turn, starting from a different one each day.
       final d = _newDeal(MagDealKind.values[(day + tries) % 4]);
       if (d != null) deals.add(d);

@@ -16,7 +16,7 @@ extension MagWorldRails on MagWorld {
 
   /// Can track lie here (roads allowed: a crossing)?
   bool _railable(int x, int y) =>
-      map.roadable(x, y) && map.industryAt(x, y) == null;
+      map.roadable(x, y) && map.industryAt(x, y) == null && regionOpen(x, y);
 
   /// Cost of a cell of track (0 where track already is).
   int railCellCost(int cell) {

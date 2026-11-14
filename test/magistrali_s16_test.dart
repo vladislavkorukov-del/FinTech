@@ -39,7 +39,11 @@ void main() {
     expect(w.dealSlots, 3);
     w.step(MagRules.ticksPerDay);
     expect(w.deals, isNotEmpty);
-    expect(w.deals.length, lessThanOrEqualTo(3));
+    // Historical contracts (S18) do not take a slot.
+    expect(
+      w.deals.where((d) => d.story == null).length,
+      lessThanOrEqualTo(3),
+    );
     final b = reload(w);
     expect(
       b.deals.map((d) => (d.id, d.kind, d.cargo, d.to, d.amount)).toList(),

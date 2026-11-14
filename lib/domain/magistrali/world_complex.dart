@@ -221,6 +221,7 @@ extension MagWorldComplex on MagWorld {
 
   /// Vessel hulls, read once the vehicles are there.
   void loadHulls(Map<String, dynamic> j) {
+    loadNetwork(j); // paints too need the vehicles
     for (final e in (j['hulls'] as Map? ?? const {}).entries) {
       final v = vehicles[int.parse('${e.key}')];
       final n = e.value;

@@ -95,6 +95,7 @@ extension MagWorldSettlements on MagWorld {
       if (dev > 0) t.devStock[c] = (t.devStock[c] ?? 0) + dev;
       rest -= dev;
     }
+    if (c == MagCargo.passengers) rest -= _transfer(i, rest); // PASS-06
     destroyed[c] = (destroyed[c] ?? 0) + rest; // sold in its market
     t.received[c] = (t.received[c] ?? 0) + n;
     t.glut[c] = (t.glut[c] ?? 0) + n;

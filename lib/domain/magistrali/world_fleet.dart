@@ -179,6 +179,10 @@ extension MagWorldFleet on MagWorld {
           : portRouteBlocker(routeId);
       if (why != null) return why;
     }
+    if (routeId != null && v.spec.body == 'tram') {
+      final why = tramRouteBlocker(routeId);
+      if (why != null) return why;
+    }
     _park(v);
     if (routeId == null) return null;
     v.auto = false; // a route means the player drives it again

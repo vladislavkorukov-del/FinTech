@@ -29,6 +29,7 @@ part 'world_fleet.dart';
 part 'world_industry.dart';
 part 'world_load.dart';
 part 'world_mega.dart';
+part 'world_network.dart';
 part 'world_meta.dart';
 part 'world_orders.dart';
 part 'world_progress.dart';
@@ -66,6 +67,7 @@ class MagWorld with _MagWorldLater {
   factory MagWorld.start([
     int seed = MagRules.defaultSeed,
     MagScenario scenario = MagScenario.classic,
+    bool regions = false,
   ]) {
     // New games: generator 6 — the big map split by a big river, oil.
     final w = MagWorld(map: MagMap.generate(seed, version: 6));
@@ -88,6 +90,12 @@ class MagWorld with _MagWorldLater {
     }
     w._refillContracts();
     w._applyScenario(scenario);
+    if (regions) {
+      // MAP-08: a new company starts in its own region.
+      w.regionsLocked = true;
+      final f0 = w.map.startFarm;
+      w.openRegions.add(w.regionOf(f0.x, f0.y));
+    }
     final f = w.map.startFarm;
     w.cameraX = (f.centerX + w.map.startPlant.centerX) / 2;
     w.cameraY = (f.centerY + w.map.startPlant.centerY) / 2;
@@ -311,7 +319,7 @@ class MagWorld with _MagWorldLater {
       isGoal: (c) => c == goal,
       step: (a, b) {
         final x = cx(b), y = cy(b);
-        if (!map.roadable(x, y)) return null;
+        if (!map.roadable(x, y) || !regionOpen(x, y)) return null;
         final c = cellCost(b, type);
         // Existing road is almost free, so plans follow it.
         return c == 0 ? .2 : c / MagRules.roads[type]!.cost;

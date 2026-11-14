@@ -72,6 +72,7 @@ extension MagWorldStorage on MagWorld {
 
   /// Why a warehouse cannot stand with its corner at (x, y).
   String? warehouseBlocker(int x, int y) {
+    if (!regionOpen(x, y)) return 'Регион закрыт — откройте его на карте';
     if (warehouseSlots == 0) return 'Нужна технология «Складское дело»';
     if (warehouses.length >= warehouseSlots) {
       return 'Больше складов откроют технологии ветки «Склады»';

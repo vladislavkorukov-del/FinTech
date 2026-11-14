@@ -84,4 +84,16 @@ const magTechRecipes = <MagTech>[
     level: 9,
     requires: ['machinery', 'petroleum'],
   ),
+  MagTech(
+    id: 'electrotransport',
+    branch: MagBranch.economy,
+    title: 'Электротранспорт',
+    lore:
+        'Провода над улицами и звонкие вагоны: трамвай везёт сразу шестьдесят человек.',
+    effect: 'Открывает трамваи между поселениями',
+    effects: {},
+    cost: 12000,
+    level: 10,
+    requires: ['electronics'],
+  ),
 ];

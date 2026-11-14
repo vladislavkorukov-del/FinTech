@@ -79,6 +79,9 @@ class MagVehicle {
   /// Hull improvements of a vessel (SEA-05): +15% cargo each.
   int hull = 0;
 
+  /// Its own paint (VEH-13; null: the model's colour).
+  int? paint;
+
   /// Credits spent on its upgrades (part of its value).
   int upgradeSpent = 0;
 

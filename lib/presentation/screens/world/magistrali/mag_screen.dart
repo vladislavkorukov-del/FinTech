@@ -440,12 +440,13 @@ class MagistraliScreenState extends State<MagistraliScreen>
               top: media.padding.top + 6,
               child: MagTopBar(state: this),
             ),
-            if (message != null)
+            // While building, messages go to the build panel's line, not
+            // over the map.
+            if (message != null && tool == MagTool.view)
               Positioned(
                 left: 24,
                 right: 24,
-                bottom:
-                    media.padding.bottom + (tool == MagTool.view ? 150 : 340),
+                bottom: media.padding.bottom + 150,
                 child: MagToast(text: message!),
               ),
             Positioned(

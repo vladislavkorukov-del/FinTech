@@ -11,6 +11,12 @@ mixin _MagWorldLater {
   final chronicle = <(int, String)>[];
   int debt = 0;
 
+  /// The auction lot, historical contracts offered, regions (S18).
+  MagAuction? auction;
+  final historicOffered = <String>{};
+  bool regionsLocked = false;
+  final openRegions = <int>{};
+
   /// Terminals by settlements (cell → town) and the start scenario (S17).
   final terminals = <int, int>{};
   MagScenario scenario = MagScenario.classic;

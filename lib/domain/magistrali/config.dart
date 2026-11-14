@@ -194,6 +194,18 @@ abstract final class MagRules {
   /// share a day; complexes — reach, output bonus, conveyor a day;
   /// terminals — price and market bonus each; vessel hulls.
   static const reeferBonus = 1.15, waitLeave = .2;
+
+  /// S18: a share of passengers at a hub rides on; paint; auctions —
+  /// every so many days, start share of the price, daily rise, days;
+  /// regions — the price step; by-products of processing.
+  static const transferShare = .3, paintPrice = 300;
+  static const auctionEvery = 10, auctionStart = .7, auctionRise = .05;
+  static const auctionDays = 5, regionPrice = 15000;
+  static const byProducts = <MagIndustryKind, (MagCargo, double)>{
+    MagIndustryKind.steelMill: (MagCargo.stone, .25),
+    MagIndustryKind.brickworks: (MagCargo.stone, .2),
+    MagIndustryKind.refinery: (MagCargo.coal, .25),
+  };
   static const complexReach = 5, complexBonus = .15, conveyorPerDay = 20;
   static const terminalPrice = 3000, terminalBonus = .05;
   static const maxHull = 3, hullCapacity = .15;

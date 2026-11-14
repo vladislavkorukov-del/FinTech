@@ -103,7 +103,6 @@ extension _MagScreenInput on MagistraliScreenState {
               ..plan = [cell]
               ..planOk = true;
           });
-          say('Начало отмечено. Коснитесь, где дорога закончится');
         } else if (start == cell) {
           _refresh(_clearPending);
         } else {
