@@ -136,7 +136,7 @@ void main() {
     final f = w.map.startFarm;
     final near =
         (w.map.industries
-                .where((i) => i.accepts.isNotEmpty && !i.spec.stores)
+                .where((i) => i.accepts.any((c) => !c.people) && !i.spec.stores)
                 .toList()
               ..sort((a, b) => a.distanceTo(f).compareTo(b.distanceTo(f))))
             .take(6)

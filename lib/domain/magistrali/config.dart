@@ -4,6 +4,8 @@ library;
 
 import 'config_vehicles.dart';
 
+export 'config_vehicles.dart' show MagTruckModel;
+
 enum MagCargo {
   grain,
   wood,
@@ -26,6 +28,12 @@ enum MagCargo {
 
   // Stage S11: people travelling between settlements.
   passengers,
+
+  // Stage S13: people going to work at businesses (PASS-05).
+  workers;
+
+  /// People, not goods: carried by coaches, buses, trains and vessels.
+  bool get people => this == passengers || this == workers;
 }
 
 enum MagTerrain { grass, forest, hill, river, lake }
@@ -76,7 +84,16 @@ abstract final class MagDir {
 }
 
 class MagRoadSpec {
-  const MagRoadSpec(this.cost, this.speed, this.level, this.upkeep);
+  const MagRoadSpec(
+    this.cost,
+    this.speed,
+    this.level,
+    this.upkeep,
+    this.capacity,
+  );
+
+  /// Vehicles a day a cell of it carries before it slows down (ROAD-08).
+  final int capacity;
 
   /// Credits per cell on grass (terrain multiplies it).
   final int cost;
@@ -146,64 +163,6 @@ class MagIndustrySpec {
   final Map<MagCargo, MagCargo> converts;
 }
 
-class MagTruckModel {
-  const MagTruckModel({
-    required this.id,
-    required this.name,
-    required this.speed,
-    required this.capacity,
-    required this.price,
-    required this.runningCost,
-    required this.upkeep,
-    required this.level,
-    required this.color,
-    this.horse = false,
-    this.rail = false,
-    this.wagonCapacity = 0,
-    this.maxWagons = 0,
-    this.wagonPrice = 0,
-    this.water = false,
-    this.passengers = false,
-    this.tech,
-  });
-
-  /// The technology that opens buying it (VEH-04, 1.83); null: none.
-  final String? tech;
-
-  /// Carries people only (stage S11): a coach or a bus. Lorries and carts
-  /// never take passengers; trains and vessels take both.
-  final bool passengers;
-
-  /// A goods vehicle on roads with an engine (not horse, rail, water or
-  /// a passenger model).
-  bool get motorGoods => !horse && !rail && !water && !passengers;
-
-  /// A vessel (stage S9): it sails rivers and lakes between ports.
-  final bool water;
-  final String id, name;
-
-  /// A locomotive (stage S8): it runs on rails between stations and pulls
-  /// wagons; its capacity is in the wagons.
-  final bool rail;
-  final int wagonCapacity, maxWagons, wagonPrice;
-
-  /// Drawn by horses (era I): the road surface hardly changes its pace,
-  /// it eats feed instead of fuel, and needs no engine technology.
-  final bool horse;
-
-  /// Cells per second at 1× on asphalt.
-  final double speed;
-  final int capacity, price;
-
-  /// Credits per cell driven.
-  final double runningCost;
-
-  /// Credits per day.
-  final int upkeep;
-  final int level;
-  final int color;
-}
-
 abstract final class MagRules {
   static const mapSize = 64;
 
@@ -271,6 +230,12 @@ abstract final class MagRules {
 
   /// Passengers (stage S11): people per day per this many inhabitants of a
   /// settlement with a stop, and how many days of them may wait.
+  /// Workers (PASS-05): one a day per this many people, kept up to
+  /// [workerDays]; a business wants [staffPerCell] per cell of its land for
+  /// the full bonus [staffBonus]; staff fade by [staffFade] a day.
+  static const peoplePerWorker = 80, workerDays = 3, staffPerCell = 2;
+  static const staffBonus = .3, staffFade = .8;
+
   static const peoplePerTraveller = 40, passengerDays = 3;
 
   /// Market prices (stage S11): a flooded market pays up to 30% less, a
@@ -292,10 +257,10 @@ abstract final class MagRules {
   static const cityOrderPause = 4;
 
   static const roads = <MagRoad, MagRoadSpec>{
-    MagRoad.dirt: MagRoadSpec(20, .75, 1, 1),
-    MagRoad.asphalt: MagRoadSpec(55, 1, 2, 2),
-    MagRoad.highway: MagRoadSpec(140, 1.3, 12, 4),
-    MagRoad.motorway: MagRoadSpec(320, 1.6, 30, 7),
+    MagRoad.dirt: MagRoadSpec(20, .75, 1, 1, 24),
+    MagRoad.asphalt: MagRoadSpec(55, 1, 2, 2, 48),
+    MagRoad.highway: MagRoadSpec(140, 1.3, 12, 4, 96),
+    MagRoad.motorway: MagRoadSpec(320, 1.6, 30, 7, 192),
   };
 
   /// Building cost multiplier per terrain (null: not buildable).
@@ -446,6 +411,7 @@ abstract final class MagRules {
     MagCargo.steel: 3.4,
     MagCargo.parts: 4.2,
     MagCargo.passengers: 3.0,
+    MagCargo.workers: 2.4,
   };
 
   /// Market price of a unit: what a buyer pays for goods the company owns,
@@ -466,6 +432,7 @@ abstract final class MagRules {
     MagCargo.steel: 18,
     MagCargo.parts: 34,
     MagCargo.passengers: 0,
+    MagCargo.workers: 0,
   };
 
   /// Own production (master plan stage 3): building costs more than

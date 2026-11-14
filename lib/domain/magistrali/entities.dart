@@ -138,6 +138,13 @@ class MagRoute {
   /// Industry ids in order; the line runs round in a loop.
   final List<int> stops;
 
+  /// What to do at each stop (by its index; S13): load only this cargo,
+  /// load nothing, or keep the load (unload nothing). With none of them a
+  /// stop works by itself: it unloads what it takes and loads what a later
+  /// stop takes.
+  final Map<int, MagCargo> pickAt = {};
+  final Set<int> noPick = {}, noDrop = {};
+
   /// Credits earned by its deliveries.
   int income = 0;
   int deliveries = 0;

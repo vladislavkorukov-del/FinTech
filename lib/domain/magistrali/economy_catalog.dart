@@ -121,6 +121,15 @@ abstract final class MagEconomy {
       active: true,
       value: 0,
     ),
+    // Workers going to businesses (stage S13).
+    MagResourceDef(
+      'workers',
+      'Работники',
+      MagEra.horses,
+      raw: true,
+      active: true,
+      value: 0,
+    ),
     // Era III — trucks: machines, oil, fuel, goods.
     MagResourceDef(
       'goods',

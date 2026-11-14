@@ -264,6 +264,7 @@ MagWorld magWorldFromJson(Map<String, dynamic> raw) {
           ..emptyCells = whole(m['empty'] ?? 0, 0, 1 << 50);
     w.routes[r.id] = r;
   }
+  w.loadExtras(j);
   final cells = size * size;
   for (final raw in j['vehicles'] as List? ?? const []) {
     final m = raw as Map;

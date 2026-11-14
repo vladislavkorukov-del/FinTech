@@ -123,6 +123,8 @@ String cargoLore(MagCargo c) => switch (c) {
   MagCargo.parts => 'Детали: самый дорогой груз эпохи пара.',
   MagCargo.passengers =>
     'Пассажиры: жители едут в соседние поселения — чем больше город, тем больше желающих.',
+  MagCargo.workers =>
+    'Работники: жители едут на предприятия — с полным штатом те дают до 30% больше.',
 };
 
 String roadLore(MagRoad r) => switch (r) {

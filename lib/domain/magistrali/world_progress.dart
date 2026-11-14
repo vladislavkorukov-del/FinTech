@@ -166,7 +166,8 @@ extension MagWorldProgress on MagWorld {
                 !i.spec.stores &&
                 !i.owned &&
                 i.kind != MagIndustryKind.megaproject &&
-                i.accepts.any(cargoAvailable),
+                // Contracts are for goods, never for people.
+                i.accepts.any((c) => !c.people && cargoAvailable(c)),
           )
           .toList();
       // A young company gets contracts near its start, reachable by cart.
@@ -185,8 +186,9 @@ extension MagWorldProgress on MagWorld {
       }
       final to = targets[_random(targets.length)];
       // Never a cargo nobody in the world can make.
-      final cargos = to.accepts.where(cargoAvailable).toList()
-        ..sort((a, b) => a.index - b.index);
+      final cargos =
+          to.accepts.where((c) => !c.people && cargoAvailable(c)).toList()
+            ..sort((a, b) => a.index - b.index);
       final cargo = cargos[_random(cargos.length)];
       final big = level >= 40 ? 2 : 1;
       final amount = level < 5 && map.version >= 2

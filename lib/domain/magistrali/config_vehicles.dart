@@ -2,7 +2,64 @@
 /// locomotive (see config.dart).
 library;
 
-import 'config.dart';
+
+class MagTruckModel {
+  const MagTruckModel({
+    required this.id,
+    required this.name,
+    required this.speed,
+    required this.capacity,
+    required this.price,
+    required this.runningCost,
+    required this.upkeep,
+    required this.level,
+    required this.color,
+    this.horse = false,
+    this.rail = false,
+    this.wagonCapacity = 0,
+    this.maxWagons = 0,
+    this.wagonPrice = 0,
+    this.water = false,
+    this.passengers = false,
+    this.tech,
+  });
+
+  /// The technology that opens buying it (VEH-04, 1.83); null: none.
+  final String? tech;
+
+  /// Carries people only (stage S11): a coach or a bus. Lorries and carts
+  /// never take passengers; trains and vessels take both.
+  final bool passengers;
+
+  /// A goods vehicle on roads with an engine (not horse, rail, water or
+  /// a passenger model).
+  bool get motorGoods => !horse && !rail && !water && !passengers;
+
+  /// A vessel (stage S9): it sails rivers and lakes between ports.
+  final bool water;
+  final String id, name;
+
+  /// A locomotive (stage S8): it runs on rails between stations and pulls
+  /// wagons; its capacity is in the wagons.
+  final bool rail;
+  final int wagonCapacity, maxWagons, wagonPrice;
+
+  /// Drawn by horses (era I): the road surface hardly changes its pace,
+  /// it eats feed instead of fuel, and needs no engine technology.
+  final bool horse;
+
+  /// Cells per second at 1× on asphalt.
+  final double speed;
+  final int capacity, price;
+
+  /// Credits per cell driven.
+  final double runningCost;
+
+  /// Credits per day.
+  final int upkeep;
+  final int level;
+  final int color;
+}
 
 const magTruckModels = <MagTruckModel>[
   // Era I — horses.

@@ -32,6 +32,7 @@ extension MagWorldSim on MagWorld {
   int get day => tick ~/ MagRules.ticksPerDay;
 
   void _day() {
+    _dayTrafficAndStaff();
     _dayTowns();
     _dayCities();
     for (final i in map.industries) {
@@ -231,7 +232,7 @@ extension MagWorldSim on MagWorld {
           ? 1.0
           : v.spec.horse
           ? math.max(MagRules.horseRoad(MagRoad.values[roads[next]]), .4)
-          : math.max(_roadSpeed(next), .4);
+          : math.max(_roadSpeed(next) * congestionOf(next), .4);
       final need = (1 - v.progress) / roadK;
       if (dist < need) {
         v.progress += dist * roadK;
@@ -245,6 +246,7 @@ extension MagWorldSim on MagWorld {
         ..odometer += 1
         ..wear = math.min(100, v.wear + wearRateOf(v))
         ..unpaid += runningCostOf(v);
+      _countTraffic(v, next);
       if (v.load == 0) v.emptyCells += 1;
       final line = routes[v.routeId];
       if (line != null) {
@@ -276,7 +278,11 @@ extension MagWorldSim on MagWorld {
       _spend(serviceCost(v), 'service');
       v.wear = 0;
     }
-    if (v.load > 0 && here.accepts.contains(v.cargo)) {
+    if (v.load > 0 && v.cargo == MagCargo.workers && here.town == null) {
+      if (here.accepts.contains(v.cargo) && _mayDrop(v)) {
+        _deliverWorkers(v, here);
+      }
+    } else if (v.load > 0 && here.accepts.contains(v.cargo) && _mayDrop(v)) {
       // A warehouse takes only what fits (orders keep their own room).
       final limit = here.spec.stores ? _warehouseRoom(here, v.cargo!) : null;
       if (limit != 0) _deliver(v, here, limit: limit);
@@ -419,30 +425,6 @@ extension MagWorldSim on MagWorld {
     _countContracts(cargo, here.id, n);
     _say('+$pay кр · ${here.name}');
     _checkTasks();
-  }
-
-  /// Cargo this stop can hand to the truck: made here and taken by
-  /// another stop of the route.
-  MagCargo? _loadable(MagVehicle v, MagIndustry here) {
-    final r = routes[v.routeId]!;
-    final wanted = <MagCargo>{};
-    for (final id in r.stops) {
-      if (id == here.id) continue;
-      wanted.addAll(map.industry(id)?.accepts ?? const {});
-    }
-    if (v.load > 0) {
-      return here.supplies.contains(v.cargo) && wanted.contains(v.cargo)
-          ? v.cargo
-          : null;
-    }
-    MagCargo? best;
-    for (final c in here.supplies) {
-      if (!wanted.contains(c) || !canCarry(v, c)) continue;
-      if (best == null || availableOf(here, c) > availableOf(here, best)) {
-        best = c;
-      }
-    }
-    return best;
   }
 
   void _atStop(MagVehicle v) {

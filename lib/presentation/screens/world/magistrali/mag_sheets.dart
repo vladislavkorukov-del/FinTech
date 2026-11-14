@@ -35,6 +35,7 @@ String cargoName(MagCargo c) => switch (c) {
   MagCargo.steel => 'Сталь',
   MagCargo.parts => 'Детали',
   MagCargo.passengers => 'Пассажиры',
+  MagCargo.workers => 'Работники',
 };
 
 String kindName(MagIndustryKind k) => switch (k) {

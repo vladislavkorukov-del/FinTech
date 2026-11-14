@@ -17,7 +17,16 @@ extension MagWorldIndustry on MagWorld {
 
   /// Output and storage multiplier of a level.
   double outputFactor(MagIndustry i) =>
-      1 + MagRules.levelOutput * (i.level - 1);
+      1 + MagRules.levelOutput * (i.level - 1) + staffBonusOf(i);
+
+  /// Extra output from workers brought in (PASS-05): up to +30% with a full
+  /// staff (2 per cell of its land).
+  double staffBonusOf(MagIndustry i) {
+    if (i.town != null || i.staff <= 0) return 0;
+    final need = MagRules.staffPerCell * i.size * i.size;
+    return MagRules.staffBonus * math.min(1, i.staff / need);
+  }
+
   double storageFactor(MagIndustry i) =>
       1 + MagRules.levelStorage * (i.level - 1);
 

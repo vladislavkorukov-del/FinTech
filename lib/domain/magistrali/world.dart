@@ -30,6 +30,7 @@ part 'world_progress.dart';
 part 'world_rails.dart';
 part 'world_water.dart';
 part 'world_roads.dart';
+part 'world_routes.dart';
 part 'world_save.dart';
 part 'world_settlements.dart';
 part 'world_sim.dart';
@@ -129,6 +130,9 @@ class MagWorld {
 
   /// The one road cell each place (not a settlement) is entered by (S12).
   final entrances = <int, int>{};
+
+  /// Vehicles that entered each road cell yesterday and today (ROAD-08).
+  final traffic = <int, int>{}, trafficToday = <int, int>{};
 
   /// Logistics orders (stage 1 of automation).
   final orders = MagOrderBook();

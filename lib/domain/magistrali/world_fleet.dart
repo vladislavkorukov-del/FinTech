@@ -224,8 +224,8 @@ extension MagWorldFleet on MagWorld {
   /// Can [v] carry [c]? People go by coach, bus, train or vessel; goods by
   /// anything but a coach or a bus (stage S11).
   bool canCarry(MagVehicle v, MagCargo c) {
-    if (v.spec.passengers) return c == MagCargo.passengers;
-    if (c == MagCargo.passengers) return v.spec.rail || v.spec.water;
+    if (v.spec.passengers) return c.people;
+    if (c.people) return v.spec.rail || v.spec.water;
     return true;
   }
 }

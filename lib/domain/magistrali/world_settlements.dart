@@ -134,6 +134,19 @@ extension MagWorldSettlements on MagWorld {
               (created[MagCargo.passengers] ?? 0) + add;
         }
       }
+      // People who look for work at businesses (PASS-05).
+      if (accessCells(i).isNotEmpty ||
+          stationCells(i).isNotEmpty ||
+          portCells(i).isNotEmpty) {
+        final daily = math.max(1, t.population ~/ MagRules.peoplePerWorker);
+        final room =
+            daily * MagRules.workerDays - (i.stock[MagCargo.workers] ?? 0);
+        final add = math.min(daily, room);
+        if (add > 0) {
+          i.stock[MagCargo.workers] = (i.stock[MagCargo.workers] ?? 0) + add;
+          created[MagCargo.workers] = (created[MagCargo.workers] ?? 0) + add;
+        }
+      }
       // Growth stock beyond what this level asks for goes to the market.
       final asks = developmentAsks(i);
       for (final c in t.devStock.keys.toList()) {

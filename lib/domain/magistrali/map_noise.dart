@@ -58,3 +58,42 @@ bool _nearTerrain(Uint8List t, int size, int x, int y, int s, MagTerrain k) {
   }
   return false;
 }
+
+/// See [MagMap.expandCells].
+bool _expandCells(
+  Set<int> cells,
+  int target,
+  bool Function(int x, int y) free,
+) {
+  while (cells.length < target) {
+    int? best;
+    var bestScore = -1;
+    final seen = <int>{};
+    for (final k in cells.toList()..sort()) {
+      final x = MagSettlement.keyX(k), y = MagSettlement.keyY(k);
+      for (var d = 0; d < 4; d++) {
+        final nx = x + MagDir.dx[d], ny = y + MagDir.dy[d];
+        final nk = MagSettlement.key(nx, ny);
+        if (nx < 0 || ny < 0 || cells.contains(nk) || !seen.add(nk)) {
+          continue;
+        }
+        if (!free(nx, ny)) continue;
+        var score = 0;
+        for (var e = 0; e < 4; e++) {
+          if (cells.contains(
+            MagSettlement.key(nx + MagDir.dx[e], ny + MagDir.dy[e]),
+          )) {
+            score++;
+          }
+        }
+        if (score > bestScore || score == bestScore && nk < best!) {
+          best = nk;
+          bestScore = score;
+        }
+      }
+    }
+    if (best == null) return false;
+    cells.add(best);
+  }
+  return true;
+}

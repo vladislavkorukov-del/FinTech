@@ -24,6 +24,9 @@ class MagIndustry {
   final int x, y;
   final String name;
 
+  /// Workers brought in, fading day by day (PASS-05): they raise output.
+  double staff = 0;
+
   /// Cargo waiting to be picked up (made or processed here).
   final Map<MagCargo, int> stock = {};
 
@@ -113,7 +116,12 @@ class MagIndustry {
   Set<MagCargo> get accepts => kind == MagIndustryKind.megaproject
       ? projectLeft.keys.toSet()
       : town == null
-      ? spec.accepts.where((c) => c != MagCargo.passengers).toSet()
+      ? {
+          ...spec.accepts.where((c) => !c.people),
+          // Businesses take workers (PASS-05).
+          if (spec.produces.isNotEmpty || spec.converts.isNotEmpty)
+            MagCargo.workers,
+        }
       : {
           ...town!.spec.needs.keys,
           ...town!.spec.development.keys,
@@ -123,11 +131,11 @@ class MagIndustry {
 
   /// Cargo this place hands to trucks.
   Set<MagCargo> get supplies => {
-    if (spec.stores) ...MagCargo.values.where((c) => c != MagCargo.passengers),
+    if (spec.stores) ...MagCargo.values.where((c) => !c.people),
     ...spec.produces.keys,
     ...spec.converts.values,
     // Settlements send people (stage S11).
-    if (town != null) MagCargo.passengers,
+    if (town != null) ...[MagCargo.passengers, MagCargo.workers],
   };
 
   /// Manhattan distance between the centres of two places (pay distance).
@@ -180,39 +188,7 @@ class MagMap {
     Set<int> cells,
     int target,
     bool Function(int x, int y) free,
-  ) {
-    while (cells.length < target) {
-      int? best;
-      var bestScore = -1;
-      final seen = <int>{};
-      for (final k in cells.toList()..sort()) {
-        final x = MagSettlement.keyX(k), y = MagSettlement.keyY(k);
-        for (var d = 0; d < 4; d++) {
-          final nx = x + MagDir.dx[d], ny = y + MagDir.dy[d];
-          final nk = MagSettlement.key(nx, ny);
-          if (nx < 0 || ny < 0 || cells.contains(nk) || !seen.add(nk)) {
-            continue;
-          }
-          if (!free(nx, ny)) continue;
-          var score = 0;
-          for (var e = 0; e < 4; e++) {
-            if (cells.contains(
-              MagSettlement.key(nx + MagDir.dx[e], ny + MagDir.dy[e]),
-            )) {
-              score++;
-            }
-          }
-          if (score > bestScore || score == bestScore && nk < best!) {
-            best = nk;
-            bestScore = score;
-          }
-        }
-      }
-      if (best == null) return false;
-      cells.add(best);
-    }
-    return true;
-  }
+  ) => _expandCells(cells, target, free);
 
   static MagMap generate(int seed, {int? size, int version = 1}) => _generate(
     seed,

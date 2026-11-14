@@ -133,6 +133,7 @@ extension MagWorldSave on MagWorld {
     ],
     'techs': techs.toList()..sort(),
     'recipes': 1, // 1.83: recipes open with technologies
+    ..._saveExtras(),
     'warehouses': [
       for (final w in warehouses)
         {

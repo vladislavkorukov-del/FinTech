@@ -118,7 +118,7 @@ extension MagWorldCities on MagWorld {
   /// bigger the city; a deadline long enough for a cart convoy.
   MagContract? _cityOrder(MagIndustry i) {
     final t = i.town!;
-    final all = i.accepts.where(cargoAvailable).toList()
+    final all = i.accepts.where((c) => !c.people && cargoAvailable(c)).toList()
       ..sort((a, b) => a.index - b.index);
     if (all.isEmpty) return null;
     final own = all
