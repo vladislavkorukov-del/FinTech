@@ -63,6 +63,8 @@ extension MagWorldAdvice on MagWorld {
               ? 'нет сырья'
               : full.isNotEmpty
               ? 'продукцию не вывозят'
+              : i.sold == 0 && i.produced > 0
+              ? 'продукцию никто не покупает — везите её покупателям'
               : 'расходы выше продаж';
           out.add(
             MagAdvice(
