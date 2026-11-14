@@ -364,4 +364,23 @@ extension MagWorldRails on MagWorld {
       ..wait = MagRules.trainWaitTicks ~/ 2;
     return null;
   }
+
+  /// Reads the track of a save (stage S8): on free land, never under a
+  /// place.
+  void loadRails(String? raw) {
+    if (raw == null) return;
+    final saved = base64Decode(raw);
+    if (saved.length != size * size) {
+      throw const FormatException('Bad rails in Magistrali save');
+    }
+    for (var c = 0; c < saved.length; c++) {
+      if (saved[c] > 1 ||
+          saved[c] != 0 &&
+              (!map.roadable(c % size, c ~/ size) ||
+                  map.industryAt(c % size, c ~/ size) != null)) {
+        throw const FormatException('Bad rail in Magistrali save');
+      }
+      rails[c] = saved[c];
+    }
+  }
 }

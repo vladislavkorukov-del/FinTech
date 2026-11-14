@@ -397,13 +397,9 @@ void main() {
               ].any((e) => e))
             (x, y),
     ].first;
-    final plan = w.planRoad(
-      plant.x + 1,
-      plant.y + plant.size,
-      tx,
-      ty,
-      MagRoad.dirt,
-    );
+    // The plant has one entrance (S12): the new road starts there.
+    final e = w.entranceOf(plant)!;
+    final plan = w.planRoad(w.cx(e), w.cy(e), tx, ty, MagRoad.dirt);
     expect(plan.error, isNull);
     expect(w.buildRoad(plan), isNull);
     expect(w.connected(plant, village), isTrue);

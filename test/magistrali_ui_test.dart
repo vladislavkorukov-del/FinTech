@@ -115,7 +115,7 @@ void main() {
     final s = await ready(tester);
     expect(find.byKey(const ValueKey('mag-map')), findsOneWidget);
     expect(find.byKey(const ValueKey('mag-task-1')), findsOneWidget);
-    expect(s.world.money, MagRules.startMoney);
+    expect(s.world.money, MagRules.startMoneyBig);
     await tester.tap(find.byKey(const ValueKey('mag-back')));
     final file = File('${dir.path}/magistrali/world.json');
     for (
@@ -176,7 +176,7 @@ void main() {
     expect(w.roads.every((r) => r == 0), isTrue); // not yet
     final cost = s.pendingRoad!.cost;
     await tap(tester, 'mag-confirm-build');
-    expect(w.money, MagRules.startMoney - cost + 500); // + task 1 reward
+    expect(w.money, MagRules.startMoneyBig - cost + 500); // + task 1 reward
     expect(w.connected(farm, plant), isTrue);
     expect(w.tasksDone, contains(1));
     await tap(tester, 'mag-tab-build'); // back to looking

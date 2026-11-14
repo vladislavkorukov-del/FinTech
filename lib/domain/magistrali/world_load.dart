@@ -192,22 +192,8 @@ MagWorld magWorldFromJson(Map<String, dynamic> raw) {
     }
     w.roads[c] = roads[c];
   }
-  // Railways (stage S8): track on free land, stations on track by a place.
-  final rails = j['rails'] == null
-      ? Uint8List(size * size)
-      : base64Decode(j['rails'] as String);
-  if (rails.length != size * size) {
-    throw const FormatException('Bad rails in Magistrali save');
-  }
-  for (var c = 0; c < rails.length; c++) {
-    if (rails[c] > 1 ||
-        rails[c] != 0 &&
-            (!w.map.roadable(c % size, c ~/ size) ||
-                w.map.industryAt(c % size, c ~/ size) != null)) {
-      throw const FormatException('Bad rail in Magistrali save');
-    }
-    w.rails[c] = rails[c];
-  }
+  w.loadEntrances(j['entrances']);
+  w.loadRails(j['rails'] as String?);
   for (final raw in j['stations'] as List? ?? const []) {
     final pair = raw as List;
     final cell = whole(pair[0], 0, size * size - 1);
@@ -477,6 +463,7 @@ MagWorld magWorldFromJson(Map<String, dynamic> raw) {
   }
   final settings = j['settings'] as Map? ?? const {};
   w.autoService = settings['autoService'] as bool? ?? true;
+  w.tutorial = settings['tutorial'] as bool? ?? true;
   w.sound = settings['sound'] as bool? ?? true;
   final mode = settings['dispatch'];
   if (mode is String) {

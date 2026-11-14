@@ -5,6 +5,7 @@ import 'package:flutter/material.dart' hide Text;
 import '../../../../domain/magistrali/magistrali.dart';
 import '../../../l10n_widgets.dart';
 import 'mag_finance.dart';
+import 'mag_guide.dart';
 import 'mag_art.dart';
 import 'mag_build_panel.dart';
 import 'mag_fleet.dart';
@@ -240,34 +241,38 @@ class _Speed extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           for (final s in const [0, 1, 2, 4])
-            GestureDetector(
-              key: ValueKey('mag-speed-$s'),
-              onTap: () {
-                w.speed = s;
-                state.changed();
-              },
-              child: Container(
-                width: 28,
-                height: 28,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: w.speed == s ? MagPalette.mint : Colors.transparent,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: s == 0
-                    ? Icon(
-                        Icons.pause_rounded,
-                        size: 16,
-                        color: w.speed == s ? Colors.white : MagPalette.ink,
-                      )
-                    : Text(
-                        '$s×',
-                        style: TextStyle(
-                          fontSize: 11.5,
-                          fontWeight: FontWeight.w800,
+            MagPulse(
+              active: state.guideKey == 'mag-speed-$s',
+              radius: 10,
+              child: GestureDetector(
+                key: ValueKey('mag-speed-$s'),
+                onTap: () {
+                  w.speed = s;
+                  state.changed();
+                },
+                child: Container(
+                  width: 28,
+                  height: 28,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: w.speed == s ? MagPalette.mint : Colors.transparent,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: s == 0
+                      ? Icon(
+                          Icons.pause_rounded,
+                          size: 16,
                           color: w.speed == s ? Colors.white : MagPalette.ink,
+                        )
+                      : Text(
+                          '$s×',
+                          style: TextStyle(
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w800,
+                            color: w.speed == s ? Colors.white : MagPalette.ink,
+                          ),
                         ),
-                      ),
+                ),
               ),
             ),
         ],
@@ -370,29 +375,36 @@ class MagBottomPanel extends StatelessWidget {
     bool on,
     VoidCallback tap,
   ) => Expanded(
-    child: InkWell(
-      key: ValueKey(key),
-      borderRadius: BorderRadius.circular(14),
-      onTap: tap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 22, color: on ? MagPalette.mint : MagPalette.ink),
-            const SizedBox(height: 2),
-            Text(
-              label,
-              maxLines: 1,
-              overflow: TextOverflow.fade,
-              softWrap: false,
-              style: TextStyle(
-                fontSize: 9.5,
-                fontWeight: on ? FontWeight.w800 : FontWeight.w600,
-                color: on ? MagPalette.teal : MagPalette.ink,
+    child: MagPulse(
+      active: state.guideKey == key,
+      child: InkWell(
+        key: ValueKey(key),
+        borderRadius: BorderRadius.circular(14),
+        onTap: tap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                icon,
+                size: 22,
+                color: on ? MagPalette.mint : MagPalette.ink,
               ),
-            ),
-          ],
+              const SizedBox(height: 2),
+              Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.fade,
+                softWrap: false,
+                style: TextStyle(
+                  fontSize: 9.5,
+                  fontWeight: on ? FontWeight.w800 : FontWeight.w600,
+                  color: on ? MagPalette.teal : MagPalette.ink,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     ),

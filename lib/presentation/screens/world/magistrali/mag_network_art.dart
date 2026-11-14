@@ -115,43 +115,103 @@ double roadWidth(MagRoad r) => switch (r) {
   MagRoad.none => 0,
 };
 
-/// A road chain on the ground (under the ground transform): a soft shoulder
-/// and the surface; only highways and motorways carry a centre line.
-void paintRoadChain(Canvas c, NetChain ch) {
+(Color, Color) roadColors(MagRoad r) => switch (r) {
+  MagRoad.dirt => (const Color(0xFFB08C5C), const Color(0xFFCDA772)),
+  MagRoad.asphalt => (const Color(0xFF4C5358), const Color(0xFF666E74)),
+  MagRoad.highway => (const Color(0xFF454B50), const Color(0xFF5A6268)),
+  _ => (const Color(0xFF3E4448), const Color(0xFF51585E)),
+};
+
+/// A road chain on the ground (under the ground transform): a soft shoulder,
+/// the surface and its marking (S12) — wheel ruts on a dirt road, a dashed
+/// centre line on asphalt, edge lines and a dashed centre on a highway,
+/// edge lines, a double centre line and lane dashes on a motorway. Edge
+/// lines stop short of the chain's ends, so junctions stay clean.
+///
+/// Drawn in three passes over all chains (0: shoulders, 1: surfaces,
+/// 2: marking), so where chains meet no shoulder lies over a surface.
+void paintRoadChain(Canvas c, NetChain ch, [int pass = -1]) {
   final w = roadWidth(ch.road);
   final path = _line(ch.points);
-  final (shoulder, surface) = switch (ch.road) {
-    MagRoad.dirt => (const Color(0xFFB08C5C), const Color(0xFFCDA772)),
-    MagRoad.asphalt => (const Color(0xFF4C5358), const Color(0xFF666E74)),
-    MagRoad.highway => (const Color(0xFF454B50), const Color(0xFF5A6268)),
-    _ => (const Color(0xFF3E4448), const Color(0xFF51585E)),
-  };
-  c.drawPath(path, _stroke(shoulder, w + .06));
-  c.drawPath(path, _stroke(surface, w));
-  if (ch.road == MagRoad.highway || ch.road == MagRoad.motorway) {
-    c.drawPath(
-      dashed(path, .2, .2),
-      _stroke(const Color(0x99F3E9C6), .025, cap: StrokeCap.butt),
-    );
+  final (shoulder, surface) = roadColors(ch.road);
+  if (pass < 0 || pass == 0) c.drawPath(path, _stroke(shoulder, w + .06));
+  if (pass < 0 || pass == 1) c.drawPath(path, _stroke(surface, w));
+  if (pass >= 0 && pass != 2) return;
+  const paint = Color(0xE6F4F1E6);
+  Paint line(double width, [Color color = paint]) =>
+      _stroke(color, width, cap: StrokeCap.butt);
+  void along(double d, Paint p, {double? dash, bool trim = false}) {
+    var pts = _offset(ch.points, d);
+    if (trim) pts = _trim(pts, .42);
+    if (pts.length < 2) return;
+    final path = _line(pts);
+    c.drawPath(dash == null ? path : dashed(path, dash, dash * .9), p);
+  }
+
+  switch (ch.road) {
+    case MagRoad.dirt:
+      for (final d in [-.085, .085]) {
+        along(d, line(.04, const Color(0x40765A38)));
+      }
+    case MagRoad.asphalt:
+      along(0, line(.026), dash: .17);
+    case MagRoad.highway:
+      for (final d in [-w / 2 + .05, w / 2 - .05]) {
+        along(d, line(.022), trim: true);
+      }
+      along(0, line(.026), dash: .2);
+    case MagRoad.motorway:
+      for (final d in [-w / 2 + .05, w / 2 - .05]) {
+        along(d, line(.022), trim: true);
+      }
+      for (final d in [-.022, .022]) {
+        along(d, line(.018), trim: true);
+      }
+      for (final d in [-w / 4, w / 4]) {
+        along(d, line(.018), dash: .16);
+      }
+    case MagRoad.none:
+      break;
   }
 }
 
-/// A short piece of road from a cell's centre to a place it serves.
+/// A polyline with [d] of length cut from both ends.
+List<Offset> _trim(List<Offset> pts, double d) {
+  var total = 0.0;
+  for (var i = 1; i < pts.length; i++) {
+    total += (pts[i] - pts[i - 1]).distance;
+  }
+  if (total <= d * 2) return const [];
+  final out = <Offset>[];
+  var run = 0.0;
+  for (var i = 1; i < pts.length; i++) {
+    final a = pts[i - 1], b = pts[i];
+    final l = (b - a).distance;
+    if (l == 0) continue;
+    final s = ((d - run) / l).clamp(0.0, 1.0);
+    final e = ((total - d - run) / l).clamp(0.0, 1.0);
+    if (s < e) {
+      if (out.isEmpty) out.add(Offset.lerp(a, b, s)!);
+      out.add(Offset.lerp(a, b, e)!);
+    }
+    run += l;
+  }
+  return out;
+}
+
+/// A short piece of road from a cell's centre into a place: the entrance
+/// of a business, or a way into a settlement.
 void paintRoadStub(Canvas c, MagRoad r, int x, int y, int dir) {
   final a = Offset(x + .5, y + .5);
   final b = a + Offset(MagDir.dx[dir] * .5, MagDir.dy[dir] * .5);
   final p = Path()
     ..moveTo(a.dx, a.dy)
     ..lineTo(b.dx, b.dy);
-  final w = roadWidth(r);
-  c.drawPath(p, _stroke(const Color(0xFF8E8A80), w + .06));
-  c.drawPath(
-    p,
-    _stroke(
-      r == MagRoad.dirt ? const Color(0xFFCDA772) : const Color(0xFF666E74),
-      w,
-    ),
-  );
+  // A driveway: the road's own colours, a little narrower.
+  final w = roadWidth(r) * .8;
+  final (shoulder, surface) = roadColors(r);
+  c.drawPath(p, _stroke(shoulder, w + .06, cap: StrokeCap.butt));
+  c.drawPath(p, _stroke(surface, w, cap: StrokeCap.butt));
 }
 
 /// A track chain on the ground: ballast, sleepers across, two rails.

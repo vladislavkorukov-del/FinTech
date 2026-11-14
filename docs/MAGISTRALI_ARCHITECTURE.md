@@ -69,7 +69,8 @@
   поселения), `mag_city_art.dart` (постройка специализации), `mag_center.dart` (окно
   логистического центра), `mag_advice.dart` (вкладка «Советы»), `mag_terrain_art.dart` (плавная местность, вода, скалы, лес),
   `mag_network_art.dart` (дороги и рельсы цельными цепочками, мосты, порталы тоннелей),
-  `mag_build_panel.dart` (группы стройки), `mag_filters.dart` (фильтры списков),
+  `mag_build_panel.dart` (группы стройки), `mag_guide.dart` (обучение),
+  `mag_sea_art.dart` (море за краем карты), `mag_filters.dart` (фильтры списков),
   `mag_shop.dart` (карточка магазина транспорта),
   `mag_curve.dart` (сглаживание линий, движение по длине пути, пунктир),
   `mag_route_art.dart` (маршрут выбранного транспорта), `mag_mega_art.dart`

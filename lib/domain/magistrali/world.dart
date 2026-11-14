@@ -19,6 +19,7 @@ part 'world_centers.dart';
 part 'world_cities.dart';
 part 'world_advice.dart';
 part 'world_dispatch.dart';
+part 'world_entrances.dart';
 part 'world_finance.dart';
 part 'world_fleet.dart';
 part 'world_industry.dart';
@@ -62,7 +63,7 @@ class MagWorld {
     for (final s in w.settlements) {
       s.town!.remember(0, 'Основано: ${s.town!.spec.name}');
     }
-    w.money = MagRules.startMoney;
+    w.money = MagRules.startMoneyBig;
     // Era I: a new company starts with a horse cart.
     final v = w._newVehicle(MagRules.truck('cart')!);
     v.name = 'Телега №1';
@@ -126,6 +127,9 @@ class MagWorld {
   /// Technologies learned (ids of MagTechTree).
   final techs = <String>{};
 
+  /// The one road cell each place (not a settlement) is entered by (S12).
+  final entrances = <int, int>{};
+
   /// Logistics orders (stage 1 of automation).
   final orders = MagOrderBook();
   final tasksDone = <int>{};
@@ -151,6 +155,9 @@ class MagWorld {
 
   double cameraX = 32, cameraY = 32, zoom = 1;
   bool autoService = true;
+
+  /// Tutorial hints over the first tasks (S12).
+  bool tutorial = true;
   bool sound = true;
 
   /// Messages for the screen, taken by [takeEvents].
@@ -204,16 +211,9 @@ class MagWorld {
       }
       return out;
     }
-    final out = <int>[];
-    for (var y = i.y - 1; y <= i.y + i.size; y++) {
-      for (var x = i.x - 1; x <= i.x + i.size; x++) {
-        final edge =
-            (x == i.x - 1 || x == i.x + i.size) !=
-            (y == i.y - 1 || y == i.y + i.size);
-        if (edge && hasRoad(x, y)) out.add(cellOf(x, y));
-      }
-    }
-    return out;
+    // A business: its one entrance (S12).
+    final e = entranceOf(i);
+    return e == null ? const [] : [e];
   }
 
   bool _touches(int cell, MagIndustry i) {
@@ -332,6 +332,7 @@ class MagWorld {
     for (final c in plan.cells) {
       if (roads[c] < plan.type.index) roads[c] = plan.type.index;
     }
+    _noteEntrances(plan.cells);
     _spend(cost, 'roads');
     roadVersion++;
     return null;

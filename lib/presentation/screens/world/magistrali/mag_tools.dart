@@ -4,6 +4,7 @@ import '../../../../domain/magistrali/magistrali.dart';
 import '../../../l10n_widgets.dart';
 import 'mag_lore.dart';
 import 'mag_art.dart';
+import 'mag_guide.dart';
 import 'mag_hud.dart';
 import 'mag_screen.dart';
 import 'mag_sheets.dart';
@@ -185,15 +186,19 @@ class MagConfirmBar extends StatelessWidget {
                 onPressed: state.cancelPending,
                 child: const Text('Отмена'),
               ),
-              FilledButton(
-                key: const ValueKey('mag-confirm-build'),
-                style: FilledButton.styleFrom(
-                  backgroundColor: removing
-                      ? const Color(0xFFE0566B)
-                      : MagPalette.mint,
+              MagPulse(
+                active: state.guideKey == 'mag-confirm-build',
+                radius: 20,
+                child: FilledButton(
+                  key: const ValueKey('mag-confirm-build'),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: removing
+                        ? const Color(0xFFE0566B)
+                        : MagPalette.mint,
+                  ),
+                  onPressed: problem == null ? state.confirmPending : null,
+                  child: Text(removing ? 'Снести' : 'Построить'),
                 ),
-                onPressed: problem == null ? state.confirmPending : null,
-                child: Text(removing ? 'Снести' : 'Построить'),
               ),
             ],
           ),
@@ -203,69 +208,82 @@ class MagConfirmBar extends StatelessWidget {
   }
 }
 
-Future<void> showSettingsSheet(MagistraliScreenState state) => magSheet(
-  state,
-  'mag-settings',
-  (context) {
-    final w = state.world;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text('Настройки игры', style: magTitle),
-        SwitchListTile(
-          contentPadding: EdgeInsets.zero,
-          value: w.autoService,
-          activeThumbColor: MagPalette.mint,
-          title: const Text('Автоматический ремонт'),
-          subtitle: const Text(
-            'Машины с износом от 50% чинятся на остановках',
-            style: magMuted,
-          ),
-          onChanged: (v) {
-            w.autoService = v;
-            state.changed();
-          },
-        ),
-        const SizedBox(height: 6),
-        const Text(
-          'Игра сохраняется сама. Пока игра закрыта, компания не работает.',
+Future<void> showSettingsSheet(
+  MagistraliScreenState state,
+) => magSheet(state, 'mag-settings', (context) {
+  final w = state.world;
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      const Text('Настройки игры', style: magTitle),
+      SwitchListTile(
+        contentPadding: EdgeInsets.zero,
+        value: w.autoService,
+        activeThumbColor: MagPalette.mint,
+        title: const Text('Автоматический ремонт'),
+        subtitle: const Text(
+          'Машины с износом от 50% чинятся на остановках',
           style: magMuted,
         ),
-        const SizedBox(height: 14),
-        OutlinedButton.icon(
-          key: const ValueKey('mag-new-game'),
-          onPressed: () async {
-            final ok = await showDialog<bool>(
-              context: context,
-              builder: (d) => AlertDialog(
-                title: const Text('Начать заново?'),
-                content: const Text(
-                  'Текущая компания будет удалена. Полученные искры останутся.',
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(d, false),
-                    child: const Text('Отмена'),
-                  ),
-                  TextButton(
-                    onPressed: () => Navigator.pop(d, true),
-                    child: const Text('Начать'),
-                  ),
-                ],
-              ),
-            );
-            if (ok == true && context.mounted) {
-              Navigator.pop(context);
-              await state.restart();
-            }
-          },
-          icon: const Icon(Icons.restart_alt_rounded),
-          label: const Text('Новая компания на новой карте'),
+        onChanged: (v) {
+          w.autoService = v;
+          state.changed();
+        },
+      ),
+      SwitchListTile(
+        key: const ValueKey('mag-tutorial'),
+        contentPadding: EdgeInsets.zero,
+        value: w.tutorial,
+        activeThumbColor: MagPalette.mint,
+        title: const Text('Подсказки обучения'),
+        subtitle: const Text(
+          'Пока идут первые задания, нужная кнопка мигает, а над местом на карте — стрелка',
+          style: magMuted,
         ),
-      ],
-    );
-  },
-);
+        onChanged: (v) {
+          w.tutorial = v;
+          state.changed();
+        },
+      ),
+      const SizedBox(height: 6),
+      const Text(
+        'Игра сохраняется сама. Пока игра закрыта, компания не работает.',
+        style: magMuted,
+      ),
+      const SizedBox(height: 14),
+      OutlinedButton.icon(
+        key: const ValueKey('mag-new-game'),
+        onPressed: () async {
+          final ok = await showDialog<bool>(
+            context: context,
+            builder: (d) => AlertDialog(
+              title: const Text('Начать заново?'),
+              content: const Text(
+                'Текущая компания будет удалена. Полученные искры останутся.',
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(d, false),
+                  child: const Text('Отмена'),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.pop(d, true),
+                  child: const Text('Начать'),
+                ),
+              ],
+            ),
+          );
+          if (ok == true && context.mounted) {
+            Navigator.pop(context);
+            await state.restart();
+          }
+        },
+        icon: const Icon(Icons.restart_alt_rounded),
+        label: const Text('Новая компания на новой карте'),
+      ),
+    ],
+  );
+});
 
 /// A short message over the map.
 class MagToast extends StatelessWidget {

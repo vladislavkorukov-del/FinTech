@@ -212,6 +212,10 @@ abstract final class MagRules {
   static const defaultSeed = 20261113;
   static const startMoney = 6000;
 
+  /// The big map (S12): a new company starts with more, the first bridge
+  /// in mind; contracts reach this far from the start, plus 2 cells a level.
+  static const startMoneyBig = 8000, contractReach = 22;
+
   /// Fixed step: 10 ticks per second at 1×, 40 ticks a day, 30 days a month.
   static const tickMs = 100;
   static const ticksPerSecond = 10;

@@ -52,6 +52,7 @@ extension MagWorldSave on MagWorld {
     'speed': speed,
     'rng': rng,
     'roadVersion': roadVersion,
+    'entrances': {for (final e in entrances.entries) '${e.key}': e.value},
     'roads': base64Encode(roads),
     if (rails.any((r) => r != 0)) 'rails': base64Encode(rails),
     if (stations.isNotEmpty)
@@ -237,6 +238,7 @@ extension MagWorldSave on MagWorld {
     'camera': [cameraX, cameraY, zoom],
     'settings': {
       'autoService': autoService,
+      'tutorial': tutorial,
       'sound': sound,
       'dispatch': dispatchMode.name,
     },

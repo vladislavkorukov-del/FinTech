@@ -11,6 +11,7 @@ import 'mag_mega_ui.dart';
 import 'mag_center.dart';
 import 'mag_art.dart';
 import 'mag_game.dart';
+import 'mag_guide.dart';
 import 'mag_hud.dart';
 import 'mag_iso.dart';
 import 'mag_rail_ui.dart';
@@ -391,6 +392,9 @@ class MagistraliScreenState extends State<MagistraliScreen>
   MagRoadPlan? _extending;
   int? _drawFrom;
 
+  /// The control the tutorial points at now (S12).
+  String? get guideKey => guideFor(this).key;
+
   /// setState for the input part of this screen.
   void _refresh(VoidCallback fn) => setState(fn);
 
@@ -404,6 +408,7 @@ class MagistraliScreenState extends State<MagistraliScreen>
         body: Center(child: CircularProgressIndicator()),
       );
     }
+    overlay.guide = guideFor(this).places;
     return PopScope(
       canPop: true,
       onPopInvokedWithResult: (didPop, _) {

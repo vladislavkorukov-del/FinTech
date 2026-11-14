@@ -89,6 +89,22 @@ Future<void> showRoadSheet(MagistraliScreenState state, int cell) async {
               const Text('Не хватает кредитов', style: magMuted),
           ],
         ],
+        // One entrance to a business (S12): this cell can become it.
+        for (final i in w.placesBeside(cell)) ...[
+          const SizedBox(height: 8),
+          if (w.entranceOf(i) == cell)
+            Text('Въезд к «${i.name}»', style: magMuted)
+          else
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                key: ValueKey('mag-entrance-${i.id}'),
+                icon: const Icon(Icons.login_rounded),
+                onPressed: () => state.report(w.setEntrance(i.id, cell)),
+                label: Text('Сделать въездом к «${i.name}»'),
+              ),
+            ),
+        ],
         const SizedBox(height: 8),
         SizedBox(
           width: double.infinity,

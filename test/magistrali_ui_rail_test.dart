@@ -380,4 +380,34 @@ void main() {
     await closeSheet(tester);
     await settle(tester);
   });
+
+  testWidgets('S12: the tutorial points the way and can be turned off', (
+    tester,
+  ) async {
+    await mount(tester, const MagistraliScreen(seed: MagRules.defaultSeed));
+    final s = await ready(tester);
+    final w = s.world;
+    final f = w.map.startFarm, p = w.map.startPlant;
+    expect(s.guideKey, 'mag-tab-build');
+    await tap(tester, 'mag-tab-build');
+    expect(s.overlay.guide, containsAll([f.id, p.id]));
+    s.camera.zoom = 1;
+    s.centerOn((f.centerX + p.centerX) / 2, (f.centerY + p.centerY) / 2 + 1);
+    await tester.pump();
+    await tester.tapAt(at(tester, s, f.x + f.size, f.y));
+    await tester.pump();
+    await tester.tapAt(at(tester, s, p.x - 1, p.y));
+    await tester.pump();
+    expect(s.guideKey, 'mag-confirm-build');
+    await tap(tester, 'mag-confirm-build');
+    await tap(tester, 'mag-tab-build');
+    expect(s.guideKey, 'mag-tab-routes');
+    // Off in the settings: nothing pulses.
+    await tap(tester, 'mag-settings');
+    await tap(tester, 'mag-tutorial');
+    expect(w.tutorial, isFalse);
+    expect(s.guideKey, isNull);
+    await closeSheet(tester);
+    await settle(tester);
+  });
 }

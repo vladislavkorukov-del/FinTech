@@ -8,6 +8,7 @@ import '../../../../domain/magistrali/magistrali.dart';
 import 'mag_network_art.dart';
 import 'mag_curve.dart';
 import 'mag_route_art.dart';
+import 'mag_sea_art.dart';
 import 'mag_terrain_art.dart';
 import 'mag_rail_art.dart';
 import 'mag_art.dart';
@@ -27,6 +28,9 @@ class MagOverlay {
 
   /// Places with a problem (advice), marked over their names.
   Set<int> problems = const {};
+
+  /// Places the tutorial points at (S12).
+  List<int> guide = const [];
 
   /// Income popping up over a truck: (x, y, text, start time).
   final floats = <(double, double, String, double)>[];
@@ -124,6 +128,11 @@ class MagRenderer {
     final center = MagIso.project(cam.x, cam.y);
     canvas.translate(-center.dx, -center.dy);
 
+    // The sea round the map (S12): no empty sky past its edge.
+    canvas.save();
+    canvas.transform(MagIso.ground);
+    paintSea(canvas, map, seaView(cam, size), host.time);
+    canvas.restore();
     for (var cy = y0 ~/ chunk; cy <= y1 ~/ chunk; cy++) {
       for (var cx = x0 ~/ chunk; cx <= x1 ~/ chunk; cx++) {
         canvas.drawPicture(_chunk(map, cx, cy));
@@ -143,8 +152,10 @@ class MagRenderer {
     bool seen(NetChain ch) => ch.cells.any(
       (c) => netView.contains(Offset(w.cx(c) + .5, w.cy(c) + .5)),
     );
-    for (final ch in _roadChains) {
-      if (seen(ch)) paintRoadChain(canvas, ch);
+    for (var pass = 0; pass < 3; pass++) {
+      for (final ch in _roadChains) {
+        if (seen(ch)) paintRoadChain(canvas, ch, pass);
+      }
     }
     // Short pieces into the places a road serves.
     for (var y = y0; y <= y1; y++) {
@@ -153,9 +164,12 @@ class MagRenderer {
         if (r == MagRoad.none) continue;
         for (var d = 0; d < 4; d++) {
           final nx = x + MagDir.dx[d], ny = y + MagDir.dy[d];
-          if (map.inside(nx, ny) &&
-              !w.hasRoad(nx, ny) &&
-              map.industryAt(nx, ny) != null) {
+          final place = map.inside(nx, ny) && !w.hasRoad(nx, ny)
+              ? map.industryAt(nx, ny)
+              : null;
+          // A business has one entrance (S12); a settlement many.
+          if (place != null &&
+              (place.town != null || w.entranceOf(place) == w.cellOf(x, y))) {
             paintRoadStub(canvas, r, x, y, d);
           }
         }
@@ -408,6 +422,23 @@ class MagRenderer {
               ..lineTo(cp.dx + 5, cp.dy + 3)
               ..close(),
             Paint()..color = const Color(0xFFFFFFFF),
+          );
+        }
+        if (o.guide.contains(i.id)) {
+          // The tutorial: a bouncing arrow over the place to use.
+          final bob = math.sin(host.time * 5) * 4;
+          final tip = box.topCenter - Offset(0, 4 + bob);
+          canvas.drawPath(
+            Path()
+              ..moveTo(tip.dx, tip.dy)
+              ..lineTo(tip.dx - 9, tip.dy - 11)
+              ..lineTo(tip.dx - 3.5, tip.dy - 11)
+              ..lineTo(tip.dx - 3.5, tip.dy - 20)
+              ..lineTo(tip.dx + 3.5, tip.dy - 20)
+              ..lineTo(tip.dx + 3.5, tip.dy - 11)
+              ..lineTo(tip.dx + 9, tip.dy - 11)
+              ..close(),
+            Paint()..color = MagPalette.mint,
           );
         }
         if (o.problems.contains(i.id)) {

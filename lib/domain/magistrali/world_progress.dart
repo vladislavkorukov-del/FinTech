@@ -52,7 +52,7 @@ extension MagWorldProgress on MagWorld {
     MagTask(
       1,
       'Дорога к заводу',
-      'Выберите «Стройка» и проведите пальцем дорогу от фермы «Колос» к пищевому заводу «Нива».',
+      '«Стройка»: коснитесь клетки у фермы «Колос», затем у завода «Нива» и нажмите «Построить». Карту двигайте пальцем.',
       500,
       40,
     ),
@@ -87,7 +87,7 @@ extension MagWorldProgress on MagWorld {
     MagTask(
       6,
       'Хлеб в деревню',
-      'Постройте дорогу от завода к деревне и возите продукты.',
+      'Постройте дорогу от въезда завода к деревне и возите продукты.',
       800,
       60,
     ),
@@ -174,6 +174,14 @@ extension MagWorldProgress on MagWorld {
         final f = map.startFarm;
         targets.sort((a, b) => a.distanceTo(f).compareTo(b.distanceTo(f)));
         targets = targets.take(6).toList();
+      } else if (map.version >= 5) {
+        // The big map (S12): contracts reach farther as the company grows,
+        // never across the whole map at once.
+        final f = map.startFarm;
+        final reach = MagRules.contractReach + level * 2;
+        targets.sort((a, b) => a.distanceTo(f).compareTo(b.distanceTo(f)));
+        final near = targets.where((i) => i.distanceTo(f) <= reach).toList();
+        targets = near.length >= 6 ? near : targets.take(6).toList();
       }
       final to = targets[_random(targets.length)];
       // Never a cargo nobody in the world can make.
