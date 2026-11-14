@@ -31,7 +31,7 @@ MagWorld magWorldFromJson(Map<String, dynamic> raw) {
 
   final seed = whole(j['seed'], 0, 0x7fffffff);
   final size = whole(j['size'], 16, 256);
-  final mapVersion = whole(j['mapVersion'] ?? 1, 1, 3);
+  final mapVersion = whole(j['mapVersion'] ?? 1, 1, 4);
   final w = MagWorld(
     map: MagMap.generate(seed, size: size, version: mapVersion),
   );
@@ -79,6 +79,8 @@ MagWorld magWorldFromJson(Map<String, dynamic> raw) {
       )
       ..reputation = whole(m['reputation'] ?? 0, 0, 1 << 50)
       ..devPaid = m['devPaid'] as bool? ?? false
+      ..revenue = whole(m['revenue'] ?? 0, 0, 1 << 50)
+      ..delivered = whole(m['delivered'] ?? 0, 0, 1 << 50)
       ..blocked = m['blocked'] as String?;
     t.pantry.addAll(cargo(m['pantry']));
     t.devStock.addAll(cargo(m['dev']));
@@ -187,7 +189,8 @@ MagWorld magWorldFromJson(Map<String, dynamic> raw) {
       ..revenue = whole(m['revenue'] ?? 0, 0, 1 << 50)
       ..costs = whole(m['costs'] ?? 0, 0, 1 << 50)
       ..produced = whole(m['produced'] ?? 0, 0, 1 << 50)
-      ..sold = whole(m['sold'] ?? 0, 0, 1 << 50);
+      ..sold = whole(m['sold'] ?? 0, 0, 1 << 50)
+      ..since = m['since'] == null ? null : whole(m['since'], 0, 1 << 50);
     if (i.owned && (i.town != null || i.spec.stores || i.spec.price == 0)) {
       throw const FormatException('Bad owner in Magistrali save');
     }
@@ -238,7 +241,9 @@ MagWorld magWorldFromJson(Map<String, dynamic> raw) {
       ..progress = real(m['progress'], 0, 1)
       ..dir = whole(m['dir'], 0, 3)
       ..wait = whole(m['wait'], -(1 << 40), 1 << 40)
-      ..unpaid = real(m['unpaid'], 0, 1e6);
+      ..unpaid = real(m['unpaid'], 0, 1e6)
+      ..costs = whole(m['costs'] ?? 0, 0, 1 << 50)
+      ..emptyCells = real(m['empty'] ?? 0, 0, 1e15);
     final route = m['route'];
     if (route != null) {
       if (!w.routes.containsKey(route)) {

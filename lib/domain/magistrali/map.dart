@@ -5,6 +5,8 @@ import 'config.dart';
 import 'entities.dart';
 import 'settlements.dart';
 
+part 'map_noise.dart';
+
 /// A place on the map that makes or takes cargo.
 class MagIndustry {
   MagIndustry({
@@ -43,6 +45,9 @@ class MagIndustry {
   /// What owning it has cost and brought (management figures, credits),
   /// and units it made and sold to outside buyers.
   int invested = 0, revenue = 0, costs = 0, produced = 0, sold = 0;
+
+  /// Tick it became the company's (null: not known, e.g. an older save).
+  int? since;
 
   /// Fractional production carried between days is not needed: production
   /// is whole units per day.
@@ -400,6 +405,12 @@ class MagMap {
       if (version >= 3) (MagIndustryKind.mill, 2),
       if (version >= 3) (MagIndustryKind.bakery, 2),
       if (version >= 3) (MagIndustryKind.lumbermill, 2),
+      // Generator 4 (1.76): industry — coal, clay and bricks, steel, parts.
+      if (version >= 4) (MagIndustryKind.coalMine, 2),
+      if (version >= 4) (MagIndustryKind.clayPit, 2),
+      if (version >= 4) (MagIndustryKind.brickworks, 2),
+      if (version >= 4) (MagIndustryKind.steelMill, 1),
+      if (version >= 4) (MagIndustryKind.partsFactory, 1),
     ];
     var cityName = 0, villageName = 1, n = 0;
     for (final (kind, count) in plan) {
@@ -431,6 +442,11 @@ class MagMap {
             MagIndustryKind.mill => 'Мельница №$n',
             MagIndustryKind.bakery => 'Пекарня №$n',
             MagIndustryKind.lumbermill => 'Лесопилка №$n',
+            MagIndustryKind.coalMine => 'Угольная шахта №$n',
+            MagIndustryKind.clayPit => 'Глиняный карьер №$n',
+            MagIndustryKind.brickworks => 'Кирпичный завод №$n',
+            MagIndustryKind.steelMill => 'Сталелитейный завод №$n',
+            MagIndustryKind.partsFactory => 'Завод деталей №$n',
           });
           break;
         }
@@ -472,23 +488,5 @@ class MagMap {
       }
     }
     return false;
-  }
-
-  /// Smooth value noise in 0..1.
-  static double _valueNoise(int seed, double x, double y) {
-    final x0 = x.floor(), y0 = y.floor();
-    final fx = x - x0, fy = y - y0;
-    double h(int ix, int iy) {
-      var n = ix * 374761393 + iy * 668265263 + seed * 2147483647;
-      n = (n ^ (n >> 13)) * 1274126177;
-      n = n ^ (n >> 16);
-      return (n & 0xffff) / 0xffff;
-    }
-
-    double s(double v) => v * v * (3 - 2 * v);
-    final a = h(x0, y0), b = h(x0 + 1, y0);
-    final c = h(x0, y0 + 1), d = h(x0 + 1, y0 + 1);
-    final u = s(fx), v = s(fy);
-    return (a + (b - a) * u) * (1 - v) + (c + (d - c) * u) * v;
   }
 }

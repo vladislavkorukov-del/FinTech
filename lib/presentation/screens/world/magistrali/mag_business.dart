@@ -177,6 +177,7 @@ Future<MagIndustryKind?> showBuildPicker(MagistraliScreenState state) {
                 ),
                 subtitle: Text(_recipe(k), style: magMuted),
                 trailing: Text('${magMoney(w.buildPrice(k))} кр'),
+                enabled: w.level >= MagRules.industries[k]!.buildLevel,
                 onTap: () => Navigator.pop(context, k),
               ),
           ],
@@ -186,15 +187,26 @@ Future<MagIndustryKind?> showBuildPicker(MagistraliScreenState state) {
   );
 }
 
+/// «2 руда + 1 уголь → 1 сталь».
+String recipeLine(MagIndustrySpec s, MagCargo input) {
+  String part(int n, MagCargo c) => '$n ${cargoName(c).toLowerCase()}';
+  final inputs = [
+    part(s.ratio[input] ?? 1, input),
+    for (final x in s.extra.entries) part(x.value, x.key),
+  ].join(' + ');
+  return '$inputs → 1 ${cargoName(s.converts[input]!).toLowerCase()}';
+}
+
 String _recipe(MagIndustryKind k) {
   final s = MagRules.industries[k]!;
   final parts = [
     for (final e in s.produces.entries) '${cargoName(e.key)} ${e.value} в день',
-    for (final e in s.converts.entries)
-      '${s.ratio[e.key] ?? 1} ${cargoName(e.key).toLowerCase()} → 1 ${cargoName(e.value).toLowerCase()}',
+    for (final e in s.converts.entries) recipeLine(s, e.key),
     if (s.near == MagTerrain.forest) 'у леса',
     if (s.near == MagTerrain.hill) 'у холмов',
+    if (s.near == MagTerrain.river) 'у реки',
     '${s.size}×${s.size}',
+    if (s.buildLevel > 2) 'с ${s.buildLevel} уровня',
   ];
   return parts.join(' · ');
 }

@@ -57,6 +57,35 @@ const magTechNodes = <MagTech>[
     deliveries: 30,
   ),
   // ---- Автопарк: моторы ----
+  // Master plan stage 5: the first motor technologies of the industrial age.
+  MagTech(
+    id: 'steelbodies',
+    branch: MagBranch.fleet,
+    title: 'Стальные кузова',
+    lore:
+        'Своя сталь пошла в дело: кузова стали прочнее и вместительнее, а '
+        'рама больше не гнётся на ухабах.',
+    effect: 'Вместимость моторных машин +8%, износ −5%',
+    effects: {MagBonus.capacity: .08, MagBonus.wear: -.05},
+    cost: 6000,
+    level: 5,
+    requires: ['combustion'],
+    deliveries: 60,
+  ),
+  MagTech(
+    id: 'spareparts',
+    branch: MagBranch.fleet,
+    title: 'Склад запчастей',
+    lore:
+        'Свечи, ремни и подшипники — на полке, а не в столице. Машина больше '
+        'не стоит неделю в ожидании одной детали.',
+    effect: 'Ремонт −20%, содержание машин −5%',
+    effects: {MagBonus.service: -.2, MagBonus.upkeep: -.05},
+    cost: 7000,
+    level: 6,
+    requires: ['steelbodies'],
+    deliveries: 90,
+  ),
   MagTech(
     id: 'turbo',
     branch: MagBranch.fleet,
@@ -407,6 +436,19 @@ const magTechNodes = <MagTech>[
     cost: 5000,
     level: 8,
     requires: ['lean'],
+  ),
+  MagTech(
+    id: 'heavycargo',
+    branch: MagBranch.economy,
+    title: 'Тяжёлые грузы',
+    lore:
+        'Краны, стропы и опытные грузчики: уголь, руда и сталь грузятся '
+        'быстро, а заводы платят за надёжные поставки.',
+    effect: 'Погрузка +15%, оплата перевозок +3%',
+    effects: {MagBonus.handling: .15, MagBonus.pay: .03},
+    cost: 6500,
+    level: 5,
+    deliveries: 80,
   ),
   MagTech(
     id: 'tariffs',

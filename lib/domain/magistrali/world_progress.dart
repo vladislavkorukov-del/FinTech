@@ -200,7 +200,9 @@ extension MagWorldProgress on MagWorld {
       c.delivered = math.min(c.amount, c.delivered + n);
       if (c.done) {
         contracts.remove(c);
-        _earn((c.reward * factor(MagBonus.contract)).round(), 'contracts');
+        final paid = (c.reward * factor(MagBonus.contract)).round();
+        _earn(paid, 'contracts');
+        map.industry(to)?.town?.revenue += paid;
         _gainXp(c.xp);
         _say('Контракт выполнен: +${c.reward} кр');
       }

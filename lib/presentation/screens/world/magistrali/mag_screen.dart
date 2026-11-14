@@ -11,6 +11,7 @@ import 'mag_art.dart';
 import 'mag_game.dart';
 import 'mag_hud.dart';
 import 'mag_iso.dart';
+import 'mag_road.dart';
 import 'mag_fleet.dart';
 import 'mag_sheets.dart';
 import 'mag_sprites.dart';
@@ -331,7 +332,8 @@ class MagistraliScreenState extends State<MagistraliScreen>
   Offset? _downAt, _focalStart;
   Offset _cellStart = Offset.zero;
   double _zoomStart = 1;
-  bool _drawing = false;
+  bool _drawing = false, _drawStarted = false;
+  MagRoadPlan? _extending;
   int? _drawFrom;
 
   /// setState for the input part of this screen.

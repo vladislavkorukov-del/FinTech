@@ -26,6 +26,11 @@ abstract final class MagPalette {
     MagCargo.planks => const Color(0xFFD9A867),
     MagCargo.flour => const Color(0xFFF2EEE3),
     MagCargo.bread => const Color(0xFFC98A4B),
+    MagCargo.coal => const Color(0xFF3B3F44),
+    MagCargo.clay => const Color(0xFFB8774A),
+    MagCargo.bricks => const Color(0xFFC8664E),
+    MagCargo.steel => const Color(0xFF8A96A3),
+    MagCargo.parts => const Color(0xFFE8B23E),
   };
 }
 

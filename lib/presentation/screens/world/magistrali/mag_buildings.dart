@@ -4,6 +4,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 
 import '../../../../domain/magistrali/magistrali.dart';
+import 'mag_industry_art.dart';
 import 'mag_art.dart';
 import 'mag_iso.dart';
 import 'mag_shapes.dart';
@@ -269,6 +270,12 @@ ui.Picture recordIndustry(MagIndustry i) {
     case MagIndustryKind.bakery:
     case MagIndustryKind.lumbermill:
       paintChainBuilding(c, i.kind, x, y);
+    case MagIndustryKind.coalMine:
+    case MagIndustryKind.clayPit:
+    case MagIndustryKind.brickworks:
+    case MagIndustryKind.steelMill:
+    case MagIndustryKind.partsFactory:
+      paintIndustryBuilding(c, i.kind, x, y);
     case MagIndustryKind.warehouse:
       // A hangar with a mint band, gable roof and crates at the gate.
       MagShapes.box(

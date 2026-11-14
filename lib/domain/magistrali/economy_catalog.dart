@@ -80,11 +80,18 @@ abstract final class MagEconomy {
       active: true,
       value: 4,
     ),
-    MagResourceDef('clay', 'Глина', MagEra.horses, raw: true, value: 2.5),
+    MagResourceDef(
+      'clay',
+      'Глина',
+      MagEra.horses,
+      raw: true,
+      active: true,
+      value: 2.5,
+    ),
     MagResourceDef('planks', 'Доски', MagEra.horses, active: true, value: 9),
     MagResourceDef('flour', 'Мука', MagEra.horses, active: true, value: 8),
     MagResourceDef('bread', 'Хлеб', MagEra.horses, active: true, value: 13),
-    MagResourceDef('bricks', 'Кирпич', MagEra.horses, value: 8),
+    MagResourceDef('bricks', 'Кирпич', MagEra.horses, active: true, value: 8),
     MagResourceDef('food', 'Продукты', MagEra.horses, active: true, value: 8),
     // Era II — steam: ore, coal, steel.
     MagResourceDef(
@@ -95,9 +102,16 @@ abstract final class MagEconomy {
       active: true,
       value: 4.5,
     ),
-    MagResourceDef('coal', 'Уголь', MagEra.steam, raw: true, value: 4),
-    MagResourceDef('steel', 'Сталь', MagEra.steam, value: 16),
-    MagResourceDef('parts', 'Детали', MagEra.steam, value: 24),
+    MagResourceDef(
+      'coal',
+      'Уголь',
+      MagEra.steam,
+      raw: true,
+      active: true,
+      value: 4,
+    ),
+    MagResourceDef('steel', 'Сталь', MagEra.steam, active: true, value: 18),
+    MagResourceDef('parts', 'Детали', MagEra.steam, active: true, value: 34),
     // Era III — trucks: machines, oil, fuel, goods.
     MagResourceDef(
       'goods',

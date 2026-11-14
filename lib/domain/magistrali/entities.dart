@@ -113,6 +113,11 @@ class MagVehicle {
   /// Running cost not yet charged (fractions of a credit).
   double unpaid = 0;
 
+  /// Money it has cost (fuel or feed, upkeep, repairs) and cells driven
+  /// empty — for the finance centre.
+  int costs = 0;
+  double emptyCells = 0;
+
   MagTruckModel get spec => MagRules.truck(model)!;
   int level(MagUpgrade u) => upgrades[u.index];
   bool get onMap => cell >= 0;

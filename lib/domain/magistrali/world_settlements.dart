@@ -21,6 +21,8 @@ extension MagWorldSettlements on MagWorld {
     while (more) {
       more = false;
       for (final i in map.industries) {
+        // A plant makes its output once every input it needs is made.
+        if (!i.spec.extra.keys.every(made.contains)) continue;
         for (final e in i.spec.converts.entries) {
           if (made.contains(e.key) && made.add(e.value)) more = true;
         }
@@ -70,6 +72,7 @@ extension MagWorldSettlements on MagWorld {
       ..devPaid = true
       ..reputation += 50;
     _earn(reward, 'development', source: 'settlement', sourceId: i.id);
+    t.revenue += reward;
     _gainXp(math.max(1, reward ~/ 10));
     t.remember(tick, 'Контракт развития выполнен: +$reward кр');
     _say('${i.name}: контракт развития выполнен, +$reward кр');

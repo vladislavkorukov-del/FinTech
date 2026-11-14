@@ -22,7 +22,8 @@ Future<void> showWarehouseSheet(
   final w = state.world;
   final wh = w.map.industry(id);
   if (wh == null) return const Text('Склад снесён');
-  final cap = w.warehouseCapacity;
+  final cap = w.warehouseCapacityOf(wh);
+  final upgrade = w.warehouseUpgradePrice(wh);
   final stored = w.storedIn(wh);
   final served = w.accessCells(wh).isNotEmpty;
   final open = w.orders.active
@@ -51,6 +52,28 @@ Future<void> showWarehouseSheet(
         borderRadius: BorderRadius.circular(4),
         color: stored >= cap ? const Color(0xFFD64B5C) : MagPalette.mint,
         backgroundColor: const Color(0x1F2BB59A),
+      ),
+      const SizedBox(height: 6),
+      Row(
+        children: [
+          Expanded(
+            child: Text(
+              upgrade == null
+                  ? 'Уровень ${wh.level} — максимальный'
+                  : 'Уровень ${wh.level} · следующий: место ${(w.warehouseCapacity * (1 + MagRules.levelStorage * wh.level)).round()}',
+              style: magMuted,
+            ),
+          ),
+          if (upgrade != null)
+            TextButton(
+              key: const ValueKey('mag-warehouse-upgrade'),
+              onPressed: w.money < upgrade
+                  ? null
+                  : () =>
+                        state.report(w.upgradeWarehouse(id), 'Склад расширен'),
+              child: Text('Расширить · ${magMoney(upgrade)} кр'),
+            ),
+        ],
       ),
       if (!served)
         const Padding(

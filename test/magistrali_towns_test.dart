@@ -134,7 +134,7 @@ void main() {
   test('new games: hamlets and villages with room to grow', () {
     for (final seed in [MagRules.defaultSeed, 3, 77, 2026]) {
       final w = motorStart(seed);
-      expect(w.map.version, 3);
+      expect(w.map.version, 4);
       final towns = w.settlements.toList();
       expect(towns.length, greaterThanOrEqualTo(7), reason: 'seed $seed');
       expect(towns.map((t) => t.town!.level).toSet(), {1, 2});

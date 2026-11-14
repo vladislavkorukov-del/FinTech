@@ -84,7 +84,7 @@ void main() {
 
   test('new maps have the first chains; recipes keep their ratios', () {
     final w = MagWorld.start();
-    expect(w.map.version, 3);
+    expect(w.map.version, 4);
     for (final k in [
       MagIndustryKind.quarry,
       MagIndustryKind.mill,

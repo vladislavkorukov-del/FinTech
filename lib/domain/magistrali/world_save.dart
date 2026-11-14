@@ -32,6 +32,8 @@ extension MagWorldSave on MagWorld {
           if (i.town!.devStock.isNotEmpty) 'dev': _cargo(i.town!.devStock),
           'reputation': i.town!.reputation,
           if (i.town!.devPaid) 'devPaid': true,
+          if (i.town!.revenue != 0) 'revenue': i.town!.revenue,
+          if (i.town!.delivered != 0) 'delivered': i.town!.delivered,
           if (i.town!.blocked != null) 'blocked': i.town!.blocked,
           'history': [
             for (final e in i.town!.history) [e.tick, e.text],
@@ -58,6 +60,7 @@ extension MagWorldSave on MagWorld {
           if (i.costs != 0) 'costs': i.costs,
           if (i.produced != 0) 'produced': i.produced,
           if (i.sold != 0) 'sold': i.sold,
+          if (i.since != null) 'since': i.since,
         },
     ],
     'vehicles': [
@@ -89,6 +92,8 @@ extension MagWorldSave on MagWorld {
           'dir': v.dir,
           'wait': v.wait,
           'unpaid': v.unpaid,
+          if (v.costs != 0) 'costs': v.costs,
+          if (v.emptyCells != 0) 'empty': v.emptyCells,
         },
     ],
     'routes': [

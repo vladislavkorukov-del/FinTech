@@ -43,10 +43,20 @@ extension MagWorldSim on MagWorld {
         final ratio = i.spec.ratio[e.key] ?? 1;
         final have = i.input[e.key] ?? 0;
         final room = cap - (i.stock[e.value] ?? 0);
-        final n = math.min(math.min(have ~/ ratio, budget), room);
+        var n = math.min(math.min(have ~/ ratio, budget), room);
+        // Extra inputs (coal for steel) limit it too.
+        for (final x in i.spec.extra.entries) {
+          n = math.min(n, (i.input[x.key] ?? 0) ~/ x.value);
+        }
         if (n <= 0) continue;
         budget -= n;
         i.input[e.key] = have - n * ratio;
+        for (final x in i.spec.extra.entries) {
+          final used = n * x.value;
+          i.input[x.key] = i.input[x.key]! - used;
+          if (i.input[x.key] == 0) i.input.remove(x.key);
+          destroyed[x.key] = (destroyed[x.key] ?? 0) + used;
+        }
         i.stock[e.value] = (i.stock[e.value] ?? 0) + n;
         destroyed[e.key] = (destroyed[e.key] ?? 0) + n * ratio;
         created[e.value] = (created[e.value] ?? 0) + n;
@@ -82,7 +92,9 @@ extension MagWorldSim on MagWorld {
     for (final v in vehicles.values) {
       final n = v.unpaid.floor();
       if (n > 0) {
-        v.unpaid -= n;
+        v
+          ..unpaid -= n
+          ..costs += n;
         _spend(n, 'running', source: 'vehicle', sourceId: v.id);
       }
     }
@@ -90,6 +102,7 @@ extension MagWorldSim on MagWorld {
     var upkeep = 0;
     for (final v in vehicles.values) {
       upkeep += upkeepOf(v);
+      v.costs += upkeepOf(v);
     }
     if (upkeep > 0) _spend(upkeep, 'upkeep');
     var roadUpkeep = 0;
@@ -211,6 +224,7 @@ extension MagWorldSim on MagWorld {
         ..odometer += 1
         ..wear = math.min(100, v.wear + wearRateOf(v))
         ..unpaid += runningCostOf(v);
+      if (v.load == 0) v.emptyCells += 1;
 
       if (v.pathIndex == v.path.length - 1) {
         _arrive(v);
@@ -238,6 +252,7 @@ extension MagWorldSim on MagWorld {
       ..path = const []
       ..progress = 0;
     if (autoService && v.wear >= 50 && money >= serviceCost(v)) {
+      v.costs += serviceCost(v);
       _spend(serviceCost(v), 'service');
       v.wear = 0;
     }
@@ -321,7 +336,7 @@ extension MagWorldSim on MagWorld {
     final pay =
         (n * MagRules.cargoRate[cargo]! * dist * factor(MagBonus.pay) * market)
             .round();
-    if (here.spec.converts.containsKey(cargo)) {
+    if (here.spec.takesIn(cargo)) {
       here.input[cargo] = (here.input[cargo] ?? 0) + n;
     } else if (here.town != null) {
       _townReceive(here, cargo, n);
@@ -366,6 +381,13 @@ extension MagWorldSim on MagWorld {
         cargo: cargo,
         units: n,
       );
+    }
+    final town = here.town;
+    if (town != null) {
+      town
+        ..revenue +=
+            pay + (fromOwn ? (n * MagRules.cargoValue[cargo]!).round() : 0)
+        ..delivered += n;
     }
     delivered[cargo] = (delivered[cargo] ?? 0) + n;
     deliveries++;

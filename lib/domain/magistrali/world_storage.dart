@@ -15,6 +15,31 @@ extension MagWorldStorage on MagWorld {
   int get warehouseCapacity =>
       MagRules.warehouseBase + bonus(MagBonus.storage).round();
 
+  /// Room of one warehouse: the base room, more with each level.
+  int warehouseCapacityOf(MagIndustry w) =>
+      (warehouseCapacity * storageFactor(w)).round();
+
+  /// Price of the next warehouse level (null at the top level).
+  int? warehouseUpgradePrice(MagIndustry w) =>
+      w.level >= MagRules.maxIndustryLevel
+      ? null
+      : (MagRules.warehousePrice * .5 * w.level).round();
+
+  /// A bigger warehouse: +50% room per level, up to level 5.
+  String? upgradeWarehouse(int id) {
+    final w = map.industry(id);
+    if (w == null || !w.spec.stores) return 'Это не склад';
+    final cost = warehouseUpgradePrice(w);
+    if (cost == null) return 'Максимальный уровень';
+    if (money < cost) return 'Не хватает кредитов: нужно $cost';
+    _spend(cost, 'warehouse_upgrade', source: 'industry', sourceId: id);
+    w
+      ..level += 1
+      ..invested += cost;
+    _say('${w.name}: уровень ${w.level}, место ${warehouseCapacityOf(w)}');
+    return null;
+  }
+
   int get warehousePrice =>
       (MagRules.warehousePrice * (1 + .5 * warehouses.length)).round();
 
@@ -36,10 +61,10 @@ extension MagWorldStorage on MagWorld {
     for (final k in MagCargo.values) {
       inbound += orders.reservedIn(w.id, k);
     }
-    final shared = warehouseCapacity - storedIn(w) - inbound;
+    final shared = warehouseCapacityOf(w) - storedIn(w) - inbound;
     final rule = ruleOf(w, c);
     final own =
-        (rule.max ?? warehouseCapacity) -
+        (rule.max ?? warehouseCapacityOf(w)) -
         (w.stock[c] ?? 0) -
         orders.reservedIn(w.id, c);
     return math.max(0, math.min(shared, own));
@@ -76,7 +101,7 @@ extension MagWorldStorage on MagWorld {
         x: x,
         y: y,
         name: 'Склад №$n',
-      ),
+      )..since = tick,
     );
     roadVersion++; // a new place: stop cells may change
     _say('Склад построен — подведите к нему дорогу');
@@ -95,7 +120,7 @@ extension MagWorldStorage on MagWorld {
       return 'Склад есть в маршруте';
     }
     map.industries.remove(w);
-    final back = (MagRules.warehousePrice * .5).round();
+    final back = ((MagRules.warehousePrice + w.invested) * .5).round();
     _assetSale(back, 'warehouse_sale', source: 'industry', sourceId: id);
     roadVersion++;
     return null;
@@ -106,7 +131,7 @@ extension MagWorldStorage on MagWorld {
     final w = map.industry(id);
     if (w == null || !w.spec.stores) return 'Это не склад';
     if (!modeUnlocked(rule.mode)) return 'Режим откроет технология';
-    final cap = warehouseCapacity;
+    final cap = warehouseCapacityOf(w);
     final max = rule.max ?? cap;
     if (rule.min < 0 ||
         rule.min > rule.target ||

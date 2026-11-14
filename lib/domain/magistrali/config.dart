@@ -14,6 +14,13 @@ enum MagCargo {
   planks,
   flour,
   bread,
+
+  // Stage 5: industry.
+  coal,
+  clay,
+  bricks,
+  steel,
+  parts,
 }
 
 enum MagTerrain { grass, forest, hill, river, lake }
@@ -38,6 +45,13 @@ enum MagIndustryKind {
   mill,
   bakery,
   lumbermill,
+
+  // Master plan stage 5: industry.
+  coalMine,
+  clayPit,
+  brickworks,
+  steelMill,
+  partsFactory,
 }
 
 /// Upgrade lines of a truck.
@@ -75,7 +89,19 @@ class MagIndustrySpec {
     this.ratio = const {},
     this.price = 0,
     this.near,
+    this.extra = const {},
+    this.buildLevel = 2,
   });
+
+  /// More inputs used up for every unit made, besides the main one: a
+  /// steel mill burns 1 coal for each steel it makes from ore.
+  final Map<MagCargo, int> extra;
+
+  /// Company level from which the player may build it.
+  final int buildLevel;
+
+  /// Does it take [c] in to make something (a main or an extra input)?
+  bool takesIn(MagCargo c) => converts.containsKey(c) || extra.containsKey(c);
 
   /// Input units per output unit (1 when missing): a mill turns 2 grain
   /// into 1 flour.
@@ -263,6 +289,44 @@ abstract final class MagRules {
       ratio: {MagCargo.wood: 2},
       price: 4500,
     ),
+    MagIndustryKind.coalMine: MagIndustrySpec(
+      size: 2,
+      produces: {MagCargo.coal: 7},
+      price: 6500,
+      near: MagTerrain.hill,
+      buildLevel: 3,
+    ),
+    MagIndustryKind.clayPit: MagIndustrySpec(
+      size: 2,
+      produces: {MagCargo.clay: 8},
+      price: 3000,
+      near: MagTerrain.river,
+    ),
+    MagIndustryKind.brickworks: MagIndustrySpec(
+      size: 2,
+      accepts: {MagCargo.clay},
+      converts: {MagCargo.clay: MagCargo.bricks},
+      ratio: {MagCargo.clay: 2},
+      price: 5500,
+      buildLevel: 3,
+    ),
+    MagIndustryKind.steelMill: MagIndustrySpec(
+      size: 3,
+      accepts: {MagCargo.ore, MagCargo.coal},
+      converts: {MagCargo.ore: MagCargo.steel},
+      ratio: {MagCargo.ore: 2},
+      extra: {MagCargo.coal: 1},
+      price: 14000,
+      buildLevel: 4,
+    ),
+    MagIndustryKind.partsFactory: MagIndustrySpec(
+      size: 2,
+      accepts: {MagCargo.steel, MagCargo.planks},
+      converts: {MagCargo.steel: MagCargo.parts},
+      extra: {MagCargo.planks: 1},
+      price: 12000,
+      buildLevel: 5,
+    ),
   };
 
   /// Credits per unit per cell of distance between the two places.
@@ -276,6 +340,11 @@ abstract final class MagRules {
     MagCargo.planks: 2.6,
     MagCargo.flour: 2.4,
     MagCargo.bread: 3.2,
+    MagCargo.coal: 2.1,
+    MagCargo.clay: 1.7,
+    MagCargo.bricks: 2.6,
+    MagCargo.steel: 3.4,
+    MagCargo.parts: 4.2,
   };
 
   /// Market price of a unit: what a buyer pays for goods the company owns,
@@ -290,6 +359,11 @@ abstract final class MagRules {
     MagCargo.planks: 9,
     MagCargo.flour: 8,
     MagCargo.bread: 13,
+    MagCargo.coal: 4,
+    MagCargo.clay: 2.5,
+    MagCargo.bricks: 8,
+    MagCargo.steel: 18,
+    MagCargo.parts: 34,
   };
 
   /// Own production (master plan stage 3): building costs more than

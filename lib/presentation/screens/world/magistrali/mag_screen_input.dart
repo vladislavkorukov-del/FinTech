@@ -12,15 +12,35 @@ extension _MagScreenInput on MagistraliScreenState {
   void _scaleStart(ScaleStartDetails d, Size size) {
     if ((tool == MagTool.road || tool == MagTool.remove) &&
         d.pointerCount == 1) {
-      _drawFrom = _cellAt(_downAt ?? d.localFocalPoint, size);
-      if (_drawFrom != null) {
+      final at = _downAt ?? d.localFocalPoint;
+      var from = _cellAt(at, size);
+      // Starting at (or right next to) the end of a drawn road carries it
+      // on instead of starting a new one.
+      final plan = pendingRoad;
+      _extending = null;
+      if (from != null && tool == MagTool.road && plan != null) {
+        final end = plan.cells.isEmpty ? null : plan.cells.last;
+        if (end != null && _near(from, end)) {
+          _extending = plan;
+          from = end;
+        }
+      }
+      if (from != null) {
+        // Nothing is drawn until the finger reaches another cell: a short
+        // wobble on one cell never makes a road.
+        _drawFrom = from;
         _drawing = true;
-        _drawTo(_drawFrom!);
+        _drawStarted = false;
         return;
       }
     }
     _beginPan(d.localFocalPoint, size);
   }
+
+  /// The same cell or one of its eight neighbours.
+  bool _near(int a, int b) =>
+      (world.cx(a) - world.cx(b)).abs() <= 1 &&
+      (world.cy(a) - world.cy(b)).abs() <= 1;
 
   void _beginPan(Offset focal, Size size) {
     _drawing = false;
@@ -37,7 +57,10 @@ extension _MagScreenInput on MagistraliScreenState {
         _zoomStart = camera.zoom / d.scale;
       } else {
         final c = _cellAt(d.localFocalPoint, size);
-        if (c != null) _drawTo(c);
+        if (c != null && (_drawStarted || c != _drawFrom)) {
+          _drawStarted = true;
+          _drawTo(c);
+        }
         return;
       }
     }
@@ -59,6 +82,8 @@ extension _MagScreenInput on MagistraliScreenState {
     _focalStart = null;
     if (!_drawing) return;
     _drawing = false;
+    _extending = null;
+    if (!_drawStarted) return; // stayed on one cell: nothing drawn
     _refresh(() {}); // shows the confirm bar
   }
 
@@ -72,10 +97,12 @@ extension _MagScreenInput on MagistraliScreenState {
         w.cy(to),
         roadType,
       );
-      pendingRoad = plan;
+      final base = _extending;
+      final full = base == null ? plan : w.joinPlans(base, plan);
+      pendingRoad = full;
       overlay
-        ..plan = plan.cells.isEmpty ? [from] : plan.cells
-        ..planOk = plan.error == null && plan.cost <= w.money;
+        ..plan = full.cells.isEmpty ? [from] : full.cells
+        ..planOk = full.error == null && full.cost <= w.money;
     } else {
       // Removal follows a straight L from the first cell.
       final cells = <int>[];
@@ -101,18 +128,36 @@ extension _MagScreenInput on MagistraliScreenState {
     final w = world;
     switch (tool) {
       case MagTool.road:
-        // Two taps also make a road: start, then end.
-        if (_tapStart == null || pendingRoad != null) {
+        final plan = pendingRoad;
+        if (plan != null) {
+          // A drawn road is never lost to a stray tap: a tap next to its
+          // end carries it on, anywhere else only reminds what to do.
+          final end = plan.cells.isEmpty ? null : plan.cells.last;
+          if (end != null && cell != end && _near(cell, end)) {
+            _extending = plan;
+            _drawFrom = end;
+            _drawTo(cell);
+            _extending = null;
+          } else {
+            say('Нажмите «Построить» или «Отмена»');
+          }
+          return;
+        }
+        // Two taps also make a road: start, then end. The same cell twice
+        // drops the start.
+        final start = _tapStart;
+        if (start == null) {
           _refresh(() {
-            _clearPending();
             _tapStart = cell;
             overlay
               ..plan = [cell]
               ..planOk = true;
           });
-          say('Теперь коснитесь, где дорога закончится');
+          say('Начало отмечено. Коснитесь, где дорога закончится');
+        } else if (start == cell) {
+          _refresh(_clearPending);
         } else {
-          _drawFrom = _tapStart;
+          _drawFrom = start;
           _drawTo(cell);
           _tapStart = null;
         }
@@ -169,6 +214,15 @@ extension _MagScreenInput on MagistraliScreenState {
           }
         }
         final i = w.map.industryAt(w.cx(cell), w.cy(cell));
+        if (i == null && w.roads[cell] != 0) {
+          _refresh(() {
+            overlay
+              ..industry = null
+              ..vehicle = null;
+          });
+          unawaited(showRoadSheet(this, cell));
+          return;
+        }
         _refresh(() {
           overlay.industry = i?.id;
           overlay.vehicle = null;

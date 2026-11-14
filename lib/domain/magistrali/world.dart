@@ -13,11 +13,13 @@ import 'settlements.dart';
 import 'tech.dart';
 
 part 'world_dispatch.dart';
+part 'world_finance.dart';
 part 'world_fleet.dart';
 part 'world_industry.dart';
 part 'world_load.dart';
 part 'world_orders.dart';
 part 'world_progress.dart';
+part 'world_roads.dart';
 part 'world_save.dart';
 part 'world_settlements.dart';
 part 'world_sim.dart';
@@ -42,10 +44,10 @@ class MagWorld {
   MagWorld({required this.map}) : roads = Uint8List(map.size * map.size);
 
   factory MagWorld.start([int seed = MagRules.defaultSeed]) {
-    // New games: generator 3 — hamlets and villages with room to grow,
-    // and the first production chains (quarries, mills, bakeries,
-    // lumber mills).
-    final w = MagWorld(map: MagMap.generate(seed, version: 3));
+    // New games: generator 4 — hamlets and villages with room to grow,
+    // the first production chains (quarries, mills, bakeries, lumber
+    // mills) and industry (coal, clay and bricks, steel, parts).
+    final w = MagWorld(map: MagMap.generate(seed, version: 4));
     for (final s in w.settlements) {
       s.town!.remember(0, 'Основано: ${s.town!.spec.name}');
     }

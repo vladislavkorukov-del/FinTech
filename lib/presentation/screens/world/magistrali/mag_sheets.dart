@@ -25,6 +25,11 @@ String cargoName(MagCargo c) => switch (c) {
   MagCargo.planks => 'Доски',
   MagCargo.flour => 'Мука',
   MagCargo.bread => 'Хлеб',
+  MagCargo.coal => 'Уголь',
+  MagCargo.clay => 'Глина',
+  MagCargo.bricks => 'Кирпич',
+  MagCargo.steel => 'Сталь',
+  MagCargo.parts => 'Детали',
 };
 
 String kindName(MagIndustryKind k) => switch (k) {
@@ -40,6 +45,11 @@ String kindName(MagIndustryKind k) => switch (k) {
   MagIndustryKind.mill => 'Мельница',
   MagIndustryKind.bakery => 'Пекарня',
   MagIndustryKind.lumbermill => 'Лесопилка',
+  MagIndustryKind.coalMine => 'Угольная шахта',
+  MagIndustryKind.clayPit => 'Глиняный карьер',
+  MagIndustryKind.brickworks => 'Кирпичный завод',
+  MagIndustryKind.steelMill => 'Сталелитейный завод',
+  MagIndustryKind.partsFactory => 'Завод деталей',
 };
 
 IconData kindIcon(MagIndustryKind k) => switch (k) {
@@ -55,6 +65,11 @@ IconData kindIcon(MagIndustryKind k) => switch (k) {
   MagIndustryKind.mill => Icons.wind_power_rounded,
   MagIndustryKind.bakery => Icons.breakfast_dining_rounded,
   MagIndustryKind.lumbermill => Icons.carpenter_rounded,
+  MagIndustryKind.coalMine => Icons.fireplace_rounded,
+  MagIndustryKind.clayPit => Icons.water_rounded,
+  MagIndustryKind.brickworks => Icons.foundation_rounded,
+  MagIndustryKind.steelMill => Icons.factory_rounded,
+  MagIndustryKind.partsFactory => Icons.settings_rounded,
 };
 
 const magMuted = TextStyle(fontSize: 12, color: Color(0xFF5B6B70));
@@ -174,7 +189,7 @@ Future<void> showIndustrySheet(
         const Text('Перерабатывает', style: magMuted),
         for (final e in spec.converts.entries)
           Text(
-            '${spec.ratio[e.key] ?? 1} ${cargoName(e.key).toLowerCase()} → 1 ${cargoName(e.value).toLowerCase()} · до ${(MagRules.processPerDay * w.outputFactor(i)).round()} в день',
+            '${recipeLine(spec, e.key)} · до ${(MagRules.processPerDay * w.outputFactor(i)).round()} в день',
             style: const TextStyle(fontSize: 13),
           ),
         const SizedBox(height: 6),
@@ -375,60 +390,6 @@ Future<void> showContractsSheet(
           ),
         ),
       ...developmentCards(state, context),
-    ],
-  );
-});
-
-/// Money of this month and the last: income, costs, profit.
-Future<void> showFinanceSheet(
-  MagistraliScreenState state,
-) => magSheet(state, 'mag-finance', (context) {
-  final w = state.world;
-  Widget month(MagMonth m, String title) => Container(
-    margin: const EdgeInsets.only(bottom: 10),
-    padding: const EdgeInsets.all(12),
-    decoration: magCard(16),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(title, style: const TextStyle(fontWeight: FontWeight.w800)),
-        for (final e in m.income.entries)
-          magRow(
-            magIncomeNames[e.key] ?? e.key,
-            '+${magMoney(e.value)}',
-            color: MagPalette.teal,
-          ),
-        for (final e in m.expense.entries)
-          magRow(magExpenseNames[e.key] ?? e.key, '−${magMoney(e.value)}'),
-        const Divider(),
-        magRow('Доход', magMoney(m.totalIncome)),
-        magRow('Расход', magMoney(m.totalExpense)),
-        magRow(
-          'Чистая прибыль',
-          magMoney(m.profit),
-          color: m.profit >= 0 ? MagPalette.teal : const Color(0xFFD64B5C),
-        ),
-        magRow('Доставок', '${m.deliveries}'),
-      ],
-    ),
-  );
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      const Text('Финансы компании', style: magTitle),
-      const SizedBox(height: 8),
-      magRow('Баланс', '${magMoney(w.money)} кр'),
-      magRow('Стоимость компании', '${magMoney(w.companyValue)} кр'),
-      magRow('Заработано всего', '${magMoney(w.earnedTotal)} кр'),
-      magRow('Доставок всего', '${w.deliveries}'),
-      const SizedBox(height: 10),
-      month(
-        w.month,
-        'Этот месяц · день ${w.day % MagRules.daysPerMonth + 1} из ${MagRules.daysPerMonth}',
-      ),
-      if (w.months.length > 1)
-        month(w.months[w.months.length - 2], 'Прошлый месяц'),
-      MagJournalPanel(state: state),
     ],
   );
 });

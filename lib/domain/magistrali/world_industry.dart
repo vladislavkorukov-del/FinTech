@@ -53,6 +53,7 @@ extension MagWorldIndustry on MagWorld {
     _spend(price, 'industry_buy', source: 'industry', sourceId: id);
     i
       ..owned = true
+      ..since = tick
       ..invested += price;
     _say('${i.name} теперь ваше');
     return null;
@@ -82,7 +83,8 @@ extension MagWorldIndustry on MagWorld {
     _assetSale(sellPrice(i), 'industry_sale', source: 'industry', sourceId: id);
     i
       ..owned = false
-      ..invested = 0;
+      ..invested = 0
+      ..since = null;
     return null;
   }
 
@@ -90,7 +92,9 @@ extension MagWorldIndustry on MagWorld {
   String? buildBlocker(MagIndustryKind k, int x, int y) {
     final spec = MagRules.industries[k]!;
     if (spec.price == 0 || spec.stores) return 'Это не строят';
-    if (level < 2) return 'Строить предприятия можно со 2 уровня';
+    if (level < spec.buildLevel) {
+      return 'Строить можно с ${spec.buildLevel} уровня компании';
+    }
     for (var yy = y; yy < y + spec.size; yy++) {
       for (var xx = x; xx < x + spec.size; xx++) {
         if (!map.roadable(xx, yy) || hasRoad(xx, yy)) {
@@ -110,9 +114,11 @@ extension MagWorldIndustry on MagWorld {
         }
       }
       if (!found) {
-        return near == MagTerrain.forest
-            ? 'Нужен лес рядом (2 клетки)'
-            : 'Нужны холмы рядом (2 клетки)';
+        return switch (near) {
+          MagTerrain.forest => 'Нужен лес рядом (2 клетки)',
+          MagTerrain.river => 'Нужна река рядом (2 клетки)',
+          _ => 'Нужны холмы рядом (2 клетки)',
+        };
       }
     }
     return null;
@@ -135,6 +141,7 @@ extension MagWorldIndustry on MagWorld {
           name: '${_kindTitle(k)} «Ваша» №${same + 1}',
         )
         ..owned = true
+        ..since = tick
         ..built = true
         ..invested = price,
     );
@@ -153,6 +160,11 @@ extension MagWorldIndustry on MagWorld {
     MagIndustryKind.mill => 'Мельница',
     MagIndustryKind.bakery => 'Пекарня',
     MagIndustryKind.lumbermill => 'Лесопилка',
+    MagIndustryKind.coalMine => 'Угольная шахта',
+    MagIndustryKind.clayPit => 'Глиняный карьер',
+    MagIndustryKind.brickworks => 'Кирпичный завод',
+    MagIndustryKind.steelMill => 'Сталелитейный завод',
+    MagIndustryKind.partsFactory => 'Завод деталей',
     _ => 'Предприятие',
   };
 

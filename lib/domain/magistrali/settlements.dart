@@ -95,11 +95,13 @@ abstract final class MagTowns {
         MagCargo.wood: 60,
         MagCargo.stone: 50,
         MagCargo.planks: 40,
+        MagCargo.bricks: 30,
       },
       opens: [
         'Постоянный спрос на древесину',
         'Рынок камня: стройка идёт всерьёз',
         'Контракты крупнее',
+        'Рынок кирпича',
       ],
       payBonus: .04,
     ),
@@ -109,7 +111,11 @@ abstract final class MagTowns {
       cells: 5,
       population: 350,
       needs: {MagCargo.food: 6, MagCargo.wood: 3, MagCargo.goods: 1},
-      development: {MagCargo.goods: 40, MagCargo.food: 120},
+      development: {
+        MagCargo.goods: 40,
+        MagCargo.food: 120,
+        MagCargo.bricks: 60,
+      },
       opens: ['Первый спрос на промтовары', 'Торговые контракты'],
       payBonus: .06,
     ),
@@ -119,7 +125,7 @@ abstract final class MagTowns {
       cells: 7,
       population: 700,
       needs: {MagCargo.food: 8, MagCargo.wood: 4, MagCargo.goods: 3},
-      development: {MagCargo.goods: 90, MagCargo.wood: 150},
+      development: {MagCargo.goods: 90, MagCargo.wood: 150, MagCargo.steel: 40},
       opens: ['Городской рынок: выше оплата', 'Контракты городского снабжения'],
       payBonus: .08,
     ),
@@ -134,7 +140,12 @@ abstract final class MagTowns {
         MagCargo.goods: 5,
         MagCargo.ore: 2,
       },
-      development: {MagCargo.goods: 160, MagCargo.ore: 120, MagCargo.food: 220},
+      development: {
+        MagCargo.goods: 160,
+        MagCargo.ore: 120,
+        MagCargo.food: 220,
+        MagCargo.parts: 30,
+      },
       opens: ['Промышленные заказы на руду', 'Крупные склады выгодны'],
       payBonus: .1,
     ),
@@ -209,11 +220,15 @@ abstract final class MagTowns {
   static MagTownLevel of(int level) => levels[level.clamp(1, maxLevel) - 1];
 
   /// Goods its market buys besides its needs: bread and planks from the
-  /// start, stone once it builds in earnest.
+  /// start, stone and bricks once it builds in earnest, steel and parts in
+  /// cities.
   static Set<MagCargo> marketGoods(int level) => {
     MagCargo.bread,
     MagCargo.planks,
     if (level >= 3) MagCargo.stone,
+    if (level >= 3) MagCargo.bricks,
+    if (level >= 5) MagCargo.steel,
+    if (level >= 6) MagCargo.parts,
   };
 
   /// Days of regular needs a settlement's pantry holds.
@@ -288,6 +303,10 @@ class MagSettlement {
   /// The development contract of the current level has been paid (once
   /// per level).
   bool devPaid = false;
+
+  /// What the company earned here (deliveries, sales, contracts) and how
+  /// many units it brought — for the finance centre.
+  int revenue = 0, delivered = 0;
 
   /// Why the last growth could not happen (null: no problem).
   String? blocked;

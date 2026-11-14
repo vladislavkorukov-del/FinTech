@@ -89,7 +89,9 @@ extension MagWorldFleet on MagWorld {
     if (cost == 0) return 'Машина в порядке';
     if (money < cost) return 'Не хватает кредитов';
     _spend(cost, 'service');
-    v.wear = 0;
+    v
+      ..wear = 0
+      ..costs += cost;
     return null;
   }
 
