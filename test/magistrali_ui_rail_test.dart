@@ -4,6 +4,7 @@ import 'package:finora/data/finance_repository.dart';
 import 'package:finora/domain/magistrali/magistrali.dart';
 import 'package:finora/domain/models.dart';
 import 'package:finora/presentation/controller.dart';
+import 'package:finora/presentation/screens/world/magistrali/mag_route_create.dart';
 import 'package:finora/presentation/screens/world/magistrali/mag_screen.dart';
 import 'package:finora/presentation/theme/app_theme.dart';
 import 'package:finora/services/magistrali_store.dart';
@@ -407,6 +408,50 @@ void main() {
     await tap(tester, 'mag-tutorial');
     expect(w.tutorial, isFalse);
     expect(s.guideKey, isNull);
+    await closeSheet(tester);
+    await settle(tester);
+  });
+
+  testWidgets('S12: a new route — search, groups and suggestions', (
+    tester,
+  ) async {
+    await mount(tester, const MagistraliScreen(seed: MagRules.defaultSeed));
+    final s = await ready(tester);
+    final w = s.world;
+    final saw = w.map.industries.firstWhere(
+      (i) => i.kind == MagIndustryKind.sawmill,
+    );
+    await tap(tester, 'mag-tab-routes');
+    await tap(tester, 'mag-new-route');
+    // Search by name narrows the list to the sawmill.
+    await tester.enterText(
+      find.byKey(const ValueKey('mag-route-search')),
+      saw.name,
+    );
+    await tester.pump();
+    expect(find.byKey(ValueKey('mag-stop-${saw.id}')), findsOneWidget);
+    expect(
+      find.byKey(ValueKey('mag-stop-${w.map.startFarm.id}')),
+      findsNothing,
+    );
+    await tap(tester, 'mag-stop-${saw.id}');
+    await tester.enterText(find.byKey(const ValueKey('mag-route-search')), '');
+    await tester.pump();
+    // Suggestions: places that take its wood, connected ones first.
+    final dest = routeDestinations(w, saw);
+    expect(dest, isNotEmpty);
+    expect(dest.every((e) => e.$2.contains(MagCargo.wood)), isTrue);
+    expect(
+      find.byKey(ValueKey('mag-suggest-${dest.first.$1.id}')),
+      findsOneWidget,
+    );
+    await tap(tester, 'mag-suggest-${dest.first.$1.id}');
+    expect(find.textContaining('Повезут'), findsOneWidget);
+    // A group filter: settlements only.
+    await tap(tester, 'mag-route-kind-1');
+    expect(find.byKey(ValueKey('mag-stop-${saw.id}')), findsNothing);
+    await tap(tester, 'mag-create-route');
+    expect(w.routes.values.last.stops, [saw.id, dest.first.$1.id]);
     await closeSheet(tester);
     await settle(tester);
   });

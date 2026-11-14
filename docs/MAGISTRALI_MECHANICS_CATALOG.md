@@ -20,8 +20,8 @@ industry, cities, logistics, rail, water, megapolis, passengers, p1, s12, ui, ui
 
 | Статус | Механик |
 |---|---|
-| VERIFIED | 133 |
-| READY_FOR_REVIEW | 3 |
+| VERIFIED | 132 |
+| READY_FOR_REVIEW | 4 |
 | PARTIAL | 24 |
 | NOT_STARTED | 43 |
 | Всего | 203 |
@@ -117,7 +117,7 @@ industry, cities, logistics, rail, water, megapolis, passengers, p1, s12, ui, ui
 
 | ID | Механика | P | Статус | Версия | Зависимости | Файлы | Тесты | Проблемы |
 |---|---|---|---|---|---|---|---|---|
-| ROUTE-01 | Создание маршрутов | P1 | VERIFIED | 1.68 | ROAD-12 | world.dart (`createRoute`), mag_routes.dart | sim, ui | — |
+| ROUTE-01 | Создание маршрутов | P1 | READY_FOR_REVIEW | 1.84 | ROAD-12 | world.dart (`createRoute`), mag_routes.dart, mag_route_create.dart (поиск, группы, предложения по грузу) | sim, ui, ui_rail | — |
 | ROUTE-02 | Несколько остановок | P1 | VERIFIED | 1.68 | — | entities.dart (`MagRoute.stops`) | sim: «two-line network» | — |
 | ROUTE-03 | Кольцевые маршруты | P1 | VERIFIED | 1.68 | — | world_sim.dart | sim | — |
 | ROUTE-04 | Несколько машин на линии | P1 | VERIFIED | 1.68 | — | world_fleet.dart (`assign`) | — | — |

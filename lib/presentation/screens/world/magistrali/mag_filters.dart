@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart' hide Text;
 
+import '../../../../domain/magistrali/magistrali.dart';
 import '../../../l10n_widgets.dart';
 import 'mag_art.dart';
 
@@ -57,3 +58,13 @@ class MagFilterChips extends StatelessWidget {
     ),
   );
 }
+
+/// The groups of places in lists (0: all, 1: settlements, 2: raw, 3:
+/// processing, 4: warehouses, centres and the rest).
+bool placeOfKind(MagIndustry i, int k) => switch (k) {
+  1 => i.town != null,
+  2 => i.town == null && i.spec.produces.isNotEmpty,
+  3 => i.spec.converts.isNotEmpty,
+  4 => i.town == null && i.spec.produces.isEmpty && i.spec.converts.isEmpty,
+  _ => true,
+};

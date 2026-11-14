@@ -191,7 +191,8 @@ void main() {
     await tap(tester, 'mag-tab-routes');
     await tap(tester, 'mag-new-route');
     await tap(tester, 'mag-stop-${farm.id}');
-    await tap(tester, 'mag-stop-${plant.id}');
+    // The plant takes the farm's grain: it is offered first.
+    await tap(tester, 'mag-suggest-${plant.id}');
     await tap(tester, 'mag-create-route');
     expect(w.routes.length, 1);
     final route = w.routes.values.first;

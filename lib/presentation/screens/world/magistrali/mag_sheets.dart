@@ -16,7 +16,7 @@ import 'mag_lore.dart';
 import 'mag_orders.dart';
 import 'mag_town.dart';
 import 'mag_warehouse.dart';
-import 'mag_routes.dart';
+import 'mag_route_create.dart';
 import 'mag_screen.dart';
 
 String cargoName(MagCargo c) => switch (c) {
@@ -282,14 +282,6 @@ Future<void> showIndustrySheet(
 /// Which places the list shows (kept while the game is open).
 var _placeKind = 0;
 
-bool _placeOf(MagIndustry i, int k) => switch (k) {
-  1 => i.town != null,
-  2 => i.town == null && i.spec.produces.isNotEmpty,
-  3 => i.spec.converts.isNotEmpty,
-  4 => i.town == null && i.spec.produces.isEmpty && i.spec.converts.isEmpty,
-  _ => true,
-};
-
 /// All places by kind (1.83), nearest to the view first.
 Future<void> showIndustriesSheet(MagistraliScreenState state) =>
     magSheet(state, 'mag-industries', (context) {
@@ -307,7 +299,7 @@ Widget _places(
   MagWorld w,
   MagCamera cam,
 ) {
-  final list = [...w.map.industries.where((i) => _placeOf(i, _placeKind))]
+  final list = [...w.map.industries.where((i) => placeOfKind(i, _placeKind))]
     ..sort((a, b) {
       double d(MagIndustry i) =>
           (i.centerX - cam.x).abs() + (i.centerY - cam.y).abs();
