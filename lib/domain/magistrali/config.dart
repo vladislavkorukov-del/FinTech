@@ -23,6 +23,9 @@ enum MagCargo {
   bricks,
   steel,
   parts,
+
+  // Stage S11: people travelling between settlements.
+  passengers,
 }
 
 enum MagTerrain { grass, forest, hill, river, lake }
@@ -156,7 +159,16 @@ class MagTruckModel {
     this.maxWagons = 0,
     this.wagonPrice = 0,
     this.water = false,
+    this.passengers = false,
   });
+
+  /// Carries people only (stage S11): a coach or a bus. Lorries and carts
+  /// never take passengers; trains and vessels take both.
+  final bool passengers;
+
+  /// A goods vehicle on roads with an engine (not horse, rail, water or
+  /// a passenger model).
+  bool get motorGoods => !horse && !rail && !water && !passengers;
 
   /// A vessel (stage S9): it sails rivers and lakes between ports.
   final bool water;
@@ -242,6 +254,15 @@ abstract final class MagRules {
   static const wagonRunning = .08, wagonUpkeep = 1, wagonDrag = .04;
   static const trainWaitTicks = 20;
 
+  /// Passengers (stage S11): people per day per this many inhabitants of a
+  /// settlement with a stop, and how many days of them may wait.
+  static const peoplePerTraveller = 40, passengerDays = 3;
+
+  /// Market prices (stage S11): a flooded market pays up to 30% less, a
+  /// shortage of what a settlement needs pays 25% more; the flood fades
+  /// by this share a day.
+  static const glutDiscount = .3, deficitBonus = .25, glutFade = .9;
+
   /// The one-time reward for the first megalopolis grown from a hamlet.
   static const megapolisReward = 150000;
 
@@ -262,8 +283,10 @@ abstract final class MagRules {
   static double? terrainCost(MagTerrain t) => switch (t) {
     MagTerrain.grass => 1,
     MagTerrain.forest => 1.8, // clearing
-    MagTerrain.hill => 2.4,
-    MagTerrain.river => 6, // a bridge
+    // Through hills a way is a tunnel, over a river a bridge — both cost
+    // far more than a road on the flat (stage S11).
+    MagTerrain.hill => 7, // a tunnel
+    MagTerrain.river => 9, // a bridge
     MagTerrain.lake => null,
   };
 
@@ -395,6 +418,7 @@ abstract final class MagRules {
     MagCargo.bricks: 2.6,
     MagCargo.steel: 3.4,
     MagCargo.parts: 4.2,
+    MagCargo.passengers: 3.0,
   };
 
   /// Market price of a unit: what a buyer pays for goods the company owns,
@@ -414,6 +438,7 @@ abstract final class MagRules {
     MagCargo.bricks: 8,
     MagCargo.steel: 18,
     MagCargo.parts: 34,
+    MagCargo.passengers: 0,
   };
 
   /// Own production (master plan stage 3): building costs more than

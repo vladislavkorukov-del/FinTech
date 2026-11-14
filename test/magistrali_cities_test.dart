@@ -106,6 +106,11 @@ void main() {
     final t = v.town!
       ..level = 5
       ..specialization = MagSpecialization.industry;
+    // A full pantry: no shortage bonus here (that is tested apart).
+    for (final e in w.needsOf(v).entries) {
+      t.pantry[e.key] = e.value * 5;
+      w.created[e.key] = (w.created[e.key] ?? 0) + e.value * 5;
+    }
     final base = 1 + t.spec.payBonus;
     final demand = w.weeklyDemand(v)!;
     expect(v.accepts, contains(demand));

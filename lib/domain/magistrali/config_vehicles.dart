@@ -32,6 +32,32 @@ const magTruckModels = <MagTruckModel>[
   ),
   // Era III — trucks (open with «Двигатель внутреннего сгорания» in new
   // games; older companies have them already).
+  // People (stage S11).
+  MagTruckModel(
+    id: 'coach',
+    name: 'Экипаж «Тройка»',
+    speed: .95,
+    capacity: 8,
+    price: 900,
+    runningCost: .1,
+    upkeep: 2,
+    level: 2,
+    color: 0xFF7A3B2E,
+    horse: true,
+    passengers: true,
+  ),
+  MagTruckModel(
+    id: 'bus',
+    name: 'Автобус «Ветерок»',
+    speed: 1.35,
+    capacity: 30,
+    price: 7500,
+    runningCost: .7,
+    upkeep: 7,
+    level: 4,
+    color: 0xFFE8B23E,
+    passengers: true,
+  ),
   MagTruckModel(
     id: 'pickup',
     name: 'Пикап «Старт»',

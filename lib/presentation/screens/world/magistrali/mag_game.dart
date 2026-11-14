@@ -5,6 +5,7 @@ import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../domain/magistrali/magistrali.dart';
+import 'mag_network_art.dart';
 import 'mag_curve.dart';
 import 'mag_route_art.dart';
 import 'mag_terrain_art.dart';
@@ -76,6 +77,8 @@ class MagRenderer {
   final _chunks = <int, ui.Picture>{};
   final _industries = <String, ui.Picture>{};
   final _labels = <String, TextPainter>{};
+  int _netVersion = -1;
+  List<NetChain> _roadChains = const [], _railChains = const [];
   MagMap? _map;
 
   void dispose() {
@@ -130,37 +133,45 @@ class MagRenderer {
     // Roads and marks on the ground.
     canvas.save();
     canvas.transform(MagIso.ground);
+    // Roads and track as whole smooth lines (rebuilt when they change).
+    if (_netVersion != w.roadVersion) {
+      _netVersion = w.roadVersion;
+      _roadChains = netChains(w, (c) => w.roads[c]);
+      _railChains = netChains(w, (c) => w.rails[c]);
+    }
+    final netView = Rect.fromLTRB(x0 - 2.0, y0 - 2.0, x1 + 3.0, y1 + 3.0);
+    bool seen(NetChain ch) => ch.cells.any(
+      (c) => netView.contains(Offset(w.cx(c) + .5, w.cy(c) + .5)),
+    );
+    for (final ch in _roadChains) {
+      if (seen(ch)) paintRoadChain(canvas, ch);
+    }
+    // Short pieces into the places a road serves.
     for (var y = y0; y <= y1; y++) {
       for (var x = x0; x <= x1; x++) {
         final r = w.roadAt(x, y);
         if (r == MagRoad.none) continue;
-        paintRoadCurved(
-          canvas,
-          r,
-          w.connections(x, y),
-          x,
-          y,
-          map.at(x, y) == MagTerrain.river,
-        );
+        for (var d = 0; d < 4; d++) {
+          final nx = x + MagDir.dx[d], ny = y + MagDir.dy[d];
+          if (map.inside(nx, ny) &&
+              !w.hasRoad(nx, ny) &&
+              map.industryAt(nx, ny) != null) {
+            paintRoadStub(canvas, r, x, y, d);
+          }
+        }
       }
     }
-    // Railway track and platforms (stage S8).
-    for (var y = y0; y <= y1; y++) {
-      for (var x = x0; x <= x1; x++) {
-        final cell = w.cellOf(x, y);
-        if (w.rails[cell] == 0) continue;
-        var mask = 0;
-        for (var d = 0; d < 4; d++) {
-          if (w.hasRail(x + MagDir.dx[d], y + MagDir.dy[d])) mask |= 1 << d;
-        }
-        paintRailCurved(
-          canvas,
-          mask,
-          x,
-          y,
-          station: w.stations.containsKey(cell),
-        );
-      }
+    for (final s in w.stations.keys) {
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(
+          Rect.fromLTWH(w.cx(s) + .04, w.cy(s) + .04, .92, .92),
+          const Radius.circular(.08),
+        ),
+        Paint()..color = const Color(0xFFD9D4C7),
+      );
+    }
+    for (final ch in _railChains) {
+      if (seen(ch)) paintRailChain(canvas, ch);
     }
     // Piers of ports (stage S9).
     for (final p in w.ports.keys) {
@@ -203,8 +214,36 @@ class MagRenderer {
     for (var y = y0; y <= y1; y++) {
       for (var x = x0; x <= x1; x++) {
         final ground = map.at(x, y);
+        final cell = w.cellOf(x, y);
+        final way = w.roads[cell] != 0 || w.rails[cell] != 0;
+        if (ground == MagTerrain.river && way) {
+          // A bridge with its own model.
+          final rail = w.rails[cell] != 0 && w.roads[cell] == 0;
+          objects.add((
+            x + y + .4,
+            () => paintBridge(canvas, w, cell, rail: rail),
+          ));
+          continue;
+        }
+        if (ground == MagTerrain.hill && way) {
+          // A tunnel: the hill stays over the way, a portal where it leaves.
+          for (var d = 0; d < 4; d++) {
+            final nx = x + MagDir.dx[d], ny = y + MagDir.dy[d];
+            if (!map.inside(nx, ny) || map.at(nx, ny) == MagTerrain.hill) {
+              continue;
+            }
+            final n = w.cellOf(nx, ny);
+            final joins =
+                w.roads[cell] != 0 && w.roads[n] != 0 ||
+                w.rails[cell] != 0 && w.rails[n] != 0 ||
+                map.industryAt(nx, ny) != null;
+            if (joins) {
+              objects.add((x + y + .55, () => paintPortal(canvas, w, cell, d)));
+            }
+          }
+        }
         if (ground != MagTerrain.forest && ground != MagTerrain.hill) continue;
-        if (w.roadAt(x, y) != MagRoad.none || w.hasRail(x, y)) continue;
+        if (ground == MagTerrain.forest && way) continue;
         if (map.industryAt(x, y) != null) continue;
         objects.add((
           x + y + .5,
@@ -253,6 +292,11 @@ class MagRenderer {
       // On the curve of its way, facing along it.
       final (pose, heading) = vehiclePose(w, v);
       final px = pose.dx, py = pose.dy, dir = dirOf(heading);
+      // Inside a tunnel it is out of sight.
+      if (map.at(w.cx(v.cell), w.cy(v.cell)) == MagTerrain.hill &&
+          !v.spec.water) {
+        continue;
+      }
       if (v.spec.water) {
         if (px < x0 - 2 || py < y0 - 2 || px > x1 + 3 || py > y1 + 3) continue;
         objects.add((

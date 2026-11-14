@@ -86,6 +86,9 @@ MagWorld magWorldFromJson(Map<String, dynamic> raw) {
     t.pantry.addAll(cargo(m['pantry']));
     t.devStock.addAll(cargo(m['dev']));
     t.received.addAll(cargo(m['received']));
+    for (final e in (m['glut'] as Map? ?? const {}).entries) {
+      t.glut[MagCargo.values.byName(e.key as String)] = real(e.value, 0, 1e9);
+    }
     for (final s in m['satisfaction'] as List? ?? const []) {
       t.satisfaction.add(real(s, 0, 1));
     }

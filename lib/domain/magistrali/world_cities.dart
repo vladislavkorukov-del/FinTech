@@ -37,7 +37,7 @@ extension MagWorldCities on MagWorld {
   double marketFactor(MagIndustry i, MagCargo c) {
     final t = i.town;
     if (t == null) return 1;
-    var k = 1 + t.spec.payBonus;
+    var k = (1 + t.spec.payBonus) * glutFactor(i, c) + deficitBonusOf(i, c);
     if (isCity(i)) {
       if (MagTowns.favoured(t.specialization).contains(c)) {
         k += MagTowns.favouredBonus;
@@ -46,6 +46,25 @@ extension MagWorldCities on MagWorld {
       if (weeklyDemand(i) == c) k += MagTowns.weeklyBonus;
     }
     return k;
+  }
+
+  /// A flooded market pays less (stage S11, BIZ-09): nothing off until the
+  /// recent deliveries pass half the market's appetite, up to 30% off at
+  /// twice it. The flood fades day by day.
+  double glutFactor(MagIndustry i, MagCargo c) {
+    final t = i.town;
+    if (t == null) return 1;
+    final appetite = math.max(30, (t.spec.needs[c] ?? 2) * 12).toDouble();
+    final s = (t.glut[c] ?? 0) / appetite;
+    return 1 - MagRules.glutDiscount * ((s - .5) / 1.5).clamp(0.0, 1.0);
+  }
+
+  /// A shortage pays more (stage S11, BIZ-11): what a settlement needs and
+  /// has run out of in its pantry.
+  double deficitBonusOf(MagIndustry i, MagCargo c) {
+    final t = i.town;
+    if (t == null || !needsOf(i).containsKey(c)) return 0;
+    return (t.pantry[c] ?? 0) == 0 ? MagRules.deficitBonus : 0;
   }
 
   /// A settlement becoming a city takes the specialization of what it was

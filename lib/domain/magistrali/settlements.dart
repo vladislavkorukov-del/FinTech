@@ -432,6 +432,10 @@ class MagSettlement {
   /// many units it brought — for the finance centre.
   int revenue = 0, delivered = 0;
 
+  /// How flooded its market is with each cargo (recent deliveries, fading
+  /// day by day; stage S11).
+  final Map<MagCargo, double> glut = {};
+
   /// Units the company brought, by cargo (decides a city's specialization).
   final Map<MagCargo, int> received = {};
 

@@ -301,4 +301,28 @@ void main() {
       await settle(tester);
     },
   );
+
+  testWidgets('S11: passengers and prices in a sheet, a bus in the shop', (
+    tester,
+  ) async {
+    await mount(tester, const MagistraliScreen(seed: MagRules.defaultSeed));
+    final s = await ready(tester);
+    final w = s.world
+      ..money = 100000
+      ..xp = MagWorldProgress.xpFor(4)
+      ..techs.add('combustion');
+    final v = w.settlements.firstWhere((t) => t.name == 'Луговое');
+    v.town!.glut[MagCargo.planks] = 200;
+    s.changed();
+    await tap(tester, 'mag-tab-places');
+    await tap(tester, 'mag-place-${v.id}');
+    expect(find.byKey(const ValueKey('mag-town-passengers')), findsOneWidget);
+    expect(find.textContaining('затоварено'), findsOneWidget);
+    expect(find.textContaining('дефицит'), findsWidgets);
+    await closeSheet(tester);
+    await tap(tester, 'mag-tab-fleet');
+    await tap(tester, 'mag-buy-bus');
+    expect(w.vehicles.values.last.spec.passengers, isTrue);
+    await settle(tester);
+  });
 }

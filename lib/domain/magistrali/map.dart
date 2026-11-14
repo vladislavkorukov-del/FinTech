@@ -113,18 +113,21 @@ class MagIndustry {
   Set<MagCargo> get accepts => kind == MagIndustryKind.megaproject
       ? projectLeft.keys.toSet()
       : town == null
-      ? spec.accepts
+      ? spec.accepts.where((c) => c != MagCargo.passengers).toSet()
       : {
           ...town!.spec.needs.keys,
           ...town!.spec.development.keys,
           ...MagTowns.marketGoods(town!.level, town!.specialization),
+          MagCargo.passengers,
         };
 
   /// Cargo this place hands to trucks.
   Set<MagCargo> get supplies => {
-    if (spec.stores) ...MagCargo.values,
+    if (spec.stores) ...MagCargo.values.where((c) => c != MagCargo.passengers),
     ...spec.produces.keys,
     ...spec.converts.values,
+    // Settlements send people (stage S11).
+    if (town != null) MagCargo.passengers,
   };
 
   /// Manhattan distance between the centres of two places (pay distance).

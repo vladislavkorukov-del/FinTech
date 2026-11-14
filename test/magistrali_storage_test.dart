@@ -157,7 +157,12 @@ void main() {
     expect(w.buildWarehouse(plant.x, plant.y), isNotNull);
     final wh = warehouseNear(w, plant, plant);
     expect(wh.kind, MagIndustryKind.warehouse);
-    expect(wh.supplies, containsAll(MagCargo.values));
+    // Any cargo — but not people (stage S11).
+    expect(
+      wh.supplies,
+      containsAll(MagCargo.values.where((c) => c != MagCargo.passengers)),
+    );
+    expect(wh.supplies, isNot(contains(MagCargo.passengers)));
     expect(w.month.expense['warehouses'], MagRules.warehousePrice);
     // One slot only, until more technologies.
     expect(w.warehouseBlocker(2, 2), contains('технологии'));

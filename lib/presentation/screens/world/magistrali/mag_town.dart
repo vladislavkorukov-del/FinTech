@@ -88,6 +88,7 @@ Future<void> showTownSheet(
         style: magMuted,
       ),
       ...cityInfo(w, i),
+      ...marketInfo(w, i),
       ...megaprojectSection(state, i),
       const SizedBox(height: 10),
       const Text(

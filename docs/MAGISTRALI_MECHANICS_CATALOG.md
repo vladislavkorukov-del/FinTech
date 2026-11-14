@@ -7,23 +7,23 @@
 
 Статусы: NOT_STARTED — не начато; PARTIAL — частично; IN_PROGRESS — в работе;
 READY_FOR_REVIEW — готово, ждёт проверки игроком; VERIFIED — проверено игроком
-(этапы, которые игрок подтвердил: 1.68–1.80); BLOCKED — заблокировано.
+(этапы, которые игрок подтвердил: 1.68–1.81); BLOCKED — заблокировано.
 
 Файлы домена — `lib/domain/magistrali/`, интерфейса —
 `lib/presentation/screens/world/magistrali/`. Тесты — `test/magistrali_<имя>_test.dart`
 (sim, orders, storage, dispatch, towns, horses, production, growth,
-industry, cities, logistics, rail, water, megapolis, ui, ui_stage5, ui_rail).
+industry, cities, logistics, rail, water, megapolis, passengers, ui, ui_stage5, ui_rail).
 
-Аудит: 1.77.0, обновлено в 1.78.0 (S7) и 1.79.0 (S8), 1.80.0 (S9 и доводка ЖД), 1.81.0 (S10 и графика); точка восстановления — тег `restore/magistrali-1.77.0-pre-s7`.
+Аудит: 1.77.0, обновлено в 1.78.0 (S7) и 1.79.0 (S8), 1.80.0 (S9 и доводка ЖД), 1.81.0 (S10 и графика), 1.82.0 (S11); точка восстановления — тег `restore/magistrali-1.77.0-pre-s7`.
 
 ## Сводка
 
 | Статус | Механик |
 |---|---|
-| VERIFIED | 121 |
-| READY_FOR_REVIEW | 5 |
-| PARTIAL | 28 |
-| NOT_STARTED | 49 |
+| VERIFIED | 125 |
+| READY_FOR_REVIEW | 8 |
+| PARTIAL | 27 |
+| NOT_STARTED | 43 |
 | Всего | 203 |
 
 ## A. Фундамент игры и безопасность
@@ -46,7 +46,7 @@ industry, cities, logistics, rail, water, megapolis, ui, ui_stage5, ui_rail).
 | ID | Механика | P | Статус | Версия | Зависимости | Файлы | Тесты | Проблемы |
 |---|---|---|---|---|---|---|---|---|
 | CITY-01 | Независимое состояние поселений | P0 | VERIFIED | 1.72 | CITY-03 | settlements.dart, world_settlements.dart | towns | — |
-| CITY-02 | Десять уровней развития | P1 | READY_FOR_REVIEW | 1.81 | — | settlements.dart (уровни 8–10: сталь, детали, кирпич в нуждах и росте; мегапроекты) | towns, megapolis | — |
+| CITY-02 | Десять уровней развития | P1 | VERIFIED | 1.81 | — | settlements.dart (уровни 8–10: сталь, детали, кирпич в нуждах и росте; мегапроекты) | towns, megapolis | — |
 | CITY-03 | Многоклеточная территория | P0 | VERIFIED | 1.72 | — | settlements.dart (`cells`), map.dart | towns | — |
 | CITY-04 | Автоматическое расширение | P1 | VERIFIED | 1.72 | CITY-03 | world_settlements.dart (`_growTown`), map.dart (`expandCells`) | towns, growth | — |
 | CITY-05 | Защита инфраструктуры | P0 | VERIFIED | 1.72 | CITY-04 | world_settlements.dart (`_townLandFree`) | towns: «growth blocked by roads» | — |
@@ -86,8 +86,8 @@ industry, cities, logistics, rail, water, megapolis, ui, ui_stage5, ui_rail).
 | ROAD-03 | Улучшение покрытия | P1 | VERIFIED | 1.76 | ROAD-01 | world_roads.dart (`upgradePlan`), mag_road.dart | industry, ui_stage5 | — |
 | ROAD-04 | Перекрёстки | P1 | VERIFIED | 1.68 | — | world.dart (граф клеток), pathfinding.dart | sim | — |
 | ROAD-05 | Удаление и возврат части стоимости | P1 | PARTIAL | 1.68 | — | world.dart (`removeRoad`) | sim | Снос бесплатный, без возврата |
-| ROAD-06 | Мосты | P1 | VERIFIED | 1.68 | — | config.dart (река ×6), tech «Мосты» | sim | Мост — дорога по клетке реки |
-| ROAD-07 | Тоннели | P3 | NOT_STARTED | — | — | — | — | — |
+| ROAD-06 | Мосты | P1 | READY_FOR_REVIEW | 1.82 | — | config.dart (река ×9), mag_network_art.dart (`paintBridge`: настил, перила, опоры; ж/д ферма) | passengers | — |
+| ROAD-07 | Тоннели | P3 | READY_FOR_REVIEW | 1.82 | ROAD-01 | config.dart (холм ×7), mag_network_art.dart (порталы, гора над дорогой) | passengers | Тоннель — дорога или путь на клетке холма |
 | ROAD-08 | Пропускная способность | P2 | NOT_STARTED | — | — | — | — | — |
 | ROAD-09 | Дорожные заторы | P3 | NOT_STARTED | — | ROAD-08 | — | — | — |
 | ROAD-10 | Подсветка загруженности | P2 | NOT_STARTED | — | ROAD-08 | — | — | — |
@@ -169,9 +169,9 @@ industry, cities, logistics, rail, water, megapolis, ui, ui_stage5, ui_rail).
 | BIZ-06 | Приоритеты производства | P2 | NOT_STARTED | — | — | — | — | Завод с двумя рецептами перерабатывает в порядке конфигурации |
 | BIZ-07 | Внутренние поставки | P0 | VERIFIED | 1.74 | FIN-01 | world_sim.dart (`_deliver`: transfer) | production | — |
 | BIZ-08 | Продажа независимым потребителям | P1 | VERIFIED | 1.74 | — | world_sim.dart (`goods_sale`) | production | — |
-| BIZ-09 | Динамические цены | P2 | PARTIAL | 1.77 | — | world_cities.dart (спрос недели, рынок специализации) | cities | Цены не зависят от предложения |
+| BIZ-09 | Динамические цены | P2 | READY_FOR_REVIEW | 1.82 | — | world_cities.dart (`glutFactor`, затоваривание до −30% с затуханием), world_settlements.dart | passengers | — |
 | BIZ-10 | Перепроизводство | P1 | VERIFIED | 1.74 | PROD-14 | world_sim.dart (склад продукции ограничивает выпуск) | production | — |
-| BIZ-11 | Рыночный дефицит | P2 | NOT_STARTED | — | BIZ-09 | — | — | — |
+| BIZ-11 | Рыночный дефицит | P2 | READY_FOR_REVIEW | 1.82 | BIZ-09 | world_cities.dart (`deficitBonusOf`: +25% за кончившийся нужный товар) | passengers, ui_rail | — |
 | BIZ-12 | Специализация регионов | P2 | PARTIAL | 1.77 | CITY-11 | world_cities.dart | cities | Специализация по городам, а не регионам |
 | BIZ-13 | Аукционы предприятий | P3 | NOT_STARTED | — | — | — | — | — |
 | BIZ-14 | Промышленные комплексы | P2 | NOT_STARTED | — | LOG-08 | — | — | — |
@@ -187,7 +187,7 @@ industry, cities, logistics, rail, water, megapolis, ui, ui_stage5, ui_rail).
 | CONT-05 | Регулярное снабжение | P1 | NOT_STARTED | — | LOG-12 | — | — | Кладовая города — регулярный спрос, но не контракт |
 | CONT-06 | Многоэтапные контракты | P2 | NOT_STARTED | — | — | — | — | — |
 | CONT-07 | Региональные контракты | P2 | NOT_STARTED | — | — | — | — | — |
-| CONT-08 | Контракты инфраструктуры | P1 | READY_FOR_REVIEW | 1.81 | CITY-02 | world_mega.dart (стройка города принимает материалы, награда по завершении) | megapolis | — |
+| CONT-08 | Контракты инфраструктуры | P1 | VERIFIED | 1.81 | CITY-02 | world_mega.dart (стройка города принимает материалы, награда по завершении) | megapolis | — |
 | CONT-09 | Репутация заказчика | P2 | PARTIAL | 1.72 | CITY-12 | settlements.dart (`reputation`) | — | Не влияет на условия |
 | CONT-10 | Субсидируемые маршруты | P2 | PARTIAL | 1.77 | — | world_cities.dart (спрос недели +30%) | cities | — |
 | CONT-11 | Уникальные дорогие заказы | P2 | PARTIAL | 1.77 | — | world_cities.dart (городские заказы) | cities | Не уникальные, повторяются |
@@ -240,10 +240,10 @@ industry, cities, logistics, rail, water, megapolis, ui, ui_stage5, ui_rail).
 
 | ID | Механика | P | Статус | Версия | Зависимости | Файлы | Тесты | Проблемы |
 |---|---|---|---|---|---|---|---|---|
-| PASS-01 | Пассажирский спрос | P2 | NOT_STARTED | — | население, маршруты | — | — | — |
-| PASS-02 | Конные экипажи | P2 | NOT_STARTED | — | население, маршруты | — | — | — |
-| PASS-03 | Автобусы | P2 | NOT_STARTED | — | население, маршруты | — | — | — |
-| PASS-04 | Пассажирские поезда | P2 | NOT_STARTED | — | население, маршруты | — | — | — |
+| PASS-01 | Пассажирский спрос | P2 | READY_FOR_REVIEW | 1.82 | CITY-07, ROUTE-01 | world_settlements.dart (жители из населения, только при остановке), map.dart | passengers | — |
+| PASS-02 | Конные экипажи | P2 | READY_FOR_REVIEW | 1.82 | PASS-01 | config_vehicles.dart (`coach`) | passengers | — |
+| PASS-03 | Автобусы | P2 | READY_FOR_REVIEW | 1.82 | PASS-01, TECH-04 | config_vehicles.dart (`bus`), world_fleet.dart (`canCarry`) | passengers, ui_rail | — |
+| PASS-04 | Пассажирские поезда | P2 | READY_FOR_REVIEW | 1.82 | PASS-01, RAIL-06 | world_fleet.dart (`canCarry`: поезда и суда возят людей) | passengers | Отдельных пассажирских вагонов нет |
 | PASS-05 | Перевозка работников | P2 | NOT_STARTED | — | население, маршруты | — | — | — |
 | PASS-06 | Пересадки | P3 | NOT_STARTED | — | население, маршруты | — | — | — |
 | PASS-07 | Комфорт и время ожидания | P3 | NOT_STARTED | — | население, маршруты | — | — | — |
@@ -293,10 +293,10 @@ industry, cities, logistics, rail, water, megapolis, ui, ui_stage5, ui_rail).
 |---|---|---|---|---|---|---|---|---|
 | META-01 | Уровень компании | P1 | VERIFIED | 1.68 | — | world_progress.dart | sim | — |
 | META-02 | Достижения | P1 | PARTIAL | 1.68 | — | world_progress.dart (задания, награды Мира Финоры) | sim | Нет раздела достижений |
-| META-03 | Первый мегаполис | P1 | READY_FOR_REVIEW | 1.81 | CITY-02 | world_mega.dart (`_megapolisReached`, только поселение-хутор), settlements.dart (`origin`) | megapolis | — |
-| META-04 | Постоянная отметка первого мегаполиса | P1 | READY_FOR_REVIEW | 1.81 | META-03 | world_save.dart (`megapolis`), mag_game.dart (золотая корона), награда Мира Финоры | megapolis, ui_rail | Отметка живёт в сохранении партии; новая компания начинает заново (награда в Мире Финоры остаётся) |
+| META-03 | Первый мегаполис | P1 | VERIFIED | 1.81 | CITY-02 | world_mega.dart (`_megapolisReached`, только поселение-хутор), settlements.dart (`origin`) | megapolis | — |
+| META-04 | Постоянная отметка первого мегаполиса | P1 | VERIFIED | 1.81 | META-03 | world_save.dart (`megapolis`), mag_game.dart (золотая корона), награда Мира Финоры | megapolis, ui_rail | Отметка живёт в сохранении партии; новая компания начинает заново (награда в Мире Финоры остаётся) |
 | META-05 | История транспортной империи | P2 | PARTIAL | 1.74 | — | ledger.dart, история поселений | — | Нет общей летописи |
-| META-06 | Мегапроекты | P1 | READY_FOR_REVIEW | 1.81 | CONT-08 | megaprojects.dart, world_mega.dart, mag_mega_ui.dart, mag_mega_art.dart | megapolis, ui_rail | — |
+| META-06 | Мегапроекты | P1 | VERIFIED | 1.81 | CONT-08 | megaprojects.dart, world_mega.dart, mag_mega_ui.dart, mag_mega_art.dart | megapolis, ui_rail | — |
 | META-07 | Уникальные исторические контракты | P2 | NOT_STARTED | — | — | — | — | — |
 | META-08 | Коллекция исторической техники | P3 | NOT_STARTED | — | — | — | — | — |
 | META-09 | Конкурирующие компании | P3 | NOT_STARTED | — | — | — | — | — |

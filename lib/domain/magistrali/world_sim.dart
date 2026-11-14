@@ -437,7 +437,7 @@ extension MagWorldSim on MagWorld {
     }
     MagCargo? best;
     for (final c in here.supplies) {
-      if (!wanted.contains(c)) continue;
+      if (!wanted.contains(c) || !canCarry(v, c)) continue;
       if (best == null || availableOf(here, c) > availableOf(here, best)) {
         best = c;
       }

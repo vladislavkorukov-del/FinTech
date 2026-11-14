@@ -112,6 +112,15 @@ abstract final class MagEconomy {
     ),
     MagResourceDef('steel', 'Сталь', MagEra.steam, active: true, value: 18),
     MagResourceDef('parts', 'Детали', MagEra.steam, active: true, value: 34),
+    // People travelling between settlements (stage S11).
+    MagResourceDef(
+      'passengers',
+      'Пассажиры',
+      MagEra.horses,
+      raw: true,
+      active: true,
+      value: 0,
+    ),
     // Era III — trucks: machines, oil, fuel, goods.
     MagResourceDef(
       'goods',

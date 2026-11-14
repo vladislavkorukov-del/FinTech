@@ -68,7 +68,8 @@
   `mag_finance.dart` (финансовый центр), `mag_city.dart` (город в окне
   поселения), `mag_city_art.dart` (постройка специализации), `mag_center.dart` (окно
   логистического центра), `mag_advice.dart` (вкладка «Советы»), `mag_terrain_art.dart` (плавная местность, вода, скалы, лес),
-  `mag_curve.dart` (кривые дорог и рельсов, движение по кривым, пунктир),
+  `mag_network_art.dart` (дороги и рельсы цельными цепочками, мосты, порталы тоннелей),
+  `mag_curve.dart` (сглаживание линий, движение по длине пути, пунктир),
   `mag_route_art.dart` (маршрут выбранного транспорта), `mag_mega_art.dart`
   и `mag_mega_ui.dart` (мегапроекты), `mag_rail_art.dart` (рельсы,
   станции, поезда), `mag_rail_ui.dart` (окно станции, вагоны), `mag_industry_art.dart` (рисунки

@@ -168,29 +168,75 @@ void paintTerrain(Canvas c, MagMap map, int x0, int y0, int x1, int y1) {
   }
 }
 
-/// Rocks on a hill cell (drawn in iso space, sorted with the objects): low
-/// angular crags lit from the upper left; deep inside a range of hills they
-/// grow into cliffs.
+/// Rocks on a hill cell (drawn in iso space, sorted with the objects):
+/// pointed peaks (snow on the tallest), rounded boulders and ridges, lit
+/// from the upper left. Deep inside a range they grow into cliffs; next to
+/// water they stay small and keep to the middle of their cell, so they
+/// never stand in a river or a lake.
 void paintRocks(Canvas c, MagMap map, int x, int y) {
   var inner = 0;
-  for (var d = 0; d < 4; d++) {
-    final nx = x + MagDir.dx[d], ny = y + MagDir.dy[d];
-    if (map.inside(nx, ny) && map.at(nx, ny) == MagTerrain.hill) inner++;
+  var wet = false;
+  for (var dy = -1; dy <= 1; dy++) {
+    for (var dx = -1; dx <= 1; dx++) {
+      final nx = x + dx, ny = y + dy;
+      if (!map.inside(nx, ny) || (dx == 0 && dy == 0)) continue;
+      final t = map.at(nx, ny);
+      if (_wet(t)) wet = true;
+      if (t == MagTerrain.hill && (dx == 0 || dy == 0)) inner++;
+    }
   }
   final n = 1 + (_hash(x, y, map.seed + 21) * 2.4).floor();
   for (var k = 0; k < n; k++) {
     final hx = _hash(x * 5 + k, y, map.seed + 23);
     final hy = _hash(x, y * 5 + k, map.seed + 29);
-    final big = k == 0 ? 1 + inner * .35 : .6;
-    _crag(
-      c,
-      x + .25 + hx * .5,
-      y + .25 + hy * .5,
-      (.22 + hx * .12) * big,
-      (9 + hy * 10) * big,
-      _hash(x + k, y - k, map.seed + 31),
-    );
+    final kind = _hash(x + 3 * k, y - k, map.seed + 37);
+    final spread = wet ? .16 : .5;
+    final big = wet ? .55 : (k == 0 ? 1 + inner * .3 : .65);
+    final px = x + .5 + (hx - .5) * spread, py = y + .5 + (hy - .5) * spread;
+    final r = (.2 + hx * .1) * big, h = (9 + hy * 12) * big;
+    final seed = _hash(x + k, y - k, map.seed + 31);
+    if (kind < .14) {
+      _boulder(c, px, py, r * .6, h * .5);
+    } else if (kind < .36 && !wet) {
+      _crag(c, px - .14, py + .08, r * .75, h * .8, seed);
+      _crag(c, px + .12, py - .06, r * .8, h * .95, 1 - seed);
+    } else {
+      _crag(c, px, py, r, h, seed);
+    }
   }
+}
+
+/// A rounded boulder: a low dome of grey shades.
+void _boulder(Canvas c, double x, double y, double r, double h) {
+  final base = MagIso.project(x, y);
+  final hw = r * MagIso.hw * 1.6, hh = r * MagIso.hh * 1.6;
+  c.drawOval(
+    Rect.fromCenter(
+      center: base + Offset(hw * .3, hh * .35),
+      width: hw * 2.3,
+      height: hh * 2,
+    ),
+    Paint()..color = const Color(0x2A1F2A1C),
+  );
+  final body = Rect.fromCenter(
+    center: base - Offset(0, h * .45),
+    width: hw * 2,
+    height: hh * 1.6 + h,
+  );
+  c.drawOval(body, Paint()..color = const Color(0xFF8A8881));
+  c.drawOval(
+    Rect.fromLTWH(body.left + 1, body.top, body.width * .8, body.height * .7),
+    Paint()..color = const Color(0xFFA9A79F),
+  );
+  c.drawOval(
+    Rect.fromLTWH(
+      body.left + body.width * .2,
+      body.top + body.height * .12,
+      body.width * .35,
+      body.height * .25,
+    ),
+    Paint()..color = const Color(0x55FFFFFF),
+  );
 }
 
 void _crag(Canvas c, double x, double y, double r, double h, double seed) {
@@ -223,6 +269,16 @@ void _crag(Canvas c, double x, double y, double r, double h, double seed) {
   face([shoulderL, front, top], const Color(0xFFA19F98));
   face([front, right, shoulderR, top], const Color(0xFF74726C));
   face([back, top, shoulderR, right], const Color(0xFF85837C));
+  // Snow on the tallest peaks.
+  if (h > 20) {
+    final snowL = Offset.lerp(top, shoulderL, .38)!;
+    final snowR = Offset.lerp(top, shoulderR, .34)!;
+    final snowF = Offset.lerp(top, front, .3)!;
+    c.drawPath(
+      Path()..addPolygon([snowL, top, snowR, snowF], true),
+      Paint()..color = const Color(0xFFF4F6F7),
+    );
+  }
   // A lit edge and a tuft of grass at the foot.
   c.drawLine(
     shoulderL,

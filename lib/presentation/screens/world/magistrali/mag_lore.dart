@@ -3,6 +3,12 @@ import '../../../../domain/magistrali/magistrali.dart';
 /// Short stories behind the things of «Магистрали»: shown in shops,
 /// place cards, the build bar and the warehouse panel.
 String truckLore(String model) => switch (model) {
+  'coach' =>
+    'Экипаж «Тройка» — три лошади, бубенцы и восемь мест. Первая связь между '
+        'поселениями: людям нужно в соседнее село.',
+  'bus' =>
+    'Автобус «Ветерок» — тридцать мест и мягкие кресла. Возит только людей, '
+        'зато сколько!',
   'barge' =>
     'Баржа «Волжанка» — плоское дно и шестьдесят мест в трюме. Медленно, '
         'зато самый дешёвый груз на карте — если между портами есть вода.',
@@ -109,6 +115,8 @@ String cargoLore(MagCargo c) => switch (c) {
   MagCargo.bricks => 'Кирпич: на нём стоят сёла и города.',
   MagCargo.steel => 'Сталь: прочная и дорогая — для деталей и городов.',
   MagCargo.parts => 'Детали: самый дорогой груз эпохи пара.',
+  MagCargo.passengers =>
+    'Пассажиры: жители едут в соседние поселения — чем больше город, тем больше желающих.',
 };
 
 String roadLore(MagRoad r) => switch (r) {

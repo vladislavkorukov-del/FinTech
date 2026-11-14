@@ -119,7 +119,7 @@ Future<void> showFleetSheet(
       ),
       const SizedBox(height: 6),
       const Text('Эпоха I — гужевой транспорт', style: magMuted),
-      for (final m in MagRules.trucks.where((m) => m.horse))
+      for (final m in MagRules.trucks.where((m) => m.horse && !m.passengers))
         _shopCard(state, m),
       Text(
         w.motorUnlocked
@@ -127,9 +127,7 @@ Future<void> showFleetSheet(
             : 'Грузовики — после технологии «Двигатель внутреннего сгорания»',
         style: magMuted,
       ),
-      for (final m in MagRules.trucks.where(
-        (m) => !m.horse && !m.rail && !m.water,
-      ))
+      for (final m in MagRules.trucks.where((m) => m.motorGoods))
         _shopCard(state, m),
       Text(
         w.railsUnlocked
@@ -138,6 +136,12 @@ Future<void> showFleetSheet(
         style: magMuted,
       ),
       for (final m in MagRules.trucks.where((m) => m.rail)) _shopCard(state, m),
+      const Text(
+        'Пассажиры: экипаж и автобус возят только людей между поселениями (поезда и суда — и людей, и грузы)',
+        style: magMuted,
+      ),
+      for (final m in MagRules.trucks.where((m) => m.passengers))
+        _shopCard(state, m),
       Text(
         w.shippingUnlocked
             ? 'Вода: суда ходят по рекам и озёрам между портами'
@@ -186,6 +190,8 @@ Widget _shopCard(MagistraliScreenState state, MagTruckModel m) {
               ? Icons.directions_boat_rounded
               : m.rail
               ? Icons.train_rounded
+              : m.passengers
+              ? Icons.directions_bus_rounded
               : m.horse
               ? Icons.agriculture_rounded
               : Icons.local_shipping_rounded,

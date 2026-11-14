@@ -97,6 +97,7 @@ extension MagWorldSettlements on MagWorld {
     }
     destroyed[c] = (destroyed[c] ?? 0) + rest; // sold in its market
     t.received[c] = (t.received[c] ?? 0) + n;
+    t.glut[c] = (t.glut[c] ?? 0) + n;
     _payDevelopment(i);
     if (t.reputation == 0) {
       t.remember(tick, 'Первая поставка от вашей компании');
@@ -108,6 +109,31 @@ extension MagWorldSettlements on MagWorld {
   void _dayTowns() {
     for (final i in settlements.toList()) {
       final t = i.town!;
+      // The market's flood fades.
+      for (final c in t.glut.keys.toList()) {
+        final v = t.glut[c]! * MagRules.glutFade;
+        if (v < .5) {
+          t.glut.remove(c);
+        } else {
+          t.glut[c] = v;
+        }
+      }
+      // People who want to travel, if anything stops here (stage S11).
+      if (accessCells(i).isNotEmpty ||
+          stationCells(i).isNotEmpty ||
+          portCells(i).isNotEmpty) {
+        final daily = math.max(1, t.population ~/ MagRules.peoplePerTraveller);
+        final room =
+            daily * MagRules.passengerDays -
+            (i.stock[MagCargo.passengers] ?? 0);
+        final add = math.min(daily, room);
+        if (add > 0) {
+          i.stock[MagCargo.passengers] =
+              (i.stock[MagCargo.passengers] ?? 0) + add;
+          created[MagCargo.passengers] =
+              (created[MagCargo.passengers] ?? 0) + add;
+        }
+      }
       // Growth stock beyond what this level asks for goes to the market.
       final asks = developmentAsks(i);
       for (final c in t.devStock.keys.toList()) {

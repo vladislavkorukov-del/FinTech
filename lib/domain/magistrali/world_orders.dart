@@ -77,6 +77,7 @@ extension MagWorldOrders on MagWorld {
     if (v.spec.rail || v.spec.water) {
       return 'Поезда и суда ходят только по маршрутам';
     }
+    if (!canCarry(v, o.cargo)) return '${v.name} не возит такой груз';
     if (!isFree(v)) return '${v.name} занят';
     if (capacityOf(v) < o.amount) {
       return '${v.name} возьмёт только ${capacityOf(v)} ед.';
