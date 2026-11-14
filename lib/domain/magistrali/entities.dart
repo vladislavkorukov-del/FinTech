@@ -76,6 +76,9 @@ class MagVehicle {
   double odometer = 0;
   int income = 0, trips = 0;
 
+  /// Hull improvements of a vessel (SEA-05): +15% cargo each.
+  int hull = 0;
+
   /// Credits spent on its upgrades (part of its value).
   int upgradeSpent = 0;
 

@@ -17,11 +17,13 @@ import 'settlements.dart';
 import 'tech.dart';
 
 part 'world_centers.dart';
+part 'world_complex.dart';
 part 'world_cities.dart';
 part 'world_advice.dart';
 part 'world_deals.dart';
 part 'world_dispatch.dart';
 part 'world_entrances.dart';
+part 'world_fields.dart';
 part 'world_finance.dart';
 part 'world_fleet.dart';
 part 'world_industry.dart';
@@ -56,16 +58,17 @@ class MagRoadPlan {
 /// The whole company: map, roads, vehicles, routes, money and progress.
 /// Everything changes through its methods, on a fixed 100 ms step, so the
 /// same actions always give the same result.
-class MagWorld {
+class MagWorld with _MagWorldLater {
   MagWorld({required this.map})
     : roads = Uint8List(map.size * map.size),
       rails = Uint8List(map.size * map.size);
 
-  factory MagWorld.start([int seed = MagRules.defaultSeed]) {
-    // New games: generator 5 — the big map (112×112) split by a big
-    // river; hamlets and villages with room to grow, the production chains
-    // and industry of generators 3–4.
-    final w = MagWorld(map: MagMap.generate(seed, version: 5));
+  factory MagWorld.start([
+    int seed = MagRules.defaultSeed,
+    MagScenario scenario = MagScenario.classic,
+  ]) {
+    // New games: generator 6 — the big map split by a big river, oil.
+    final w = MagWorld(map: MagMap.generate(seed, version: 6));
     for (final s in w.settlements) {
       s.town!.remember(0, 'Основано: ${s.town!.spec.name}');
     }
@@ -84,6 +87,7 @@ class MagWorld {
       }
     }
     w._refillContracts();
+    w._applyScenario(scenario);
     final f = w.map.startFarm;
     w.cameraX = (f.centerX + w.map.startPlant.centerX) / 2;
     w.cameraY = (f.centerY + w.map.startPlant.centerY) / 2;
@@ -132,23 +136,6 @@ class MagWorld {
 
   /// Technologies learned (ids of MagTechTree).
   final techs = <String>{};
-
-  /// The one road cell each place (not a settlement) is entered by (S12).
-  final entrances = <int, int>{};
-
-  /// Achievements reached (id → tick), the chronicle, the debt (S15).
-  final achieved = <String, int>{};
-  final chronicle = <(int, String)>[];
-  int debt = 0;
-
-  /// Special contracts, first inputs, depots, order merging (S16).
-  final deals = <MagDeal>[];
-  final firstInput = <int, MagCargo>{};
-  final depots = <int>{};
-  bool autoMerge = true;
-
-  /// Vehicles that entered each road cell yesterday and today (ROAD-08).
-  final traffic = <int, int>{}, trafficToday = <int, int>{};
 
   /// Logistics orders (stage 1 of automation).
   final orders = MagOrderBook();

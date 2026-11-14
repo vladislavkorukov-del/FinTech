@@ -50,7 +50,7 @@ void main() {
 
   test('new maps have the industry; older generators are unchanged', () {
     final w = MagWorld.start();
-    expect(w.map.version, 5);
+    expect(w.map.version, 6);
     for (final (k, n) in [
       (MagIndustryKind.coalMine, 2),
       (MagIndustryKind.clayPit, 2),

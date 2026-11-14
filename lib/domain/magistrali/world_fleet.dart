@@ -19,7 +19,9 @@ extension MagWorldFleet on MagWorld {
   /// A train carries what its wagons hold.
   int capacityOf(MagVehicle v) =>
       ((v.spec.rail ? v.spec.wagonCapacity * v.wagons : v.spec.capacity) *
-              (1 + .1 * v.level(MagUpgrade.body)) *
+              (1 +
+                  .1 * v.level(MagUpgrade.body) +
+                  MagRules.hullCapacity * v.hull) *
               factor(v.spec.horse ? MagBonus.horseCapacity : MagBonus.capacity))
           .round();
 
@@ -225,6 +227,8 @@ extension MagWorldFleet on MagWorld {
   /// Can [v] carry [c]? People go by coach, bus, train or vessel; goods by
   /// anything but a coach or a bus (stage S11).
   bool canCarry(MagVehicle v, MagCargo c) {
+    final body = _bodyAllows(v, c);
+    if (body != null) return body && (!c.people || !v.spec.passengers);
     if (v.spec.passengers) return c.people;
     if (c.people) return v.spec.rail || v.spec.water;
     return true;

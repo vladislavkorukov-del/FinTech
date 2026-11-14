@@ -31,7 +31,7 @@ MagWorld magWorldFromJson(Map<String, dynamic> raw) {
 
   final seed = whole(j['seed'], 0, 0x7fffffff);
   final size = whole(j['size'], 16, 256);
-  final mapVersion = whole(j['mapVersion'] ?? 1, 1, 5);
+  final mapVersion = whole(j['mapVersion'] ?? 1, 1, 6);
   final w = MagWorld(
     map: MagMap.generate(seed, size: size, version: mapVersion),
   );

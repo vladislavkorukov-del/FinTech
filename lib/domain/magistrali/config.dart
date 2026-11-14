@@ -2,6 +2,7 @@
 /// changes never touch the simulation.
 library;
 
+import 'config_industries.dart';
 import 'config_vehicles.dart';
 
 export 'config_vehicles.dart' show MagTruckModel;
@@ -30,7 +31,15 @@ enum MagCargo {
   passengers,
 
   // Stage S13: people going to work at businesses (PASS-05).
-  workers;
+  workers,
+
+  // Stage S17: oil and fuel (PROD-11), electronics (PROD-12).
+  oil,
+  fuel,
+  electronics;
+
+  /// Liquids: carried only in tanks (a tanker, rail or a vessel; VEH-05).
+  bool get liquid => this == oil || this == fuel;
 
   /// People, not goods: carried by coaches, buses, trains and vessels.
   bool get people => this == passengers || this == workers;
@@ -72,6 +81,11 @@ enum MagIndustryKind {
 
   /// A city's great work (stage S10), built by the company's deliveries.
   megaproject,
+
+  // Stage S17: oil, fuel and electronics.
+  oilWell,
+  refinery,
+  electronicsPlant,
 }
 
 /// Upgrade lines of a truck.
@@ -175,6 +189,14 @@ abstract final class MagRules {
   /// ([richYield]); depots — price, the wear they repair from, the share of
   /// the repair price paid there, and the upkeep cut each brings.
   static const richOneIn = 6, richYield = 1.5;
+
+  /// S17: refrigerated fresh food pays more; waiting passengers leave a
+  /// share a day; complexes — reach, output bonus, conveyor a day;
+  /// terminals — price and market bonus each; vessel hulls.
+  static const reeferBonus = 1.15, waitLeave = .2;
+  static const complexReach = 5, complexBonus = .15, conveyorPerDay = 20;
+  static const terminalPrice = 3000, terminalBonus = .05;
+  static const maxHull = 3, hullCapacity = .15;
   static const depotPrice = 4000, depotWear = 30;
   static const depotService = .7, depotUpkeepCut = .05;
 
@@ -285,125 +307,7 @@ abstract final class MagRules {
     MagTerrain.lake => null,
   };
 
-  static const industries = <MagIndustryKind, MagIndustrySpec>{
-    MagIndustryKind.farm: MagIndustrySpec(
-      size: 2,
-      produces: {MagCargo.grain: 9},
-      price: 3500,
-    ),
-    MagIndustryKind.sawmill: MagIndustrySpec(
-      size: 2,
-      produces: {MagCargo.wood: 8},
-      price: 3500,
-      near: MagTerrain.forest,
-    ),
-    MagIndustryKind.mine: MagIndustrySpec(
-      size: 2,
-      produces: {MagCargo.ore: 8},
-      price: 6000,
-      near: MagTerrain.hill,
-    ),
-    MagIndustryKind.foodPlant: MagIndustrySpec(
-      size: 2,
-      accepts: {MagCargo.grain},
-      converts: {MagCargo.grain: MagCargo.food},
-      price: 9000,
-    ),
-    MagIndustryKind.factory: MagIndustrySpec(
-      size: 3,
-      accepts: {MagCargo.wood, MagCargo.ore},
-      converts: {MagCargo.wood: MagCargo.goods, MagCargo.ore: MagCargo.goods},
-      price: 16000,
-    ),
-    MagIndustryKind.city: MagIndustrySpec(
-      size: 3,
-      accepts: {MagCargo.food, MagCargo.goods},
-    ),
-    MagIndustryKind.village: MagIndustrySpec(size: 2, accepts: {MagCargo.food}),
-    MagIndustryKind.warehouse: MagIndustrySpec(
-      size: 2,
-      accepts: {...MagCargo.values},
-      stores: true,
-    ),
-    MagIndustryKind.quarry: MagIndustrySpec(
-      size: 2,
-      produces: {MagCargo.stone: 7},
-      price: 4000,
-      near: MagTerrain.hill,
-    ),
-    MagIndustryKind.mill: MagIndustrySpec(
-      tech: 'milling',
-      size: 2,
-      accepts: {MagCargo.grain},
-      converts: {MagCargo.grain: MagCargo.flour},
-      ratio: {MagCargo.grain: 2},
-      price: 4500,
-    ),
-    MagIndustryKind.bakery: MagIndustrySpec(
-      tech: 'milling',
-      size: 2,
-      accepts: {MagCargo.flour},
-      converts: {MagCargo.flour: MagCargo.bread},
-      price: 5000,
-    ),
-    MagIndustryKind.lumbermill: MagIndustrySpec(
-      tech: 'carpentry',
-      size: 2,
-      accepts: {MagCargo.wood},
-      converts: {MagCargo.wood: MagCargo.planks},
-      ratio: {MagCargo.wood: 2},
-      price: 4500,
-    ),
-    MagIndustryKind.coalMine: MagIndustrySpec(
-      tech: 'metallurgy',
-      size: 2,
-      produces: {MagCargo.coal: 7},
-      price: 6500,
-      near: MagTerrain.hill,
-      buildLevel: 3,
-    ),
-    MagIndustryKind.clayPit: MagIndustrySpec(
-      tech: 'kilns',
-      size: 2,
-      produces: {MagCargo.clay: 8},
-      price: 3000,
-      near: MagTerrain.river,
-    ),
-    MagIndustryKind.brickworks: MagIndustrySpec(
-      tech: 'kilns',
-      size: 2,
-      accepts: {MagCargo.clay},
-      converts: {MagCargo.clay: MagCargo.bricks},
-      ratio: {MagCargo.clay: 2},
-      price: 5500,
-      buildLevel: 3,
-    ),
-    MagIndustryKind.steelMill: MagIndustrySpec(
-      tech: 'metallurgy',
-      size: 3,
-      accepts: {MagCargo.ore, MagCargo.coal},
-      converts: {MagCargo.ore: MagCargo.steel},
-      ratio: {MagCargo.ore: 2},
-      extra: {MagCargo.coal: 1},
-      price: 14000,
-      buildLevel: 4,
-    ),
-    MagIndustryKind.partsFactory: MagIndustrySpec(
-      tech: 'machinery',
-      size: 2,
-      accepts: {MagCargo.steel, MagCargo.planks},
-      converts: {MagCargo.steel: MagCargo.parts},
-      extra: {MagCargo.planks: 1},
-      price: 12000,
-      buildLevel: 5,
-    ),
-    MagIndustryKind.logisticsCenter: MagIndustrySpec(
-      size: 2,
-      price: 9000,
-      buildLevel: 6,
-    ),
-    MagIndustryKind.megaproject: MagIndustrySpec(size: 3),
-  };
+  static const industries = magIndustrySpecs;
 
   /// Credits per unit per cell of distance between the two places.
   static const cargoRate = <MagCargo, double>{
@@ -423,6 +327,9 @@ abstract final class MagRules {
     MagCargo.parts: 4.2,
     MagCargo.passengers: 3.0,
     MagCargo.workers: 2.4,
+    MagCargo.oil: 2.4,
+    MagCargo.fuel: 3.4,
+    MagCargo.electronics: 6.0,
   };
 
   /// Market price of a unit: what a buyer pays for goods the company owns,
@@ -444,6 +351,9 @@ abstract final class MagRules {
     MagCargo.parts: 34,
     MagCargo.passengers: 0,
     MagCargo.workers: 0,
+    MagCargo.oil: 6,
+    MagCargo.fuel: 14,
+    MagCargo.electronics: 90,
   };
 
   /// Own production (master plan stage 3): building costs more than

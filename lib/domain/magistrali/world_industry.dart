@@ -17,7 +17,10 @@ extension MagWorldIndustry on MagWorld {
 
   /// Output and storage multiplier of a level.
   double outputFactor(MagIndustry i) =>
-      1 + MagRules.levelOutput * (i.level - 1) + staffBonusOf(i);
+      1 +
+      MagRules.levelOutput * (i.level - 1) +
+      staffBonusOf(i) +
+      complexBonusOf(i);
 
   /// Extra output from workers brought in (PASS-05): up to +30% with a full
   /// staff (2 per cell of its land).
@@ -184,6 +187,9 @@ extension MagWorldIndustry on MagWorld {
     MagIndustryKind.steelMill => 'Сталелитейный завод',
     MagIndustryKind.partsFactory => 'Завод деталей',
     MagIndustryKind.logisticsCenter => 'Логистический центр',
+    MagIndustryKind.oilWell => 'Нефтяная вышка',
+    MagIndustryKind.refinery => 'НПЗ',
+    MagIndustryKind.electronicsPlant => 'Завод электроники',
     _ => 'Предприятие',
   };
 

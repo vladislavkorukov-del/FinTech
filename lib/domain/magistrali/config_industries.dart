@@ -1,0 +1,151 @@
+/// The places of the game: their size, what they make or take, prices
+/// (see config.dart).
+library;
+
+import 'config.dart';
+
+const magIndustrySpecs = <MagIndustryKind, MagIndustrySpec>{
+  MagIndustryKind.farm: MagIndustrySpec(
+    size: 2,
+    produces: {MagCargo.grain: 9},
+    price: 3500,
+  ),
+  MagIndustryKind.sawmill: MagIndustrySpec(
+    size: 2,
+    produces: {MagCargo.wood: 8},
+    price: 3500,
+    near: MagTerrain.forest,
+  ),
+  MagIndustryKind.mine: MagIndustrySpec(
+    size: 2,
+    produces: {MagCargo.ore: 8},
+    price: 6000,
+    near: MagTerrain.hill,
+  ),
+  MagIndustryKind.foodPlant: MagIndustrySpec(
+    size: 2,
+    accepts: {MagCargo.grain},
+    converts: {MagCargo.grain: MagCargo.food},
+    price: 9000,
+  ),
+  MagIndustryKind.factory: MagIndustrySpec(
+    size: 3,
+    accepts: {MagCargo.wood, MagCargo.ore},
+    converts: {MagCargo.wood: MagCargo.goods, MagCargo.ore: MagCargo.goods},
+    price: 16000,
+  ),
+  MagIndustryKind.city: MagIndustrySpec(
+    size: 3,
+    accepts: {MagCargo.food, MagCargo.goods},
+  ),
+  MagIndustryKind.village: MagIndustrySpec(size: 2, accepts: {MagCargo.food}),
+  MagIndustryKind.warehouse: MagIndustrySpec(
+    size: 2,
+    accepts: {...MagCargo.values},
+    stores: true,
+  ),
+  MagIndustryKind.quarry: MagIndustrySpec(
+    size: 2,
+    produces: {MagCargo.stone: 7},
+    price: 4000,
+    near: MagTerrain.hill,
+  ),
+  MagIndustryKind.mill: MagIndustrySpec(
+    tech: 'milling',
+    size: 2,
+    accepts: {MagCargo.grain},
+    converts: {MagCargo.grain: MagCargo.flour},
+    ratio: {MagCargo.grain: 2},
+    price: 4500,
+  ),
+  MagIndustryKind.bakery: MagIndustrySpec(
+    tech: 'milling',
+    size: 2,
+    accepts: {MagCargo.flour},
+    converts: {MagCargo.flour: MagCargo.bread},
+    price: 5000,
+  ),
+  MagIndustryKind.lumbermill: MagIndustrySpec(
+    tech: 'carpentry',
+    size: 2,
+    accepts: {MagCargo.wood},
+    converts: {MagCargo.wood: MagCargo.planks},
+    ratio: {MagCargo.wood: 2},
+    price: 4500,
+  ),
+  MagIndustryKind.coalMine: MagIndustrySpec(
+    tech: 'metallurgy',
+    size: 2,
+    produces: {MagCargo.coal: 7},
+    price: 6500,
+    near: MagTerrain.hill,
+    buildLevel: 3,
+  ),
+  MagIndustryKind.clayPit: MagIndustrySpec(
+    tech: 'kilns',
+    size: 2,
+    produces: {MagCargo.clay: 8},
+    price: 3000,
+    near: MagTerrain.river,
+  ),
+  MagIndustryKind.brickworks: MagIndustrySpec(
+    tech: 'kilns',
+    size: 2,
+    accepts: {MagCargo.clay},
+    converts: {MagCargo.clay: MagCargo.bricks},
+    ratio: {MagCargo.clay: 2},
+    price: 5500,
+    buildLevel: 3,
+  ),
+  MagIndustryKind.steelMill: MagIndustrySpec(
+    tech: 'metallurgy',
+    size: 3,
+    accepts: {MagCargo.ore, MagCargo.coal},
+    converts: {MagCargo.ore: MagCargo.steel},
+    ratio: {MagCargo.ore: 2},
+    extra: {MagCargo.coal: 1},
+    price: 14000,
+    buildLevel: 4,
+  ),
+  MagIndustryKind.partsFactory: MagIndustrySpec(
+    tech: 'machinery',
+    size: 2,
+    accepts: {MagCargo.steel, MagCargo.planks},
+    converts: {MagCargo.steel: MagCargo.parts},
+    extra: {MagCargo.planks: 1},
+    price: 12000,
+    buildLevel: 5,
+  ),
+  MagIndustryKind.logisticsCenter: MagIndustrySpec(
+    size: 2,
+    price: 9000,
+    buildLevel: 6,
+  ),
+  MagIndustryKind.megaproject: MagIndustrySpec(size: 3),
+  // Stage S17: oil (PROD-11) and electronics (PROD-12).
+  MagIndustryKind.oilWell: MagIndustrySpec(
+    tech: 'petroleum',
+    size: 2,
+    produces: {MagCargo.oil: 8},
+    price: 7000,
+    buildLevel: 6,
+  ),
+  MagIndustryKind.refinery: MagIndustrySpec(
+    tech: 'petroleum',
+    size: 3,
+    accepts: {MagCargo.oil},
+    converts: {MagCargo.oil: MagCargo.fuel},
+    ratio: {MagCargo.oil: 2},
+    price: 15000,
+    buildLevel: 7,
+  ),
+  MagIndustryKind.electronicsPlant: MagIndustrySpec(
+    tech: 'electronics',
+    size: 2,
+    accepts: {MagCargo.parts, MagCargo.fuel},
+    converts: {MagCargo.parts: MagCargo.electronics},
+    extra: {MagCargo.fuel: 1},
+    price: 22000,
+    buildLevel: 9,
+  ),
+};

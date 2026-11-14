@@ -37,7 +37,7 @@ void main() {
     }
     // A save keeps the big map; older maps stay 64 cells.
     final w = MagWorld.start();
-    expect(w.map.version, 5);
+    expect(w.map.version, 6);
     expect(reload(w).map.size, MagRules.bigMapSize);
     expect(MagMap.generate(MagRules.defaultSeed, version: 4).size, 64);
   });

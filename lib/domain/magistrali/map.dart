@@ -395,6 +395,10 @@ class MagMap {
       if (version >= 4) (MagIndustryKind.brickworks, 2),
       if (version >= 4) (MagIndustryKind.steelMill, 1),
       if (version >= 4) (MagIndustryKind.partsFactory, 1),
+      // Generator 6 (1.89): oil and electronics.
+      if (version >= 6) (MagIndustryKind.oilWell, 2),
+      if (version >= 6) (MagIndustryKind.refinery, 1),
+      if (version >= 6) (MagIndustryKind.electronicsPlant, 1),
     ];
     var cityName = 0, villageName = 1, n = 0;
     for (final (kind, count) in plan) {
@@ -435,6 +439,9 @@ class MagMap {
             MagIndustryKind.partsFactory => 'Завод деталей №$n',
             MagIndustryKind.logisticsCenter => 'Логистический центр №$n',
             MagIndustryKind.megaproject => 'Мегапроект №$n',
+            MagIndustryKind.oilWell => 'Нефтяная вышка №$n',
+            MagIndustryKind.refinery => 'НПЗ №$n',
+            MagIndustryKind.electronicsPlant => 'Завод электроники №$n',
           });
           break;
         }

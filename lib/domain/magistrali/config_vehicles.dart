@@ -21,7 +21,12 @@ class MagTruckModel {
     this.water = false,
     this.passengers = false,
     this.tech,
+    this.body,
   });
+
+  /// A special body (VEH-05): 'tank' — liquids only; 'reefer' — fresh food
+  /// only, paid more; 'dump' — bulk only, carries more.
+  final String? body;
 
   /// The technology that opens buying it (VEH-04, 1.83); null: none.
   final String? tech;
@@ -33,6 +38,15 @@ class MagTruckModel {
   /// A goods vehicle on roads with an engine (not horse, rail, water or
   /// a passenger model).
   bool get motorGoods => !horse && !rail && !water && !passengers;
+
+  /// Comfort for people (PASS-07): their fare is multiplied by it.
+  double get comfort => horse
+      ? .85
+      : passengers
+      ? 1.15
+      : rail
+      ? 1.1
+      : 1;
 
   /// A vessel (stage S9): it sails rivers and lakes between ports.
   final bool water;
@@ -146,6 +160,44 @@ const magTruckModels = <MagTruckModel>[
     upkeep: 14,
     level: 6,
     color: 0xFF4A6FD8,
+  ),
+  // Special bodies (VEH-05, 1.89).
+  MagTruckModel(
+    id: 'tanker',
+    name: 'Цистерна «Нефтевоз»',
+    speed: 1.4,
+    capacity: 30,
+    price: 14000,
+    runningCost: 1.1,
+    upkeep: 12,
+    level: 6,
+    color: 0xFF8C6D3F,
+    tech: 'petroleum',
+    body: 'tank',
+  ),
+  MagTruckModel(
+    id: 'reefer',
+    name: 'Рефрижератор «Холод»',
+    speed: 1.45,
+    capacity: 26,
+    price: 12000,
+    runningCost: 1.0,
+    upkeep: 11,
+    level: 5,
+    color: 0xFFE7EEF2,
+    body: 'reefer',
+  ),
+  MagTruckModel(
+    id: 'dumper',
+    name: 'Самосвал «Карьер»',
+    speed: 1.25,
+    capacity: 48,
+    price: 15000,
+    runningCost: 1.3,
+    upkeep: 13,
+    level: 5,
+    color: 0xFFD9A441,
+    body: 'dump',
   ),
   // Modern trucks (VEH-04, 1.83): opened by technologies.
   MagTruckModel(

@@ -144,8 +144,15 @@ abstract final class MagEconomy {
       MagEra.trucks,
       value: 45,
     ),
-    MagResourceDef('oil', 'Нефть', MagEra.trucks, raw: true, value: 6),
-    MagResourceDef('fuel', 'Топливо', MagEra.trucks, value: 14),
+    MagResourceDef(
+      'oil',
+      'Нефть',
+      MagEra.trucks,
+      raw: true,
+      active: true,
+      value: 6,
+    ),
+    MagResourceDef('fuel', 'Топливо', MagEra.trucks, active: true, value: 14),
     // Era IV–V — electronics and high technology.
     MagResourceDef(
       'components',
@@ -159,7 +166,13 @@ abstract final class MagEconomy {
       MagEra.modern,
       value: 55,
     ),
-    MagResourceDef('electronics', 'Электроника', MagEra.electric, value: 90),
+    MagResourceDef(
+      'electronics',
+      'Электроника',
+      MagEra.electric,
+      active: true,
+      value: 90,
+    ),
     MagResourceDef(
       'hightech',
       'Высокотехнологичные товары',

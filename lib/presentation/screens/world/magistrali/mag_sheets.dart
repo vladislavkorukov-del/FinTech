@@ -38,6 +38,9 @@ String cargoName(MagCargo c) => switch (c) {
   MagCargo.parts => 'Детали',
   MagCargo.passengers => 'Пассажиры',
   MagCargo.workers => 'Работники',
+  MagCargo.oil => 'Нефть',
+  MagCargo.fuel => 'Топливо',
+  MagCargo.electronics => 'Электроника',
 };
 
 String kindName(MagIndustryKind k) => switch (k) {
@@ -60,6 +63,9 @@ String kindName(MagIndustryKind k) => switch (k) {
   MagIndustryKind.partsFactory => 'Завод деталей',
   MagIndustryKind.logisticsCenter => 'Логистический центр',
   MagIndustryKind.megaproject => 'Мегапроект',
+  MagIndustryKind.oilWell => 'Нефтяная вышка',
+  MagIndustryKind.refinery => 'НПЗ',
+  MagIndustryKind.electronicsPlant => 'Завод электроники',
 };
 
 IconData kindIcon(MagIndustryKind k) => switch (k) {
@@ -82,6 +88,9 @@ IconData kindIcon(MagIndustryKind k) => switch (k) {
   MagIndustryKind.partsFactory => Icons.settings_rounded,
   MagIndustryKind.logisticsCenter => Icons.hub_rounded,
   MagIndustryKind.megaproject => Icons.account_balance_rounded,
+  MagIndustryKind.oilWell => Icons.oil_barrel_rounded,
+  MagIndustryKind.refinery => Icons.local_gas_station_rounded,
+  MagIndustryKind.electronicsPlant => Icons.memory_rounded,
 };
 
 const magMuted = TextStyle(fontSize: 12, color: Color(0xFF5B6B70));

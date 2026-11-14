@@ -60,4 +60,28 @@ const magTechRecipes = <MagTech>[
     level: 5,
     requires: ['metallurgy'],
   ),
+  // Stage S17.
+  MagTech(
+    id: 'petroleum',
+    branch: MagBranch.economy,
+    title: 'Нефтедобыча',
+    lore:
+        'Буровые вышки и перегонный куб: из-под земли — нефть, из нефти — топливо.',
+    effect: 'Открывает нефтяные вышки, НПЗ и цистерны',
+    effects: {},
+    cost: 9000,
+    level: 6,
+    requires: ['metallurgy'],
+  ),
+  MagTech(
+    id: 'electronics',
+    branch: MagBranch.economy,
+    title: 'Электроника',
+    lore: 'Платы, лампы и паяльники: детали и топливо превращаются в технику.',
+    effect: 'Открывает заводы электроники',
+    effects: {},
+    cost: 16000,
+    level: 9,
+    requires: ['machinery', 'petroleum'],
+  ),
 ];

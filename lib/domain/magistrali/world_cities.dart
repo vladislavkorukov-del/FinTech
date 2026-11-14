@@ -37,7 +37,10 @@ extension MagWorldCities on MagWorld {
   double marketFactor(MagIndustry i, MagCargo c) {
     final t = i.town;
     if (t == null) return 1;
-    var k = (1 + t.spec.payBonus) * glutFactor(i, c) + deficitBonusOf(i, c);
+    var k =
+        (1 + t.spec.payBonus) * glutFactor(i, c) +
+        deficitBonusOf(i, c) +
+        terminalBonusOf(i);
     if (isCity(i)) {
       if (MagTowns.favoured(t.specialization).contains(c)) {
         k += MagTowns.favouredBonus;

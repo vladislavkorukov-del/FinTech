@@ -122,6 +122,7 @@ extension MagWorldSettlements on MagWorld {
       if (accessCells(i).isNotEmpty ||
           stationCells(i).isNotEmpty ||
           portCells(i).isNotEmpty) {
+        _peopleLeave(i); // PASS-07: the tired of waiting go home
         final daily = math.max(1, t.population ~/ MagRules.peoplePerTraveller);
         final room =
             daily * MagRules.passengerDays -

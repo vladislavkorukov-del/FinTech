@@ -35,6 +35,7 @@ extension MagWorldSim on MagWorld {
     _dayTrafficAndStaff();
     _dayLoan();
     _dayDeals();
+    _dayComplexes();
     _checkAchievements();
     _dayTowns();
     _dayCities();
@@ -365,7 +366,12 @@ extension MagWorldSim on MagWorld {
     // cargo and for the demand of the week.
     final market = marketFactor(here, cargo);
     final pay =
-        (n * MagRules.cargoRate[cargo]! * dist * factor(MagBonus.pay) * market)
+        (n *
+                MagRules.cargoRate[cargo]! *
+                dist *
+                factor(MagBonus.pay) *
+                market *
+                cargoPayFactor(v, cargo))
             .round();
     if (here.kind == MagIndustryKind.megaproject) {
       _megaReceive(here, cargo, n);

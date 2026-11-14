@@ -31,6 +31,9 @@ abstract final class MagPalette {
     MagCargo.parts => const Color(0xFFE8B23E),
     MagCargo.passengers => const Color(0xFF8E7CC3),
     MagCargo.workers => const Color(0xFF3F8E9C),
+    MagCargo.oil => const Color(0xFF2E2A26),
+    MagCargo.fuel => const Color(0xFFE0743C),
+    MagCargo.electronics => const Color(0xFF5BB0D6),
   };
 }
 

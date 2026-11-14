@@ -118,7 +118,8 @@ extension MagWorldRoutes on MagWorld {
         (n *
                 MagRules.cargoRate[MagCargo.workers]! *
                 dist *
-                factor(MagBonus.pay))
+                factor(MagBonus.pay) *
+                v.spec.comfort)
             .round();
     here.staff += n;
     destroyed[MagCargo.workers] = (destroyed[MagCargo.workers] ?? 0) + n;
@@ -192,6 +193,7 @@ extension MagWorldRoutes on MagWorld {
   Map<String, Object> _saveExtras() => {
     ..._saveMeta(),
     ..._saveWorks(),
+    ..._saveComplex(),
     if (map.industries.any((i) => i.staff > 0))
       'staff': {
         for (final i in map.industries)
@@ -235,6 +237,7 @@ extension MagWorldRoutes on MagWorld {
   void loadExtras(Map<String, dynamic> j) {
     loadMeta(j);
     loadWorks(j);
+    loadComplex(j);
     int cellOfKey(Object k) {
       final c = int.tryParse('$k');
       if (c == null || c < 0 || c >= size * size) {
