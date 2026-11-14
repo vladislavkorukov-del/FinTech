@@ -68,6 +68,23 @@ Future<void> showOrdersSheet(
         'Заказ резервирует груз у поставщика и место у получателя. Оплата — после доставки. Свободных машин: $free.',
         style: magMuted,
       ),
+      // Joining waiting orders with the same cargo and places (LOG-15).
+      SwitchListTile(
+        key: const ValueKey('mag-auto-merge'),
+        contentPadding: EdgeInsets.zero,
+        value: w.autoMerge,
+        activeThumbColor: MagPalette.mint,
+        title: const Text('Объединять одинаковые заказы'),
+        subtitle: const Text(
+          'Ждущие заказы с тем же грузом, поставщиком и получателем сливаются в один рейс',
+          style: magMuted,
+        ),
+        onChanged: (v) {
+          w.autoMerge = v;
+          if (v) w.mergeOrders();
+          state.changed();
+        },
+      ),
       if (active.any((o) => o.status == MagOrderStatus.pending) && free > 0)
         Padding(
           padding: const EdgeInsets.only(top: 6),

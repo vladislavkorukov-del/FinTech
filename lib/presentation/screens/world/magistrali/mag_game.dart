@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../domain/magistrali/magistrali.dart';
 import 'mag_network_art.dart';
+import 'mag_structures_art.dart';
 import 'mag_curve.dart';
 import 'mag_route_art.dart';
 import 'mag_sea_art.dart';
@@ -272,6 +273,12 @@ class MagRenderer {
         ));
       }
     }
+    // Depots (VEH-10).
+    for (final c in w.depots) {
+      final x = w.cx(c), y = w.cy(c);
+      if (x < x0 || x > x1 || y < y0 || y > y1) continue;
+      objects.add((x + y + .6, () => paintDepot(canvas, w, c)));
+    }
     for (final i in map.industries) {
       if (i.left > x1 + 1 ||
           i.top > y1 + 1 ||
@@ -411,6 +418,7 @@ class MagRenderer {
           Paint()..color = const Color(0xE6FFFFFF),
         );
         label.paint(canvas, box.topLeft + const Offset(6, 2.5));
+        if (w.isRich(i)) paintGem(canvas, box.centerLeft - const Offset(9, 0));
         if (w.firstMegapolis == i.id) {
           // The first megalopolis: a golden crown for ever (META-04).
           final cp = box.centerLeft - const Offset(12, 0);

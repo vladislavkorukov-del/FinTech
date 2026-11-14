@@ -105,6 +105,38 @@ Future<void> showRoadSheet(MagistraliScreenState state, int cell) async {
               const Text('Не хватает кредитов', style: magMuted),
           ],
         ],
+        // A depot here (VEH-10): worn vehicles are repaired on the way.
+        const SizedBox(height: 8),
+        if (w.depots.contains(cell))
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              key: const ValueKey('mag-depot-remove'),
+              icon: const Icon(Icons.garage_outlined),
+              onPressed: () =>
+                  state.report(w.removeDepot(cell), 'Депо снесено'),
+              label: const Text('Депо: снести'),
+            ),
+          )
+        else
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              key: const ValueKey('mag-depot-build'),
+              icon: const Icon(Icons.garage_rounded),
+              onPressed: w.depotBlocker(cell) != null
+                  ? null
+                  : () => state.report(w.buildDepot(cell)),
+              label: Text(
+                w.depotBlocker(cell) ??
+                    'Построить депо · ${magMoney(MagRules.depotPrice)} кр',
+              ),
+            ),
+          ),
+        const Text(
+          'Депо: машины с износом от 30% чинятся, проезжая через него, на 30% дешевле; каждое депо снижает содержание автопарка на 5%.',
+          style: magMuted,
+        ),
         // One entrance to a business (S12): this cell can become it.
         for (final i in w.placesBeside(cell)) ...[
           const SizedBox(height: 8),

@@ -79,6 +79,11 @@ void main() {
     fail('Магистрали did not open');
   }
 
+  Offset at(WidgetTester tester, MagistraliScreenState s, int x, int y) {
+    final size = tester.getSize(find.byKey(const ValueKey('mag-map')));
+    return s.camera.cellToScreen(x + .5, y + .5, size);
+  }
+
   Future<void> tap(WidgetTester tester, String key) async {
     final f = find.byKey(ValueKey(key));
     await tester.ensureVisible(f);
@@ -156,6 +161,67 @@ void main() {
     expect(find.byKey(const ValueKey('mag-replace-all')), findsOneWidget);
     await tap(tester, 'mag-replace-all');
     expect(w.vehicles.values.every((v) => w.newerModelFor(v) == null), isTrue);
+    await closeSheet(tester);
+    await settle(tester);
+  });
+
+  testWidgets('S16: special contracts, rich deposit, recipes, depot, merge', (
+    tester,
+  ) async {
+    await mount(tester, const MagistraliScreen(seed: MagRules.defaultSeed));
+    final s = await ready(tester);
+    final w = s.world
+      ..money = 1000000
+      ..xp = MagWorldProgress.xpFor(8)
+      ..techs.add('combustion');
+    final f = w.map.startFarm, p = w.map.startPlant;
+    w.buildRoad(w.planRoad(f.x + f.size, f.y, p.x - 1, p.y, MagRoad.dirt));
+    w.step(MagRules.ticksPerDay);
+    w.speed = 0;
+    s.changed();
+    // Special contracts in the contracts sheet; one given up.
+    expect(w.deals, isNotEmpty);
+    await tap(tester, 'mag-tab-contracts');
+    final d = w.deals.first;
+    expect(find.byKey(ValueKey('mag-deal-${d.id}')), findsOneWidget);
+    await tap(tester, 'mag-deal-drop-${d.id}');
+    expect(w.deals, isNot(contains(d)));
+    await closeSheet(tester);
+    // A rich deposit in its sheet.
+    final rich = w.map.industries.firstWhere(w.isRich);
+    await tap(tester, 'mag-tab-places');
+    await tap(tester, 'mag-place-kind-2');
+    await tap(tester, 'mag-place-${rich.id}');
+    expect(find.byKey(const ValueKey('mag-rich')), findsOneWidget);
+    await closeSheet(tester);
+    // An own factory with two recipes: what to process first.
+    final factory = w.map.industries.firstWhere(
+      (i) => i.kind == MagIndustryKind.factory,
+    );
+    w.buyIndustry(factory.id);
+    s.changed();
+    await tap(tester, 'mag-tab-places');
+    await tap(tester, 'mag-place-kind-3');
+    await tap(tester, 'mag-place-${factory.id}');
+    await tap(tester, 'mag-first-ore');
+    expect(w.firstInput[factory.id], MagCargo.ore);
+    await closeSheet(tester);
+    // A depot from the road sheet.
+    final cell = w.entranceOf(p)!;
+    s.camera.zoom = 1.3;
+    s.centerOn(w.cx(cell) + .5, w.cy(cell) + .5);
+    await tester.pump();
+    await tester.tapAt(at(tester, s, w.cx(cell), w.cy(cell)));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    await tap(tester, 'mag-depot-build');
+    expect(w.depots, isNotEmpty);
+    await closeSheet(tester);
+    // Joining orders: the switch in the orders sheet.
+    await tap(tester, 'mag-tab-fleet');
+    await tap(tester, 'mag-open-orders');
+    await tap(tester, 'mag-auto-merge');
+    expect(w.autoMerge, isFalse);
     await closeSheet(tester);
     await settle(tester);
   });

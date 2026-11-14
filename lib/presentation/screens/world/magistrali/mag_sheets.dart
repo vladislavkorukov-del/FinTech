@@ -17,6 +17,7 @@ import 'mag_lore.dart';
 import 'mag_orders.dart';
 import 'mag_town.dart';
 import 'mag_warehouse.dart';
+import 'mag_works_ui.dart';
 import 'mag_route_create.dart';
 import 'mag_screen.dart';
 
@@ -218,6 +219,7 @@ Future<void> showIndustrySheet(
           ),
         const SizedBox(height: 6),
       ],
+      ...worksInfo(state, i),
       ...staffInfo(w, i),
       if (spec.accepts.isNotEmpty) ...[
         const Text('Принимает', style: magMuted),
@@ -387,6 +389,7 @@ Future<void> showContractsSheet(
         style: magMuted,
       ),
       const SizedBox(height: 10),
+      ...dealCards(state),
       ...cityOrderCards(state, context),
       for (final c in w.regularContracts)
         Container(
