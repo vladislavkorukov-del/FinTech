@@ -103,7 +103,11 @@ class MagIndustrySpec {
     this.near,
     this.extra = const {},
     this.buildLevel = 2,
+    this.tech,
   });
+
+  /// The technology that opens building it (TECH-10, 1.83); null: none.
+  final String? tech;
 
   /// More inputs used up for every unit made, besides the main one: a
   /// steel mill burns 1 coal for each steel it makes from ore.
@@ -160,7 +164,11 @@ class MagTruckModel {
     this.wagonPrice = 0,
     this.water = false,
     this.passengers = false,
+    this.tech,
   });
+
+  /// The technology that opens buying it (VEH-04, 1.83); null: none.
+  final String? tech;
 
   /// Carries people only (stage S11): a coach or a bus. Lorries and carts
   /// never take passengers; trains and vessels take both.
@@ -198,6 +206,9 @@ class MagTruckModel {
 
 abstract final class MagRules {
   static const mapSize = 64;
+
+  /// The map of new games from 1.83 (generator 5): three times the land.
+  static const bigMapSize = 112;
   static const defaultSeed = 20261113;
   static const startMoney = 6000;
 
@@ -267,6 +278,10 @@ abstract final class MagRules {
   static const megapolisReward = 150000;
 
   /// Water (stage S9): a port, and how far from its place it may stand.
+  /// Share of the building price returned when a road or track is taken
+  /// away (ROAD-05, 1.83).
+  static const demolishRefund = .3;
+
   static const portPrice = 3000, portReach = 2;
 
   /// Days a city waits before its next order after one ends.
@@ -337,6 +352,7 @@ abstract final class MagRules {
       near: MagTerrain.hill,
     ),
     MagIndustryKind.mill: MagIndustrySpec(
+      tech: 'milling',
       size: 2,
       accepts: {MagCargo.grain},
       converts: {MagCargo.grain: MagCargo.flour},
@@ -344,12 +360,14 @@ abstract final class MagRules {
       price: 4500,
     ),
     MagIndustryKind.bakery: MagIndustrySpec(
+      tech: 'milling',
       size: 2,
       accepts: {MagCargo.flour},
       converts: {MagCargo.flour: MagCargo.bread},
       price: 5000,
     ),
     MagIndustryKind.lumbermill: MagIndustrySpec(
+      tech: 'carpentry',
       size: 2,
       accepts: {MagCargo.wood},
       converts: {MagCargo.wood: MagCargo.planks},
@@ -357,6 +375,7 @@ abstract final class MagRules {
       price: 4500,
     ),
     MagIndustryKind.coalMine: MagIndustrySpec(
+      tech: 'metallurgy',
       size: 2,
       produces: {MagCargo.coal: 7},
       price: 6500,
@@ -364,12 +383,14 @@ abstract final class MagRules {
       buildLevel: 3,
     ),
     MagIndustryKind.clayPit: MagIndustrySpec(
+      tech: 'kilns',
       size: 2,
       produces: {MagCargo.clay: 8},
       price: 3000,
       near: MagTerrain.river,
     ),
     MagIndustryKind.brickworks: MagIndustrySpec(
+      tech: 'kilns',
       size: 2,
       accepts: {MagCargo.clay},
       converts: {MagCargo.clay: MagCargo.bricks},
@@ -378,6 +399,7 @@ abstract final class MagRules {
       buildLevel: 3,
     ),
     MagIndustryKind.steelMill: MagIndustrySpec(
+      tech: 'metallurgy',
       size: 3,
       accepts: {MagCargo.ore, MagCargo.coal},
       converts: {MagCargo.ore: MagCargo.steel},
@@ -387,6 +409,7 @@ abstract final class MagRules {
       buildLevel: 4,
     ),
     MagIndustryKind.partsFactory: MagIndustrySpec(
+      tech: 'machinery',
       size: 2,
       accepts: {MagCargo.steel, MagCargo.planks},
       converts: {MagCargo.steel: MagCargo.parts},

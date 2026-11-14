@@ -12,4 +12,5 @@ export 'orders.dart';
 export 'pathfinding.dart';
 export 'settlements.dart';
 export 'tech.dart';
+export 'tech_nodes_recipes.dart';
 export 'world.dart';

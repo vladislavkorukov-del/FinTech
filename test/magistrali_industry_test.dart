@@ -50,7 +50,7 @@ void main() {
 
   test('new maps have the industry; older generators are unchanged', () {
     final w = MagWorld.start();
-    expect(w.map.version, 4);
+    expect(w.map.version, 5);
     for (final (k, n) in [
       (MagIndustryKind.coalMine, 2),
       (MagIndustryKind.clayPit, 2),
@@ -58,9 +58,10 @@ void main() {
       (MagIndustryKind.steelMill, 1),
       (MagIndustryKind.partsFactory, 1),
     ]) {
+      // Generator 5: the big map has three times as many.
       expect(
         w.map.industries.where((i) => i.kind == k).length,
-        n,
+        n * 3,
         reason: '$k',
       );
     }
@@ -135,6 +136,7 @@ void main() {
       contains('4 уровня'),
     );
     w.xp = MagWorldProgress.xpFor(5);
+    w.techs.addAll(magTechRecipes.map((t) => t.id)); // TECH-10
     final (sx, sy) = spot(w, MagIndustryKind.partsFactory, c.x, c.y);
     expect(w.buildIndustry(MagIndustryKind.partsFactory, sx, sy), isNull);
     expect(w.map.industries.last.since, w.tick);
@@ -152,6 +154,7 @@ void main() {
     final old = MagWorld(map: MagMap.generate(MagRules.defaultSeed, version: 3))
       ..money = 1000000
       ..xp = MagWorldProgress.xpFor(6);
+    old.techs.addAll(magTechRecipes.map((t) => t.id));
     expect(old.cargoAvailable(MagCargo.steel), isFalse);
     expect(old.cargoAvailable(MagCargo.parts), isFalse);
     final town = old.settlements.firstWhere((t) => t.town!.level == 2);

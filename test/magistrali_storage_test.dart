@@ -89,7 +89,8 @@ void main() {
     for (final t in MagTechTree.all) {
       expect(t.lore, isNotEmpty);
       expect(t.effect, isNotEmpty);
-      expect(t.effects, isNotEmpty);
+      // Recipe technologies (TECH-10) open buildings instead of a bonus.
+      if (!magTechRecipes.contains(t)) expect(t.effects, isNotEmpty);
       for (final r in t.requires) {
         final before = MagTechTree.byId(r);
         expect(before, isNotNull, reason: '${t.id} needs $r');
@@ -385,7 +386,7 @@ void main() {
     // A warehouse on a road is refused.
     final bad = jsonDecode(saved) as Map<String, dynamic>;
     final roads = base64Decode(bad['roads'] as String);
-    roads[wh.y * 64 + wh.x] = 1;
+    roads[wh.y * w.size + wh.x] = 1;
     bad['roads'] = base64Encode(roads);
     expect(() => magWorldFromJson(bad), throwsFormatException);
     // Older formats come up to 3, keeping their orders.
@@ -398,7 +399,11 @@ void main() {
               )
               as Map<String, dynamic>;
       final old = magWorldFromJson(raw);
-      expect(old.techs, isEmpty);
+      // Only the recipes its level allowed before 1.83 (TECH-10).
+      expect(
+        old.techs.every((id) => magTechRecipes.any((t) => t.id == id)),
+        isTrue,
+      );
       expect(old.warehouses, isEmpty);
       expect(old.money, raw['money']);
       if (f == 'v2') {

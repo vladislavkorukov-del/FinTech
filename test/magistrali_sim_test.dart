@@ -326,8 +326,8 @@ void main() {
     expect(() => magWorldFromJson(bad), throwsFormatException);
     // A road on a lake is refused.
     final lake = [
-      for (var c = 0; c < 64 * 64; c++)
-        if (w.map.at(c % 64, c ~/ 64) == MagTerrain.lake) c,
+      for (var c = 0; c < w.size * w.size; c++)
+        if (w.map.at(c % w.size, c ~/ w.size) == MagTerrain.lake) c,
     ].first;
     final roads = base64Decode(w.toJson()['roads'] as String)..[lake] = 1;
     expect(

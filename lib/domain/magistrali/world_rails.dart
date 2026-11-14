@@ -55,7 +55,7 @@ extension MagWorldRails on MagWorld {
         return c == 0 ? .2 : c / MagRules.railCost;
       },
       heuristic: (c) => ((cx(c) - ex).abs() + (cy(c) - ey).abs()) * .2,
-      maxNodes: 20000,
+      maxNodes: 60000,
     );
     if (path == null) {
       return const MagRoadPlan([], 0, MagRoad.none, 'Сюда не проложить путь');
@@ -84,12 +84,27 @@ extension MagWorldRails on MagWorld {
     return null;
   }
 
-  /// Takes track away (free), with the stations on it. Not under a train.
+  /// What the track on [cell] cost to lay, at today's prices.
+  int railValue(int cell) {
+    if (rails[cell] == 0) return 0;
+    final t = map.at(cx(cell), cy(cell));
+    final tech =
+        factor(MagBonus.roadCost) *
+        (t == MagTerrain.river ? factor(MagBonus.bridge) : 1);
+    return (MagRules.railCost * MagRules.terrainCost(t)! * tech).round();
+  }
+
+  /// Takes track away, with the stations on it, returning part of its
+  /// price (ROAD-05). Not under a train.
   String? removeRail(Iterable<int> cells) {
-    final list = cells.where((c) => rails[c] != 0).toList();
+    final list = cells.where((c) => rails[c] != 0).toSet().toList();
     if (list.isEmpty) return 'Здесь нет пути';
     final busy = occupied;
     if (list.any(busy.contains)) return 'Здесь сейчас стоит поезд';
+    final refund =
+        (list.fold(0, (s, c) => s + railValue(c)) * MagRules.demolishRefund)
+            .round();
+    if (refund > 0) _assetSale(refund, 'demolition');
     for (final c in list) {
       rails[c] = 0;
       stations.remove(c);

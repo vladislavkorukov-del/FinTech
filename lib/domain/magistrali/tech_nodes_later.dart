@@ -3,6 +3,7 @@
 library;
 
 import 'tech.dart';
+import 'tech_nodes_recipes.dart';
 
 const magTechNodesLater = <MagTech>[
   // ---- Склады и логистика ----
@@ -219,4 +220,5 @@ const magTechNodesLater = <MagTech>[
     requires: ['tariffs', 'sales', 'academy'],
     deliveries: 900,
   ),
+  ...magTechRecipes,
 ];

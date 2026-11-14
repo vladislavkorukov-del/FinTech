@@ -91,6 +91,31 @@ const magTruckModels = <MagTruckModel>[
     level: 6,
     color: 0xFF4A6FD8,
   ),
+  // Modern trucks (VEH-04, 1.83): opened by technologies.
+  MagTruckModel(
+    id: 'semi',
+    name: 'Фура «Дальнобой»',
+    speed: 1.75,
+    capacity: 56,
+    price: 34000,
+    runningCost: 1.9,
+    upkeep: 20,
+    level: 10,
+    color: 0xFF8E3B46,
+    tech: 'trailer',
+  ),
+  MagTruckModel(
+    id: 'electric',
+    name: 'Электрогрузовик «Вольт»',
+    speed: 1.7,
+    capacity: 44,
+    price: 42000,
+    runningCost: .55,
+    upkeep: 16,
+    level: 14,
+    color: 0xFF3FA7D6,
+    tech: 'hybrid',
+  ),
   // Era II — railways (stage S8): a locomotive plus wagons.
   MagTruckModel(
     id: 'steam',

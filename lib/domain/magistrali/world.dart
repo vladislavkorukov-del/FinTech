@@ -9,6 +9,7 @@ import 'ledger.dart';
 import 'entities.dart';
 import 'map.dart';
 import 'megaprojects.dart';
+import 'tech_nodes_recipes.dart';
 import 'orders.dart';
 import 'pathfinding.dart';
 import 'settlements.dart';
@@ -54,10 +55,10 @@ class MagWorld {
       rails = Uint8List(map.size * map.size);
 
   factory MagWorld.start([int seed = MagRules.defaultSeed]) {
-    // New games: generator 4 — hamlets and villages with room to grow,
-    // the first production chains (quarries, mills, bakeries, lumber
-    // mills) and industry (coal, clay and bricks, steel, parts).
-    final w = MagWorld(map: MagMap.generate(seed, version: 4));
+    // New games: generator 5 — the big map (112×112) split by a big
+    // river; hamlets and villages with room to grow, the production chains
+    // and industry of generators 3–4.
+    final w = MagWorld(map: MagMap.generate(seed, version: 5));
     for (final s in w.settlements) {
       s.town!.remember(0, 'Основано: ${s.town!.spec.name}');
     }
@@ -309,7 +310,7 @@ class MagWorld {
         return c == 0 ? .2 : c / MagRules.roads[type]!.cost;
       },
       heuristic: (c) => ((cx(c) - ex).abs() + (cy(c) - ey).abs()) * .2,
-      maxNodes: 20000,
+      maxNodes: 60000,
     );
     if (path == null) {
       return MagRoadPlan(const [], 0, type, 'Сюда не проложить дорогу');
@@ -346,19 +347,6 @@ class MagWorld {
           v.path[v.pathIndex + 1],
       },
   };
-
-  /// Removes road cells (free; nothing is refunded).
-  String? removeRoad(Iterable<int> cells) {
-    final busy = occupied;
-    final list = cells.where((c) => roads[c] != 0).toList();
-    if (list.isEmpty) return 'Здесь нет дороги';
-    if (list.any(busy.contains)) return 'Здесь сейчас едет грузовик';
-    for (final c in list) {
-      roads[c] = 0;
-    }
-    roadVersion++;
-    return null;
-  }
 
   // ---- Money ----
 

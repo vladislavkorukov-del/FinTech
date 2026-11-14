@@ -84,7 +84,7 @@ void main() {
 
   test('new maps have the first chains; recipes keep their ratios', () {
     final w = MagWorld.start();
-    expect(w.map.version, 4);
+    expect(w.map.version, 5);
     for (final k in [
       MagIndustryKind.quarry,
       MagIndustryKind.mill,
@@ -304,7 +304,7 @@ void main() {
     // A road under a building is refused.
     final bad = jsonDecode(saved) as Map<String, dynamic>;
     final roads = base64Decode(bad['roads'] as String);
-    roads[q.y * 64 + q.x] = 1;
+    roads[q.y * w.size + q.x] = 1;
     bad['roads'] = base64Encode(roads);
     expect(() => magWorldFromJson(bad), throwsFormatException);
   });

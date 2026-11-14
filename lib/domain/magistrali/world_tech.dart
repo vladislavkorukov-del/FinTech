@@ -53,4 +53,20 @@ extension MagWorldTech on MagWorld {
     _say('Изучено: ${t.title}');
     return null;
   }
+
+  /// Reads the learned technologies of a save. A save from before 1.83
+  /// ([old]) gets the recipe technologies its company level allowed then,
+  /// so nothing it could build is taken away.
+  void loadTechs(List<Object?> ids, {required bool old}) {
+    for (final t in ids) {
+      if (t is! String || MagTechTree.byId(t) == null) {
+        throw const FormatException('Unknown technology');
+      }
+      techs.add(t);
+    }
+    if (!old) return;
+    for (final t in magTechRecipes) {
+      if (level >= t.level) techs.add(t.id);
+    }
+  }
 }

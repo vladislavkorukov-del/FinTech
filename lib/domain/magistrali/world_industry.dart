@@ -99,6 +99,10 @@ extension MagWorldIndustry on MagWorld {
     if (level < spec.buildLevel) {
       return 'Строить можно с ${spec.buildLevel} уровня компании';
     }
+    final tech = spec.tech;
+    if (tech != null && !techs.contains(tech)) {
+      return 'Нужна технология «${MagTechTree.byId(tech)?.title ?? tech}»';
+    }
     for (var yy = y; yy < y + spec.size; yy++) {
       for (var xx = x; xx < x + spec.size; xx++) {
         if (!map.roadable(xx, yy) || hasRoad(xx, yy) || hasRail(xx, yy)) {

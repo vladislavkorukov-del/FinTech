@@ -75,6 +75,7 @@ class MagJournal {
             'sales',
             'industry_sale',
             'warehouse_sale',
+            'demolition',
           }.contains(category)
           ? MagEntryKind.assetSale
           : MagEntryKind.revenue;

@@ -223,7 +223,8 @@ void main() {
     ]);
     expect(first.income, greaterThan(0));
     expect(w.month.income['delivery'], first.income);
-    expect(plant.input[MagCargo.grain], 8);
+    // Delivered (the plant may already have turned some into food).
+    expect(w.delivered[MagCargo.grain], 8);
     expect(w.orders.reservedIn(plant.id, MagCargo.grain), 0);
     expect(truck.state, MagVehicleState.idle);
     expect(truck.orderId, isNull);

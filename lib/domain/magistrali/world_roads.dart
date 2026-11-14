@@ -93,4 +93,43 @@ extension MagWorldRoads on MagWorld {
     if (d == -1) return 3;
     return d > 0 ? 2 : 0;
   }
+
+  /// What the road on [cell] cost to build from bare land, at today's
+  /// prices (terrain, bridges and technologies included).
+  int roadValue(int cell) {
+    final r = MagRoad.values[roads[cell]];
+    if (r == MagRoad.none) return 0;
+    final t = map.at(cx(cell), cy(cell));
+    final tech =
+        factor(MagBonus.roadCost) *
+        (t == MagTerrain.river ? factor(MagBonus.bridge) : 1);
+    return (MagRules.roads[r]!.cost * MagRules.terrainCost(t)! * tech).round();
+  }
+
+  /// Credits returned for taking away the road and track on [cells]
+  /// (ROAD-05): a share of what they cost.
+  int demolishRefund(Iterable<int> cells) {
+    var sum = 0;
+    for (final c in cells.toSet()) {
+      sum += roadValue(c) + railValue(c);
+    }
+    return (sum * MagRules.demolishRefund).round();
+  }
+
+  /// Removes road cells and returns part of their price (ROAD-05).
+  String? removeRoad(Iterable<int> cells) {
+    final busy = occupied;
+    final list = cells.where((c) => roads[c] != 0).toSet().toList();
+    if (list.isEmpty) return 'Здесь нет дороги';
+    if (list.any(busy.contains)) return 'Здесь сейчас едет грузовик';
+    final refund =
+        (list.fold(0, (s, c) => s + roadValue(c)) * MagRules.demolishRefund)
+            .round();
+    for (final c in list) {
+      roads[c] = 0;
+    }
+    if (refund > 0) _assetSale(refund, 'demolition');
+    roadVersion++;
+    return null;
+  }
 }

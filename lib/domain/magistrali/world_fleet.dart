@@ -77,6 +77,10 @@ extension MagWorldFleet on MagWorld {
     } else if (!m.horse && !motorUnlocked) {
       return 'Грузовики откроет технология «Двигатель внутреннего сгорания»';
     }
+    final tech = m.tech;
+    if (tech != null && !techs.contains(tech)) {
+      return 'Нужна технология «${MagTechTree.byId(tech)?.title ?? tech}»';
+    }
     // A locomotive comes with one wagon.
     final price = m.price + m.wagonPrice;
     if (money < price) return 'Не хватает кредитов';

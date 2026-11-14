@@ -214,11 +214,13 @@ class MagMap {
     return true;
   }
 
-  static MagMap generate(
-    int seed, {
-    int size = MagRules.mapSize,
-    int version = 1,
-  }) {
+  static MagMap generate(int seed, {int? size, int version = 1}) => _generate(
+    seed,
+    size ?? (version >= 5 ? MagRules.bigMapSize : MagRules.mapSize),
+    version,
+  );
+
+  static MagMap _generate(int seed, int size, int version) {
     final rnd = math.Random(seed);
     final t = Uint8List(size * size);
     double noise(int ox, int oy, double scale, int x, int y) =>
@@ -239,8 +241,13 @@ class MagMap {
         t[y * size + x] = k.index;
       }
     }
-    // A river across the map, meandering.
-    var rx = size * (.25 + rnd.nextDouble() * .5);
+    // Generator 5: a big river always splits the map.
+    if (version >= 5) _carveBigRiver(t, size, seed, rnd);
+    // A river across the map, meandering (on the big map, west of the
+    // start).
+    var rx = version >= 5
+        ? size * (.1 + rnd.nextDouble() * .2)
+        : size * (.25 + rnd.nextDouble() * .5);
     for (var y = 0; y < size; y++) {
       rx += (rnd.nextDouble() - .5) * 1.6;
       rx = rx.clamp(3, size - 4.0);
@@ -360,15 +367,24 @@ class MagMap {
         vy = py + 4 + rnd.nextInt(7);
       }
       settle(vx, vy, _villages[0], 2);
-      var named = 0;
-      for (final level in [2, 2, 1, 1, 1, 1, 1, 1]) {
+      var named = 0, vn = 0, hn = 0;
+      final levels = version >= 5
+          ? [2, 2, 2, 2, 2, for (var k = 0; k < 13; k++) 1]
+          : [2, 2, 1, 1, 1, 1, 1, 1];
+      for (final level in levels) {
         for (var tries = 0; tries < 400; tries++) {
           final x = 4 + rnd.nextInt(size - 8), y = 4 + rnd.nextInt(size - 8);
           if (!free(x, y, 1, gap: MagTowns.room + 1)) continue;
           settle(
             x,
             y,
-            level == 2 ? _villages[1 + named % 5] : _hamlets[named % 10],
+            version >= 5
+                ? (level == 2
+                      ? _villages[1 + vn++ % (_villages.length - 1)]
+                      : _hamlets[hn++ % _hamlets.length])
+                : level == 2
+                ? _villages[1 + named % 5]
+                : _hamlets[named % 10],
             level,
           );
           named++;
@@ -407,7 +423,7 @@ class MagMap {
     var cityName = 0, villageName = 1, n = 0;
     for (final (kind, count) in plan) {
       final s = MagRules.industries[kind]!.size;
-      for (var i = 0; i < count; i++) {
+      for (var i = 0; i < count * (version >= 5 ? 3 : 1); i++) {
         for (var tries = 0; tries < 300; tries++) {
           final x = 2 + rnd.nextInt(size - s - 4);
           final y = 2 + rnd.nextInt(size - s - 4);

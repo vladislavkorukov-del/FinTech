@@ -31,7 +31,7 @@ MagWorld magWorldFromJson(Map<String, dynamic> raw) {
 
   final seed = whole(j['seed'], 0, 0x7fffffff);
   final size = whole(j['size'], 16, 256);
-  final mapVersion = whole(j['mapVersion'] ?? 1, 1, 4);
+  final mapVersion = whole(j['mapVersion'] ?? 1, 1, 5);
   final w = MagWorld(
     map: MagMap.generate(seed, size: size, version: mapVersion),
   );
@@ -106,12 +106,7 @@ MagWorld magWorldFromJson(Map<String, dynamic> raw) {
   w.speed = const [0, 1, 2, 4].contains(j['speed']) ? j['speed'] as int : 1;
   w.rng = whole(j['rng'] ?? 1, 0, 0x7fffffff);
   w.roadVersion = whole(j['roadVersion'] ?? 0, 0, 1 << 40);
-  for (final t in j['techs'] as List? ?? const []) {
-    if (MagTechTree.byId(t as String) == null) {
-      throw const FormatException('Unknown technology');
-    }
-    w.techs.add(t);
-  }
+  w.loadTechs(j['techs'] as List? ?? const [], old: j['recipes'] == null);
   // Built businesses and warehouses stand before roads are read, so no
   // road may lie under one.
   for (final raw in j['built'] as List? ?? const []) {
