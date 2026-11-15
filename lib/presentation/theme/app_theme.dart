@@ -855,6 +855,16 @@ abstract final class AppTheme {
   /// continuous («squircle») corners, one type scale with tabular figures,
   /// quiet filled controls and no ink ripples — pressed things dim or shrink
   /// instead. Backgrounds and Liquid Glass cards come from the palette.
+  /// The ink on a chosen chip: what the palette asked for when selected.
+  static Color _selectedChipInk(ThemeData t) {
+    final style = t.chipTheme.labelStyle;
+    if (style is WidgetStateTextStyle) {
+      final c = style.resolve({WidgetState.selected}).color;
+      if (c != null) return c;
+    }
+    return t.chipTheme.secondaryLabelStyle?.color ?? t.colorScheme.onSurface;
+  }
+
   static ThemeData _refine(ThemeData t) {
     final dark = t.brightness == Brightness.dark;
     final s = t.colorScheme;
@@ -1006,7 +1016,13 @@ abstract final class AppTheme {
         backgroundColor: fill,
         side: BorderSide.none,
         shape: const StadiumBorder(),
-        labelStyle: t.chipTheme.labelStyle,
+        // 1.94: plain styles with the app's own type and a colour. A
+        // state-dependent style is lost when a chip merges its own label
+        // style, which showed white text (and another font) on light themes.
+        labelStyle: text.labelLarge?.copyWith(color: ink),
+        secondaryLabelStyle: text.labelLarge?.copyWith(
+          color: _selectedChipInk(t),
+        ),
       ),
       segmentedButtonTheme: SegmentedButtonThemeData(
         style: (t.segmentedButtonTheme.style ?? const ButtonStyle()).copyWith(
@@ -1065,16 +1081,23 @@ abstract final class AppTheme {
     final secondaryInk = dark
         ? const Color(0xFFBEAD99)
         : const Color(0xFF6E5C48);
-    final card = dark ? coffeeCard : const Color(0xFFFEFCF8);
-    final base = dark ? coffeeBase : coffeeMilk;
-    final elevated = dark ? const Color(0xFF30251B) : const Color(0xFFEDE7DF);
-    final outline = dark ? const Color(0xFF665541) : const Color(0xFFCFC4B7);
+    // 1.94: the light mode is calm paper — white cards, a warm sand fill,
+    // one caramel accent; no lemon or coral washing over everything.
+    final card = dark ? coffeeCard : const Color(0xFFFFFFFF);
+    final base = dark ? coffeeBase : const Color(0xFFF5F2ED);
+    final elevated = dark ? const Color(0xFF30251B) : const Color(0xFFF0EBE4);
+    final outline = dark ? const Color(0xFF665541) : const Color(0xFFE3DBD1);
+    // The accent: lemon on espresso; caramel on paper.
+    final accent = dark ? coffeeHighlight : const Color(0xFF82552D);
+    final onAccent = dark ? coffeeBase : const Color(0xFFFFFFFF);
+    // What a chosen chip, segment or day sits on.
+    final chosen = dark ? coffeeHighlight : const Color(0xFFF1E3D2);
     final scheme = inherited.colorScheme.copyWith(
-      primary: coffeeHighlight,
-      onPrimary: coffeeBase,
+      primary: accent,
+      onPrimary: onAccent,
       primaryContainer: dark
           ? const Color(0xFF3E3420)
-          : const Color(0xFFF2E8C6),
+          : const Color(0xFFF1E3D2),
       onPrimaryContainer: ink,
       secondary: coffeeTaupe,
       onSecondary: coffeeMilk,
@@ -1091,8 +1114,8 @@ abstract final class AppTheme {
       surfaceContainerHigh: elevated,
       surfaceContainerHighest: dark
           ? const Color(0xFF403021)
-          : const Color(0xFFE1D7C9),
-      outline: dark ? const Color(0xFF9B856B) : const Color(0xFF806A52),
+          : const Color(0xFFE8E1D8),
+      outline: dark ? const Color(0xFF9B856B) : const Color(0xFF9C8B78),
       outlineVariant: outline,
       error: dark ? coffeeCoral : const Color(0xFF9F4448),
       onError: dark ? coffeeBase : coffeeMilk,
@@ -1102,20 +1125,20 @@ abstract final class AppTheme {
           : const Color(0xFF6B2429),
       inverseSurface: dark ? coffeeMilk : coffeeCard,
       onInverseSurface: dark ? coffeeBase : coffeeMilk,
-      inversePrimary: dark ? const Color(0xFF6E5C48) : coffeeHighlight,
+      inversePrimary: dark ? const Color(0xFF6E5C48) : const Color(0xFFE9C79F),
     );
     final colors = FinanceColors(
-      expense: dark ? coffeeCoral : const Color(0xFF9F4448),
-      income: dark ? coffeeHighlight : const Color(0xFF66532A),
-      iconBackground: dark ? coffeeTaupe : const Color(0xFFE7DDD0),
-      iconForeground: dark ? coffeeMilk : const Color(0xFF5E4831),
-      brandBackground: dark ? coffeeCard : const Color(0xFFEDE4D8),
+      expense: dark ? coffeeCoral : const Color(0xFFB0473F),
+      income: dark ? coffeeHighlight : const Color(0xFF2F7A55),
+      iconBackground: dark ? coffeeTaupe : const Color(0xFFF1E9DF),
+      iconForeground: dark ? coffeeMilk : const Color(0xFF6B4A2E),
+      brandBackground: dark ? coffeeCard : const Color(0xFFF1E9DF),
       brandForeground: ink,
     );
     Color selectedInk(Set<WidgetState> states) =>
         states.contains(WidgetState.selected) ? coffeeBase : ink;
     Color selectedFill(Set<WidgetState> states) =>
-        states.contains(WidgetState.selected) ? coffeeHighlight : card;
+        states.contains(WidgetState.selected) ? chosen : card;
     final buttonShape = RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(14),
     );
@@ -1125,13 +1148,22 @@ abstract final class AppTheme {
       extensions: [
         colors,
         // Espresso: warm brown top, lemon and coral glows instead of black.
-        FinanceBackdrop.derive(
-          dark: dark,
-          base: base,
-          tint: dark ? coffeeTaupe : coffeeHighlight,
-          glow: coffeeHighlight,
-          second: coffeeCoral,
-        ),
+        dark
+            ? FinanceBackdrop.derive(
+                dark: dark,
+                base: base,
+                tint: coffeeTaupe,
+                glow: coffeeHighlight,
+                second: coffeeCoral,
+              )
+            // Paper: a whisper of warmth at the top, no coloured glows.
+            : FinanceBackdrop(
+                top: const Color(0xFFF2EADF),
+                middle: base,
+                bottom: base,
+                glowA: const Color(0x14E9C79F),
+                glowB: Colors.transparent,
+              ),
       ],
       textTheme: inherited.textTheme.apply(bodyColor: ink, displayColor: ink),
       appBarTheme: inherited.appBarTheme.copyWith(foregroundColor: ink),
@@ -1171,17 +1203,17 @@ abstract final class AppTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: coffeeTaupe, width: 1.5),
+          borderSide: BorderSide(color: accent, width: 1.5),
         ),
       ),
       textSelectionTheme: TextSelectionThemeData(
-        cursorColor: dark ? coffeeHighlight : coffeeTaupe,
-        selectionColor: coffeeHighlight.withValues(alpha: .28),
+        cursorColor: dark ? coffeeHighlight : accent,
+        selectionColor: accent.withValues(alpha: .24),
         selectionHandleColor: coffeeTaupe,
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
-          backgroundColor: coffeeTaupe,
+          backgroundColor: dark ? coffeeTaupe : accent,
           foregroundColor: coffeeMilk,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 17),
           shape: buttonShape,
@@ -1189,7 +1221,7 @@ abstract final class AppTheme {
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: coffeeTaupe,
+          backgroundColor: dark ? coffeeTaupe : accent,
           foregroundColor: coffeeMilk,
           surfaceTintColor: Colors.transparent,
           shape: buttonShape,
@@ -1197,7 +1229,7 @@ abstract final class AppTheme {
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
-          foregroundColor: dark ? coffeeMilk : const Color(0xFF6E5C48),
+          foregroundColor: dark ? coffeeMilk : accent,
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
@@ -1212,8 +1244,8 @@ abstract final class AppTheme {
       ),
       chipTheme: inherited.chipTheme.copyWith(
         backgroundColor: card,
-        selectedColor: coffeeHighlight,
-        secondarySelectedColor: coffeeHighlight,
+        selectedColor: chosen,
+        secondarySelectedColor: chosen,
         side: BorderSide(color: outline),
         labelStyle: WidgetStateTextStyle.resolveWith(
           (states) => TextStyle(color: selectedInk(states)),
@@ -1231,32 +1263,28 @@ abstract final class AppTheme {
       switchTheme: SwitchThemeData(
         thumbColor: WidgetStateProperty.resolveWith(
           (states) =>
-              states.contains(WidgetState.selected) ? coffeeBase : secondaryInk,
+              states.contains(WidgetState.selected) ? onAccent : secondaryInk,
         ),
         trackColor: WidgetStateProperty.resolveWith(
-          (states) => states.contains(WidgetState.selected)
-              ? coffeeHighlight
-              : elevated,
+          (states) => states.contains(WidgetState.selected) ? accent : elevated,
         ),
       ),
       checkboxTheme: CheckboxThemeData(
         fillColor: WidgetStateProperty.resolveWith(
-          (states) =>
-              states.contains(WidgetState.selected) ? coffeeHighlight : null,
+          (states) => states.contains(WidgetState.selected) ? accent : null,
         ),
-        checkColor: const WidgetStatePropertyAll(coffeeBase),
+        checkColor: WidgetStatePropertyAll(onAccent),
         side: BorderSide(color: scheme.outline),
       ),
       radioTheme: RadioThemeData(
         fillColor: WidgetStateProperty.resolveWith(
-          (states) => states.contains(WidgetState.selected)
-              ? (dark ? coffeeHighlight : coffeeTaupe)
-              : secondaryInk,
+          (states) =>
+              states.contains(WidgetState.selected) ? accent : secondaryInk,
         ),
       ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: card,
-        indicatorColor: coffeeHighlight,
+        indicatorColor: chosen,
         iconTheme: WidgetStateProperty.resolveWith(
           (states) => IconThemeData(color: selectedInk(states)),
         ),
@@ -1266,7 +1294,7 @@ abstract final class AppTheme {
       ),
       navigationRailTheme: NavigationRailThemeData(
         backgroundColor: card,
-        indicatorColor: coffeeHighlight,
+        indicatorColor: chosen,
         selectedIconTheme: const IconThemeData(color: coffeeBase),
         unselectedIconTheme: IconThemeData(color: secondaryInk),
         selectedLabelTextStyle: TextStyle(
@@ -1280,13 +1308,15 @@ abstract final class AppTheme {
         unselectedItemColor: secondaryInk,
       ),
       progressIndicatorTheme: ProgressIndicatorThemeData(
-        color: coffeeTaupe,
+        color: dark ? coffeeTaupe : accent,
         linearTrackColor: elevated,
       ),
       snackBarTheme: inherited.snackBarTheme.copyWith(
         backgroundColor: scheme.inverseSurface,
         contentTextStyle: TextStyle(color: scheme.onInverseSurface),
-        actionTextColor: dark ? const Color(0xFF6E5C48) : coffeeHighlight,
+        actionTextColor: dark
+            ? const Color(0xFF6E5C48)
+            : const Color(0xFFE9C79F),
       ),
       datePickerTheme: DatePickerThemeData(
         backgroundColor: card,
@@ -1301,33 +1331,31 @@ abstract final class AppTheme {
         ),
         dayBackgroundColor: WidgetStateProperty.resolveWith(
           (states) => states.contains(WidgetState.selected)
-              ? coffeeHighlight
+              ? chosen
               : Colors.transparent,
         ),
         todayForegroundColor: WidgetStateProperty.resolveWith(selectedInk),
-        todayBorder: const BorderSide(color: coffeeTaupe),
+        todayBorder: BorderSide(color: accent),
         yearForegroundColor: WidgetStateProperty.resolveWith(selectedInk),
         yearBackgroundColor: WidgetStateProperty.resolveWith(
           (states) => states.contains(WidgetState.selected)
-              ? coffeeHighlight
+              ? chosen
               : Colors.transparent,
         ),
         rangePickerBackgroundColor: card,
         rangePickerSurfaceTintColor: Colors.transparent,
         rangePickerHeaderBackgroundColor: card,
         rangePickerHeaderForegroundColor: ink,
-        rangeSelectionBackgroundColor: coffeeHighlight.withValues(alpha: .16),
+        rangeSelectionBackgroundColor: accent.withValues(alpha: .14),
         dividerColor: outline,
       ),
       timePickerTheme: TimePickerThemeData(
         backgroundColor: card,
         dialBackgroundColor: elevated,
-        dialHandColor: coffeeHighlight,
+        dialHandColor: dark ? coffeeHighlight : accent,
         dialTextColor: WidgetStateColor.resolveWith(selectedInk),
         hourMinuteColor: WidgetStateColor.resolveWith(
-          (states) => states.contains(WidgetState.selected)
-              ? coffeeHighlight
-              : elevated,
+          (states) => states.contains(WidgetState.selected) ? chosen : elevated,
         ),
         hourMinuteTextColor: WidgetStateColor.resolveWith(selectedInk),
         dayPeriodColor: WidgetStateColor.resolveWith(selectedFill),

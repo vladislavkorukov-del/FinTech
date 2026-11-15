@@ -190,7 +190,7 @@ void main() {
       );
     }
   }
-  test('Coffee retains its existing dark and light appearance', () {
+  test('Coffee keeps its dark look; the light one is calm paper', () {
     final dark = AppTheme.build(Brightness.dark, 'coffee');
     final light = AppTheme.build(Brightness.light, 'coffee');
     expect(dark.scaffoldBackgroundColor, const Color(0xFF0F0C08));
@@ -200,9 +200,10 @@ void main() {
       dark.filledButtonTheme.style!.backgroundColor!.resolve({}),
       const Color(0xFF886B4B),
     );
-    expect(light.scaffoldBackgroundColor, const Color(0xFFF7F5F1));
-    expect(light.colorScheme.surface, const Color(0xFFFEFCF8));
-    expect(light.extension<FinanceColors>()!.expense, const Color(0xFF9F4448));
+    // 1.94: the light mode became calm paper with white cards.
+    expect(light.scaffoldBackgroundColor, const Color(0xFFF5F2ED));
+    expect(light.colorScheme.surface, const Color(0xFFFFFFFF));
+    expect(light.extension<FinanceColors>()!.expense, const Color(0xFFB0473F));
   });
   testWidgets(
     'reference theme follows system brightness and themes real date dialog',

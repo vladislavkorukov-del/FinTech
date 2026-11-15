@@ -70,72 +70,72 @@ void main() {
         }
       }
     });
-    test(
-      'coffee uses warm surfaces and taupe buttons, highlighting only selection',
-      () {
-        final dark = AppTheme.build(Brightness.dark, 'coffee');
-        final light = AppTheme.build(Brightness.light, 'coffee');
-        expect(dark.scaffoldBackgroundColor, const Color(0xFF0F0C08));
-        expect(dark.colorScheme.surface, const Color(0xFF231A12));
-        expect(dark.colorScheme.onSurface, const Color(0xFFF7F5F1));
-        expect(dark.colorScheme.primary, const Color(0xFFFBE88C));
-        expect(dark.colorScheme.secondary, const Color(0xFF886B4B));
+    test('coffee: warm surfaces, taupe (dark) and caramel (light) buttons', () {
+      final dark = AppTheme.build(Brightness.dark, 'coffee');
+      final light = AppTheme.build(Brightness.light, 'coffee');
+      expect(dark.scaffoldBackgroundColor, const Color(0xFF0F0C08));
+      expect(dark.colorScheme.surface, const Color(0xFF231A12));
+      expect(dark.colorScheme.onSurface, const Color(0xFFF7F5F1));
+      expect(dark.colorScheme.primary, const Color(0xFFFBE88C));
+      expect(dark.colorScheme.secondary, const Color(0xFF886B4B));
+      expect(dark.extension<FinanceColors>()!.expense, const Color(0xFFD67C7E));
+      // 1.94: the light mode is calm paper with a caramel accent; the
+      // lemon highlight stays the dark mode's selection.
+      for (final theme in [dark, light]) {
+        final isDark = theme == dark;
+        final chosen = isDark
+            ? const Color(0xFFFBE88C)
+            : const Color(0xFFF1E3D2);
         expect(
-          dark.extension<FinanceColors>()!.expense,
-          const Color(0xFFD67C7E),
+          theme.filledButtonTheme.style!.backgroundColor!.resolve({}),
+          isDark ? const Color(0xFF886B4B) : const Color(0xFF82552D),
         );
-        for (final theme in [dark, light]) {
-          expect(
-            theme.filledButtonTheme.style!.backgroundColor!.resolve({}),
-            const Color(0xFF886B4B),
-          );
-          expect(
-            theme.filledButtonTheme.style!.foregroundColor!.resolve({}),
-            const Color(0xFFF7F5F1),
-          );
-          expect(
-            theme.segmentedButtonTheme.style!.backgroundColor!.resolve({
-              WidgetState.selected,
-            }),
-            const Color(0xFFFBE88C),
-          );
-          expect(
-            theme.segmentedButtonTheme.style!.backgroundColor!.resolve({}),
-            theme.colorScheme.surface,
-          );
-          expect(
-            theme.datePickerTheme.backgroundColor,
-            theme.colorScheme.surface,
-          );
-          expect(
-            theme.datePickerTheme.dayBackgroundColor!.resolve({
-              WidgetState.selected,
-            }),
-            const Color(0xFFFBE88C),
-          );
-          expect(
-            theme.datePickerTheme.dayForegroundColor!.resolve({
-              WidgetState.selected,
-            }),
-            const Color(0xFF0F0C08),
-          );
-          expect(theme.dialogTheme.backgroundColor, theme.colorScheme.surface);
-          final colors = theme.extension<FinanceColors>()!;
-          expect(
-            contrast(colors.expense, theme.colorScheme.surface),
-            greaterThanOrEqualTo(4.5),
-          );
-          expect(
-            contrast(colors.income, theme.colorScheme.surface),
-            greaterThanOrEqualTo(4.5),
-          );
-          expect(
-            contrast(colors.iconForeground, colors.iconBackground),
-            greaterThanOrEqualTo(4.5),
-          );
-        }
-      },
-    );
+        expect(
+          theme.filledButtonTheme.style!.foregroundColor!.resolve({}),
+          const Color(0xFFF7F5F1),
+        );
+        expect(
+          theme.segmentedButtonTheme.style!.backgroundColor!.resolve({
+            WidgetState.selected,
+          }),
+          chosen,
+        );
+        expect(
+          theme.segmentedButtonTheme.style!.backgroundColor!.resolve({}),
+          theme.colorScheme.surface,
+        );
+        expect(
+          theme.datePickerTheme.backgroundColor,
+          theme.colorScheme.surface,
+        );
+        expect(
+          theme.datePickerTheme.dayBackgroundColor!.resolve({
+            WidgetState.selected,
+          }),
+          chosen,
+        );
+        expect(
+          theme.datePickerTheme.dayForegroundColor!.resolve({
+            WidgetState.selected,
+          }),
+          const Color(0xFF0F0C08),
+        );
+        expect(theme.dialogTheme.backgroundColor, theme.colorScheme.surface);
+        final colors = theme.extension<FinanceColors>()!;
+        expect(
+          contrast(colors.expense, theme.colorScheme.surface),
+          greaterThanOrEqualTo(4.5),
+        );
+        expect(
+          contrast(colors.income, theme.colorScheme.surface),
+          greaterThanOrEqualTo(4.5),
+        );
+        expect(
+          contrast(colors.iconForeground, colors.iconBackground),
+          greaterThanOrEqualTo(4.5),
+        );
+      }
+    });
 
     test('legacy color names keep their data but render the lime palette', () {
       for (final legacy in ['gold', 'lavender', 'blue', 'unknown']) {
@@ -360,5 +360,78 @@ void main() {
     await tester.tap(find.text('Выбрать'));
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('icon-picker-scroll')), findsNothing);
+  });
+
+  // 1.94: chips on the light themes showed white text in another font.
+  testWidgets('chip labels are readable and in the app font, every preset', (
+    tester,
+  ) async {
+    for (final preset in AppTheme.presetNames.keys) {
+      for (final brightness in Brightness.values) {
+        final theme = AppTheme.build(brightness, preset);
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: theme,
+            themeAnimationDuration: Duration.zero,
+            home: Scaffold(
+              body: Column(
+                children: [
+                  ChoiceChip(
+                    label: const Text('off'),
+                    selected: false,
+                    onSelected: (_) {},
+                  ),
+                  ChoiceChip(
+                    label: const Text('on'),
+                    selected: true,
+                    onSelected: (_) {},
+                  ),
+                  ActionChip(label: const Text('act'), onPressed: () {}),
+                  // A chip with its own style but no colour: the 1.93 bug.
+                  ChoiceChip(
+                    label: const Text('own'),
+                    labelStyle: const TextStyle(fontWeight: FontWeight.w600),
+                    selected: false,
+                    onSelected: (_) {},
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+        TextStyle style(String t) => tester
+            .widget<RichText>(
+              find
+                  .descendant(of: find.text(t), matching: find.byType(RichText))
+                  .first,
+            )
+            .text
+            .style!;
+        final why = '$preset $brightness';
+        final bg = theme.chipTheme.backgroundColor!;
+        final chosen = theme.chipTheme.selectedColor!;
+        expect(
+          contrast(style('off').color!, bg),
+          greaterThanOrEqualTo(4.5),
+          reason: why,
+        );
+        expect(
+          contrast(style('act').color!, bg),
+          greaterThanOrEqualTo(4.5),
+          reason: why,
+        );
+        expect(
+          contrast(style('on').color!, chosen),
+          greaterThanOrEqualTo(4.5),
+          reason: why,
+        );
+        expect(style('off').fontFamily, AppTheme.fontFamily, reason: why);
+        expect(
+          contrast(style('own').color!, bg),
+          greaterThanOrEqualTo(4.5),
+          reason: why,
+        );
+      }
+    }
   });
 }

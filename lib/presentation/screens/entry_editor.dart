@@ -1247,11 +1247,16 @@ class _EntryEditorState extends State<EntryEditor> {
                           selectedColor: Color(
                             cat.color,
                           ).withValues(alpha: .22),
-                          labelStyle: TextStyle(
-                            fontWeight: _category == cat.id
-                                ? FontWeight.w600
-                                : FontWeight.w400,
-                          ),
+                          // 1.94: the colour is set here — a style without
+                          // one replaced the theme's and showed white text
+                          // on the light theme.
+                          labelStyle: Theme.of(context).textTheme.labelLarge
+                              ?.copyWith(
+                                color: scheme.onSurface,
+                                fontWeight: _category == cat.id
+                                    ? FontWeight.w600
+                                    : FontWeight.w400,
+                              ),
                           avatar: CircleAvatar(
                             backgroundColor: Color(
                               cat.color,
