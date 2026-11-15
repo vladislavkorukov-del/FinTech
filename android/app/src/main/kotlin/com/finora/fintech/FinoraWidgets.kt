@@ -8,9 +8,9 @@ import android.view.View
 import android.widget.RemoteViews
 
 /**
- * Home-screen widgets with Finora (1.27). The app writes the numbers and a
- * picture of Finora in her current mood (see FinoraBridge.saveWidgets); the
- * widgets only show them and open the app with an action.
+ * Home-screen widgets with Finora (1.27; 2.2: her sphere of light, no
+ * moods). The app writes the numbers and lines (see FinoraBridge.saveWidgets);
+ * the widgets only show them and open the app with an action.
  */
 object FinoraWidgets {
     private val kinds = listOf(
@@ -30,12 +30,10 @@ object FinoraWidgets {
     }
 
     /**
-     * 1.36, like Duolingo's owl: Finora's mood on the main widgets comes
-     * from the clock and the last day something was recorded — she is glad
-     * when today is filled in, thoughtful in the morning, reminds in the
-     * afternoon, gets angry in the evening and after days without records,
-     * sleeps at night. A late payment beats everything. Worked out here, so
-     * it changes while the app is closed (the widget wakes every 30 min).
+     * The line on the main widgets (1.36; 2.2: calm reminders, no emotions):
+     * from the clock and the last day something was recorded. A late payment
+     * comes first. Worked out here, so it changes while the app is closed
+     * (the widget wakes every 30 min). The first value is a kind of line.
      */
     fun mood(
         prefs: android.content.SharedPreferences,
@@ -46,7 +44,7 @@ object FinoraWidgets {
         val alertMood = value("alertMood")
         if (alert.isNotEmpty() && alertMood == "angry") return "angry" to alert
         val hour = now.get(java.util.Calendar.HOUR_OF_DAY)
-        if (hour >= 23 || hour < 7) return "sleep" to "Zzz… Финора спит. Завтра запишем!"
+        if (hour >= 23 || hour < 7) return "sleep" to "Ночь. Запишем завтра"
         if (alert.isNotEmpty()) return "attention" to alert
         val today = String.format(
             java.util.Locale.ROOT,
@@ -56,7 +54,7 @@ object FinoraWidgets {
             now.get(java.util.Calendar.DAY_OF_MONTH),
         )
         val last = value("lastEntry")
-        if (last == today) return "happy" to "Сегодня всё записано — умница!"
+        if (last == today) return "happy" to "Сегодня всё записано"
         val days = try {
             val f = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.ROOT)
             val a = f.parse(last)!!.time
@@ -66,11 +64,11 @@ object FinoraWidgets {
             -1
         }
         if (days < 0) return "thinking" to "Расскажите, что сегодня потратили?"
-        if (days >= 2) return "angry" to "Уже $days ${daysWord(days)} без записей! Я всё вижу 😤"
+        if (days >= 2) return "angry" to "Уже $days ${daysWord(days)} без записей"
         return when {
             hour < 14 -> "thinking" to "Что сегодня потратили?"
             hour < 20 -> "attention" to "Не забудьте записать расходы и доходы"
-            else -> "angry" to "Сегодня ничего не записано! Я жду 😤"
+            else -> "angry" to "Сегодня пока ничего не записано"
         }
     }
 
@@ -121,34 +119,9 @@ object FinoraWidgets {
         else -> R.drawable.widget_vivid_teal
     }
 
-    /** 1.41: the owner's 25 pictures of Finora. */
-    fun resource(name: String): Int = when (name) {
-        "budget_month" -> R.drawable.finora_mood_budget_month
-        "budget_month_pink" -> R.drawable.finora_mood_budget_month_pink
-        "budget_topup" -> R.drawable.finora_mood_budget_topup
-        "calm" -> R.drawable.finora_mood_calm
-        "dream_savings" -> R.drawable.finora_mood_dream_savings
-        "expenses_today" -> R.drawable.finora_mood_expenses_today
-        "forward" -> R.drawable.finora_mood_forward
-        "goal_month" -> R.drawable.finora_mood_goal_month
-        "growing" -> R.drawable.finora_mood_growing
-        "income" -> R.drawable.finora_mood_income
-        "income_tracking" -> R.drawable.finora_mood_income_tracking
-        "limit" -> R.drawable.finora_mood_limit
-        "limit_today" -> R.drawable.finora_mood_limit_today
-        "pay_dont_forget" -> R.drawable.finora_mood_pay_dont_forget
-        "payment_reminder" -> R.drawable.finora_mood_payment_reminder
-        "payment_today" -> R.drawable.finora_mood_payment_today
-        "piggy" -> R.drawable.finora_mood_piggy
-        "plan_budget" -> R.drawable.finora_mood_plan_budget
-        "plus" -> R.drawable.finora_mood_plus
-        "record_due_blue" -> R.drawable.finora_mood_record_due_blue
-        "record_due_groceries" -> R.drawable.finora_mood_record_due_groceries
-        "record_expense" -> R.drawable.finora_mood_record_expense
-        "record_expense_lilac" -> R.drawable.finora_mood_record_expense_lilac
-        "saving" -> R.drawable.finora_mood_saving
-        else -> R.drawable.finora_mood_check
-    }
+    /** 2.2: Finora is one sphere of light — no moods, no faces. */
+    @Suppress("UNUSED_PARAMETER")
+    fun resource(name: String): Int = R.drawable.finora_orb
 
     /** Days from [last] (yyyy-MM-dd) to today; -1 when unknown. */
     private fun daysSince(last: String, now: java.util.Calendar): Int = try {
@@ -179,12 +152,12 @@ object FinoraWidgets {
             mood == "angry" && prefs.getString("alertMood", "") == "angry" -> line
             mood == "sleep" -> line
             days == 0 && alive >= 2 && (prefs.getString("tileSay", "") ?: "").isEmpty() ->
-                "Серия $alive ${daysWord(alive)}! Так держать 🔥"
+                "Серия $alive ${daysWord(alive)} подряд"
             days == 0 && (prefs.getString("tileSay", "") ?: "").isNotEmpty() ->
                 prefs.getString("tileSay", "") ?: ""
-            days == 0 -> "Сегодня всё записано — умница!"
+            days == 0 -> "Сегодня всё записано"
             days == 1 && alive >= 2 && hour >= 18 ->
-                "Серия $alive ${daysWord(alive)} сгорит в полночь! Запишите хоть одну трату 😤"
+                "Серия $alive ${daysWord(alive)} прервётся в полночь — запишите трату"
             days == 1 && alive >= 2 -> "Не потеряйте серию: $alive ${daysWord(alive)}. Что сегодня потратили?"
             else -> line
         }

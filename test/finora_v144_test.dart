@@ -9,7 +9,6 @@ import 'package:finora/presentation/controller.dart';
 import 'package:finora/presentation/finora_assets.dart';
 import 'package:finora/presentation/screens/achievements_screen.dart';
 import 'package:finora/presentation/whats_new.dart';
-import 'package:finora/presentation/widgets/finora_orb.dart';
 import 'package:finora/services/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -77,12 +76,11 @@ void main() {
   tearDown(() => FinanceController.screenNotes = false);
   final now = DateTime(2026, 11, 7, 12);
 
-  test('больше 50 достижений, у всех свои картинки и реплики', () {
+  test('больше 50 достижений, у всех свои реплики', () {
     expect(achievementDefinitions.length, greaterThanOrEqualTo(50));
     final ids = achievementDefinitions.map((d) => d.id).toSet();
     expect(ids.length, achievementDefinitions.length);
     for (final d in achievementDefinitions) {
-      expect(FinoraAssets.art, contains(d.id), reason: d.id);
       expect(d.quotes.length, greaterThanOrEqualTo(3), reason: d.id);
       expect(d.target, greaterThan(0), reason: d.id);
     }
@@ -92,9 +90,6 @@ void main() {
         isNotEmpty,
         reason: category.name,
       );
-    }
-    for (final name in FinoraAssets.art) {
-      expect(File(FinoraAssets.path(name)).existsSync(), isTrue, reason: name);
     }
   });
 
@@ -306,51 +301,7 @@ void main() {
     expect(fresh, isNot(contains('fifty_records')));
   });
 
-  test('реакции Финоры: картинки, рисунки и запасные варианты', () {
-    expect(FinoraAssets.artFor(FinoraReactionType.celebrating), 'goal_done');
-    expect(FinoraAssets.artFor(FinoraReactionType.proud), 'budget_6');
-    expect(FinoraAssets.artFor(FinoraReactionType.success), 'on_time');
-    // celebrating → happy, proud → happy, focused → neutral, supportive → calm.
-    const only = {
-      FinoraReactionType.happy: 'plus_month',
-      FinoraReactionType.neutral: 'first_step',
-      FinoraReactionType.calm: 'budget_12',
-    };
-    expect(
-      FinoraAssets.artFor(FinoraReactionType.celebrating, available: only),
-      'plus_month',
-    );
-    expect(
-      FinoraAssets.artFor(FinoraReactionType.proud, available: only),
-      'plus_month',
-    );
-    expect(
-      FinoraAssets.artFor(FinoraReactionType.focused, available: only),
-      'first_step',
-    );
-    expect(
-      FinoraAssets.artFor(FinoraReactionType.supportive, available: only),
-      'budget_12',
-    );
-    expect(
-      FinoraAssets.resolve(
-        FinoraReactionType.celebrating,
-        available: {FinoraReactionType.happy},
-      ),
-      FinoraReactionType.happy,
-    );
-    expect(
-      FinoraAssets.resolve(FinoraReactionType.warning),
-      FinoraReactionType.neutral,
-    );
-    // Nothing at all — the drawn Finora.
-    expect(
-      FinoraAssets.artFor(FinoraReactionType.sleepy, available: const {}),
-      isNull,
-    );
-    for (final t in FinoraReactionType.values) {
-      expect(FinoraAssets.mood(t), isA<FinoraMood>());
-    }
+  test('доля полученного — для заголовка достижений', () {
     expect(AchievementEngine.moodFor(0), FinoraReactionType.supportive);
     expect(AchievementEngine.moodFor(1), FinoraReactionType.celebrating);
   });

@@ -93,7 +93,7 @@ abstract final class VoiceCommands {
       case CreateGoalCommand():
         final target = command.targetMinor;
         if (target == null || target <= 0) {
-          Finora.react(FinoraMood.thinking);
+          Finora.react();
           say(
             'Сколько стоит «${command.name}»? Скажите, например: «хочу '
             'машину за 2 миллиона».',
@@ -201,7 +201,7 @@ abstract final class VoiceCommands {
       case CreateRecurringCommand():
         final amount = command.amountMinor;
         if (amount == null || amount <= 0) {
-          Finora.react(FinoraMood.thinking);
+          Finora.react();
           say(
             'Сколько стоит «${command.name}»? Скажите, например: «подписка '
             'Яндекс Плюс 399 в месяц».',
@@ -261,7 +261,7 @@ abstract final class VoiceCommands {
       case UnknownCommand():
         // 1.27: Finora herself says she did not get it.
         Finora.react(
-          FinoraMood.doubt,
+          alert: true,
           text:
               'Не поняла «${command.heard}». Скажите, например: «покажи '
               'расходы за июнь» или «хочу машину за 2 млн».',
@@ -270,10 +270,7 @@ abstract final class VoiceCommands {
         return;
     }
     // 1.27: her face says it is done.
-    Finora.react(switch (command) {
-      ThemeCommand() || CreateGoalCommand() => FinoraMood.pleasure,
-      _ => FinoraMood.done,
-    });
+    Finora.react();
   }
 
   static String _date(DateTime d) =>

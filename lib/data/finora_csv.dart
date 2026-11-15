@@ -54,7 +54,7 @@ abstract final class FinoraCsv {
     ], line);
     _table('meta', [
       {'key': 'demo', 'value': jsonEncode(data['demo'] ?? false)},
-      for (final key in ['achievements', 'wardrobe', 'world'])
+      for (final key in ['achievements'])
         if (data[key] is Map) {'key': key, 'value': jsonEncode(data[key])},
     ], line);
     return out.toString();
@@ -196,7 +196,7 @@ abstract final class FinoraCsv {
         'shopping': sections['shopping'] ?? const <Map<String, Object?>>[],
         'preferences': prefs,
         'demo': meta['demo'] is bool ? meta['demo'] : false,
-        for (final key in ['achievements', 'wardrobe', 'world'])
+        for (final key in ['achievements'])
           if (meta[key] is Map) key: meta[key],
       },
     };

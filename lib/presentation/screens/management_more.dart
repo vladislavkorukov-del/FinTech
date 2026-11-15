@@ -41,19 +41,6 @@ class MoreScreen extends StatelessWidget {
             ),
           ),
         const SizedBox(height: 20),
-        // 1.55: Finora's world comes first, not inside Settings.
-        GroupedSection(
-          children: [
-            row(
-              'world',
-              Icons.cottage_rounded,
-              TileColors.teal,
-              tr('Мир Финоры'),
-              tr('Дом, сад целей, коллекции и «Поток»'),
-              const FinoraWorldScreen(),
-            ),
-          ],
-        ),
         GroupedSection(
           title: tr('Деньги'),
           children: [
@@ -139,17 +126,6 @@ class MoreScreen extends StatelessWidget {
               tr('Награды за порядок в деньгах'),
               const AchievementsScreen(),
               value: '${c.achievements.unlockedCount}/${c.achievements.total}',
-            ),
-            // 1.46: what Finora wears.
-            row(
-              'wardrobe',
-              Icons.checkroom_rounded,
-              TileColors.purple,
-              tr('Гардероб Finora'),
-              tr('Компаньоны и плащи Финоры'),
-              const WardrobeScreen(),
-              value:
-                  '${wardrobeItems.where((i) => Wardrobe.open(i, d.achievements, d.wardrobe)).length}/${wardrobeItems.length}',
             ),
             row(
               'members',

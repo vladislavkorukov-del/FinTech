@@ -7,5 +7,5 @@
     android:widgetCategory="home_screen"
     android:updatePeriodMillis="1800000"
     android:initialLayout="@layout/widget_mini"
-    android:previewImage="@drawable/finora_mood_limit_today"
+    android:previewImage="@drawable/finora_orb"
     android:description="@string/widget_mini" />

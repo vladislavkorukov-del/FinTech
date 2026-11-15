@@ -9,8 +9,8 @@ import 'finora_orb.dart';
 import 'service_badge.dart';
 import '../l10n_widgets.dart';
 
-/// 1.36: the person's picture — an emoji, Finora in a mood, a photo, or the
-/// first letter of the name.
+/// 1.36: the person's picture — an emoji, Finora (2.2: her sphere of light,
+/// whatever mood an old setting named), a photo, or the first letter.
 class ProfileAvatar extends StatelessWidget {
   const ProfileAvatar({super.key, this.size = 56});
   final double size;
@@ -18,14 +18,6 @@ class ProfileAvatar extends StatelessWidget {
   static const emojis = [
     '😀', '😎', '🤓', '🥳', '😺', '🦊', '🐼', '🐨', '🐯', '🦁', '🐸', '🐵', //
     '🦄', '🐙', '🐳', '🌻', '🌈', '⭐', '🔥', '💎', '🚀', '🎧', '🎮', '☕',
-  ];
-  static const moods = [
-    FinoraMood.happy,
-    FinoraMood.wink,
-    FinoraMood.delight,
-    FinoraMood.calm,
-    FinoraMood.thinking,
-    FinoraMood.idea,
   ];
 
   @override
@@ -60,15 +52,10 @@ class ProfileAvatar extends StatelessWidget {
       );
     }
     if (value.startsWith('mood:')) {
-      final mood = FinoraMood.values
-          .where((m) => m.name == value.substring(5))
-          .firstOrNull;
-      if (mood != null) {
-        return circle(
-          FinoraCharacter(size: size * .86, moods: [mood]),
-          color: scheme.surfaceContainerHighest,
-        );
-      }
+      return circle(
+        FinoraCharacter(size: size * .86, rings: false),
+        color: const Color(0xFF0B1324),
+      );
     }
     if (value.startsWith('file:')) {
       final file = File(value.substring(5));
@@ -126,18 +113,11 @@ Future<void> showAvatarPicker(BuildContext context) async {
             const SizedBox(height: 16),
             const Text('Финора'),
             const SizedBox(height: 8),
-            Wrap(
-              spacing: 10,
-              runSpacing: 10,
-              children: [
-                for (final m in ProfileAvatar.moods)
-                  InkWell(
-                    key: ValueKey('avatar-mood-${m.name}'),
-                    customBorder: const CircleBorder(),
-                    onTap: () => Navigator.pop(ctx, 'mood:${m.name}'),
-                    child: ProfileAvatar.avatar(ctx, 'mood:${m.name}', '', 56),
-                  ),
-              ],
+            InkWell(
+              key: const ValueKey('avatar-finora'),
+              customBorder: const CircleBorder(),
+              onTap: () => Navigator.pop(ctx, 'mood:finora'),
+              child: ProfileAvatar.avatar(ctx, 'mood:finora', '', 56),
             ),
             const SizedBox(height: 12),
             ListTile(

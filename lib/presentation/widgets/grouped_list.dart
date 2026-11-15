@@ -502,12 +502,7 @@ Future<bool> confirmWithFinora(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Center(
-              child: FinoraMark(
-                size: 72,
-                mood: destructive ? FinoraMood.doubt : FinoraMood.thinking,
-              ),
-            ),
+            const Center(child: FinoraMark(size: 72)),
             const SizedBox(height: 14),
             Text(
               title,

@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math' as math;
 
 import 'package:flutter/material.dart' hide InputDecoration, Text;
 
@@ -8,14 +7,14 @@ import 'finora_orb.dart';
 import 'motion.dart';
 import '../l10n_widgets.dart';
 
-/// Finora in the middle of the bottom bar (1.20; her own face since 1.26,
-/// her own look and moods since 1.27).
+/// Finora in the middle of the bottom bar (1.20; 2.2: a sphere of light, no
+/// face and no moods).
 ///
-/// Tap: she is glad to be called, then listens. Long press: an ordinary new
-/// operation. She reacts to what happens in the app ([Finora.react]) with a
-/// face, a hop and a short line above her; ten seconds after the last touch
-/// she dozes off («Ожидание») and stops drawing frames. Still with «reduce
-/// motion» and in tests.
+/// Tap: her light swells, then she listens. Long press: an ordinary new
+/// operation. When something happens in the app ([Finora.react]) her light
+/// swells and a short line appears above her; ten seconds after the last
+/// touch she rests and stops drawing frames. Still with «reduce motion» and
+/// in tests.
 class VoiceOrb extends StatefulWidget {
   const VoiceOrb({
     super.key,
@@ -152,12 +151,12 @@ class _VoiceOrbState extends State<VoiceOrb> with TickerProviderStateMixin {
     super.dispose();
   }
 
-  FinoraMood get _mood {
-    if (_called) return FinoraMood.delight;
-    if (_reaction != null) return _reaction!.mood;
-    if (_pressed) return FinoraMood.surprised;
-    if (_asleep) return FinoraMood.sleep;
-    return FinoraMood.idle;
+  /// How lively her light is: swelling when called or answering, a little
+  /// livelier under the finger, calm at rest.
+  double _energy(double swellT) {
+    if (_called || _reaction != null) return .35 + .65 * swell(swellT);
+    if (_pressed) return .5;
+    return _asleep ? 0 : .1;
   }
 
   @override
@@ -262,33 +261,11 @@ class _VoiceOrbState extends State<VoiceOrb> with TickerProviderStateMixin {
                     animation: Listenable.merge([_flow, _joy]),
                     builder: (context, _) {
                       final j = _joy.value;
-                      final hopping = j > 0 && j < 1;
-                      // Blinks once in each drift loop while awake.
-                      final loop = _flow.value;
-                      final blink = loop > .46 && loop < .5
-                          ? math.sin((loop - .46) / .04 * math.pi)
-                          : 0.0;
-                      final angry = _mood == FinoraMood.angry;
-                      return Transform.translate(
-                        offset: Offset(
-                          // Angry: a shake instead of a hop.
-                          angry ? wiggle(j) * size * .08 : 0,
-                          angry ? 0 : -hopHeight(j) * size * .2,
-                        ),
-                        child: Transform.rotate(
-                          angle: angry ? 0 : wiggle(j) * .16,
-                          child: Transform.scale(
-                            scale: bounce(j),
-                            child: CustomPaint(
-                              size: Size.square(size),
-                              painter: FinoraOrbPainter(
-                                t: _flow.value,
-                                mood: _mood,
-                                blink: hopping ? 0 : blink,
-                                joy: _called && hopping ? j : 0,
-                              ),
-                            ),
-                          ),
+                      return CustomPaint(
+                        size: Size.square(size),
+                        painter: FinoraOrbPainter(
+                          t: _flow.value,
+                          energy: _energy(j),
                         ),
                       );
                     },

@@ -8,9 +8,6 @@ import 'package:sqflite/sqflite.dart';
 import '../domain/finance_engine.dart';
 import '../domain/models.dart';
 import '../domain/achievements.dart';
-import '../domain/wardrobe.dart';
-import '../domain/finora_world.dart';
-import '../domain/world_games.dart';
 import '../domain/style_ids.dart';
 import 'demo_data.dart';
 import 'finora_csv.dart';
@@ -743,14 +740,6 @@ class FinanceRepository {
   }
 
   static void validateData(FinanceData data) {
-    // Validate cosmetic receipts before starting the ledger replacement. A bad
-    // world backup must never partially overwrite otherwise valid finances.
-    WorldState.fromJson(data.world.toJson());
-    for (final e in data.world.games.entries) {
-      if (!WorldGames.validate(e.key, e.value)) {
-        throw const FormatException('Некорректное сохранение игры');
-      }
-    }
     void ids(Iterable<String> values) {
       final seen = <String>{};
       for (final value in values) {
@@ -1027,17 +1016,8 @@ class FinanceRepository {
         ],
         // 1.44: achievements live in settings too.
         achievements: _achievements(settings['achievements']),
-        // 1.46: the wardrobe too.
-        wardrobe: _wardrobe(settings['wardrobe']),
-        // An absent key is the additive migration from all earlier versions.
-        // The existing SQLite schema and all ledger/wardrobe rows stay intact.
-        world: settings['finora_world'] == null
-            ? const WorldState()
-            : WorldState.fromJson(
-                Map<String, dynamic>.from(
-                  jsonDecode(settings['finora_world']!) as Map,
-                ),
-              ),
+        // 2.2: 'wardrobe' and 'finora_world' rows of older versions are
+        // ignored (Finora's world and wardrobe were removed).
       ),
     );
   }
@@ -1051,17 +1031,6 @@ class FinanceRepository {
     } on Object {
       // A damaged record must not stop the app from opening.
       return const AchievementState();
-    }
-  }
-
-  static WardrobeState _wardrobe(String? raw) {
-    if (raw == null) return const WardrobeState();
-    try {
-      return WardrobeState.fromJson(
-        Map<String, dynamic>.from(jsonDecode(raw) as Map),
-      );
-    } on Object {
-      return const WardrobeState();
     }
   }
 
@@ -1163,14 +1132,6 @@ class FinanceRepository {
     await db.insert('settings', {
       'key': 'achievements',
       'value': jsonEncode(data.achievements.toJson()),
-    });
-    await db.insert('settings', {
-      'key': 'wardrobe',
-      'value': jsonEncode(data.wardrobe.toJson()),
-    });
-    await db.insert('settings', {
-      'key': 'finora_world',
-      'value': jsonEncode(data.world.toJson()),
     });
   }
 

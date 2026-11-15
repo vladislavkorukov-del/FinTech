@@ -148,7 +148,7 @@ void main() {
       const MaterialApp(
         home: Scaffold(
           body: AlertDialog(
-            icon: FinoraCharacter(size: 64, moods: [FinoraMood.thinking]),
+            icon: FinoraCharacter(size: 64),
             title: Text('Оплатить «Интернет» досрочно?'),
             content: Text('Расход запишется сегодня.'),
           ),

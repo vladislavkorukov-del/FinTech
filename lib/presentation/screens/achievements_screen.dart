@@ -6,7 +6,6 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart' hide InputDecoration, Text;
 
 import '../../domain/achievements.dart';
-import '../../domain/wardrobe.dart';
 import '../controller.dart';
 import '../finora_assets.dart';
 import '../haptics.dart';
@@ -14,7 +13,6 @@ import '../i18n.dart';
 import '../l10n_widgets.dart';
 import '../widgets/common.dart';
 import '../widgets/finora_orb.dart';
-import 'wardrobe_screen.dart';
 
 /// 1.44: the colours and signs of the rarities (never colour alone: the
 /// name and the icon are always shown too).
@@ -120,18 +118,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
     final width = MediaQuery.sizeOf(context).width;
     final columns = width >= 900 ? 4 : (width >= 600 ? 3 : 2);
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Достижения'),
-        actions: [
-          // 1.46: what the achievements gave Finora to wear.
-          IconButton(
-            key: const ValueKey('achievements-wardrobe'),
-            tooltip: tr('Гардероб Finora'),
-            onPressed: () => openWardrobe(context),
-            icon: const Icon(Icons.checkroom_rounded),
-          ),
-        ],
-      ),
+      appBar: AppBar(title: const Text('Достижения')),
       body: CustomScrollView(
         key: const ValueKey('achievements-list'),
         slivers: [
@@ -213,7 +200,6 @@ class _Header extends StatelessWidget {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final level = report.level;
-    final mood = AchievementEngine.moodFor(report.share);
     final last = report.last;
     final nearest = report.nearest.take(3).toList();
     final muted = TextStyle(color: scheme.onSurfaceVariant, fontSize: 13);
@@ -227,12 +213,8 @@ class _Header extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  ExcludeSemantics(
-                    child: FinoraCharacter(
-                      size: 64,
-                      moods: [FinoraAssets.mood(mood)],
-                      rings: false,
-                    ),
+                  const ExcludeSemantics(
+                    child: FinoraCharacter(size: 64, rings: false),
                   ),
                   const SizedBox(width: 14),
                   Expanded(
@@ -484,7 +466,6 @@ class _Thumb extends StatelessWidget {
             ? _Mystery(size: size)
             : FinoraArt(
                 name: FinoraAssets.achievementArt(d),
-                reaction: d.reaction,
                 locked: !status.unlocked,
                 frame: false,
               ),
@@ -584,7 +565,6 @@ class AchievementCard extends StatelessWidget {
                           ? const _Mystery(size: 104)
                           : FinoraArt(
                               name: FinoraAssets.achievementArt(d),
-                              reaction: d.reaction,
                               locked: !status.unlocked,
                               frame: false,
                             ),
@@ -736,7 +716,6 @@ Future<void> showAchievement(BuildContext context, AchievementStatus s) {
                       ? const _Mystery(size: 180)
                       : FinoraArt(
                           name: FinoraAssets.achievementArt(d),
-                          reaction: d.reaction,
                           locked: !s.unlocked,
                           semanticLabel: tr(d.title),
                         ),
@@ -842,21 +821,12 @@ class AchievementsCard extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: scheme.primary.withValues(alpha: .12),
                         ),
-                        child: Center(
-                          child: FinoraCharacter(
-                            size: 52,
-                            moods: [
-                              FinoraAssets.mood(
-                                AchievementEngine.moodFor(report.share),
-                              ),
-                            ],
-                            rings: false,
-                          ),
+                        child: const Center(
+                          child: FinoraCharacter(size: 52, rings: false),
                         ),
                       )
                     : FinoraArt(
                         name: FinoraAssets.achievementArt(last.definition),
-                        reaction: last.definition.reaction,
                         frame: false,
                       ),
               ),
@@ -1219,33 +1189,6 @@ class _UnlockStageState extends State<_UnlockStage>
                         const SizedBox(height: 10),
                         RarityPill(rarity: d.rarity),
                         const SizedBox(height: 12),
-                        if (wardrobeRewardLine(d) case final line?) ...[
-                          Row(
-                            key: const ValueKey('achievement-popup-reward'),
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              for (final i in Wardrobe.rewardsOf(d.id))
-                                Padding(
-                                  padding: const EdgeInsets.only(right: 6),
-                                  child: Image.asset(
-                                    i.asset,
-                                    height: 34,
-                                    excludeFromSemantics: true,
-                                  ),
-                                ),
-                              Flexible(
-                                child: Text(
-                                  line,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 10),
-                        ],
                         Text(
                           '«$_quote»',
                           textAlign: TextAlign.center,
@@ -1334,7 +1277,6 @@ class _ShiningCard extends StatelessWidget {
           children: [
             FinoraArt(
               name: FinoraAssets.achievementArt(definition),
-              reaction: definition.reaction,
               semanticLabel: tr(definition.title),
             ),
             IgnorePointer(

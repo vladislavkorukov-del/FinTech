@@ -69,7 +69,9 @@ void main() {
     expect(tester.hasRunningAnimations, isFalse);
   });
 
-  testWidgets('1.26: Finora hops for joy, then listens', (tester) async {
+  testWidgets('2.2: her light swells when called, then she listens', (
+    tester,
+  ) async {
     Motion.debugForceAmbient = true;
     addTearDown(() => Motion.debugForceAmbient = false);
     var taps = 0;
@@ -89,7 +91,7 @@ void main() {
     await tester.tap(orb);
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 120));
-    // Mid-hop: glad, bigger and lifted; the microphone waits a moment.
+    // Her light swells; the microphone waits a moment.
     final painter = tester
         .widgetList<CustomPaint>(
           find.descendant(of: orb, matching: find.byType(CustomPaint)),
@@ -97,8 +99,7 @@ void main() {
         .map((p) => p.painter)
         .whereType<FinoraOrbPainter>()
         .single;
-    expect(painter.mood, FinoraMood.delight);
-    expect(painter.joy, greaterThan(0));
+    expect(painter.energy, greaterThan(.35));
     expect(taps, 0);
     await tester.pump(const Duration(milliseconds: 300));
     expect(taps, 1);
@@ -110,7 +111,7 @@ void main() {
         .map((p) => p.painter)
         .whereType<FinoraOrbPainter>()
         .single;
-    expect(after.mood, FinoraMood.idle);
+    expect(after.energy, lessThan(.35));
     expect(tester.getRect(orb), rest);
     await tester.pump(VoiceOrb.idle);
     await tester.pump(const Duration(seconds: 8));

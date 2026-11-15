@@ -350,20 +350,8 @@ class _HelloState extends State<_Hello> with SingleTickerProviderStateMixin {
       child: Column(
         children: [
           const Spacer(flex: 4),
-          // 1.26: Finora greets — surprised to see you, glad, a wink, then
-          // calm and blinking. Tap it and it hops.
-          const FinoraCharacter(
-            key: ValueKey('onboarding-finora'),
-            size: 112,
-            moods: [
-              FinoraMood.greeting,
-              FinoraMood.happy,
-              FinoraMood.wink,
-              FinoraMood.delight,
-              FinoraMood.idle,
-            ],
-            step: Duration(milliseconds: 1300),
-          ),
+          // Finora: a sphere of light, flowing.
+          const FinoraCharacter(key: ValueKey('onboarding-finora'), size: 112),
           const SizedBox(height: 26),
           SizedBox(
             height: 100,
@@ -890,11 +878,6 @@ class _Done extends StatelessWidget {
           FinoraCharacter(
             key: ValueKey('onboarding-done-finora-$visible'),
             size: 110,
-            moods: const [
-              FinoraMood.done,
-              FinoraMood.delight,
-              FinoraMood.pleasure,
-            ],
           ),
           const SizedBox(height: 28),
           Text(

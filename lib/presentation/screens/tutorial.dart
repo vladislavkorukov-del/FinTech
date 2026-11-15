@@ -7,7 +7,6 @@ import '../widgets/voice_orb.dart';
 import 'onboarding.dart';
 import '../i18n.dart';
 import '../l10n_widgets.dart';
-import '../controller.dart';
 import '../widgets/common.dart' show showError;
 
 /// A short tour of the whole app (Finance 1.25), offered at the end of the
@@ -95,20 +94,6 @@ final _pages = <_Page>[
       ),
     ],
     picture: (context, dark) => const _VoicePicture(),
-  ),
-  _Page(
-    icon: Icons.emoji_emotions_rounded,
-    color: AppleUi.orange,
-    eyebrow: 'Эмоции',
-    title: 'Финора живая',
-    text:
-        'Она радуется зарплате, удивляется большим тратам и сердится, '
-        'когда бюджет превышен или платёж просрочен. Без касаний — засыпает.',
-    tips: [
-      (Icons.vibration_rounded, 'Каждое нажатие и реакция — с лёгкой отдачей'),
-      (Icons.touch_app_outlined, 'Нажмите на Финору — она обрадуется'),
-    ],
-    picture: (context, dark) => const _MoodsPicture(),
   ),
   _Page(
     icon: Icons.notifications_active_rounded,
@@ -308,9 +293,6 @@ class _TutorialScreenState extends State<TutorialScreen> {
     if (_finishing) return;
     setState(() => _finishing = true);
     try {
-      // The same tour also runs standalone in accessibility tests.
-      final c = context.getInheritedWidgetOfExactType<FinanceScope>()?.notifier;
-      if (c != null) await c.completeWorldTutorial();
       if (mounted) _close();
     } catch (error) {
       if (mounted) showError(context, error);
@@ -1141,40 +1123,6 @@ class _SafePicture extends StatelessWidget {
   }
 }
 
-class _MoodsPicture extends StatelessWidget {
-  const _MoodsPicture();
-  @override
-  Widget build(BuildContext context) {
-    final dark = Theme.of(context).brightness == Brightness.dark;
-    const moods = [
-      (FinoraMood.happy, 'Зарплата'),
-      (FinoraMood.surprised, '−12 000 ₽'),
-      (FinoraMood.angry, 'Лимит'),
-      (FinoraMood.done, 'Записала'),
-      (FinoraMood.attention, 'Платёж'),
-      (FinoraMood.sleep, 'Тишина'),
-    ];
-    return Wrap(
-      spacing: 22,
-      runSpacing: 12,
-      alignment: WrapAlignment.center,
-      children: [
-        for (final (mood, label) in moods)
-          SizedBox(
-            width: 72,
-            child: Column(
-              children: [
-                FinoraMark(size: 48, mood: mood),
-                const SizedBox(height: 8),
-                Text(label, style: _small(dark)),
-              ],
-            ),
-          ),
-      ],
-    );
-  }
-}
-
 class _PaymentPicture extends StatelessWidget {
   const _PaymentPicture();
   @override
@@ -1186,7 +1134,7 @@ class _PaymentPicture extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const FinoraMark(size: 46, mood: FinoraMood.attention),
+          const FinoraMark(size: 46),
           const SizedBox(height: 8),
           Text('Сегодня списание подписки', style: _strong(dark, 13)),
           const SizedBox(height: 4),
@@ -1230,7 +1178,7 @@ class _WidgetsPicture extends StatelessWidget {
           child: const Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              FinoraMark(size: 52, mood: FinoraMood.happy),
+              FinoraMark(size: 52),
               SizedBox(height: 6),
               Text(
                 '184 250 ₽',

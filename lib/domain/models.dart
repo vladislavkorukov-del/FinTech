@@ -1,8 +1,6 @@
 // Domain models contain no Flutter or persistence dependencies.
 // Amounts are minor currency units (kopecks/cents), never floating point.
 import 'achievements.dart' show AchievementState;
-import 'wardrobe.dart' show WardrobeState;
-import 'finora_world.dart' show WorldState;
 
 enum EntryKind { expense, income, transfer }
 
@@ -987,11 +985,8 @@ class FinanceData {
   /// 1.44: what was received and what the ledger alone cannot tell again.
   final AchievementState achievements;
 
-  /// 1.46: Finora's wardrobe — received and worn items.
-  final WardrobeState wardrobe;
-
-  /// Additive, versioned world progress; never part of the financial ledger.
-  final WorldState world;
+  // 2.2: Finora's world, games and wardrobe were removed; old backups that
+  // still carry 'wardrobe' and 'world' load with those keys ignored.
 
   const FinanceData({
     this.accounts = const [],
@@ -1005,8 +1000,6 @@ class FinanceData {
     this.demo = false,
     this.shopping = const [],
     this.achievements = const AchievementState(),
-    this.wardrobe = const WardrobeState(),
-    this.world = const WorldState(),
   });
 
   factory FinanceData.empty() => const FinanceData();
@@ -1023,8 +1016,6 @@ class FinanceData {
     bool? demo,
     List<ShoppingItem>? shopping,
     AchievementState? achievements,
-    WardrobeState? wardrobe,
-    WorldState? world,
   }) => FinanceData(
     accounts: accounts ?? this.accounts,
     categories: categories ?? this.categories,
@@ -1037,8 +1028,6 @@ class FinanceData {
     demo: demo ?? this.demo,
     shopping: shopping ?? this.shopping,
     achievements: achievements ?? this.achievements,
-    wardrobe: wardrobe ?? this.wardrobe,
-    world: world ?? this.world,
   );
 
   Map<String, Object?> toJson() => {
@@ -1053,8 +1042,6 @@ class FinanceData {
     'demo': demo,
     'shopping': shopping.map((item) => item.toJson()).toList(),
     'achievements': achievements.toJson(),
-    'wardrobe': wardrobe.toJson(),
-    'world': world.toJson(),
   };
 
   factory FinanceData.fromJson(Map<String, dynamic> json) => FinanceData(
@@ -1104,13 +1091,5 @@ class FinanceData {
             Map<String, dynamic>.from(json['achievements'] as Map),
           )
         : const AchievementState(),
-    wardrobe: json['wardrobe'] is Map
-        ? WardrobeState.fromJson(
-            Map<String, dynamic>.from(json['wardrobe'] as Map),
-          )
-        : const WardrobeState(),
-    world: json['world'] is Map
-        ? WorldState.fromJson(Map<String, dynamic>.from(json['world'] as Map))
-        : const WorldState(),
   );
 }

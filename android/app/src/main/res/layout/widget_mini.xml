@@ -8,5 +8,5 @@
         android:adjustViewBounds="true"
         android:contentDescription="Финора"
         android:scaleType="fitCenter"
-        android:src="@drawable/finora_mood_check" />
+        android:src="@drawable/finora_orb" />
 </FrameLayout>

@@ -27,7 +27,7 @@ Future<void> payEarly(BuildContext context, RecurringRule rule) async {
       return StatefulBuilder(
         builder: (ctx, set) => AlertDialog(
           key: const ValueKey('pay-early'),
-          icon: const FinoraCharacter(size: 64, moods: [FinoraMood.thinking]),
+          icon: const FinoraCharacter(size: 64),
           title: Text('Оплатить «${rule.name}» досрочно?'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -86,7 +86,6 @@ Future<void> payEarly(BuildContext context, RecurringRule rule) async {
   await c.payEarly(rule.id, amountMinor: sum);
   await Haptics.success();
   Finora.react(
-    FinoraMood.done,
     text: 'Записала досрочно: ${rule.name} −${money(sum, rule.currency)}',
   );
 }
