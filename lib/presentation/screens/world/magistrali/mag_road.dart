@@ -5,6 +5,7 @@ import '../../../l10n_widgets.dart';
 import 'mag_art.dart';
 import 'mag_hud.dart';
 import 'mag_s25_ui.dart';
+import 'mag_s28_ui.dart';
 import 'mag_screen.dart';
 import 'mag_sheets.dart';
 import 'mag_tools.dart';
@@ -165,6 +166,8 @@ Future<void> showRoadSheet(MagistraliScreenState state, int cell) async {
           style: magMuted,
         ),
         ...interchangeSection(state, cell), // JCT-01
+        ...junctionSection(state, cell), // JCT-02
+        ...curveSection(state, cell), // VIS-07
         // A terminal by a settlement (CITY-13).
         for (final t in w.townsBeside(cell))
           if (w.terminals[cell] == t.id)

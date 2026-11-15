@@ -8,6 +8,7 @@ import 'mag_art.dart';
 import 'mag_hud.dart';
 import 'mag_s25_ui.dart';
 import 'mag_s26_ui.dart';
+import 'mag_s28_ui.dart';
 import 'mag_screen.dart';
 import 'mag_sheets.dart';
 import 'mag_town.dart';
@@ -213,6 +214,7 @@ Future<void> showRailSheet(MagistraliScreenState state, int cell) async {
           style: magMuted,
         ),
         ...signalSection(state, cell), // SIG-01
+        ...curveSection(state, cell, rail: true), // VIS-07
         const SizedBox(height: 10),
         OutlinedButton(
           key: const ValueKey('mag-rail-remove'),

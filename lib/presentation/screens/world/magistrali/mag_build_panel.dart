@@ -109,6 +109,23 @@ class MagBuildPanel extends StatelessWidget {
             state.changed();
           },
         ),
+        // S28: an overpass — drawn ways pass over what they cross.
+        MagToolChip(
+          key: const ValueKey('mag-over'),
+          label: 'Эстакада',
+          on: magOver,
+          color: const Color(0xFF6D7680),
+          icon: Icons.u_turn_left_rounded,
+          onTap: () {
+            magOver = !magOver;
+            state.say(
+              magOver
+                  ? 'Трасса пройдёт над дорогами и путями без съезда'
+                  : 'Трасса соединяется с дорогами, которые пересекает',
+            );
+            state.changed();
+          },
+        ),
         // Road load over the map (ROAD-10).
         MagToolChip(
           key: const ValueKey('mag-traffic'),

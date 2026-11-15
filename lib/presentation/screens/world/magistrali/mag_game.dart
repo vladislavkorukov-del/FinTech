@@ -22,6 +22,7 @@ import 'mag_town_art.dart';
 import 'mag_iso.dart';
 import 'mag_port_art.dart';
 import 'mag_ways_art.dart';
+import 'mag_deck_art.dart';
 
 /// What the screen wants drawn over the world.
 class MagOverlay {
@@ -162,22 +163,7 @@ class MagRenderer {
     _net.paintRoads(canvas, netView, w.size);
     if (o.traffic) paintTraffic(canvas, w, x0, y0, x1, y1);
     if (w.regionsLocked) paintClosedRegions(canvas, w); // MAP-08
-    for (var y = y0; y <= y1; y++) {
-      for (var x = x0; x <= x1; x++) {
-        final r = w.roadAt(x, y);
-        if (r == MagRoad.none) continue;
-        for (var d = 0; d < 4; d++) {
-          final nx = x + MagDir.dx[d], ny = y + MagDir.dy[d];
-          final place = map.inside(nx, ny) && !w.hasRoad(nx, ny)
-              ? map.industryAt(nx, ny)
-              : null;
-          if (place != null &&
-              (place.town != null || w.entranceOf(place) == w.cellOf(x, y))) {
-            paintRoadStub(canvas, r, x, y, d);
-          }
-        }
-      }
-    }
+    paintStubs(canvas, w, x0, y0, x1, y1); // driveways into places
     for (final s in w.stations.keys) {
       canvas.drawRRect(
         RRect.fromRectAndRadius(
@@ -223,7 +209,10 @@ class MagRenderer {
         final ground = map.at(x, y);
         final cell = w.cellOf(x, y);
         final way = w.roads[cell] != 0 || w.rails[cell] != 0;
-        if (ground == MagTerrain.river && way) {
+        if (ground == MagTerrain.river &&
+            way &&
+            !w.onWay(cell) &&
+            !w.onWay(cell, rail: true)) {
           // A bridge with its own model.
           final rail = w.rails[cell] != 0 && w.roads[cell] == 0;
           objects.add((
@@ -308,6 +297,9 @@ class MagRenderer {
       if (x < x0 - 1 || y < y0 - 1 || x > x1 + 1 || y > y1 + 1) continue;
       objects.add((x + y + .2, () => paintPortCrane(canvas, x, y)));
     }
+    for (final d in _net.decks) {
+      objects.add((d.depth, () => paintDeck(canvas, d))); // S28
+    }
     for (final v in w.vehicles.values) {
       if (!v.onMap) continue;
       // On the curve of its way, facing along it.
@@ -342,34 +334,43 @@ class MagRenderer {
         ));
         continue;
       }
+      final lift = vehicleLift(w, v); // S28: on a bridge
       if (v.spec.rail) {
         if (px < x0 - 2 || py < y0 - 2 || px > x1 + 3 || py > y1 + 3) continue;
         final cars = trainCars(w, v);
         objects.add((
-          px + py,
-          () => paintTrain(
+          px + py + (lift > 0 ? 3 : 0),
+          () => lifted(
             canvas,
-            cars,
-            v.spec,
-            v.load > 0 ? MagPalette.cargo(v.cargo!) : null,
-            selected: o.vehicle == v.id,
+            lift,
+            () => paintTrain(
+              canvas,
+              cars,
+              v.spec,
+              v.load > 0 ? MagPalette.cargo(v.cargo!) : null,
+              selected: o.vehicle == v.id,
+            ),
           ),
         ));
         continue;
       }
       if (px < x0 - 1 || py < y0 - 1 || px > x1 + 2 || py > y1 + 2) continue;
       objects.add((
-        px + py,
-        () => paintTruck(
+        px + py + (lift > 0 ? 3 : 0),
+        () => lifted(
           canvas,
-          px,
-          py,
-          dir,
-          v.spec,
-          v.load > 0 ? MagPalette.cargo(v.cargo!) : null,
-          selected: o.vehicle == v.id,
-          paint: v.paint == null ? null : Color(v.paint!),
-          tier: w.visualTier(v),
+          lift,
+          () => paintTruck(
+            canvas,
+            px,
+            py,
+            dir,
+            v.spec,
+            v.load > 0 ? MagPalette.cargo(v.cargo!) : null,
+            selected: o.vehicle == v.id,
+            paint: v.paint == null ? null : Color(v.paint!),
+            tier: w.visualTier(v),
+          ),
         ),
       ));
     }

@@ -18,8 +18,11 @@ class NetChain {
   NetChain(this.cells, this.road);
   final List<int> cells;
   final MagRoad road;
-  late final List<Offset> points;
+  late List<Offset> points;
   Rect? _bounds;
+
+  /// S28: square ends (where it tapers into a road of another kind).
+  bool butt = false;
 
   /// The cells it covers, worked out once (S20: no scan every frame).
   Rect bounds(int size) => _bounds ??= () {
@@ -148,8 +151,11 @@ void paintRoadChain(Canvas c, NetChain ch, [int pass = -1]) {
   final w = roadWidth(ch.road);
   final path = _line(ch.points);
   final (shoulder, surface) = roadColors(ch.road);
-  if (pass < 0 || pass == 0) c.drawPath(path, _stroke(shoulder, w + .06));
-  if (pass < 0 || pass == 1) c.drawPath(path, _stroke(surface, w));
+  final cap = ch.butt ? StrokeCap.butt : StrokeCap.round;
+  if (pass < 0 || pass == 0) {
+    c.drawPath(path, _stroke(shoulder, w + .06, cap: cap));
+  }
+  if (pass < 0 || pass == 1) c.drawPath(path, _stroke(surface, w, cap: cap));
   if (pass >= 0 && pass != 2) return;
   const paint = Color(0xE6F4F1E6);
   Paint line(double width, [Color color = paint]) =>

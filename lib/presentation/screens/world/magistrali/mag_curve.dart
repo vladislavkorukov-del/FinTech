@@ -114,10 +114,18 @@ _Smooth _smoothOf(MagWorld w, List<int> path) => _smooth[path] ??= _Smooth(() {
   // S27: on a free way a vehicle rides the curve itself (the point of
   // the curve in each cell), only softened; elsewhere the cells' line.
   if (w.ways.isNotEmpty && path.any(w.onWay)) {
-    return smoothLine([
-      for (final c in path)
-        if (w.wayPoint(c) case (final x, final y)) Offset(x, y),
-    ], rounds: 2);
+    // S28: over a bridge the points of its curve are in between.
+    final pts = <Offset>[];
+    for (var i = 0; i < path.length; i++) {
+      final (x, y) = w.wayPoint(path[i]);
+      pts.add(Offset(x, y));
+      if (i + 1 < path.length) {
+        for (final (sx, sy) in w.spanPoints(path[i], path[i + 1])) {
+          pts.add(Offset(sx, sy));
+        }
+      }
+    }
+    return smoothLine(pts, rounds: 2);
   }
   return wayLine([for (final c in path) Offset(w.cx(c) + .5, w.cy(c) + .5)]);
 }());

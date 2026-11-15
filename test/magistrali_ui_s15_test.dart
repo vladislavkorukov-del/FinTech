@@ -5,6 +5,7 @@ import 'package:finora/data/finance_repository.dart';
 import 'package:finora/domain/magistrali/magistrali.dart';
 import 'package:finora/domain/models.dart';
 import 'package:finora/presentation/controller.dart';
+import 'package:finora/presentation/screens/world/magistrali/mag_road.dart';
 import 'package:finora/presentation/screens/world/magistrali/mag_screen.dart';
 import 'package:finora/presentation/screens/world/magistrali/mag_sheets.dart';
 import 'package:finora/presentation/screens/world/magistrali/mag_town.dart';
@@ -357,6 +358,46 @@ void main() {
     await tester.ensureVisible(find.byKey(ValueKey('mag-future-${c.name}')));
     await tap(tester, 'mag-future-${c.name}');
     expect(w.futures.single.cargo, c);
+    await closeSheet(tester);
+    await settle(tester);
+  });
+
+  testWidgets('S28: an overpass from the road sheet; a curve comes off', (
+    tester,
+  ) async {
+    await mount(tester, const MagistraliScreen(seed: MagRules.defaultSeed));
+    final s = await ready(tester);
+    final w = s.world
+      ..money = 50000000
+      ..xp = MagWorldProgress.xpFor(24)
+      ..regionsLocked = false;
+    w.speed = 0;
+    w.techs.addAll(['combustion', 'interchanges']);
+    final f = w.map.startFarm;
+    final x0 = f.right + 8, y0 = f.bottom + 6;
+    w.buildRoad(
+      w.planWay([
+        (x0 + .5, y0 - 4.5),
+        (x0 + .5, y0 + 4.5),
+      ], road: MagRoad.asphalt),
+    );
+    w.buildRoad(
+      w.planWay([
+        (x0 - 4.5, y0 + .5),
+        (x0 + 5.5, y0 + .5),
+      ], road: MagRoad.asphalt),
+    );
+    s.changed();
+    final x = w.cellOf(x0, y0);
+    if (w.junctionBlocker(x, MagJunction.overpass) != null) return;
+    unawaited(showRoadSheet(s, x));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    await tester.ensureVisible(
+      find.byKey(const ValueKey('mag-junction-overpass')),
+    );
+    await tap(tester, 'mag-junction-overpass');
+    expect(w.wayIndex.runs, isNotEmpty);
     await closeSheet(tester);
     await settle(tester);
   });

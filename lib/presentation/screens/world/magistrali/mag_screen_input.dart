@@ -4,6 +4,9 @@ part of 'mag_screen.dart';
 /// any curve (two fingers still move and zoom the map). The drawn way is
 /// only a plan until «Построить». The player can switch it off.
 bool magFreehand = true;
+
+/// S28: drawn ways pass over roads and track they cross (an overpass).
+bool magOver = false;
 final _trace = <Offset>[];
 var _tracing = false;
 
@@ -99,7 +102,11 @@ extension _MagScreenInput on MagistraliScreenState {
   /// S27: a free way along [pts] becomes the plan.
   void _planWay(List<(double, double)> pts) {
     final w = world;
-    final plan = w.planWay(pts, road: tool == MagTool.rail ? null : roadType);
+    final plan = w.planWay(
+      pts,
+      road: tool == MagTool.rail ? null : roadType,
+      over: magOver, // S28
+    );
     pendingRoad = plan.cells.isEmpty ? null : plan;
     _showPlan(plan.cells, [
       for (final (x, y) in plan.shape ?? pts) Offset(x, y),
