@@ -18,7 +18,11 @@ extension MagWorldMarket on MagWorld {
   }
 
   /// The price to mend a broken cell at once.
-  int repairPrice(int c) =>
+  int repairPrice(int c) => insured
+      ? 0 // INS-01: the insurer pays
+      : _repairCost(c);
+
+  int _repairCost(int c) =>
       MagRules.repairBase * math.max(1, roads[c]).toInt() +
       (map.at(cx(c), cy(c)) == MagTerrain.river ? MagRules.repairBase * 3 : 0);
 
@@ -81,6 +85,7 @@ extension MagWorldMarket on MagWorld {
     for (final c in hit) {
       damaged[c] = tick + repairDaysAt(c) * MagRules.ticksPerDay;
     }
+    _insuredDamage(hit); // INS-01
     roadVersion++;
     _say(
       w == MagWeather.rain
@@ -172,6 +177,8 @@ extension MagWorldMarket on MagWorld {
   void _dayMarket() {
     _dayDisasters();
     _dayStocks();
+    _dayBonds(); // FIN-18
+    _dayInsurance(); // INS-01
   }
 
   // ---- TOUR-01 / TOUR-02 ----

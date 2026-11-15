@@ -33,6 +33,10 @@ mixin _MagWorldLater {
   int ownShares = MagRules.shares;
   final rivalStakes = <String, int>{};
   final priceHistory = <int>[];
+
+  /// S24: bonds issued, insurance.
+  final bonds = <MagBond>[];
+  bool insured = false;
   final _biomes = <int, MagBiome>{};
   final subsidies = <MagSubsidy>[];
   final uniqueOffered = <String>{};

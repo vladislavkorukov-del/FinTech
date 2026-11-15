@@ -240,6 +240,11 @@ abstract final class MagRules {
   static const crewReach = 10, repairBase = 400;
   static const shares = 1000, controlShares = 510;
   static const touristPay = 1.6, touristPeak = 1.5;
+
+  /// Stage S24: bonds (monthly coupon, term, share of the company's value
+  /// the market takes), insurance.
+  static const bondCoupon = .015, bondDays = 180, bondShare = .5;
+  static const premiumMin = 500, premiumShare = .003, insurancePayout = 1500;
   static const overdraftRate = .01, crisisDays = 30;
   static const auctionEvery = 10, auctionStart = .7, auctionRise = .05;
   static const auctionDays = 5, regionPrice = 15000;

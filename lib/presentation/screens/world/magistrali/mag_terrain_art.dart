@@ -81,6 +81,23 @@ void _paintWater(Canvas c, MagMap map, int x0, int y0, int x1, int y1) {
           ..style = PaintingStyle.fill;
         final ctr = Offset(x + .5, y + .5);
         c.drawCircle(ctr, .58 + grow, paint);
+        // S24: water at the map's edge runs on to the edge itself — no pale
+        // rim closing a river off where it meets the sea.
+        if (deep) {
+          final n = map.size;
+          if (x == 0) {
+            c.drawRect(Rect.fromLTWH(0, y + .05, .6, .9), paint);
+          }
+          if (y == 0) {
+            c.drawRect(Rect.fromLTWH(x + .05, 0, .9, .6), paint);
+          }
+          if (x == n - 1) {
+            c.drawRect(Rect.fromLTWH(x + .4, y + .05, .6, .9), paint);
+          }
+          if (y == n - 1) {
+            c.drawRect(Rect.fromLTWH(x + .05, y + .4, .9, .6), paint);
+          }
+        }
         for (final (dx, dy) in const [(1, 0), (0, 1), (1, 1), (1, -1)]) {
           final nx = x + dx, ny = y + dy;
           if (!map.inside(nx, ny) || !_wet(map.at(nx, ny))) continue;

@@ -83,6 +83,22 @@ void paintNightLights(
       }
       continue;
     }
+    // S24: resorts glow all night, owned or not.
+    final resort =
+        i.kind == MagIndustryKind.lakeResort ||
+        i.kind == MagIndustryKind.skiResort;
+    if (resort) {
+      for (var n = 0; n < 8; n++) {
+        final p = MagIso.project(
+          i.x + .45 + (n % 4) * .3,
+          i.y + .55 + (n ~/ 4) * .15,
+          6 + (n ~/ 4) * 8.0,
+        );
+        c.drawCircle(p, 5, halo);
+        c.drawCircle(p, 1.9, glow);
+      }
+      continue;
+    }
     if (!i.owned) continue;
     final p = MagIso.project(i.centerX, i.centerY, 8);
     final r = Rect.fromCircle(center: p, radius: 26);
@@ -96,6 +112,29 @@ void paintNightLights(
           ],
         ).createShader(r),
     );
+  }
+  // S24: airports — runway lights blinking in turn, a lamp on the tower.
+  for (final cell in w.airports.keys) {
+    final x = w.cx(cell), y = w.cy(cell);
+    if (x < x0 - 1 || x > x1 + 1 || y < y0 - 1 || y > y1 + 1) continue;
+    for (var k = 0; k < 5; k++) {
+      for (final side in const [.12, .88]) {
+        final p = MagIso.project(x + .1 + k * .2, y + side);
+        c.drawCircle(p, 3.5, halo);
+        c.drawCircle(
+          p,
+          1.3,
+          Paint()..color = Color.fromRGBO(255, 236, 160, night),
+        );
+      }
+    }
+    final top = MagIso.project(x + .85, y + .82, 24);
+    c.drawCircle(
+      top,
+      6,
+      Paint()..color = Color.fromRGBO(255, 80, 70, .35 * night),
+    );
+    c.drawCircle(top, 2, Paint()..color = Color.fromRGBO(255, 90, 80, night));
   }
   for (final v in w.vehicles.values) {
     if (!v.onMap || v.state != MagVehicleState.driving) continue;

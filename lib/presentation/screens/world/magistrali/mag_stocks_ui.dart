@@ -144,6 +144,8 @@ List<Widget> stockCards(MagistraliScreenState state) {
           ],
         ),
       ),
+    const SizedBox(height: 14),
+    ...creditCards(state),
   ];
 }
 
@@ -201,4 +203,100 @@ class _Spark extends CustomPainter {
   bool shouldRepaint(_Spark old) =>
       old.h.length != h.length ||
       (h.isNotEmpty && old.h.isNotEmpty && old.h.last != h.last);
+}
+
+/// S24: the credit rating (FIN-17), bonds (FIN-18), insurance (INS-01).
+List<Widget> creditCards(MagistraliScreenState state) {
+  final w = state.world;
+  final r = w.rating;
+  final good = r.startsWith('A');
+  return [
+    Container(
+      key: const ValueKey('mag-credit-card'),
+      padding: const EdgeInsets.all(14),
+      decoration: magCard(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
+                decoration: BoxDecoration(
+                  color: good
+                      ? const Color(0x222BB59A)
+                      : const Color(0x22D64B5C),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  r,
+                  key: const ValueKey('mag-rating'),
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w900,
+                    color: good ? MagPalette.teal : const Color(0xFFD64B5C),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  'Кредитный рейтинг · ${w.creditScore} из 100',
+                  style: const TextStyle(fontWeight: FontWeight.w800),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          const Text(
+            'Выше рейтинг — дешевле кредит и облигации, больше лимит банка. Его поднимают малый долг, прибыльные месяцы и рост компании.',
+            style: magMuted,
+          ),
+          const SizedBox(height: 10),
+          Text(
+            'Облигации · купон ${(w.bondRate * 100).toStringAsFixed(2)}% в месяц · срок ${MagRules.bondDays ~/ MagRules.daysPerMonth} мес.',
+            style: const TextStyle(fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(height: 6),
+          Wrap(
+            spacing: 8,
+            runSpacing: 6,
+            children: [
+              for (final a in const [25000, 50000, 100000])
+                OutlinedButton(
+                  key: ValueKey('mag-bond-$a'),
+                  onPressed: () =>
+                      state.report(w.issueBond(a), 'Облигации размещены'),
+                  child: Text('+${magMoney(a)}'),
+                ),
+            ],
+          ),
+          for (final b in w.bonds)
+            magRow(
+              'Облигация ${magMoney(b.amount)} кр',
+              'купон ${magMoney((b.amount * b.rate).round())}/мес · погашение через ${((b.until - w.tick) / MagRules.ticksPerDay).ceil()} дн.',
+            ),
+          const Divider(),
+          Material(
+            type: MaterialType.transparency,
+            child: SwitchListTile(
+              key: const ValueKey('mag-insurance'),
+              contentPadding: EdgeInsets.zero,
+              value: w.insured,
+              activeThumbColor: MagPalette.mint,
+              title: const Text('Страховка от стихии'),
+              subtitle: Text(
+                '${magMoney(w.insurancePremium)} кр в месяц · ремонт после бедствий бесплатно и за день, выплата ${magMoney(MagRules.insurancePayout)} кр за клетку',
+                style: magMuted,
+              ),
+              onChanged: (v) => state.report(w.setInsured(v)),
+            ),
+          ),
+        ],
+      ),
+    ),
+  ];
 }

@@ -201,6 +201,7 @@ extension MagWorldRoutes on MagWorld {
     ..._saveAir(),
     ..._saveSeasons(),
     ..._saveMarket(),
+    ..._saveCredit(),
     if (map.industries.any((i) => i.staff > 0))
       'staff': {
         for (final i in map.industries)

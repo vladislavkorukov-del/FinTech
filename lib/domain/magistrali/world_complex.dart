@@ -23,7 +23,8 @@ extension MagWorldComplex on MagWorld {
   /// What a body allows (null: no special body — then the general rule).
   bool? _bodyAllows(MagVehicle v, MagCargo c) {
     if (c.liquid) {
-      return v.spec.rail || v.spec.water || v.spec.body == 'tank';
+      return (v.spec.rail || v.spec.water) && !v.spec.passengers ||
+          v.spec.body == 'tank';
     }
     return switch (v.spec.body) {
       'tank' => false,
@@ -234,6 +235,7 @@ extension MagWorldComplex on MagWorld {
     loadBiomes(j);
     loadSeasons(j);
     loadMarket(j);
+    loadCredit(j);
     for (final e in (j['hulls'] as Map? ?? const {}).entries) {
       final v = vehicles[int.parse('${e.key}')];
       final n = e.value;

@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 
@@ -24,6 +25,9 @@ void paintSea(Canvas c, MagMap map, Rect view, double time) {
       Paint()..color = color,
     );
   }
+  // S24: river mouths — the river's water flows out over the shore and
+  // shallows and fades into the sea, with no beach or stripes across it.
+  _paintMouths(c, map, view);
   // Islands far out: a sandy rim, grass and a few dark spots of wood.
   for (var k = 0; k < 14; k++) {
     final a = _h(k, 1, map.seed) * math.pi * 2;
@@ -93,4 +97,61 @@ Rect seaView(MagCamera cam, Size size) {
     pts.map((p) => p.dx).reduce(math.max),
     pts.map((p) => p.dy).reduce(math.max),
   );
+}
+
+/// Where a river or a lake touches the map's edge, its water carries on
+/// outwards: a channel that widens and turns from river blue to sea blue.
+void _paintMouths(Canvas c, MagMap map, Rect view) {
+  final n = map.size;
+  const river = Color(0xFF5BB0D6), sea = Color(0xFF4B9BCB);
+  bool wet(int x, int y) {
+    final t = map.at(x, y);
+    return t == MagTerrain.river || t == MagTerrain.lake;
+  }
+
+  for (var k = 0; k < n; k++) {
+    // (x, y) of the edge cell, and the outward direction.
+    for (final (x, y, dx, dy) in [
+      (k, 0, 0, -1),
+      (k, n - 1, 0, 1),
+      (0, k, -1, 0),
+      (n - 1, k, 1, 0),
+    ]) {
+      if (!wet(x, y)) continue;
+      final cx = x + .5, cy = y + .5;
+      final edge = Offset(cx + dx * .5, cy + dy * .5);
+      if (!view.inflate(6).contains(edge)) continue;
+      const len = 3.6;
+      final end = edge + Offset(dx * len, dy * len);
+      // Sideways, along the shore.
+      final sx = dy.abs().toDouble(), sy = dx.abs().toDouble();
+      // Feathered: wide and faint first, narrow and solid last.
+      for (final (w0, w1, a) in const [
+        (1.0, 4.2, .35),
+        (.8, 3.2, .6),
+        (.6, 2.2, 1.0),
+      ]) {
+        final path = Path()
+          ..moveTo(edge.dx - sx * w0, edge.dy - sy * w0)
+          ..lineTo(edge.dx + sx * w0, edge.dy + sy * w0)
+          ..lineTo(end.dx + sx * w1, end.dy + sy * w1)
+          ..lineTo(end.dx - sx * w1, end.dy - sy * w1)
+          ..close();
+        c.drawPath(
+          path,
+          Paint()
+            ..shader = ui.Gradient.linear(
+              edge,
+              end,
+              [
+                river.withValues(alpha: a),
+                Color.lerp(river, sea, .6)!.withValues(alpha: a * .8),
+                sea.withValues(alpha: 0),
+              ],
+              const [0, .55, 1],
+            ),
+        );
+      }
+    }
+  }
 }

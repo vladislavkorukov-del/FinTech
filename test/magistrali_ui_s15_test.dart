@@ -278,4 +278,23 @@ void main() {
     await closeSheet(tester);
     await settle(tester);
   });
+
+  testWidgets('S24: the rating, a bond and insurance on the exchange tab', (
+    tester,
+  ) async {
+    await mount(tester, const MagistraliScreen(seed: MagRules.defaultSeed));
+    final s = await ready(tester);
+    final w = s.world..money = 1000000;
+    w.speed = 0;
+    s.changed();
+    await tap(tester, 'mag-level');
+    await tap(tester, 'mag-company-tab-6');
+    expect(find.byKey(const ValueKey('mag-rating')), findsOneWidget);
+    await tap(tester, 'mag-bond-25000');
+    expect(w.bonds.single.amount, 25000);
+    await tap(tester, 'mag-insurance');
+    expect(w.insured, isTrue);
+    await closeSheet(tester);
+    await settle(tester);
+  });
 }

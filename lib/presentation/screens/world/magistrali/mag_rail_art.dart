@@ -184,16 +184,41 @@ void paintShip(
       outline: false,
     );
   }
-  MagShapes.box(
-    c,
-    x: x - MagDir.dx[dir] * len * .32,
-    y: y - MagDir.dy[dir] * len * .32,
-    length: .18,
-    width: .2,
-    z0: 4,
-    h: big ? 8 : 6,
-    color: const Color(0xFFF1F3F4),
-  );
+  if (m.body == 'cruise') {
+    // S24: a liner — two white decks and a red-and-white funnel.
+    for (final (z, k) in const [(4.0, .8), (8.0, .6)]) {
+      MagShapes.box(
+        c,
+        x: x,
+        y: y,
+        length: along ? len * k : wid * .8,
+        width: along ? wid * .8 : len * k,
+        z0: z,
+        h: 4,
+        color: const Color(0xFFF7F8F9),
+      );
+    }
+    MagShapes.cylinder(
+      c,
+      x: x - MagDir.dx[dir] * .08,
+      y: y - MagDir.dy[dir] * .08,
+      r: .06,
+      z0: 12,
+      h: 6,
+      color: const Color(0xFFD64B5C),
+    );
+  } else {
+    MagShapes.box(
+      c,
+      x: x - MagDir.dx[dir] * len * .32,
+      y: y - MagDir.dy[dir] * len * .32,
+      length: .18,
+      width: .2,
+      z0: 4,
+      h: big ? 8 : 6,
+      color: const Color(0xFFF1F3F4),
+    );
+  }
   if (selected) {
     c.drawOval(
       Rect.fromCenter(center: MagIso.project(x, y), width: 52, height: 26),

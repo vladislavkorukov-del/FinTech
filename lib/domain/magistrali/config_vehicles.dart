@@ -41,7 +41,9 @@ class MagTruckModel {
   bool get motorGoods => !horse && !rail && !water && !air && !passengers;
 
   /// Comfort for people (PASS-07): their fare is multiplied by it.
-  double get comfort => body == 'tram'
+  double get comfort => body == 'cruise'
+      ? 1.6 // S24: a cruise liner
+      : body == 'tram'
       ? 1.25
       : horse
       ? .85
@@ -342,6 +344,22 @@ const magTruckModels = <MagTruckModel>[
     level: 14,
     color: 0xFF2E5E8C,
     water: true,
+  ),
+  // Stage S24: a cruise liner — people only, the most comfortable of all.
+  MagTruckModel(
+    id: 'liner',
+    name: 'Круизный лайнер «Чайка»',
+    speed: 1.5,
+    capacity: 60,
+    price: 70000,
+    runningCost: 1.1,
+    upkeep: 24,
+    level: 12,
+    color: 0xFFF2F4F6,
+    water: true,
+    passengers: true,
+    body: 'cruise',
+    tech: 'tourism',
   ),
   // Stage S22: aviation — straight between airports, fast and costly.
   MagTruckModel(

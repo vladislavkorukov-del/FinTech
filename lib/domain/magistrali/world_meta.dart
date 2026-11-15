@@ -70,10 +70,13 @@ extension MagWorldMeta on MagWorld {
   // ---- FIN-15: loans ----
 
   /// The most the bank lends now (grows with the company level).
-  int get loanLimit => MagRules.loanBase + level * MagRules.loanPerLevel;
+  int get loanLimit =>
+      ((MagRules.loanBase + level * MagRules.loanPerLevel) * ratingLimit)
+          .round(); // FIN-17
 
   /// Interest of a day on the debt.
-  int get dailyInterest => (debt * MagRules.loanRate).ceil();
+  int get dailyInterest =>
+      (debt * MagRules.loanRate * ratingInterest).ceil(); // FIN-17
 
   String? takeLoan(int amount) {
     if (amount <= 0) return 'Сумма должна быть больше нуля';
