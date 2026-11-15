@@ -1162,7 +1162,7 @@ abstract final class AppTheme {
                 middle: base,
                 bottom: base,
                 glowA: const Color(0x14E9C79F),
-                glowB: Colors.transparent,
+                glowB: const Color(0x0FD9C2A5),
               ),
       ],
       textTheme: inherited.textTheme.apply(bodyColor: ink, displayColor: ink),
