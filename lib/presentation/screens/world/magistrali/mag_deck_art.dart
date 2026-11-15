@@ -36,9 +36,12 @@ List<MagDeck> magDecks(MagWorld w) {
   for (var i = 0; i < idx.runs.length; i++) {
     final r = idx.runs[i];
     final over = r.cells.any((c) => w.roads[c] != 0 || w.rails[c] != 0);
+    // The deck follows the way's own smooth curve (not the cells' points),
+    // and starts and ends well before and after the span: gentle ramps.
+    final curve = idx.lays[idx.ways.indexOf(r.way)].curve;
     out.add(
       MagDeck(
-        smoothLine([for (final p in r.pts) at(p)], rounds: 2),
+        _piece(curve, at(r.pts.first), at(r.pts.last), over ? 1.6 : .7),
         over ? 12.0 + 12.0 * (levels[i] - 1) : 7,
         r.way.road,
         r.way.rail,
@@ -68,7 +71,12 @@ List<MagDeck> magDecks(MagWorld w) {
       final cells = lay.cells.sublist(from, to + 1);
       out.add(
         MagDeck(
-          smoothLine([for (final c in cells) at(lay.anchors[c]!)], rounds: 2),
+          _piece(
+            lay.curve,
+            at(lay.anchors[cells.first]!),
+            at(lay.anchors[cells.last]!),
+            .3,
+          ),
           6,
           way.road,
           way.rail,
@@ -79,6 +87,40 @@ List<MagDeck> magDecks(MagWorld w) {
     }
   }
   return out;
+}
+
+/// The piece of [curve] from the sample nearest [from] to the one nearest
+/// [to], carried on by [extend] cells at both ends.
+List<Offset> _piece(List<MagPt> curve, Offset from, Offset to, double extend) {
+  int nearest(Offset p) {
+    var best = 0;
+    var d = double.infinity;
+    for (var i = 0; i < curve.length; i++) {
+      final dx = curve[i].$1 - p.dx, dy = curve[i].$2 - p.dy;
+      final e = dx * dx + dy * dy;
+      if (e < d) {
+        d = e;
+        best = i;
+      }
+    }
+    return best;
+  }
+
+  var a = nearest(from), b = nearest(to);
+  if (a > b) (a, b) = (b, a);
+  double step(int i) {
+    final dx = curve[i].$1 - curve[i - 1].$1;
+    final dy = curve[i].$2 - curve[i - 1].$2;
+    return math.sqrt(dx * dx + dy * dy);
+  }
+
+  for (var run = 0.0; a > 0 && run < extend; a--) {
+    run += step(a);
+  }
+  for (var run = 0.0; b < curve.length - 1 && run < extend; b++) {
+    run += step(b + 1);
+  }
+  return [for (var i = a; i <= b; i++) Offset(curve[i].$1, curve[i].$2)];
 }
 
 /// The level of each bridge (S29): 1 over the ground; a bridge passing
@@ -197,22 +239,22 @@ void paintDeck(Canvas c, MagDeck d) {
   top.close();
   final surface = d.rail ? const Color(0xFF9C9488) : roadColors(d.road).$2;
   c.drawPath(top, Paint()..color = surface);
-  Path line(List<Offset> side, double off) {
-    final p = Path();
-    for (var i = 0; i < pts.length; i++) {
-      final q = proj(side[i], zs[i] + off);
-      i == 0 ? p.moveTo(q.dx, q.dy) : p.lineTo(q.dx, q.dy);
-    }
-    return p;
-  }
 
   final rail = Paint()
     ..style = PaintingStyle.stroke
-    ..strokeWidth = 1.4
-    ..color = const Color(0xFFE6E8EB);
-  c
-    ..drawPath(line(left, 2), rail)
-    ..drawPath(line(right, 2), rail);
+    ..strokeWidth = 1
+    ..strokeCap = StrokeCap.round
+    ..color = const Color(0xFFDDE1E5);
+  for (var i = 1; i < pts.length; i++) {
+    if (zs[i] < height * .35) continue;
+    for (final side in [left, right]) {
+      c.drawLine(
+        proj(side[i - 1], zs[i - 1] + 2),
+        proj(side[i], zs[i] + 2),
+        rail,
+      );
+    }
+  }
   // On top: the track, or the road's centre line.
   final centre = [for (var i = 0; i < pts.length; i++) pts[i]];
   if (d.rail) {

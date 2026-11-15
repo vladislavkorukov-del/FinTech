@@ -195,7 +195,11 @@ extension MagWorldSpans on MagWorld {
   /// Why an interchange of [kind] cannot be built at [cell] (null: it can).
   String? junctionBlocker(int cell, MagJunction kind) {
     if (!interchangesUnlocked) return 'Развязки откроет технология «Развязки»';
-    final reach = kind.big ? 4 : 2;
+    final reach = kind.big
+        ? 4
+        : kind == MagJunction.overpass
+        ? 3
+        : 2;
     if (!_arms(cell, reach)) {
       return 'Нужен перекрёсток: дороги на $reach клетки во все четыре стороны';
     }
@@ -266,8 +270,9 @@ extension MagWorldSpans on MagWorld {
       case MagJunction.stack:
         _dropWaysAt(cell);
         // The upper road: over the crossing only.
-        final a = alongX ? (mx - 2, my) : (mx, my - 2);
-        final b = alongX ? (mx + 2, my) : (mx, my + 2);
+        // Long enough for gentle ramps up and down.
+        final a = alongX ? (mx - 3, my) : (mx, my - 3);
+        final b = alongX ? (mx + 3, my) : (mx, my + 3);
         final l = layCurve(wayCurve([a, b]));
         fail = _buildSpanned(
           MagRoadPlan(l.cells, 0, top, null, [a, b], {cell}),
@@ -358,7 +363,11 @@ extension MagWorldSpans on MagWorld {
             polar(t + 78, 3.0),
             polar(t + 90, 4.4),
           ], r);
+        case MagJunction.stack when q.isOdd:
+          // Two ramps stay on the ground, clear of the centre…
+          lay([polar(t, 4.4), polar(t + 45, 3.0), polar(t + 90, 4.4)], r);
         case MagJunction.stack:
+          // …and two flyovers cross over the crossing and each other.
           lay(
             [
               polar(t, 4.4),
