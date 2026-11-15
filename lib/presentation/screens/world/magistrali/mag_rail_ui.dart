@@ -7,6 +7,7 @@ import '../../../l10n_widgets.dart';
 import 'mag_art.dart';
 import 'mag_hud.dart';
 import 'mag_s25_ui.dart';
+import 'mag_s26_ui.dart';
 import 'mag_screen.dart';
 import 'mag_sheets.dart';
 import 'mag_town.dart';
@@ -98,6 +99,7 @@ Future<void> showStationSheet(MagistraliScreenState state, int cell) =>
           const SizedBox(height: 8),
           magRow('Поездов на маршрутах через станцию', '${trains.length}'),
           for (final t in trains) magRow(t.name, t.spec.name),
+          ...yardSection(state, cell), // HUB-01
           const SizedBox(height: 10),
           Row(
             children: [

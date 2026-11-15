@@ -328,4 +328,36 @@ void main() {
     await closeSheet(tester);
     await settle(tester);
   });
+
+  testWidgets('S26: a metro in a big city, a cargo future on the exchange', (
+    tester,
+  ) async {
+    await mount(tester, const MagistraliScreen(seed: MagRules.defaultSeed));
+    final s = await ready(tester);
+    final w = s.world
+      ..money = 2000000
+      ..xp = MagWorldProgress.xpFor(20);
+    w.speed = 0;
+    w.techs.add('metro');
+    final town = w.settlements.first;
+    town.town!.level = MagRules.metroLevel;
+    s.changed();
+    unawaited(showTownSheet(s, town.id));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    await tester.ensureVisible(find.byKey(const ValueKey('mag-metro-build')));
+    await tap(tester, 'mag-metro-build');
+    expect(w.metros, contains(town.id));
+    await closeSheet(tester);
+    await tap(tester, 'mag-level');
+    await tap(tester, 'mag-company-tab-6');
+    final c = MagCargo.values.firstWhere(
+      (c) => !c.people && w.cargoAvailable(c),
+    );
+    await tester.ensureVisible(find.byKey(ValueKey('mag-future-${c.name}')));
+    await tap(tester, 'mag-future-${c.name}');
+    expect(w.futures.single.cargo, c);
+    await closeSheet(tester);
+    await settle(tester);
+  });
 }

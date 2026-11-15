@@ -186,3 +186,105 @@ void paintNightShifts(
     }
   }
 }
+
+/// Stage S26 on the map: what to draw and where (cell, art).
+List<(int, void Function(Canvas, MagWorld, int))> s26Art(MagWorld w) => [
+  for (final id in w.metros)
+    if (w.map.industry(id) case final i?)
+      (w.cellOf(i.centerX.floor(), i.centerY.floor()), paintMetro),
+  for (final c in w.yards) (c, paintYard),
+  for (final id in w.hubs)
+    if (w.map.industry(id) case final i?) (w.cellOf(i.left, i.top), paintHub),
+];
+
+/// A metro entrance: a glass pavilion with the red «M» on a post.
+void paintMetro(Canvas c, MagWorld w, int cell) {
+  final x = w.cx(cell) + .5, y = w.cy(cell) + 1.2;
+  MagShapes.box(
+    c,
+    x: x,
+    y: y,
+    length: .34,
+    width: .22,
+    h: 7,
+    color: const Color(0xFF9FC6DA),
+    top: const Color(0xFF5B7F93),
+  );
+  MagShapes.box(
+    c,
+    x: x + .22,
+    y: y - .1,
+    length: .04,
+    width: .04,
+    h: 16,
+    color: const Color(0xFF4A5560),
+  );
+  final sign = MagIso.project(x + .22, y - .1, 19);
+  c.drawCircle(sign, 6, Paint()..color = const Color(0xFFD64B5C));
+  final tp = TextPainter(
+    text: const TextSpan(
+      text: 'M',
+      style: TextStyle(
+        color: Colors.white,
+        fontSize: 8,
+        fontWeight: FontWeight.w900,
+      ),
+    ),
+    textDirection: TextDirection.ltr,
+  )..layout();
+  tp.paint(c, sign - Offset(tp.width / 2, tp.height / 2));
+}
+
+/// A marshalling yard: fan of sidings and a small signal box.
+void paintYard(Canvas c, MagWorld w, int cell) {
+  final x = w.cx(cell).toDouble(), y = w.cy(cell).toDouble();
+  final rail = Paint()
+    ..style = PaintingStyle.stroke
+    ..strokeWidth = 1.4
+    ..color = const Color(0xFF6E5A48);
+  for (final o in const [.15, .3, .45]) {
+    c.drawLine(
+      MagIso.project(x + .1, y + .5),
+      MagIso.project(x + .95, y + .5 + o),
+      rail,
+    );
+  }
+  MagShapes.box(
+    c,
+    x: x + .8,
+    y: y + .15,
+    length: .2,
+    width: .18,
+    h: 9,
+    color: const Color(0xFFC9A46A),
+    top: const Color(0xFF8C5A3C),
+  );
+}
+
+/// A freight hub: a blue gantry over the warehouse yard.
+void paintHub(Canvas c, MagWorld w, int cell) {
+  final x = w.cx(cell) + .2, y = w.cy(cell) + .2;
+  const blue = Color(0xFF2F6FA8);
+  for (final (dx, dy) in const [(0.0, 0.0), (1.6, 0.0)]) {
+    MagShapes.box(
+      c,
+      x: x + dx,
+      y: y + dy,
+      length: .06,
+      width: .06,
+      h: 22,
+      color: blue,
+    );
+  }
+  MagShapes.box(
+    c,
+    x: x + .8,
+    y: y,
+    length: 1.7,
+    width: .1,
+    z0: 22,
+    h: 3,
+    color: blue,
+    top: const Color(0xFF6FA0CC),
+  );
+}

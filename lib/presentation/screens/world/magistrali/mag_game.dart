@@ -274,6 +274,7 @@ class MagRenderer {
       for (final c in w.terminals2) (c, paintContainerTerminal), // S25
       for (final c in w.signals) (c, paintSignal),
       for (final c in w.interchanges) (c, paintInterchange),
+      ...s26Art(w), // S26: metro, yards, hubs
     ]) {
       final x = w.cx(c), y = w.cy(c);
       if (x < x0 || x > x1 || y < y0 || y > y1) continue;

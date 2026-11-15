@@ -7,24 +7,24 @@
 
 Статусы: NOT_STARTED — не начато; PARTIAL — частично; IN_PROGRESS — в работе;
 READY_FOR_REVIEW — готово, ждёт проверки игроком; VERIFIED — проверено игроком
-(этапы, которые игрок подтвердил: 1.68–1.96); BLOCKED — заблокировано.
+(этапы, которые игрок подтвердил: 1.68–1.97); BLOCKED — заблокировано.
 
 Файлы домена — `lib/domain/magistrali/`, интерфейса —
 `lib/presentation/screens/world/magistrali/`. Тесты — `test/magistrali_<имя>_test.dart`
 (sim, orders, storage, dispatch, towns, horses, production, growth,
-industry, cities, logistics, rail, water, megapolis, passengers, p1, s12, s13, s14, s15, s16, s17, s18, s19, s20, s21, s22, s23, s24, s25, soak, ui, ui_s17, ui_s15, ui_s13, ui_stage5, ui_rail).
+industry, cities, logistics, rail, water, megapolis, passengers, p1, s12, s13, s14, s15, s16, s17, s18, s19, s20, s21, s22, s23, s24, s25, s26, soak, ui, ui_s17, ui_s15, ui_s13, ui_stage5, ui_rail).
 
-Аудит: 1.77.0, обновлено в 1.78.0 (S7) и 1.79.0 (S8), 1.80.0 (S9 и доводка ЖД), 1.81.0 (S10 и графика), 1.82.0 (S11), 1.83.0 (доделка P1), 1.84.0 (S12), 1.85.0 (S13), 1.86.0 (S14), 1.87.0 (S15), 1.88.0 (S16), 1.89.0 (S17), 1.90.0 (S18), 1.91.0 (S19), 1.92.0 (S20), 1.93.0 (S21), 1.94.0 (S22), 1.95.0 (S23), 1.96.0 (S24), 1.97.0 (S25); точка восстановления — тег `restore/magistrali-1.77.0-pre-s7`.
+Аудит: 1.77.0, обновлено в 1.78.0 (S7) и 1.79.0 (S8), 1.80.0 (S9 и доводка ЖД), 1.81.0 (S10 и графика), 1.82.0 (S11), 1.83.0 (доделка P1), 1.84.0 (S12), 1.85.0 (S13), 1.86.0 (S14), 1.87.0 (S15), 1.88.0 (S16), 1.89.0 (S17), 1.90.0 (S18), 1.91.0 (S19), 1.92.0 (S20), 1.93.0 (S21), 1.94.0 (S22), 1.95.0 (S23), 1.96.0 (S24), 1.97.0 (S25), 1.98.0 (S26); точка восстановления — тег `restore/magistrali-1.77.0-pre-s7`.
 
 ## Сводка
 
 | Статус | Механик |
 |---|---|
-| VERIFIED | 223 |
+| VERIFIED | 229 |
 | READY_FOR_REVIEW | 6 |
 | PARTIAL | 0 |
 | NOT_STARTED | 0 |
-| Всего | 229 |
+| Всего | 235 |
 
 ## A. Фундамент игры и безопасность
 
@@ -343,9 +343,20 @@ industry, cities, logistics, rail, water, megapolis, passengers, p1, s12, s13, s
 
 | ID | Механика | P | Статус | Версия | Зависимости | Файлы | Тесты | Проблемы |
 |---|---|---|---|---|---|---|---|---|
-| PORT-01 | Контейнерные терминалы | P2 | READY_FOR_REVIEW | 1.97 | SEA-01 | world_ports.dart (`buildContainerTerminal` в порту, 30 000 кр, технология «Контейнерные перевозки»; `handleAt`: суда грузятся ×3), mag_s25_ui.dart (окно порта), mag_port_art.dart (портальный кран и штабели) | s25 | — |
-| PORT-02 | Контейнеровоз | P2 | READY_FOR_REVIEW | 1.97 | PORT-01 | config_vehicles.dart (контейнеровоз «Нева»: 240 мест, любые сухие грузы, оплата ×1,2, 56 000 кр, 14 ур.), world_ports.dart (`containerRouteBlocker`: только между терминалами), mag_rail_art.dart (цветные контейнеры) | s25 | Без жидкостей и людей |
-| SIG-01 | ЖД-сигналы | P2 | READY_FOR_REVIEW | 1.97 | RAIL-07 | world_ports.dart (`toggleSignal`, 1 500 кр, технология «Железнодорожная сигнализация»; `blockAhead` до следующего сигнала или станции, `_signalRed`: поезд ждёт, пока блок занят; после долгого ожидания — обычные правила), mag_port_art.dart (столб с красным/зелёным огнём) | s25 | — |
-| JCT-01 | Развязки | P2 | READY_FOR_REVIEW | 1.97 | ROAD-08 | world_ports.dart (`buildInterchange` на перекрёстке или переезде, 6 000 кр, технология «Развязки»; `freeFlow`: без пробок на клетке и соседних), world_routes.dart (`congestionOf`), mag_port_art.dart (эстакада) | s25 | — |
-| MORT-01 | Ипотека для городов | P2 | READY_FOR_REVIEW | 1.97 | CITY-09 | world_ports.dart (`startMortgage`: 15 000 кр × уровень, 180 дн. рост населения ×1,6, возврат ×1,3 помесячно), world_settlements.dart (`mortgageFactor`), mag_s25_ui.dart (карточка в окне поселения) | s25, ui_s15 | — |
-| NIGHT-01 | Ночные смены | P2 | READY_FOR_REVIEW | 1.97 | PROD-02 | world_ports.dart (`setNightShift`: выработка +30%, зарплата 40 кр × площадь в день, технология «Ночные смены»), world_industry.dart (`outputFactor`), mag_port_art.dart (окна горят ночью) | s25, ui_s15 | Только свои предприятия |
+| PORT-01 | Контейнерные терминалы | P2 | VERIFIED | 1.97 | SEA-01 | world_ports.dart (`buildContainerTerminal` в порту, 30 000 кр, технология «Контейнерные перевозки»; `handleAt`: суда грузятся ×3), mag_s25_ui.dart (окно порта), mag_port_art.dart (портальный кран и штабели) | s25 | — |
+| PORT-02 | Контейнеровоз | P2 | VERIFIED | 1.97 | PORT-01 | config_vehicles.dart (контейнеровоз «Нева»: 240 мест, любые сухие грузы, оплата ×1,2, 56 000 кр, 14 ур.), world_ports.dart (`containerRouteBlocker`: только между терминалами), mag_rail_art.dart (цветные контейнеры) | s25 | Без жидкостей и людей |
+| SIG-01 | ЖД-сигналы | P2 | VERIFIED | 1.97 | RAIL-07 | world_ports.dart (`toggleSignal`, 1 500 кр, технология «Железнодорожная сигнализация»; `blockAhead` до следующего сигнала или станции, `_signalRed`: поезд ждёт, пока блок занят; после долгого ожидания — обычные правила), mag_port_art.dart (столб с красным/зелёным огнём) | s25 | — |
+| JCT-01 | Развязки | P2 | VERIFIED | 1.97 | ROAD-08 | world_ports.dart (`buildInterchange` на перекрёстке или переезде, 6 000 кр, технология «Развязки»; `freeFlow`: без пробок на клетке и соседних), world_routes.dart (`congestionOf`), mag_port_art.dart (эстакада) | s25 | — |
+| MORT-01 | Ипотека для городов | P2 | VERIFIED | 1.97 | CITY-09 | world_ports.dart (`startMortgage`: 15 000 кр × уровень, 180 дн. рост населения ×1,6, возврат ×1,3 помесячно), world_settlements.dart (`mortgageFactor`), mag_s25_ui.dart (карточка в окне поселения) | s25, ui_s15 | — |
+| NIGHT-01 | Ночные смены | P2 | VERIFIED | 1.97 | PROD-02 | world_ports.dart (`setNightShift`: выработка +30%, зарплата 40 кр × площадь в день, технология «Ночные смены»), world_industry.dart (`outputFactor`), mag_port_art.dart (окна горят ночью) | s25, ui_s15 | Только свои предприятия |
+
+## T. Свободная стройка, метро, хабы, фьючерсы (S26)
+
+| ID | Механика | P | Статус | Версия | Зависимости | Файлы | Тесты | Проблемы |
+|---|---|---|---|---|---|---|---|---|
+| VIS-04 | Свободная трассировка дорог и путей | P1 | READY_FOR_REVIEW | 1.98 | ROAD-01 | world_trace.dart (`lineCells`, `planRoadLine`/`planRailLine`: прямая под любым углом, препятствия — в обход; `planTrace`: путь по следу пальца), mag_screen_input.dart (рисование одним пальцем, два — карта), mag_build_panel.dart (переключатель «Рисовать»), mag_curve.dart (`wayLine`: лесенки клеток — в прямую, углы — в дуги; машины едут по той же линии) | s26, ui_stage5 | Под капотом клетки: сохранения и правила те же |
+| METRO-01 | Метро в мегаполисах | P2 | READY_FOR_REVIEW | 1.98 | CITY-09 | world_hubs.dart (`buildMetro` с «Регионального центра», 120 000 кр, технология «Метрополитен»; пассажиров ×1,5, рост ×1,2, проезд 0,02 кр с жителя в день), mag_s26_ui.dart (карточка в окне города), mag_port_art.dart (павильон «M») | s26, ui_s15 | — |
+| HUB-01 | Сортировочные станции | P2 | READY_FOR_REVIEW | 1.98 | RAIL-02 | world_hubs.dart (`buildYard` на станции, 20 000 кр, технология «Сортировочные станции»; погрузка поездов ×2), mag_s26_ui.dart (окно станции), mag_port_art.dart (веер путей и пост) | s26 | — |
+| HUB-02 | Грузовые хабы | P2 | READY_FOR_REVIEW | 1.98 | LOG-01 | world_hubs.dart (`buildHub` на складе, 25 000 кр, технология «Грузовые хабы»; место ×1,5, погрузка ×2), world_storage.dart (`warehouseCapacityOf`), mag_port_art.dart (синий портал) | s26 | — |
+| FUT-01 | Фьючерсы на грузы | P2 | READY_FOR_REVIEW | 1.98 | STK-01 | world_hubs.dart (`buyFuture`: залог 15% цены, 30 дн., исполнение — 45% цены, до 3 контрактов, с 12 ур.; счёт доставок через `_countDeals`), mag_s26_ui.dart (карточка на вкладке «Биржа») | s26, ui_s15 | — |
+| TOUR-03 | Туристические экскурсии | P2 | READY_FOR_REVIEW | 1.98 | TOUR-02 | world_hubs.dart (`setExcursion`: маршрут от 3 остановок через курорт, туристы платят ×1,5), world_complex.dart (`cargoPayFactor`), mag_s26_ui.dart (переключатель в карточке маршрута) | s26 | — |

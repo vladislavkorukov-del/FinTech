@@ -10,6 +10,7 @@ import 'mag_hud.dart';
 import 'mag_icons.dart';
 import 'mag_route_create.dart';
 import 'mag_route_map.dart';
+import 'mag_s26_ui.dart';
 import 'mag_screen.dart';
 import 'mag_sheets.dart';
 import 'mag_stop_orders.dart';
@@ -238,6 +239,7 @@ Widget _routeCard(
               ),
             ),
           ),
+          excursionTile(state, r), // TOUR-03
           magRow(
             'Доход маршрута',
             '${magMoney(r.income)} кр',

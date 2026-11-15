@@ -4,6 +4,7 @@ import '../../../../domain/magistrali/magistrali.dart';
 import '../../../l10n_widgets.dart';
 import 'mag_art.dart';
 import 'mag_hud.dart';
+import 'mag_s26_ui.dart';
 import 'mag_screen.dart';
 import 'mag_sheets.dart';
 
@@ -146,6 +147,7 @@ List<Widget> stockCards(MagistraliScreenState state) {
       ),
     const SizedBox(height: 14),
     ...creditCards(state),
+    ...futuresCards(state), // FUT-01
   ];
 }
 

@@ -11,6 +11,7 @@ import 'mag_finish_ui.dart';
 import 'mag_hud.dart';
 import 'mag_route_map.dart';
 import 'mag_s25_ui.dart';
+import 'mag_s26_ui.dart';
 import 'mag_screen.dart';
 import 'mag_sheets.dart';
 
@@ -111,6 +112,7 @@ Future<void> showTownSheet(
       ...marketInfo(w, i),
       ...megaprojectSection(state, i),
       ...mortgageSection(state, i), // MORT-01
+      ...metroSection(state, i), // METRO-01
       const SizedBox(height: 10),
       const Text(
         'Каждый день нужно',

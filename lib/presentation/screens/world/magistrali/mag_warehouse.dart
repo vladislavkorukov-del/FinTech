@@ -10,6 +10,7 @@ import 'mag_hud.dart';
 import 'mag_lore.dart';
 import 'mag_orders.dart';
 import 'mag_route_map.dart';
+import 'mag_s26_ui.dart';
 import 'mag_screen.dart';
 import 'mag_sheets.dart';
 
@@ -51,6 +52,7 @@ Future<void> showWarehouseSheet(
           key: ValueKey('mag-multimodal'),
           style: TextStyle(fontWeight: FontWeight.w700, color: MagPalette.teal),
         ),
+      ...hubSection(state, wh), // HUB-02
       const SizedBox(height: 4),
       LinearProgressIndicator(
         value: stored / cap,
