@@ -36,7 +36,7 @@ abstract final class PaymentPrompt {
               ),
             )
             .inDays;
-        Finora.react(alert: true);
+        Finora.react(late > 0 ? FinoraMood.angry : FinoraMood.attention);
         if (!context.mounted) break;
         final answer = await showDialog<_Answer>(
           context: context,
@@ -56,14 +56,15 @@ abstract final class PaymentPrompt {
               remember: answer.remember,
             );
             Finora.react(
+              FinoraMood.done,
               text: 'Записала: ${rule.name} −${money(sum, rule.currency)}',
             );
           case 'skip':
             await c.skipPayment(rule.id);
-            Finora.react(text: 'Хорошо, в этот раз без него.');
+            Finora.react(FinoraMood.calm, text: 'Хорошо, в этот раз без него.');
           default:
             c.snoozePayment(rule.id);
-            Finora.react(text: 'Напомню через пару часов.');
+            Finora.react(FinoraMood.support, text: 'Напомню через пару часов.');
         }
       }
     } catch (e) {
@@ -136,7 +137,12 @@ class _PaymentDialogState extends State<_PaymentDialog> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Center(child: FinoraCharacter(size: 86)),
+            Center(
+              child: FinoraCharacter(
+                size: 86,
+                moods: [late > 0 ? FinoraMood.angry : FinoraMood.attention],
+              ),
+            ),
             const SizedBox(height: 14),
             Text(
               title,

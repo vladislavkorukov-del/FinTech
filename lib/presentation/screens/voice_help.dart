@@ -98,7 +98,7 @@ class VoiceHelpScreen extends StatelessWidget {
         children: [
           Row(
             children: [
-              const FinoraMark(size: 56),
+              const FinoraMark(size: 56, mood: FinoraMood.happy),
               const SizedBox(width: 14),
               Expanded(
                 child: Text(

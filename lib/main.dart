@@ -174,6 +174,8 @@ class FinoraApp extends StatelessWidget {
         FinoraOrbPainter.theme = p.finoraThemed
             ? AppTheme.app(Brightness.dark, p.accent).colorScheme.primary
             : FinoraOrbPainter.original;
+        // 2.3: eyes and emotions, or a sphere of light.
+        FinoraOrbPainter.plain = !p.finoraFace;
         return MaterialApp(
           title: 'Finora — личные финансы',
           debugShowCheckedModeBanner: false,
@@ -442,7 +444,7 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
     if (!mounted) return;
     // 1.32: her name only; the request itself goes to the accurate
     // recognizer.
-    Finora.react(text: 'Слушаю!');
+    Finora.react(FinoraMood.greeting, text: 'Слушаю!');
     await _voice();
   }
 
@@ -886,7 +888,20 @@ class HelloFinora extends StatelessWidget {
         child: Stack(
           children: [
             // The splash draws her 146 dp wide in the middle of the screen.
-            const Center(child: FinoraCharacter(size: _size, rings: false)),
+            const Center(
+              child: FinoraCharacter(
+                size: _size,
+                moods: [
+                  FinoraMood.delight,
+                  FinoraMood.happy,
+                  FinoraMood.greeting,
+                  FinoraMood.delight,
+                ],
+                step: Duration(milliseconds: 650),
+                loop: true,
+                rings: false,
+              ),
+            ),
             Positioned(
               left: 0,
               right: 0,

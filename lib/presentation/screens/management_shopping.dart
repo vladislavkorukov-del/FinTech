@@ -197,7 +197,7 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
       await c.mutate(
         (d) => d.copyWith(shopping: d.shopping.where((s) => !s.done).toList()),
       );
-      Finora.react(text: 'Покупки записаны');
+      Finora.react(FinoraMood.done, text: 'Покупки записаны');
     }
   }
 

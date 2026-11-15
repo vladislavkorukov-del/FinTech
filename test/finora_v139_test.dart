@@ -41,8 +41,8 @@ void main() {
     expect(FinoraOutside.streak([at(DateTime(2026, 11, 9))], now: now), 0);
   });
 
-  test('«Что нового» в 2.2 — Финора как сфера света', () {
-    expect(WhatsNew.items.first.$2, 'Финора — сфера света');
+  test('«Что нового» в 2.3 — Финора с эмоциями по желанию', () {
+    expect(WhatsNew.items.first.$2, 'Финора — как вам нравится');
   });
 
   test('виджет описан в Android-ресурсах', () {

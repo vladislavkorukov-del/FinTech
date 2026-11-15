@@ -198,7 +198,16 @@ class _WheelState extends State<_Wheel> with SingleTickerProviderStateMixin {
                         ),
                         for (var i = 0; i < n; i++)
                           _item(context, i, step, scheme, fade),
-                        const Center(child: FinoraCharacter(size: 62)),
+                        Center(
+                          child: FinoraCharacter(
+                            size: 62,
+                            moods: [
+                              _hovered == null
+                                  ? FinoraMood.thinking
+                                  : FinoraMood.delight,
+                            ],
+                          ),
+                        ),
                       ],
                     ),
                   ),

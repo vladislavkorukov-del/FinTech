@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:finora/presentation/page_transitions.dart';
 import 'package:finora/presentation/theme/app_theme.dart';
+import 'package:finora/presentation/whats_new.dart';
 import 'package:finora/presentation/widgets/finance_background.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -65,9 +66,10 @@ void main() {
         File(
           'android/app/src/main/res/layout/widget_$layout.xml',
         ).readAsStringSync(),
-        contains('finora_orb'),
+        contains('finora_mood_'),
         reason: layout,
       );
     }
+    expect(WhatsNew.items.map((i) => i.$2), contains('Яркие виджеты'));
   });
 }

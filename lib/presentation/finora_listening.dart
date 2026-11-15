@@ -75,8 +75,12 @@ class _ListeningSheetState extends State<_ListeningSheet> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Listening: her light is lively.
-            const FinoraCharacter(size: 92, energy: 1),
+            FinoraCharacter(
+              size: 92,
+              moods: _partial.isEmpty
+                  ? const [FinoraMood.attention]
+                  : const [FinoraMood.processing],
+            ),
             const SizedBox(height: 14),
             Text(
               'Финора слушает',

@@ -148,7 +148,7 @@ class _MoneyTipsCardState extends State<MoneyTipsCard> {
               children: [
                 const Padding(
                   padding: EdgeInsets.only(top: 4, right: 4),
-                  child: FinoraMark(size: 40),
+                  child: FinoraMark(size: 40, mood: FinoraMood.idea),
                 ),
                 const SizedBox(width: 12),
                 Expanded(

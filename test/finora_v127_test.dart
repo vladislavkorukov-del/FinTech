@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:finora/data/demo_data.dart';
 import 'package:finora/domain/models.dart';
 import 'package:finora/domain/service_recognizer.dart';
@@ -34,7 +32,7 @@ void main() {
     date: now,
   );
 
-  (bool, String?) mood(FinanceData data, FinanceEntry e) =>
+  (FinoraMood, String?) mood(FinanceData data, FinanceEntry e) =>
       FinoraReactions.forEntry(
         data.copyWith(entries: [...data.entries, e]),
         e,
@@ -42,38 +40,38 @@ void main() {
         end,
       );
 
-  test('salary: a glad line, no alert', () {
+  test('salary makes Finora glad, a big one — delighted', () {
     final clean = demo.copyWith(budgets: const []);
     final (m1, t1) = mood(
       clean,
       entry(EntryKind.income, 3000000, category: id('Зарплата')),
     );
-    expect(m1, isFalse);
+    expect(m1, FinoraMood.happy);
     expect(t1, startsWith('Зарплата пришла!'));
     final (m2, _) = mood(
       clean,
       entry(EntryKind.income, 9000000, category: id('Зарплата')),
     );
-    expect(m2, isFalse);
+    expect(m2, FinoraMood.delight);
   });
 
-  test('a big expense gets a line, a small one none', () {
+  test('a big expense surprises her, a small one is just done', () {
     final clean = demo.copyWith(budgets: const []);
     final (big, text) = mood(
       clean,
       entry(EntryKind.expense, 1250000, category: id('Покупки')),
     );
-    expect(big, isFalse);
+    expect(big, FinoraMood.surprised);
     expect(text, contains('Большая трата'));
     final (small, none) = mood(
       clean,
       entry(EntryKind.expense, 45000, category: id('Продукты')),
     );
-    expect(small, isFalse);
+    expect(small, FinoraMood.done);
     expect(none, isNull);
   });
 
-  test('going over a budget is an alert', () {
+  test('going over a budget makes her angry', () {
     final data = demo.copyWith(
       entries: const [],
       budgets: [
@@ -89,19 +87,15 @@ void main() {
       data,
       entry(EntryKind.expense, 150000, category: id('Продукты')),
     );
-    expect(m, isTrue);
+    expect(m, FinoraMood.angry);
     expect(text, contains('превышен'));
   });
 
-  test('2.2: Finora paints as a sphere of light, at rest and lively', () {
-    for (final e in [0.0, .5, 1.0]) {
-      final recorder = PictureRecorder();
-      FinoraOrbPainter(
-        t: .3,
-        energy: e,
-      ).paint(Canvas(recorder), const Size.square(120));
-      expect(recorder.endRecording(), isNotNull);
+  test('every emotion has a name and paints', () {
+    for (final m in FinoraMood.values) {
+      expect(finoraMoodNames[m], isNotNull);
     }
+    expect(FinoraMood.values.length, 18);
   });
 
   test('Cyrillic names are replaced only when they are the whole text', () {

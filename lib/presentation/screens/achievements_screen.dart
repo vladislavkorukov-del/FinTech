@@ -200,6 +200,7 @@ class _Header extends StatelessWidget {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final level = report.level;
+    final mood = AchievementEngine.moodFor(report.share);
     final last = report.last;
     final nearest = report.nearest.take(3).toList();
     final muted = TextStyle(color: scheme.onSurfaceVariant, fontSize: 13);
@@ -213,8 +214,12 @@ class _Header extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  const ExcludeSemantics(
-                    child: FinoraCharacter(size: 64, rings: false),
+                  ExcludeSemantics(
+                    child: FinoraCharacter(
+                      size: 64,
+                      moods: [FinoraAssets.mood(mood)],
+                      rings: false,
+                    ),
                   ),
                   const SizedBox(width: 14),
                   Expanded(
@@ -466,6 +471,7 @@ class _Thumb extends StatelessWidget {
             ? _Mystery(size: size)
             : FinoraArt(
                 name: FinoraAssets.achievementArt(d),
+                reaction: d.reaction,
                 locked: !status.unlocked,
                 frame: false,
               ),
@@ -565,6 +571,7 @@ class AchievementCard extends StatelessWidget {
                           ? const _Mystery(size: 104)
                           : FinoraArt(
                               name: FinoraAssets.achievementArt(d),
+                              reaction: d.reaction,
                               locked: !status.unlocked,
                               frame: false,
                             ),
@@ -716,6 +723,7 @@ Future<void> showAchievement(BuildContext context, AchievementStatus s) {
                       ? const _Mystery(size: 180)
                       : FinoraArt(
                           name: FinoraAssets.achievementArt(d),
+                          reaction: d.reaction,
                           locked: !s.unlocked,
                           semanticLabel: tr(d.title),
                         ),
@@ -821,12 +829,21 @@ class AchievementsCard extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: scheme.primary.withValues(alpha: .12),
                         ),
-                        child: const Center(
-                          child: FinoraCharacter(size: 52, rings: false),
+                        child: Center(
+                          child: FinoraCharacter(
+                            size: 52,
+                            moods: [
+                              FinoraAssets.mood(
+                                AchievementEngine.moodFor(report.share),
+                              ),
+                            ],
+                            rings: false,
+                          ),
                         ),
                       )
                     : FinoraArt(
                         name: FinoraAssets.achievementArt(last.definition),
+                        reaction: last.definition.reaction,
                         frame: false,
                       ),
               ),
@@ -1277,6 +1294,7 @@ class _ShiningCard extends StatelessWidget {
           children: [
             FinoraArt(
               name: FinoraAssets.achievementArt(definition),
+              reaction: definition.reaction,
               semanticLabel: tr(definition.title),
             ),
             IgnorePointer(

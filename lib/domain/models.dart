@@ -731,6 +731,9 @@ class AppPreferences {
   /// 1.36: Finora takes the theme's color (otherwise — her own mint).
   final bool finoraThemed;
 
+  /// 2.3: Finora with eyes and emotions (off — a sphere of light).
+  final bool finoraFace;
+
   const AppPreferences({
     this.theme = 'dark',
     this.accent = 'coffee',
@@ -760,6 +763,7 @@ class AppPreferences {
     this.avatar = '',
     this.seenVersion,
     this.finoraThemed = true,
+    this.finoraFace = true,
   });
 
   AppPreferences copyWith({
@@ -791,6 +795,7 @@ class AppPreferences {
     String? avatar,
     Object? seenVersion = _absent,
     bool? finoraThemed,
+    bool? finoraFace,
   }) => AppPreferences(
     theme: theme ?? this.theme,
     accent: accent ?? this.accent,
@@ -826,6 +831,7 @@ class AppPreferences {
         ? this.seenVersion
         : seenVersion as String?,
     finoraThemed: finoraThemed ?? this.finoraThemed,
+    finoraFace: finoraFace ?? this.finoraFace,
   );
 
   Map<String, Object?> toJson() => {
@@ -857,6 +863,7 @@ class AppPreferences {
     'avatar': avatar,
     'seenVersion': seenVersion,
     'finoraThemed': finoraThemed,
+    'finoraFace': finoraFace,
   };
 
   static List<String> _ids(Object? value) =>
@@ -896,6 +903,7 @@ class AppPreferences {
         ? json['seenVersion'] as String?
         : 'old',
     finoraThemed: json['finoraThemed'] as bool? ?? true,
+    finoraFace: json['finoraFace'] as bool? ?? true,
   );
 
   /// [items] in the person's [order] (by [id]); unknown items keep their

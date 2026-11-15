@@ -1007,6 +1007,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ),
                       ),
                     ),
+                    // 2.3: Finora with a face and emotions, or a sphere.
+                    GroupedRow(
+                      key: const ValueKey('settings-finora-face'),
+                      icon: Icons.face_retouching_natural_rounded,
+                      color: TileColors.purple,
+                      title: tr('Глазки и эмоции Финоры'),
+                      subtitle: tr('Выключите — и Финора станет сферой света'),
+                      trailing: Switch.adaptive(
+                        value: p.finoraFace,
+                        onChanged: (v) => _run(
+                          () => c.preferences(
+                            c.data.preferences.copyWith(finoraFace: v),
+                          ),
+                        ),
+                      ),
+                      onTap: () => _run(
+                        () => c.preferences(
+                          c.data.preferences.copyWith(
+                            finoraFace: !p.finoraFace,
+                          ),
+                        ),
+                      ),
+                    ),
                     GroupedRow(
                       key: const ValueKey('settings-finora-color'),
                       icon: Icons.palette_outlined,
