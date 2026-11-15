@@ -17,6 +17,14 @@ List<int>? magAStar({
 
   /// Also the four diagonal neighbours (water: rivers wind diagonally).
   bool diagonal = false,
+
+  /// S28: links over bridges and overpasses — a cell joined to cells further
+  /// away (the cost of a link is the step's cost times its length).
+  Map<int, List<int>>? links,
+
+  /// S28: side-by-side steps that are not allowed (key a × cells + b): an
+  /// overpass is not joined to the road it passes over.
+  Set<int>? cuts,
 }) {
   final from = [?start, ...?starts];
   for (final s in from) {
@@ -55,9 +63,22 @@ List<int>? magAStar({
       if (nx < 0 || ny < 0 || nx >= width || ny >= height) continue;
       final n = ny * width + nx;
       if (closed[n] == 1) continue;
+      if (cuts != null && cuts.contains(cur * total + n)) continue;
       final cost = step(cur, n);
       if (cost == null) continue;
       final ng = g[cur] + cost;
+      if (ng < g[n]) {
+        g[n] = ng;
+        came[n] = cur;
+        open.push(n, ng + heuristic(n));
+      }
+    }
+    for (final n in links?[cur] ?? const <int>[]) {
+      if (closed[n] == 1) continue;
+      final cost = step(cur, n);
+      if (cost == null) continue;
+      final hop = (n % width - cx).abs() + (n ~/ width - cy).abs();
+      final ng = g[cur] + cost * hop;
       if (ng < g[n]) {
         g[n] = ng;
         came[n] = cur;
@@ -71,7 +92,13 @@ List<int>? magAStar({
 /// Connected pieces of a network (S20): [isWay] tells a passable cell;
 /// each such cell gets the number of its piece, others −1. Lets a search
 /// that cannot succeed be refused at once instead of walking the map.
-Int32List magComponents(int width, int height, bool Function(int cell) isWay) {
+Int32List magComponents(
+  int width,
+  int height,
+  bool Function(int cell) isWay, {
+  Map<int, List<int>>? links,
+  Set<int>? cuts,
+}) {
   final total = width * height;
   final comp = Int32List(total)..fillRange(0, total, -1);
   final stack = <int>[];
@@ -87,6 +114,12 @@ Int32List magComponents(int width, int height, bool Function(int cell) isWay) {
         final nx = x + const [0, 1, 0, -1][d], ny = y + const [-1, 0, 1, 0][d];
         if (nx < 0 || ny < 0 || nx >= width || ny >= height) continue;
         final n = ny * width + nx;
+        if (comp[n] >= 0 || !isWay(n)) continue;
+        if (cuts != null && cuts.contains(cur * total + n)) continue;
+        comp[n] = id;
+        stack.add(n);
+      }
+      for (final n in links?[cur] ?? const <int>[]) {
         if (comp[n] >= 0 || !isWay(n)) continue;
         comp[n] = id;
         stack.add(n);

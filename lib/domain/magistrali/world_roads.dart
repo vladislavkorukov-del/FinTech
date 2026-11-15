@@ -88,10 +88,10 @@ extension MagWorldRoads on MagWorld {
   }
 
   int _dirTo(int from, int to) {
-    final d = to - from;
-    if (d == 1) return 1;
-    if (d == -1) return 3;
-    return d > 0 ? 2 : 0;
+    // S28: a link over a bridge may jump several cells.
+    final dx = cx(to) - cx(from), dy = cy(to) - cy(from);
+    if (dx.abs() >= dy.abs()) return dx >= 0 ? 1 : 3;
+    return dy > 0 ? 2 : 0;
   }
 
   /// What the road on [cell] cost to build from bare land, at today's

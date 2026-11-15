@@ -266,6 +266,13 @@ abstract final class MagRules {
   static const futuresLevel = 12, futuresMax = 3, futureDays = 30;
   static const futureMargin = .15, futurePremium = .45;
   static const excursionPay = 1.5;
+
+  /// Stage S28: bridges and overpasses (longest span, price a cell),
+  /// interchanges, street trams.
+  static const maxSpan = 14, spanCost = 900;
+  static const overpassPrice = 15000, cloverPrice = 40000;
+  static const roundaboutPrice = 12000;
+  static const tramTownLevel = 4, tramStreetPay = 1.25;
   static const overdraftRate = .01, crisisDays = 30;
   static const auctionEvery = 10, auctionStart = .7, auctionRise = .05;
   static const auctionDays = 5, regionPrice = 15000;

@@ -68,6 +68,7 @@ extension MagWorldRails on MagWorld {
   }
 
   String? buildRail(MagRoadPlan plan) {
+    if (plan.spans != null) return _buildSpanned(plan, rail: true); // S28
     if (plan.error != null) return plan.error;
     if (plan.cells.isEmpty) return 'Нечего строить';
     final cost = plan.cells.fold(0, (s, c) => s + railCellCost(c));
@@ -208,6 +209,8 @@ extension MagWorldRails on MagWorld {
       isGoal: goals.contains,
       step: (a, b) => rails[b] == 0 || avoid.contains(b) ? null : 1,
       heuristic: (c) => ((cx(c) - gx).abs() + (cy(c) - gy).abs()).toDouble(),
+      links: spanLinks(rail: true), // S28
+      cuts: spanCuts(rail: true),
     );
   }
 

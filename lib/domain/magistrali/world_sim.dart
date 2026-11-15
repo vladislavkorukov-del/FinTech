@@ -245,9 +245,9 @@ extension MagWorldSim on MagWorld {
           : v.spec.horse
           ? math.max(MagRules.horseRoad(MagRoad.values[roads[next]]), .4)
           : math.max(_roadSpeed(next) * congestionOf(next), .4);
-      final need = (1 - v.progress) / roadK;
+      final need = (1 - v.progress) / roadK * _hop(v.cell, next);
       if (dist < need) {
-        v.progress += dist * roadK;
+        v.progress += dist * roadK / _hop(v.cell, next);
         break;
       }
       dist -= need;

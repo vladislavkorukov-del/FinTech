@@ -24,6 +24,8 @@ extension MagWorldPaths on MagWorld {
       starts: from,
       isGoal: (c) => _touches(c, to),
       step: (a, b) => roadOpen(b) ? 1 / _roadSpeed(b) : null,
+      links: spanLinks(), // S28: bridges and overpasses
+      cuts: spanCuts(),
       heuristic: (c) {
         final x = cx(c), y = cy(c);
         final dx = math.max(0, math.max(l - x, x - r));
@@ -51,7 +53,13 @@ extension MagWorldPaths on MagWorld {
     if (sum != _roadCompKey || _roadComp == null) {
       _roadCompKey = sum;
       _pathCache.clear();
-      _roadComp = magComponents(size, size, roadOpen);
+      _roadComp = magComponents(
+        size,
+        size,
+        roadOpen,
+        links: spanLinks(),
+        cuts: spanCuts(),
+      );
     }
     final comp = _roadComp!;
     final pieces = {for (final c in from) comp[c]};

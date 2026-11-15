@@ -9,10 +9,15 @@ typedef MagPt = (double, double);
 /// asks about roads (entrances, routes, prices, depots, stations) still
 /// works the same.
 class MagWay {
-  MagWay(this.pts, this.road, {this.rail = false});
+  MagWay(this.pts, this.road, {this.rail = false, Set<int>? spans})
+    : spans = spans ?? {};
   final List<MagPt> pts;
   MagRoad road;
   final bool rail;
+
+  /// S28: cells it passes over (a lake, another road or track) — not
+  /// part of its footprint; vehicles cross them by a link.
+  final Set<int> spans;
 }
 
 /// A way's footprint and the point of the curve in each of its cells.
@@ -33,6 +38,24 @@ class MagWayIndex {
 
   /// Cells under a way (road ways and track ways apart).
   final Set<int> covered;
+
+  /// S28: links over bridges and overpasses, and the runs they cross.
+  Map<int, List<int>> roadLinks = const {}, railLinks = const {};
+  List<MagSpanRun> runs = const [];
+  Set<int> roadCuts = const {}, railCuts = const {};
+}
+
+/// A bridge or an overpass: from cell [a] over [cells] to cell [b], along
+/// the points of its curve.
+class MagSpanRun {
+  MagSpanRun(this.way, this.a, this.b, this.foot, this.pts, this.cells);
+  final MagWay way;
+  final int a, b;
+
+  /// The way's whole footprint.
+  final Set<int> foot;
+  final List<MagPt> pts;
+  final List<int> cells;
 }
 
 extension MagWorldWays on MagWorld {
@@ -137,7 +160,7 @@ extension MagWorldWays on MagWorld {
 
   /// A way along the points the player drew (a finger's trace or two
   /// taps), as a plan: its footprint and price. [road] null: track.
-  MagRoadPlan planWay(List<MagPt> drawn, {MagRoad? road}) {
+  MagRoadPlan planWay(List<MagPt> drawn, {MagRoad? road, bool over = false}) {
     final rail = road == null;
     final type = road ?? MagRoad.none;
     if (rail ? !railsUnlocked : !roadUnlocked(type)) {
@@ -182,7 +205,20 @@ extension MagWorldWays on MagWorld {
     pts[0] = _snap(pts.first, rail);
     pts[pts.length - 1] = _snap(pts.last, rail);
     final lay = layCurve(wayCurve(pts));
+    // S28: what it passes over — a lake (a bridge), and, built as an
+    // overpass, roads and track it crosses (no junction with them).
+    final spans = spansOf(lay.cells, rail: rail, over: over);
+    if (spans == null) {
+      return MagRoadPlan(
+        lay.cells,
+        0,
+        type,
+        'Пролёт моста длиннее ${MagRules.maxSpan} клеток',
+        pts,
+      );
+    }
     for (final c in lay.cells) {
+      if (spans.contains(c)) continue;
       final ok = rail
           ? _railable(cx(c), cy(c))
           : map.roadable(cx(c), cy(c)) && regionOpen(cx(c), cy(c));
@@ -201,9 +237,22 @@ extension MagWorldWays on MagWorld {
     }
     final cost = lay.cells.fold(
       0,
-      (s, c) => s + (rail ? railCellCost(c) : cellCost(c, type)),
+      (s, c) =>
+          s +
+          (spans.contains(c)
+              ? spanCost(c)
+              : rail
+              ? railCellCost(c)
+              : cellCost(c, type)),
     );
-    return MagRoadPlan(lay.cells, cost, type, null, pts);
+    return MagRoadPlan(
+      lay.cells,
+      cost,
+      type,
+      null,
+      pts,
+      spans.isEmpty ? null : spans,
+    );
   }
 
   MagRoadPlan _roundObstacle(MagPt a, MagPt b, MagRoad? road) {
@@ -265,7 +314,9 @@ extension MagWorldWays on MagWorld {
   void _keepWay(MagRoadPlan plan, {required bool rail}) {
     final s = plan.shape;
     if (s == null || s.length < 2) return;
-    ways.add(MagWay(List.of(s), plan.type, rail: rail));
+    ways.add(
+      MagWay(List.of(s), plan.type, rail: rail, spans: {...?plan.spans}),
+    );
     _wayIndex = null;
   }
 
@@ -279,15 +330,18 @@ extension MagWorldWays on MagWorld {
     final live = <MagWay>[];
     final anchors = <int, MagPt>{};
     final covered = <int>{};
+    final roadLinks = <int, List<int>>{}, railLinks = <int, List<int>>{};
+    final runs = <MagSpanRun>[];
     for (final w in ways) {
       final lay = layCurve(wayCurve(w.pts));
       final whole = lay.cells.every(
-        (c) => w.rail ? rails[c] != 0 : roads[c] != 0,
+        (c) => w.spans.contains(c) || (w.rail ? rails[c] != 0 : roads[c] != 0),
       );
       if (!whole || lay.cells.isEmpty) continue;
       if (!w.rail) {
         final count = <int, int>{};
         for (final c in lay.cells) {
+          if (w.spans.contains(c)) continue;
           count[roads[c]] = (count[roads[c]] ?? 0) + 1;
         }
         final top = count.entries.reduce((a, b) => a.value >= b.value ? a : b);
@@ -296,9 +350,34 @@ extension MagWorldWays on MagWorld {
       live.add(w);
       lays.add(lay);
       for (final e in lay.anchors.entries) {
+        if (w.spans.contains(e.key)) continue;
         anchors.putIfAbsent(e.key, () => e.value);
       }
-      covered.addAll([for (final c in lay.cells) w.rail ? -1 - c : c]);
+      covered.addAll([
+        for (final c in lay.cells)
+          if (!w.spans.contains(c)) w.rail ? -1 - c : c,
+      ]);
+      // Links over each run of passed-over cells.
+      final links = w.rail ? railLinks : roadLinks;
+      for (var i = 0; i < lay.cells.length; i++) {
+        if (!w.spans.contains(lay.cells[i]) || i == 0) continue;
+        var j = i;
+        while (j < lay.cells.length && w.spans.contains(lay.cells[j])) {
+          j++;
+        }
+        if (j >= lay.cells.length) break;
+        final a = lay.cells[i - 1], b = lay.cells[j];
+        (links[a] ??= []).add(b);
+        (links[b] ??= []).add(a);
+        runs.add(
+          MagSpanRun(w, a, b, lay.cells.toSet(), [
+            lay.anchors[a]!,
+            for (var k = i; k < j; k++) lay.anchors[lay.cells[k]]!,
+            lay.anchors[b]!,
+          ], lay.cells.sublist(i, j)),
+        );
+        i = j;
+      }
     }
     if (live.length != ways.length) {
       ways
@@ -306,7 +385,12 @@ extension MagWorldWays on MagWorld {
         ..addAll(live);
     }
     _wayKey = roadVersion * 31 + ways.length;
-    return _wayIndex = MagWayIndex(live, lays, anchors, covered);
+    return _wayIndex = MagWayIndex(live, lays, anchors, covered)
+      ..roadLinks = roadLinks
+      ..railLinks = railLinks
+      ..runs = runs
+      ..roadCuts = _cutsOf(runs, rail: false)
+      ..railCuts = _cutsOf(runs, rail: true);
   }
 
   /// Is the road (or, with [rail], the track) in [cell] part of a free way?
@@ -322,6 +406,8 @@ extension MagWorldWays on MagWorld {
   // ---- Saves ----
 
   Map<String, Object> _saveWays() => {
+    if (ways.any((w) => w.spans.isNotEmpty))
+      'wayspans': [for (final w in ways) w.spans.toList()..sort()],
     if (ways.isNotEmpty)
       'ways': [
         for (final w in ways)
@@ -346,6 +432,10 @@ extension MagWorldWays on MagWorld {
       ];
       final r = (l[1] as int).clamp(0, MagRoad.values.length - 1);
       ways.add(MagWay(pts, MagRoad.values[r], rail: l[0] == 1));
+    }
+    final spans = j['wayspans'] as List? ?? const [];
+    for (var k = 0; k < spans.length && k < ways.length; k++) {
+      ways[k].spans.addAll([for (final c in spans[k] as List) c as int]);
     }
     _wayIndex = null;
   }

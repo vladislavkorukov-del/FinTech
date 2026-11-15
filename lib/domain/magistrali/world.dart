@@ -49,6 +49,7 @@ part 'world_ports.dart';
 part 'world_trace.dart';
 part 'world_hubs.dart';
 part 'world_ways.dart';
+part 'world_spans.dart';
 part 'world_routes.dart';
 part 'world_plans.dart';
 part 'world_save.dart';
@@ -59,7 +60,17 @@ part 'world_tech.dart';
 
 /// A road to build: its cells in order and what it costs.
 class MagRoadPlan {
-  const MagRoadPlan(this.cells, this.cost, this.type, [this.error, this.shape]);
+  const MagRoadPlan(
+    this.cells,
+    this.cost,
+    this.type, [
+    this.error,
+    this.shape,
+    this.spans,
+  ]);
+
+  /// S28: cells the way passes over (bridges, overpasses).
+  final Set<int>? spans;
   final List<int> cells;
 
   /// S27: the free curve drawn for it (null: a way of cells).
@@ -328,6 +339,7 @@ class MagWorld with _MagWorldLater {
 
   /// Builds a planned road (or improves the surface along it).
   String? buildRoad(MagRoadPlan plan) {
+    if (plan.spans != null) return _buildSpanned(plan, rail: false); // S28
     if (plan.error != null) return plan.error;
     if (plan.cells.isEmpty) return 'Нечего строить';
     final cost = plan.cells.fold(0, (s, c) => s + cellCost(c, plan.type));
