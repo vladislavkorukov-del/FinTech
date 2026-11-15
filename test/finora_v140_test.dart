@@ -127,28 +127,16 @@ void main() {
     );
   });
 
-  test('картинки лежат в ресурсах Android', () {
-    for (final name in [
-      'budget_month', 'budget_month_pink', 'budget_topup', 'calm', //
-      'check', 'dream_savings', 'expenses_today', 'forward', //
-      'goal_month', 'growing', 'income', 'income_tracking', 'limit', //
-      'limit_today', 'pay_dont_forget', 'payment_reminder', //
-      'payment_today', 'piggy', 'plan_budget', 'plus', //
-      'record_due_blue', 'record_due_groceries', 'record_expense', //
-      'record_expense_lilac', 'saving', //
-    ]) {
-      expect(
-        File(
-          'android/app/src/main/res/drawable-nodpi/finora_mood_$name.webp',
-        ).existsSync(),
-        isTrue,
-        reason: name,
-      );
-    }
+  test('2.2: виджеты показывают одну Финору-сферу, картинок с лицом нет', () {
     expect(
-      File('android/app/src/main/AndroidManifest.xml').readAsStringSync(),
-      // 1.43: the 2×2 picture-only widget was removed at the owner's wish.
-      isNot(contains('.FinoraWidgetSticker')),
+      File(
+        'android/app/src/main/res/drawable-nodpi/finora_orb.png',
+      ).existsSync(),
+      isTrue,
     );
+    final left = Directory(
+      'android/app/src/main/res/drawable-nodpi',
+    ).listSync().where((f) => f.path.contains('finora_mood_'));
+    expect(left, isEmpty);
   });
 }

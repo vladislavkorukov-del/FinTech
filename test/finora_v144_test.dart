@@ -551,7 +551,7 @@ void main() {
         matching: find.byType(FinoraArt),
       ),
     );
-    expect(art.name, first.id);
+    expect(art.name, isNull); // 2.2: every card draws Finora
     expect(art.frame, isTrue);
     await tester.tap(find.byKey(const ValueKey('achievement-popup-next')));
     await tester.pump();

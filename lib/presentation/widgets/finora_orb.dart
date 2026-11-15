@@ -23,7 +23,9 @@ class FinoraOrbPainter extends CustomPainter {
 
   /// Her own color: mint.
   static const original = Color(0xFF3FE0C2);
-  static const mint = original;
+
+  /// Her colour now (the theme's).
+  static Color get mint => theme;
 
   /// Finora takes the theme's color (set by the app from the accent;
   /// [original] when the person keeps her mint).
@@ -223,14 +225,22 @@ class FinoraCharacterState extends State<FinoraCharacter>
     final size = widget.size;
     return Semantics(
       label: 'Финора',
-      child: SizedBox.square(
-        dimension: size,
-        child: RepaintBoundary(
-          child: AnimatedBuilder(
-            animation: _flow,
-            builder: (context, _) => CustomPaint(
-              size: Size.square(size),
-              painter: FinoraOrbPainter(t: _flow.value, energy: widget.energy),
+      // Her own size, even where the parent would stretch her.
+      child: Center(
+        widthFactor: 1,
+        heightFactor: 1,
+        child: SizedBox.square(
+          dimension: size,
+          child: RepaintBoundary(
+            child: AnimatedBuilder(
+              animation: _flow,
+              builder: (context, _) => CustomPaint(
+                size: Size.square(size),
+                painter: FinoraOrbPainter(
+                  t: _flow.value,
+                  energy: widget.energy,
+                ),
+              ),
             ),
           ),
         ),
