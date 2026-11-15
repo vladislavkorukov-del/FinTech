@@ -272,6 +272,9 @@ abstract final class MagRules {
   static const maxSpan = 14, spanCost = 900;
   static const overpassPrice = 15000, cloverPrice = 40000;
   static const roundaboutPrice = 12000;
+  static const turbinePrice = 55000, stackPrice = 80000; // S29
+  static const metroLineCell = 3000, metroLineReach = 40;
+  static const metroLineFare = .01, metroLineGrowth = .1;
   static const tramTownLevel = 4, tramStreetPay = 1.25;
   static const overdraftRate = .01, crisisDays = 30;
   static const auctionEvery = 10, auctionStart = .7, auctionRise = .05;

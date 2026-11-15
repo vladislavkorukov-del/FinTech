@@ -56,6 +56,9 @@ mixin _MagWorldLater {
 
   /// S27: free ways (roads and track along curves) and their index.
   final ways = <MagWay>[];
+
+  /// S29: metro lines between cities (town ids).
+  final metroLines = <(int, int)>[];
   MagWayIndex? _wayIndex;
   int _wayKey = -1;
   final _biomes = <int, MagBiome>{};

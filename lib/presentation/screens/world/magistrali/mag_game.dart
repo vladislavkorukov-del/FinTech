@@ -158,6 +158,7 @@ class MagRenderer {
     canvas.transform(MagIso.ground);
     paintBiomeTint(canvas, w); // MAP-09
     paintSeasonTint(canvas, w); // S22
+    paintMetroLines(canvas, w); // S29: lines under the cities
     _net.refresh(w);
     final netView = Rect.fromLTRB(x0 - 2.0, y0 - 2.0, x1 + 3.0, y1 + 3.0);
     _net.paintRoads(canvas, netView, w.size);
@@ -234,7 +235,7 @@ class MagRenderer {
                 w.roads[cell] != 0 && w.roads[n] != 0 ||
                 w.rails[cell] != 0 && w.rails[n] != 0 ||
                 map.industryAt(nx, ny) != null;
-            if (joins) {
+            if (joins && !w.onWay(cell) && !w.onWay(cell, rail: true)) {
               objects.add((x + y + .55, () => paintPortal(canvas, w, cell, d)));
             }
           }
@@ -300,6 +301,7 @@ class MagRenderer {
     for (final d in _net.decks) {
       objects.add((d.depth, () => paintDeck(canvas, d))); // S28
     }
+    addWayObjects(_net, canvas, objects, x0, y0, x1, y1); // S29
     for (final v in w.vehicles.values) {
       if (!v.onMap) continue;
       // On the curve of its way, facing along it.

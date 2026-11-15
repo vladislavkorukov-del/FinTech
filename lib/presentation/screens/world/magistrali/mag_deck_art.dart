@@ -32,12 +32,14 @@ List<MagDeck> magDecks(MagWorld w) {
   Offset at(MagPt p) => Offset(p.$1, p.$2);
   double depthOf(Iterable<int> cells) =>
       cells.map((c) => w.cx(c) + w.cy(c) + .0).reduce(math.max) + .9;
-  for (final r in idx.runs) {
+  final levels = deckLevels(w);
+  for (var i = 0; i < idx.runs.length; i++) {
+    final r = idx.runs[i];
     final over = r.cells.any((c) => w.roads[c] != 0 || w.rails[c] != 0);
     out.add(
       MagDeck(
         smoothLine([for (final p in r.pts) at(p)], rounds: 2),
-        over ? 15 : 7,
+        over ? 15.0 * levels[i] : 7,
         r.way.road,
         r.way.rail,
         depthOf([r.a, r.b, ...r.cells]),
@@ -78,6 +80,31 @@ List<MagDeck> magDecks(MagWorld w) {
   }
   return out;
 }
+
+/// The level of each bridge (S29): 1 over the ground; a bridge passing
+/// over another bridge (or its ends) one level higher — up to three.
+List<int> deckLevels(MagWorld w) {
+  final runs = w.wayIndex.runs;
+  final cached = _levels[runs];
+  if (cached != null) return cached;
+  final out = <int>[];
+  for (var i = 0; i < runs.length; i++) {
+    var level = 1;
+    final mine = runs[i].cells.toSet();
+    for (var j = 0; j < i; j++) {
+      final o = runs[j];
+      if (mine.contains(o.a) ||
+          mine.contains(o.b) ||
+          o.cells.any(mine.contains)) {
+        level = math.max(level, out[j] + 1);
+      }
+    }
+    out.add(math.min(3, level));
+  }
+  return _levels[runs] = out;
+}
+
+final _levels = Expando<List<int>>();
 
 /// Cells of the free ways that a deck covers (not drawn on the ground).
 Set<int> magDeckCells(MagWorld w, {required bool rail}) {
@@ -239,12 +266,15 @@ double vehicleLift(MagWorld w, MagVehicle v) {
         ? 6 * (1 - v.progress)
         : 0;
   }
-  final over = w.wayIndex.runs.any(
-    (r) =>
-        (r.a == a && r.b == b || r.a == b && r.b == a) &&
-        r.cells.any((c) => w.roads[c] != 0 || w.rails[c] != 0),
-  );
-  final h = over ? 15.0 : 7.0;
+  final runs = w.wayIndex.runs;
+  var h = 0.0;
+  for (var i = 0; i < runs.length; i++) {
+    final r = runs[i];
+    if (!(r.a == a && r.b == b || r.a == b && r.b == a)) continue;
+    final over = r.cells.any((c) => w.roads[c] != 0 || w.rails[c] != 0);
+    h = over ? 15.0 * deckLevels(w)[i] : 7.0;
+  }
+  if (h == 0) return 0;
   final t = v.progress;
   final edge = math.min(t, 1 - t) * hop / 1.1;
   final k = edge.clamp(0.0, 1.0);

@@ -288,3 +288,53 @@ void paintHub(Canvas c, MagWorld w, int cell) {
     top: const Color(0xFF6FA0CC),
   );
 }
+
+/// S29 (METRO-02): metro lines under the map (ground transform): two
+/// coloured lines crossing under each city with a metro, its stations,
+/// and the lines between cities, faint as if seen through the ground.
+void paintMetroLines(Canvas c, MagWorld w) {
+  if (w.metros.isEmpty) return;
+  const colors = [Color(0xFFD64B5C), Color(0xFF2F6FA8), Color(0xFF2BB59A)];
+  Paint line(Color k) => Paint()
+    ..style = PaintingStyle.stroke
+    ..strokeWidth = .12
+    ..strokeCap = StrokeCap.round
+    ..color = k.withValues(alpha: .55);
+  void station(Offset p, Color k) {
+    c
+      ..drawCircle(p, .16, Paint()..color = Colors.white.withValues(alpha: .85))
+      ..drawCircle(p, .1, Paint()..color = k);
+  }
+
+  for (final id in w.metros) {
+    final i = w.map.industry(id);
+    if (i == null) continue;
+    final ctr = Offset(i.centerX, i.centerY);
+    final r = i.size * .55;
+    for (var k = 0; k < 2; k++) {
+      final d = k == 0 ? const Offset(1, .35) : const Offset(-.35, 1);
+      final a = ctr - d * r, b = ctr + d * r;
+      c.drawLine(a, b, line(colors[k]));
+      for (final t in const [0.0, .5, 1.0]) {
+        station(Offset.lerp(a, b, t)!, colors[k]);
+      }
+    }
+  }
+  for (var n = 0; n < w.metroLines.length; n++) {
+    final (ia, ib) = w.metroLines[n];
+    final a = w.map.industry(ia), b = w.map.industry(ib);
+    if (a == null || b == null) continue;
+    final p = Offset(a.centerX, a.centerY), q = Offset(b.centerX, b.centerY);
+    final k = colors[n % colors.length];
+    final path = Path()
+      ..moveTo(p.dx, p.dy)
+      ..lineTo(q.dx, q.dy);
+    for (final m in path.computeMetrics()) {
+      for (var d = 0.0; d < m.length; d += .7) {
+        c.drawPath(m.extractPath(d, d + .4), line(k));
+      }
+    }
+    station(p, k);
+    station(q, k);
+  }
+}

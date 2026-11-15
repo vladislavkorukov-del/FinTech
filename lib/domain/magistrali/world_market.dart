@@ -181,6 +181,7 @@ extension MagWorldMarket on MagWorld {
     _dayInsurance(); // INS-01
     _dayPorts(); // S25: night shifts, mortgages
     _dayHubs(); // S26: metro fares, futures
+    _dayMetroLines(); // S29
   }
 
   // ---- TOUR-01 / TOUR-02 ----

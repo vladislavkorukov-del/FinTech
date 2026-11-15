@@ -50,11 +50,25 @@ void paintTunnelCover(Canvas c, int x, int y) {
 /// viewer are hidden by the hill itself.
 void paintPortal(Canvas c, MagWorld w, int cell, int outDir) {
   if (outDir == 0 || outDir == 3) return;
-  final ex = w.cx(cell) + .5 + MagDir.dx[outDir] * .5;
-  final ey = w.cy(cell) + .5 + MagDir.dy[outDir] * .5;
-  // Across the way: along y for a portal facing +x, along x for +y.
-  final ax = outDir == 2 ? 1.0 : 0.0, ay = outDir == 1 ? 1.0 : 0.0;
-  final ox = MagDir.dx[outDir].toDouble(), oy = MagDir.dy[outDir].toDouble();
+  paintPortalAt(
+    c,
+    Offset(
+      w.cx(cell) + .5 + MagDir.dx[outDir] * .5,
+      w.cy(cell) + .5 + MagDir.dy[outDir] * .5,
+    ),
+    Offset(MagDir.dx[outDir].toDouble(), MagDir.dy[outDir].toDouble()),
+  );
+}
+
+/// S29 (VIS-10): a portal at [at] facing [out] (a unit direction at any
+/// angle — where a curved way leaves the hills). Facing away from the
+/// viewer it is hidden by the hill.
+void paintPortalAt(Canvas c, Offset at, Offset out) {
+  if (out.dx + out.dy <= .05) return;
+  final ex = at.dx, ey = at.dy;
+  // Across the way.
+  final ax = -out.dy, ay = out.dx;
+  final ox = out.dx, oy = out.dy;
   Offset p(double t, double z, [double out = 0]) =>
       MagIso.project(ex + ax * t + ox * out, ey + ay * t + oy * out, z);
   Path poly(List<Offset> pts) {

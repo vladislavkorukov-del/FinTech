@@ -5,7 +5,9 @@ import 'package:flutter/material.dart';
 import '../../../../domain/magistrali/magistrali.dart';
 import 'mag_art.dart';
 import 'mag_deck_art.dart';
+import 'mag_iso.dart';
 import 'mag_network_art.dart';
+import 'mag_structures_art.dart';
 
 /// Stage S27 (VIS-05): the network on the ground — free ways drawn along
 /// the curves the player laid, older roads of cells as smooth chains that
@@ -24,9 +26,18 @@ class MagNet {
   /// S28: decks of bridges and overpasses; tram tracks along streets.
   List<MagDeck> decks = const [];
   List<(Offset, Offset)> tramTracks = const [];
+
+  /// S29: tunnel portals where curves enter and leave the hills (point,
+  /// outward direction), and lamps along highways and motorways.
+  List<(Offset, Offset)> portals = const [];
+  List<Offset> lamps = const [];
   int _trams = -1;
 
+  /// The network drawn last (for the night lights).
+  static MagNet? current;
+
   void refresh(MagWorld w) {
+    current = this;
     final trams = w.vehicles.values
         .where((v) => v.spec.body == 'tram' && v.routeId != null)
         .fold(0, (s, v) => s * 31 + v.routeId! + 1);
@@ -108,6 +119,8 @@ class MagNet {
 
     roads = build(false);
     rails = build(true);
+    portals = _portals(w, idx);
+    lamps = _lamps(roads);
     // Junctions: a road cell with three or more roads around it, or one
     // two ways share.
     final owners = <int, int>{};
@@ -153,6 +166,60 @@ class MagNet {
                 case final o when w.roads[o] != 0)
               (at(c), at(o)),
     ];
+  }
+
+  /// Where a curve crosses from the hills to open ground.
+  List<(Offset, Offset)> _portals(MagWorld w, MagWayIndex? idx) {
+    if (idx == null) return const [];
+    final out = <(Offset, Offset)>[];
+    bool hill(double x, double y) =>
+        w.map.at(
+          x.floor().clamp(0, w.size - 1),
+          y.floor().clamp(0, w.size - 1),
+        ) ==
+        MagTerrain.hill;
+    for (final lay in idx.lays) {
+      final c = lay.curve;
+      for (var i = 1; i < c.length; i++) {
+        final a = hill(c[i - 1].$1, c[i - 1].$2), b = hill(c[i].$1, c[i].$2);
+        if (a == b) continue;
+        final p = Offset(c[i].$1, c[i].$2),
+            q = Offset(c[i - 1].$1, c[i - 1].$2);
+        var d = a ? p - q : q - p; // outwards, away from the hill
+        final l = d.distance;
+        if (l < 1e-6) continue;
+        d = d / l;
+        out.add((Offset.lerp(p, q, .5)!, d));
+      }
+    }
+    return out;
+  }
+
+  /// Lamps every cell and a half along both sides of the big roads.
+  List<Offset> _lamps(List<NetChain> chains) {
+    final out = <Offset>[];
+    for (final ch in chains) {
+      if (ch.road != MagRoad.highway && ch.road != MagRoad.motorway) continue;
+      final side = roadWidth(ch.road) / 2 + .1;
+      var next = .7, run = 0.0;
+      final p = ch.points;
+      for (var i = 1; i < p.length; i++) {
+        final d = p[i] - p[i - 1];
+        final l = d.distance;
+        if (l == 0) continue;
+        while (run + l >= next) {
+          final t = (next - run) / l;
+          final at = Offset.lerp(p[i - 1], p[i], t)!;
+          final n = Offset(-d.dy, d.dx) / l * side;
+          out
+            ..add(at + n)
+            ..add(at - n);
+          next += 1.5;
+        }
+        run += l;
+      }
+    }
+    return out;
   }
 
   /// Ends of two chains of different kinds meeting alone at a point: the
@@ -319,5 +386,71 @@ void paintStubs(Canvas c, MagWorld w, int x0, int y0, int x1, int y1) {
         }
       }
     }
+  }
+}
+
+/// S29: tunnel portals along curves and lamp posts by the big roads, as
+/// objects sorted with the rest of the map.
+void addWayObjects(
+  MagNet net,
+  Canvas c,
+  List<(double, void Function())> objects,
+  int x0,
+  int y0,
+  int x1,
+  int y1,
+) {
+  bool seen(Offset p) =>
+      p.dx >= x0 - 1 && p.dy >= y0 - 1 && p.dx <= x1 + 2 && p.dy <= y1 + 2;
+  for (final (p, out) in net.portals) {
+    if (!seen(p)) continue;
+    objects.add((p.dx + p.dy + .3, () => paintPortalAt(c, p, out)));
+  }
+  for (final p in net.lamps) {
+    if (!seen(p)) continue;
+    objects.add((p.dx + p.dy, () => paintLampPost(c, p)));
+  }
+}
+
+/// A street lamp: a slim post and its head.
+void paintLampPost(Canvas c, Offset p) {
+  final foot = MagIso.project(p.dx, p.dy);
+  final head = MagIso.project(p.dx, p.dy, 14);
+  c
+    ..drawLine(
+      foot,
+      head,
+      Paint()
+        ..strokeWidth = 1.2
+        ..color = const Color(0xFF5B646C),
+    )
+    ..drawCircle(head, 1.8, Paint()..color = const Color(0xFFE8ECEF));
+}
+
+/// The lamps alight at night (screen space).
+void paintLampGlow(Canvas c, double night, int x0, int y0, int x1, int y1) {
+  final net = MagNet.current;
+  if (net == null || night <= .05) return;
+  for (final p in net.lamps) {
+    if (p.dx < x0 - 1 || p.dy < y0 - 1 || p.dx > x1 + 2 || p.dy > y1 + 2) {
+      continue;
+    }
+    final head = MagIso.project(p.dx, p.dy, 14);
+    final ground = MagIso.project(p.dx, p.dy);
+    c
+      ..drawOval(
+        Rect.fromCenter(center: ground, width: 26, height: 13),
+        Paint()..color = Color.fromRGBO(255, 214, 140, .18 * night),
+      )
+      ..drawCircle(
+        head,
+        5,
+        Paint()..color = Color.fromRGBO(255, 220, 150, .35 * night),
+      )
+      ..drawCircle(
+        head,
+        2,
+        Paint()..color = Color.fromRGBO(255, 244, 205, night),
+      );
   }
 }

@@ -50,6 +50,7 @@ part 'world_trace.dart';
 part 'world_hubs.dart';
 part 'world_ways.dart';
 part 'world_spans.dart';
+part 'world_metro.dart';
 part 'world_routes.dart';
 part 'world_plans.dart';
 part 'world_save.dart';

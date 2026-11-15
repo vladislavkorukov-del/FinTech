@@ -12,21 +12,25 @@ import 'mag_sheets.dart';
 /// The road sheet: interchanges, when the tapped cell is a crossing.
 List<Widget> junctionSection(MagistraliScreenState state, int cell) {
   final w = state.world;
-  final kinds = [
-    for (final k in MagJunction.values)
-      if (w.junctionBlocker(cell, k) == null ||
-          !w.junctionBlocker(cell, k)!.contains('перекрёсток'))
-        k,
-  ];
+  final crossing =
+      !(w
+              .junctionBlocker(cell, MagJunction.overpass)
+              ?.contains('перекрёсток') ??
+          false);
+  final kinds = crossing ? MagJunction.values : const <MagJunction>[];
   if (kinds.isEmpty) return const [];
   String name(MagJunction k) => switch (k) {
     MagJunction.overpass => 'Эстакада',
     MagJunction.clover => 'Клевер',
+    MagJunction.turbine => 'Турбина',
+    MagJunction.stack => 'Стек (3 уровня)',
     MagJunction.roundabout => 'Кольцо',
   };
   IconData icon(MagJunction k) => switch (k) {
     MagJunction.overpass => Icons.u_turn_left_rounded,
     MagJunction.clover => Icons.filter_vintage_rounded,
+    MagJunction.turbine => Icons.cyclone_rounded,
+    MagJunction.stack => Icons.layers_rounded,
     MagJunction.roundabout => Icons.roundabout_right_rounded,
   };
   return [
@@ -36,7 +40,7 @@ List<Widget> junctionSection(MagistraliScreenState state, int cell) {
       style: TextStyle(fontWeight: FontWeight.w800),
     ),
     const Text(
-      'Эстакада — одна дорога над другой, без съезда; клевер — эстакада и четыре съезда; кольцо — круговое движение вокруг островка.',
+      'Эстакада — одна дорога над другой, без съезда; клевер — эстакада и четыре петли; турбина — эстакада и закрученные съезды; стек — съезды третьим уровнем над эстакадой; кольцо — круговое движение. Клеверу, турбине и стеку нужны дороги на 4 клетки во все стороны.',
       style: magMuted,
     ),
     const SizedBox(height: 6),

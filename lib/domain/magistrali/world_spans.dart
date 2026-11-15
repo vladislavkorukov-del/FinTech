@@ -182,10 +182,10 @@ extension MagWorldSpans on MagWorld {
 
   // ---- JCT-02: interchanges ----
 
-  bool _arms(int cell) {
+  bool _arms(int cell, [int reach = 2]) {
     final x = cx(cell), y = cy(cell);
     for (final (dx, dy) in const [(1, 0), (-1, 0), (0, 1), (0, -1)]) {
-      for (var k = 1; k <= 2; k++) {
+      for (var k = 1; k <= reach; k++) {
         if (!hasRoad(x + dx * k, y + dy * k)) return false;
       }
     }
@@ -195,8 +195,9 @@ extension MagWorldSpans on MagWorld {
   /// Why an interchange of [kind] cannot be built at [cell] (null: it can).
   String? junctionBlocker(int cell, MagJunction kind) {
     if (!interchangesUnlocked) return 'Развязки откроет технология «Развязки»';
-    if (!_arms(cell)) {
-      return 'Нужен перекрёсток: дороги на две клетки во все четыре стороны';
+    final reach = kind.big ? 4 : 2;
+    if (!_arms(cell, reach)) {
+      return 'Нужен перекрёсток: дороги на $reach клетки во все четыре стороны';
     }
     if (ways.isNotEmpty &&
         wayIndex.runs.any((r) => r.cells.contains(cell) && !r.way.rail)) {
@@ -211,6 +212,8 @@ extension MagWorldSpans on MagWorld {
   int junctionPrice(MagJunction kind) => switch (kind) {
     MagJunction.overpass => MagRules.overpassPrice,
     MagJunction.clover => MagRules.cloverPrice,
+    MagJunction.turbine => MagRules.turbinePrice,
+    MagJunction.stack => MagRules.stackPrice,
     MagJunction.roundabout => MagRules.roundaboutPrice,
   };
 
@@ -259,6 +262,8 @@ extension MagWorldSpans on MagWorld {
     switch (kind) {
       case MagJunction.overpass:
       case MagJunction.clover:
+      case MagJunction.turbine:
+      case MagJunction.stack:
         _dropWaysAt(cell);
         // The upper road: over the crossing only.
         final a = alongX ? (mx - 2, my) : (mx, my - 2);
@@ -268,15 +273,13 @@ extension MagWorldSpans on MagWorld {
           MagRoadPlan(l.cells, 0, top, null, [a, b], {cell}),
           rail: false,
         );
-        if (kind == MagJunction.clover) {
-          for (final (sx, sy) in const [(-1, -1), (1, -1), (1, 1), (-1, 1)]) {
-            lay([
-              (mx + sx * 2, my),
-              (mx + sx * 1.75, my + sy * 1.75),
-              (mx, my + sy * 2),
-            ], MagRoad.values[math.max(1, math.min(ew, ns))]);
-          }
-        }
+        _ramps(
+          kind,
+          mx,
+          my,
+          MagRoad.values[math.max(1, math.min(ew, ns))],
+          lay,
+        );
       case MagJunction.roundabout:
         _dropWaysAt(cell);
         // The island: the crossing and the cells round it.
@@ -305,10 +308,73 @@ extension MagWorldSpans on MagWorld {
     _spend(junctionPrice(kind), 'roads');
     _say(switch (kind) {
       MagJunction.overpass => 'Эстакада: дороги разведены по уровням',
-      MagJunction.clover => 'Клеверная развязка построена',
+      MagJunction.clover => 'Клеверная развязка построена: четыре петли',
+      MagJunction.turbine => 'Развязка «турбина» построена',
+      MagJunction.stack => 'Трёхуровневая развязка построена',
       MagJunction.roundabout => 'Кольцевая развязка построена',
     });
     return null;
+  }
+
+  /// The ramps of an interchange (S29), in each quarter between arms at
+  /// angles θ and θ + 90°:
+  /// * clover — a real loop: off one road, round 270° and onto the other;
+  /// * turbine — a sweeping blade that dips towards the centre;
+  /// * stack — a flyover that passes over the crossing itself, above the
+  ///   overpass: the third level.
+  void _ramps(
+    MagJunction kind,
+    double mx,
+    double my,
+    MagRoad r,
+    void Function(List<MagPt>, MagRoad, {bool over, bool rail}) lay,
+  ) {
+    if (!kind.big) return;
+    MagPt polar(double deg, double rad) => (
+      mx + rad * math.cos(deg * math.pi / 180),
+      my + rad * math.sin(deg * math.pi / 180),
+    );
+    for (var q = 0; q < 4; q++) {
+      final t = q * 90.0;
+      switch (kind) {
+        case MagJunction.clover:
+          // The loop's centre sits in the quarter, clear of both roads.
+          final c = polar(t + 45, 4.1);
+          final start = polar(t, 4.4), end = polar(t + 90, 4.4);
+          final a0 = math.atan2(start.$2 - c.$2, start.$1 - c.$1);
+          final pts = <MagPt>[start];
+          for (var k = 1; k < 9; k++) {
+            // From the start side round 270°, the long way, to the end.
+            final a = a0 + math.pi / 4 - k * (1.5 * math.pi) / 9;
+            pts.add((c.$1 + 1.35 * math.cos(a), c.$2 + 1.35 * math.sin(a)));
+          }
+          pts.add(end);
+          lay(pts, r);
+        case MagJunction.turbine:
+          lay([
+            polar(t, 4.4),
+            polar(t + 30, 3.2),
+            polar(t + 55, 2.5),
+            polar(t + 78, 3.0),
+            polar(t + 90, 4.4),
+          ], r);
+        case MagJunction.stack:
+          lay(
+            [
+              polar(t, 4.4),
+              polar(t + 20, 2.4),
+              polar(t + 45, .45),
+              polar(t + 70, 2.4),
+              polar(t + 90, 4.4),
+            ],
+            r,
+            over: true,
+          );
+        case MagJunction.overpass:
+        case MagJunction.roundabout:
+          break;
+      }
+    }
   }
 
   /// Curves through [cell] give way to an interchange's new shape (their
@@ -356,5 +422,14 @@ extension MagWorldSpans on MagWorld {
   }
 }
 
-/// Kinds of interchange (JCT-02).
-enum MagJunction { overpass, clover, roundabout }
+/// Kinds of interchange (JCT-02, S29: turbine and stack).
+enum MagJunction {
+  overpass,
+  clover,
+  turbine,
+  stack,
+  roundabout;
+
+  /// Needs long arms (ramps reach four cells out).
+  bool get big => this == clover || this == turbine || this == stack;
+}

@@ -71,15 +71,39 @@ List<Widget> metroSection(MagistraliScreenState state, MagIndustry i) {
             ],
           ),
           const SizedBox(height: 4),
-          if (has)
+          if (has) ...[
             Text(
               'Работает: пассажиров ×${MagRules.metroPassengers}, рост ×${MagRules.metroGrowth}, проезд +${magMoney(w.metroFares(i))} кр в день',
               style: const TextStyle(
                 fontWeight: FontWeight.w700,
                 color: MagPalette.teal,
               ),
-            )
-          else ...[
+            ),
+            // S29: lines to other cities with a metro.
+            for (final o in w.settlements.where(
+              (o) => o.id != i.id && w.metros.contains(o.id),
+            ))
+              if (w.metroLineBlocker(i.id, o.id) case final why)
+                Padding(
+                  padding: const EdgeInsets.only(top: 6),
+                  child: OutlinedButton.icon(
+                    key: ValueKey('mag-metro-line-${o.id}'),
+                    icon: const Icon(Icons.linear_scale_rounded, size: 18),
+                    onPressed: why != null
+                        ? null
+                        : () => state.report(
+                            w.buildMetroLine(i.id, o.id),
+                            'Линия открыта',
+                          ),
+                    label: Text(
+                      why == 'Линия уже есть'
+                          ? 'Линия до «${o.name}» работает'
+                          : why ??
+                                'Линия до «${o.name}» · ${magMoney(w.metroLinePrice(i, o))} кр',
+                    ),
+                  ),
+                ),
+          ] else ...[
             const Text(
               'Подземка для большого города: больше людей едут, город растёт быстрее, а проезд приносит деньги каждый день.',
               style: magMuted,

@@ -49,7 +49,10 @@ extension MagWorldHubs on MagWorld {
   double metroFactor(MagIndustry i) =>
       metros.isNotEmpty && metros.contains(i.id) ? MagRules.metroPassengers : 1;
   double metroGrowth(MagIndustry i) =>
-      metros.isNotEmpty && metros.contains(i.id) ? MagRules.metroGrowth : 1;
+      metros.isNotEmpty && metros.contains(i.id)
+      ? MagRules.metroGrowth *
+            (1 + MagRules.metroLineGrowth * math.min(3, metroLinesOf(i)))
+      : 1;
 
   /// Fares the metro brings a day.
   int metroFares(MagIndustry i) =>
