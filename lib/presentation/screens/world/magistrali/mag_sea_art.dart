@@ -121,34 +121,28 @@ void _paintMouths(Canvas c, MagMap map, Rect view) {
       final cx = x + .5, cy = y + .5;
       final edge = Offset(cx + dx * .5, cy + dy * .5);
       if (!view.inflate(6).contains(edge)) continue;
-      const len = 3.6;
-      final end = edge + Offset(dx * len, dy * len);
-      // Sideways, along the shore.
-      final sx = dy.abs().toDouble(), sy = dx.abs().toDouble();
-      // Feathered: wide and faint first, narrow and solid last.
-      for (final (w0, w1, a) in const [
-        (1.0, 4.2, .35),
-        (.8, 3.2, .6),
-        (.6, 2.2, 1.0),
-      ]) {
-        final path = Path()
-          ..moveTo(edge.dx - sx * w0, edge.dy - sy * w0)
-          ..lineTo(edge.dx + sx * w0, edge.dy + sy * w0)
-          ..lineTo(end.dx + sx * w1, end.dy + sy * w1)
-          ..lineTo(end.dx - sx * w1, end.dy - sy * w1)
-          ..close();
-        c.drawPath(
-          path,
+      // Soft round pools of water, one after another outwards: each wider
+      // and bluer than the last, with no edges, so the river spreads and
+      // melts into the sea instead of ending in a wedge or a stripe.
+      for (var i = 0; i < 6; i++) {
+        final t = i / 5;
+        final p = edge + Offset(dx * t * 3.4, dy * t * 3.4);
+        final r = .75 + t * 2.4;
+        final col = Color.lerp(river, sea, t)!;
+        final a = 1 - t * .55;
+        c.drawCircle(
+          p,
+          r,
           Paint()
-            ..shader = ui.Gradient.linear(
-              edge,
-              end,
+            ..shader = ui.Gradient.radial(
+              p,
+              r,
               [
-                river.withValues(alpha: a),
-                Color.lerp(river, sea, .6)!.withValues(alpha: a * .8),
-                sea.withValues(alpha: 0),
+                col.withValues(alpha: a),
+                col.withValues(alpha: a),
+                col.withValues(alpha: 0),
               ],
-              const [0, .55, 1],
+              const [0, .45, 1],
             ),
         );
       }

@@ -7,24 +7,24 @@
 
 Статусы: NOT_STARTED — не начато; PARTIAL — частично; IN_PROGRESS — в работе;
 READY_FOR_REVIEW — готово, ждёт проверки игроком; VERIFIED — проверено игроком
-(этапы, которые игрок подтвердил: 1.68–1.94); BLOCKED — заблокировано.
+(этапы, которые игрок подтвердил: 1.68–1.95); BLOCKED — заблокировано.
 
 Файлы домена — `lib/domain/magistrali/`, интерфейса —
 `lib/presentation/screens/world/magistrali/`. Тесты — `test/magistrali_<имя>_test.dart`
 (sim, orders, storage, dispatch, towns, horses, production, growth,
-industry, cities, logistics, rail, water, megapolis, passengers, p1, s12, s13, s14, s15, s16, s17, s18, s19, s20, s21, s22, s23, soak, ui, ui_s17, ui_s15, ui_s13, ui_stage5, ui_rail).
+industry, cities, logistics, rail, water, megapolis, passengers, p1, s12, s13, s14, s15, s16, s17, s18, s19, s20, s21, s22, s23, s24, soak, ui, ui_s17, ui_s15, ui_s13, ui_stage5, ui_rail).
 
-Аудит: 1.77.0, обновлено в 1.78.0 (S7) и 1.79.0 (S8), 1.80.0 (S9 и доводка ЖД), 1.81.0 (S10 и графика), 1.82.0 (S11), 1.83.0 (доделка P1), 1.84.0 (S12), 1.85.0 (S13), 1.86.0 (S14), 1.87.0 (S15), 1.88.0 (S16), 1.89.0 (S17), 1.90.0 (S18), 1.91.0 (S19), 1.92.0 (S20), 1.93.0 (S21), 1.94.0 (S22), 1.95.0 (S23); точка восстановления — тег `restore/magistrali-1.77.0-pre-s7`.
+Аудит: 1.77.0, обновлено в 1.78.0 (S7) и 1.79.0 (S8), 1.80.0 (S9 и доводка ЖД), 1.81.0 (S10 и графика), 1.82.0 (S11), 1.83.0 (доделка P1), 1.84.0 (S12), 1.85.0 (S13), 1.86.0 (S14), 1.87.0 (S15), 1.88.0 (S16), 1.89.0 (S17), 1.90.0 (S18), 1.91.0 (S19), 1.92.0 (S20), 1.93.0 (S21), 1.94.0 (S22), 1.95.0 (S23), 1.96.0 (S24); точка восстановления — тег `restore/magistrali-1.77.0-pre-s7`.
 
 ## Сводка
 
 | Статус | Механик |
 |---|---|
-| VERIFIED | 209 |
+| VERIFIED | 216 |
 | READY_FOR_REVIEW | 7 |
 | PARTIAL | 0 |
 | NOT_STARTED | 0 |
-| Всего | 216 |
+| Всего | 223 |
 
 ## A. Фундамент игры и безопасность
 
@@ -319,10 +319,22 @@ industry, cities, logistics, rail, water, megapolis, passengers, p1, s12, s13, s
 
 | ID | Механика | P | Статус | Версия | Зависимости | Файлы | Тесты | Проблемы |
 |---|---|---|---|---|---|---|---|---|
-| DIS-01 | Стихийные бедствия | P2 | READY_FOR_REVIEW | 1.95 | LIFE-02 | world_market.dart (`_dayDisasters`: в дождь паводок размывает мост, в бурю ломаются 2 клетки дорог; с 4 ур., живой мир), world_paths.dart (сломанная клетка закрыта), mag_resort_art.dart (`paintDamage`: трещина и заграждения) | s23 | — |
-| DIS-02 | Ремонт инфраструктуры | P2 | READY_FOR_REVIEW | 1.95 | DIS-01 | world_market.dart (бригада чинит за 6 дн., у депо за 2; `repairRoad` сразу за деньги), mag_road.dart (кнопка ремонта), world_advice.dart (совет «Повреждены дороги») | s23, ui_s17 | — |
-| STK-01 | Акции компании | P2 | READY_FOR_REVIEW | 1.95 | FIN-01 | world_market.dart (`sharePrice` = стоимость / 1000, `issueShares`, `buybackShares`, контроль 510 акций, дивиденды 30% прибыли держателям, история 60 дней), mag_stocks_ui.dart (вкладка «Биржа» с графиком) | s23, ui_s17 | — |
-| STK-02 | Акции конкурентов | P2 | READY_FOR_REVIEW | 1.95 | META-10 | world_market.dart (`buyRivalShares`: пакет 51% — поглощение; дивиденды с пакета), mag_stocks_ui.dart | s23 | — |
-| TOUR-01 | Курорты | P2 | READY_FOR_REVIEW | 1.95 | PASS-01 | config_industries.dart (`lakeResort` у озера, `skiResort` у гор; технология «Туризм», 8 ур.), mag_resort_art.dart (отель с зонтиками, шале с подъёмником) | s23 | Строит только игрок |
-| TOUR-02 | Туристический спрос | P2 | READY_FOR_REVIEW | 1.95 | TOUR-01 | world_market.dart (`tourismFactor`: туристы платят +60%, в сезон курорта ещё ×1,5; курорт отправляет туристов обратно) | s23 | — |
-| VIS-01 | Сезонная листва | P3 | READY_FOR_REVIEW | 1.95 | LIFE-01 | mag_terrain_art.dart (`MagFoliage`: осенью рыжая, жёлтая и красная листва, зимой снег на ёлках и голые деревья, весной цветение), mag_decor_cache.dart (вдали — те же цвета) | — | — |
+| DIS-01 | Стихийные бедствия | P2 | VERIFIED | 1.95 | LIFE-02 | world_market.dart (`_dayDisasters`: в дождь паводок размывает мост, в бурю ломаются 2 клетки дорог; с 4 ур., живой мир), world_paths.dart (сломанная клетка закрыта), mag_resort_art.dart (`paintDamage`: трещина и заграждения) | s23 | — |
+| DIS-02 | Ремонт инфраструктуры | P2 | VERIFIED | 1.95 | DIS-01 | world_market.dart (бригада чинит за 6 дн., у депо за 2; `repairRoad` сразу за деньги), mag_road.dart (кнопка ремонта), world_advice.dart (совет «Повреждены дороги») | s23, ui_s17 | — |
+| STK-01 | Акции компании | P2 | VERIFIED | 1.95 | FIN-01 | world_market.dart (`sharePrice` = стоимость / 1000, `issueShares`, `buybackShares`, контроль 510 акций, дивиденды 30% прибыли держателям, история 60 дней), mag_stocks_ui.dart (вкладка «Биржа» с графиком) | s23, ui_s17 | — |
+| STK-02 | Акции конкурентов | P2 | VERIFIED | 1.95 | META-10 | world_market.dart (`buyRivalShares`: пакет 51% — поглощение; дивиденды с пакета), mag_stocks_ui.dart | s23 | — |
+| TOUR-01 | Курорты | P2 | VERIFIED | 1.95 | PASS-01 | config_industries.dart (`lakeResort` у озера, `skiResort` у гор; технология «Туризм», 8 ур.), mag_resort_art.dart (отель с зонтиками, шале с подъёмником) | s23 | Строит только игрок |
+| TOUR-02 | Туристический спрос | P2 | VERIFIED | 1.95 | TOUR-01 | world_market.dart (`tourismFactor`: туристы платят +60%, в сезон курорта ещё ×1,5; курорт отправляет туристов обратно) | s23 | — |
+| VIS-01 | Сезонная листва | P3 | VERIFIED | 1.95 | LIFE-01 | mag_terrain_art.dart (`MagFoliage`: осенью рыжая, жёлтая и красная листва, зимой снег на ёлках и голые деревья, весной цветение), mag_decor_cache.dart (вдали — те же цвета) | — | — |
+
+## R. Финансы и круизы (S24)
+
+| ID | Механика | P | Статус | Версия | Зависимости | Файлы | Тесты | Проблемы |
+|---|---|---|---|---|---|---|---|---|
+| CRED-01 | Кредитный рейтинг | P2 | READY_FOR_REVIEW | 1.96 | FIN-01 | world_credit.dart (`creditScore` 0–100 из долга к стоимости, просрочек, прибыльных месяцев и уровня; `rating` AAA…CCC), mag_stocks_ui.dart (карточка рейтинга на вкладке «Биржа») | s24, ui_s15 | — |
+| CRED-02 | Условия кредита по рейтингу | P2 | READY_FOR_REVIEW | 1.96 | CRED-01 | world_meta.dart (`loanLimit` × `ratingLimit` от ×2 до ×0,25; процент × `ratingInterest` от ×0,6 до ×2,2; только в живом мире) | s24 | — |
+| BOND-01 | Облигации | P2 | READY_FOR_REVIEW | 1.96 | CRED-01 | world_credit.dart (`issueBond`: 25/50/100 тыс., лимит 50% стоимости, купон 1,5%/мес × рейтинг, погашение через 180 дн.; при CCC рынок закрыт), mag_stocks_ui.dart | s24, ui_s15 | — |
+| INS-01 | Страхование от стихии | P2 | READY_FOR_REVIEW | 1.96 | DIS-01 | world_credit.dart (`setInsured`, взнос 0,3% стоимости в месяц, мин. 500; бедствие чинится за 1 день бесплатно, выплата 1 500 кр/клетку), world_market.dart (`repairPrice` = 0) | s24, ui_s15 | — |
+| CRU-01 | Круизные лайнеры | P2 | READY_FOR_REVIEW | 1.96 | TOUR-01 | config_vehicles.dart (лайнер «Чайка»: 60 пассажиров, комфорт ×1,6, 70 000 кр, технология «Туризм», 12 ур.), mag_rail_art.dart (белые палубы и красная труба) | s24 | Только пассажиры |
+| VIS-02 | Ночные огни аэропортов и курортов | P3 | READY_FOR_REVIEW | 1.96 | AIR-01 | mag_atmosphere.dart (`paintNightLights`: огни вдоль полосы, красный фонарь вышки, окна отелей и шале) | — | — |
+| VIS-03 | Плавные устья рек | P3 | READY_FOR_REVIEW | 1.96 | — | mag_sea_art.dart (`_paintMouths`: мягкие круглые разливы от реки к морю без клина и полос), mag_terrain_art.dart (вода доходит до края карты) | — | — |
