@@ -241,7 +241,7 @@ extension MagWorldSpans on MagWorld {
       bool rail = false,
     }) {
       if (fail != null) return;
-      final plan = planWay(pts, road: r, over: over);
+      final plan = planWay(pts, road: r, over: over, thin: false);
       if (plan.error != null) {
         fail = plan.error;
         return;

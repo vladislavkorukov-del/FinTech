@@ -160,7 +160,14 @@ extension MagWorldWays on MagWorld {
 
   /// A way along the points the player drew (a finger's trace or two
   /// taps), as a plan: its footprint and price. [road] null: track.
-  MagRoadPlan planWay(List<MagPt> drawn, {MagRoad? road, bool over = false}) {
+  MagRoadPlan planWay(
+    List<MagPt> drawn, {
+    MagRoad? road,
+    bool over = false,
+
+    /// S29: thin a finger's trace (a shape made by the game is kept).
+    bool thin = true,
+  }) {
     final rail = road == null;
     final type = road ?? MagRoad.none;
     if (rail ? !railsUnlocked : !roadUnlocked(type)) {
@@ -184,7 +191,7 @@ extension MagWorldWays on MagWorld {
       final d = math.sqrt(
         (p.$1 - l.$1) * (p.$1 - l.$1) + (p.$2 - l.$2) * (p.$2 - l.$2),
       );
-      if (d >= 1.5) pts.add(p);
+      if (d >= (thin ? 1.5 : .05)) pts.add(p);
     }
     if (drawn.isNotEmpty && pts.last != drawn.last) {
       final l = pts.last, e = drawn.last;

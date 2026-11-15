@@ -39,7 +39,7 @@ List<MagDeck> magDecks(MagWorld w) {
     out.add(
       MagDeck(
         smoothLine([for (final p in r.pts) at(p)], rounds: 2),
-        over ? 15.0 * levels[i] : 7,
+        over ? 12.0 + 12.0 * (levels[i] - 1) : 7,
         r.way.road,
         r.way.rail,
         depthOf([r.a, r.b, ...r.cells]),
@@ -133,11 +133,13 @@ void paintDeck(Canvas c, MagDeck d) {
     acc.add(acc.last + (pts[i] - pts[i - 1]).distance);
   }
   final total = acc.last;
-  final ramp = math.min(1.1, total / 3);
+  // A short deck cannot climb high: no spikes.
+  final height = math.min(d.height, 5 + total * 6);
+  final ramp = math.max(.6, math.min(1.4, total / 3));
   double z(int i) {
     final e = math.min(acc[i], total - acc[i]);
     final t = (e / ramp).clamp(0.0, 1.0);
-    return d.height * t * t * (3 - 2 * t);
+    return height * t * t * (3 - 2 * t);
   }
 
   final width = d.rail ? .44 : roadWidth(d.road) + .1;
@@ -159,7 +161,7 @@ void paintDeck(Canvas c, MagDeck d) {
   // Piers where the deck is up.
   var next = .6;
   for (var i = 0; i < pts.length; i++) {
-    if (acc[i] < next || zs[i] < d.height * .7) continue;
+    if (acc[i] < next || zs[i] < height * .7) continue;
     next = acc[i] + 1.3;
     MagShapes.box(
       c,
@@ -272,9 +274,10 @@ double vehicleLift(MagWorld w, MagVehicle v) {
     final r = runs[i];
     if (!(r.a == a && r.b == b || r.a == b && r.b == a)) continue;
     final over = r.cells.any((c) => w.roads[c] != 0 || w.rails[c] != 0);
-    h = over ? 15.0 * deckLevels(w)[i] : 7.0;
+    h = over ? 12.0 + 12.0 * (deckLevels(w)[i] - 1) : 7.0;
   }
   if (h == 0) return 0;
+  h = math.min(h, 5 + (hop + 1) * 6.0); // as the deck: no spikes
   final t = v.progress;
   final edge = math.min(t, 1 - t) * hop / 1.1;
   final k = edge.clamp(0.0, 1.0);
