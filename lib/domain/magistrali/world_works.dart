@@ -20,7 +20,8 @@ extension MagWorldWorks on MagWorld {
       (isRich(i) ? MagRules.richYield : 1) *
       mountainFactor(i) * // MAP-07
       regionFactor(i) * // BIZ-12
-      biomeFactor(i); // MAP-09
+      biomeFactor(i) * // MAP-09
+      seasonFactor(i); // S22
 
   // ---- BIZ-06 ----
 

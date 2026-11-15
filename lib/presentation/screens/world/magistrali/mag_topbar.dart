@@ -195,72 +195,120 @@ class MagTopBar extends StatelessWidget {
                 ),
               ],
             ),
-            if (task != null && state.tool == MagTool.view) ...[
+            if (state.tool == MagTool.view &&
+                (task != null || w.livingWorld)) ...[
               const SizedBox(height: 6),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: GestureDetector(
-                  onTap: () => state.toggleTask(),
-                  child: magGlass(
-                    key: ValueKey('mag-task-${task.id}'),
-                    radius: 18,
-                    padding: const EdgeInsets.fromLTRB(6, 5, 12, 6),
-                    child: AnimatedSize(
-                      duration: const Duration(milliseconds: 220),
-                      curve: Curves.easeOutCubic,
-                      alignment: Alignment.topLeft,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            width: 24,
-                            height: 24,
-                            alignment: Alignment.center,
-                            decoration: const BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [MagPalette.mint, MagPalette.teal],
-                              ),
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.flag_rounded,
-                              size: 14,
-                              color: Colors.white,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Flexible(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  if (task != null)
+                    Flexible(
+                      child: GestureDetector(
+                        onTap: () => state.toggleTask(),
+                        child: magGlass(
+                          key: ValueKey('mag-task-${task.id}'),
+                          radius: 18,
+                          padding: const EdgeInsets.fromLTRB(6, 5, 12, 6),
+                          child: AnimatedSize(
+                            duration: const Duration(milliseconds: 220),
+                            curve: Curves.easeOutCubic,
+                            alignment: Alignment.topLeft,
+                            child: Row(
                               mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  '${task.title} · +${magMoney(task.reward)}',
-                                  maxLines: state.taskFolded ? 1 : 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
-                                    fontSize: 12.5,
-                                    fontWeight: FontWeight.w800,
-                                    color: MagPalette.ink,
+                                Container(
+                                  width: 24,
+                                  height: 24,
+                                  alignment: Alignment.center,
+                                  decoration: const BoxDecoration(
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        MagPalette.mint,
+                                        MagPalette.teal,
+                                      ],
+                                    ),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.flag_rounded,
+                                    size: 14,
+                                    color: Colors.white,
                                   ),
                                 ),
-                                if (!state.taskFolded)
-                                  Text(
-                                    task.hint,
-                                    style: const TextStyle(
-                                      fontSize: 11.5,
-                                      color: Color(0xFF52646A),
-                                    ),
+                                const SizedBox(width: 8),
+                                Flexible(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        '${task.title} · +${magMoney(task.reward)}',
+                                        maxLines: state.taskFolded ? 1 : 2,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                          fontSize: 12.5,
+                                          fontWeight: FontWeight.w800,
+                                          color: MagPalette.ink,
+                                        ),
+                                      ),
+                                      if (!state.taskFolded)
+                                        Text(
+                                          task.hint,
+                                          style: const TextStyle(
+                                            fontSize: 11.5,
+                                            color: Color(0xFF52646A),
+                                          ),
+                                        ),
+                                    ],
                                   ),
+                                ),
                               ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  // S22: the season and today's weather.
+                  if (w.livingWorld) ...[
+                    const SizedBox(width: 6),
+                    magGlass(
+                      key: const ValueKey('mag-weather'),
+                      radius: 18,
+                      padding: const EdgeInsets.fromLTRB(9, 6, 11, 6),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            switch (w.weather) {
+                              MagWeather.clear =>
+                                w.season == MagSeason.winter
+                                    ? Icons.ac_unit_rounded
+                                    : Icons.wb_sunny_rounded,
+                              MagWeather.rain => Icons.water_drop_rounded,
+                              MagWeather.snow => Icons.ac_unit_rounded,
+                              MagWeather.fog => Icons.foggy,
+                              MagWeather.storm => Icons.thunderstorm_rounded,
+                            },
+                            size: 15,
+                            color: MagPalette.teal,
+                          ),
+                          const SizedBox(width: 5),
+                          Text(
+                            '${MagWorldSeasons.seasonName(w.season)} · ${MagWorldSeasons.weatherName(w.weather)}',
+                            style: const TextStyle(
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w800,
+                              color: MagPalette.ink,
                             ),
                           ),
                         ],
                       ),
                     ),
-                  ),
-                ),
+                  ],
+                ],
               ),
             ],
             // Messages slide in under the bar, never over the middle of

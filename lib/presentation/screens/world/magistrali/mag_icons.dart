@@ -4,6 +4,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 
 import '../../../../domain/magistrali/magistrali.dart';
+import 'mag_air_art.dart';
 import 'mag_art.dart';
 import 'mag_buildings.dart';
 import 'mag_iso.dart';
@@ -396,7 +397,9 @@ class _VehiclePainter extends CustomPainter {
     canvas.scale(size.width / span);
     final p = MagIso.project(0, 0);
     canvas.translate(-p.dx, -p.dy);
-    if (m.rail) {
+    if (m.air) {
+      paintPlane(canvas, 0, 0, const Offset(1, -1), m, altitude: 6);
+    } else if (m.rail) {
       paintTrain(canvas, const [(.5, 0, 1), (-.45, 0, 1)], m, null);
     } else if (m.water) {
       paintShip(canvas, 0, 0, 1, m, null);

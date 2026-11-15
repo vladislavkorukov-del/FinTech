@@ -171,7 +171,7 @@ extension MagWorldRoutes on MagWorld {
 
   void _countTraffic(MagVehicle v, int cell) {
     _atDepot(v, cell);
-    if (v.spec.rail || v.spec.water || roads[cell] == 0) return;
+    if (v.spec.rail || v.spec.water || v.spec.air || roads[cell] == 0) return;
     trafficToday[cell] = (trafficToday[cell] ?? 0) + 1;
   }
 
@@ -198,6 +198,8 @@ extension MagWorldRoutes on MagWorld {
     ..._saveRivals(),
     ..._saveFinish(),
     ..._saveBiomes(),
+    ..._saveAir(),
+    ..._saveSeasons(),
     if (map.industries.any((i) => i.staff > 0))
       'staff': {
         for (final i in map.industries)
@@ -239,6 +241,7 @@ extension MagWorldRoutes on MagWorld {
 
   /// Reads what S13 added to a save (all optional).
   void loadExtras(Map<String, dynamic> j) {
+    loadAir(j); // S22: before the vehicles that stand on airports
     loadMeta(j);
     loadWorks(j);
     loadComplex(j);

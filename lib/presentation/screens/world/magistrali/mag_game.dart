@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import '../../../../domain/magistrali/magistrali.dart';
 import 'mag_network_art.dart';
 import 'mag_structures_art.dart';
+import 'mag_air_art.dart';
 import 'mag_atmosphere.dart';
 import 'mag_curve.dart';
 import 'mag_decor_cache.dart';
@@ -150,6 +151,7 @@ class MagRenderer {
     canvas.save();
     canvas.transform(MagIso.ground);
     paintBiomeTint(canvas, w); // MAP-09
+    paintSeasonTint(canvas, w); // S22
     if (_netVersion != w.roadVersion) {
       _netVersion = w.roadVersion;
       _roadChains = netChains(w, (c) => w.roads[c]);
@@ -264,6 +266,7 @@ class MagRenderer {
     for (final (c, art) in [
       for (final c in w.depots) (c, paintDepot),
       for (final c in w.terminals.keys) (c, paintTerminal),
+      for (final c in w.airports.keys) (c, paintAirport), // S22
     ]) {
       final x = w.cx(c), y = w.cy(c);
       if (x < x0 || x > x1 || y < y0 || y > y1) continue;
@@ -308,6 +311,14 @@ class MagRenderer {
       // On the curve of its way, facing along it.
       final (pose, heading) = vehiclePose(w, v);
       final px = pose.dx, py = pose.dy, dir = dirOf(heading);
+      if (v.spec.air) {
+        final sel = o.vehicle == v.id; // S22: above everything near it
+        objects.add((
+          px + py + 4,
+          () => paintPlane(canvas, px, py, heading, v.spec, selected: sel),
+        ));
+        continue;
+      }
       // Inside a tunnel it is out of sight.
       if (map.at(w.cx(v.cell), w.cy(v.cell)) == MagTerrain.hill &&
           !v.spec.water) {
@@ -474,5 +485,6 @@ class MagRenderer {
     paintFloats(canvas, o, t);
     canvas.restore();
     paintScreenLight(canvas, size, light.$1, light.$2);
+    paintWeather(canvas, size, w.weather, host.time); // S22
   }
 }

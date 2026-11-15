@@ -328,6 +328,8 @@ MagWorld magWorldFromJson(Map<String, dynamic> raw) {
     // Trucks stand on roads, trains on track.
     final net = v.spec.rail
         ? w.rails
+        : v.spec.air
+        ? (Uint8List(w.size * w.size)..fillRange(0, w.size * w.size, 1))
         : v.spec.water
         ? water
         : w.roads;

@@ -14,7 +14,8 @@ extension MagWorldFleet on MagWorld {
       v.spec.speed *
       (1 + .08 * v.level(MagUpgrade.engine)) *
       factor(v.spec.horse ? MagBonus.horseSpeed : MagBonus.speed) *
-      (1 - MagRules.wagonDrag * v.wagons);
+      (1 - MagRules.wagonDrag * v.wagons) *
+      weatherSpeed(v); // S22
 
   /// A train carries what its wagons hold.
   int capacityOf(MagVehicle v) =>
@@ -28,7 +29,8 @@ extension MagWorldFleet on MagWorld {
   double runningCostOf(MagVehicle v) =>
       (v.spec.runningCost + MagRules.wagonRunning * v.wagons) *
       (1 - .06 * v.level(MagUpgrade.economy)) *
-      factor(MagBonus.fuel);
+      factor(MagBonus.fuel) *
+      fuelFactor; // S22: dear fuel
 
   int upkeepOf(MagVehicle v) =>
       ((v.spec.upkeep + MagRules.wagonUpkeep * v.wagons) *
@@ -65,7 +67,9 @@ extension MagWorldFleet on MagWorld {
     final m = MagRules.truck(modelId);
     if (m == null) return 'Нет такой модели';
     if (level < m.level) return 'Откроется на ${m.level} уровне';
-    if (m.water) {
+    if (m.air) {
+      if (!aviationUnlocked) return 'Самолёты открывает технология «Авиация»';
+    } else if (m.water) {
       if (!shippingUnlocked) {
         return 'Суда откроет технология «Речное судоходство»';
       }
@@ -177,9 +181,11 @@ extension MagWorldFleet on MagWorld {
     final v = vehicles[vehicleId];
     if (v == null) return 'Нет такой машины';
     if (routeId != null && !routes.containsKey(routeId)) return 'Нет маршрута';
-    if (routeId != null && (v.spec.rail || v.spec.water)) {
+    if (routeId != null && (v.spec.rail || v.spec.water || v.spec.air)) {
       final why = v.spec.rail
           ? railRouteBlocker(routeId)
+          : v.spec.air
+          ? airRouteBlocker(routeId)
           : portRouteBlocker(routeId);
       if (why != null) return why;
     }
@@ -238,7 +244,7 @@ extension MagWorldFleet on MagWorld {
     final body = _bodyAllows(v, c);
     if (body != null) return body && (!c.people || !v.spec.passengers);
     if (v.spec.passengers) return c.people;
-    if (c.people) return v.spec.rail || v.spec.water;
+    if (c.people) return v.spec.rail || v.spec.water || v.spec.air;
     return true;
   }
 }

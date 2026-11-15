@@ -224,6 +224,12 @@ abstract final class MagRules {
   /// Stage S21: subsidies of cities (CONT-10).
   static const subsidyLevel = 4, subsidyEvery = 9, subsidyDays = 25;
   static const subsidyBonus = .4;
+
+  /// Stage S22: an airport's price.
+  static const airportPrice = 25000;
+
+  /// Chance of an event on a day, percent.
+  static const eventChance = 12;
   static const overdraftRate = .01, crisisDays = 30;
   static const auctionEvery = 10, auctionStart = .7, auctionRise = .05;
   static const auctionDays = 5, regionPrice = 15000;

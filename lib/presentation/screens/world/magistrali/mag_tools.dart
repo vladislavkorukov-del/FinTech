@@ -422,6 +422,8 @@ String toolHint(MagistraliScreenState state) {
       'Рельсы: коснитесь начала и конца · ${MagRules.railCost} кр/кл. Можно пересекать дороги.',
     MagTool.port =>
       'Коснитесь воды рядом (до 2 клеток) с предприятием или поселением · ${magMoney(MagRules.portPrice)} кр',
+    MagTool.airport =>
+      'Коснитесь ровной земли рядом (до 3 клеток) с местом — там встанет аэропорт · ${magMoney(MagRules.airportPrice)} кр',
     MagTool.terrain =>
       'Редактор карты: коснитесь — кисть 3×3 рисует выбранную местность. Предприятия, дороги и станции не трогает.',
     MagTool.station =>

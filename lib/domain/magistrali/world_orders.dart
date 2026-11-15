@@ -74,7 +74,7 @@ extension MagWorldOrders on MagWorld {
     if (o == null) return 'Нет такой заявки';
     if (v == null) return 'Нет такой машины';
     if (o.status != MagOrderStatus.pending) return 'Заявка уже в работе';
-    if (v.spec.rail || v.spec.water) {
+    if (v.spec.rail || v.spec.water || v.spec.air) {
       return 'Поезда и суда ходят только по маршрутам';
     }
     if (!canCarry(v, o.cargo)) return '${v.name} не возит такой груз';

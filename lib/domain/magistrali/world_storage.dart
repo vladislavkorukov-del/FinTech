@@ -285,7 +285,8 @@ extension MagWorldStorage on MagWorld {
                 capacityOf(v) > 0 &&
                 canCarry(v, o.cargo) &&
                 !v.spec.rail &&
-                !v.spec.water,
+                !v.spec.water &&
+                !v.spec.air,
           )
           .toList();
       if (free.isEmpty) continue;

@@ -204,6 +204,16 @@ extension _MagScreenInput on MagistraliScreenState {
         });
       case MagTool.route:
         routeTap(this, cell);
+      case MagTool.airport:
+        // S22: an airport serves the nearest place within 3 cells.
+        double far(MagIndustry i) =>
+            (i.centerX - w.cx(cell)).abs() + (i.centerY - w.cy(cell)).abs();
+        final near = w.airportTargets(cell)
+          ..sort((a, b) => far(a).compareTo(far(b)));
+        if (near.isEmpty) {
+          return say('Рядом (3 клетки) нет места для аэропорта');
+        }
+        report(w.buildAirport(cell, near.first.id), 'Аэропорт построен');
       case MagTool.terrain:
         // MAP-11: the brush paints a 3×3 patch.
         String? why;

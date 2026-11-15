@@ -85,6 +85,30 @@ const magTechRecipes = <MagTech>[
     requires: ['machinery', 'petroleum'],
   ),
   MagTech(
+    id: 'aviation',
+    branch: MagBranch.fleet,
+    title: 'Авиация',
+    lore:
+        'Взлётная полоса, диспетчерская вышка и первые самолёты — по прямой, над реками и горами.',
+    effect: 'Открывает аэропорты и биплан «Кукурузник»',
+    effects: {},
+    cost: 40000,
+    level: 16,
+    requires: ['combustion'],
+  ),
+  MagTech(
+    id: 'jetcargo',
+    branch: MagBranch.fleet,
+    title: 'Грузовая авиация',
+    lore:
+        'Реактивные двигатели и большие трюмы: самолёт везёт сорок тонн за полдня.',
+    effect: 'Открывает грузовой самолёт «Атлант»',
+    effects: {},
+    cost: 90000,
+    level: 20,
+    requires: ['aviation'],
+  ),
+  MagTech(
     id: 'machinetools',
     branch: MagBranch.economy,
     title: 'Станкостроение',

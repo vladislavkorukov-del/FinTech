@@ -41,6 +41,7 @@ enum MagTool {
   port,
   route,
   terrain,
+  airport,
 }
 
 /// «Магистрали»: a transport company on an isometric map. Roads are laid
@@ -164,7 +165,6 @@ class MagistraliScreenState extends State<MagistraliScreen>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    // The company stands still while the game is not on screen.
     _foreground = state == AppLifecycleState.resumed;
     if (!_foreground) unawaited(save());
     if (_world case final w?) sound.configure(w, active: _foreground);

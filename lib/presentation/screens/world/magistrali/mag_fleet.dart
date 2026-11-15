@@ -8,6 +8,7 @@ import 'mag_art.dart';
 import 'mag_dispatch.dart';
 import 'mag_filters.dart';
 import 'mag_fleet_bulk.dart';
+import 'mag_fleet_names.dart';
 import 'mag_hud.dart';
 import 'mag_icons.dart';
 import 'mag_orders.dart';
@@ -16,48 +17,7 @@ import 'mag_screen.dart';
 import 'mag_shop.dart';
 import 'mag_sheets.dart';
 
-String stateName(MagWorld w, MagVehicle v) {
-  final r = w.routes[v.routeId];
-  final o = v.orderId == null ? null : w.orders.byId(v.orderId!);
-  if (o != null) {
-    return 'Заказ №${o.id}: ${orderStatusName(o.status).toLowerCase()}';
-  }
-  return switch (v.state) {
-    MagVehicleState.idle =>
-      v.auto ? 'Автопарк: ждёт заявку' : 'Свободен, ждёт заказ',
-    MagVehicleState.garage => 'В гараже',
-    MagVehicleState.noRoad =>
-      v.spec.rail
-          ? 'Ждёт свободный путь или станцию'
-          : v.spec.water
-          ? 'Нет водного пути до порта'
-          : 'Нет дороги до остановки',
-    MagVehicleState.driving =>
-      'Едет: ${w.map.industry(r?.stops[v.stop % r.stops.length] ?? -1)?.name ?? ''}',
-    MagVehicleState.atStop => v.load > 0 ? 'Загружается' : 'Ждёт груз',
-  };
-}
-
-String upgradeName(MagUpgrade u, [bool horse = false]) => horse
-    ? switch (u) {
-        MagUpgrade.engine => 'Порода лошадей',
-        MagUpgrade.body => 'Повозка побольше',
-        MagUpgrade.economy => 'Корм и упряжь',
-        MagUpgrade.reliability => 'Подковы и колёса',
-      }
-    : switch (u) {
-        MagUpgrade.engine => 'Двигатель',
-        MagUpgrade.body => 'Кузов',
-        MagUpgrade.economy => 'Экономичность',
-        MagUpgrade.reliability => 'Надёжность',
-      };
-
-IconData upgradeIcon(MagUpgrade u) => switch (u) {
-  MagUpgrade.engine => Icons.speed_rounded,
-  MagUpgrade.body => Icons.inventory_2_rounded,
-  MagUpgrade.economy => Icons.local_gas_station_rounded,
-  MagUpgrade.reliability => Icons.build_circle_rounded,
-};
+export 'mag_fleet_names.dart';
 
 Widget _truckTile(
   MagistraliScreenState state,
@@ -105,7 +65,6 @@ Widget _truckTile(
   );
 }
 
-/// Which kind of transport the fleet sheet shows (kept while open).
 var _fleetKind = 0;
 
 bool _ofKind(MagTruckModel m, int k) => switch (k) {
@@ -114,6 +73,7 @@ bool _ofKind(MagTruckModel m, int k) => switch (k) {
   3 => m.passengers,
   4 => m.rail,
   5 => m.water,
+  6 => m.air,
   _ => true,
 };
 
@@ -166,6 +126,15 @@ Future<void> showFleetSheet(
             'Вода: суда ходят по рекам и озёрам между портами',
           ),
         ),
+        (
+          6,
+          note(
+            6,
+            w.aviationUnlocked,
+            'Самолёты — после технологии «Авиация»',
+            'Небо: самолёты летят по прямой между аэропортами',
+          ),
+        ),
       ];
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -186,6 +155,7 @@ Future<void> showFleetSheet(
               'Пассажиры',
               'Ж/д',
               'Суда',
+              'Авиа',
             ],
             selected: k,
             onSelect: (i) => setLocal(() => _fleetKind = i),

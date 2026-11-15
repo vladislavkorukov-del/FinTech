@@ -16,7 +16,9 @@ enum MagBuildGroup { roads, rail, water, buildings, remove, editor }
 MagBuildGroup groupOf(MagTool t) => switch (t) {
   MagTool.rail || MagTool.station => MagBuildGroup.rail,
   MagTool.port => MagBuildGroup.water,
-  MagTool.warehouse || MagTool.industry => MagBuildGroup.buildings,
+  MagTool.warehouse ||
+  MagTool.industry ||
+  MagTool.airport => MagBuildGroup.buildings,
   MagTool.remove => MagBuildGroup.remove,
   MagTool.terrain => MagBuildGroup.editor,
   _ => MagBuildGroup.roads,
@@ -132,6 +134,19 @@ class MagBuildPanel extends StatelessWidget {
             final k = await showBuildPicker(state);
             if (k != null) state.chooseBuild(k);
           },
+        ),
+        // S22: airports.
+        MagToolChip(
+          key: const ValueKey('mag-tool-airport'),
+          label: 'Аэропорт',
+          locked: !w.aviationUnlocked,
+          lockLevel: 16,
+          on: state.tool == MagTool.airport,
+          color: const Color(0xFF4A6FD8),
+          icon: Icons.flight_rounded,
+          onTap: () => w.aviationUnlocked
+              ? state.setTool(MagTool.airport)
+              : state.say('Аэропорты открывает технология «Авиация»'),
         ),
       ],
       MagBuildGroup.remove => const <Widget>[],

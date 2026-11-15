@@ -204,3 +204,20 @@ void paintBiomeNames(Canvas c, MagWorld w, double zoom) {
     tp.dispose();
   }
 }
+
+/// S22: the season on the land — snow in winter, gold in autumn, fresh
+/// green in spring.
+void paintSeasonTint(Canvas c, MagWorld w) {
+  if (!w.livingWorld) return;
+  final color = switch (w.season) {
+    MagSeason.winter => const Color(0x8CF4F7FA),
+    MagSeason.autumn => const Color(0x22D9902E),
+    MagSeason.spring => const Color(0x0F8FD06A),
+    MagSeason.summer => const Color(0x00000000),
+  };
+  if (color.a == 0) return;
+  c.drawRect(
+    Rect.fromLTWH(0, 0, w.size.toDouble(), w.size.toDouble()),
+    Paint()..color = color,
+  );
+}

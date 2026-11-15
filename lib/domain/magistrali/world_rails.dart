@@ -220,6 +220,8 @@ extension MagWorldRails on MagWorld {
   /// for trains.
   List<int> _stopCells(MagVehicle v, MagIndustry i) => v.spec.rail
       ? stationCells(i)
+      : v.spec.air
+      ? airportCells(i)
       : v.spec.water
       ? portCells(i)
       : accessCells(i);
@@ -227,6 +229,8 @@ extension MagWorldRails on MagWorld {
   /// Is [cell] a stop of [i] for this vehicle?
   bool _atPlace(MagVehicle v, int cell, MagIndustry i) => v.spec.rail
       ? stations[cell] == i.id
+      : v.spec.air
+      ? airports[cell] == i.id
       : v.spec.water
       ? ports[cell] == i.id
       : _touches(cell, i);
@@ -234,6 +238,8 @@ extension MagWorldRails on MagWorld {
   List<int>? _pathFor(MagVehicle v, List<int> from, MagIndustry to) =>
       v.spec.rail
       ? railPath(from, to)
+      : v.spec.air
+      ? airPath(from, to)
       : v.spec.water
       ? waterPath(from, to)
       : roadPath(from, to);

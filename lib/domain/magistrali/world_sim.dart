@@ -46,9 +46,9 @@ extension MagWorldSim on MagWorld {
     _dayTowns();
     _dayCities();
     for (final i in map.industries) {
-      // Processing first, so delivered goods turn into new cargo. A level
-      // adds output and storage; a recipe may need several inputs per
-      // output; nothing is made without its input or beyond the store.
+      if (isStruck(i)) continue; // S22: a strike
+      // Processing first (delivered goods turn into new cargo), within the
+      // store; a recipe may need several inputs per output.
       final k = outputFactor(i), cap = outputCapOf(i);
       var budget = (MagRules.processPerDay * k).round();
       for (final e in _recipesOf(i)) {
@@ -126,6 +126,7 @@ extension MagWorldSim on MagWorld {
     roadUpkeep = (roadUpkeep * factor(MagBonus.roadUpkeep)).round();
     if (roadUpkeep >= 10) _spend(roadUpkeep ~/ 10, 'roads_upkeep');
     _daySubsidies(); // CONT-10
+    _dayLiving(); // S22: events, campaign
     _offerUniques(); // CONT-11
     _dayExport(); // LOG-13: after the day's output
     _checkLedger(); // CORE-10
@@ -190,7 +191,6 @@ extension MagWorldSim on MagWorld {
     final target = _target(v);
     if (target == null) return _lost(v);
     // From a stop a truck may leave by any road reaching that place.
-    // (It stands at the place when its cell touches the last stop.)
     final last = v.orderId != null ? null : _stopOf(v, v.stop - 1);
     // (Trains and vessels leave from where they stand, never another berth.)
     final yard = v.orderId != null
@@ -198,6 +198,7 @@ extension MagWorldSim on MagWorld {
         : last != null &&
               !v.spec.rail &&
               !v.spec.water &&
+              !v.spec.air &&
               _atPlace(v, v.cell, last)
         ? _stopCells(v, last)
         : const <int>[];
@@ -239,7 +240,7 @@ extension MagWorldSim on MagWorld {
       // A train waits for the track ahead to clear.
       if (v.progress == 0 && !_trackClear(v, next)) break;
       // Horses keep their own pace; trains theirs on the track.
-      final roadK = v.spec.rail || v.spec.water
+      final roadK = v.spec.rail || v.spec.water || v.spec.air
           ? 1.0
           : v.spec.horse
           ? math.max(MagRules.horseRoad(MagRoad.values[roads[next]]), .4)

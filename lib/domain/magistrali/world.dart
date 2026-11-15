@@ -41,6 +41,8 @@ part 'world_rivals.dart';
 part 'world_finish.dart';
 part 'world_paths.dart';
 part 'world_biomes.dart';
+part 'world_air.dart';
+part 'world_seasons.dart';
 part 'world_routes.dart';
 part 'world_plans.dart';
 part 'world_save.dart';
@@ -98,6 +100,7 @@ class MagWorld with _MagWorldLater {
       // MAP-08: a new company starts in its own region.
       w.regionsLocked = true;
       w.biomesOn = true; // MAP-09: new companies
+      w.livingWorld = true; // S22: seasons, weather, events, campaign
       final f0 = w.map.startFarm;
       w.openRegions.add(w.regionOf(f0.x, f0.y));
     }

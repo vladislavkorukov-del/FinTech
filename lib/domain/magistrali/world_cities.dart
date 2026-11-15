@@ -34,7 +34,10 @@ extension MagWorldCities on MagWorld {
 
   /// How much more a delivery of [c] to [i] pays: a bigger market, the
   /// city's own cargo, a trade city, the demand of the week.
-  double marketFactor(MagIndustry i, MagCargo c) {
+  double marketFactor(MagIndustry i, MagCargo c) =>
+      _market(i, c) * eventPayFactor(i, c); // S22: festivals, booms
+
+  double _market(MagIndustry i, MagCargo c) {
     final t = i.town;
     if (t == null) return rivalFactor(i); // META-09
     var k =

@@ -253,4 +253,49 @@ void main() {
     await closeSheet(tester);
     await settle(tester);
   });
+
+  testWidgets('S22: weather, the campaign, an airport by touch', (
+    tester,
+  ) async {
+    await mount(tester, const MagistraliScreen(seed: MagRules.defaultSeed));
+    final s = await ready(tester);
+    final w = s.world
+      ..money = 1000000
+      ..xp = MagWorldProgress.xpFor(16);
+    w.speed = 0;
+    w.techs.addAll(['combustion', 'aviation']);
+    expect(w.livingWorld, isTrue); // a new company lives
+    s.changed();
+    await tester.pump();
+    expect(find.byKey(const ValueKey('mag-weather')), findsOneWidget);
+    await tap(tester, 'mag-level');
+    await tap(tester, 'mag-company-tab-5');
+    expect(find.byKey(const ValueKey('mag-chapter-0')), findsOneWidget);
+    await closeSheet(tester);
+    // An airport next to the start farm.
+    final f = w.map.startFarm;
+    int? cell;
+    for (var y = f.top - 2; y <= f.bottom + 2 && cell == null; y++) {
+      for (var x = f.left - 2; x <= f.right + 2; x++) {
+        final c = w.cellOf(x, y);
+        if (w.airportBlocker(c, f.id) == null) {
+          cell = c;
+          break;
+        }
+      }
+    }
+    await tap(tester, 'mag-tab-build');
+    await tap(tester, 'mag-cat-buildings');
+    await tap(tester, 'mag-tool-airport');
+    s.camera.zoom = 1.4;
+    s.centerOn(w.cx(cell!) + .5, w.cy(cell) + .5);
+    await tester.pump();
+    final size = tester.getSize(find.byKey(const ValueKey('mag-map')));
+    await tester.tapAt(
+      s.camera.cellToScreen(w.cx(cell) + .5, w.cy(cell) + .5, size),
+    );
+    await tester.pump();
+    expect(w.airports.values, contains(f.id));
+    await settle(tester);
+  });
 }

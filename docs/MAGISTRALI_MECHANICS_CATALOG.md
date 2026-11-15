@@ -12,19 +12,19 @@ READY_FOR_REVIEW — готово, ждёт проверки игроком; VER
 Файлы домена — `lib/domain/magistrali/`, интерфейса —
 `lib/presentation/screens/world/magistrali/`. Тесты — `test/magistrali_<имя>_test.dart`
 (sim, orders, storage, dispatch, towns, horses, production, growth,
-industry, cities, logistics, rail, water, megapolis, passengers, p1, s12, s13, s14, s15, s16, s17, s18, s19, s20, s21, soak, ui, ui_s17, ui_s15, ui_s13, ui_stage5, ui_rail).
+industry, cities, logistics, rail, water, megapolis, passengers, p1, s12, s13, s14, s15, s16, s17, s18, s19, s20, s21, s22, soak, ui, ui_s17, ui_s15, ui_s13, ui_stage5, ui_rail).
 
-Аудит: 1.77.0, обновлено в 1.78.0 (S7) и 1.79.0 (S8), 1.80.0 (S9 и доводка ЖД), 1.81.0 (S10 и графика), 1.82.0 (S11), 1.83.0 (доделка P1), 1.84.0 (S12), 1.85.0 (S13), 1.86.0 (S14), 1.87.0 (S15), 1.88.0 (S16), 1.89.0 (S17), 1.90.0 (S18), 1.91.0 (S19), 1.92.0 (S20), 1.93.0 (S21); точка восстановления — тег `restore/magistrali-1.77.0-pre-s7`.
+Аудит: 1.77.0, обновлено в 1.78.0 (S7) и 1.79.0 (S8), 1.80.0 (S9 и доводка ЖД), 1.81.0 (S10 и графика), 1.82.0 (S11), 1.83.0 (доделка P1), 1.84.0 (S12), 1.85.0 (S13), 1.86.0 (S14), 1.87.0 (S15), 1.88.0 (S16), 1.89.0 (S17), 1.90.0 (S18), 1.91.0 (S19), 1.92.0 (S20), 1.93.0 (S21), 1.94.0 (S22); точка восстановления — тег `restore/magistrali-1.77.0-pre-s7`.
 
 ## Сводка
 
 | Статус | Механик |
 |---|---|
 | VERIFIED | 199 |
-| READY_FOR_REVIEW | 4 |
+| READY_FOR_REVIEW | 10 |
 | PARTIAL | 0 |
 | NOT_STARTED | 0 |
-| Всего | 203 |
+| Всего | 209 |
 
 ## A. Фундамент игры и безопасность
 
@@ -303,3 +303,14 @@ industry, cities, logistics, rail, water, megapolis, passengers, p1, s12, s13, s
 | META-10 | Поглощения компаний | P3 | VERIFIED | 1.91 | META-09 | world_rivals.dart (`acquireRival`, `rivalValue`), mag_rivals_ui.dart (вкладка «Конкуренты») | s19, ui_s17 | — |
 | META-11 | Различные сценарии старта | P2 | VERIFIED | 1.89 | — | world_complex.dart (`MagScenario`, `_applyScenario`), mag_tools.dart (выбор при новой игре) | s17, ui_s17 | 5 сценариев |
 | META-12 | Развитие после 10-го уровня | P3 | VERIFIED | 1.91 | META-03 | world_rivals.dart (`starsOf`, `_dayStars`: до 5 звёзд, +5% рынка и +10% жителей за звезду), mag_city.dart | s19 | — |
+
+## P. Живой мир (S22)
+
+| ID | Механика | P | Статус | Версия | Зависимости | Файлы | Тесты | Проблемы |
+|---|---|---|---|---|---|---|---|---|
+| LIFE-01 | Сезоны года | P2 | READY_FOR_REVIEW | 1.94 | — | world_seasons.dart (`season`: весна, лето, осень, зима по 30 дней; урожай: лето +20%, осень +10%, зима ×0,5), mag_decor_cache.dart (снег, золото осени, весенняя зелень) | s22 | В живом мире: новые компании и сохранения до 1.94 |
+| LIFE-02 | Погода | P2 | READY_FOR_REVIEW | 1.94 | LIFE-01 | world_seasons.dart (`weather`: ясно, дождь, снег, туман, шторм по сезону; `weatherSpeed`), mag_atmosphere.dart (`paintWeather`), mag_topbar.dart (плашка сезона и погоды) | s22, ui_s13 | — |
+| LIFE-03 | Случайные события | P2 | READY_FOR_REVIEW | 1.94 | — | world_seasons.dart (`_dayEvents`: ярмарка +40%, забастовка, бум спроса +30%, дорогое топливо +40%, городской грант) | s22 | — |
+| LIFE-04 | Сюжетная кампания | P2 | READY_FOR_REVIEW | 1.94 | META-01 | world_seasons.dart (`magChapters`: 9 глав с целями и наградами от 2 000 до 300 000 кр), mag_rivals_ui.dart (вкладка «Кампания») | s22, ui_s13 | — |
+| AIR-01 | Аэропорты | P2 | READY_FOR_REVIEW | 1.94 | TECH-06 | world_air.dart (`buildAirport`: на ровной земле в 3 клетках от места, 25 000 кр), mag_air_art.dart (полоса и вышка), mag_build_panel.dart («Аэропорт») | s22, ui_s13 | — |
+| AIR-02 | Грузовая авиация | P2 | READY_FOR_REVIEW | 1.94 | AIR-01 | config_vehicles.dart (биплан «Кукурузник», грузовой «Атлант»), world_air.dart (`airPath`: по прямой), технологии «Авиация» и «Грузовая авиация», mag_air_art.dart (самолёт и тень) | s22 | — |

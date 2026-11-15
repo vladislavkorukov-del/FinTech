@@ -226,3 +226,40 @@ void paintSelection(Canvas c, MagIndustry sel, double t) {
       ..color = MagPalette.mint,
   );
 }
+
+/// S22: the weather over the screen — slanted rain, drifting snow, a fog
+/// veil, a darker sky in a storm.
+void paintWeather(Canvas c, Size size, MagWeather w, double t) {
+  switch (w) {
+    case MagWeather.clear:
+      return;
+    case MagWeather.fog:
+      c.drawRect(Offset.zero & size, Paint()..color = const Color(0x40E6ECEA));
+      return;
+    case MagWeather.rain || MagWeather.storm:
+      if (w == MagWeather.storm) {
+        c.drawRect(
+          Offset.zero & size,
+          Paint()..color = const Color(0x2A1C2630),
+        );
+      }
+      final p = Paint()
+        ..color = const Color(0xA6D2E2EC)
+        ..strokeWidth = 1.5
+        ..strokeCap = StrokeCap.round;
+      final n = w == MagWeather.storm ? 170 : 120;
+      for (var k = 0; k < n; k++) {
+        final x0 = (k * 97.0 + t * 40) % (size.width + 60) - 30;
+        final y0 = (k * 53.0 + t * 520) % (size.height + 40) - 20;
+        c.drawLine(Offset(x0, y0), Offset(x0 - 6, y0 + 18), p);
+      }
+    case MagWeather.snow:
+      final p = Paint()..color = const Color(0xCCFFFFFF);
+      for (var k = 0; k < 110; k++) {
+        final drift = math.sin(t * 1.3 + k) * 12;
+        final x0 = (k * 83.0 + drift + t * 12) % size.width;
+        final y0 = (k * 61.0 + t * 46) % size.height;
+        c.drawCircle(Offset(x0, y0), 1.2 + (k % 3) * .6, p);
+      }
+  }
+}

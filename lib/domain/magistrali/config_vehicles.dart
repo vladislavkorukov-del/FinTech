@@ -19,6 +19,7 @@ class MagTruckModel {
     this.maxWagons = 0,
     this.wagonPrice = 0,
     this.water = false,
+    this.air = false,
     this.passengers = false,
     this.tech,
     this.body,
@@ -37,7 +38,7 @@ class MagTruckModel {
 
   /// A goods vehicle on roads with an engine (not horse, rail, water or
   /// a passenger model).
-  bool get motorGoods => !horse && !rail && !water && !passengers;
+  bool get motorGoods => !horse && !rail && !water && !air && !passengers;
 
   /// Comfort for people (PASS-07): their fare is multiplied by it.
   double get comfort => body == 'tram'
@@ -52,6 +53,9 @@ class MagTruckModel {
 
   /// A vessel (stage S9): it sails rivers and lakes between ports.
   final bool water;
+
+  /// An aircraft (stage S22): it flies straight between airports.
+  final bool air;
   final String id, name;
 
   /// A locomotive (stage S8): it runs on rails between stations and pulls
@@ -338,5 +342,32 @@ const magTruckModels = <MagTruckModel>[
     level: 14,
     color: 0xFF2E5E8C,
     water: true,
+  ),
+  // Stage S22: aviation — straight between airports, fast and costly.
+  MagTruckModel(
+    id: 'biplane',
+    name: 'Биплан «Кукурузник»',
+    speed: 4,
+    capacity: 12,
+    price: 60000,
+    runningCost: 1.6,
+    upkeep: 26,
+    level: 16,
+    color: 0xFFD9A441,
+    air: true,
+    tech: 'aviation',
+  ),
+  MagTruckModel(
+    id: 'cargoplane',
+    name: 'Грузовой самолёт «Атлант»',
+    speed: 6,
+    capacity: 40,
+    price: 160000,
+    runningCost: 3.2,
+    upkeep: 60,
+    level: 20,
+    color: 0xFF4A6FD8,
+    air: true,
+    tech: 'jetcargo',
   ),
 ];

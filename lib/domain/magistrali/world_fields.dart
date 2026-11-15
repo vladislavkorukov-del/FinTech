@@ -19,6 +19,13 @@ mixin _MagWorldLater {
   /// S21: biomes on (new companies), their cache, subsidies, unique
   /// orders already offered.
   bool biomesOn = false;
+
+  /// S22: airports (cell → place); a living world (seasons, weather,
+  /// events, the campaign), its events and chapter.
+  final airports = <int, int>{};
+  bool livingWorld = false;
+  final events = <MagEvent>[];
+  int chapterIndex = 0;
   final _biomes = <int, MagBiome>{};
   final subsidies = <MagSubsidy>[];
   final uniqueOffered = <String>{};

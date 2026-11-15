@@ -15,7 +15,7 @@ extension MagWorldDispatch on MagWorld {
     final v = vehicles[vehicleId];
     if (v == null) return 'Нет такой машины';
     if (on && !dispatcherUnlocked) return 'Нужна технология «Диспетчерская»';
-    if (on && (v.spec.rail || v.spec.water)) {
+    if (on && (v.spec.rail || v.spec.water || v.spec.air)) {
       return 'Поезда и суда ходят только по маршрутам';
     }
     if (on && v.routeId != null) _park(v);
