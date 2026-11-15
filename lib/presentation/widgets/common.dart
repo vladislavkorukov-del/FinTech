@@ -1,3 +1,4 @@
+import 'grouped_list.dart';
 import 'package:flutter/material.dart' hide InputDecoration, Text;
 import 'package:intl/intl.dart';
 
@@ -183,16 +184,20 @@ class CategoryBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = FinanceColors.of(context);
+    final dark = Theme.of(context).brightness == Brightness.dark;
     final c =
         color ??
-        (category == null ? colors.iconForeground : Color(category!.color));
+        (category == null
+            ? colors.iconForeground
+            : TileColors.vivid(Color(category!.color)));
+    // Release: the category's own colour, a clear tint behind its icon.
     return Container(
       width: size,
       height: size,
       decoration: ShapeDecoration(
-        color: category == null
+        color: category == null && color == null
             ? colors.iconBackground
-            : Color(category!.background),
+            : c.withValues(alpha: dark ? .24 : .16),
         shape: RoundedSuperellipseBorder(
           borderRadius: BorderRadius.circular(size * .3),
         ),

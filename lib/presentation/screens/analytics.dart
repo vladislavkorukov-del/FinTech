@@ -7,6 +7,7 @@ import '../../domain/finance_engine.dart';
 import '../../domain/models.dart';
 import '../controller.dart';
 import '../widgets/common.dart';
+import '../widgets/grouped_list.dart';
 import '../widgets/charts.dart';
 import '../widgets/category_orbit_chart.dart';
 import '../widgets/half_year_chart.dart';
@@ -243,10 +244,12 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                   id: item.key,
                   name: category?.name ?? 'Прочее',
                   icon: categoryIcon(category?.icon ?? 19),
-                  color: Color(
-                    category?.color ??
-                        categoryColors[item.key.hashCode.abs() %
-                            categoryColors.length],
+                  color: TileColors.vivid(
+                    Color(
+                      category?.color ??
+                          categoryColors[item.key.hashCode.abs() %
+                              categoryColors.length],
+                    ),
                   ),
                   amount: item.value,
                 );

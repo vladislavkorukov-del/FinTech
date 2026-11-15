@@ -44,6 +44,16 @@ class FinanceBackdropLayer extends StatelessWidget {
           );
           final a = glow(b.glowA, 1.15);
           final c = glow(b.glowB, 1.0);
+          // Release: a third glow in a neighbouring hue — more colour under
+          // the glass.
+          final hue = HSLColor.fromColor(b.glowA);
+          final third = glow(
+            hue
+                .withHue((hue.hue + 70) % 360)
+                .toColor()
+                .withValues(alpha: b.glowA.a * .8),
+            .95,
+          );
           return RepaintBoundary(
             child: Stack(
               key: const ValueKey('finance-backdrop'),
@@ -65,6 +75,11 @@ class FinanceBackdropLayer extends StatelessWidget {
                   top: box.maxHeight * .42,
                   left: -size * .45,
                   child: c,
+                ),
+                Positioned(
+                  bottom: -size * .3,
+                  right: -size * .35,
+                  child: third,
                 ),
               ],
             ),

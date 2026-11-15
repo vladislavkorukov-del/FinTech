@@ -24,8 +24,8 @@ void main() {
         final ink = theme.colorScheme.onSurface;
         final secondary = theme.colorScheme.onSurfaceVariant;
         final pane = GlassSurface.pane(theme, null, null, 1);
-        // 1.16: the card is nearly solid (calm, no color showing through).
-        expect(pane.a, greaterThan(.85));
+        // 1.0.0+119: liquid glass again — translucent, yet readable.
+        expect(pane.a, inInclusiveRange(.6, .85));
         for (final under in [backdrop.top, backdrop.middle, backdrop.bottom]) {
           // The brightest spot is right under a color orb.
           for (final orb in [
@@ -90,7 +90,8 @@ void main() {
     }
 
     // Just inside each bounding-box corner but outside the 24 px radius,
-    // and below the card: exactly the backdrop, no square, no shadow.
+    // and below the card: never lighter than the backdrop (no square of
+    // haze); the soft glass shadow may only darken it a little.
     for (final p in [
       card.topLeft + const Offset(2, 2),
       card.topRight + const Offset(-3, 2),
@@ -102,16 +103,16 @@ void main() {
       final c = at(p);
       expect(
         [
-          (c.r - backdrop.r).abs(),
-          (c.g - backdrop.g).abs(),
-          (c.b - backdrop.b).abs(),
-        ].every((d) => d < 2 / 255),
+          c.r - backdrop.r,
+          c.g - backdrop.g,
+          c.b - backdrop.b,
+        ].every((d) => d < 2 / 255 && d > -24 / 255),
         isTrue,
-        reason: 'corner at $p must show the plain backdrop, got $c',
+        reason: 'corner at $p must not be lightened, got $c',
       );
     }
-    // The card is drawn, and its edge is one visible hairline (1.16: no
-    // highlights, so the edge differs from the flat body, nothing more).
+    // The card is drawn, and its edge is one visible hairline (the glass
+    // rim catches the light, so it differs from the body).
     expect(at(card.center), isNot(backdrop));
     expect(at(card.topCenter), isNot(at(card.center))); // the 1 px edge row
   });

@@ -108,7 +108,7 @@ class Dashboard extends StatelessWidget {
                 amount: totals.income,
                 currency: c.currency,
                 icon: Icons.south_west_rounded,
-                tone: colors.income,
+                tone: TileColors.green,
                 onTap: () => operations(EntryKind.income),
               ),
             ),
@@ -119,7 +119,7 @@ class Dashboard extends StatelessWidget {
                 amount: totals.expense,
                 currency: c.currency,
                 icon: Icons.north_east_rounded,
-                tone: colors.expense,
+                tone: TileColors.red,
                 onTap: () => operations(EntryKind.expense),
               ),
             ),
@@ -506,15 +506,14 @@ class _AccountRow extends StatelessWidget {
               Container(
                 width: 32,
                 height: 32,
-                decoration: ShapeDecoration(
-                  color: FinanceColors.of(context).iconBackground,
-                  shape: RoundedSuperellipseBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
+                // Release: the account's own colour.
+                decoration: TileColors.tile(
+                  TileColors.vivid(Color(account.color)),
+                  radius: 10,
                 ),
                 child: Icon(
                   categoryIcon(account.icon),
-                  color: FinanceColors.of(context).iconForeground,
+                  color: Colors.white,
                   size: 18,
                 ),
               ),
@@ -857,7 +856,7 @@ class _SummaryTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    // 1.16: a neutral card; the color stays only in the small arrow.
+    // Release: the card is tinted with its colour, the arrow in a bright dot.
     return PressScale(
       child: KeyedSubtree(
         key: ValueKey('summary-$title'),
@@ -865,6 +864,8 @@ class _SummaryTile extends StatelessWidget {
         child: GlassSurface(
           radius: 14,
           onTap: onTap,
+          tint: tone,
+          tintStrength: 3.2,
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -872,8 +873,16 @@ class _SummaryTile extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(icon, size: 13, color: tone),
-                  const SizedBox(width: 4),
+                  Container(
+                    width: 16,
+                    height: 16,
+                    decoration: BoxDecoration(
+                      color: tone,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(icon, size: 11, color: Colors.white),
+                  ),
+                  const SizedBox(width: 5),
                   Flexible(
                     child: Text(
                       title,
@@ -947,10 +956,12 @@ class _ExpenseOverview extends StatelessWidget {
                 id: e.key,
                 name: category?.name ?? 'Прочее',
                 icon: categoryIcon(category?.icon ?? 19),
-                color: Color(
-                  category?.color ??
-                      categoryColors[e.key.hashCode.abs() %
-                          categoryColors.length],
+                color: TileColors.vivid(
+                  Color(
+                    category?.color ??
+                        categoryColors[e.key.hashCode.abs() %
+                            categoryColors.length],
+                  ),
                 ),
                 amount: e.value,
               );

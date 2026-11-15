@@ -8,16 +8,44 @@ import '../l10n_widgets.dart';
 
 /// Tile colors for grouped lists (Finora 1.26), iOS-like but a little
 /// quieter so they sit well on every theme.
+/// Apple's system colours (Release): every menu row has a tile of its own
+/// colour with a white icon, as in the iPhone's Settings.
 abstract final class TileColors {
-  static const blue = Color(0xFF3B82F6);
-  static const indigo = Color(0xFF6366F1);
-  static const purple = Color(0xFFA855F7);
-  static const pink = Color(0xFFEC4899);
-  static const red = Color(0xFFEF4444);
-  static const orange = Color(0xFFF59E0B);
-  static const green = Color(0xFF22C55E);
-  static const teal = Color(0xFF14B8A6);
+  static const blue = Color(0xFF0A84FF);
+  static const indigo = Color(0xFF5E5CE6);
+  static const purple = Color(0xFFBF5AF2);
+  static const pink = Color(0xFFFF375F);
+  static const red = Color(0xFFFF453A);
+  static const orange = Color(0xFFFF9F0A);
+  static const yellow = Color(0xFFFFCC00);
+  static const green = Color(0xFF30D158);
+  static const mint = Color(0xFF00C7BE);
+  static const teal = Color(0xFF40C8E0);
+  static const cyan = Color(0xFF64D2FF);
+  static const brown = Color(0xFFAC8E68);
   static const gray = Color(0xFF8E8E93);
+
+  /// A pastel user colour made bright enough for a tile with a white icon.
+  static Color vivid(Color c) {
+    final h = HSLColor.fromColor(c);
+    if (h.saturation < .08) return gray;
+    return h
+        .withSaturation(h.saturation.clamp(.62, .95))
+        .withLightness(h.lightness.clamp(.46, .56))
+        .toColor();
+  }
+
+  /// A tile: the colour, a touch lighter at the top (glassy).
+  static Decoration tile(Color c, {double radius = 9}) => ShapeDecoration(
+    gradient: LinearGradient(
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+      colors: [Color.lerp(c, Colors.white, .18)!, c],
+    ),
+    shape: RoundedSuperellipseBorder(
+      borderRadius: BorderRadius.circular(radius),
+    ),
+  );
 }
 
 /// A titled group of rows on one card, with thin dividers between them.
@@ -88,8 +116,8 @@ class GroupedSection extends StatelessWidget {
   }
 }
 
-/// A row: icon tile, title, optional subtitle or value, chevron. [color] is
-/// kept for callers but no longer paints the tile (1.56: one color solution).
+/// A row: a coloured icon tile (Release: back to colour, as on the iPhone),
+/// title, optional subtitle or value, chevron.
 class GroupedRow extends StatelessWidget {
   const GroupedRow({
     super.key,
@@ -128,27 +156,13 @@ class GroupedRow extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(14, 10, 12, 10),
             child: Row(
               children: [
-                // 1.56: one color solution for every row — the theme's icon
-                // tile colors (as on the account icons), not a rainbow; only
-                // destructive rows stay red.
                 Container(
                   width: 32,
                   height: 32,
-                  decoration: ShapeDecoration(
-                    color: destructive
-                        ? scheme.error.withValues(alpha: .16)
-                        : FinanceColors.of(context).iconBackground,
-                    shape: RoundedSuperellipseBorder(
-                      borderRadius: BorderRadius.circular(9),
-                    ),
+                  decoration: TileColors.tile(
+                    destructive ? TileColors.red : color,
                   ),
-                  child: Icon(
-                    icon,
-                    size: 19,
-                    color: destructive
-                        ? scheme.error
-                        : FinanceColors.of(context).iconForeground,
-                  ),
+                  child: Icon(icon, size: 19, color: Colors.white),
                 ),
                 const SizedBox(width: 12),
                 Expanded(

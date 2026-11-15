@@ -65,7 +65,7 @@ class MoreScreen extends StatelessWidget {
             row(
               'recurring',
               Icons.event_repeat_rounded,
-              TileColors.purple,
+              TileColors.indigo,
               tr('Платежи и подписки'),
               tr('Кредиты, аренда, подписки, доходы'),
               const RecurringScreen(),
@@ -89,7 +89,7 @@ class MoreScreen extends StatelessWidget {
             row(
               'shopping',
               Icons.shopping_basket_rounded,
-              TileColors.orange,
+              TileColors.yellow,
               tr('Список покупок'),
               tr('Что купить и сколько это стоит'),
               const ShoppingScreen(),
@@ -106,7 +106,7 @@ class MoreScreen extends StatelessWidget {
             row(
               'categories',
               Icons.category_rounded,
-              TileColors.teal,
+              TileColors.mint,
               tr('Категории'),
               tr('Доходы, расходы и иконки'),
               const CategoriesScreen(),
@@ -121,7 +121,7 @@ class MoreScreen extends StatelessWidget {
             row(
               'achievements',
               Icons.emoji_events_rounded,
-              TileColors.orange,
+              TileColors.purple,
               tr('Достижения'),
               tr('Награды за порядок в деньгах'),
               const AchievementsScreen(),

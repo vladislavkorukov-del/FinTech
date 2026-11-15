@@ -42,11 +42,13 @@ class GlassSurface extends StatelessWidget {
     // milky; either keeps secondary text at ≥ 4.5:1 over the brightest orb.
     // 1.16: nearly solid — the card reads as one calm surface; the faint
     // backdrop no longer shows through as color.
+    // Release: liquid glass again — the colourful backdrop shows through
+    // the pane, a sheen and a bright rim give it thickness.
     var c = dark
-        ? Color.lerp(body, Colors.black, .2)!.withValues(alpha: .9)
-        : body.withValues(alpha: .92);
+        ? Color.lerp(body, Colors.black, .12)!.withValues(alpha: .7)
+        : body.withValues(alpha: .68);
     if (tint != null) {
-      c = Color.alphaBlend(tint.withValues(alpha: (dark ? .06 : .05) * k), c);
+      c = Color.alphaBlend(tint.withValues(alpha: (dark ? .07 : .06) * k), c);
     }
     return c;
   }
@@ -93,18 +95,30 @@ class GlassPanePainter extends CustomPainter {
       Offset.zero & size,
       Radius.circular(radius),
     );
-    // 1.37: a soft shadow under light cards lifts them off the tinted
-    // backdrop (one blurred rect — no extra layer).
-    if (!dark) {
-      canvas.drawRSuperellipse(
-        body.shift(const Offset(0, 3)),
-        Paint()
-          ..color = Colors.black.withValues(alpha: .05)
-          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8),
-      );
-    }
-    // 1.16: one flat fill; no bands or gradients.
+    // A soft shadow lifts the pane off the backdrop (one blurred shape).
+    canvas.drawRSuperellipse(
+      body.shift(const Offset(0, 4)),
+      Paint()
+        ..color = Colors.black.withValues(alpha: dark ? .22 : .07)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 10),
+    );
     canvas.drawRSuperellipse(body, Paint()..color = color);
+    // Release: the sheen of glass — light gathered in the upper part.
+    final rect = Offset.zero & size;
+    canvas.drawRSuperellipse(
+      body,
+      Paint()
+        ..shader = LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          stops: const [0, .5, 1],
+          colors: [
+            Colors.white.withValues(alpha: dark ? .09 : .34),
+            Colors.white.withValues(alpha: dark ? .015 : .06),
+            Colors.white.withValues(alpha: 0),
+          ],
+        ).createShader(rect),
+    );
   }
 
   @override
@@ -129,18 +143,23 @@ class GlassRimPainter extends CustomPainter {
       ).deflate(.5),
       Paint()
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 1
+        ..strokeWidth = dark ? 1 : 1.3
         ..shader = LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
+          // Release: light caught at the top and again at the bottom edge,
+          // as in Apple's liquid glass.
+          stops: const [0, .45, 1],
           colors: dark
               ? [
-                  Colors.white.withValues(alpha: .16),
-                  Colors.white.withValues(alpha: .04),
+                  Colors.white.withValues(alpha: .32),
+                  Colors.white.withValues(alpha: .05),
+                  Colors.white.withValues(alpha: .14),
                 ]
               : [
-                  Colors.white.withValues(alpha: .9),
-                  Colors.black.withValues(alpha: .06),
+                  Colors.white,
+                  Colors.white.withValues(alpha: .35),
+                  Colors.white.withValues(alpha: .7),
                 ],
         ).createShader(rect),
     );

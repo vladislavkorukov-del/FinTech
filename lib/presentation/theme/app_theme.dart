@@ -123,8 +123,9 @@ class FinanceBackdrop extends ThemeExtension<FinanceBackdrop> {
     top: Color.lerp(base, tint, (dark ? .18 : .34) * strength)!,
     middle: Color.lerp(base, tint, (dark ? .04 : .12) * strength)!,
     bottom: Color.lerp(base, second, (dark ? .05 : .16) * strength)!,
-    glowA: glow.withValues(alpha: (dark ? .07 : .18) * strength),
-    glowB: second.withValues(alpha: (dark ? .05 : .14) * strength),
+    // Release: colourful glows behind the glass.
+    glowA: glow.withValues(alpha: (dark ? .26 : .42) * strength),
+    glowB: second.withValues(alpha: (dark ? .2 : .34) * strength),
   );
 
   @override
