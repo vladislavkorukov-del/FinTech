@@ -150,6 +150,7 @@ extension MagWorldCredit on MagWorld {
         for (final b in bonds) [b.amount, b.rate, b.until],
       ],
     if (insured) 'insured': true,
+    ..._savePorts(), // S25
   };
 
   void loadCredit(Map<String, dynamic> j) {
@@ -158,5 +159,6 @@ extension MagWorldCredit on MagWorld {
       bonds.add(MagBond(l[0] as int, (l[1] as num).toDouble(), l[2] as int));
     }
     insured = j['insured'] as bool? ?? false;
+    loadPorts(j); // S25
   }
 }

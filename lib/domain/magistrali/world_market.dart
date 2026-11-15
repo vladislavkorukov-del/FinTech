@@ -179,6 +179,7 @@ extension MagWorldMarket on MagWorld {
     _dayStocks();
     _dayBonds(); // FIN-18
     _dayInsurance(); // INS-01
+    _dayPorts(); // S25: night shifts, mortgages
   }
 
   // ---- TOUR-01 / TOUR-02 ----

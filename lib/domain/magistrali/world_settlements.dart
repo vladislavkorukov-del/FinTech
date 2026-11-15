@@ -208,7 +208,12 @@ extension MagWorldSettlements on MagWorld {
       if (avg >= MagTowns.growAt) {
         final gain = math.max(
           1,
-          (t.population * MagTowns.growth * avg * accessFactor(i)).round(),
+          (t.population *
+                  MagTowns.growth *
+                  avg *
+                  accessFactor(i) *
+                  mortgageFactor(i)) // MORT-01
+              .round(),
         );
         t.population = math.min(cap, t.population + gain);
       } else if (avg < MagTowns.shrinkAt) {

@@ -23,13 +23,16 @@ extension MagWorldComplex on MagWorld {
   /// What a body allows (null: no special body — then the general rule).
   bool? _bodyAllows(MagVehicle v, MagCargo c) {
     if (c.liquid) {
-      return (v.spec.rail || v.spec.water) && !v.spec.passengers ||
+      return (v.spec.rail || v.spec.water) &&
+              !v.spec.passengers &&
+              v.spec.body != 'container' ||
           v.spec.body == 'tank';
     }
     return switch (v.spec.body) {
       'tank' => false,
       'reefer' => fresh.contains(c),
       'dump' => bulk.contains(c),
+      'container' => !c.people,
       _ => null,
     };
   }
@@ -42,6 +45,7 @@ extension MagWorldComplex on MagWorld {
       return MagRules.reeferBonus;
     }
     if (v.spec.body == 'retro') return MagRules.veteranBonus; // VEH-14
+    if (v.spec.body == 'container') return MagRules.containerBonus; // PORT-02
     return 1;
   }
 

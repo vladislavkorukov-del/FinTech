@@ -20,7 +20,8 @@ extension MagWorldIndustry on MagWorld {
       1 +
       MagRules.levelOutput * (i.level - 1) +
       staffBonusOf(i) +
-      complexBonusOf(i);
+      complexBonusOf(i) +
+      nightBonusOf(i); // NIGHT-01
 
   /// Extra output from workers brought in (PASS-05): up to +30% with a full
   /// staff (2 per cell of its land).

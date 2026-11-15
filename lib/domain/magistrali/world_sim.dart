@@ -457,7 +457,7 @@ extension MagWorldSim on MagWorld {
     if (cargo != null && v.load < cap) {
       // Cargo reserved by orders is not for route trucks.
       final have = availableOf(here, cargo);
-      final n = math.min(math.min(handleRate, cap - v.load), have);
+      final n = math.min(math.min(handleAt(v), cap - v.load), have);
       if (n > 0) {
         here.stock[cargo] = (here.stock[cargo] ?? 0) - n;
         if (v.load == 0) {

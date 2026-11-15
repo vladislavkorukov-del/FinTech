@@ -361,6 +361,22 @@ const magTruckModels = <MagTruckModel>[
     body: 'cruise',
     tech: 'tourism',
   ),
+  // Stage S25: a container ship — any dry goods in boxes, paid better;
+  // calls only at container terminals.
+  MagTruckModel(
+    id: 'boxship',
+    name: 'Контейнеровоз «Нева»',
+    speed: 1.15,
+    capacity: 240,
+    price: 56000,
+    runningCost: .9,
+    upkeep: 20,
+    level: 14,
+    color: 0xFF2F6FA8,
+    water: true,
+    body: 'container',
+    tech: 'containers',
+  ),
   // Stage S22: aviation — straight between airports, fast and costly.
   MagTruckModel(
     id: 'biplane',

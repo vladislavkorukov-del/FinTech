@@ -189,6 +189,10 @@ extension MagWorldFleet on MagWorld {
           : portRouteBlocker(routeId);
       if (why != null) return why;
     }
+    if (routeId != null && v.spec.body == 'container') {
+      final why = containerRouteBlocker(routeId);
+      if (why != null) return why;
+    }
     if (routeId != null && v.spec.body == 'tram') {
       final why = tramRouteBlocker(routeId);
       if (why != null) return why;

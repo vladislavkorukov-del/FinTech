@@ -166,7 +166,10 @@ extension MagWorldRoutes on MagWorld {
   /// slower — down to half at three times the capacity.
   double congestionOf(int cell) {
     final l = loadOf(cell);
-    return l <= 1 ? 1 : math.max(.5, 1 / (1 + (l - 1) * .5));
+    return l <= 1 ||
+            freeFlow(cell) // JCT-01
+        ? 1
+        : math.max(.5, 1 / (1 + (l - 1) * .5));
   }
 
   void _countTraffic(MagVehicle v, int cell) {

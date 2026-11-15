@@ -248,6 +248,7 @@ extension MagWorldRails on MagWorld {
   /// after a while plans round it.)
   bool _trackClear(MagVehicle v, int next) {
     if (!v.spec.rail) return true;
+    if (_signalRed(v)) return false; // SIG-01
     if (!_trainCells(v).contains(next)) {
       v.blocked = 0;
       return true;

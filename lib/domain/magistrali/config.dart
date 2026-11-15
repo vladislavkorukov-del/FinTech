@@ -245,6 +245,17 @@ abstract final class MagRules {
   /// the market takes), insurance.
   static const bondCoupon = .015, bondDays = 180, bondShare = .5;
   static const premiumMin = 500, premiumShare = .003, insurancePayout = 1500;
+
+  /// Stage S25: container terminals (price, how much faster vessels load,
+  /// what containers add to pay), signals, interchanges, mortgages (per
+  /// town level, days, return, faster growth), night shifts.
+  static const containerTerminalPrice = 30000, terminalHandling = 3;
+  static const containerBonus = 1.2;
+  static const signalPrice = 1500, signalBlock = 40;
+  static const interchangePrice = 6000;
+  static const mortgagePerLevel = 15000, mortgageDays = 180;
+  static const mortgageReturn = 1.3, mortgageGrowth = 1.6;
+  static const nightBonus = .3, nightWage = 40;
   static const overdraftRate = .01, crisisDays = 30;
   static const auctionEvery = 10, auctionStart = .7, auctionRise = .05;
   static const auctionDays = 5, regionPrice = 15000;

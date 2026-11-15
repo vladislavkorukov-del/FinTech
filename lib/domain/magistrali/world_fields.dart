@@ -37,6 +37,14 @@ mixin _MagWorldLater {
   /// S24: bonds issued, insurance.
   final bonds = <MagBond>[];
   bool insured = false;
+
+  /// S25: container terminals (port cells), rail signals, road
+  /// interchanges, night shifts (place ids), town mortgages.
+  final terminals2 = <int>{};
+  final signals = <int>{};
+  final interchanges = <int>{};
+  final nightShifts = <int>{};
+  final mortgages = <MagMortgage>[];
   final _biomes = <int, MagBiome>{};
   final subsidies = <MagSubsidy>[];
   final uniqueOffered = <String>{};
