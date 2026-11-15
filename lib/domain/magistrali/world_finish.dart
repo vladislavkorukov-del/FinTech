@@ -191,6 +191,7 @@ extension MagWorldFinish on MagWorld {
     if (map.at(x, y) == t) return null;
     map.setTerrain(x, y, t);
     terrainEdits[c] = t.index;
+    _biomes.clear(); // MAP-09: the land changed
     roadVersion++;
     return null;
   }

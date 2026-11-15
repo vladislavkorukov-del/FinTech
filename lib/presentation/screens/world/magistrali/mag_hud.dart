@@ -162,7 +162,10 @@ class MagBottomPanel extends StatelessWidget {
       child: InkWell(
         key: ValueKey(key),
         borderRadius: BorderRadius.circular(16),
-        onTap: tap,
+        onTap: () {
+          state.sound.play('click', volume: .6);
+          tap();
+        },
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 3),
           child: Column(

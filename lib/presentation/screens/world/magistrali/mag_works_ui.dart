@@ -68,7 +68,11 @@ List<Widget> dealCards(MagistraliScreenState state) {
               MagDealKind.stages =>
                 'Этап ${d.stage + 1} из ${d.stages.length}: ${cargoName(d.cargo).toLowerCase()} → «${w.map.industry(d.to)?.name}» ${d.delivered}/${d.amount}',
               MagDealKind.region =>
-                'Любым поселениям в ${d.radius} клетках: ${cargoName(d.cargo).toLowerCase()} ${d.delivered}/${d.amount}',
+                '${d.radius == 0
+                    ? 'Только «${w.map.industry(d.to)?.name}»'
+                    : d.radius >= 9999
+                    ? 'Любому поселению'
+                    : 'Любым поселениям в ${d.radius} клетках'}: ${cargoName(d.cargo).toLowerCase()} ${d.delivered}/${d.amount}',
             }, style: magMuted),
             const SizedBox(height: 4),
             LinearProgressIndicator(

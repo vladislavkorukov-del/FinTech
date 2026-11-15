@@ -9,6 +9,7 @@ import 'mag_dispatch.dart';
 import 'mag_filters.dart';
 import 'mag_fleet_bulk.dart';
 import 'mag_hud.dart';
+import 'mag_icons.dart';
 import 'mag_orders.dart';
 import 'mag_rail_ui.dart';
 import 'mag_screen.dart';
@@ -67,15 +68,17 @@ Widget _truckTile(
   return ListTile(
     key: ValueKey('mag-truck-${v.id}'),
     contentPadding: EdgeInsets.zero,
-    leading: CircleAvatar(
-      backgroundColor: Color(v.spec.color).withValues(alpha: .18),
-      child: Icon(
-        v.spec.water
-            ? Icons.directions_boat_rounded
-            : v.spec.rail
-            ? Icons.train_rounded
-            : Icons.local_shipping_rounded,
-        color: Color(v.spec.color),
+    leading: Container(
+      width: 48,
+      height: 48,
+      decoration: BoxDecoration(
+        color: Color(v.spec.color).withValues(alpha: .12),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: MagVehicleIcon(
+        v.spec,
+        size: 48,
+        paint: v.paint == null ? null : Color(v.paint!),
       ),
     ),
     title: Text(v.name, style: const TextStyle(fontWeight: FontWeight.w700)),
@@ -102,8 +105,7 @@ Widget _truckTile(
   );
 }
 
-/// Which kind of transport the fleet sheet shows (kept while the game is
-/// open): all, horses, trucks, people, rail, water.
+/// Which kind of transport the fleet sheet shows (kept while open).
 var _fleetKind = 0;
 
 bool _ofKind(MagTruckModel m, int k) => switch (k) {
@@ -223,8 +225,7 @@ Future<void> showFleetSheet(
   );
 });
 
-/// One truck: what it does, its stats, the four upgrade lines, route,
-/// repair and sale.
+/// One truck: its job, stats, upgrades, route, repair and sale.
 Future<void> showVehicleSheet(
   MagistraliScreenState state,
   int id,

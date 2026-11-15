@@ -149,6 +149,7 @@ class MagRenderer {
 
     canvas.save();
     canvas.transform(MagIso.ground);
+    paintBiomeTint(canvas, w); // MAP-09
     if (_netVersion != w.roadVersion) {
       _netVersion = w.roadVersion;
       _roadChains = netChains(w, (c) => w.roads[c]);
@@ -372,6 +373,7 @@ class MagRenderer {
     paintCloudShadows(canvas, w, host.time);
     paintNightLights(canvas, w, light.$2, x0, y0, x1, y1);
     paintMountainNames(canvas, w, cam.zoom); // MAP-07
+    paintBiomeNames(canvas, w, cam.zoom); // MAP-09
     if (cam.zoom >= .7) {
       for (final i in map.industries) {
         if (i.left > x1 ||

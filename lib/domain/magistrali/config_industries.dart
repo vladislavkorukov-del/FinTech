@@ -148,4 +148,16 @@ const magIndustrySpecs = <MagIndustryKind, MagIndustrySpec>{
     price: 22000,
     buildLevel: 9,
   ),
+  // Stage S21 (PROD-10): machine tools from steel and parts; only built by
+  // the company (no map has one of its own).
+  MagIndustryKind.machineWorks: MagIndustrySpec(
+    tech: 'machinetools',
+    size: 2,
+    accepts: {MagCargo.steel, MagCargo.parts},
+    converts: {MagCargo.steel: MagCargo.machines},
+    extra: {MagCargo.parts: 1},
+    ratio: {MagCargo.steel: 2},
+    price: 30000,
+    buildLevel: 11,
+  ),
 };

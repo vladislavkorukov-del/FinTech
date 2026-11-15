@@ -21,6 +21,7 @@ import 'mag_road.dart';
 import 'mag_route_map.dart';
 import 'mag_fleet.dart';
 import 'mag_sheets.dart';
+import 'mag_sound.dart';
 import 'mag_sprites.dart';
 import 'mag_town.dart';
 import 'mag_warehouse.dart';
@@ -103,6 +104,7 @@ class MagistraliScreenState extends State<MagistraliScreen>
 
   /// A line being made by taps on the map (S19).
   final routeDraft = MagRouteDraft();
+  final sound = MagSound(); // S21
   String? message;
   Timer? _messageTimer;
 
@@ -143,6 +145,9 @@ class MagistraliScreenState extends State<MagistraliScreen>
         _incomeSeen[v.id] = v.income;
       }
     });
+    sound
+      ..configure(w, active: _foreground)
+      ..watch(w);
   }
 
   @override
@@ -153,6 +158,7 @@ class MagistraliScreenState extends State<MagistraliScreen>
     MagSprites.current?.dispose();
     MagSprites.current = null;
     ticks.dispose();
+    sound.close();
     super.dispose();
   }
 
@@ -161,6 +167,7 @@ class MagistraliScreenState extends State<MagistraliScreen>
     // The company stands still while the game is not on screen.
     _foreground = state == AppLifecycleState.resumed;
     if (!_foreground) unawaited(save());
+    if (_world case final w?) sound.configure(w, active: _foreground);
   }
 
   Future<void> _saving = Future.value();
@@ -210,14 +217,17 @@ class MagistraliScreenState extends State<MagistraliScreen>
   }
 
   void _afterTicks(MagWorld w) {
+    var paid = false;
     for (final v in w.vehicles.values) {
       final seen = _incomeSeen[v.id] ?? v.income;
       if (v.income > seen && v.onMap) {
         final (x, y) = w.positionOf(v);
         overlay.floats.add((x, y, '+${v.income - seen}', _time));
+        paid = true;
       }
       _incomeSeen[v.id] = v.income;
     }
+    sound.watch(w, income: paid); // S21
     // Problem marks on the map, worked out once a game day.
     if (w.day != _problemsDay) {
       _problemsDay = w.day;
@@ -267,6 +277,7 @@ class MagistraliScreenState extends State<MagistraliScreen>
   /// Shows a result: an error, or [ok] when it worked.
   bool report(String? error, [String? ok]) {
     if (error != null) {
+      sound.play('error', volume: .6);
       say(error);
       return false;
     }

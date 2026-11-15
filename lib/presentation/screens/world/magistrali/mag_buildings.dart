@@ -9,6 +9,7 @@ import 'mag_industry_art.dart';
 import 'mag_art.dart';
 import 'mag_iso.dart';
 import 'mag_oil_art.dart';
+import 'mag_machine_art.dart';
 import 'mag_shapes.dart';
 import 'mag_sprites.dart';
 import 'mag_town_art.dart';
@@ -285,6 +286,8 @@ ui.Picture recordIndustry(MagIndustry i) {
     case MagIndustryKind.refinery:
     case MagIndustryKind.electronicsPlant:
       paintOilBuilding(c, i.kind, x, y);
+    case MagIndustryKind.machineWorks:
+      paintMachineWorks(c, x, y); // PROD-10
     case MagIndustryKind.warehouse:
       // A hangar with a mint band, gable roof and crates at the gate.
       MagShapes.box(

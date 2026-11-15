@@ -291,6 +291,7 @@ abstract final class MagTowns {
     // Stage S17: fuel for towns, electronics for cities.
     if (level >= 5) MagCargo.fuel,
     if (level >= 7) MagCargo.electronics,
+    if (level >= 6) MagCargo.machines, // PROD-10
     // A city's specialization opens its own market.
     if (s != null && level >= cityLevel) ...favoured(s),
   };

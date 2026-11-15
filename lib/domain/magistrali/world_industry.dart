@@ -191,6 +191,7 @@ extension MagWorldIndustry on MagWorld {
     MagIndustryKind.oilWell => 'Нефтяная вышка',
     MagIndustryKind.refinery => 'НПЗ',
     MagIndustryKind.electronicsPlant => 'Завод электроники',
+    MagIndustryKind.machineWorks => 'Станкозавод',
     _ => 'Предприятие',
   };
 

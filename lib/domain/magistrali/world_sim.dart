@@ -1,8 +1,8 @@
 part of 'world.dart';
 
-/// The fixed step: production once a game day, trucks every tick.
+/// The fixed step: production once a game day, trucks every tick; [step]
+/// runs n ticks (the screen calls it with the elapsed time × speed).
 extension MagWorldSim on MagWorld {
-  /// Runs [n] ticks (the screen calls it with the elapsed time × speed).
   void step([int n = 1]) {
     for (var i = 0; i < n; i++) {
       _tick();
@@ -102,7 +102,6 @@ extension MagWorldSim on MagWorld {
         _spend(c, 'industry_upkeep', source: 'industry', sourceId: i.id);
       }
     }
-    // Fuel and feed of the day, one entry per vehicle.
     for (final v in vehicles.values) {
       final n = v.unpaid.floor();
       if (n > 0) {
@@ -113,8 +112,7 @@ extension MagWorldSim on MagWorld {
         _spend(n, 'running', source: 'vehicle', sourceId: v.id);
       }
     }
-    // Upkeep: trucks and roads.
-    var upkeep = 0;
+    var upkeep = 0; // trucks and roads
     for (final v in vehicles.values) {
       upkeep += upkeepOf(v);
       v.costs += upkeepOf(v);
@@ -127,6 +125,8 @@ extension MagWorldSim on MagWorld {
     }
     roadUpkeep = (roadUpkeep * factor(MagBonus.roadUpkeep)).round();
     if (roadUpkeep >= 10) _spend(roadUpkeep ~/ 10, 'roads_upkeep');
+    _daySubsidies(); // CONT-10
+    _offerUniques(); // CONT-11
     _dayExport(); // LOG-13: after the day's output
     _checkLedger(); // CORE-10
     if (day % MagRules.daysPerMonth == 0) {
@@ -158,8 +158,7 @@ extension MagWorldSim on MagWorld {
     return map.industry(r.stops[index % r.stops.length]);
   }
 
-  /// Puts a truck on the map at its route's first stop, or plans its way
-  /// on. Without a road it waits and tries again.
+  /// Puts a truck on the map or plans its way; without a road it waits.
   void _tryStart(MagVehicle v) {
     final target = _target(v);
     if (target == null) return _lost(v);
@@ -228,8 +227,8 @@ extension MagWorldSim on MagWorld {
   }
 
   void _drive(MagVehicle v) {
-    // Roads changed since the plan: plan again from the next cell boundary.
     if (v.wait != roadVersion && v.progress == 0) {
+      // Roads changed: plan again from the next cell boundary.
       _plan(v);
       if (v.state != MagVehicleState.driving) return;
     }
@@ -237,11 +236,9 @@ extension MagWorldSim on MagWorld {
     while (dist > 0 && v.state == MagVehicleState.driving) {
       final next = v.path[v.pathIndex + 1];
       v.dir = _dirTo(v.cell, next);
-      // A train waits for the track ahead to clear (it never shares a
-      // cell with another train).
+      // A train waits for the track ahead to clear.
       if (v.progress == 0 && !_trackClear(v, next)) break;
-      // Horses keep their own pace on any surface; trains their own on
-      // the track.
+      // Horses keep their own pace; trains theirs on the track.
       final roadK = v.spec.rail || v.spec.water
           ? 1.0
           : v.spec.horse
@@ -380,7 +377,9 @@ extension MagWorldSim on MagWorld {
                 dist *
                 factor(MagBonus.pay) *
                 market *
-                cargoPayFactor(v, cargo))
+                cargoPayFactor(v, cargo) *
+                subsidyFactor(from, here, cargo) * // CONT-10
+                biomePayFactor(here, cargo)) // MAP-09
             .round();
     if (here.kind == MagIndustryKind.megaproject) {
       _megaReceive(here, cargo, n);

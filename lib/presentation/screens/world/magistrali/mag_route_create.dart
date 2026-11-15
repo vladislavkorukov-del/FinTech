@@ -5,6 +5,7 @@ import 'package:flutter/material.dart' hide InputDecoration, Text;
 import '../../../../domain/magistrali/magistrali.dart';
 import '../../../l10n_widgets.dart';
 import 'mag_art.dart';
+import 'mag_icons.dart';
 import 'mag_filters.dart';
 import 'mag_routes.dart';
 import 'mag_screen.dart';
@@ -114,10 +115,7 @@ Future<void> showCreateRouteSheet(MagistraliScreenState state, {int? first}) {
           ),
           dense: true,
           contentPadding: EdgeInsets.zero,
-          leading: Icon(
-            kindIcon(i.kind),
-            color: match == null ? MagPalette.teal : MagPalette.mint,
-          ),
+          leading: MagPlaceIcon(i.kind, size: 34),
           title: Text(
             i.name,
             style: const TextStyle(fontWeight: FontWeight.w700),

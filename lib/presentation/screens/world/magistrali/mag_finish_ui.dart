@@ -4,6 +4,7 @@ import '../../../../domain/magistrali/magistrali.dart';
 import '../../../l10n_widgets.dart';
 import 'mag_art.dart';
 import 'mag_hud.dart';
+import 'mag_icons.dart';
 import 'mag_screen.dart';
 import 'mag_sheets.dart';
 
@@ -109,7 +110,8 @@ Future<void> showMapReportSheet(
       for (final (r, places, own, revenue) in w.regionStats())
         magRow(
           'Регион ${r + 1}${w.regionOpen((r % 3) * (w.size / 3).ceil(), (r ~/ 3) * (w.size / 3).ceil()) ? '' : ' (закрыт)'}'
-              ' · ${w.regionSpecialization(r) ?? '—'}',
+              ' · ${w.regionSpecialization(r) ?? '—'}'
+              '${w.biomesOn ? ' · ${MagWorldBiomes.biomeName(w.biomeOf(r))}: ${MagWorldBiomes.biomeBonus(w.biomeOf(r))}' : ''}',
           '$places мест · ваших $own · ${magMoney(revenue)} кр',
         ),
       const SizedBox(height: 10),
@@ -131,3 +133,60 @@ Future<void> showMapReportSheet(
     ],
   );
 });
+
+/// City subsidies (CONT-10): lines a city pays 40% more for, for a while.
+List<Widget> subsidyCards(MagistraliScreenState state) {
+  final w = state.world;
+  if (w.subsidies.isEmpty) return const [];
+  return [
+    Text(
+      'Субсидии городов · +${(MagRules.subsidyBonus * 100).round()}% к оплате',
+      style: const TextStyle(fontWeight: FontWeight.w800),
+    ),
+    const SizedBox(height: 6),
+    for (final s in w.subsidies)
+      Container(
+        key: ValueKey('mag-subsidy-${s.from}-${s.to}'),
+        margin: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.all(12),
+        decoration: magCard(16),
+        child: Row(
+          children: [
+            MagCargoIcon(s.cargo, size: 28),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '${w.map.industry(s.from)?.name ?? '?'} → ${w.map.industry(s.to)?.name ?? '?'}',
+                    style: const TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                  Text(
+                    '${cargoName(s.cargo)} · ещё ${((s.until - w.tick) / MagRules.ticksPerDay).ceil()} дн.',
+                    style: magMuted,
+                  ),
+                ],
+              ),
+            ),
+            FilledButton(
+              key: ValueKey('mag-subsidy-route-${s.from}-${s.to}'),
+              style: FilledButton.styleFrom(
+                backgroundColor: MagPalette.mint,
+                visualDensity: VisualDensity.compact,
+              ),
+              onPressed: () {
+                Navigator.pop(state.context);
+                state.report(
+                  w.createRoute([s.from, s.to]),
+                  'Маршрут создан — назначьте машину',
+                );
+              },
+              child: const Text('Маршрут'),
+            ),
+          ],
+        ),
+      ),
+    const SizedBox(height: 6),
+  ];
+}

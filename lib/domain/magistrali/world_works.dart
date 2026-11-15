@@ -19,7 +19,8 @@ extension MagWorldWorks on MagWorld {
   double richFactor(MagIndustry i) =>
       (isRich(i) ? MagRules.richYield : 1) *
       mountainFactor(i) * // MAP-07
-      regionFactor(i); // BIZ-12
+      regionFactor(i) * // BIZ-12
+      biomeFactor(i); // MAP-09
 
   // ---- BIZ-06 ----
 

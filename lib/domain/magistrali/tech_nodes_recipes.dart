@@ -85,6 +85,18 @@ const magTechRecipes = <MagTech>[
     requires: ['machinery', 'petroleum'],
   ),
   MagTech(
+    id: 'machinetools',
+    branch: MagBranch.economy,
+    title: 'Станкостроение',
+    lore:
+        'Токарные и фрезерные станки: сталь и детали превращаются в оборудование для заводов.',
+    effect: 'Открывает станкостроительные заводы (станки — самый дорогой груз)',
+    effects: {},
+    cost: 20000,
+    level: 11,
+    requires: ['machinery'],
+  ),
+  MagTech(
     id: 'electrotransport',
     branch: MagBranch.economy,
     title: 'Электротранспорт',

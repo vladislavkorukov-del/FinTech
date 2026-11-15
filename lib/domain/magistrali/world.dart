@@ -40,6 +40,7 @@ part 'world_roads.dart';
 part 'world_rivals.dart';
 part 'world_finish.dart';
 part 'world_paths.dart';
+part 'world_biomes.dart';
 part 'world_routes.dart';
 part 'world_plans.dart';
 part 'world_save.dart';
@@ -96,6 +97,7 @@ class MagWorld with _MagWorldLater {
     if (regions) {
       // MAP-08: a new company starts in its own region.
       w.regionsLocked = true;
+      w.biomesOn = true; // MAP-09: new companies
       final f0 = w.map.startFarm;
       w.openRegions.add(w.regionOf(f0.x, f0.y));
     }

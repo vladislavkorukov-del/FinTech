@@ -7,6 +7,7 @@ import '../../../l10n_widgets.dart';
 import 'mag_art.dart';
 import 'mag_fleet.dart';
 import 'mag_hud.dart';
+import 'mag_icons.dart';
 import 'mag_route_create.dart';
 import 'mag_route_map.dart';
 import 'mag_screen.dart';
@@ -247,10 +248,7 @@ Widget _routeCard(
             ListTile(
               dense: true,
               contentPadding: EdgeInsets.zero,
-              leading: Icon(
-                Icons.local_shipping_rounded,
-                color: Color(v.spec.color),
-              ),
+              leading: MagVehicleIcon(v.spec, size: 36),
               title: Text(v.name),
               subtitle: Text(
                 [

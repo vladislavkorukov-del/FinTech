@@ -4,6 +4,7 @@ import 'package:finora/data/finance_repository.dart';
 import 'package:finora/domain/magistrali/magistrali.dart';
 import 'package:finora/domain/models.dart';
 import 'package:finora/presentation/controller.dart';
+import 'package:finora/presentation/screens/world/magistrali/mag_icons.dart';
 import 'package:finora/presentation/screens/world/magistrali/mag_screen.dart';
 import 'package:finora/presentation/theme/app_theme.dart';
 import 'package:finora/services/magistrali_store.dart';
@@ -216,6 +217,39 @@ void main() {
     await tap(tester, 'mag-invest-go-$idea');
     expect(w.vehicles.length, before + 1);
     expect(w.vehicles.values.last.routeId, r.id);
+    await closeSheet(tester);
+    await settle(tester);
+  });
+
+  testWidgets('S21: icons, a city subsidy, sound settings', (tester) async {
+    await mount(tester, const MagistraliScreen(seed: MagRules.defaultSeed));
+    final s = await ready(tester);
+    final w = s.world..money = 1000000;
+    w.speed = 0;
+    final f = w.map.startFarm, p = w.map.startPlant;
+    w.subsidies.add(
+      MagSubsidy(
+        f.id,
+        p.id,
+        MagCargo.grain,
+        w.tick + 10 * MagRules.ticksPerDay,
+      ),
+    );
+    s.changed();
+    await tap(tester, 'mag-tab-contracts');
+    expect(find.byKey(ValueKey('mag-subsidy-${f.id}-${p.id}')), findsOneWidget);
+    expect(find.byType(MagCargoIcon), findsWidgets);
+    final routes = w.routes.length;
+    await tap(tester, 'mag-subsidy-route-${f.id}-${p.id}');
+    expect(w.routes.length, routes + 1);
+    await tap(tester, 'mag-tab-fleet');
+    expect(find.byType(MagVehicleIcon), findsWidgets);
+    await closeSheet(tester);
+    await tap(tester, 'mag-settings');
+    await tap(tester, 'mag-music');
+    expect(w.musicOn, isFalse);
+    await tap(tester, 'mag-sound');
+    expect(w.soundOn, isFalse);
     await closeSheet(tester);
     await settle(tester);
   });

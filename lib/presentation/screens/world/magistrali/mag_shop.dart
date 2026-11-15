@@ -4,6 +4,7 @@ import '../../../../domain/magistrali/magistrali.dart';
 import '../../../l10n_widgets.dart';
 import 'mag_art.dart';
 import 'mag_hud.dart';
+import 'mag_icons.dart';
 import 'mag_screen.dart';
 import 'mag_sheets.dart';
 
@@ -26,18 +27,17 @@ Widget shopCard(MagistraliScreenState state, MagTruckModel m) {
     decoration: magCard(16),
     child: Row(
       children: [
-        Icon(
-          m.water
-              ? Icons.directions_boat_rounded
-              : m.rail
-              ? Icons.train_rounded
-              : m.passengers
-              ? Icons.directions_bus_rounded
-              : m.horse
-              ? Icons.agriculture_rounded
-              : Icons.local_shipping_rounded,
-          size: 34,
-          color: open ? Color(m.color) : const Color(0xFFB6BEC1),
+        Opacity(
+          opacity: open ? 1 : .45,
+          child: Container(
+            width: 56,
+            height: 56,
+            decoration: BoxDecoration(
+              color: Color(m.color).withValues(alpha: .12),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: MagVehicleIcon(m, size: 56),
+          ),
         ),
         const SizedBox(width: 10),
         Expanded(

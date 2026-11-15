@@ -157,3 +157,50 @@ void paintMountainNames(Canvas c, MagWorld w, double zoom) {
     tp.dispose();
   }
 }
+
+/// MAP-09: each region's land tints the ground a little (new companies).
+void paintBiomeTint(Canvas c, MagWorld w) {
+  if (!w.biomesOn) return;
+  final s = (w.size / 3).ceil().toDouble();
+  for (var r = 0; r < 9; r++) {
+    final color = switch (w.biomeOf(r)) {
+      MagBiome.taiga => const Color(0x2A1E4A3A),
+      MagBiome.steppe => const Color(0x30E0B850),
+      MagBiome.highlands => const Color(0x24806A50),
+      MagBiome.lakes => const Color(0x2240A6B8),
+      MagBiome.meadows => const Color(0x00000000),
+    };
+    if (color.a == 0) continue;
+    c.drawRect(
+      Rect.fromLTWH((r % 3) * s, (r ~/ 3) * s, s, s),
+      Paint()..color = color,
+    );
+  }
+}
+
+/// Names of the lands, seen from far away.
+void paintBiomeNames(Canvas c, MagWorld w, double zoom) {
+  if (!w.biomesOn || zoom > .75) return;
+  final s = (w.size / 3).ceil();
+  for (var r = 0; r < 9; r++) {
+    final p = MagIso.project((r % 3) * s + s / 2, (r ~/ 3) * s + s / 2, 10);
+    final tp = TextPainter(
+      text: TextSpan(
+        text: MagWorldBiomes.biomeName(w.biomeOf(r)).toUpperCase(),
+        style: TextStyle(
+          fontSize: 13 / zoom.clamp(.45, 1.0),
+          letterSpacing: 3,
+          fontWeight: FontWeight.w900,
+          color: const Color(0xCC24413A),
+          shadows: const [
+            Shadow(color: Color(0xE6FFFFFF), blurRadius: 4),
+            Shadow(color: Color(0x99FFFFFF), blurRadius: 10),
+          ],
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    tp.paint(c, p - Offset(tp.width / 2, tp.height / 2));
+    tp.dispose();
+  }
+}

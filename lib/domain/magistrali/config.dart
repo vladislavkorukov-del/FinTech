@@ -36,7 +36,10 @@ enum MagCargo {
   // Stage S17: oil and fuel (PROD-11), electronics (PROD-12).
   oil,
   fuel,
-  electronics;
+  electronics,
+
+  // Stage S21: machine tools (PROD-10).
+  machines;
 
   /// Liquids: carried only in tanks (a tanker, rail or a vessel; VEH-05).
   bool get liquid => this == oil || this == fuel;
@@ -86,6 +89,9 @@ enum MagIndustryKind {
   oilWell,
   refinery,
   electronicsPlant,
+
+  // Stage S21: machine-tool works, built by the player (PROD-10).
+  machineWorks,
 }
 
 /// Upgrade lines of a truck.
@@ -214,6 +220,10 @@ abstract final class MagRules {
   /// speciality yield for own producers; a multimodal terminal's room.
   static const chainReach = 70, mountainCells = 25, mountainYield = 1.2;
   static const regionYield = 1.1, multimodalRoom = 1.5;
+
+  /// Stage S21: subsidies of cities (CONT-10).
+  static const subsidyLevel = 4, subsidyEvery = 9, subsidyDays = 25;
+  static const subsidyBonus = .4;
   static const overdraftRate = .01, crisisDays = 30;
   static const auctionEvery = 10, auctionStart = .7, auctionRise = .05;
   static const auctionDays = 5, regionPrice = 15000;
@@ -358,6 +368,7 @@ abstract final class MagRules {
     MagCargo.oil: 2.4,
     MagCargo.fuel: 3.4,
     MagCargo.electronics: 6.0,
+    MagCargo.machines: 7.0,
   };
 
   /// Market price of a unit: what a buyer pays for goods the company owns,
@@ -382,6 +393,7 @@ abstract final class MagRules {
     MagCargo.oil: 6,
     MagCargo.fuel: 14,
     MagCargo.electronics: 90,
+    MagCargo.machines: 120,
   };
 
   /// Own production (master plan stage 3): building costs more than

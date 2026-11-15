@@ -7,6 +7,7 @@ import '../../../../domain/magistrali/magistrali.dart';
 import '../../../l10n_widgets.dart';
 import 'mag_art.dart';
 import 'mag_hud.dart';
+import 'mag_icons.dart';
 import 'mag_screen.dart';
 import 'mag_sheets.dart';
 
@@ -237,10 +238,7 @@ Future<void> _pickTruck(
             ListTile(
               key: ValueKey('mag-order-truck-${v.id}'),
               enabled: w.canCarry(v, o.cargo),
-              leading: Icon(
-                Icons.local_shipping_rounded,
-                color: Color(v.spec.color),
-              ),
+              leading: MagVehicleIcon(v.spec, size: 40),
               title: Text(v.name),
               subtitle: Text(
                 [
@@ -311,7 +309,7 @@ Future<void> showNewOrderSheet(MagistraliScreenState state, {int? from}) {
                 contentPadding: EdgeInsets.zero,
                 selected: chosen == i.id,
                 selectedColor: MagPalette.teal,
-                leading: Icon(kindIcon(i.kind), color: MagPalette.teal),
+                leading: MagPlaceIcon(i.kind, size: 34),
                 title: Text(
                   i.name,
                   style: const TextStyle(fontWeight: FontWeight.w700),

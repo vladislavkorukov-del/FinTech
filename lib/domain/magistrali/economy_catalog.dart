@@ -142,6 +142,7 @@ abstract final class MagEconomy {
       'machines',
       'Машины и оборудование',
       MagEra.trucks,
+      active: true, // S21: machine-tool works (PROD-10)
       value: 45,
     ),
     MagResourceDef(

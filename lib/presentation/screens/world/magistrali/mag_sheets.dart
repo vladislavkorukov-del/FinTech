@@ -12,6 +12,7 @@ import 'mag_development.dart';
 import 'mag_filters.dart';
 import 'mag_iso.dart';
 import 'mag_hud.dart';
+import 'mag_icons.dart';
 import 'mag_business.dart';
 import 'mag_orders.dart';
 import 'mag_town.dart';
@@ -41,6 +42,7 @@ String cargoName(MagCargo c) => switch (c) {
   MagCargo.oil => 'Нефть',
   MagCargo.fuel => 'Топливо',
   MagCargo.electronics => 'Электроника',
+  MagCargo.machines => 'Станки',
 };
 
 String kindName(MagIndustryKind k) => switch (k) {
@@ -66,6 +68,7 @@ String kindName(MagIndustryKind k) => switch (k) {
   MagIndustryKind.oilWell => 'Нефтяная вышка',
   MagIndustryKind.refinery => 'НПЗ',
   MagIndustryKind.electronicsPlant => 'Завод электроники',
+  MagIndustryKind.machineWorks => 'Станкостроительный завод',
 };
 
 IconData kindIcon(MagIndustryKind k) => switch (k) {
@@ -91,6 +94,7 @@ IconData kindIcon(MagIndustryKind k) => switch (k) {
   MagIndustryKind.oilWell => Icons.oil_barrel_rounded,
   MagIndustryKind.refinery => Icons.local_gas_station_rounded,
   MagIndustryKind.electronicsPlant => Icons.memory_rounded,
+  MagIndustryKind.machineWorks => Icons.precision_manufacturing_rounded,
 };
 
 const magMuted = TextStyle(fontSize: 12, height: 1.3, color: Color(0xFF65767B));
@@ -107,30 +111,33 @@ Future<T?> magSheet<T>(
   MagistraliScreenState state,
   String key,
   Widget Function(BuildContext context) build,
-) => showModalBottomSheet<T>(
-  context: state.context,
-  isScrollControlled: true,
-  showDragHandle: true,
-  backgroundColor: const Color(0xFFF6F9F7),
-  elevation: 12,
-  shape: const RoundedRectangleBorder(
-    borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-  ),
-  constraints: BoxConstraints(
-    maxHeight: MediaQuery.of(state.context).size.height * .82,
-  ),
-  builder: (context) => ValueListenableBuilder<int>(
-    key: ValueKey(key),
-    valueListenable: state.ticks,
-    builder: (context, _, _) => SafeArea(
-      top: false,
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(18, 0, 18, 18),
-        child: build(context),
+) {
+  state.sound.play('whoosh', volume: .35, gapMs: 250); // S21
+  return showModalBottomSheet<T>(
+    context: state.context,
+    isScrollControlled: true,
+    showDragHandle: true,
+    backgroundColor: const Color(0xFFF6F9F7),
+    elevation: 12,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+    ),
+    constraints: BoxConstraints(
+      maxHeight: MediaQuery.of(state.context).size.height * .82,
+    ),
+    builder: (context) => ValueListenableBuilder<int>(
+      key: ValueKey(key),
+      valueListenable: state.ticks,
+      builder: (context, _, _) => SafeArea(
+        top: false,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(18, 0, 18, 18),
+          child: build(context),
+        ),
       ),
     ),
-  ),
-);
+  );
+}
 
 Widget magRow(String label, String value, {Color? color}) => Padding(
   padding: const EdgeInsets.symmetric(vertical: 3),
@@ -173,14 +180,7 @@ Widget cargoChip(MagCargo c, [int? n]) => Container(
   child: Row(
     mainAxisSize: MainAxisSize.min,
     children: [
-      Container(
-        width: 9,
-        height: 9,
-        decoration: BoxDecoration(
-          color: MagPalette.cargo(c),
-          shape: BoxShape.circle,
-        ),
-      ),
+      MagCargoIcon(c, size: 16),
       const SizedBox(width: 5),
       Text(
         n == null ? cargoName(c) : '${cargoName(c)}: $n',
@@ -204,7 +204,7 @@ Future<void> showIndustrySheet(
     children: [
       Row(
         children: [
-          Icon(kindIcon(i.kind), color: MagPalette.teal),
+          MagPlaceIcon(i.kind, size: 40),
           const SizedBox(width: 8),
           Expanded(child: Text(i.name, style: magTitle)),
         ],
@@ -350,7 +350,7 @@ Widget _places(
         ListTile(
           key: ValueKey('mag-place-${i.id}'),
           contentPadding: EdgeInsets.zero,
-          leading: Icon(kindIcon(i.kind), color: MagPalette.teal),
+          leading: MagPlaceIcon(i.kind, size: 34),
           title: Text(
             i.name,
             style: const TextStyle(fontWeight: FontWeight.w700),
@@ -400,6 +400,7 @@ Future<void> showContractsSheet(
         style: magMuted,
       ),
       const SizedBox(height: 10),
+      ...subsidyCards(state),
       ...dealCards(state),
       ...cityOrderCards(state, context),
       for (final c in w.regularContracts)

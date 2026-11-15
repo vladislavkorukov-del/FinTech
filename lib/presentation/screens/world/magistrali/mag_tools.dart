@@ -231,6 +231,35 @@ Future<void> showSettingsSheet(
         },
       ),
       SwitchListTile(
+        key: const ValueKey('mag-music'),
+        contentPadding: EdgeInsets.zero,
+        value: w.musicOn,
+        activeThumbColor: MagPalette.mint,
+        title: const Text('Музыка'),
+        subtitle: const Text('Спокойная мелодия на фоне', style: magMuted),
+        onChanged: (v) {
+          w.musicOn = v;
+          state.sound.configure(w, active: true);
+          state.changed();
+        },
+      ),
+      SwitchListTile(
+        key: const ValueKey('mag-sound'),
+        contentPadding: EdgeInsets.zero,
+        value: w.soundOn,
+        activeThumbColor: MagPalette.mint,
+        title: const Text('Звуки'),
+        subtitle: const Text(
+          'Монеты, стройка, гудки, новый уровень',
+          style: magMuted,
+        ),
+        onChanged: (v) {
+          w.soundOn = v;
+          state.sound.configure(w, active: true);
+          state.changed();
+        },
+      ),
+      SwitchListTile(
         key: const ValueKey('mag-daynight'),
         contentPadding: EdgeInsets.zero,
         value: w.dayNight,

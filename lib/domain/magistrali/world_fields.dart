@@ -16,8 +16,18 @@ mixin _MagWorldLater {
   final terrainEdits = <int, int>{};
   final autoExport = <int>{};
 
+  /// S21: biomes on (new companies), their cache, subsidies, unique
+  /// orders already offered.
+  bool biomesOn = false;
+  final _biomes = <int, MagBiome>{};
+  final subsidies = <MagSubsidy>[];
+  final uniqueOffered = <String>{};
+
   /// Day and night on the map (S20+; a player's choice, saved).
   bool dayNight = true;
+
+  /// Music and sound effects (S21; the player's choice, saved).
+  bool musicOn = true, soundOn = true;
   List<MagMountain>? _mountains;
   Int32List? _mountainComp;
   int _mountainKey = -1;
