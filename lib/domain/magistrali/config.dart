@@ -256,6 +256,16 @@ abstract final class MagRules {
   static const mortgagePerLevel = 15000, mortgageDays = 180;
   static const mortgageReturn = 1.3, mortgageGrowth = 1.6;
   static const nightBonus = .3, nightWage = 40;
+
+  /// Stage S26: metro (town level, price, passengers, growth, fare per
+  /// resident a day), yards and hubs, futures, excursions.
+  static const metroLevel = 8, metroPrice = 120000;
+  static const metroPassengers = 1.5, metroGrowth = 1.2, metroFare = .02;
+  static const yardPrice = 20000, yardHandling = 2.0;
+  static const hubPrice = 25000, hubHandling = 2.0, hubRoom = 1.5;
+  static const futuresLevel = 12, futuresMax = 3, futureDays = 30;
+  static const futureMargin = .15, futurePremium = .45;
+  static const excursionPay = 1.5;
   static const overdraftRate = .01, crisisDays = 30;
   static const auctionEvery = 10, auctionStart = .7, auctionRise = .05;
   static const auctionDays = 5, regionPrice = 15000;

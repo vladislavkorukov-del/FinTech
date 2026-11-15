@@ -156,6 +156,44 @@ const magTechRecipes = <MagTech>[
     level: 7,
     requires: [],
   ),
+  // Stage S26.
+  MagTech(
+    id: 'metro',
+    branch: MagBranch.economy,
+    title: 'Метрополитен',
+    lore:
+        'Тоннели под проспектами и поезда каждые две минуты: большой город перестаёт стоять в пробках.',
+    effect:
+        'Метро в городах от «Регионального центра»: пассажиров ×1,5, рост ×1,2, плата за проезд',
+    effects: {},
+    cost: 60000,
+    level: 18,
+    requires: ['electrotransport'],
+  ),
+  MagTech(
+    id: 'yards',
+    branch: MagBranch.fleet,
+    title: 'Сортировочные станции',
+    lore:
+        'Горка, стрелки и маневровый тепловоз: вагоны расходятся по составам сами, поезд не ждёт.',
+    effect: 'Сортировочные горки на станциях: поезда грузятся вдвое быстрее',
+    effects: {},
+    cost: 18000,
+    level: 12,
+    requires: ['signalling'],
+  ),
+  MagTech(
+    id: 'hubs',
+    branch: MagBranch.economy,
+    title: 'Грузовые хабы',
+    lore:
+        'Склад, где груз не лежит, а перетекает: рампы со всех сторон, сканеры и ночная смена грузчиков.',
+    effect: 'Склад-хаб: места +50%, погрузка вдвое быстрее',
+    effects: {},
+    cost: 20000,
+    level: 13,
+    requires: [],
+  ),
   MagTech(
     id: 'aviation',
     branch: MagBranch.fleet,

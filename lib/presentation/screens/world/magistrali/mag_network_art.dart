@@ -100,7 +100,7 @@ List<NetChain> netChains(MagWorld w, int Function(int cell) type) {
   for (final ch in out) {
     final pts = [for (final c in ch.cells) Offset(w.cx(c) + .5, w.cy(c) + .5)];
     // Where the surface changes, meet half way.
-    ch.points = smoothLine(pts);
+    ch.points = wayLine(pts); // S26: free-form lines
   }
   return out;
 }

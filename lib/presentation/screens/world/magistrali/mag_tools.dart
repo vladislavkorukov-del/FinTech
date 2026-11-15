@@ -413,13 +413,13 @@ String toolHint(MagistraliScreenState state) {
   final w = state.world;
   return switch (state.tool) {
     MagTool.road =>
-      '${roadName(state.roadType)} · ${MagRules.roads[state.roadType]!.cost} кр/кл. Коснитесь начала и конца — тоннель ×7, мост ×9',
+      '${roadName(state.roadType)} · ${MagRules.roads[state.roadType]!.cost} кр/кл. ${magFreehand ? 'Ведите пальцем по любой линии или коснитесь' : 'Коснитесь'} начала и конца — тоннель ×7, мост ×9',
     MagTool.industry =>
       'Коснитесь клетки — там встанет ${state.buildKind == null ? 'предприятие' : kindName(state.buildKind!).toLowerCase()} (${state.buildKind == null ? '' : '${magMoney(w.buildPrice(state.buildKind!))} кр'})',
     MagTool.warehouse =>
       'Коснитесь клетки — там встанет склад 2×2 (${magMoney(w.warehousePrice)} кр, ${w.warehouses.length} из ${w.warehouseSlots})',
     MagTool.rail =>
-      'Рельсы: коснитесь начала и конца · ${MagRules.railCost} кр/кл. Можно пересекать дороги.',
+      'Рельсы: ${magFreehand ? 'ведите пальцем или коснитесь' : 'коснитесь'} начала и конца · ${MagRules.railCost} кр/кл. Можно пересекать дороги.',
     MagTool.port =>
       'Коснитесь воды рядом (до 2 клеток) с предприятием или поселением · ${magMoney(MagRules.portPrice)} кр',
     MagTool.airport =>

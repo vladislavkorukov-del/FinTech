@@ -46,6 +46,8 @@ part 'world_seasons.dart';
 part 'world_market.dart';
 part 'world_credit.dart';
 part 'world_ports.dart';
+part 'world_trace.dart';
+part 'world_hubs.dart';
 part 'world_routes.dart';
 part 'world_plans.dart';
 part 'world_save.dart';

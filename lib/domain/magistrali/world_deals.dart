@@ -116,6 +116,7 @@ extension MagWorldDeals on MagWorld {
 
   /// Real deliveries count for the special contracts.
   void _countDeals(MagCargo c, MagIndustry here, int n) {
+    if (futures.isNotEmpty) _countFutures(c, n); // FUT-01
     for (final d in deals.toList()) {
       if (!_dealTakes(d, c, here)) continue;
       d.delivered = math.min(d.amount, d.delivered + n);

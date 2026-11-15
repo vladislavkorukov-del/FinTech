@@ -40,7 +40,7 @@ extension MagWorldComplex on MagWorld {
   /// Pay factor of a delivery for the vehicle's body and comfort:
   /// refrigerated fresh food +15%, people by their comfort.
   double cargoPayFactor(MagVehicle v, MagCargo c) {
-    if (c.people) return v.spec.comfort;
+    if (c.people) return v.spec.comfort * excursionFactor(v); // TOUR-03
     if (v.spec.body == 'reefer' && fresh.contains(c)) {
       return MagRules.reeferBonus;
     }

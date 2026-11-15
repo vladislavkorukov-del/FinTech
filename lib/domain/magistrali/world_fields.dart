@@ -45,6 +45,14 @@ mixin _MagWorldLater {
   final interchanges = <int>{};
   final nightShifts = <int>{};
   final mortgages = <MagMortgage>[];
+
+  /// S26: cities with a metro, marshalling yards (station cells), freight
+  /// hubs (warehouse ids), excursion routes, cargo futures.
+  final metros = <int>{};
+  final yards = <int>{};
+  final hubs = <int>{};
+  final excursions = <int>{};
+  final futures = <MagFuture>[];
   final _biomes = <int, MagBiome>{};
   final subsidies = <MagSubsidy>[];
   final uniqueOffered = <String>{};

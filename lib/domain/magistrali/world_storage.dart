@@ -19,7 +19,8 @@ extension MagWorldStorage on MagWorld {
   int warehouseCapacityOf(MagIndustry w) =>
       (warehouseCapacity *
               storageFactor(w) *
-              (isMultimodal(w) ? MagRules.multimodalRoom : 1)) // SEA-06
+              (isMultimodal(w) ? MagRules.multimodalRoom : 1) * // SEA-06
+              hubRoom(w)) // HUB-02
           .round();
 
   /// Price of the next warehouse level (null at the top level).

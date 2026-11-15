@@ -38,6 +38,60 @@ List<Offset> smoothLine(List<Offset> pts, {int rounds = 3}) {
   return p;
 }
 
+/// S26 (VIS-04): the line of a road, track or vehicle's way through cell
+/// centres, free of the cell grid. Staircases of cells (a road drawn at
+/// any angle) become one straight line (Douglas–Peucker, within ¾ of a
+/// cell), and real corners become round curves of a bounded radius, so
+/// the network looks laid by hand — as the player drew it.
+List<Offset> wayLine(List<Offset> pts) {
+  if (pts.length < 3) return pts;
+  final keep = List<bool>.filled(pts.length, false)
+    ..[0] = true
+    ..[pts.length - 1] = true;
+  void simplify(int a, int b) {
+    if (b - a < 2) return;
+    final p = pts[a], q = pts[b];
+    final d = q - p, len = d.distance;
+    var best = -1.0, at = -1;
+    for (var i = a + 1; i < b; i++) {
+      final r = pts[i] - p;
+      final dist = len < 1e-9
+          ? r.distance
+          : (r.dx * d.dy - r.dy * d.dx).abs() / len;
+      if (dist > best) {
+        best = dist;
+        at = i;
+      }
+    }
+    if (best > .75) {
+      keep[at] = true;
+      simplify(a, at);
+      simplify(at, b);
+    }
+  }
+
+  simplify(0, pts.length - 1);
+  final s = [
+    for (var i = 0; i < pts.length; i++)
+      if (keep[i]) pts[i],
+  ];
+  if (s.length < 3) return s;
+  final out = <Offset>[s.first];
+  for (var i = 1; i + 1 < s.length; i++) {
+    final a = s[i - 1], v = s[i], b = s[i + 1];
+    final inLen = (v - a).distance, outLen = (b - v).distance;
+    final r = math.min(1.4, math.min(inLen, outLen) / 2);
+    if (r < 1e-6) continue;
+    final p0 = v + (a - v) / inLen * r, p2 = v + (b - v) / outLen * r;
+    for (var k = 0; k <= 8; k++) {
+      final t = k / 8;
+      out.add(p0 * ((1 - t) * (1 - t)) + v * (2 * (1 - t) * t) + p2 * (t * t));
+    }
+  }
+  out.add(s.last);
+  return out;
+}
+
 /// A vehicle's way smoothed like the roads, measured along its length.
 class _Smooth {
   _Smooth(this.pts) {
@@ -57,7 +111,7 @@ class _Smooth {
 final _smooth = Expando<_Smooth>();
 
 _Smooth _smoothOf(MagWorld w, List<int> path) => _smooth[path] ??= _Smooth(
-  smoothLine([for (final c in path) Offset(w.cx(c) + .5, w.cy(c) + .5)]),
+  wayLine([for (final c in path) Offset(w.cx(c) + .5, w.cy(c) + .5)]),
 );
 
 /// A point on a vehicle's way at [s] (cell index along [path] plus the

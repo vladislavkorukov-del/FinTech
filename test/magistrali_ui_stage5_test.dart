@@ -117,7 +117,9 @@ void main() {
     final to = (plant.x - 1, plant.y);
     final mid = ((from.$1 + to.$1) ~/ 2, from.$2);
 
-    // Moving the map in build mode never lays a road.
+    // S26: with drawing off, moving the map in build mode never lays a
+    // road; with it on (the default) a finger only plans one.
+    magFreehand = false;
     final camX = s.camera.x;
     final p0 = at(tester, s, from.$1, from.$2);
     final g = await tester.startGesture(p0);
@@ -130,11 +132,31 @@ void main() {
     expect(find.byKey(const ValueKey('mag-confirm')), findsNothing);
     expect(s.pendingRoad, isNull);
     expect(s.camera.x, isNot(camX));
+    magFreehand = true;
     s.centerOn(
       (farm.centerX + plant.centerX) / 2,
       (farm.centerY + plant.centerY) / 2 + 1,
     );
     await tester.pump();
+    final f0 = at(tester, s, from.$1, from.$2);
+    final f1 = at(tester, s, mid.$1, mid.$2);
+    final g2 = await tester.startGesture(f0);
+    for (var k = 1; k <= 8; k++) {
+      await g2.moveTo(Offset.lerp(f0, f1, k / 8)!);
+      await tester.pump();
+    }
+    await g2.up();
+    await tester.pump();
+    expect(s.pendingRoad, isNotNull);
+    // It starts where the finger began (give or take the touch slop).
+    final c0 = s.pendingRoad!.cells.first;
+    expect(
+      (w.cx(c0) - from.$1).abs() + (w.cy(c0) - from.$2).abs(),
+      lessThanOrEqualTo(1),
+    );
+    expect(w.roads[w.cellOf(mid.$1, mid.$2)], 0); // only a plan
+    await tap(tester, 'mag-cancel');
+    expect(s.pendingRoad, isNull);
 
     // Tap the start and half way: half the road is planned.
     await tester.tapAt(at(tester, s, from.$1, from.$2));

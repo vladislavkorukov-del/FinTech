@@ -1,5 +1,12 @@
 part of 'mag_screen.dart';
 
+/// S26 (VIS-04): with a road or track tool, one finger draws the way along
+/// any curve (two fingers still move and zoom the map). The drawn way is
+/// only a plan until «Построить». The player can switch it off.
+bool magFreehand = true;
+final _trace = <int>[];
+var _tracing = false;
+
 /// Touch on the map: a finger moves it and two zoom (in every mode); taps
 /// plan roads and removals, place buildings or open a place or a truck.
 extension _MagScreenInput on MagistraliScreenState {
@@ -12,8 +19,22 @@ extension _MagScreenInput on MagistraliScreenState {
   /// A finger on the map always moves it (and two fingers zoom), in every
   /// mode: building is done by taps only, so moving the map never lays a
   /// road by mistake.
-  void _scaleStart(ScaleStartDetails d, Size size) =>
-      _beginPan(d.localFocalPoint, size);
+  void _scaleStart(ScaleStartDetails d, Size size) {
+    if (_traceable && d.pointerCount == 1) {
+      final c = _cellAt(d.localFocalPoint, size);
+      if (c != null) {
+        _tracing = true;
+        _trace
+          ..clear()
+          ..add(c);
+        return;
+      }
+    }
+    _beginPan(d.localFocalPoint, size);
+  }
+
+  bool get _traceable =>
+      magFreehand && (tool == MagTool.road || tool == MagTool.rail);
 
   void _beginPan(Offset focal, Size size) {
     _focalStart = focal;
@@ -22,6 +43,25 @@ extension _MagScreenInput on MagistraliScreenState {
   }
 
   void _scaleUpdate(ScaleUpdateDetails d, Size size) {
+    if (_tracing) {
+      if (d.pointerCount > 1) {
+        // A second finger: it was a pinch after all.
+        _tracing = false;
+        _trace.clear();
+        _beginPan(d.localFocalPoint, size);
+        return;
+      }
+      final c = _cellAt(d.localFocalPoint, size);
+      if (c != null && c != _trace.last) {
+        _trace.add(c);
+        _refresh(() {
+          overlay
+            ..plan = List.of(_trace)
+            ..planOk = true;
+        });
+      }
+      return;
+    }
     if (_focalStart == null) return;
     final cam = camera;
     cam.zoom = (_zoomStart * d.scale).clamp(
@@ -36,14 +76,50 @@ extension _MagScreenInput on MagistraliScreenState {
       ..y = (cam.y + _cellStart.dy - now.dy).clamp(0, n);
   }
 
-  void _scaleEnd() => _focalStart = null;
+  void _scaleEnd() {
+    _focalStart = null;
+    if (!_tracing) return;
+    _tracing = false;
+    if (_trace.length < 2) {
+      _trace.clear();
+      return;
+    }
+    final w = world;
+    var plan = tool == MagTool.rail
+        ? w.planTrace(_trace)
+        : w.planTrace(_trace, road: roadType);
+    // Drawn on from the end of the planned way: one longer way.
+    final before = pendingRoad;
+    if (before != null && before.cells.isNotEmpty && plan.error == null) {
+      final end = before.cells.last, start = _trace.first;
+      if ((w.cx(end) - w.cx(start)).abs() + (w.cy(end) - w.cy(start)).abs() <=
+          1) {
+        plan = w.joinPlans(before, plan);
+      }
+    }
+    _trace.clear();
+    _tapStart = null;
+    _refresh(() {
+      pendingRoad = plan.cells.isEmpty ? null : plan;
+      overlay
+        ..plan = plan.cells
+        ..planOk = plan.error == null && plan.cost <= w.money;
+    });
+    if (plan.error != null) say(plan.error!);
+  }
 
   void _drawTo(int to) {
     final w = world, from = _drawFrom!;
     if (tool == MagTool.road || tool == MagTool.rail) {
       final plan = tool == MagTool.rail
-          ? w.planRail(w.cx(from), w.cy(from), w.cx(to), w.cy(to))
-          : w.planRoad(w.cx(from), w.cy(from), w.cx(to), w.cy(to), roadType);
+          ? w.planRailLine(w.cx(from), w.cy(from), w.cx(to), w.cy(to))
+          : w.planRoadLine(
+              w.cx(from),
+              w.cy(from),
+              w.cx(to),
+              w.cy(to),
+              roadType,
+            ); // S26: straight at any angle
       final base = _extending;
       final full = base == null ? plan : w.joinPlans(base, plan);
       pendingRoad = full;

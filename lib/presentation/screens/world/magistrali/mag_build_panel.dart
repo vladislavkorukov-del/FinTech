@@ -92,6 +92,23 @@ class MagBuildPanel extends StatelessWidget {
                     '${roadName(r)} откроется на ${MagRules.roads[r]!.level} уровне',
                   ),
           ),
+        // S26: draw ways with a finger along any curve.
+        MagToolChip(
+          key: const ValueKey('mag-freehand'),
+          label: 'Рисовать',
+          on: magFreehand,
+          color: MagPalette.teal,
+          icon: Icons.gesture_rounded,
+          onTap: () {
+            magFreehand = !magFreehand;
+            state.say(
+              magFreehand
+                  ? 'Ведите пальцем — дорога пойдёт по любой линии'
+                  : 'Дорога — касанием начала и конца',
+            );
+            state.changed();
+          },
+        ),
         // Road load over the map (ROAD-10).
         MagToolChip(
           key: const ValueKey('mag-traffic'),
@@ -105,7 +122,26 @@ class MagBuildPanel extends StatelessWidget {
           },
         ),
       ],
-      MagBuildGroup.rail => railChips(state).take(2).toList(),
+      MagBuildGroup.rail => [
+        ...railChips(state).take(2),
+        // S26: draw ways with a finger along any curve.
+        MagToolChip(
+          key: const ValueKey('mag-freehand'),
+          label: 'Рисовать',
+          on: magFreehand,
+          color: MagPalette.teal,
+          icon: Icons.gesture_rounded,
+          onTap: () {
+            magFreehand = !magFreehand;
+            state.say(
+              magFreehand
+                  ? 'Ведите пальцем — дорога пойдёт по любой линии'
+                  : 'Дорога — касанием начала и конца',
+            );
+            state.changed();
+          },
+        ),
+      ],
       MagBuildGroup.water => railChips(state).skip(2).toList(),
       MagBuildGroup.buildings => [
         MagToolChip(

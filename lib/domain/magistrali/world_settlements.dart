@@ -144,7 +144,11 @@ extension MagWorldSettlements on MagWorld {
           stationCells(i).isNotEmpty ||
           portCells(i).isNotEmpty) {
         _peopleLeave(i); // PASS-07: the tired of waiting go home
-        final daily = math.max(1, t.population ~/ MagRules.peoplePerTraveller);
+        final daily = math.max(
+          1,
+          (t.population ~/ MagRules.peoplePerTraveller * metroFactor(i))
+              .round(), // METRO-01
+        );
         final room =
             daily * MagRules.passengerDays -
             (i.stock[MagCargo.passengers] ?? 0);
@@ -212,7 +216,8 @@ extension MagWorldSettlements on MagWorld {
                   MagTowns.growth *
                   avg *
                   accessFactor(i) *
-                  mortgageFactor(i)) // MORT-01
+                  mortgageFactor(i) * // MORT-01
+                  metroGrowth(i)) // METRO-01
               .round(),
         );
         t.population = math.min(cap, t.population + gain);
