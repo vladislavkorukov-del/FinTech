@@ -160,4 +160,23 @@ const magIndustrySpecs = <MagIndustryKind, MagIndustrySpec>{
     price: 30000,
     buildLevel: 11,
   ),
+  // Stage S23 (TOUR-01): resorts take tourists and send them home again.
+  MagIndustryKind.lakeResort: MagIndustrySpec(
+    tech: 'tourism',
+    size: 2,
+    accepts: {MagCargo.passengers},
+    produces: {MagCargo.passengers: 6},
+    near: MagTerrain.lake,
+    price: 24000,
+    buildLevel: 8,
+  ),
+  MagIndustryKind.skiResort: MagIndustrySpec(
+    tech: 'tourism',
+    size: 2,
+    accepts: {MagCargo.passengers},
+    produces: {MagCargo.passengers: 6},
+    near: MagTerrain.hill,
+    price: 24000,
+    buildLevel: 8,
+  ),
 };

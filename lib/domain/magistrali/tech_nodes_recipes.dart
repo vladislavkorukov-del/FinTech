@@ -85,6 +85,18 @@ const magTechRecipes = <MagTech>[
     requires: ['machinery', 'petroleum'],
   ),
   MagTech(
+    id: 'tourism',
+    branch: MagBranch.economy,
+    title: 'Туризм',
+    lore:
+        'Пансионаты у воды и подъёмники в горах: горожане едут отдыхать и платят за дорогу больше.',
+    effect: 'Открывает курорты на озере и горнолыжные курорты',
+    effects: {},
+    cost: 14000,
+    level: 8,
+    requires: [],
+  ),
+  MagTech(
     id: 'aviation',
     branch: MagBranch.fleet,
     title: 'Авиация',

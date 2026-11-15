@@ -92,6 +92,10 @@ enum MagIndustryKind {
 
   // Stage S21: machine-tool works, built by the player (PROD-10).
   machineWorks,
+
+  // Stage S23: resorts, built by the player (TOUR-01).
+  lakeResort,
+  skiResort,
 }
 
 /// Upgrade lines of a truck.
@@ -230,6 +234,12 @@ abstract final class MagRules {
 
   /// Chance of an event on a day, percent.
   static const eventChance = 12;
+
+  /// Stage S23: disasters and repairs; shares.
+  static const disasterLevel = 4, repairDays = 6, crewRepairDays = 2;
+  static const crewReach = 10, repairBase = 400;
+  static const shares = 1000, controlShares = 510;
+  static const touristPay = 1.6, touristPeak = 1.5;
   static const overdraftRate = .01, crisisDays = 30;
   static const auctionEvery = 10, auctionStart = .7, auctionRise = .05;
   static const auctionDays = 5, regionPrice = 15000;

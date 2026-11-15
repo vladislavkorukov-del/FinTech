@@ -6,6 +6,7 @@ import 'mag_art.dart';
 import 'mag_filters.dart';
 import 'mag_hud.dart';
 import 'mag_rivals_ui.dart';
+import 'mag_stocks_ui.dart';
 import 'mag_screen.dart';
 import 'mag_sheets.dart';
 
@@ -30,6 +31,7 @@ Future<void> showCompanySheet(MagistraliScreenState state) =>
                 'Конкуренты',
                 'Коллекция',
                 'Кампания',
+                'Биржа',
               ],
               selected: _companyTab,
               onSelect: (i) => setLocal(() => _companyTab = i),
@@ -40,6 +42,7 @@ Future<void> showCompanySheet(MagistraliScreenState state) =>
               3 => rivalCards(state),
               4 => collectionCards(state),
               5 => campaignCards(state),
+              6 => stockCards(state),
               _ => [_company(state, context)],
             },
           ],

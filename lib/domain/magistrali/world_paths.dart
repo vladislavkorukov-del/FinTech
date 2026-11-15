@@ -9,7 +9,7 @@ extension MagWorldPaths on MagWorld {
   List<int>? roadPath(List<int> from, MagIndustry to) {
     from = [
       for (final c in from)
-        if (roads[c] != 0) c,
+        if (roadOpen(c)) c, // S23: broken cells are closed
     ];
     if (from.isEmpty) return null;
     if (!_roadReaches(from, to)) return null;
@@ -23,7 +23,7 @@ extension MagWorldPaths on MagWorld {
       height: size,
       starts: from,
       isGoal: (c) => _touches(c, to),
-      step: (a, b) => roads[b] == 0 ? null : 1 / _roadSpeed(b),
+      step: (a, b) => roadOpen(b) ? 1 / _roadSpeed(b) : null,
       heuristic: (c) {
         final x = cx(c), y = cy(c);
         final dx = math.max(0, math.max(l - x, x - r));
@@ -45,10 +45,13 @@ extension MagWorldPaths on MagWorld {
     for (var c = 0; c < roads.length; c++) {
       if (roads[c] != 0) sum = (sum * 31 + c * 7 + roads[c]) & 0x3fffffff;
     }
+    for (final c in damaged.keys) {
+      sum = (sum * 17 + c + 1) & 0x3fffffff;
+    }
     if (sum != _roadCompKey || _roadComp == null) {
       _roadCompKey = sum;
       _pathCache.clear();
-      _roadComp = magComponents(size, size, (c) => roads[c] != 0);
+      _roadComp = magComponents(size, size, roadOpen);
     }
     final comp = _roadComp!;
     final pieces = {for (final c in from) comp[c]};

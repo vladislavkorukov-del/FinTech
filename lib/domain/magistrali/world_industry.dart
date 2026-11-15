@@ -192,6 +192,8 @@ extension MagWorldIndustry on MagWorld {
     MagIndustryKind.refinery => 'НПЗ',
     MagIndustryKind.electronicsPlant => 'Завод электроники',
     MagIndustryKind.machineWorks => 'Станкозавод',
+    MagIndustryKind.lakeResort => 'Курорт',
+    MagIndustryKind.skiResort => 'Горнолыжный курорт',
     _ => 'Предприятие',
   };
 

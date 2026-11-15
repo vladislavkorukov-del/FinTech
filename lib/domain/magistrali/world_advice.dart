@@ -13,6 +13,7 @@ enum MagAdviceKind {
   trainsBlocked,
   cityDemand,
   jam,
+  damage,
 }
 
 /// One piece of advice: what is wrong (or what could pay), the figures it
@@ -226,6 +227,17 @@ extension MagWorldAdvice on MagWorld {
           'Пробки: ${jammed.length} кл. дороги',
           'Движение вдвое выше пропускной способности — машины стоят в очереди. Улучшите покрытие или проложите объезд (слой «Загруженность» на карте).',
           weight: 2,
+        ),
+      );
+    }
+    // DIS-02 (S23): broken roads.
+    if (damaged.isNotEmpty) {
+      out.add(
+        MagAdvice(
+          MagAdviceKind.damage,
+          'Повреждены дороги: ${damaged.length} кл.',
+          'Машины едут в объезд или стоят. Бригады починят сами, быстрее — рядом с депо; можно отремонтировать сразу в окне дороги.',
+          weight: 4,
         ),
       );
     }

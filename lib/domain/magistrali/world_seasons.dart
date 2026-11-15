@@ -207,6 +207,7 @@ extension MagWorldSeasons on MagWorld {
   void _dayLiving() {
     _dayEvents();
     _dayCampaign();
+    _dayMarket(); // S23: disasters, repairs, shares
   }
 
   void _dayEvents() {

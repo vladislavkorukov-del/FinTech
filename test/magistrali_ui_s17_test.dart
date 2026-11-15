@@ -284,4 +284,39 @@ void main() {
     await closeSheet(tester);
     await settle(tester);
   });
+
+  testWidgets('S23: the exchange, a broken road and its repair', (
+    tester,
+  ) async {
+    await mount(tester, const MagistraliScreen(seed: MagRules.defaultSeed));
+    final s = await ready(tester);
+    final w = s.world..money = 1000000;
+    w.speed = 0;
+    s.changed();
+    await tap(tester, 'mag-level');
+    await tap(tester, 'mag-company-tab-6');
+    expect(find.byKey(const ValueKey('mag-share-price')), findsOneWidget);
+    await tap(tester, 'mag-shares-issue');
+    expect(w.ownShares, 900);
+    await closeSheet(tester);
+    // A broken road cell: its sheet offers the repair.
+    final f = w.map.startFarm, p = w.map.startPlant;
+    final plan = w.planRoad(f.x + f.size, f.y, p.x - 1, p.y, MagRoad.dirt);
+    w.buildRoad(plan);
+    final c = plan.cells[plan.cells.length ~/ 2];
+    w.damaged[c] = w.tick + 5 * MagRules.ticksPerDay;
+    w.roadVersion++;
+    s.changed();
+    s.camera.zoom = 1.4;
+    s.centerOn(w.cx(c) + .5, w.cy(c) + .5);
+    await tester.pump();
+    await tester.tapAt(at(tester, s, w.cx(c), w.cy(c)));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(find.byKey(const ValueKey('mag-road-damaged')), findsOneWidget);
+    await tap(tester, 'mag-road-repair');
+    expect(w.damaged, isEmpty);
+    await closeSheet(tester);
+    await settle(tester);
+  });
 }

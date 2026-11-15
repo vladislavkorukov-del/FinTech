@@ -233,6 +233,7 @@ extension MagWorldComplex on MagWorld {
     loadFinish(j);
     loadBiomes(j);
     loadSeasons(j);
+    loadMarket(j);
     for (final e in (j['hulls'] as Map? ?? const {}).entries) {
       final v = vehicles[int.parse('${e.key}')];
       final n = e.value;

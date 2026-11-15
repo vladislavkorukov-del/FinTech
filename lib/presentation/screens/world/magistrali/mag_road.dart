@@ -75,6 +75,32 @@ Future<void> showRoadSheet(MagistraliScreenState state, int cell) async {
             key: const ValueKey('mag-road-jam'),
             style: const TextStyle(fontSize: 12.5, color: Color(0xFFD64B5C)),
           ),
+        // DIS-02 (S23): a broken cell — mended by itself, or at once.
+        if (w.damaged.containsKey(cell)) ...[
+          Text(
+            'Дорога повреждена: проезда нет. Бригада починит через ${((w.damaged[cell]! - w.tick) / MagRules.ticksPerDay).ceil()} дн.',
+            key: const ValueKey('mag-road-damaged'),
+            style: const TextStyle(fontSize: 12.5, color: Color(0xFFD64B5C)),
+          ),
+          const SizedBox(height: 6),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton(
+              key: const ValueKey('mag-road-repair'),
+              style: FilledButton.styleFrom(backgroundColor: MagPalette.mint),
+              onPressed: w.repairPrice(cell) > w.money
+                  ? null
+                  : () => state.report(
+                      w.repairRoad(cell),
+                      'Дорога отремонтирована',
+                    ),
+              child: Text(
+                'Отремонтировать сейчас · ${magMoney(w.repairPrice(cell))} кр',
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+        ],
         magRow(
           'Содержание участка',
           '${magMoney((segment.length * spec.upkeep / 10).ceil())} кр в день',

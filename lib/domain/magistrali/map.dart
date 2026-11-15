@@ -456,6 +456,8 @@ class MagMap {
             MagIndustryKind.refinery => 'НПЗ №$n',
             MagIndustryKind.electronicsPlant => 'Завод электроники №$n',
             MagIndustryKind.machineWorks => 'Станкостроительный завод №$n',
+            MagIndustryKind.lakeResort => 'Курорт №$n',
+            MagIndustryKind.skiResort => 'Горнолыжный курорт №$n',
           });
           break;
         }

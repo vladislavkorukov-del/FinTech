@@ -26,6 +26,13 @@ mixin _MagWorldLater {
   bool livingWorld = false;
   final events = <MagEvent>[];
   int chapterIndex = 0;
+
+  /// S23: broken road cells (cell → tick mended), the company's own
+  /// shares, stakes in rivals, the share price by day.
+  final damaged = <int, int>{};
+  int ownShares = MagRules.shares;
+  final rivalStakes = <String, int>{};
+  final priceHistory = <int>[];
   final _biomes = <int, MagBiome>{};
   final subsidies = <MagSubsidy>[];
   final uniqueOffered = <String>{};

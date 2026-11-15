@@ -8,6 +8,7 @@ import '../../../../domain/magistrali/magistrali.dart';
 import 'mag_network_art.dart';
 import 'mag_structures_art.dart';
 import 'mag_air_art.dart';
+import 'mag_resort_art.dart';
 import 'mag_atmosphere.dart';
 import 'mag_curve.dart';
 import 'mag_decor_cache.dart';
@@ -127,6 +128,7 @@ class MagRenderer {
       _terrain = w.map.terrainVersion; // MAP-11: the editor changed it
     }
     final map = w.map;
+    MagFoliage.season = w.livingWorld ? w.season : null; // VIS-01
     final view = cam.visibleCells(size, map.size);
     final x0 = view.left.floor(), y0 = view.top.floor();
     final x1 = math.min(map.size - 1, view.right.ceil());
@@ -267,6 +269,7 @@ class MagRenderer {
       for (final c in w.depots) (c, paintDepot),
       for (final c in w.terminals.keys) (c, paintTerminal),
       for (final c in w.airports.keys) (c, paintAirport), // S22
+      for (final c in w.damaged.keys) (c, paintDamage), // S23
     ]) {
       final x = w.cx(c), y = w.cy(c);
       if (x < x0 || x > x1 || y < y0 || y > y1) continue;

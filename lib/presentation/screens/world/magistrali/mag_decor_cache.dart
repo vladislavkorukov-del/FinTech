@@ -37,6 +37,7 @@ class MagDecorCache {
   ) {
     final lod = zoom < .55 ? 0 : 1;
     final key = (
+      MagFoliage.season,
       w.map,
       w.roadVersion,
       w.map.terrainVersion,
@@ -116,10 +117,12 @@ class MagDecorCache {
     }
     void fill(Path p, int color) =>
         c.drawPath(p, Paint()..color = Color(color));
+    final shades = MagFoliage.leaves(.5);
+    final winter = MagFoliage.season == MagSeason.winter;
     fill(shadow, 0x33182418);
-    fill(leaf, lod == 0 ? 0xFF4C9444 : 0xFF468C45);
-    fill(leafLit, 0xFF6AB25A);
-    fill(firLit, 0xFF3B8F55);
+    fill(leaf, shades[1].toARGB32());
+    fill(leafLit, shades[3].toARGB32());
+    fill(firLit, winter ? 0xFFE9EEF1 : 0xFF3B8F55);
     fill(firDark, lod == 0 ? 0xFF2F7546 : 0xFF256B3D);
     return rec.endRecording();
   }

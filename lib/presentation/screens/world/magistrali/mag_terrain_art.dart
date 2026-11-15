@@ -310,7 +310,64 @@ List<(double, double, double, bool)> forestTrees(MagMap map, int x, int y) {
   ]..sort((a, b) => (a.$1 + a.$2).compareTo(b.$1 + b.$2));
 }
 
+/// VIS-01 (S23): the season the trees show (null: summer as always).
+abstract final class MagFoliage {
+  static MagSeason? season;
+
+  /// A broadleaf crown's four shades, by the season and a tree's tone.
+  static List<Color> leaves(double tone) => switch (season) {
+    MagSeason.autumn =>
+      tone < .33
+          ? const [
+              Color(0xFFB8521E),
+              Color(0xFFC9662A),
+              Color(0xFFDB7E35),
+              Color(0xFFF0A04B),
+            ]
+          : tone < .66
+          ? const [
+              Color(0xFFC08A1E),
+              Color(0xFFD29E28),
+              Color(0xFFE3B53A),
+              Color(0xFFF3D060),
+            ]
+          : const [
+              Color(0xFF9E3426),
+              Color(0xFFB2412D),
+              Color(0xFFC75538),
+              Color(0xFFE07A4E),
+            ],
+    MagSeason.winter => const [
+      Color(0xFF8C7B68),
+      Color(0xFF9A8975),
+      Color(0xFFB4A794),
+      Color(0xFFF4F7FA),
+    ],
+    MagSeason.spring =>
+      tone < .4
+          ? const [
+              Color(0xFF5FA84E),
+              Color(0xFF6FB85A),
+              Color(0xFFF2B8C6),
+              Color(0xFFFBE1E8),
+            ]
+          : const [
+              Color(0xFF55A64A),
+              Color(0xFF64B455),
+              Color(0xFF7CC765),
+              Color(0xFFA6DE87),
+            ],
+    _ => const [
+      Color(0xFF3E8240),
+      Color(0xFF468C45),
+      Color(0xFF54A04D),
+      Color(0xFF76BE62),
+    ],
+  };
+}
+
 void paintForest(Canvas c, MagMap map, int x, int y, double zoom) {
+  final winter = MagFoliage.season == MagSeason.winter;
   for (final (px, py, s, fir) in forestTrees(map, x, y)) {
     final p = MagIso.project(px, py);
     if (zoom < .55) {
@@ -358,14 +415,30 @@ void paintForest(Canvas c, MagMap map, int x, int y, double zoom) {
               k / 3,
             )!,
         );
+        if (winter) {
+          // Snow on each tier's top.
+          c.drawPath(
+            Path()..addPolygon([
+              Offset.lerp(l, tip, .55)!,
+              tip,
+              Offset.lerp(r, tip, .55)!,
+            ], true),
+            Paint()..color = const Color(0xFFF4F7FA),
+          );
+        }
       }
     } else {
       final ctr = Offset(p.dx, p.dy - 13 * s);
+      final shade = MagFoliage.leaves(
+        _hash(x * 7 + y, y * 3 + x, map.seed + 41),
+      );
+      // Bare in winter: a thinner crown of branches with snow on top.
+      final k = winter ? .7 : 1.0;
       for (final (o, rr, col) in [
-        (Offset(3 * s, 2 * s), 6.5, const Color(0xFF3E8240)),
-        (Offset(-3.5 * s, 1.5 * s), 6.0, const Color(0xFF468C45)),
-        (Offset(0, -2.5 * s), 7.0, const Color(0xFF54A04D)),
-        (Offset(-2 * s, -4.5 * s), 3.8, const Color(0xFF76BE62)),
+        (Offset(3 * s, 2 * s), 6.5 * k, shade[0]),
+        (Offset(-3.5 * s, 1.5 * s), 6.0 * k, shade[1]),
+        (Offset(0, -2.5 * s), 7.0 * k, shade[2]),
+        (Offset(-2 * s, -4.5 * s), 3.8, shade[3]),
       ]) {
         c.drawCircle(ctr + o, rr * s, Paint()..color = col);
       }

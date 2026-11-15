@@ -69,6 +69,8 @@ String kindName(MagIndustryKind k) => switch (k) {
   MagIndustryKind.refinery => 'НПЗ',
   MagIndustryKind.electronicsPlant => 'Завод электроники',
   MagIndustryKind.machineWorks => 'Станкостроительный завод',
+  MagIndustryKind.lakeResort => 'Курорт на озере',
+  MagIndustryKind.skiResort => 'Горнолыжный курорт',
 };
 
 IconData kindIcon(MagIndustryKind k) => switch (k) {
@@ -95,6 +97,8 @@ IconData kindIcon(MagIndustryKind k) => switch (k) {
   MagIndustryKind.refinery => Icons.local_gas_station_rounded,
   MagIndustryKind.electronicsPlant => Icons.memory_rounded,
   MagIndustryKind.machineWorks => Icons.precision_manufacturing_rounded,
+  MagIndustryKind.lakeResort => Icons.beach_access_rounded,
+  MagIndustryKind.skiResort => Icons.downhill_skiing_rounded,
 };
 
 const magMuted = TextStyle(fontSize: 12, height: 1.3, color: Color(0xFF65767B));
