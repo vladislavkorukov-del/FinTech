@@ -4,8 +4,6 @@ import 'package:flutter/material.dart' hide Text;
 
 import '../../../../domain/magistrali/magistrali.dart';
 import '../../../l10n_widgets.dart';
-import 'mag_company.dart';
-import 'mag_finance.dart';
 import 'mag_guide.dart';
 import 'mag_route_map.dart';
 import 'mag_art.dart';
@@ -16,6 +14,7 @@ import 'mag_screen.dart';
 import 'mag_sheets.dart';
 import 'mag_tools.dart';
 import 'mag_tech.dart';
+import 'mag_topbar.dart';
 
 /// Credits as people read them: 12 345.
 String magMoney(int v) {
@@ -29,259 +28,14 @@ String magMoney(int v) {
 }
 
 BoxDecoration magCard([double r = 18]) => BoxDecoration(
-  color: MagPalette.card,
+  color: const Color(0xFFFFFFFF),
   borderRadius: BorderRadius.circular(r),
   boxShadow: const [
-    BoxShadow(color: Color(0x22203A36), blurRadius: 14, offset: Offset(0, 4)),
+    BoxShadow(color: Color(0x0F10241C), spreadRadius: .5),
+    BoxShadow(color: Color(0x14203A36), blurRadius: 18, offset: Offset(0, 6)),
+    BoxShadow(color: Color(0x0A203A36), blurRadius: 3, offset: Offset(0, 1)),
   ],
 );
-
-/// Balance, level and experience, game speed, settings; the current task.
-class MagTopBar extends StatelessWidget {
-  const MagTopBar({super.key, required this.state});
-  final MagistraliScreenState state;
-
-  @override
-  Widget build(BuildContext context) {
-    return ValueListenableBuilder<int>(
-      valueListenable: state.ticks,
-      builder: (context, _, _) {
-        final w = state.world;
-        final lvl = w.level;
-        final from = MagWorldProgress.xpFor(lvl);
-        final to = MagWorldProgress.xpFor(lvl + 1);
-        final task = w.currentTask;
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              children: [
-                _round(
-                  'mag-back',
-                  Icons.arrow_back_rounded,
-                  () => Navigator.of(context).maybePop(),
-                ),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: Container(
-                    height: 46,
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    decoration: magCard(23),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: InkWell(
-                            key: const ValueKey('mag-balance'),
-                            onTap: () => unawaited(showFinanceSheet(state)),
-                            child: Row(
-                              children: [
-                                const Icon(
-                                  Icons.toll_rounded,
-                                  size: 18,
-                                  color: MagPalette.mint,
-                                ),
-                                const SizedBox(width: 4),
-                                Flexible(
-                                  child: Text(
-                                    magMoney(w.money),
-                                    key: const ValueKey('mag-money'),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w800,
-                                      color: w.money < 0
-                                          ? const Color(0xFFD64B5C)
-                                          : MagPalette.ink,
-                                      fontFeatures: const [
-                                        FontFeature.tabularFigures(),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        InkWell(
-                          key: const ValueKey('mag-level'),
-                          onTap: () => unawaited(showCompanySheet(state)),
-                          child: SizedBox(
-                            width: 34,
-                            height: 34,
-                            child: Stack(
-                              alignment: Alignment.center,
-                              children: [
-                                CircularProgressIndicator(
-                                  value: ((w.xp - from) / (to - from)).clamp(
-                                    0,
-                                    1,
-                                  ),
-                                  strokeWidth: 3,
-                                  backgroundColor: const Color(0x222BB59A),
-                                  color: MagPalette.mint,
-                                ),
-                                Text(
-                                  '$lvl',
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w800,
-                                    color: MagPalette.ink,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 6),
-                        _Speed(state: state),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 6),
-                _round(
-                  'mag-settings',
-                  Icons.settings_rounded,
-                  () => unawaited(showSettingsSheet(state)),
-                ),
-              ],
-            ),
-            if (task != null && state.tool == MagTool.view) ...[
-              const SizedBox(height: 6),
-              GestureDetector(
-                onTap: () => state.toggleTask(),
-                child: Container(
-                  key: ValueKey('mag-task-${task.id}'),
-                  padding: const EdgeInsets.fromLTRB(12, 8, 12, 9),
-                  decoration: magCard(16),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 28,
-                        height: 28,
-                        alignment: Alignment.center,
-                        decoration: const BoxDecoration(
-                          color: Color(0x1F2BB59A),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Text(
-                          '${task.id}',
-                          style: const TextStyle(
-                            color: MagPalette.teal,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              '${task.title} · +${magMoney(task.reward)} кр',
-                              style: const TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w700,
-                                color: MagPalette.ink,
-                              ),
-                            ),
-                            if (!state.taskFolded)
-                              Text(
-                                task.hint,
-                                style: const TextStyle(
-                                  fontSize: 11.5,
-                                  color: Color(0xFF52646A),
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ],
-        );
-      },
-    );
-  }
-}
-
-Widget _round(String key, IconData icon, VoidCallback onTap) => Material(
-  color: MagPalette.card,
-  shape: const CircleBorder(),
-  elevation: 2,
-  shadowColor: const Color(0x33203A36),
-  child: InkWell(
-    key: ValueKey(key),
-    customBorder: const CircleBorder(),
-    onTap: onTap,
-    child: SizedBox(
-      width: 46,
-      height: 46,
-      child: Icon(icon, color: MagPalette.ink, size: 22),
-    ),
-  ),
-);
-
-class _Speed extends StatelessWidget {
-  const _Speed({required this.state});
-  final MagistraliScreenState state;
-
-  @override
-  Widget build(BuildContext context) {
-    final w = state.world;
-    return Container(
-      padding: const EdgeInsets.all(2),
-      decoration: BoxDecoration(
-        color: const Color(0x142BB59A),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          for (final s in const [0, 1, 2, 4])
-            MagPulse(
-              active: state.guideKey == 'mag-speed-$s',
-              radius: 10,
-              child: GestureDetector(
-                key: ValueKey('mag-speed-$s'),
-                onTap: () {
-                  w.speed = s;
-                  state.changed();
-                },
-                child: Container(
-                  width: 28,
-                  height: 28,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: w.speed == s ? MagPalette.mint : Colors.transparent,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: s == 0
-                      ? Icon(
-                          Icons.pause_rounded,
-                          size: 16,
-                          color: w.speed == s ? Colors.white : MagPalette.ink,
-                        )
-                      : Text(
-                          '$s×',
-                          style: TextStyle(
-                            fontSize: 11.5,
-                            fontWeight: FontWeight.w800,
-                            color: w.speed == s ? Colors.white : MagPalette.ink,
-                          ),
-                        ),
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-}
 
 /// The build tools (when building), the confirm bar for a drawn road, and
 /// the six sections of the game.
@@ -292,6 +46,21 @@ class MagBottomPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final pad = MediaQuery.of(context).padding.bottom;
+    final w = state.world;
+    // Badges (S20+): idle vehicles, places with a problem, research the
+    // company can afford now.
+    final idle = w.vehicles.values
+        .where((v) => v.routeId == null && v.orderId == null)
+        .length;
+    final problems = state.overlay.problems.length;
+    final techs = MagTechTree.all
+        .where(
+          (t) =>
+              !w.techs.contains(t.id) &&
+              w.techBlocker(t) == null &&
+              w.money >= w.techCost(t),
+        )
+        .length;
     final road = state.pendingRoad;
     final removing = state.pendingRemove;
     return Padding(
@@ -316,8 +85,8 @@ class MagBottomPanel extends StatelessWidget {
             MagBuildPanel(state: state),
             const SizedBox(height: 8),
           ],
-          Container(
-            decoration: magCard(22),
+          magGlass(
+            radius: 26,
             padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
             child: Row(
               children: [
@@ -338,6 +107,7 @@ class MagBottomPanel extends StatelessWidget {
                   'Транспорт',
                   false,
                   () => unawaited(showFleetSheet(state)),
+                  badge: idle,
                 ),
                 _nav(
                   'mag-tab-routes',
@@ -352,6 +122,7 @@ class MagBottomPanel extends StatelessWidget {
                   'Объекты',
                   false,
                   () => unawaited(showIndustriesSheet(state)),
+                  badge: problems,
                 ),
                 _nav(
                   'mag-tab-upgrades',
@@ -359,6 +130,8 @@ class MagBottomPanel extends StatelessWidget {
                   'Развитие',
                   false,
                   () => unawaited(showTechSheet(state)),
+                  badge: techs,
+                  dot: true,
                 ),
                 _nav(
                   'mag-tab-contracts',
@@ -380,23 +153,76 @@ class MagBottomPanel extends StatelessWidget {
     IconData icon,
     String label,
     bool on,
-    VoidCallback tap,
-  ) => Expanded(
+    VoidCallback tap, {
+    int badge = 0,
+    bool dot = false,
+  }) => Expanded(
     child: MagPulse(
       active: state.guideKey == key,
       child: InkWell(
         key: ValueKey(key),
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(16),
         onTap: tap,
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 4),
+          padding: const EdgeInsets.symmetric(vertical: 3),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
-                icon,
-                size: 22,
-                color: on ? MagPalette.mint : MagPalette.ink,
+              Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 220),
+                    curve: Curves.easeOutCubic,
+                    width: 44,
+                    height: 28,
+                    decoration: BoxDecoration(
+                      gradient: on
+                          ? const LinearGradient(
+                              colors: [MagPalette.mint, MagPalette.teal],
+                            )
+                          : null,
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Icon(
+                      icon,
+                      size: 21,
+                      color: on ? Colors.white : MagPalette.ink,
+                    ),
+                  ),
+                  if (badge > 0)
+                    Positioned(
+                      right: dot ? 4 : -2,
+                      top: dot ? 1 : -4,
+                      child: Container(
+                        key: ValueKey('$key-badge'),
+                        constraints: BoxConstraints(
+                          minWidth: dot ? 9 : 17,
+                          minHeight: dot ? 9 : 17,
+                        ),
+                        padding: dot
+                            ? EdgeInsets.zero
+                            : const EdgeInsets.symmetric(horizontal: 4),
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFE5484D),
+                          borderRadius: BorderRadius.circular(9),
+                          border: Border.all(color: Colors.white, width: 1.5),
+                        ),
+                        child: dot
+                            ? null
+                            : Text(
+                                badge > 9 ? '9+' : '$badge',
+                                style: const TextStyle(
+                                  fontSize: 9.5,
+                                  height: 1.1,
+                                  fontWeight: FontWeight.w900,
+                                  color: Colors.white,
+                                ),
+                              ),
+                      ),
+                    ),
+                ],
               ),
               const SizedBox(height: 2),
               Text(
@@ -406,7 +232,7 @@ class MagBottomPanel extends StatelessWidget {
                 softWrap: false,
                 style: TextStyle(
                   fontSize: 9.5,
-                  fontWeight: on ? FontWeight.w800 : FontWeight.w600,
+                  fontWeight: on ? FontWeight.w900 : FontWeight.w600,
                   color: on ? MagPalette.teal : MagPalette.ink,
                 ),
               ),

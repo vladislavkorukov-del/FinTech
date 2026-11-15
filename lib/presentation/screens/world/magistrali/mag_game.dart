@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import '../../../../domain/magistrali/magistrali.dart';
 import 'mag_network_art.dart';
 import 'mag_structures_art.dart';
+import 'mag_atmosphere.dart';
 import 'mag_curve.dart';
 import 'mag_decor_cache.dart';
 import 'mag_route_art.dart';
@@ -196,18 +197,7 @@ class MagRenderer {
       paintPier(canvas, x, y);
     }
     final sel = o.industry == null ? null : map.industry(o.industry!);
-    if (sel != null) {
-      canvas.drawRRect(
-        RRect.fromRectAndRadius(
-          Rect.fromLTWH(sel.x - .1, sel.y - .1, sel.size + .2, sel.size + .2),
-          const Radius.circular(.25),
-        ),
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = .09
-          ..color = MagPalette.mint,
-      );
-    }
+    if (sel != null) paintSelection(canvas, sel, host.time);
     for (final c in o.plan) {
       canvas.drawRect(
         Rect.fromLTWH(w.cx(c) + .08, w.cy(c) + .08, .84, .84),
@@ -378,6 +368,9 @@ class MagRenderer {
       draw();
     }
 
+    final light = dayLight(host.time, on: w.dayNight);
+    paintCloudShadows(canvas, w, host.time);
+    paintNightLights(canvas, w, light.$2, x0, y0, x1, y1);
     paintMountainNames(canvas, w, cam.zoom); // MAP-07
     if (cam.zoom >= .7) {
       for (final i in map.industries) {
@@ -476,24 +469,8 @@ class MagRenderer {
       }
     }
 
-    o.floats.removeWhere((f) => t - f.$4 > 1.6);
-    for (final (x, y, text, start) in o.floats) {
-      final k = (t - start) / 1.6;
-      final p = MagIso.project(x, y, 26 + k * 30);
-      final tp = TextPainter(
-        text: TextSpan(
-          text: text,
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w800,
-            color: MagPalette.teal.withValues(alpha: 1 - k * k),
-          ),
-        ),
-        textDirection: TextDirection.ltr,
-      )..layout();
-      tp.paint(canvas, p - Offset(tp.width / 2, tp.height / 2));
-      tp.dispose();
-    }
+    paintFloats(canvas, o, t);
     canvas.restore();
+    paintScreenLight(canvas, size, light.$1, light.$2);
   }
 }

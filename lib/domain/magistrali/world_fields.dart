@@ -15,6 +15,9 @@ mixin _MagWorldLater {
   final simErrors = <(int, String)>[];
   final terrainEdits = <int, int>{};
   final autoExport = <int>{};
+
+  /// Day and night on the map (S20+; a player's choice, saved).
+  bool dayNight = true;
   List<MagMountain>? _mountains;
   Int32List? _mountainComp;
   int _mountainKey = -1;

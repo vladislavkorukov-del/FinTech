@@ -13,6 +13,8 @@ import 'mag_art.dart';
 import 'mag_game.dart';
 import 'mag_guide.dart';
 import 'mag_hud.dart';
+import 'mag_intro.dart';
+import 'mag_topbar.dart';
 import 'mag_iso.dart';
 import 'mag_rail_ui.dart';
 import 'mag_road.dart';
@@ -20,7 +22,6 @@ import 'mag_route_map.dart';
 import 'mag_fleet.dart';
 import 'mag_sheets.dart';
 import 'mag_sprites.dart';
-import 'mag_tools.dart';
 import 'mag_town.dart';
 import 'mag_warehouse.dart';
 import 'mag_works_ui.dart';
@@ -77,7 +78,7 @@ class MagistraliScreenState extends State<MagistraliScreen>
   MagTool tool = MagTool.view;
 
   /// The task card shows only its title.
-  bool taskFolded = false;
+  bool taskFolded = true;
   void toggleTask() => setState(() => taskFolded = !taskFolded);
   MagRoad roadType = MagRoad.dirt;
   MagTerrain terrainBrush = MagTerrain.forest; // MAP-11
@@ -469,20 +470,16 @@ class MagistraliScreenState extends State<MagistraliScreen>
               top: media.padding.top + 6,
               child: MagTopBar(state: this),
             ),
-            // While building, messages go to the build panel's line, not
-            // over the map.
-            if (message != null && tool == MagTool.view)
-              Positioned(
-                left: 24,
-                right: 24,
-                bottom: media.padding.bottom + 150,
-                child: MagToast(text: message!),
-              ),
             Positioned(
               left: media.padding.left,
               right: media.padding.right,
               bottom: 0,
               child: MagBottomPanel(state: this),
+            ),
+            Positioned.fill(
+              child: MagIntro(
+                subtitle: 'День ${w.day + 1} · уровень ${w.level}',
+              ),
             ),
           ],
         ),

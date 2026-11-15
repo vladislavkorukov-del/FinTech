@@ -13,7 +13,6 @@ import 'mag_filters.dart';
 import 'mag_iso.dart';
 import 'mag_hud.dart';
 import 'mag_business.dart';
-import 'mag_lore.dart';
 import 'mag_orders.dart';
 import 'mag_town.dart';
 import 'mag_warehouse.dart';
@@ -94,10 +93,12 @@ IconData kindIcon(MagIndustryKind k) => switch (k) {
   MagIndustryKind.electronicsPlant => Icons.memory_rounded,
 };
 
-const magMuted = TextStyle(fontSize: 12, color: Color(0xFF5B6B70));
+const magMuted = TextStyle(fontSize: 12, height: 1.3, color: Color(0xFF65767B));
 const magTitle = TextStyle(
-  fontSize: 18,
-  fontWeight: FontWeight.w800,
+  fontSize: 21,
+  height: 1.15,
+  fontWeight: FontWeight.w900,
+  letterSpacing: -.3,
   color: MagPalette.ink,
 );
 
@@ -110,7 +111,11 @@ Future<T?> magSheet<T>(
   context: state.context,
   isScrollControlled: true,
   showDragHandle: true,
-  backgroundColor: const Color(0xFFF7FAF8),
+  backgroundColor: const Color(0xFFF6F9F7),
+  elevation: 12,
+  shape: const RoundedRectangleBorder(
+    borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+  ),
   constraints: BoxConstraints(
     maxHeight: MediaQuery.of(state.context).size.height * .82,
   ),
@@ -205,11 +210,6 @@ Future<void> showIndustrySheet(
         ],
       ),
       Text(kindName(i.kind), style: magMuted),
-      const SizedBox(height: 4),
-      Text(
-        industryLore(i.kind),
-        style: magMuted.copyWith(fontStyle: FontStyle.italic),
-      ),
       const SizedBox(height: 10),
       if (spec.produces.isNotEmpty) ...[
         const Text('Производит в день', style: magMuted),

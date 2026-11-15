@@ -2,7 +2,6 @@ import 'package:flutter/material.dart' hide Text;
 
 import '../../../../domain/magistrali/magistrali.dart';
 import '../../../l10n_widgets.dart';
-import 'mag_lore.dart';
 import 'mag_art.dart';
 import 'mag_guide.dart';
 import 'mag_finish_ui.dart';
@@ -232,6 +231,21 @@ Future<void> showSettingsSheet(
         },
       ),
       SwitchListTile(
+        key: const ValueKey('mag-daynight'),
+        contentPadding: EdgeInsets.zero,
+        value: w.dayNight,
+        activeThumbColor: MagPalette.mint,
+        title: const Text('Смена дня и ночи'),
+        subtitle: const Text(
+          'Закаты, ночные огни городов и фары машин',
+          style: magMuted,
+        ),
+        onChanged: (v) {
+          w.dayNight = v;
+          state.changed();
+        },
+      ),
+      SwitchListTile(
         key: const ValueKey('mag-tutorial'),
         contentPadding: EdgeInsets.zero,
         value: w.tutorial,
@@ -320,15 +334,45 @@ class MagToast extends StatelessWidget {
     child: Center(
       child: Container(
         key: const ValueKey('mag-message'),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+        padding: const EdgeInsets.fromLTRB(8, 7, 14, 8),
         decoration: BoxDecoration(
-          color: MagPalette.ink.withValues(alpha: .9),
-          borderRadius: BorderRadius.circular(14),
+          gradient: const LinearGradient(
+            colors: [Color(0xF2233238), Color(0xF21B4A47)],
+          ),
+          borderRadius: BorderRadius.circular(18),
+          boxShadow: const [
+            BoxShadow(color: Color(0x3310241C), blurRadius: 14),
+          ],
         ),
-        child: Text(
-          text,
-          textAlign: TextAlign.center,
-          style: const TextStyle(color: Colors.white, fontSize: 13),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 22,
+              height: 22,
+              alignment: Alignment.center,
+              decoration: const BoxDecoration(
+                color: MagPalette.mint,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                text.contains('кр') ? Icons.toll_rounded : Icons.bolt_rounded,
+                size: 14,
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Flexible(
+              child: Text(
+                text,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     ),
@@ -340,7 +384,7 @@ String toolHint(MagistraliScreenState state) {
   final w = state.world;
   return switch (state.tool) {
     MagTool.road =>
-      '${roadLore(state.roadType)} Коснитесь начала и конца, потом «Построить» · ${MagRules.roads[state.roadType]!.cost} кр/кл., тоннель ×7, мост ×9',
+      '${roadName(state.roadType)} · ${MagRules.roads[state.roadType]!.cost} кр/кл. Коснитесь начала и конца — тоннель ×7, мост ×9',
     MagTool.industry =>
       'Коснитесь клетки — там встанет ${state.buildKind == null ? 'предприятие' : kindName(state.buildKind!).toLowerCase()} (${state.buildKind == null ? '' : '${magMoney(w.buildPrice(state.buildKind!))} кр'})',
     MagTool.warehouse =>

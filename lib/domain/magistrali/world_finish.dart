@@ -352,6 +352,7 @@ extension MagWorldFinish on MagWorld {
           '${e.key}': e.value,
       },
     if (autoExport.isNotEmpty) 'autoExport': autoExport.toList()..sort(),
+    if (!dayNight) 'dayNight': false,
   };
 
   void loadFinish(Map<String, dynamic> j) {
@@ -368,6 +369,7 @@ extension MagWorldFinish on MagWorld {
       terrainEdits[c] = t;
       map.setTerrain(cx(c), cy(c), MagTerrain.values[t]);
     }
+    dayNight = j['dayNight'] as bool? ?? true;
     autoExport.addAll([
       for (final x in j['autoExport'] as List? ?? const []) x as int,
     ]);
