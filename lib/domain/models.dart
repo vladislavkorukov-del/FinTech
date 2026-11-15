@@ -734,6 +734,9 @@ class AppPreferences {
   /// 2.3: Finora with eyes and emotions (off — a sphere of light).
   final bool finoraFace;
 
+  /// Finora Release: the celebration of the release was shown.
+  final bool releaseCelebrated;
+
   const AppPreferences({
     this.theme = 'dark',
     this.accent = 'coffee',
@@ -764,6 +767,7 @@ class AppPreferences {
     this.seenVersion,
     this.finoraThemed = true,
     this.finoraFace = true,
+    this.releaseCelebrated = false,
   });
 
   AppPreferences copyWith({
@@ -796,6 +800,7 @@ class AppPreferences {
     Object? seenVersion = _absent,
     bool? finoraThemed,
     bool? finoraFace,
+    bool? releaseCelebrated,
   }) => AppPreferences(
     theme: theme ?? this.theme,
     accent: accent ?? this.accent,
@@ -832,6 +837,7 @@ class AppPreferences {
         : seenVersion as String?,
     finoraThemed: finoraThemed ?? this.finoraThemed,
     finoraFace: finoraFace ?? this.finoraFace,
+    releaseCelebrated: releaseCelebrated ?? this.releaseCelebrated,
   );
 
   Map<String, Object?> toJson() => {
@@ -864,6 +870,7 @@ class AppPreferences {
     'seenVersion': seenVersion,
     'finoraThemed': finoraThemed,
     'finoraFace': finoraFace,
+    'releaseCelebrated': releaseCelebrated,
   };
 
   static List<String> _ids(Object? value) =>
@@ -904,6 +911,7 @@ class AppPreferences {
         : 'old',
     finoraThemed: json['finoraThemed'] as bool? ?? true,
     finoraFace: json['finoraFace'] as bool? ?? true,
+    releaseCelebrated: json['releaseCelebrated'] as bool? ?? false,
   );
 
   /// [items] in the person's [order] (by [id]); unknown items keep their

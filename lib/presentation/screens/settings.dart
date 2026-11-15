@@ -712,7 +712,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const Center(child: FinoraMark(size: 72)),
           const SizedBox(height: 12),
           Text(
-            'Finora',
+            appName,
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.headlineSmall,
           ),
@@ -737,7 +737,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 title: 'Лицензии',
                 onTap: () => showLicensePage(
                   context: context,
-                  applicationName: 'Finora',
+                  applicationName: appName,
                   applicationVersion: version,
                 ),
               ),

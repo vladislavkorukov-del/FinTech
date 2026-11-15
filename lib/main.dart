@@ -29,6 +29,7 @@ import 'presentation/voice_commands.dart';
 import 'presentation/haptics.dart';
 import 'presentation/payment_prompt.dart';
 import 'presentation/page_transitions.dart';
+import 'presentation/release_celebration.dart';
 import 'presentation/whats_new.dart';
 import 'presentation/widgets/finora_wheel.dart';
 import 'presentation/finora_outside.dart';
@@ -280,8 +281,10 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
   void _askPayments() {
     _paymentsTimer?.cancel();
     _paymentsTimer = Timer(const Duration(milliseconds: 900), () async {
-      // 1.36: after an update — «Что нового» first, then the payments.
-      if (mounted) await WhatsNew.check(context);
+      // Finora Release: the celebration once; otherwise, after an update,
+      // «Что нового». Then the payments.
+      final celebrated = mounted && await ReleaseCelebration.check(context);
+      if (mounted && !celebrated) await WhatsNew.check(context);
       if (mounted) unawaited(PaymentPrompt.check(context));
     });
   }
