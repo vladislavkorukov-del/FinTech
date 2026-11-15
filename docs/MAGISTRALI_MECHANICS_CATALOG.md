@@ -7,24 +7,24 @@
 
 Статусы: NOT_STARTED — не начато; PARTIAL — частично; IN_PROGRESS — в работе;
 READY_FOR_REVIEW — готово, ждёт проверки игроком; VERIFIED — проверено игроком
-(этапы, которые игрок подтвердил: 1.68–1.95); BLOCKED — заблокировано.
+(этапы, которые игрок подтвердил: 1.68–1.96); BLOCKED — заблокировано.
 
 Файлы домена — `lib/domain/magistrali/`, интерфейса —
 `lib/presentation/screens/world/magistrali/`. Тесты — `test/magistrali_<имя>_test.dart`
 (sim, orders, storage, dispatch, towns, horses, production, growth,
-industry, cities, logistics, rail, water, megapolis, passengers, p1, s12, s13, s14, s15, s16, s17, s18, s19, s20, s21, s22, s23, s24, soak, ui, ui_s17, ui_s15, ui_s13, ui_stage5, ui_rail).
+industry, cities, logistics, rail, water, megapolis, passengers, p1, s12, s13, s14, s15, s16, s17, s18, s19, s20, s21, s22, s23, s24, s25, soak, ui, ui_s17, ui_s15, ui_s13, ui_stage5, ui_rail).
 
-Аудит: 1.77.0, обновлено в 1.78.0 (S7) и 1.79.0 (S8), 1.80.0 (S9 и доводка ЖД), 1.81.0 (S10 и графика), 1.82.0 (S11), 1.83.0 (доделка P1), 1.84.0 (S12), 1.85.0 (S13), 1.86.0 (S14), 1.87.0 (S15), 1.88.0 (S16), 1.89.0 (S17), 1.90.0 (S18), 1.91.0 (S19), 1.92.0 (S20), 1.93.0 (S21), 1.94.0 (S22), 1.95.0 (S23), 1.96.0 (S24); точка восстановления — тег `restore/magistrali-1.77.0-pre-s7`.
+Аудит: 1.77.0, обновлено в 1.78.0 (S7) и 1.79.0 (S8), 1.80.0 (S9 и доводка ЖД), 1.81.0 (S10 и графика), 1.82.0 (S11), 1.83.0 (доделка P1), 1.84.0 (S12), 1.85.0 (S13), 1.86.0 (S14), 1.87.0 (S15), 1.88.0 (S16), 1.89.0 (S17), 1.90.0 (S18), 1.91.0 (S19), 1.92.0 (S20), 1.93.0 (S21), 1.94.0 (S22), 1.95.0 (S23), 1.96.0 (S24), 1.97.0 (S25); точка восстановления — тег `restore/magistrali-1.77.0-pre-s7`.
 
 ## Сводка
 
 | Статус | Механик |
 |---|---|
-| VERIFIED | 216 |
-| READY_FOR_REVIEW | 7 |
+| VERIFIED | 223 |
+| READY_FOR_REVIEW | 6 |
 | PARTIAL | 0 |
 | NOT_STARTED | 0 |
-| Всего | 223 |
+| Всего | 229 |
 
 ## A. Фундамент игры и безопасность
 
@@ -331,10 +331,21 @@ industry, cities, logistics, rail, water, megapolis, passengers, p1, s12, s13, s
 
 | ID | Механика | P | Статус | Версия | Зависимости | Файлы | Тесты | Проблемы |
 |---|---|---|---|---|---|---|---|---|
-| CRED-01 | Кредитный рейтинг | P2 | READY_FOR_REVIEW | 1.96 | FIN-01 | world_credit.dart (`creditScore` 0–100 из долга к стоимости, просрочек, прибыльных месяцев и уровня; `rating` AAA…CCC), mag_stocks_ui.dart (карточка рейтинга на вкладке «Биржа») | s24, ui_s15 | — |
-| CRED-02 | Условия кредита по рейтингу | P2 | READY_FOR_REVIEW | 1.96 | CRED-01 | world_meta.dart (`loanLimit` × `ratingLimit` от ×2 до ×0,25; процент × `ratingInterest` от ×0,6 до ×2,2; только в живом мире) | s24 | — |
-| BOND-01 | Облигации | P2 | READY_FOR_REVIEW | 1.96 | CRED-01 | world_credit.dart (`issueBond`: 25/50/100 тыс., лимит 50% стоимости, купон 1,5%/мес × рейтинг, погашение через 180 дн.; при CCC рынок закрыт), mag_stocks_ui.dart | s24, ui_s15 | — |
-| INS-01 | Страхование от стихии | P2 | READY_FOR_REVIEW | 1.96 | DIS-01 | world_credit.dart (`setInsured`, взнос 0,3% стоимости в месяц, мин. 500; бедствие чинится за 1 день бесплатно, выплата 1 500 кр/клетку), world_market.dart (`repairPrice` = 0) | s24, ui_s15 | — |
-| CRU-01 | Круизные лайнеры | P2 | READY_FOR_REVIEW | 1.96 | TOUR-01 | config_vehicles.dart (лайнер «Чайка»: 60 пассажиров, комфорт ×1,6, 70 000 кр, технология «Туризм», 12 ур.), mag_rail_art.dart (белые палубы и красная труба) | s24 | Только пассажиры |
-| VIS-02 | Ночные огни аэропортов и курортов | P3 | READY_FOR_REVIEW | 1.96 | AIR-01 | mag_atmosphere.dart (`paintNightLights`: огни вдоль полосы, красный фонарь вышки, окна отелей и шале) | — | — |
-| VIS-03 | Плавные устья рек | P3 | READY_FOR_REVIEW | 1.96 | — | mag_sea_art.dart (`_paintMouths`: мягкие круглые разливы от реки к морю без клина и полос), mag_terrain_art.dart (вода доходит до края карты) | — | — |
+| CRED-01 | Кредитный рейтинг | P2 | VERIFIED | 1.96 | FIN-01 | world_credit.dart (`creditScore` 0–100 из долга к стоимости, просрочек, прибыльных месяцев и уровня; `rating` AAA…CCC), mag_stocks_ui.dart (карточка рейтинга на вкладке «Биржа») | s24, ui_s15 | — |
+| CRED-02 | Условия кредита по рейтингу | P2 | VERIFIED | 1.96 | CRED-01 | world_meta.dart (`loanLimit` × `ratingLimit` от ×2 до ×0,25; процент × `ratingInterest` от ×0,6 до ×2,2; только в живом мире) | s24 | — |
+| BOND-01 | Облигации | P2 | VERIFIED | 1.96 | CRED-01 | world_credit.dart (`issueBond`: 25/50/100 тыс., лимит 50% стоимости, купон 1,5%/мес × рейтинг, погашение через 180 дн.; при CCC рынок закрыт), mag_stocks_ui.dart | s24, ui_s15 | — |
+| INS-01 | Страхование от стихии | P2 | VERIFIED | 1.96 | DIS-01 | world_credit.dart (`setInsured`, взнос 0,3% стоимости в месяц, мин. 500; бедствие чинится за 1 день бесплатно, выплата 1 500 кр/клетку), world_market.dart (`repairPrice` = 0) | s24, ui_s15 | — |
+| CRU-01 | Круизные лайнеры | P2 | VERIFIED | 1.96 | TOUR-01 | config_vehicles.dart (лайнер «Чайка»: 60 пассажиров, комфорт ×1,6, 70 000 кр, технология «Туризм», 12 ур.), mag_rail_art.dart (белые палубы и красная труба) | s24 | Только пассажиры |
+| VIS-02 | Ночные огни аэропортов и курортов | P3 | VERIFIED | 1.96 | AIR-01 | mag_atmosphere.dart (`paintNightLights`: огни вдоль полосы, красный фонарь вышки, окна отелей и шале) | — | — |
+| VIS-03 | Плавные устья рек | P3 | VERIFIED | 1.96 | — | mag_sea_art.dart (`_paintMouths`: мягкие круглые разливы от реки к морю без клина и полос), mag_terrain_art.dart (вода доходит до края карты) | — | — |
+
+## S. Порты, сигналы, ипотека, ночные смены (S25)
+
+| ID | Механика | P | Статус | Версия | Зависимости | Файлы | Тесты | Проблемы |
+|---|---|---|---|---|---|---|---|---|
+| PORT-01 | Контейнерные терминалы | P2 | READY_FOR_REVIEW | 1.97 | SEA-01 | world_ports.dart (`buildContainerTerminal` в порту, 30 000 кр, технология «Контейнерные перевозки»; `handleAt`: суда грузятся ×3), mag_s25_ui.dart (окно порта), mag_port_art.dart (портальный кран и штабели) | s25 | — |
+| PORT-02 | Контейнеровоз | P2 | READY_FOR_REVIEW | 1.97 | PORT-01 | config_vehicles.dart (контейнеровоз «Нева»: 240 мест, любые сухие грузы, оплата ×1,2, 56 000 кр, 14 ур.), world_ports.dart (`containerRouteBlocker`: только между терминалами), mag_rail_art.dart (цветные контейнеры) | s25 | Без жидкостей и людей |
+| SIG-01 | ЖД-сигналы | P2 | READY_FOR_REVIEW | 1.97 | RAIL-07 | world_ports.dart (`toggleSignal`, 1 500 кр, технология «Железнодорожная сигнализация»; `blockAhead` до следующего сигнала или станции, `_signalRed`: поезд ждёт, пока блок занят; после долгого ожидания — обычные правила), mag_port_art.dart (столб с красным/зелёным огнём) | s25 | — |
+| JCT-01 | Развязки | P2 | READY_FOR_REVIEW | 1.97 | ROAD-08 | world_ports.dart (`buildInterchange` на перекрёстке или переезде, 6 000 кр, технология «Развязки»; `freeFlow`: без пробок на клетке и соседних), world_routes.dart (`congestionOf`), mag_port_art.dart (эстакада) | s25 | — |
+| MORT-01 | Ипотека для городов | P2 | READY_FOR_REVIEW | 1.97 | CITY-09 | world_ports.dart (`startMortgage`: 15 000 кр × уровень, 180 дн. рост населения ×1,6, возврат ×1,3 помесячно), world_settlements.dart (`mortgageFactor`), mag_s25_ui.dart (карточка в окне поселения) | s25, ui_s15 | — |
+| NIGHT-01 | Ночные смены | P2 | READY_FOR_REVIEW | 1.97 | PROD-02 | world_ports.dart (`setNightShift`: выработка +30%, зарплата 40 кр × площадь в день, технология «Ночные смены»), world_industry.dart (`outputFactor`), mag_port_art.dart (окна горят ночью) | s25, ui_s15 | Только свои предприятия |

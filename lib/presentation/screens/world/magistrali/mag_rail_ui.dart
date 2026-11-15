@@ -6,6 +6,7 @@ import '../../../../domain/magistrali/magistrali.dart';
 import '../../../l10n_widgets.dart';
 import 'mag_art.dart';
 import 'mag_hud.dart';
+import 'mag_s25_ui.dart';
 import 'mag_screen.dart';
 import 'mag_sheets.dart';
 import 'mag_town.dart';
@@ -163,6 +164,7 @@ Future<void> showPortSheet(MagistraliScreenState state, int cell) =>
           const SizedBox(height: 8),
           magRow('Судов на маршрутах через порт', '${ships.length}'),
           for (final t in ships) magRow(t.name, t.spec.name),
+          ...terminalSection(state, cell), // PORT-01
           const SizedBox(height: 10),
           TextButton(
             key: const ValueKey('mag-port-remove'),
@@ -208,6 +210,7 @@ Future<void> showRailSheet(MagistraliScreenState state, int cell) async {
           'навстречу другому и выбирает свободный путь сам.',
           style: magMuted,
         ),
+        ...signalSection(state, cell), // SIG-01
         const SizedBox(height: 10),
         OutlinedButton(
           key: const ValueKey('mag-rail-remove'),

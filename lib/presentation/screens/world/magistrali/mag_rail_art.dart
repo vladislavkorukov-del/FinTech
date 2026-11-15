@@ -207,6 +207,32 @@ void paintShip(
       h: 6,
       color: const Color(0xFFD64B5C),
     );
+  } else if (m.body == 'container') {
+    // S25: a container ship — rows of coloured boxes and a cabin aft.
+    const boxes = [Color(0xFFD64B5C), Color(0xFFE8B23E), Color(0xFF2BB59A)];
+    for (var k = 0; k < 3; k++) {
+      final o = (k - .6) * len * .24;
+      MagShapes.box(
+        c,
+        x: x + MagDir.dx[dir] * o,
+        y: y + MagDir.dy[dir] * o,
+        length: along ? len * .2 : wid * .75,
+        width: along ? wid * .75 : len * .2,
+        z0: 4,
+        h: 5,
+        color: boxes[k],
+      );
+    }
+    MagShapes.box(
+      c,
+      x: x - MagDir.dx[dir] * len * .38,
+      y: y - MagDir.dy[dir] * len * .38,
+      length: .14,
+      width: .22,
+      z0: 4,
+      h: 10,
+      color: const Color(0xFFF1F3F4),
+    );
   } else {
     MagShapes.box(
       c,

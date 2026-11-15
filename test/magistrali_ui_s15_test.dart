@@ -6,6 +6,7 @@ import 'package:finora/domain/magistrali/magistrali.dart';
 import 'package:finora/domain/models.dart';
 import 'package:finora/presentation/controller.dart';
 import 'package:finora/presentation/screens/world/magistrali/mag_screen.dart';
+import 'package:finora/presentation/screens/world/magistrali/mag_sheets.dart';
 import 'package:finora/presentation/screens/world/magistrali/mag_town.dart';
 import 'package:finora/presentation/theme/app_theme.dart';
 import 'package:finora/services/magistrali_store.dart';
@@ -294,6 +295,36 @@ void main() {
     expect(w.bonds.single.amount, 25000);
     await tap(tester, 'mag-insurance');
     expect(w.insured, isTrue);
+    await closeSheet(tester);
+    await settle(tester);
+  });
+
+  testWidgets('S25: a mortgage in a town, a night shift at a farm', (
+    tester,
+  ) async {
+    await mount(tester, const MagistraliScreen(seed: MagRules.defaultSeed));
+    final s = await ready(tester);
+    final w = s.world..money = 1000000;
+    w.speed = 0;
+    w.techs.addAll(['mortgage', 'nightshift']);
+    s.changed();
+    final town = w.settlements.first;
+    unawaited(showTownSheet(s, town.id));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    await tester.ensureVisible(
+      find.byKey(const ValueKey('mag-mortgage-start')),
+    );
+    await tap(tester, 'mag-mortgage-start');
+    expect(w.mortgageOf(town), isNotNull);
+    await closeSheet(tester);
+    final farm = w.map.startFarm..owned = true;
+    unawaited(showIndustrySheet(s, farm.id));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    await tester.ensureVisible(find.byKey(const ValueKey('mag-night-shift')));
+    await tap(tester, 'mag-night-shift');
+    expect(w.nightShifts, contains(farm.id));
     await closeSheet(tester);
     await settle(tester);
   });

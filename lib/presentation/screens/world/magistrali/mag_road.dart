@@ -4,6 +4,7 @@ import '../../../../domain/magistrali/magistrali.dart';
 import '../../../l10n_widgets.dart';
 import 'mag_art.dart';
 import 'mag_hud.dart';
+import 'mag_s25_ui.dart';
 import 'mag_screen.dart';
 import 'mag_sheets.dart';
 import 'mag_tools.dart';
@@ -163,6 +164,7 @@ Future<void> showRoadSheet(MagistraliScreenState state, int cell) async {
           'Депо: машины с износом от 30% чинятся, проезжая через него, на 30% дешевле; каждое депо снижает содержание автопарка на 5%.',
           style: magMuted,
         ),
+        ...interchangeSection(state, cell), // JCT-01
         // A terminal by a settlement (CITY-13).
         for (final t in w.townsBeside(cell))
           if (w.terminals[cell] == t.id)

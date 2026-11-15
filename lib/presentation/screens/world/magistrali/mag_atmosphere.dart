@@ -7,6 +7,7 @@ import 'mag_art.dart';
 import 'mag_curve.dart';
 import 'mag_game.dart';
 import 'mag_iso.dart';
+import 'mag_port_art.dart';
 
 /// The light of the hour (S20+): a slow day over about six real minutes —
 /// day, a warm sunset, a blue night with lit windows and headlights, dawn.
@@ -55,6 +56,7 @@ void paintNightLights(
   int y1,
 ) {
   if (night <= .05) return;
+  paintNightShifts(c, w, night, x0, y0, x1, y1); // NIGHT-01
   final glow = Paint()
     ..shader = null
     ..color = Color.fromRGBO(255, 226, 140, .95 * night);

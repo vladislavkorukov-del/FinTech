@@ -20,6 +20,7 @@ import 'mag_art.dart';
 import 'mag_buildings.dart';
 import 'mag_town_art.dart';
 import 'mag_iso.dart';
+import 'mag_port_art.dart';
 
 /// What the screen wants drawn over the world.
 class MagOverlay {
@@ -270,6 +271,9 @@ class MagRenderer {
       for (final c in w.terminals.keys) (c, paintTerminal),
       for (final c in w.airports.keys) (c, paintAirport), // S22
       for (final c in w.damaged.keys) (c, paintDamage), // S23
+      for (final c in w.terminals2) (c, paintContainerTerminal), // S25
+      for (final c in w.signals) (c, paintSignal),
+      for (final c in w.interchanges) (c, paintInterchange),
     ]) {
       final x = w.cx(c), y = w.cy(c);
       if (x < x0 || x > x1 || y < y0 || y > y1) continue;

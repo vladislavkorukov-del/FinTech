@@ -5,6 +5,7 @@ import '../../../l10n_widgets.dart';
 import 'mag_art.dart';
 import 'mag_hud.dart';
 import 'mag_icons.dart';
+import 'mag_s25_ui.dart';
 import 'mag_screen.dart';
 import 'mag_sheets.dart';
 
@@ -132,6 +133,7 @@ class MagOwnershipPanel extends StatelessWidget {
                 style: magMuted,
               ),
             ),
+          ...nightShiftSection(state, i), // NIGHT-01
         ],
       ),
     );
