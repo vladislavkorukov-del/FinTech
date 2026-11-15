@@ -277,6 +277,7 @@ extension MagWorldPorts on MagWorld {
     if (signals.isNotEmpty) 'signals': signals.toList()..sort(),
     if (interchanges.isNotEmpty) 'interchanges': interchanges.toList()..sort(),
     ..._saveHubs(), // S26
+    ..._saveWays(), // S27
     if (nightShifts.isNotEmpty) 'night': nightShifts.toList()..sort(),
     if (mortgages.isNotEmpty)
       'mortgages': [
@@ -286,6 +287,7 @@ extension MagWorldPorts on MagWorld {
 
   void loadPorts(Map<String, dynamic> j) {
     loadHubs(j); // S26
+    loadWays(j); // S27
     List<int> ints(String k) => [
       for (final v in j[k] as List? ?? const []) v as int,
     ];

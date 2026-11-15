@@ -4,7 +4,7 @@ part of 'mag_screen.dart';
 /// any curve (two fingers still move and zoom the map). The drawn way is
 /// only a plan until «Построить». The player can switch it off.
 bool magFreehand = true;
-final _trace = <int>[];
+final _trace = <Offset>[];
 var _tracing = false;
 
 /// Touch on the map: a finger moves it and two zoom (in every mode); taps
@@ -26,7 +26,7 @@ extension _MagScreenInput on MagistraliScreenState {
         _tracing = true;
         _trace
           ..clear()
-          ..add(c);
+          ..add(camera.toCell(d.localFocalPoint, size));
         return;
       }
     }
@@ -51,14 +51,12 @@ extension _MagScreenInput on MagistraliScreenState {
         _beginPan(d.localFocalPoint, size);
         return;
       }
-      final c = _cellAt(d.localFocalPoint, size);
-      if (c != null && c != _trace.last) {
-        _trace.add(c);
-        _refresh(() {
-          overlay
-            ..plan = List.of(_trace)
-            ..planOk = true;
-        });
+      // S27: the finger's own line, not cells.
+      final p = camera.toCell(d.localFocalPoint, size);
+      if ((p - _trace.last).distance >= .35 &&
+          _cellAt(d.localFocalPoint, size) != null) {
+        _trace.add(p);
+        _showPlan(const [], List.of(_trace), true);
       }
       return;
     }
@@ -84,32 +82,49 @@ extension _MagScreenInput on MagistraliScreenState {
       _trace.clear();
       return;
     }
-    final w = world;
-    var plan = tool == MagTool.rail
-        ? w.planTrace(_trace)
-        : w.planTrace(_trace, road: roadType);
+    var pts = [for (final p in _trace) (p.dx, p.dy)];
     // Drawn on from the end of the planned way: one longer way.
-    final before = pendingRoad;
-    if (before != null && before.cells.isNotEmpty && plan.error == null) {
-      final end = before.cells.last, start = _trace.first;
-      if ((w.cx(end) - w.cx(start)).abs() + (w.cy(end) - w.cy(start)).abs() <=
-          1) {
-        plan = w.joinPlans(before, plan);
+    final before = pendingRoad?.shape;
+    if (before != null && before.isNotEmpty) {
+      final (ex, ey) = before.last;
+      if ((Offset(ex, ey) - _trace.first).distance <= 1.2) {
+        pts = [...before, ...pts.skip(1)];
       }
     }
     _trace.clear();
     _tapStart = null;
-    _refresh(() {
-      pendingRoad = plan.cells.isEmpty ? null : plan;
-      overlay
-        ..plan = plan.cells
-        ..planOk = plan.error == null && plan.cost <= w.money;
-    });
+    _planWay(pts);
+  }
+
+  /// S27: a free way along [pts] becomes the plan.
+  void _planWay(List<(double, double)> pts) {
+    final w = world;
+    final plan = w.planWay(pts, road: tool == MagTool.rail ? null : roadType);
+    pendingRoad = plan.cells.isEmpty ? null : plan;
+    _showPlan(plan.cells, [
+      for (final (x, y) in plan.shape ?? pts) Offset(x, y),
+    ], plan.error == null && plan.cost <= w.money);
     if (plan.error != null) say(plan.error!);
   }
 
+  void _showPlan(List<int> cells, List<Offset> shape, bool ok) => _refresh(() {
+    overlay
+      ..plan = cells
+      ..planShape = shape
+      ..planKey = cells
+      ..planOk = ok;
+  });
+
   void _drawTo(int to) {
     final w = world, from = _drawFrom!;
+    if (magFreehand && (tool == MagTool.road || tool == MagTool.rail)) {
+      // S27: two taps — a straight free way at any angle; a tap after a
+      // plan carries it on.
+      (double, double) mid(int c) => (w.cx(c) + .5, w.cy(c) + .5);
+      final base = _extending?.shape;
+      _planWay(base != null ? [...base, mid(to)] : [mid(from), mid(to)]);
+      return;
+    }
     if (tool == MagTool.road || tool == MagTool.rail) {
       final plan = tool == MagTool.rail
           ? w.planRailLine(w.cx(from), w.cy(from), w.cx(to), w.cy(to))

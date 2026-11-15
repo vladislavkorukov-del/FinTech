@@ -79,6 +79,7 @@ extension MagWorldRails on MagWorld {
     for (final c in plan.cells) {
       rails[c] = 1;
     }
+    _keepWay(plan, rail: true); // S27
     _spend(cost, 'rails');
     roadVersion++;
     return null;

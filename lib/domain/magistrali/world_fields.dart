@@ -53,6 +53,11 @@ mixin _MagWorldLater {
   final hubs = <int>{};
   final excursions = <int>{};
   final futures = <MagFuture>[];
+
+  /// S27: free ways (roads and track along curves) and their index.
+  final ways = <MagWay>[];
+  MagWayIndex? _wayIndex;
+  int _wayKey = -1;
   final _biomes = <int, MagBiome>{};
   final subsidies = <MagSubsidy>[];
   final uniqueOffered = <String>{};

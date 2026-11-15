@@ -48,6 +48,7 @@ part 'world_credit.dart';
 part 'world_ports.dart';
 part 'world_trace.dart';
 part 'world_hubs.dart';
+part 'world_ways.dart';
 part 'world_routes.dart';
 part 'world_plans.dart';
 part 'world_save.dart';
@@ -58,8 +59,11 @@ part 'world_tech.dart';
 
 /// A road to build: its cells in order and what it costs.
 class MagRoadPlan {
-  const MagRoadPlan(this.cells, this.cost, this.type, [this.error]);
+  const MagRoadPlan(this.cells, this.cost, this.type, [this.error, this.shape]);
   final List<int> cells;
+
+  /// S27: the free curve drawn for it (null: a way of cells).
+  final List<(double, double)>? shape;
   final int cost;
   final MagRoad type;
 
@@ -336,6 +340,7 @@ class MagWorld with _MagWorldLater {
       if (roads[c] < plan.type.index) roads[c] = plan.type.index;
     }
     _noteEntrances(plan.cells);
+    _keepWay(plan, rail: false); // S27
     _spend(cost, 'roads');
     roadVersion++;
     return null;

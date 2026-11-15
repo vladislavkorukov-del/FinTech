@@ -21,12 +21,15 @@ import 'mag_buildings.dart';
 import 'mag_town_art.dart';
 import 'mag_iso.dart';
 import 'mag_port_art.dart';
+import 'mag_ways_art.dart';
 
 /// What the screen wants drawn over the world.
 class MagOverlay {
   /// A road being drawn: its cells and whether it can be built.
   List<int> plan = const [];
   bool planOk = true;
+  List<Offset> planShape = const []; // S27: the free curve drawn
+  Object? planKey; // the plan the curve belongs to
 
   /// Cells marked for removal.
   List<int> removing = const [];
@@ -90,8 +93,7 @@ class MagRenderer {
   final _industries = <String, ui.Picture>{};
   final _labels = <String, TextPainter>{};
   final _decor = MagDecorCache();
-  int _netVersion = -1;
-  List<NetChain> _roadChains = const [], _railChains = const [];
+  final _net = MagNet(); // S27: free ways, chains, junctions
   MagMap? _map;
   int _terrain = 0;
 
@@ -155,18 +157,9 @@ class MagRenderer {
     canvas.transform(MagIso.ground);
     paintBiomeTint(canvas, w); // MAP-09
     paintSeasonTint(canvas, w); // S22
-    if (_netVersion != w.roadVersion) {
-      _netVersion = w.roadVersion;
-      _roadChains = netChains(w, (c) => w.roads[c]);
-      _railChains = netChains(w, (c) => w.rails[c]);
-    }
+    _net.refresh(w);
     final netView = Rect.fromLTRB(x0 - 2.0, y0 - 2.0, x1 + 3.0, y1 + 3.0);
-    bool seen(NetChain ch) => netView.overlaps(ch.bounds(w.size));
-    for (var pass = 0; pass < 3; pass++) {
-      for (final ch in _roadChains) {
-        if (seen(ch)) paintRoadChain(canvas, ch, pass);
-      }
-    }
+    _net.paintRoads(canvas, netView, w.size);
     if (o.traffic) paintTraffic(canvas, w, x0, y0, x1, y1);
     if (w.regionsLocked) paintClosedRegions(canvas, w); // MAP-08
     for (var y = y0; y <= y1; y++) {
@@ -194,9 +187,7 @@ class MagRenderer {
         Paint()..color = const Color(0xFFD9D4C7),
       );
     }
-    for (final ch in _railChains) {
-      if (seen(ch)) paintRailChain(canvas, ch);
-    }
+    _net.paintRails(canvas, netView, w.size);
     for (final p in w.ports.keys) {
       final x = w.cx(p), y = w.cy(p);
       if (x < x0 - 1 || y < y0 - 1 || x > x1 + 1 || y > y1 + 1) continue;
@@ -209,8 +200,11 @@ class MagRenderer {
         Rect.fromLTWH(w.cx(c) + .08, w.cy(c) + .08, .84, .84),
         Paint()
           ..color = (o.planOk ? MagPalette.mint : const Color(0xFFE0566B))
-              .withValues(alpha: .55),
+              .withValues(alpha: o.planShape.length > 1 ? .18 : .55),
       );
+    }
+    if (identical(o.planKey, o.plan)) {
+      paintPlanShape(canvas, w, o.planShape, o.planOk); // S27
     }
     for (final c in o.removing) {
       canvas.drawRect(

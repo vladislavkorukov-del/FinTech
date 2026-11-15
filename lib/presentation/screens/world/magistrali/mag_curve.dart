@@ -110,9 +110,17 @@ class _Smooth {
 
 final _smooth = Expando<_Smooth>();
 
-_Smooth _smoothOf(MagWorld w, List<int> path) => _smooth[path] ??= _Smooth(
-  wayLine([for (final c in path) Offset(w.cx(c) + .5, w.cy(c) + .5)]),
-);
+_Smooth _smoothOf(MagWorld w, List<int> path) => _smooth[path] ??= _Smooth(() {
+  // S27: on a free way a vehicle rides the curve itself (the point of
+  // the curve in each cell), only softened; elsewhere the cells' line.
+  if (w.ways.isNotEmpty && path.any(w.onWay)) {
+    return smoothLine([
+      for (final c in path)
+        if (w.wayPoint(c) case (final x, final y)) Offset(x, y),
+    ], rounds: 2);
+  }
+  return wayLine([for (final c in path) Offset(w.cx(c) + .5, w.cy(c) + .5)]);
+}());
 
 /// A point on a vehicle's way at [s] (cell index along [path] plus the
 /// part of the way to the next cell), and the heading there. The way is
