@@ -75,7 +75,6 @@ class _CategoryOrbitChartState extends State<CategoryOrbitChart>
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
     final items = widget.slices.where((e) => e.amount > 0).toList();
     if (items.isEmpty) {
       return EmptyState(
@@ -90,12 +89,11 @@ class _CategoryOrbitChartState extends State<CategoryOrbitChart>
     final total = items.fold<int>(0, (a, b) => a + b.amount);
     final units = _percentageUnits(items, total);
     final mids = <String, double>{};
-    final sweeps = <String, double>{};
+    final sweeps = _displaySweeps(items, total, widget.diameter);
     var angle = -math.pi / 2;
     for (final item in items) {
-      final sweep = item.amount / total * math.pi * 2;
+      final sweep = sweeps[item.id]!;
       mids[item.id] = angle + sweep / 2;
-      sweeps[item.id] = sweep;
       angle += sweep;
     }
     final selected = items.where((e) => e.id == _selected).firstOrNull;
@@ -114,7 +112,7 @@ class _CategoryOrbitChartState extends State<CategoryOrbitChart>
           builder: (context, box) {
             final width = box.maxWidth;
             final d = math.min(widget.diameter, width - 16);
-            final stroke = d * .14;
+            final stroke = d * _strokeShare;
             final ringR = d / 2 - stroke / 2 - 6;
             final height = d + 24;
             final center = Offset(width / 2, height / 2);
@@ -158,21 +156,22 @@ class _CategoryOrbitChartState extends State<CategoryOrbitChart>
                               stroke: stroke,
                               selected: _selected,
                               t: t,
-                              track: scheme.onSurface.withValues(alpha: .06),
+                              dark:
+                                  Theme.of(context).brightness ==
+                                  Brightness.dark,
                             ),
                           ),
                         ),
                       ),
-                      // Icons on the sectors wide enough for them.
+                      // Every capsule and dot carries its symbol.
                       for (final item in items)
-                        if (sweeps[item.id]! >= .34 || items.length == 1)
-                          _icon(item, center, ringR, mids[item.id]!, stroke, t),
+                        _icon(item, center, ringR, mids[item.id]!, stroke, t),
                       // The middle: the period and total, or the chosen one.
                       Positioned(
-                        left: center.dx - (ringR - stroke / 2) * .82,
-                        top: center.dy - (ringR - stroke / 2) * .6,
-                        width: (ringR - stroke / 2) * 1.64,
-                        height: (ringR - stroke / 2) * 1.2,
+                        left: center.dx - (ringR - stroke / 2) * .7,
+                        top: center.dy - (ringR - stroke / 2) * .55,
+                        width: (ringR - stroke / 2) * 1.4,
+                        height: (ringR - stroke / 2) * 1.1,
                         child: IgnorePointer(
                           child: FittedBox(
                             fit: BoxFit.scaleDown,
@@ -266,7 +265,11 @@ class _CategoryOrbitChartState extends State<CategoryOrbitChart>
         Text(
           main,
           maxLines: 1,
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+          style: const TextStyle(
+            fontSize: 26,
+            fontWeight: FontWeight.w700,
+            letterSpacing: -.6,
+          ),
         ),
         const SizedBox(height: 2),
         Text(
@@ -289,10 +292,8 @@ class _CategoryOrbitChartState extends State<CategoryOrbitChart>
     final lifted = _selected == item.id ? t * 6 : 0.0;
     final dimmed = _selected != null && _selected != item.id;
     final p = center + Offset(math.cos(mid), math.sin(mid)) * (r + lifted);
-    final size = math.min(stroke * .62, 20.0);
-    final ink = item.color.computeLuminance() > .5
-        ? Colors.black.withValues(alpha: .7)
-        : Colors.white;
+    final size = math.min(stroke * .5, 18.0);
+    const ink = Color(0xCC1C1C1E);
     return Positioned(
       left: p.dx - stroke / 2,
       top: p.dy - stroke / 2,
@@ -429,6 +430,58 @@ Map<String, int> _percentageUnits(List<CategorySlice> items, int total) {
   return result;
 }
 
+/// The ring's thickness as a share of its diameter.
+const _strokeShare = .15;
+
+/// Soft pastel of a category colour, as in a health-score ring.
+Color _pastel(Color c, bool dark) {
+  final h = HSLColor.fromColor(c);
+  return h
+      .withSaturation((h.saturation * .75).clamp(.35, .7))
+      .withLightness(dark ? .7 : .78)
+      .toColor();
+}
+
+/// Sweeps for the ring: a share of the circle per category, but never less
+/// than a round dot, so small categories stay visible and tappable.
+Map<String, double> _displaySweeps(
+  List<CategorySlice> items,
+  int total,
+  double diameter,
+) {
+  final stroke = diameter * _strokeShare;
+  final radius = diameter / 2 - stroke / 2 - 6;
+  final full = math.pi * 2;
+  final minimum = math.min((stroke + 6) / radius, full / items.length);
+  final small = <String>{};
+  // Fix the smallest ones at the minimum until the rest fit.
+  for (var pass = 0; pass < items.length; pass++) {
+    final restAmount = items
+        .where((e) => !small.contains(e.id))
+        .fold<int>(0, (a, e) => a + e.amount);
+    final restAngle = full - minimum * small.length;
+    final add = items.where(
+      (e) =>
+          !small.contains(e.id) &&
+          e.amount / math.max(restAmount, 1) * restAngle < minimum,
+    );
+    if (add.isEmpty) break;
+    small.addAll(add.map((e) => e.id));
+  }
+  final restAmount = items
+      .where((e) => !small.contains(e.id))
+      .fold<int>(0, (a, e) => a + e.amount);
+  final restAngle = full - minimum * small.length;
+  return {
+    for (final e in items)
+      e.id: small.contains(e.id)
+          ? minimum
+          : e.amount / math.max(restAmount, 1) * restAngle,
+  };
+}
+
+/// Capsules with round ends and clear gaps; a category too small for a
+/// capsule is a round dot (Finora Release, after a health-score ring).
 class _RingPainter extends CustomPainter {
   _RingPainter({
     required this.items,
@@ -438,46 +491,50 @@ class _RingPainter extends CustomPainter {
     required this.stroke,
     required this.selected,
     required this.t,
-    required this.track,
+    required this.dark,
   });
   final List<CategorySlice> items;
   final Map<String, double> sweeps;
   final Offset center;
   final double radius, stroke, t;
   final String? selected;
-  final Color track;
+  final bool dark;
 
   @override
   void paint(Canvas canvas, Size size) {
-    canvas.drawCircle(
-      center,
-      radius,
-      Paint()
-        ..color = track
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = stroke,
-    );
     var start = -math.pi / 2;
+    // The round ends reach half a stroke past the arc; leave 6 px between.
+    final gap = items.length == 1 ? 0.0 : (stroke + 6) / radius;
     for (final item in items) {
       final sweep = sweeps[item.id]!;
       final chosen = selected == item.id;
-      final gap = items.length == 1 ? 0.0 : math.min(.05, sweep * .25);
       final lift = chosen ? 6 * t : 0.0;
       final mid = start + sweep / 2;
       final c = center + Offset(math.cos(mid), math.sin(mid)) * lift;
-      canvas.drawArc(
-        Rect.fromCircle(center: c, radius: radius),
-        start + gap / 2,
-        sweep - gap,
-        false,
-        Paint()
-          ..color = item.color.withValues(
-            alpha: selected == null || chosen ? 1 : 1 - .55 * t,
-          )
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = stroke + (chosen ? 6 * t : 0)
-          ..strokeCap = StrokeCap.butt,
-      );
+      final paint = Paint()
+        ..color = _pastel(
+          item.color,
+          dark,
+        ).withValues(alpha: selected == null || chosen ? 1 : 1 - .55 * t)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = stroke + (chosen ? 4 * t : 0)
+        ..strokeCap = StrokeCap.round;
+      final arc = items.length == 1 ? math.pi * 2 - .001 : sweep - gap;
+      if (arc > .01) {
+        canvas.drawArc(
+          Rect.fromCircle(center: c, radius: radius),
+          mid - arc / 2,
+          arc,
+          false,
+          paint,
+        );
+      } else {
+        canvas.drawCircle(
+          c + Offset(math.cos(mid), math.sin(mid)) * radius,
+          paint.strokeWidth / 2,
+          Paint()..color = paint.color,
+        );
+      }
       start += sweep;
     }
   }

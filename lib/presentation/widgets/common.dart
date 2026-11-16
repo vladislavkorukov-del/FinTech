@@ -1,4 +1,3 @@
-import 'grouped_list.dart';
 import 'package:flutter/material.dart' hide InputDecoration, Text;
 import 'package:intl/intl.dart';
 
@@ -118,7 +117,7 @@ class SurfaceCard extends StatelessWidget {
     enabled: onTap != null,
     // Liquid glass over the painted backdrop (see GlassSurface).
     child: GlassSurface(
-      radius: 22,
+      radius: 16,
       padding: padding,
       base: color,
       onTap: onTap,
@@ -183,29 +182,15 @@ class CategoryBadge extends StatelessWidget {
   final double size;
   @override
   Widget build(BuildContext context) {
-    final colors = FinanceColors.of(context);
-    final dark = Theme.of(context).brightness == Brightness.dark;
-    final c =
-        color ??
-        (category == null
-            ? colors.iconForeground
-            : TileColors.vivid(Color(category!.color)));
-    // Release: the category's own colour, a clear tint behind its icon.
-    return Container(
+    // iOS-strict: just the line symbol, no tile behind it.
+    final c = color ?? Theme.of(context).colorScheme.onSurface;
+    return SizedBox(
       width: size,
       height: size,
-      decoration: ShapeDecoration(
-        color: category == null && color == null
-            ? colors.iconBackground
-            : c.withValues(alpha: dark ? .24 : .16),
-        shape: RoundedSuperellipseBorder(
-          borderRadius: BorderRadius.circular(size * .3),
-        ),
-      ),
       child: Icon(
         icon ?? categoryIcon(category?.icon ?? 26),
         color: c,
-        size: 22,
+        size: 24,
       ),
     );
   }

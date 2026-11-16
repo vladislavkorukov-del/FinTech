@@ -178,6 +178,16 @@ abstract final class AppTheme {
   static const coffeeMilk = Color(0xFFF7F5F1);
   static const coffeeCoral = Color(0xFFD67C7E);
 
+  // Night (Coffee's dark mode, Release): deep blue-green, cool greys and
+  // one lime accent; panels are thin and light, barely off the backdrop.
+  static const nightBase = Color(0xFF0B1419);
+  static const nightCard = Color(0xFF13202A);
+  static const nightElevated = Color(0xFF1A2933);
+  static const nightLine = Color(0xFF2A3A45);
+  static const nightInk = Color(0xFFF1F4F6);
+  static const nightMuted = Color(0xFF9DABB5);
+  static const nightLime = Color(0xFFD2F25C);
+
   static const presetNames = <String, String>{
     'coffee': 'Coffee · тёплый',
     'electric': 'Electric · яркий',
@@ -1078,34 +1088,32 @@ abstract final class AppTheme {
   static ThemeData _coffee(Brightness brightness) {
     final dark = brightness == Brightness.dark;
     final inherited = _palette(brightness, 'lime');
-    final ink = dark ? coffeeMilk : coffeeBase;
-    final secondaryInk = dark
-        ? const Color(0xFFBEAD99)
-        : const Color(0xFF6E5C48);
+    final ink = dark ? nightInk : coffeeBase;
+    final secondaryInk = dark ? nightMuted : const Color(0xFF6E5C48);
     // 1.94: the light mode is calm paper — white cards, a warm sand fill,
     // one caramel accent; no lemon or coral washing over everything.
-    final card = dark ? coffeeCard : const Color(0xFFFFFFFF);
-    final base = dark ? coffeeBase : const Color(0xFFF5F2ED);
-    final elevated = dark ? const Color(0xFF30251B) : const Color(0xFFF0EBE4);
-    final outline = dark ? const Color(0xFF665541) : const Color(0xFFE3DBD1);
+    final card = dark ? nightCard : const Color(0xFFFFFFFF);
+    final base = dark ? nightBase : const Color(0xFFF5F2ED);
+    final elevated = dark ? nightElevated : const Color(0xFFF0EBE4);
+    final outline = dark ? nightLine : const Color(0xFFE3DBD1);
     // The accent: lemon on espresso; caramel on paper.
-    final accent = dark ? coffeeHighlight : const Color(0xFF82552D);
-    final onAccent = dark ? coffeeBase : const Color(0xFFFFFFFF);
+    final accent = dark ? nightLime : const Color(0xFF82552D);
+    final onAccent = dark ? nightBase : const Color(0xFFFFFFFF);
     // What a chosen chip, segment or day sits on.
-    final chosen = dark ? coffeeHighlight : const Color(0xFFF1E3D2);
+    final chosen = dark ? nightLime : const Color(0xFFF1E3D2);
     final scheme = inherited.colorScheme.copyWith(
       primary: accent,
       onPrimary: onAccent,
       primaryContainer: dark
-          ? const Color(0xFF3E3420)
+          ? const Color(0xFF2A3A1E)
           : const Color(0xFFF1E3D2),
       onPrimaryContainer: ink,
-      secondary: coffeeTaupe,
+      secondary: dark ? nightMuted : coffeeTaupe,
       onSecondary: coffeeMilk,
       secondaryContainer: elevated,
       onSecondaryContainer: ink,
-      tertiary: dark ? const Color(0xFFC1A98B) : const Color(0xFF6E5C48),
-      onTertiary: dark ? coffeeBase : coffeeMilk,
+      tertiary: dark ? nightMuted : const Color(0xFF6E5C48),
+      onTertiary: dark ? nightBase : coffeeMilk,
       surface: card,
       onSurface: ink,
       onSurfaceVariant: secondaryInk,
@@ -1114,30 +1122,32 @@ abstract final class AppTheme {
       surfaceContainer: card,
       surfaceContainerHigh: elevated,
       surfaceContainerHighest: dark
-          ? const Color(0xFF403021)
+          ? const Color(0xFF22323D)
           : const Color(0xFFE8E1D8),
-      outline: dark ? const Color(0xFF9B856B) : const Color(0xFF9C8B78),
+      outline: dark ? const Color(0xFF6E7F8A) : const Color(0xFF9C8B78),
       outlineVariant: outline,
       error: dark ? coffeeCoral : const Color(0xFF9F4448),
-      onError: dark ? coffeeBase : coffeeMilk,
+      onError: dark ? nightBase : coffeeMilk,
       errorContainer: dark ? const Color(0xFF4B2524) : const Color(0xFFF4DDDA),
       onErrorContainer: dark
           ? const Color(0xFFF7D1CF)
           : const Color(0xFF6B2429),
-      inverseSurface: dark ? coffeeMilk : coffeeCard,
-      onInverseSurface: dark ? coffeeBase : coffeeMilk,
-      inversePrimary: dark ? const Color(0xFF6E5C48) : const Color(0xFFE9C79F),
+      inverseSurface: dark ? nightInk : coffeeCard,
+      onInverseSurface: dark ? nightBase : coffeeMilk,
+      inversePrimary: dark ? const Color(0xFF5E7024) : const Color(0xFFE9C79F),
     );
     final colors = FinanceColors(
       expense: dark ? coffeeCoral : const Color(0xFFB0473F),
-      income: dark ? coffeeHighlight : const Color(0xFF2F7A55),
-      iconBackground: dark ? coffeeTaupe : const Color(0xFFF1E9DF),
-      iconForeground: dark ? coffeeMilk : const Color(0xFF6B4A2E),
-      brandBackground: dark ? coffeeCard : const Color(0xFFF1E9DF),
+      income: dark ? nightLime : const Color(0xFF2F7A55),
+      iconBackground: dark ? nightElevated : const Color(0xFFF1E9DF),
+      iconForeground: dark ? nightInk : const Color(0xFF6B4A2E),
+      brandBackground: dark ? nightCard : const Color(0xFFF1E9DF),
       brandForeground: ink,
     );
     Color selectedInk(Set<WidgetState> states) =>
-        states.contains(WidgetState.selected) ? coffeeBase : ink;
+        states.contains(WidgetState.selected)
+        ? (dark ? nightBase : coffeeBase)
+        : ink;
     Color selectedFill(Set<WidgetState> states) =>
         states.contains(WidgetState.selected) ? chosen : card;
     final buttonShape = RoundedRectangleBorder(
@@ -1148,14 +1158,14 @@ abstract final class AppTheme {
       scaffoldBackgroundColor: base,
       extensions: [
         colors,
-        // Espresso: warm brown top, amber and coral light for the glass.
+        // Night: a deep blue-green fall of light, a breath of lime and teal.
         dark
-            ? FinanceBackdrop(
-                top: Color.lerp(base, coffeeTaupe, .22)!,
-                middle: base,
-                bottom: Color.lerp(base, coffeeCoral, .06)!,
-                glowA: const Color(0x42FFA94D),
-                glowB: const Color(0x33FF6F8E),
+            ? const FinanceBackdrop(
+                top: Color(0xFF15303A),
+                middle: nightBase,
+                bottom: Color(0xFF0D1B23),
+                glowA: Color(0x1FC9F05A),
+                glowB: Color(0x2E2E9FB4),
               )
             // Paper with honey and coral light: colour for the glass to
             // frost.
@@ -1209,30 +1219,29 @@ abstract final class AppTheme {
         ),
       ),
       textSelectionTheme: TextSelectionThemeData(
-        cursorColor: dark ? coffeeHighlight : accent,
+        cursorColor: accent,
         selectionColor: accent.withValues(alpha: .24),
-        selectionHandleColor: coffeeTaupe,
+        selectionHandleColor: dark ? nightLime : coffeeTaupe,
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
-          backgroundColor: dark ? coffeeTaupe : accent,
-          foregroundColor: coffeeMilk,
+          // Night: a lime button with dark text.
+          backgroundColor: accent,
+          foregroundColor: dark ? nightBase : coffeeMilk,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 17),
           shape: buttonShape,
         ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: dark ? coffeeTaupe : accent,
-          foregroundColor: coffeeMilk,
+          backgroundColor: accent,
+          foregroundColor: dark ? nightBase : coffeeMilk,
           surfaceTintColor: Colors.transparent,
           shape: buttonShape,
         ),
       ),
       textButtonTheme: TextButtonThemeData(
-        style: TextButton.styleFrom(
-          foregroundColor: dark ? coffeeMilk : accent,
-        ),
+        style: TextButton.styleFrom(foregroundColor: dark ? nightInk : accent),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
@@ -1299,14 +1308,12 @@ abstract final class AppTheme {
         indicatorColor: chosen,
         selectedIconTheme: const IconThemeData(color: coffeeBase),
         unselectedIconTheme: IconThemeData(color: secondaryInk),
-        selectedLabelTextStyle: TextStyle(
-          color: dark ? coffeeHighlight : coffeeBase,
-        ),
+        selectedLabelTextStyle: TextStyle(color: dark ? nightLime : coffeeBase),
         unselectedLabelTextStyle: TextStyle(color: secondaryInk),
       ),
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
         backgroundColor: card,
-        selectedItemColor: dark ? coffeeHighlight : coffeeBase,
+        selectedItemColor: dark ? nightLime : coffeeBase,
         unselectedItemColor: secondaryInk,
       ),
       progressIndicatorTheme: ProgressIndicatorThemeData(

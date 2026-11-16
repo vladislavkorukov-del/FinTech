@@ -190,15 +190,15 @@ void main() {
       );
     }
   }
-  test('Coffee keeps its dark look; the light one is calm paper', () {
+  test('Coffee at night is deep blue-green with lime; light is paper', () {
     final dark = AppTheme.build(Brightness.dark, 'coffee');
     final light = AppTheme.build(Brightness.light, 'coffee');
-    expect(dark.scaffoldBackgroundColor, const Color(0xFF0F0C08));
-    expect(dark.colorScheme.surface, const Color(0xFF231A12));
-    expect(dark.colorScheme.primary, const Color(0xFFFBE88C));
+    expect(dark.scaffoldBackgroundColor, AppTheme.nightBase);
+    expect(dark.colorScheme.surface, AppTheme.nightCard);
+    expect(dark.colorScheme.primary, AppTheme.nightLime);
     expect(
       dark.filledButtonTheme.style!.backgroundColor!.resolve({}),
-      const Color(0xFF886B4B),
+      AppTheme.nightLime,
     );
     // 1.94: the light mode became calm paper with white cards.
     expect(light.scaffoldBackgroundColor, const Color(0xFFF5F2ED));

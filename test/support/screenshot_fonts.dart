@@ -37,5 +37,32 @@ Future<void> loadScreenshotFonts() async {
       ).readAsBytes().then((bytes) => ByteData.sublistView(bytes)),
     );
   }
-  await Future.wait([text.load(), icons.load(), inter.load()]);
+  // SF-style symbols (package cupertino_icons), from the pub cache.
+  final cupertino = FontLoader('packages/cupertino_icons/CupertinoIcons');
+  final home =
+      Platform.environment['PUB_CACHE'] ??
+      '${Platform.environment['HOME']}/.pub-cache';
+  final hosted = Directory('$home/hosted/pub.dev');
+  final package = hosted.existsSync()
+      ? hosted
+            .listSync()
+            .where((e) => e.path.contains('/cupertino_icons-'))
+            .map((e) => e.path)
+            .toList()
+      : <String>[];
+  package.sort();
+  final cupertinoFile = File(
+    package.isEmpty ? '' : '${package.last}/assets/CupertinoIcons.ttf',
+  );
+  if (cupertinoFile.existsSync()) {
+    cupertino.addFont(
+      cupertinoFile.readAsBytes().then((b) => ByteData.sublistView(b)),
+    );
+  }
+  await Future.wait([
+    text.load(),
+    icons.load(),
+    inter.load(),
+    if (cupertinoFile.existsSync()) cupertino.load(),
+  ]);
 }

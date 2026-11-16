@@ -43,7 +43,7 @@ class GlassSurface extends StatelessWidget {
     final dark = theme.brightness == Brightness.dark;
     final body = base ?? theme.colorScheme.surface;
     var c = dark
-        ? Color.lerp(body, Colors.black, .25)!.withValues(alpha: .58)
+        ? Color.lerp(body, Colors.black, .1)!.withValues(alpha: .62)
         : Color.lerp(body, Colors.white, .5)!.withValues(alpha: .52);
     if (tint != null) {
       c = Color.alphaBlend(tint.withValues(alpha: (dark ? .1 : .09) * k), c);
@@ -138,7 +138,7 @@ class _GlassShadowPainter extends CustomPainter {
     canvas.drawRSuperellipse(
       body.shift(const Offset(0, 6)),
       Paint()
-        ..color = Colors.black.withValues(alpha: dark ? .2 : .06)
+        ..color = Colors.black.withValues(alpha: dark ? 0 : .06)
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 14),
     );
   }
@@ -176,9 +176,9 @@ class GlassPanePainter extends CustomPainter {
             end: Alignment.bottomRight,
             stops: const [0, .45, 1],
             colors: [
-              Colors.white.withValues(alpha: dark ? .1 : .3),
-              Colors.white.withValues(alpha: dark ? .02 : .06),
-              Colors.white.withValues(alpha: dark ? .05 : .14),
+              Colors.white.withValues(alpha: dark ? .035 : .3),
+              Colors.white.withValues(alpha: dark ? 0 : .06),
+              Colors.white.withValues(alpha: dark ? 0 : .14),
             ],
           ).createShader(rect),
       )
@@ -188,7 +188,7 @@ class GlassPanePainter extends CustomPainter {
         Paint()
           ..style = PaintingStyle.stroke
           ..strokeWidth = 3
-          ..color = Colors.white.withValues(alpha: dark ? .07 : .3)
+          ..color = Colors.white.withValues(alpha: dark ? 0 : .3)
           ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3),
       );
   }
@@ -215,17 +215,19 @@ class GlassRimPainter extends CustomPainter {
       ).deflate(.6),
       Paint()
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 1.2
+        ..strokeWidth = dark ? 1 : 1.2
         ..shader = LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           stops: const [0, .3, .7, 1],
           colors: dark
+              // Night: one even, quiet hairline — the panel barely
+              // stands off the backdrop.
               ? [
-                  Colors.white.withValues(alpha: .55),
+                  Colors.white.withValues(alpha: .13),
                   Colors.white.withValues(alpha: .08),
-                  Colors.white.withValues(alpha: .06),
-                  Colors.white.withValues(alpha: .35),
+                  Colors.white.withValues(alpha: .07),
+                  Colors.white.withValues(alpha: .09),
                 ]
               : [
                   Colors.white,

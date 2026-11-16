@@ -70,29 +70,27 @@ void main() {
         }
       }
     });
-    test('coffee: warm surfaces, taupe (dark) and caramel (light) buttons', () {
+    test('coffee: night (lime) and paper (caramel) buttons', () {
       final dark = AppTheme.build(Brightness.dark, 'coffee');
       final light = AppTheme.build(Brightness.light, 'coffee');
-      expect(dark.scaffoldBackgroundColor, const Color(0xFF0F0C08));
-      expect(dark.colorScheme.surface, const Color(0xFF231A12));
-      expect(dark.colorScheme.onSurface, const Color(0xFFF7F5F1));
-      expect(dark.colorScheme.primary, const Color(0xFFFBE88C));
-      expect(dark.colorScheme.secondary, const Color(0xFF886B4B));
+      expect(dark.scaffoldBackgroundColor, AppTheme.nightBase);
+      expect(dark.colorScheme.surface, AppTheme.nightCard);
+      expect(dark.colorScheme.onSurface, AppTheme.nightInk);
+      expect(dark.colorScheme.primary, AppTheme.nightLime);
+      expect(dark.colorScheme.secondary, AppTheme.nightMuted);
       expect(dark.extension<FinanceColors>()!.expense, const Color(0xFFD67C7E));
-      // 1.94: the light mode is calm paper with a caramel accent; the
-      // lemon highlight stays the dark mode's selection.
+      // Release: the night mode is blue-green with lime buttons; the light
+      // mode stays calm paper with a caramel accent.
       for (final theme in [dark, light]) {
         final isDark = theme == dark;
-        final chosen = isDark
-            ? const Color(0xFFFBE88C)
-            : const Color(0xFFF1E3D2);
+        final chosen = isDark ? AppTheme.nightLime : const Color(0xFFF1E3D2);
         expect(
           theme.filledButtonTheme.style!.backgroundColor!.resolve({}),
-          isDark ? const Color(0xFF886B4B) : const Color(0xFF82552D),
+          isDark ? AppTheme.nightLime : const Color(0xFF82552D),
         );
         expect(
           theme.filledButtonTheme.style!.foregroundColor!.resolve({}),
-          const Color(0xFFF7F5F1),
+          isDark ? AppTheme.nightBase : const Color(0xFFF7F5F1),
         );
         expect(
           theme.segmentedButtonTheme.style!.backgroundColor!.resolve({
@@ -118,7 +116,7 @@ void main() {
           theme.datePickerTheme.dayForegroundColor!.resolve({
             WidgetState.selected,
           }),
-          const Color(0xFF0F0C08),
+          isDark ? AppTheme.nightBase : const Color(0xFF0F0C08),
         );
         expect(theme.dialogTheme.backgroundColor, theme.colorScheme.surface);
         final colors = theme.extension<FinanceColors>()!;

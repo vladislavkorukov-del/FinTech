@@ -389,7 +389,7 @@ Widget _lifted(Widget child, int index, Animation<double> animation) =>
             type: MaterialType.transparency,
             child: DecoratedBox(
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(22),
+                borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: .28 * t),
@@ -503,18 +503,14 @@ class _AccountRow extends StatelessWidget {
       child: Row(
         children: [
           accountBankLogo(context, account, size: 32) ??
-              Container(
+              SizedBox(
                 width: 32,
                 height: 32,
-                // Release: the account's own colour.
-                decoration: TileColors.tile(
-                  TileColors.vivid(Color(account.color)),
-                  radius: 10,
-                ),
+                // iOS-strict: the line symbol alone.
                 child: Icon(
                   categoryIcon(account.icon),
-                  color: Colors.white,
-                  size: 18,
+                  color: Theme.of(context).colorScheme.onSurface,
+                  size: 24,
                 ),
               ),
           const SizedBox(width: 10),
@@ -837,6 +833,52 @@ class _PaymentSection extends StatelessWidget {
   }
 }
 
+/// A thin diagonal arrow in a hairline ring — money in (down-left) or out
+/// (up-right) — drawn like an SF Symbol.
+class _FlowArrowPainter extends CustomPainter {
+  const _FlowArrowPainter({required this.up, required this.color});
+  final bool up;
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final c = size.center(Offset.zero);
+    final r = size.shortestSide / 2;
+    final line = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round
+      ..color = color;
+    canvas.drawCircle(
+      c,
+      r - .5,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = .9
+        ..color = color.withValues(alpha: .45),
+    );
+    final d = r * .38;
+    final from = up ? c + Offset(-d, d) : c + Offset(d, -d);
+    final to = up ? c + Offset(d, -d) : c + Offset(-d, d);
+    final head = r * .5;
+    final back = up ? const Offset(-1, 0) : const Offset(1, 0);
+    final down = up ? const Offset(0, 1) : const Offset(0, -1);
+    canvas.drawPath(
+      Path()
+        ..moveTo(from.dx, from.dy)
+        ..lineTo(to.dx, to.dy)
+        ..moveTo(to.dx + back.dx * head, to.dy + back.dy * head)
+        ..lineTo(to.dx, to.dy)
+        ..lineTo(to.dx + down.dx * head, to.dy + down.dy * head),
+      line..strokeWidth = 1.3,
+    );
+  }
+
+  @override
+  bool shouldRepaint(_FlowArrowPainter old) =>
+      old.up != up || old.color != color;
+}
+
 class _SummaryTile extends StatelessWidget {
   const _SummaryTile({
     required this.title,
@@ -862,7 +904,7 @@ class _SummaryTile extends StatelessWidget {
         key: ValueKey('summary-$title'),
         // 1.17: compact — tighter padding, a smaller amount, minimal gap.
         child: GlassSurface(
-          radius: 14,
+          radius: 12,
           onTap: onTap,
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
           child: Column(
@@ -871,14 +913,12 @@ class _SummaryTile extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Container(
-                    width: 16,
-                    height: 16,
-                    decoration: BoxDecoration(
-                      color: tone,
-                      shape: BoxShape.circle,
+                  CustomPaint(
+                    size: const Size.square(15),
+                    painter: _FlowArrowPainter(
+                      up: icon == Icons.north_east_rounded,
+                      color: scheme.onSurfaceVariant,
                     ),
-                    child: Icon(icon, size: 11, color: Colors.white),
                   ),
                   const SizedBox(width: 5),
                   Flexible(

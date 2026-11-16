@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'presentation/i18n.dart';
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart' hide InputDecoration, Text;
 import 'package:flutter/foundation.dart'
     show LicenseRegistry, LicenseEntryWithLineBreaks;
@@ -529,8 +530,8 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
                   padding: const EdgeInsets.only(top: 8, left: 6, right: 6),
                   child: Row(
                     children: [
-                      _nav(0, Icons.space_dashboard_outlined, tr('Главная')),
-                      _nav(1, Icons.receipt_long_outlined, tr('Операции')),
+                      _nav(0, CupertinoIcons.house, tr('Главная')),
+                      _nav(1, CupertinoIcons.doc_text, tr('Операции')),
                       // 1.20: the living voice orb replaces «+»; a long press
                       // still adds an operation by hand.
                       Expanded(
@@ -546,8 +547,8 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
                           ),
                         ),
                       ),
-                      _nav(3, Icons.bar_chart_rounded, tr('Аналитика')),
-                      _nav(4, Icons.grid_view_rounded, tr('Ещё')),
+                      _nav(3, CupertinoIcons.chart_bar, tr('Аналитика')),
+                      _nav(4, CupertinoIcons.square_grid_2x2, tr('Ещё')),
                     ],
                   ),
                 ),

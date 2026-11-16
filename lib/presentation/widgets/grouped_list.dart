@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart' hide InputDecoration, Text;
 import 'package:flutter/services.dart';
 
@@ -47,6 +48,52 @@ abstract final class TileColors {
     ),
   );
 }
+
+/// The thin SF-style symbol for a Material icon used in the menus; icons
+/// without a match stay as they are.
+IconData iosIcon(IconData icon) => _ios[icon] ?? icon;
+
+final _ios = <IconData, IconData>{
+  Icons.account_balance_wallet_rounded: CupertinoIcons.creditcard,
+  Icons.calendar_month_rounded: CupertinoIcons.calendar,
+  Icons.category_rounded: CupertinoIcons.square_grid_2x2,
+  Icons.emoji_events_rounded: CupertinoIcons.rosette,
+  Icons.event_repeat_rounded: CupertinoIcons.arrow_2_circlepath,
+  Icons.people_alt_rounded: CupertinoIcons.person_2,
+  Icons.pie_chart_rounded: CupertinoIcons.chart_pie,
+  Icons.settings_rounded: CupertinoIcons.gear_alt,
+  Icons.shopping_basket_rounded: CupertinoIcons.cart,
+  Icons.star_rounded: CupertinoIcons.star,
+  Icons.article_rounded: CupertinoIcons.doc_text,
+  Icons.cleaning_services_rounded: CupertinoIcons.sparkles,
+  Icons.cloud_upload_rounded: CupertinoIcons.cloud_upload,
+  Icons.download_rounded: CupertinoIcons.arrow_down_to_line,
+  Icons.face_retouching_natural_rounded: CupertinoIcons.smiley,
+  Icons.grid_on_rounded: CupertinoIcons.table,
+  Icons.info_rounded: CupertinoIcons.info_circle,
+  Icons.lightbulb_rounded: CupertinoIcons.lightbulb,
+  Icons.lock_rounded: CupertinoIcons.lock,
+  Icons.move_down_rounded: CupertinoIcons.arrow_down_doc,
+  Icons.notifications_active_rounded: CupertinoIcons.bell,
+  Icons.notifications_rounded: CupertinoIcons.bell,
+  Icons.palette_outlined: CupertinoIcons.paintbrush,
+  Icons.palette_rounded: CupertinoIcons.paintbrush,
+  Icons.power_settings_new_rounded: CupertinoIcons.power,
+  Icons.record_voice_over_outlined: CupertinoIcons.mic,
+  Icons.record_voice_over_rounded: CupertinoIcons.mic,
+  Icons.restart_alt_rounded: CupertinoIcons.arrow_counterclockwise,
+  Icons.restore_rounded: CupertinoIcons.arrow_uturn_left,
+  Icons.school_rounded: CupertinoIcons.book,
+  Icons.storage_rounded: CupertinoIcons.archivebox,
+  Icons.table_chart_rounded: CupertinoIcons.table,
+  Icons.touch_app_rounded: CupertinoIcons.hand_draw,
+  Icons.translate_rounded: CupertinoIcons.globe,
+  Icons.tune_rounded: CupertinoIcons.slider_horizontal_3,
+  Icons.upload_file_rounded: CupertinoIcons.square_arrow_up,
+  Icons.vibration_rounded: CupertinoIcons.waveform,
+  Icons.volume_off_rounded: CupertinoIcons.speaker_slash,
+  Icons.widgets_rounded: CupertinoIcons.square_grid_2x2,
+};
 
 /// A titled group of rows on one card, with thin dividers between them.
 class GroupedSection extends StatelessWidget {
@@ -98,7 +145,7 @@ class GroupedSection extends StatelessWidget {
           SurfaceCard(
             padding: EdgeInsets.zero,
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(22),
+              borderRadius: BorderRadius.circular(16),
               child: Column(children: rows),
             ),
           ),
@@ -156,13 +203,14 @@ class GroupedRow extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(14, 10, 12, 10),
             child: Row(
               children: [
-                Container(
-                  width: 32,
-                  height: 32,
-                  decoration: TileColors.tile(
-                    destructive ? TileColors.red : color,
+                // iOS-strict: a thin line symbol, no tile behind it.
+                SizedBox(
+                  width: 28,
+                  child: Icon(
+                    iosIcon(icon),
+                    size: 22,
+                    color: destructive ? scheme.error : scheme.onSurface,
                   ),
-                  child: Icon(icon, size: 19, color: Colors.white),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -409,7 +457,7 @@ class SwipeToDelete extends StatelessWidget {
       margin: margin,
       decoration: BoxDecoration(
         color: scheme.error,
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -443,7 +491,7 @@ class SwipeToDelete extends StatelessWidget {
               margin: margin,
               decoration: BoxDecoration(
                 color: scheme.primary,
-                borderRadius: BorderRadius.circular(22),
+                borderRadius: BorderRadius.circular(16),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -509,7 +557,7 @@ Future<bool> confirmWithFinora(
     context: context,
     builder: (ctx) => Dialog(
       key: const ValueKey('finora-confirm'),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(22, 22, 22, 12),
         child: Column(

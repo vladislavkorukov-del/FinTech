@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart' hide InputDecoration, Text;
 import '../../domain/models.dart';
 import '../screens/entry_editor.dart';
@@ -11,9 +12,9 @@ class FinanceQuickActions extends StatelessWidget {
         MediaQuery.textScalerOf(context).scale(1) > 1.2 ||
         MediaQuery.sizeOf(context).width < 330;
     const actions = [
-      (EntryKind.income, 'Доход', Icons.add_rounded),
-      (EntryKind.expense, 'Расход', Icons.remove_rounded),
-      (EntryKind.transfer, 'Перевод', Icons.swap_horiz_rounded),
+      (EntryKind.income, 'Доход', CupertinoIcons.plus),
+      (EntryKind.expense, 'Расход', CupertinoIcons.minus),
+      (EntryKind.transfer, 'Перевод', CupertinoIcons.arrow_right_arrow_left),
     ];
     // iOS-strict: neutral buttons, one tint colour for the symbols.
     final scheme = Theme.of(context).colorScheme;
@@ -36,7 +37,7 @@ class FinanceQuickActions extends StatelessWidget {
                 ),
                 foregroundColor: scheme.onSurface,
                 shape: const RoundedSuperellipseBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(14)),
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
                 ),
               ),
               child: stacked
