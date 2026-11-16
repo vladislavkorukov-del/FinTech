@@ -28,8 +28,8 @@ void main() {
         ].reduce((a, c) => a > c ? a : c);
         // 1.16: a calm backdrop, still tinted by the theme at the top.
         expect(shift, greaterThan(.015), reason: 'top is visibly tinted');
+        // Release: one glow from the top.
         expect(b.glowA.a, greaterThan(0));
-        expect(b.glowB.a, greaterThan(0));
         final ink = theme.colorScheme.onSurface;
         for (final c in [b.top, b.middle, b.bottom]) {
           expect(_contrast(ink, c), greaterThanOrEqualTo(4.5), reason: '$c');
@@ -54,17 +54,11 @@ void main() {
     );
     expect(find.byKey(const ValueKey('finance-backdrop')), findsOneWidget);
     expect(find.text('содержимое'), findsOneWidget);
-    final box = tester.widget<DecoratedBox>(
-      find
-          .descendant(
-            of: find.byKey(const ValueKey('finance-backdrop')),
-            matching: find.byType(DecoratedBox),
-          )
-          .first,
+    // Release: one painter draws the gradient and the top glow.
+    final paint = tester.widget<CustomPaint>(
+      find.byKey(const ValueKey('finance-backdrop')),
     );
-    final gradient = (box.decoration as BoxDecoration).gradient!;
-    expect(gradient, isA<LinearGradient>());
-    expect(gradient.colors.toSet(), hasLength(greaterThan(1)));
+    expect(paint.painter, isNotNull);
   });
 
   testWidgets('backdrop stands still: no frames when idle', (tester) async {

@@ -1,9 +1,7 @@
 import 'package:finora/data/demo_data.dart';
 import 'package:finora/domain/models.dart';
 import 'package:finora/domain/voice_command_parser.dart';
-import 'package:finora/presentation/theme/app_theme.dart';
 import 'package:finora/presentation/voice_commands.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// Finance 1.23: the voice orb understands commands, not only operations.
@@ -130,32 +128,16 @@ void main() {
 
   group('theme', () {
     ThemeCommand theme(String phrase) => parse(phrase)! as ThemeCommand;
-    double hue(String id) => HSVColor.fromColor(AppTheme.accent(id)).hue;
 
-    test('a color picks a theme of that hue', () {
-      final green = theme('поменяй тему на зеленую');
-      expect(green.hue, 125);
-      expect(green.color, 'зелёный');
-      final id = VoiceCommands.pickAccent(green, 'coffee');
-      expect(hue(id), inInclusiveRange(80, 170));
-      // Already green: another green shade, so something changes.
-      final next = VoiceCommands.pickAccent(green, id);
-      expect(next, isNot(id));
-      expect(hue(next), inInclusiveRange(80, 170));
-      for (final (phrase, low, high) in [
-        ('сделай тему синей', 190.0, 240.0),
-        ('тема фиолетовая', 240.0, 300.0),
-        ('поставь красную тему', 0.0, 25.0),
-        ('хочу оранжевую тему', 20.0, 45.0),
-        // 1.55: Rose was removed, so no pink style is left to pick.
+    test('a colour keeps the one style (Release)', () {
+      for (final phrase in [
+        'поменяй тему на зеленую',
+        'сделай тему синей',
+        'серая тема',
       ]) {
-        final id = VoiceCommands.pickAccent(theme(phrase), 'coffee');
-        expect(hue(id), inInclusiveRange(low, high), reason: phrase);
+        expect(VoiceCommands.pickAccent(theme(phrase), 'coffee'), 'coffee');
       }
-      expect(
-        VoiceCommands.pickAccent(theme('серая тема'), 'coffee'),
-        'graphite',
-      );
+      expect(theme('поменяй тему на зеленую').hasColor, isTrue);
     });
 
     test('names and modes', () {
@@ -163,7 +145,7 @@ void main() {
       expect(theme('включи изумрудную тему').preset, isNull);
       expect(
         VoiceCommands.pickAccent(theme('включи изумрудную тему'), 'x'),
-        'emerald',
+        'coffee',
       );
       expect(theme('сделай темную тему').mode, 'dark');
       expect(theme('включи светлую тему').mode, 'light');

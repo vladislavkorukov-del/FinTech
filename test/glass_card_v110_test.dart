@@ -24,8 +24,8 @@ void main() {
         final ink = theme.colorScheme.onSurface;
         final secondary = theme.colorScheme.onSurfaceVariant;
         final pane = GlassSurface.pane(theme, null, null, 1);
-        // 1.0.0+120: frosted liquid glass over a blurred backdrop, readable.
-        expect(pane.a, inInclusiveRange(.45, .7));
+        // Release: matte cards — solid panels, no glass.
+        expect(pane.a, 1);
         for (final under in [backdrop.top, backdrop.middle, backdrop.bottom]) {
           // The brightest spot is right under a color orb.
           for (final orb in [

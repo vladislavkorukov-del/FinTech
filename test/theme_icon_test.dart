@@ -70,7 +70,7 @@ void main() {
         }
       }
     });
-    test('coffee: night (lime) and paper (caramel) buttons', () {
+    test('Finora: onyx and porcelain with emerald buttons', () {
       final dark = AppTheme.build(Brightness.dark, 'coffee');
       final light = AppTheme.build(Brightness.light, 'coffee');
       expect(dark.scaffoldBackgroundColor, AppTheme.nightBase);
@@ -78,15 +78,15 @@ void main() {
       expect(dark.colorScheme.onSurface, AppTheme.nightInk);
       expect(dark.colorScheme.primary, AppTheme.nightLime);
       expect(dark.colorScheme.secondary, AppTheme.nightMuted);
-      expect(dark.extension<FinanceColors>()!.expense, const Color(0xFFD67C7E));
+      expect(dark.extension<FinanceColors>()!.expense, const Color(0xFFE8776E));
       // Release: the night mode is blue-green with lime buttons; the light
       // mode stays calm paper with a caramel accent.
       for (final theme in [dark, light]) {
         final isDark = theme == dark;
-        final chosen = isDark ? AppTheme.nightLime : const Color(0xFFF1E3D2);
+        final chosen = isDark ? AppTheme.nightLime : const Color(0xFFDDEDE3);
         expect(
           theme.filledButtonTheme.style!.backgroundColor!.resolve({}),
-          isDark ? AppTheme.nightLime : const Color(0xFF82552D),
+          isDark ? AppTheme.nightLime : const Color(0xFF1F6B4A),
         );
         expect(
           theme.filledButtonTheme.style!.foregroundColor!.resolve({}),

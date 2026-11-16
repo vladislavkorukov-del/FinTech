@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
@@ -24,76 +26,73 @@ class FinanceBackground extends StatelessWidget {
 
 /// 1.42: the painted backdrop alone. Pages opened on top of another page
 /// carry their own copy, so a page is never see-through while it slides in.
+///
+/// Release: one quiet light — the base colour, and a wide soft glow of
+/// [FinanceBackdrop.glowA] falling from the top centre (no orbs).
 class FinanceBackdropLayer extends StatelessWidget {
   const FinanceBackdropLayer({super.key});
 
   @override
   Widget build(BuildContext context) {
     final b = FinanceBackdrop.of(context);
-    final base = Theme.of(context).colorScheme.surfaceContainerLowest;
     return IgnorePointer(
-      child: LayoutBuilder(
-        builder: (context, box) {
-          final size = box.biggest.shortestSide;
-          // Liquid glass: vivid colour bodies with a soft edge — under
-          // the frosted cards they blur into glowing colour, as in iOS.
-          Widget orb(Color color, double scale) => Container(
-            width: size * scale,
-            height: size * scale,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: RadialGradient(
-                stops: const [0, .5, 1],
-                colors: [
-                  color,
-                  color.withValues(alpha: color.a * .7),
-                  color.withValues(alpha: 0),
-                ],
-              ),
-            ),
-          );
-          final hue = HSLColor.fromColor(b.glowA);
-          Color shift(double by, double alpha) => hue
-              .withHue((hue.hue + by) % 360)
-              .withSaturation(.8)
-              .withLightness(.58)
-              .toColor()
-              .withValues(alpha: alpha);
-          final a = orb(b.glowA, 1.05);
-          final c = orb(b.glowB, .95);
-          final third = orb(shift(180, b.glowA.a * .45), .85);
-          return RepaintBoundary(
-            child: Stack(
-              key: const ValueKey('finance-backdrop'),
-              fit: StackFit.expand,
-              children: [
-                DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: base,
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      stops: const [0, .45, 1],
-                      colors: [b.top, b.middle, b.bottom],
-                    ),
-                  ),
-                ),
-                Positioned(top: -size * .3, right: -size * .25, child: a),
-                Positioned(
-                  top: box.maxHeight * .42,
-                  left: -size * .45,
-                  child: c,
-                ),
-                Positioned(
-                  top: box.maxHeight * .7,
-                  right: -size * .3,
-                  child: third,
-                ),
-              ],
-            ),
-          );
-        },
+      child: RepaintBoundary(
+        child: CustomPaint(
+          key: const ValueKey('finance-backdrop'),
+          painter: _BackdropPainter(b),
+          child: const SizedBox.expand(),
+        ),
       ),
     );
   }
+}
+
+class _BackdropPainter extends CustomPainter {
+  const _BackdropPainter(this.b);
+  final FinanceBackdrop b;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final rect = Offset.zero & size;
+    canvas.drawRect(
+      rect,
+      Paint()
+        ..shader = LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          stops: const [0, .4, 1],
+          colors: [b.top, b.middle, b.bottom],
+        ).createShader(rect),
+    );
+    // The glow: an ellipse wider than the screen, centred just above the
+    // top edge, fading out by about a third of the height.
+    final w = size.width * 1.5;
+    final h = math.min(size.height * .42, size.width * 1.1);
+    final glow = Rect.fromCenter(
+      center: Offset(size.width / 2, size.height * .02),
+      width: w,
+      height: h,
+    );
+    canvas
+      ..save()
+      ..translate(glow.center.dx, glow.center.dy)
+      ..scale(1, h / w)
+      ..drawCircle(
+        Offset.zero,
+        w / 2,
+        Paint()
+          ..shader = RadialGradient(
+            stops: const [0, .45, 1],
+            colors: [
+              b.glowA,
+              b.glowA.withValues(alpha: b.glowA.a * .45),
+              b.glowA.withValues(alpha: 0),
+            ],
+          ).createShader(Rect.fromCircle(center: Offset.zero, radius: w / 2)),
+      )
+      ..restore();
+  }
+
+  @override
+  bool shouldRepaint(_BackdropPainter old) => old.b != b;
 }

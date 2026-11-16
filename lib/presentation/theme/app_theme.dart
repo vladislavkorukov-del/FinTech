@@ -178,32 +178,20 @@ abstract final class AppTheme {
   static const coffeeMilk = Color(0xFFF7F5F1);
   static const coffeeCoral = Color(0xFFD67C7E);
 
-  // Night (Coffee's dark mode, Release): deep blue-green, cool greys and
-  // one lime accent; panels are thin and light, barely off the backdrop.
-  static const nightBase = Color(0xFF0B1419);
-  static const nightCard = Color(0xFF13202A);
-  static const nightElevated = Color(0xFF1A2933);
-  static const nightLine = Color(0xFF2A3A45);
-  static const nightInk = Color(0xFFF1F4F6);
-  static const nightMuted = Color(0xFF9DABB5);
-  static const nightLime = Color(0xFFD2F25C);
+  // Onyx (the dark theme): near-black with an emerald glow at the top,
+  // matte panels a shade above the backdrop, one soft emerald accent.
+  // (The `night*` names are kept for the code and tests that use them.)
+  static const nightBase = Color(0xFF080908);
+  static const nightCard = Color(0xFF121413);
+  static const nightElevated = Color(0xFF1A1D1B);
+  static const nightLine = Color(0xFF242826);
+  static const nightInk = Color(0xFFF2F3F1);
+  static const nightMuted = Color(0xFF8F9590);
+  static const nightLime = Color(0xFF7DD3A6);
 
-  static const presetNames = <String, String>{
-    'coffee': 'Coffee · тёплый',
-    'electric': 'Electric · яркий',
-    'graphite': 'Graphite · строгий',
-    'harbor': 'Harbor · морской',
-    'forest': 'Forest · природный',
-    'velvet': 'Lavender · мягкий',
-    'royal': 'Royal / Nitro · контрастный',
-    'sunset': 'Sunset · закатный',
-    'neon': 'Neon · яркий',
-    'dusk': 'Dusk · сумеречный',
-    'emerald': 'Emerald · изумрудный',
-    'tropic': 'Tropic · тропический',
-    'twilight': 'Twilight · пастельный',
-    'apricot': 'Apricot · абрикосовый',
-  };
+  /// Release: one expensive dark theme and one light theme — no colour
+  /// palettes to choose from. Stored ids of the old palettes open in it.
+  static const presetNames = <String, String>{'coffee': 'Finora · фирменный'};
 
   static Color accent(String value) => switch (value) {
     'coffee' => coffeeHighlight,
@@ -1089,30 +1077,30 @@ abstract final class AppTheme {
     final dark = brightness == Brightness.dark;
     final inherited = _palette(brightness, 'lime');
     final ink = dark ? nightInk : coffeeBase;
-    final secondaryInk = dark ? nightMuted : const Color(0xFF6E5C48);
-    // 1.94: the light mode is calm paper — white cards, a warm sand fill,
-    // one caramel accent; no lemon or coral washing over everything.
+    final secondaryInk = dark ? nightMuted : const Color(0xFF6A6F6B);
+    // Release: porcelain — white matte cards on a soft warm grey, one deep
+    // emerald accent.
     final card = dark ? nightCard : const Color(0xFFFFFFFF);
-    final base = dark ? nightBase : const Color(0xFFF5F2ED);
-    final elevated = dark ? nightElevated : const Color(0xFFF0EBE4);
-    final outline = dark ? nightLine : const Color(0xFFE3DBD1);
-    // The accent: lemon on espresso; caramel on paper.
-    final accent = dark ? nightLime : const Color(0xFF82552D);
+    final base = dark ? nightBase : const Color(0xFFF2F2EF);
+    final elevated = dark ? nightElevated : const Color(0xFFEDEDEA);
+    final outline = dark ? nightLine : const Color(0xFFE2E3DF);
+    // The accent: soft emerald at night, deep emerald by day.
+    final accent = dark ? nightLime : const Color(0xFF1F6B4A);
     final onAccent = dark ? nightBase : const Color(0xFFFFFFFF);
     // What a chosen chip, segment or day sits on.
-    final chosen = dark ? nightLime : const Color(0xFFF1E3D2);
+    final chosen = dark ? nightLime : const Color(0xFFDDEDE3);
     final scheme = inherited.colorScheme.copyWith(
       primary: accent,
       onPrimary: onAccent,
       primaryContainer: dark
-          ? const Color(0xFF2A3A1E)
-          : const Color(0xFFF1E3D2),
+          ? const Color(0xFF1C3328)
+          : const Color(0xFFDDEDE3),
       onPrimaryContainer: ink,
       secondary: dark ? nightMuted : coffeeTaupe,
       onSecondary: coffeeMilk,
       secondaryContainer: elevated,
       onSecondaryContainer: ink,
-      tertiary: dark ? nightMuted : const Color(0xFF6E5C48),
+      tertiary: dark ? nightMuted : const Color(0xFF6A6F6B),
       onTertiary: dark ? nightBase : coffeeMilk,
       surface: card,
       onSurface: ink,
@@ -1137,11 +1125,11 @@ abstract final class AppTheme {
       inversePrimary: dark ? const Color(0xFF5E7024) : const Color(0xFFE9C79F),
     );
     final colors = FinanceColors(
-      expense: dark ? coffeeCoral : const Color(0xFFB0473F),
+      expense: dark ? const Color(0xFFE8776E) : const Color(0xFFB0473F),
       income: dark ? nightLime : const Color(0xFF2F7A55),
-      iconBackground: dark ? nightElevated : const Color(0xFFF1E9DF),
-      iconForeground: dark ? nightInk : const Color(0xFF6B4A2E),
-      brandBackground: dark ? nightCard : const Color(0xFFF1E9DF),
+      iconBackground: dark ? nightElevated : const Color(0xFFEDEDEA),
+      iconForeground: dark ? nightInk : const Color(0xFF1C1F1D),
+      brandBackground: dark ? nightCard : const Color(0xFFEDEDEA),
       brandForeground: ink,
     );
     Color selectedInk(Set<WidgetState> states) =>
@@ -1158,23 +1146,22 @@ abstract final class AppTheme {
       scaffoldBackgroundColor: base,
       extensions: [
         colors,
-        // Night: a deep blue-green fall of light, a breath of lime and teal.
+        // Onyx: near-black, an emerald glow falling from the top.
+        // Porcelain: soft warm grey, a faint mint light at the top.
         dark
             ? const FinanceBackdrop(
-                top: Color(0xFF15303A),
+                top: Color(0xFF0C110E),
                 middle: nightBase,
-                bottom: Color(0xFF0D1B23),
-                glowA: Color(0x1FC9F05A),
-                glowB: Color(0x2E2E9FB4),
+                bottom: nightBase,
+                glowA: Color(0xFF1B4A39),
+                glowB: Color(0x00000000),
               )
-            // Paper with honey and coral light: colour for the glass to
-            // frost.
-            : FinanceBackdrop(
-                top: const Color(0xFFF6E7D2),
-                middle: base,
-                bottom: const Color(0xFFF3E6E2),
-                glowA: const Color(0x52FFC24D),
-                glowB: const Color(0x3DF2877E),
+            : const FinanceBackdrop(
+                top: Color(0xFFECF1EC),
+                middle: Color(0xFFF2F2EF),
+                bottom: Color(0xFFF2F2EF),
+                glowA: Color(0xFFDCEDE3),
+                glowB: Color(0x00000000),
               ),
       ],
       textTheme: inherited.textTheme.apply(bodyColor: ink, displayColor: ink),
@@ -1323,9 +1310,7 @@ abstract final class AppTheme {
       snackBarTheme: inherited.snackBarTheme.copyWith(
         backgroundColor: scheme.inverseSurface,
         contentTextStyle: TextStyle(color: scheme.onInverseSurface),
-        actionTextColor: dark
-            ? const Color(0xFF6E5C48)
-            : const Color(0xFFE9C79F),
+        actionTextColor: dark ? const Color(0xFF1F6B4A) : nightLime,
       ),
       datePickerTheme: DatePickerThemeData(
         backgroundColor: card,

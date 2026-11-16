@@ -207,12 +207,11 @@ void main() {
     });
   });
 
-  test('светлая тема заметно окрашена цветом темы', () {
-    for (final accent in ['emerald', 'aurora', 'tropic']) {
+  test('светлая тема — светлая и спокойная', () {
+    for (final accent in ['emerald', 'aurora', 'tropic', 'coffee']) {
       final light = AppTheme.app(Brightness.light, accent);
       final bg = HSLColor.fromColor(light.colorScheme.surfaceContainerLowest);
-      expect(bg.lightness, greaterThan(.8), reason: accent);
-      expect(bg.saturation, greaterThan(.12), reason: accent);
+      expect(bg.lightness, greaterThan(.9), reason: accent);
     }
   });
 }
