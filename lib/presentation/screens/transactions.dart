@@ -422,28 +422,102 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                     itemCount: entries.length,
                     itemBuilder: (ctx, i) {
                       final e = entries[i];
-                      final heading =
-                          i == 0 ||
-                          DateUtils.dateOnly(e.date) !=
-                              DateUtils.dateOnly(entries[i - 1].date);
+                      bool sameDay(int a, int b) =>
+                          DateUtils.dateOnly(entries[a].date) ==
+                          DateUtils.dateOnly(entries[b].date);
+                      final heading = i == 0 || !sameDay(i, i - 1);
+                      final last =
+                          i == entries.length - 1 || !sameDay(i, i + 1);
+                      // A day's spending, written next to its date.
+                      var spent = 0;
+                      if (heading) {
+                        for (
+                          var j = i;
+                          j < entries.length && sameDay(j, i);
+                          j++
+                        ) {
+                          final x = entries[j];
+                          if (x.kind == EntryKind.expense &&
+                              x.currency == e.currency) {
+                            spent += x.amountMinor;
+                          }
+                        }
+                      }
+                      final scheme = Theme.of(context).colorScheme;
+                      final dark =
+                          Theme.of(context).brightness == Brightness.dark;
+                      const r = Radius.circular(16);
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           if (heading)
                             Padding(
-                              padding: const EdgeInsets.only(
-                                top: 18,
-                                bottom: 8,
-                              ),
-                              child: Text(
-                                DateFormat(
-                                  'd MMMM, EEEE',
-                                  AppLanguage.intl,
-                                ).format(e.date),
-                                style: Theme.of(context).textTheme.labelSmall,
+                              padding: const EdgeInsets.fromLTRB(4, 20, 4, 8),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      DateFormat(
+                                        'd MMMM, EEEE',
+                                        AppLanguage.intl,
+                                      ).format(e.date),
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w600,
+                                        color: scheme.onSurfaceVariant,
+                                      ),
+                                    ),
+                                  ),
+                                  if (spent > 0)
+                                    Text(
+                                      '−${money(spent, e.currency)}',
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w500,
+                                        color: scheme.onSurfaceVariant,
+                                        fontFeatures: const [
+                                          FontFeature.tabularFigures(),
+                                        ],
+                                      ),
+                                    ),
+                                ],
                               ),
                             ),
-                          EntryTile(e),
+                          // Release: each day is one matte card, its
+                          // operations divided by hairlines (iOS grouped).
+                          Material(
+                            clipBehavior: Clip.antiAlias,
+                            color: dark
+                                ? Color.lerp(scheme.surface, Colors.white, .015)
+                                : scheme.surface,
+                            shape: RoundedSuperellipseBorder(
+                              borderRadius: BorderRadius.vertical(
+                                top: heading ? r : Radius.zero,
+                                bottom: last ? r : Radius.zero,
+                              ),
+                            ),
+                            child: Column(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                  ),
+                                  child: EntryTile(e),
+                                ),
+                                if (!last)
+                                  Padding(
+                                    padding: const EdgeInsets.only(left: 68),
+                                    child: Divider(
+                                      height: .5,
+                                      thickness: .5,
+                                      color: scheme.outlineVariant.withValues(
+                                        alpha: .6,
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
                         ],
                       );
                     },

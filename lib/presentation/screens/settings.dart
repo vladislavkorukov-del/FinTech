@@ -455,6 +455,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     () => c.preferences(c.data.preferences.copyWith(theme: v)),
                   ),
                 ),
+                const SizedBox(height: 14),
+                _StyleGallery(
+                  selected: p.accent,
+                  brightness: Theme.of(context).brightness,
+                  onSelected: (v) => _run(
+                    () => c.preferences(c.data.preferences.copyWith(accent: v)),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                _setting<String>(
+                  'Визуальный стиль',
+                  AppTheme.presetNames.containsKey(p.accent)
+                      ? p.accent
+                      : 'lime',
+                  AppTheme.presetNames,
+                  (v) => _run(
+                    () => c.preferences(c.data.preferences.copyWith(accent: v)),
+                  ),
+                ),
               ],
             ),
           ),
@@ -732,6 +751,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
       'system' => 'Как в системе',
       _ => 'Тёмная',
     };
+    final style = (AppTheme.presetNames[p.accent] ?? p.accent)
+        .split(' · ')
+        .first;
     return Scaffold(
       appBar: AppBar(title: Text(tr('Настройки'))),
       body: Stack(
@@ -789,7 +811,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       icon: Icons.palette_rounded,
                       color: TileColors.purple,
                       title: tr('Внешний вид'),
-                      value: themeName,
+                      value: '$themeName · $style',
                       onTap: () => _open('appearance'),
                     ),
                     // 1.28: the app language.

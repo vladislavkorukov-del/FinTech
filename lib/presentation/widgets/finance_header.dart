@@ -5,6 +5,7 @@ import '../controller.dart';
 import '../screens/management.dart';
 import 'common.dart' show money;
 import 'motion.dart';
+import '../l10n_widgets.dart';
 
 class FinanceBrand extends StatefulWidget {
   const FinanceBrand({super.key, this.animated = true});
@@ -114,20 +115,37 @@ class FinanceHeader extends StatelessWidget {
         onTap: () => open(const AccountsScreen()),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-          child: Center(
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              child: AnimatedMoney(
-                c.balance,
-                currency: c.currency,
-                textKey: const ValueKey('header-balance-amount'),
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: -.4,
-                  color: scheme.onSurface,
+          // Release: the balance is the hero — a quiet caption over a large
+          // number.
+          child: SizedBox(
+            width: double.infinity,
+            child: Column(
+              children: [
+                Text(
+                  'Общий баланс',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    color: scheme.onSurfaceVariant,
+                  ),
                 ),
-              ),
+                const SizedBox(height: 2),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: AnimatedMoney(
+                    c.balance,
+                    currency: c.currency,
+                    textKey: const ValueKey('header-balance-amount'),
+                    style: TextStyle(
+                      fontSize: 34,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: -1,
+                      color: scheme.onSurface,
+                      fontFeatures: const [FontFeature.tabularFigures()],
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ),

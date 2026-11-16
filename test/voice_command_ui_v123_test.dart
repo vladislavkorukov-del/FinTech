@@ -161,11 +161,11 @@ void main() {
   testWidgets('theme, screens and tabs by voice', (tester) async {
     await start(tester);
     final accent = controller.data.preferences.accent;
-    // Release: one style — a colour is not a theme any more.
     await say(tester, ['поменяй тему на зелёную']);
-    expect(find.textContaining('одна тема'), findsOneWidget);
-    expect(controller.data.preferences.accent, accent);
-    final green = accent;
+    await flush(tester, () => controller.data.preferences.accent != accent);
+    final green = controller.data.preferences.accent;
+    expect(green, anyOf('forest', 'emerald'));
+    expect(find.textContaining('Тема: '), findsOneWidget);
     await say(tester, ['включи светлую тему']);
     await flush(tester, () => controller.data.preferences.theme == 'light');
     expect(controller.data.preferences.theme, 'light');

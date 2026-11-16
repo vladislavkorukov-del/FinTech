@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:finora/data/finance_repository.dart';
 import 'package:finora/domain/style_ids.dart';
 import 'package:finora/presentation/theme/app_theme.dart';
+import 'package:finora/presentation/theme/reference_palettes.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
@@ -13,11 +14,17 @@ void main() {
   sqfliteFfiInit();
   test('settings styles and repository ids are the same list', () {
     expect(AppTheme.presetNames.keys.toList(), visualStyleIds);
-    // Release: the palettes are gone; their ids stay valid and open in the
-    // one style.
-    for (final id in releaseRemovedStyleIds) {
-      expect(legacyStyleIds, contains(id));
-      expect(AppTheme.styleOf(id), 'coffee');
+    for (final id in [
+      'sunset',
+      'neon',
+      'dusk',
+      'emerald',
+      'tropic',
+      'twilight',
+      'apricot',
+    ]) {
+      expect(referencePalettes, contains(id));
+      expect(AppTheme.accent(id), referencePalettes[id]!.accent);
     }
   });
 

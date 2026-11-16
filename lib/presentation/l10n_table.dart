@@ -548,6 +548,16 @@ const l10nTable = <String, List<String>>{
     'बढ़िया!',
     'رائع!',
   ],
+  'Finora · фирменный': [
+    'Finora · signature',
+    'Finora · de la marca',
+    'Finora · exclusivo',
+    'Finora · signature',
+    'Finora · Signatur',
+    'Finora · 招牌',
+    'Finora · सिग्नेचर',
+    'Finora · مميز',
+  ],
   'Coffee · тёплый': [
     'Coffee · warm',
     'Coffee · cálido',

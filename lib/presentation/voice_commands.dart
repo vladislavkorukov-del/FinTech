@@ -36,14 +36,6 @@ abstract final class VoiceCommands {
     switch (command) {
       case ThemeCommand():
         final prefs = c.data.preferences;
-        // Release: one style in dark and light; colours are not themes.
-        if (command.mode == null && (command.hasColor || command.anyOther)) {
-          say(
-            'В Финоре одна тема — тёмная и светлая. '
-            'Скажите «включи светлую тему» или «включи тёмную тему».',
-          );
-          return;
-        }
         final accent = command.mode != null && !command.hasColor
             ? prefs.accent
             : pickAccent(command, prefs.accent);

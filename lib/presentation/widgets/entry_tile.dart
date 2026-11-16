@@ -89,7 +89,10 @@ class EntryTile extends StatelessWidget {
           // Apple polish: spending reads in the normal text color, like
           // Wallet; only money coming in is marked with the accent.
           style: TextStyle(
+            fontSize: 15.5,
             fontWeight: FontWeight.w600,
+            letterSpacing: -.2,
+            fontFeatures: const [FontFeature.tabularFigures()],
             color: income
                 ? FinanceColors.of(context).income
                 : Theme.of(context).colorScheme.onSurface,

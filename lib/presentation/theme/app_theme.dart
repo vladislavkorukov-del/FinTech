@@ -189,12 +189,25 @@ abstract final class AppTheme {
   static const nightMuted = Color(0xFF8F9590);
   static const nightLime = Color(0xFF7DD3A6);
 
-  /// Release: one expensive dark theme and one light theme — no colour
-  /// palettes to choose from. Stored ids of the old palettes open in it.
-  static const presetNames = <String, String>{'coffee': 'Finora · фирменный'};
+  static const presetNames = <String, String>{
+    'coffee': 'Finora · фирменный',
+    'electric': 'Electric · яркий',
+    'graphite': 'Graphite · строгий',
+    'harbor': 'Harbor · морской',
+    'forest': 'Forest · природный',
+    'velvet': 'Lavender · мягкий',
+    'royal': 'Royal / Nitro · контрастный',
+    'sunset': 'Sunset · закатный',
+    'neon': 'Neon · яркий',
+    'dusk': 'Dusk · сумеречный',
+    'emerald': 'Emerald · изумрудный',
+    'tropic': 'Tropic · тропический',
+    'twilight': 'Twilight · пастельный',
+    'apricot': 'Apricot · абрикосовый',
+  };
 
   static Color accent(String value) => switch (value) {
-    'coffee' => coffeeHighlight,
+    'coffee' => nightLime,
     _ when referencePalettes.containsKey(value) =>
       referencePalettes[value]!.accent,
     'harbor' => referencePalettes['harbor']!.accent,

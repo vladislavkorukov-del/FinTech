@@ -102,136 +102,168 @@ void main() {
     },
   );
 
-  testWidgets('Settings switches light, dark and system with animated frames', (
-    tester,
-  ) async {
-    tester.view.physicalSize = const Size(430, 960);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
-    addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
-    await tester.pumpWidget(
-      FinoraApp(controller: controller, requireDeviceSecurity: false),
-    );
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Ещё'));
-    await tester.pumpAndSettle();
-    await tester.ensureVisible(find.byKey(const ValueKey('more-settings')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const ValueKey('more-settings')));
-    await tester.pumpAndSettle();
-    // 1.26: settings are grouped; the look has its own page.
-    await tester.tap(find.byKey(const ValueKey('settings-appearance')));
-    await tester.pumpAndSettle();
-    expect(find.byType(SettingsScreen), findsWidgets);
-
-    Future<void> select(
-      String label,
-      String value,
-      bool Function() ready,
-    ) async {
-      final before = controller.data;
-      final field = find.byWidgetPredicate(
-        (w) =>
-            w is DropdownButtonFormField<String> &&
-            w.decoration.labelText == label,
+  testWidgets(
+    'Settings changes all styles in light dark and system with animated frames',
+    (tester) async {
+      tester.view.physicalSize = const Size(430, 960);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
+      await tester.pumpWidget(
+        FinoraApp(controller: controller, requireDeviceSecurity: false),
       );
-      await Scrollable.ensureVisible(tester.element(field), alignment: .5);
       await tester.pumpAndSettle();
-      await tester.tap(field);
+      await tester.tap(find.text('Ещё'));
       await tester.pumpAndSettle();
-      // 26 styles (1.9): the open menu is a scrolling list.
-      final menu = find.byType(Scrollable).last;
-      // The menu opens scrolled to the current style: start from the top.
-      await tester.drag(menu, const Offset(0, 4000));
+      await tester.ensureVisible(find.byKey(const ValueKey('more-settings')));
       await tester.pumpAndSettle();
-      final inMenu = find.descendant(of: menu, matching: find.text(value));
-      await tester.scrollUntilVisible(inMenu, 120, scrollable: menu);
+      await tester.tap(find.byKey(const ValueKey('more-settings')));
       await tester.pumpAndSettle();
-      final item = inMenu.last;
-      await tester.tap(item);
-      await tester.pump();
-      await tester.runAsync(() async {
-        final deadline = DateTime.now().add(const Duration(seconds: 5));
-        while (identical(controller.data, before) || !ready()) {
-          if (DateTime.now().isAfter(deadline)) {
-            throw TestFailure('Settings did not persist $label/$value');
-          }
-          await Future<void>.delayed(const Duration(milliseconds: 10));
-        }
-      });
-      await tester.pump();
-      // Exercise real ThemeData.lerp frames, not only the settled endpoints.
-      for (var frame = 0; frame < 5; frame++) {
-        await tester.pump(const Duration(milliseconds: 35));
-        expect(
-          tester.takeException(),
-          isNull,
-          reason: '$label/$value frame $frame',
+      // 1.26: settings are grouped; the look has its own page.
+      await tester.tap(find.byKey(const ValueKey('settings-appearance')));
+      await tester.pumpAndSettle();
+      expect(find.byType(SettingsScreen), findsWidgets);
+
+      Future<void> select(
+        String label,
+        String value,
+        bool Function() ready,
+      ) async {
+        final before = controller.data;
+        final field = find.byWidgetPredicate(
+          (w) =>
+              w is DropdownButtonFormField<String> &&
+              w.decoration.labelText == label,
         );
-      }
-      await tester.pumpAndSettle();
-      expect(find.textContaining('Некорректные настройки'), findsNothing);
-    }
-
-    for (final mode in ['light', 'dark', 'system']) {
-      await select(
-        'Тема',
-        {
-          'light': 'Светлая',
-          'dark': 'Тёмная',
-          'system': 'Как в системе',
-        }[mode]!,
-        () => controller.data.preferences.theme == mode,
-      );
-      // Release: one style; each mode paints the matching theme.
-      final currentTheme = Theme.of(
-        tester.element(find.byType(SettingsScreen).last),
-      );
-      expect(currentTheme.scaffoldBackgroundColor, Colors.transparent);
-      expect(
-        currentTheme.colorScheme.surface,
-        AppTheme.build(currentTheme.brightness, 'coffee').colorScheme.surface,
-      );
-      if (mode == 'system') {
-        for (final brightness in [Brightness.dark, Brightness.light]) {
-          tester.platformDispatcher.platformBrightnessTestValue = brightness;
-          await tester.pump();
-          await tester.pump(const Duration(milliseconds: 75));
-          expect(tester.takeException(), isNull, reason: 'system/$brightness');
-          await tester.pumpAndSettle();
+        await Scrollable.ensureVisible(tester.element(field), alignment: .5);
+        await tester.pumpAndSettle();
+        await tester.tap(field);
+        await tester.pumpAndSettle();
+        // 26 styles (1.9): the open menu is a scrolling list.
+        final menu = find.byType(Scrollable).last;
+        // The menu opens scrolled to the current style: start from the top.
+        await tester.drag(menu, const Offset(0, 4000));
+        await tester.pumpAndSettle();
+        final inMenu = find.descendant(of: menu, matching: find.text(value));
+        await tester.scrollUntilVisible(inMenu, 120, scrollable: menu);
+        await tester.pumpAndSettle();
+        final item = inMenu.last;
+        await tester.tap(item);
+        await tester.pump();
+        await tester.runAsync(() async {
+          final deadline = DateTime.now().add(const Duration(seconds: 5));
+          while (identical(controller.data, before) || !ready()) {
+            if (DateTime.now().isAfter(deadline)) {
+              throw TestFailure('Settings did not persist $label/$value');
+            }
+            await Future<void>.delayed(const Duration(milliseconds: 10));
+          }
+        });
+        await tester.pump();
+        // Exercise real ThemeData.lerp frames, not only the settled endpoints.
+        for (var frame = 0; frame < 5; frame++) {
+          await tester.pump(const Duration(milliseconds: 35));
           expect(
-            Theme.of(
-              tester.element(find.byType(SettingsScreen).last),
-            ).brightness,
-            brightness,
+            tester.takeException(),
+            isNull,
+            reason: '$label/$value frame $frame',
+          );
+        }
+        await tester.pumpAndSettle();
+        expect(find.textContaining('Некорректные настройки'), findsNothing);
+      }
+
+      for (final mode in ['light', 'dark', 'system']) {
+        await select(
+          'Тема',
+          {
+            'light': 'Светлая',
+            'dark': 'Тёмная',
+            'system': 'Как в системе',
+          }[mode]!,
+          () => controller.data.preferences.theme == mode,
+        );
+        for (final preset in AppTheme.presetNames.entries) {
+          await select(
+            'Визуальный стиль',
+            preset.value,
+            () => controller.data.preferences.accent == preset.key,
+          );
+          final currentTheme = Theme.of(
+            tester.element(find.byType(SettingsScreen).last),
+          );
+          // The running app paints the preset's backdrop over a transparent
+          // scaffold (1.8); cards and the backdrop come from the preset.
+          final expected = AppTheme.build(currentTheme.brightness, preset.key);
+          expect(currentTheme.scaffoldBackgroundColor, Colors.transparent);
+          expect(
+            currentTheme.colorScheme.surface,
+            expected.colorScheme.surface,
+          );
+          expect(
+            currentTheme.extension<FinanceBackdrop>()!.top,
+            expected.extension<FinanceBackdrop>()!.top,
+          );
+          if (mode == 'system') {
+            for (final brightness in [Brightness.dark, Brightness.light]) {
+              tester.platformDispatcher.platformBrightnessTestValue =
+                  brightness;
+              await tester.pump();
+              await tester.pump(const Duration(milliseconds: 75));
+              expect(
+                tester.takeException(),
+                isNull,
+                reason: '${preset.key}/system/$brightness',
+              );
+              await tester.pumpAndSettle();
+              expect(
+                Theme.of(
+                  tester.element(find.byType(SettingsScreen).last),
+                ).brightness,
+                brightness,
+              );
+            }
+          }
+          // Coffee has additional component overrides. Traverse both edges
+          // between it and each preset while SettingsScreen remains mounted.
+          await select(
+            'Визуальный стиль',
+            AppTheme.presetNames['coffee']!,
+            () => controller.data.preferences.accent == 'coffee',
           );
         }
       }
-    }
-    final expectedPreferences = controller.data.preferences.toJson();
-    await tester.pumpWidget(const SizedBox.shrink());
-    controller.dispose();
-    final persisted = await tester.runAsync(() async {
-      await repository.close();
-      repository = await FinanceRepository.open(
-        factory: databaseFactoryFfi,
-        path: '${directory.path}/ledger.db',
+      await select(
+        'Визуальный стиль',
+        AppTheme.presetNames['royal']!,
+        () => controller.data.preferences.accent == 'royal',
       );
-      final seeded = await repository.load();
-      final data = seeded.copyWith(
-        preferences: seeded.preferences.copyWith(onboarded: true),
+      final expectedPreferences = controller.data.preferences.toJson();
+      await tester.pumpWidget(const SizedBox.shrink());
+      controller.dispose();
+      final persisted = await tester.runAsync(() async {
+        await repository.close();
+        repository = await FinanceRepository.open(
+          factory: databaseFactoryFfi,
+          path: '${directory.path}/ledger.db',
+        );
+        final seeded = await repository.load();
+        final data = seeded.copyWith(
+          preferences: seeded.preferences.copyWith(onboarded: true),
+        );
+        controller = FinanceController(repository, _QuietNotifications(), data);
+        return data;
+      });
+      expect(persisted!.preferences.toJson(), expectedPreferences);
+      expect(persisted.preferences.theme, 'system');
+      expect(persisted.preferences.accent, 'royal');
+      expect(persisted.toJson()..remove('preferences'), original);
+      await tester.pumpWidget(
+        FinoraApp(controller: controller, requireDeviceSecurity: false),
       );
-      controller = FinanceController(repository, _QuietNotifications(), data);
-      return data;
-    });
-    expect(persisted!.preferences.toJson(), expectedPreferences);
-    expect(persisted.preferences.theme, 'system');
-    expect(persisted.toJson()..remove('preferences'), original);
-    await tester.pumpWidget(
-      FinoraApp(controller: controller, requireDeviceSecurity: false),
-    );
-    await tester.pumpAndSettle();
-    expect(tester.takeException(), isNull);
-  });
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+    },
+  );
 }

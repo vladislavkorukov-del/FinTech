@@ -4,6 +4,7 @@ import 'package:finora/data/finance_repository.dart';
 import 'package:finora/domain/models.dart';
 import 'package:finora/presentation/controller.dart';
 import 'package:finora/presentation/screens/dashboard.dart';
+import 'package:finora/presentation/screens/settings.dart';
 import 'package:finora/presentation/theme/app_theme.dart';
 import 'package:finora/presentation/widgets/common.dart';
 import 'package:finora/presentation/widgets/motion.dart';
@@ -196,5 +197,36 @@ void main() {
     expect(inTiles(money(1971338)), findsOneWidget);
     expect(inTiles(money(9000000)), findsOneWidget);
     expect(tester.hasRunningAnimations, isFalse);
+  });
+
+  testWidgets('style gallery selects and persists a reference theme', (
+    tester,
+  ) async {
+    await mount(tester, const SettingsScreen(section: 'appearance'));
+    // Settings shows a progress indicator while it reads device security.
+    await tester.pump(const Duration(milliseconds: 500));
+    final gallery = find.byKey(const ValueKey('style-gallery'));
+    await tester.ensureVisible(gallery);
+    await tester.pump(const Duration(milliseconds: 500));
+    await tester.scrollUntilVisible(
+      find.byKey(const ValueKey('style-emerald')),
+      200,
+      scrollable: find.descendant(
+        of: gallery,
+        matching: find.byType(Scrollable),
+      ),
+    );
+    await tester.tap(find.byKey(const ValueKey('style-emerald')));
+    await tester.runAsync(() async {
+      final deadline = DateTime.now().add(const Duration(seconds: 5));
+      while (controller.data.preferences.accent != 'emerald') {
+        if (DateTime.now().isAfter(deadline)) fail('style not saved');
+        await Future<void>.delayed(const Duration(milliseconds: 10));
+      }
+    });
+    await tester.pump(const Duration(milliseconds: 500));
+    final saved = await tester.runAsync(() => repository.load());
+    expect(saved!.preferences.accent, 'emerald');
+    expect(tester.takeException(), isNull);
   });
 }

@@ -1,12 +1,8 @@
 /// Visual style ids offered in the picker (the theme layer must define each
 /// of them; a test keeps both lists equal). Legacy ids stay valid for old
 /// backups and open in the default Coffee style.
-/// Release: one style (dark + light) — the colour palettes are gone and
-/// their ids open in it.
-const visualStyleIds = <String>['coffee'];
-
-/// The palettes of 1.55–1.0.0+122, accepted from older settings.
-const releaseRemovedStyleIds = <String>[
+const visualStyleIds = <String>[
+  'coffee',
   'electric',
   'graphite',
   'harbor',
@@ -22,7 +18,6 @@ const releaseRemovedStyleIds = <String>[
   'apricot',
 ];
 const legacyStyleIds = <String>[
-  ...releaseRemovedStyleIds,
   'gold',
   'lavender',
   'blue',
