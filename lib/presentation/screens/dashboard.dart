@@ -851,12 +851,12 @@ class _SummaryTile extends StatelessWidget {
   final IconData icon;
   final VoidCallback onTap;
 
-  /// Income or expense color: the card is tinted with it.
+  /// Income or expense color of the small dot.
   final Color tone;
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    // Release: the card is tinted with its colour, the arrow in a bright dot.
+    // iOS-strict: neutral glass; the colour lives only in the small dot.
     return PressScale(
       child: KeyedSubtree(
         key: ValueKey('summary-$title'),
@@ -864,8 +864,6 @@ class _SummaryTile extends StatelessWidget {
         child: GlassSurface(
           radius: 14,
           onTap: onTap,
-          tint: tone,
-          tintStrength: 3.2,
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,

@@ -61,8 +61,7 @@ class FinanceBackdropLayer extends StatelessWidget {
               .withValues(alpha: alpha);
           final a = orb(b.glowA, 1.05);
           final c = orb(b.glowB, .95);
-          final third = orb(shift(180, b.glowA.a * .8), .85);
-          final fourth = orb(shift(-40, b.glowB.a * .8), .6);
+          final third = orb(shift(180, b.glowA.a * .45), .85);
           return RepaintBoundary(
             child: Stack(
               key: const ValueKey('finance-backdrop'),
@@ -89,11 +88,6 @@ class FinanceBackdropLayer extends StatelessWidget {
                   top: box.maxHeight * .7,
                   right: -size * .3,
                   child: third,
-                ),
-                Positioned(
-                  top: box.maxHeight * .18,
-                  left: size * .05,
-                  child: fourth,
                 ),
               ],
             ),

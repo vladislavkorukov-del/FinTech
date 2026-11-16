@@ -124,8 +124,8 @@ class FinanceBackdrop extends ThemeExtension<FinanceBackdrop> {
     middle: Color.lerp(base, tint, (dark ? .04 : .12) * strength)!,
     bottom: Color.lerp(base, second, (dark ? .05 : .16) * strength)!,
     // Release: colourful glows behind the glass.
-    glowA: glow.withValues(alpha: (dark ? .4 : .5) * strength),
-    glowB: second.withValues(alpha: (dark ? .34 : .44) * strength),
+    glowA: glow.withValues(alpha: (dark ? .26 : .34) * strength),
+    glowB: second.withValues(alpha: (dark ? .2 : .28) * strength),
   );
 
   @override
@@ -1154,8 +1154,8 @@ abstract final class AppTheme {
                 top: Color.lerp(base, coffeeTaupe, .22)!,
                 middle: base,
                 bottom: Color.lerp(base, coffeeCoral, .06)!,
-                glowA: const Color(0x6BFFA94D),
-                glowB: const Color(0x5CFF6F8E),
+                glowA: const Color(0x42FFA94D),
+                glowB: const Color(0x33FF6F8E),
               )
             // Paper with honey and coral light: colour for the glass to
             // frost.
@@ -1163,8 +1163,8 @@ abstract final class AppTheme {
                 top: const Color(0xFFF6E7D2),
                 middle: base,
                 bottom: const Color(0xFFF3E6E2),
-                glowA: const Color(0x8CFFC24D),
-                glowB: const Color(0x73F2877E),
+                glowA: const Color(0x52FFC24D),
+                glowB: const Color(0x3DF2877E),
               ),
       ],
       textTheme: inherited.textTheme.apply(bodyColor: ink, displayColor: ink),

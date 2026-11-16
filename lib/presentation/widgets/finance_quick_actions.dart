@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart' hide InputDecoration, Text;
 import '../../domain/models.dart';
 import '../screens/entry_editor.dart';
-import 'grouped_list.dart';
 import '../l10n_widgets.dart';
 
 class FinanceQuickActions extends StatelessWidget {
@@ -16,15 +15,10 @@ class FinanceQuickActions extends StatelessWidget {
       (EntryKind.expense, 'Расход', Icons.remove_rounded),
       (EntryKind.transfer, 'Перевод', Icons.swap_horiz_rounded),
     ];
-    // Release: three bright tinted buttons — green income, red expense,
-    // blue transfer.
+    // iOS-strict: neutral buttons, one tint colour for the symbols.
     final scheme = Theme.of(context).colorScheme;
     final dark = Theme.of(context).brightness == Brightness.dark;
-    Color tone(EntryKind kind) => switch (kind) {
-      EntryKind.income => TileColors.green,
-      EntryKind.expense => TileColors.red,
-      EntryKind.transfer => TileColors.blue,
-    };
+    Color tone(EntryKind kind) => scheme.primary;
     return Row(
       key: const ValueKey('dashboard-actions'),
       children: [
@@ -37,9 +31,8 @@ class FinanceQuickActions extends StatelessWidget {
               style: FilledButton.styleFrom(
                 minimumSize: const Size(0, 48),
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
-                backgroundColor: Color.alphaBlend(
-                  tone(actions[i].$1).withValues(alpha: dark ? .22 : .14),
-                  scheme.surface,
+                backgroundColor: scheme.surface.withValues(
+                  alpha: dark ? .55 : .7,
                 ),
                 foregroundColor: scheme.onSurface,
                 shape: const RoundedSuperellipseBorder(
