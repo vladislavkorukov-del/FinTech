@@ -1,3 +1,4 @@
+import 'dart:ui' show ImageFilter;
 import 'dart:math' as math;
 import 'presentation/i18n.dart';
 import 'dart:async';
@@ -503,41 +504,53 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
         ),
         // The bar's color runs under the system navigation area (Android 15+
         // draws apps edge to edge), so no strip of backdrop shows below it.
-        bottomNavigationBar: DecoratedBox(
-          key: const ValueKey('bottom-nav'),
-          decoration: BoxDecoration(
-            color: scheme.surface,
-            border: Border(
-              top: BorderSide(color: scheme.outlineVariant, width: .5),
-            ),
-          ),
-          child: SafeArea(
-            top: false,
-            minimum: const EdgeInsets.only(bottom: 8),
-            child: Padding(
-              padding: const EdgeInsets.only(top: 8, left: 6, right: 6),
-              child: Row(
-                children: [
-                  _nav(0, Icons.space_dashboard_outlined, tr('Главная')),
-                  _nav(1, Icons.receipt_long_outlined, tr('Операции')),
-                  // 1.20: the living voice orb replaces «+»; a long press
-                  // still adds an operation by hand.
-                  Expanded(
-                    child: Center(
-                      heightFactor: 1,
-                      child: VoiceOrb(
-                        size: 54,
-                        onTap: _voice,
-                        // 1.37: a ring of actions around Finora.
-                        onLongPress: _wheel,
-                        onLongPressMove: (p) => _openWheel?.move(p),
-                        onLongPressEnd: (p) => _openWheel?.release(p),
-                      ),
+        // Liquid glass: the bar is frosted too — the backdrop colour glows
+        // through it, under a bright hairline.
+        bottomNavigationBar: ClipRect(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+            child: DecoratedBox(
+              key: const ValueKey('bottom-nav'),
+              decoration: BoxDecoration(
+                color: scheme.surface.withValues(alpha: .62),
+                border: Border(
+                  top: BorderSide(
+                    color: Colors.white.withValues(
+                      alpha: scheme.brightness == Brightness.dark ? .14 : .8,
                     ),
+                    width: .8,
                   ),
-                  _nav(3, Icons.bar_chart_rounded, tr('Аналитика')),
-                  _nav(4, Icons.grid_view_rounded, tr('Ещё')),
-                ],
+                ),
+              ),
+              child: SafeArea(
+                top: false,
+                minimum: const EdgeInsets.only(bottom: 8),
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 8, left: 6, right: 6),
+                  child: Row(
+                    children: [
+                      _nav(0, Icons.space_dashboard_outlined, tr('Главная')),
+                      _nav(1, Icons.receipt_long_outlined, tr('Операции')),
+                      // 1.20: the living voice orb replaces «+»; a long press
+                      // still adds an operation by hand.
+                      Expanded(
+                        child: Center(
+                          heightFactor: 1,
+                          child: VoiceOrb(
+                            size: 54,
+                            onTap: _voice,
+                            // 1.37: a ring of actions around Finora.
+                            onLongPress: _wheel,
+                            onLongPressMove: (p) => _openWheel?.move(p),
+                            onLongPressEnd: (p) => _openWheel?.release(p),
+                          ),
+                        ),
+                      ),
+                      _nav(3, Icons.bar_chart_rounded, tr('Аналитика')),
+                      _nav(4, Icons.grid_view_rounded, tr('Ещё')),
+                    ],
+                  ),
+                ),
               ),
             ),
           ),

@@ -124,8 +124,8 @@ class FinanceBackdrop extends ThemeExtension<FinanceBackdrop> {
     middle: Color.lerp(base, tint, (dark ? .04 : .12) * strength)!,
     bottom: Color.lerp(base, second, (dark ? .05 : .16) * strength)!,
     // Release: colourful glows behind the glass.
-    glowA: glow.withValues(alpha: (dark ? .26 : .42) * strength),
-    glowB: second.withValues(alpha: (dark ? .2 : .34) * strength),
+    glowA: glow.withValues(alpha: (dark ? .4 : .5) * strength),
+    glowB: second.withValues(alpha: (dark ? .34 : .44) * strength),
   );
 
   @override
@@ -1148,22 +1148,23 @@ abstract final class AppTheme {
       scaffoldBackgroundColor: base,
       extensions: [
         colors,
-        // Espresso: warm brown top, lemon and coral glows instead of black.
+        // Espresso: warm brown top, amber and coral light for the glass.
         dark
-            ? FinanceBackdrop.derive(
-                dark: dark,
-                base: base,
-                tint: coffeeTaupe,
-                glow: coffeeHighlight,
-                second: coffeeCoral,
-              )
-            // Paper: a whisper of warmth at the top, no coloured glows.
-            : FinanceBackdrop(
-                top: const Color(0xFFF2EADF),
+            ? FinanceBackdrop(
+                top: Color.lerp(base, coffeeTaupe, .22)!,
                 middle: base,
-                bottom: base,
-                glowA: const Color(0x14E9C79F),
-                glowB: const Color(0x0FD9C2A5),
+                bottom: Color.lerp(base, coffeeCoral, .06)!,
+                glowA: const Color(0x6BFFA94D),
+                glowB: const Color(0x5CFF6F8E),
+              )
+            // Paper with honey and coral light: colour for the glass to
+            // frost.
+            : FinanceBackdrop(
+                top: const Color(0xFFF6E7D2),
+                middle: base,
+                bottom: const Color(0xFFF3E6E2),
+                glowA: const Color(0x8CFFC24D),
+                glowB: const Color(0x73F2877E),
               ),
       ],
       textTheme: inherited.textTheme.apply(bodyColor: ink, displayColor: ink),

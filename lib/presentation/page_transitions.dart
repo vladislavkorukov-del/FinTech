@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'widgets/finance_background.dart';
+import 'widgets/glass.dart';
 
 /// 1.42: how pages open and close. The app's pages are see-through (one
 /// painted backdrop behind everything), so the stock zoom/fade transitions
@@ -34,7 +35,10 @@ class FinoraPageTransitionsBuilder extends PageTransitionsBuilder {
     final page = RepaintBoundary(
       child: Stack(
         fit: StackFit.expand,
-        children: [const FinanceBackdropLayer(), child],
+        children: [
+          const FinanceBackdropLayer(),
+          GlassGroup(child: child),
+        ],
       ),
     );
     final below = CurvedAnimation(

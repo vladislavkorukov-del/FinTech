@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
+import 'glass.dart';
 
 /// Paints the theme's [FinanceBackdrop] behind the whole app: a quiet tinted
 /// vertical gradient and two faint glows (1.16).
@@ -14,7 +15,10 @@ class FinanceBackground extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Stack(
     fit: StackFit.expand,
-    children: [const FinanceBackdropLayer(), child],
+    children: [
+      const FinanceBackdropLayer(),
+      GlassGroup(child: child),
+    ],
   );
 }
 
@@ -31,29 +35,34 @@ class FinanceBackdropLayer extends StatelessWidget {
       child: LayoutBuilder(
         builder: (context, box) {
           final size = box.biggest.shortestSide;
-          // 1.16: two faint, fully soft glows; no defined orbs.
-          Widget glow(Color color, double scale) => Container(
+          // Liquid glass: vivid colour bodies with a soft edge — under
+          // the frosted cards they blur into glowing colour, as in iOS.
+          Widget orb(Color color, double scale) => Container(
             width: size * scale,
             height: size * scale,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               gradient: RadialGradient(
-                colors: [color, color.withValues(alpha: 0)],
+                stops: const [0, .5, 1],
+                colors: [
+                  color,
+                  color.withValues(alpha: color.a * .7),
+                  color.withValues(alpha: 0),
+                ],
               ),
             ),
           );
-          final a = glow(b.glowA, 1.15);
-          final c = glow(b.glowB, 1.0);
-          // Release: a third glow in a neighbouring hue — more colour under
-          // the glass.
           final hue = HSLColor.fromColor(b.glowA);
-          final third = glow(
-            hue
-                .withHue((hue.hue + 70) % 360)
-                .toColor()
-                .withValues(alpha: b.glowA.a * .8),
-            .95,
-          );
+          Color shift(double by, double alpha) => hue
+              .withHue((hue.hue + by) % 360)
+              .withSaturation(.8)
+              .withLightness(.58)
+              .toColor()
+              .withValues(alpha: alpha);
+          final a = orb(b.glowA, 1.05);
+          final c = orb(b.glowB, .95);
+          final third = orb(shift(180, b.glowA.a * .8), .85);
+          final fourth = orb(shift(-40, b.glowB.a * .8), .6);
           return RepaintBoundary(
             child: Stack(
               key: const ValueKey('finance-backdrop'),
@@ -70,16 +79,21 @@ class FinanceBackdropLayer extends StatelessWidget {
                     ),
                   ),
                 ),
-                Positioned(top: -size * .35, right: -size * .30, child: a),
+                Positioned(top: -size * .3, right: -size * .25, child: a),
                 Positioned(
                   top: box.maxHeight * .42,
                   left: -size * .45,
                   child: c,
                 ),
                 Positioned(
-                  bottom: -size * .3,
-                  right: -size * .35,
+                  top: box.maxHeight * .7,
+                  right: -size * .3,
                   child: third,
+                ),
+                Positioned(
+                  top: box.maxHeight * .18,
+                  left: size * .05,
+                  child: fourth,
                 ),
               ],
             ),

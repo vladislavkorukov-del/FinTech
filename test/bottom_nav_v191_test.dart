@@ -69,7 +69,12 @@ void main() {
       expect(rect.bottom, 860, reason: 'no gap under the menu');
       final box = tester.widget<DecoratedBox>(bar);
       final color = (box.decoration as BoxDecoration).color!;
-      expect(color.a, 1, reason: 'opaque, backdrop does not show through');
+      // 1.0.0+120: frosted glass — translucent over a blur of the backdrop.
+      expect(color.a, inInclusiveRange(.5, .9));
+      expect(
+        find.ancestor(of: bar, matching: find.byType(BackdropFilter)),
+        findsOneWidget,
+      );
       // The buttons stay above the system navigation area.
       final label = tester.getRect(find.text('Главная'));
       expect(label.bottom, lessThanOrEqualTo(860 - inset));

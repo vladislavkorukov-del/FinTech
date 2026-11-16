@@ -88,7 +88,17 @@ void main() {
     expect(tester.hasRunningAnimations, isFalse);
     expect(tester.binding.hasScheduledFrame, isFalse);
     expect(find.byType(GlassSurface), findsWidgets);
-    expect(find.byType(BackdropFilter), findsNothing);
+    // 1.0.0+120: frosted glass again, but every card on a page shares one
+    // backdrop pass (it sits under a GlassGroup).
+    for (final glass in find.byType(GlassSurface).evaluate()) {
+      expect(
+        find.ancestor(
+          of: find.byWidget(glass.widget),
+          matching: find.byType(BackdropGroup),
+        ),
+        findsWidgets,
+      );
+    }
     // Between each glass card and its own tap layer there is no clip.
     for (final glass in find.byType(GlassSurface).evaluate()) {
       final ink = find
@@ -119,7 +129,7 @@ void main() {
     }
   });
 
-  testWidgets('calendar day rows are glass without blur', (tester) async {
+  testWidgets('calendar day rows are glass with a shared blur', (tester) async {
     tester.view.physicalSize = const Size(400, 1600);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
@@ -138,6 +148,12 @@ void main() {
       ),
       findsOneWidget,
     );
-    expect(find.byType(BackdropFilter), findsNothing);
+    expect(
+      find.ancestor(
+        of: find.textContaining('Кафе').first,
+        matching: find.byType(BackdropGroup),
+      ),
+      findsWidgets,
+    );
   });
 }
