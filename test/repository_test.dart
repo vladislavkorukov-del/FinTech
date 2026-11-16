@@ -30,11 +30,11 @@ void main() {
   });
 
   test(
-    'new profile defaults are dark coffee and notifications opt-in',
+    'new profile defaults are dark tropic and notifications opt-in',
     () async {
       final data = await repository.load();
       expect(data.preferences.theme, 'dark');
-      expect(data.preferences.accent, 'coffee');
+      expect(data.preferences.accent, 'tropic');
       expect(data.preferences.notifications, isFalse);
       expect(data.recurring.every((r) => !r.reminderEnabled), isTrue);
       expect(data.preferences.toJson().containsKey('hideAmounts'), isFalse);

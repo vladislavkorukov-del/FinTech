@@ -189,7 +189,9 @@ abstract final class AppTheme {
   static const nightMuted = Color(0xFF8F9590);
   static const nightLime = Color(0xFF7DD3A6);
 
+  // Release: Tropic is the main style, first in the list and the default.
   static const presetNames = <String, String>{
+    'tropic': 'Tropic · тропический',
     'coffee': 'Finora · фирменный',
     'electric': 'Electric · яркий',
     'graphite': 'Graphite · строгий',
@@ -201,7 +203,6 @@ abstract final class AppTheme {
     'neon': 'Neon · яркий',
     'dusk': 'Dusk · сумеречный',
     'emerald': 'Emerald · изумрудный',
-    'tropic': 'Tropic · тропический',
     'twilight': 'Twilight · пастельный',
     'apricot': 'Apricot · абрикосовый',
   };

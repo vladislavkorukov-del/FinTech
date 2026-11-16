@@ -87,50 +87,91 @@ class BudgetCard extends StatelessWidget {
         : ratio >= .8
         ? const Color(0xFFD8AC65)
         : Theme.of(context).colorScheme.primary;
+    final scheme = Theme.of(context).colorScheme;
+    final over = spent > budget.limitMinor;
+    // Release: a compact card — name and share on one line, a thin bar,
+    // spent of limit on the left and what is left on the right.
     return SurfaceCard(
       onTap: onTap,
+      padding: const EdgeInsets.fromLTRB(18, 16, 18, 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          Row(
             children: [
-              Text(
-                budget.name,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.titleMedium,
+              Expanded(
+                child: Text(
+                  budget.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
               ),
-              const SizedBox(height: 6),
+              const SizedBox(width: 8),
               Text(
                 '${(ratio * 100).round()}%',
-                style: TextStyle(color: color, fontWeight: FontWeight.w600),
+                style: TextStyle(
+                  color: color,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 15,
+                ),
               ),
             ],
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 12),
           ClipRRect(
             borderRadius: BorderRadius.circular(10),
             child: LinearProgressIndicator(
               value: ratio.clamp(0, 1).toDouble(),
-              minHeight: 8,
+              minHeight: 6,
               color: color,
-              backgroundColor: color.withValues(alpha: .1),
+              backgroundColor: scheme.onSurface.withValues(alpha: .08),
             ),
           ),
-          const SizedBox(height: 14),
-          Text(
-            '${money(spent, budget.currency)} из ${money(budget.limitMinor, budget.currency)}',
+          const SizedBox(height: 12),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Expanded(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                  textBaseline: TextBaseline.alphabetic,
+                  children: [
+                    Text(
+                      money(spent, budget.currency),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 15,
+                      ),
+                    ),
+                    Flexible(
+                      child: Text(
+                        ' из ${money(budget.limitMinor, budget.currency)}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: scheme.onSurfaceVariant,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Text(
+                '${over ? 'Превышение' : 'Осталось'} ${money((budget.limitMinor - spent).abs(), budget.currency)}',
+                style: TextStyle(
+                  color: over ? scheme.error : scheme.onSurfaceVariant,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 5),
-          Text(
-            '${spent > budget.limitMinor ? 'Превышение' : 'Осталось'} ${money((budget.limitMinor - spent).abs(), budget.currency)}',
-            style: TextStyle(color: color),
-          ),
-          const SizedBox(height: 5),
+          const SizedBox(height: 4),
           Text(
             'Прогноз: ${money(forecast, budget.currency)}',
-            style: Theme.of(context).textTheme.bodySmall,
+            style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant),
           ),
         ],
       ),

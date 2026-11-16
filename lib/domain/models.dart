@@ -739,7 +739,7 @@ class AppPreferences {
 
   const AppPreferences({
     this.theme = 'dark',
-    this.accent = 'coffee',
+    this.accent = 'tropic',
     this.baseCurrency = 'RUB',
     this.numberFormat = 'space_comma',
     this.dateFormat = 'dd.MM.yyyy',
@@ -878,7 +878,7 @@ class AppPreferences {
 
   factory AppPreferences.fromJson(Map<String, dynamic> json) => AppPreferences(
     theme: json['theme'] as String? ?? 'dark',
-    accent: json['accent'] as String? ?? 'coffee',
+    accent: json['accent'] as String? ?? 'tropic',
     baseCurrency: json['baseCurrency'] as String? ?? 'RUB',
     numberFormat: json['numberFormat'] as String? ?? 'space_comma',
     dateFormat: json['dateFormat'] as String? ?? 'dd.MM.yyyy',

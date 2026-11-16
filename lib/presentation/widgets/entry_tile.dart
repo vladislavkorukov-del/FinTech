@@ -11,9 +11,18 @@ import '../l10n_widgets.dart';
 import '../i18n.dart';
 
 class EntryTile extends StatelessWidget {
-  const EntryTile(this.entry, {super.key, this.swipe = true, this.onTap});
+  const EntryTile(
+    this.entry, {
+    super.key,
+    this.swipe = true,
+    this.onTap,
+    this.showDate = true,
+  });
   final FinanceEntry entry;
   final bool swipe;
+
+  /// False where the date is already written above (a day's group).
+  final bool showDate;
 
   /// Overrides the default «open editor» tap (the dashboard opens a payee
   /// summary instead).
@@ -61,7 +70,7 @@ class EntryTile extends StatelessWidget {
         style: Theme.of(context).textTheme.titleMedium,
       ),
       subtitle: Text(
-        '${transfer ? '${c.account(entry.accountId)?.name} → ${c.destinationName(entry)}' : cat?.name ?? ''} · ${DateFormat('d MMM', AppLanguage.intl).format(entry.date)}${entry.status == 'posted'
+        '${transfer ? '${tr(c.account(entry.accountId)?.name ?? '')} → ${tr(c.destinationName(entry))}' : tr(cat?.name ?? '')}${showDate ? ' · ${DateFormat('d MMM', AppLanguage.intl).format(entry.date)}' : ''}${entry.status == 'posted'
             ? ''
             : entry.status == 'pending'
             ? ' · ожидает'

@@ -50,7 +50,7 @@ void main() {
       () {
         const preferences = AppPreferences();
         expect(preferences.theme, 'dark');
-        expect(preferences.accent, 'coffee');
+        expect(preferences.accent, 'tropic');
         expect(preferences.notifications, isFalse);
         final old = AppPreferences.fromJson({
           'theme': 'light',

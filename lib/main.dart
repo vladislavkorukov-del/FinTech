@@ -116,7 +116,7 @@ class _BootstrapState extends State<Bootstrap> {
     }
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.build(Brightness.dark, 'coffee'),
+      theme: AppTheme.build(Brightness.dark, 'tropic'),
       home: Scaffold(
         // The same dark sky as the system splash; the wordmark is written.
         backgroundColor: const Color(0xFF040A12),
@@ -506,48 +506,83 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
         // draws apps edge to edge), so no strip of backdrop shows below it.
         // Release: a matte bar in the card colour, no outline.
         bottomNavigationBar: Builder(
-          builder: (context) => DecoratedBox(
-            key: const ValueKey('bottom-nav'),
-            decoration: BoxDecoration(
-              color: scheme.brightness == Brightness.dark
-                  ? const Color(0xFF0E100F)
-                  : scheme.surface,
-            ),
-            child: SafeArea(
-              top: false,
-              minimum: const EdgeInsets.only(bottom: 8),
-              child: Padding(
-                padding: const EdgeInsets.only(top: 8, left: 6, right: 6),
-                child: Row(
-                  children: [
-                    _nav(0, CupertinoIcons.house, tr('Главная')),
-                    _nav(1, CupertinoIcons.doc_text, tr('Операции')),
-                    // 1.20: the living voice orb replaces «+»; a long press
-                    // still adds an operation by hand.
-                    Expanded(
-                      child: Center(
-                        heightFactor: 1,
-                        child: VoiceOrb(
-                          size: 54,
-                          onTap: _voice,
-                          // 1.37: a ring of actions around Finora.
-                          onLongPress: _wheel,
-                          onLongPressMove: (p) => _openWheel?.move(p),
-                          onLongPressEnd: (p) => _openWheel?.release(p),
-                        ),
-                      ),
-                    ),
-                    _nav(3, CupertinoIcons.chart_bar, tr('Аналитика')),
-                    _nav(4, CupertinoIcons.square_grid_2x2, tr('Ещё')),
+          builder: (context) {
+            // Release: the bar is made of the theme — the card colour
+            // mixed into the foot of the backdrop, a faint matte gradient
+            // and soft top corners, so it reads as part of the screen.
+            final backdrop = FinanceBackdrop.of(context);
+            final dark = scheme.brightness == Brightness.dark;
+            final fill = Color.lerp(
+              backdrop.bottom,
+              scheme.surface,
+              dark ? .6 : .85,
+            )!.withValues(alpha: 1);
+            return DecoratedBox(
+              key: const ValueKey('bottom-nav'),
+              decoration: BoxDecoration(
+                color: fill,
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Color.lerp(fill, Colors.white, dark ? .04 : .5)!,
+                    fill,
                   ],
                 ),
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(26),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: dark ? .25 : .06),
+                    blurRadius: 24,
+                    offset: const Offset(0, -4),
+                  ),
+                ],
               ),
-            ),
-          ),
+              child: SafeArea(
+                top: false,
+                minimum: const EdgeInsets.only(bottom: 8),
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 8, left: 6, right: 6),
+                  child: Row(
+                    children: [
+                      _nav(0, CupertinoIcons.house, tr('Главная')),
+                      _nav(1, CupertinoIcons.doc_text, tr('Операции')),
+                      // 1.20: the living voice orb replaces «+»; a long press
+                      // still adds an operation by hand.
+                      Expanded(
+                        child: Center(
+                          heightFactor: 1,
+                          child: VoiceOrb(
+                            size: 54,
+                            onTap: _voice,
+                            // 1.37: a ring of actions around Finora.
+                            onLongPress: _wheel,
+                            onLongPressMove: (p) => _openWheel?.move(p),
+                            onLongPressEnd: (p) => _openWheel?.release(p),
+                          ),
+                        ),
+                      ),
+                      _nav(3, CupertinoIcons.chart_bar, tr('Аналитика')),
+                      _nav(4, CupertinoIcons.square_grid_2x2, tr('Ещё')),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
         ),
       ),
     );
   }
+
+  static final _filled = <IconData, IconData>{
+    CupertinoIcons.house: CupertinoIcons.house_fill,
+    CupertinoIcons.doc_text: CupertinoIcons.doc_text_fill,
+    CupertinoIcons.chart_bar: CupertinoIcons.chart_bar_fill,
+    CupertinoIcons.square_grid_2x2: CupertinoIcons.square_grid_2x2_fill,
+  };
 
   Widget _nav(int index, IconData icon, String label) {
     final scheme = Theme.of(context).colorScheme;
@@ -573,14 +608,32 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(icon, color: color, size: 25),
+                // The chosen tab: a filled symbol on a soft capsule of the
+                // accent, like the iOS tab bar.
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  curve: Curves.easeOutCubic,
+                  width: 54,
+                  height: 30,
+                  decoration: ShapeDecoration(
+                    color: active
+                        ? scheme.primary.withValues(alpha: .16)
+                        : Colors.transparent,
+                    shape: const StadiumBorder(),
+                  ),
+                  child: Icon(
+                    active ? _filled[icon] ?? icon : icon,
+                    color: color,
+                    size: 23,
+                  ),
+                ),
                 const SizedBox(height: 3),
                 Text(
                   label,
                   maxLines: 1,
                   style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w500,
+                    fontSize: 10.5,
+                    fontWeight: active ? FontWeight.w600 : FontWeight.w500,
                     color: color,
                   ),
                 ),

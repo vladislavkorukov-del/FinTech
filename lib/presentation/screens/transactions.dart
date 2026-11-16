@@ -502,7 +502,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 10,
                                   ),
-                                  child: EntryTile(e),
+                                  child: EntryTile(e, showDate: false),
                                 ),
                                 if (!last)
                                   Padding(

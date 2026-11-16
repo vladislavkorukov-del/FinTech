@@ -336,19 +336,27 @@ class _RecurringScreenState extends State<RecurringScreen> {
                                 color: scheme.error,
                                 fontWeight: FontWeight.w600,
                               )
-                            : null,
+                            : TextStyle(
+                                fontSize: 13,
+                                color: scheme.onSurfaceVariant,
+                              ),
                       ),
                     ],
                   ),
                 ),
+                const SizedBox(width: 10),
+                // Release: the amount sits on the right of the name, as in a
+                // list row; the details go under in one quiet line.
+                Text(
+                  money(r.amountMinor, r.currency),
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    fontFeatures: const [FontFeature.tabularFigures()],
+                    color: plan.overdue ? scheme.error : scheme.onSurface,
+                  ),
+                ),
               ],
-            ),
-            const SizedBox(height: 14),
-            Text(
-              money(r.amountMinor, r.currency),
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                color: plan.overdue ? scheme.error : null,
-              ),
             ),
             if (plan.hasTotal) ...[
               const SizedBox(height: 8),
@@ -370,25 +378,20 @@ class _RecurringScreenState extends State<RecurringScreen> {
                 style: Theme.of(context).textTheme.bodySmall,
               ),
             ],
-            const SizedBox(height: 5),
+            const SizedBox(height: 10),
             Text(
-              r.enabled
-                  ? (r.automatic
-                        ? 'Автоматическая операция при запуске'
-                        : 'Вручную')
-                  : 'Приостановлен',
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-            const SizedBox(height: 5),
-            Text(
-              !r.enabled
+              '${r.enabled ? (r.automatic ? 'Автоматическая операция при запуске' : 'Вручную') : 'Приостановлен'}'
+              ' · '
+              '${!r.enabled
                   ? 'Напоминание приостановлено'
                   : r.reminderEnabled
                   ? c.data.preferences.notifications
                         ? 'Напоминание: ${_reminderLeadNames[r.reminderDaysBefore] ?? 'в день платежа'}, ${r.reminderHour.toString().padLeft(2, '0')}:${r.reminderMinute.toString().padLeft(2, '0')}'
                         : 'Напоминание отключено в настройках'
-                  : 'Без напоминания',
-              style: Theme.of(context).textTheme.bodySmall,
+                  : 'Без напоминания'}',
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant),
             ),
           ],
         ),

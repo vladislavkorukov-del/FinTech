@@ -73,10 +73,7 @@ class AccountsScreen extends StatelessWidget {
           Row(
             children: [
               accountBankLogo(context, a) ??
-                  CategoryBadge(
-                    icon: categoryIcon(a.icon),
-                    color: Color(a.color),
-                  ),
+                  CategoryBadge(icon: categoryIcon(a.icon)),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -103,15 +100,26 @@ class AccountsScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              const Icon(Icons.north_east_rounded, size: 19),
+              Icon(
+                Icons.chevron_right_rounded,
+                size: 20,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ],
           ),
-          const SizedBox(height: 24),
+          // Release: a calmer card — the balance under the name, large but
+          // not shouting, without an empty gap.
+          const SizedBox(height: 14),
           FittedBox(
             fit: BoxFit.scaleDown,
             child: Text(
               money(FinanceEngine.balance(a, c.data.entries), a.currency),
-              style: Theme.of(context).textTheme.headlineLarge,
+              style: const TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.w700,
+                letterSpacing: -.6,
+                fontFeatures: [FontFeature.tabularFigures()],
+              ),
             ),
           ),
           if (a.excluded)

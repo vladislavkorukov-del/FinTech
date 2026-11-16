@@ -2,6 +2,7 @@
 /// of them; a test keeps both lists equal). Legacy ids stay valid for old
 /// backups and open in the default Coffee style.
 const visualStyleIds = <String>[
+  'tropic',
   'coffee',
   'electric',
   'graphite',
@@ -13,7 +14,6 @@ const visualStyleIds = <String>[
   'neon',
   'dusk',
   'emerald',
-  'tropic',
   'twilight',
   'apricot',
 ];
