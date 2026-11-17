@@ -443,7 +443,7 @@ class _AnimatedBar extends StatelessWidget {
     curve: Curves.easeOutCubic,
     builder: (context, v, _) => ClipRRect(
       borderRadius: BorderRadius.circular(height),
-      child: LinearProgressIndicator(
+      child: GradientProgress(
         value: v,
         minHeight: height,
         color: color,

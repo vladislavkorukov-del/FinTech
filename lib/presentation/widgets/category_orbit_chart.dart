@@ -48,15 +48,32 @@ class CategoryOrbitChart extends StatefulWidget {
 }
 
 class _CategoryOrbitChartState extends State<CategoryOrbitChart>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   String? _selected;
   late final _lift = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 260),
   );
 
+  /// Release: the ring grows round on first show.
+  late final _grow = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 900),
+  );
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (MediaQuery.disableAnimationsOf(context)) {
+      _grow.value = 1;
+    } else if (_grow.value == 0 && !_grow.isAnimating) {
+      _grow.forward();
+    }
+  }
+
   @override
   void dispose() {
+    _grow.dispose();
     _lift.dispose();
     super.dispose();
   }
@@ -119,9 +136,10 @@ class _CategoryOrbitChartState extends State<CategoryOrbitChart>
             return SizedBox(
               height: height,
               child: AnimatedBuilder(
-                animation: _lift,
+                animation: Listenable.merge([_lift, _grow]),
                 builder: (context, _) {
                   final t = Curves.easeOutCubic.transform(_lift.value);
+                  final grow = Curves.easeOutCubic.transform(_grow.value);
                   return Stack(
                     clipBehavior: Clip.none,
                     children: [
@@ -156,6 +174,7 @@ class _CategoryOrbitChartState extends State<CategoryOrbitChart>
                               stroke: stroke,
                               selected: _selected,
                               t: t,
+                              grow: grow,
                               dark:
                                   Theme.of(context).brightness ==
                                   Brightness.dark,
@@ -165,7 +184,15 @@ class _CategoryOrbitChartState extends State<CategoryOrbitChart>
                       ),
                       // Every capsule and dot carries its symbol.
                       for (final item in items)
-                        _icon(item, center, ringR, mids[item.id]!, stroke, t),
+                        _icon(
+                          item,
+                          center,
+                          ringR,
+                          mids[item.id]!,
+                          stroke,
+                          t,
+                          fade: ((grow - .5) * 2).clamp(0.0, 1.0),
+                        ),
                       // The middle: the period and total, or the chosen one.
                       Positioned(
                         left: center.dx - (ringR - stroke / 2) * .7,
@@ -287,8 +314,9 @@ class _CategoryOrbitChartState extends State<CategoryOrbitChart>
     double r,
     double mid,
     double stroke,
-    double t,
-  ) {
+    double t, {
+    double fade = 1,
+  }) {
     final lifted = _selected == item.id ? t * 6 : 0.0;
     final dimmed = _selected != null && _selected != item.id;
     final p = center + Offset(math.cos(mid), math.sin(mid)) * (r + lifted);
@@ -308,7 +336,7 @@ class _CategoryOrbitChartState extends State<CategoryOrbitChart>
           behavior: HitTestBehavior.opaque,
           onTap: () => _select(item.id),
           child: Opacity(
-            opacity: dimmed ? 1 - .5 * t : 1,
+            opacity: (dimmed ? 1 - .5 * t : 1) * fade,
             child: Icon(item.icon, size: size, color: ink),
           ),
         ),
@@ -492,7 +520,9 @@ class _RingPainter extends CustomPainter {
     required this.selected,
     required this.t,
     required this.dark,
+    this.grow = 1,
   });
+  final double grow;
   final List<CategorySlice> items;
   final Map<String, double> sweeps;
   final Offset center;
@@ -503,10 +533,11 @@ class _RingPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     var start = -math.pi / 2;
+    if (grow <= 0) return;
     // The round ends reach half a stroke past the arc; leave 6 px between.
     final gap = items.length == 1 ? 0.0 : (stroke + 6) / radius;
     for (final item in items) {
-      final sweep = sweeps[item.id]!;
+      final sweep = sweeps[item.id]! * grow;
       final chosen = selected == item.id;
       final lift = chosen ? 6 * t : 0.0;
       final mid = start + sweep / 2;

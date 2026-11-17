@@ -55,7 +55,11 @@ class GlassSurface extends StatelessWidget {
           onTap: onTap,
           borderRadius: r,
           customBorder: RoundedSuperellipseBorder(borderRadius: r),
-          child: Padding(padding: padding, child: child),
+          // Release: the content is its own layer, so a counter or ring
+          // animating inside does not repaint the card and its shadow.
+          child: RepaintBoundary(
+            child: Padding(padding: padding, child: child),
+          ),
         ),
       ),
     );

@@ -121,7 +121,7 @@ class BudgetCard extends StatelessWidget {
           const SizedBox(height: 12),
           ClipRRect(
             borderRadius: BorderRadius.circular(10),
-            child: LinearProgressIndicator(
+            child: GradientProgress(
               value: ratio.clamp(0, 1).toDouble(),
               minHeight: 6,
               color: color,

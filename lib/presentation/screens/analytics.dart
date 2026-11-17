@@ -371,7 +371,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                         children: [
                           Text(g.name),
                           const SizedBox(height: 10),
-                          LinearProgressIndicator(
+                          GradientProgress(
                             value:
                                 (FinanceEngine.goalSaved(g, c.data.entries) /
                                         g.targetMinor)
@@ -420,7 +420,7 @@ class _Comparison extends StatelessWidget {
     final total = income + expense;
     return Column(
       children: [
-        LinearProgressIndicator(
+        GradientProgress(
           value: total == 0 ? 0 : income / total,
           color: FinanceColors.of(context).income,
           backgroundColor: Theme.of(
@@ -430,7 +430,7 @@ class _Comparison extends StatelessWidget {
           borderRadius: BorderRadius.circular(7),
         ),
         const SizedBox(height: 5),
-        LinearProgressIndicator(
+        GradientProgress(
           value: total == 0 ? 0 : expense / total,
           color: FinanceColors.of(context).expense,
           backgroundColor: Theme.of(

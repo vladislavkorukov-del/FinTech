@@ -34,7 +34,8 @@ class VoiceOrb extends StatefulWidget {
   /// Bumped by the app shell on every touch to wake her.
   static final activity = ValueNotifier<int>(0);
 
-  static const idle = Duration(seconds: 10);
+  // Release: rests sooner — her glow costs every frame while awake.
+  static const idle = Duration(seconds: 4);
 
   @override
   State<VoiceOrb> createState() => _VoiceOrbState();

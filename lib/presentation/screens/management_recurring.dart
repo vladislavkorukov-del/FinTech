@@ -362,7 +362,7 @@ class _RecurringScreenState extends State<RecurringScreen> {
               const SizedBox(height: 8),
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: LinearProgressIndicator(
+                child: GradientProgress(
                   value: plan.progress.clamp(0.0, 1.0),
                   minHeight: 7,
                 ),

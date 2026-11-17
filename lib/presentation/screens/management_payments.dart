@@ -174,7 +174,7 @@ class PaymentPlanScreen extends StatelessWidget {
                   const SizedBox(height: 10),
                   ClipRRect(
                     borderRadius: BorderRadius.circular(8),
-                    child: LinearProgressIndicator(
+                    child: GradientProgress(
                       value: plan.progress.clamp(0.0, 1.0),
                       minHeight: 8,
                     ),

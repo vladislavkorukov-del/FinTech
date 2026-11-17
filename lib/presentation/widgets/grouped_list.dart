@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart' hide InputDecoration, Text;
+import 'package:flutter/foundation.dart' show ValueListenable;
 import 'package:flutter/services.dart';
 
 import 'common.dart';
@@ -527,6 +528,173 @@ class _SwipeToConfirmState extends State<SwipeToConfirm>
   }
 }
 
+/// Gives a [Dismissible] a live swipe progress (0–1) for its background.
+class SwipeProgress extends StatefulWidget {
+  const SwipeProgress({super.key, required this.builder});
+  final Widget Function(BuildContext context, ValueNotifier<double> progress)
+  builder;
+  @override
+  State<SwipeProgress> createState() => _SwipeProgressState();
+}
+
+class _SwipeProgressState extends State<SwipeProgress> {
+  final _progress = ValueNotifier<double>(0);
+  @override
+  void dispose() {
+    _progress.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.builder(context, _progress);
+}
+
+/// What shows under a swiped row (Release): a soft gradient that deepens
+/// toward the edge, a drawn symbol that comes alive with the swipe and a
+/// label fading in. [delete] draws the bin (its lid lifts), otherwise
+/// [icon] is shown.
+class SwipeBackdrop extends StatelessWidget {
+  const SwipeBackdrop({
+    super.key,
+    required this.progress,
+    required this.color,
+    required this.label,
+    this.delete = false,
+    this.icon,
+    this.end = true,
+    this.margin = EdgeInsets.zero,
+    this.radius = 16,
+  });
+  final ValueListenable<double> progress;
+  final Color color;
+  final String label;
+  final bool delete, end;
+  final IconData? icon;
+  final EdgeInsets margin;
+  final double radius;
+
+  /// The delete colour: a deep coral rather than a flat warning red.
+  static const coral = Color(0xFFE5484D);
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: margin,
+    child: ValueListenableBuilder<double>(
+      valueListenable: progress,
+      builder: (context, p, _) {
+        final t = (p / .35).clamp(0.0, 1.0);
+        final symbol = SizedBox.square(
+          dimension: 34,
+          child: Center(
+            child: Container(
+              width: 22 + 12 * t,
+              height: 22 + 12 * t,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white.withValues(alpha: .18 * t),
+              ),
+              child: delete
+                  ? CustomPaint(
+                      size: const Size.square(20),
+                      painter: _BinPainter(lid: t, color: Colors.white),
+                    )
+                  : Icon(icon, size: 19, color: Colors.white),
+            ),
+          ),
+        );
+        final text = Opacity(
+          opacity: t,
+          child: Text(
+            label,
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w600,
+              fontSize: 14,
+            ),
+          ),
+        );
+        return DecoratedBox(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(radius),
+            gradient: LinearGradient(
+              begin: end ? Alignment.centerLeft : Alignment.centerRight,
+              end: end ? Alignment.centerRight : Alignment.centerLeft,
+              colors: [
+                color.withValues(alpha: 0),
+                color.withValues(alpha: .55 + .2 * t),
+                Color.lerp(color, Colors.black, .12)!,
+              ],
+              stops: const [0, .55, 1],
+            ),
+          ),
+          child: Align(
+            alignment: end ? Alignment.centerRight : Alignment.centerLeft,
+            child: Padding(
+              padding: EdgeInsets.only(
+                left: end ? 0 : 18 + 6 * t,
+                right: end ? 18 + 6 * t : 0,
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: end
+                    ? [text, const SizedBox(width: 8), symbol]
+                    : [symbol, const SizedBox(width: 8), text],
+              ),
+            ),
+          ),
+        );
+      },
+    ),
+  );
+}
+
+/// A thin bin whose lid lifts as [lid] goes 0 → 1.
+class _BinPainter extends CustomPainter {
+  const _BinPainter({required this.lid, required this.color});
+  final double lid;
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final s = size.shortestSide;
+    final line = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = s * .085
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round
+      ..color = color;
+    // Body with two ribs.
+    final top = s * .34;
+    canvas.drawPath(
+      Path()
+        ..moveTo(s * .24, top)
+        ..lineTo(s * .3, s * .88)
+        ..lineTo(s * .7, s * .88)
+        ..lineTo(s * .76, top),
+      line,
+    );
+    canvas
+      ..drawLine(Offset(s * .43, s * .48), Offset(s * .44, s * .74), line)
+      ..drawLine(Offset(s * .57, s * .48), Offset(s * .56, s * .74), line);
+    // The lid, hinged at its right end.
+    final hinge = Offset(s * .84, s * .24);
+    canvas
+      ..save()
+      ..translate(hinge.dx, hinge.dy)
+      ..rotate(-.55 * lid)
+      ..translate(-hinge.dx, -hinge.dy)
+      ..drawLine(Offset(s * .16, s * .24), hinge, line)
+      ..drawLine(Offset(s * .4, s * .24), Offset(s * .42, s * .13), line)
+      ..drawLine(Offset(s * .42, s * .13), Offset(s * .58, s * .13), line)
+      ..drawLine(Offset(s * .58, s * .13), Offset(s * .6, s * .24), line)
+      ..restore();
+  }
+
+  @override
+  bool shouldRepaint(_BinPainter old) => old.lid != lid || old.color != color;
+}
+
 /// Swipe left to delete (Finora 1.28): a red strip with a bin follows the
 /// finger; Finora asks before anything goes. [onDelete] may refuse with a
 /// FormatException (an account with operations) — then nothing is removed.
@@ -553,31 +721,18 @@ class SwipeToDelete extends StatelessWidget {
   final IconData rightIcon;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) =>
+      SwipeProgress(builder: (context, progress) => _build(context, progress));
+
+  Widget _build(BuildContext context, ValueNotifier<double> progress) {
     final scheme = Theme.of(context).colorScheme;
     final right = onSwipeRight;
-    final delete = Container(
-      alignment: Alignment.centerRight,
-      padding: const EdgeInsets.only(right: 24),
+    final delete = SwipeBackdrop(
+      progress: progress,
+      color: SwipeBackdrop.coral,
+      label: 'Удалить',
+      delete: true,
       margin: margin,
-      decoration: BoxDecoration(
-        color: scheme.error,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            'Удалить',
-            style: TextStyle(
-              color: scheme.onError,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(width: 8),
-          Icon(Icons.delete_outline_rounded, color: scheme.onError),
-        ],
-      ),
     );
     return Dismissible(
       key: ObjectKey(key),
@@ -588,30 +743,16 @@ class SwipeToDelete extends StatelessWidget {
         DismissDirection.endToStart: .35,
         DismissDirection.startToEnd: .3,
       },
+      onUpdate: (d) => progress.value = d.progress,
       background: right == null
           ? delete
-          : Container(
-              alignment: Alignment.centerLeft,
-              padding: const EdgeInsets.only(left: 24),
+          : SwipeBackdrop(
+              progress: progress,
+              color: scheme.primary,
+              label: rightLabel,
+              icon: rightIcon,
+              end: false,
               margin: margin,
-              decoration: BoxDecoration(
-                color: scheme.primary,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(rightIcon, color: scheme.onPrimary),
-                  const SizedBox(width: 8),
-                  Text(
-                    rightLabel,
-                    style: TextStyle(
-                      color: scheme.onPrimary,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
             ),
       secondaryBackground: right == null ? null : delete,
       confirmDismiss: (direction) async {

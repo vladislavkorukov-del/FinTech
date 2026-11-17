@@ -7,6 +7,7 @@ import '../controller.dart';
 import '../widgets/amount_format.dart';
 import '../widgets/common.dart';
 import '../widgets/entry_tile.dart';
+import '../widgets/motion.dart';
 import 'entry_editor.dart';
 import '../l10n_widgets.dart';
 import '../i18n.dart';
@@ -444,7 +445,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                         }
                       }
                       final scheme = Theme.of(context).colorScheme;
-                      return Column(
+                      final row = Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           if (heading)
@@ -503,6 +504,8 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                           ),
                         ],
                       );
+                      // The first rows arrive one after another.
+                      return i < 12 ? Reveal(index: i, child: row) : row;
                     },
                   ),
           ),

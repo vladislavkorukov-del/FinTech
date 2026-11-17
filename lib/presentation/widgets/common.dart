@@ -6,6 +6,7 @@ import '../theme/icon_catalog.dart';
 import '../theme/app_theme.dart';
 export '../theme/app_theme.dart' show FinanceColors;
 export '../theme/icon_catalog.dart';
+export 'gradient_progress.dart';
 import 'glass.dart';
 import 'motion.dart';
 import '../l10n_widgets.dart';

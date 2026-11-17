@@ -346,7 +346,7 @@ class Dashboard extends StatelessWidget {
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
                         const SizedBox(height: 12),
-                        LinearProgressIndicator(
+                        GradientProgress(
                           value: (spent / budget.limitMinor).clamp(0, 1),
                           color: spent > budget.limitMinor
                               ? colors.expense
@@ -712,7 +712,7 @@ class _DreamRow extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 8),
-        LinearProgressIndicator(
+        GradientProgress(
           value: (saved / goal.targetMinor).clamp(0, 1),
           minHeight: 6,
           borderRadius: BorderRadius.circular(8),

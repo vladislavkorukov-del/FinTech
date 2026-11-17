@@ -479,15 +479,40 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
     final scheme = Theme.of(context).colorScheme;
     // Any touch wakes the voice orb's animation (it rests when idle).
     return Listener(
-      onPointerDown: (_) => VoiceOrb.activity.value++,
+      // Release: only a tap wakes her, not a scroll — her animation would
+      // otherwise compete with the scrolling for every frame.
+      onPointerDown: (e) => _downAt = e.position,
+      onPointerUp: (e) {
+        final from = _downAt;
+        if (from != null && (e.position - from).distance < 12) {
+          VoiceOrb.activity.value++;
+        }
+        _downAt = null;
+      },
       child: Scaffold(
         // 1.22.1: the main screens have no text fields; a keyboard closing
         // late (after the welcome screens) must not squeeze them.
         resizeToAvoidBottomInset: false,
         body: SafeArea(
           bottom: false,
+          // Release: the new tab rises softly into place.
           child: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 220),
+            duration: const Duration(milliseconds: 260),
+            switchInCurve: Curves.easeOutCubic,
+            switchOutCurve: Curves.easeInCubic,
+            transitionBuilder: (child, animation) => FadeTransition(
+              opacity: animation,
+              child: SlideTransition(
+                position: Tween(
+                  begin: const Offset(0, .015),
+                  end: Offset.zero,
+                ).animate(animation),
+                child: ScaleTransition(
+                  scale: Tween(begin: .985, end: 1.0).animate(animation),
+                  child: child,
+                ),
+              ),
+            ),
             child: KeyedSubtree(
               key: ValueKey(_tab),
               child: switch (_tab) {
@@ -517,85 +542,97 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
               scheme.surface,
               dark ? .6 : .85,
             )!.withValues(alpha: 1);
-            return DecoratedBox(
-              key: const ValueKey('bottom-nav'),
-              decoration: BoxDecoration(
-                color: fill,
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Color.lerp(fill, Colors.white, dark ? .04 : .5)!,
-                    fill,
+            // Its own layer: the bar is not repainted with the screen.
+            return RepaintBoundary(
+              child: DecoratedBox(
+                key: const ValueKey('bottom-nav'),
+                decoration: BoxDecoration(
+                  color: fill,
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Color.lerp(fill, Colors.white, dark ? .04 : .5)!,
+                      fill,
+                    ],
+                  ),
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(26),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: dark ? .25 : .06),
+                      blurRadius: 24,
+                      offset: const Offset(0, -4),
+                    ),
                   ],
                 ),
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(26),
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: dark ? .25 : .06),
-                    blurRadius: 24,
-                    offset: const Offset(0, -4),
-                  ),
-                ],
-              ),
-              child: SafeArea(
-                top: false,
-                minimum: const EdgeInsets.only(bottom: 8),
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 8, left: 6, right: 6),
-                  // Release: a soft capsule glides under the chosen tab
-                  // (with a touch of spring); the symbols morph in place.
-                  child: LayoutBuilder(
-                    builder: (context, box) {
-                      final slot = box.maxWidth / 5;
-                      return Stack(
-                        children: [
-                          AnimatedPositioned(
-                            duration: MediaQuery.disableAnimationsOf(context)
-                                ? Duration.zero
-                                : const Duration(milliseconds: 460),
-                            curve: const Cubic(.3, 1.3, .5, 1),
-                            left: slot * _tab + (slot - 56) / 2,
-                            top: 3,
-                            width: 56,
-                            height: 32,
-                            child: DecoratedBox(
-                              key: const ValueKey('nav-capsule'),
-                              decoration: ShapeDecoration(
-                                color: scheme.primary.withValues(alpha: .16),
-                                shape: const StadiumBorder(),
-                              ),
-                            ),
-                          ),
-                          Row(
-                            children: [
-                              _nav(0, NavGlyphKind.home, tr('Главная')),
-                              _nav(1, NavGlyphKind.operations, tr('Операции')),
-                              // 1.20: the living voice orb replaces «+»; a long press
-                              // still adds an operation by hand.
-                              Expanded(
-                                child: Center(
-                                  heightFactor: 1,
-                                  child: VoiceOrb(
-                                    size: 54,
-                                    onTap: _voice,
-                                    // 1.37: a ring of actions around Finora.
-                                    onLongPress: _wheel,
-                                    onLongPressMove: (p) => _openWheel?.move(p),
-                                    onLongPressEnd: (p) =>
-                                        _openWheel?.release(p),
-                                  ),
+                child: SafeArea(
+                  top: false,
+                  minimum: const EdgeInsets.only(bottom: 8),
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 8, left: 6, right: 6),
+                    // Release: a soft capsule glides under the chosen tab
+                    // (with a touch of spring); the symbols morph in place.
+                    child: LayoutBuilder(
+                      builder: (context, box) {
+                        final slot = box.maxWidth / 5;
+                        return Stack(
+                          children: [
+                            AnimatedPositioned(
+                              duration: MediaQuery.disableAnimationsOf(context)
+                                  ? Duration.zero
+                                  : const Duration(milliseconds: 460),
+                              curve: const Cubic(.3, 1.3, .5, 1),
+                              left: slot * _tab + (slot - 56) / 2,
+                              top: 3,
+                              width: 56,
+                              height: 32,
+                              child: DecoratedBox(
+                                key: const ValueKey('nav-capsule'),
+                                decoration: ShapeDecoration(
+                                  color: scheme.primary.withValues(alpha: .16),
+                                  shape: const StadiumBorder(),
                                 ),
                               ),
-                              _nav(3, NavGlyphKind.analytics, tr('Аналитика')),
-                              _nav(4, NavGlyphKind.more, tr('Ещё')),
-                            ],
-                          ),
-                        ],
-                      );
-                    },
+                            ),
+                            Row(
+                              children: [
+                                _nav(0, NavGlyphKind.home, tr('Главная')),
+                                _nav(
+                                  1,
+                                  NavGlyphKind.operations,
+                                  tr('Операции'),
+                                ),
+                                // 1.20: the living voice orb replaces «+»; a long press
+                                // still adds an operation by hand.
+                                Expanded(
+                                  child: Center(
+                                    heightFactor: 1,
+                                    child: VoiceOrb(
+                                      size: 54,
+                                      onTap: _voice,
+                                      // 1.37: a ring of actions around Finora.
+                                      onLongPress: _wheel,
+                                      onLongPressMove: (p) =>
+                                          _openWheel?.move(p),
+                                      onLongPressEnd: (p) =>
+                                          _openWheel?.release(p),
+                                    ),
+                                  ),
+                                ),
+                                _nav(
+                                  3,
+                                  NavGlyphKind.analytics,
+                                  tr('Аналитика'),
+                                ),
+                                _nav(4, NavGlyphKind.more, tr('Ещё')),
+                              ],
+                            ),
+                          ],
+                        );
+                      },
+                    ),
                   ),
                 ),
               ),
@@ -605,6 +642,8 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
       ),
     );
   }
+
+  Offset? _downAt;
 
   Widget _nav(int index, NavGlyphKind glyph, String label) {
     final scheme = Theme.of(context).colorScheme;

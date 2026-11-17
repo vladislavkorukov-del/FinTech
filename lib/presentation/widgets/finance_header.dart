@@ -137,9 +137,9 @@ class FinanceHeader extends StatelessWidget {
                     currency: c.currency,
                     textKey: const ValueKey('header-balance-amount'),
                     style: TextStyle(
-                      fontSize: 34,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: -1,
+                      fontSize: 28,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: -.7,
                       color: scheme.onSurface,
                       fontFeatures: const [FontFeature.tabularFigures()],
                     ),

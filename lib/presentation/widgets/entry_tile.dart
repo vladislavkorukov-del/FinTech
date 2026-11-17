@@ -5,6 +5,7 @@ import '../../domain/models.dart';
 import '../controller.dart';
 import '../screens/entry_editor.dart';
 import 'common.dart';
+import 'grouped_list.dart';
 import 'service_badge.dart';
 import '../../domain/service_catalog.dart';
 import '../l10n_widgets.dart';
@@ -142,25 +143,35 @@ class EntryTile extends StatelessWidget {
     if (!swipe) {
       return tile;
     }
+    // Release: the swipe reveals a soft gradient and a live symbol.
+    return SwipeProgress(
+      builder: (context, progress) => _dismissible(context, c, tile, progress),
+    );
+  }
+
+  Widget _dismissible(
+    BuildContext context,
+    FinanceController c,
+    Widget tile,
+    ValueNotifier<double> progress,
+  ) {
     return Dismissible(
       key: ValueKey(entry.id),
-      background: Container(
-        alignment: Alignment.centerLeft,
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.primary.withValues(alpha: .15),
-          borderRadius: BorderRadius.circular(14),
-        ),
-        child: const Icon(Icons.edit_outlined),
+      onUpdate: (d) => progress.value = d.progress,
+      background: SwipeBackdrop(
+        progress: progress,
+        color: Theme.of(context).colorScheme.primary,
+        label: 'Изменить',
+        icon: Icons.edit_outlined,
+        end: false,
+        radius: 14,
       ),
-      secondaryBackground: Container(
-        alignment: Alignment.centerRight,
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.errorContainer,
-          borderRadius: BorderRadius.circular(14),
-        ),
-        child: const Icon(Icons.delete_outline),
+      secondaryBackground: SwipeBackdrop(
+        progress: progress,
+        color: SwipeBackdrop.coral,
+        label: 'Удалить',
+        delete: true,
+        radius: 14,
       ),
       confirmDismiss: (direction) async {
         if (direction == DismissDirection.startToEnd) {
