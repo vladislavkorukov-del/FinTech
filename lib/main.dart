@@ -16,6 +16,7 @@ import 'presentation/controller.dart';
 import 'presentation/theme/app_theme.dart';
 import 'presentation/widgets/finora_drawer.dart';
 import 'presentation/widgets/finora_says.dart';
+import 'presentation/widgets/menu_edge_swipe.dart';
 import 'features/finora_ai/ui/finora_ai_screen.dart';
 import 'features/finora_ai/services/finora_ai.dart';
 import 'presentation/screens/dashboard.dart';
@@ -202,9 +203,14 @@ class FinoraApp extends StatelessWidget {
             'dark' => ThemeMode.dark,
             _ => ThemeMode.system,
           },
-          builder: (context, child) => FinanceBackground(
-            child: requireDeviceSecurity ? SecurityGate(child: child!) : child!,
-          ),
+          navigatorKey: MenuEdgeSwipe.navigatorKey,
+          // The side panel opens with an edge swipe from any page.
+          builder: (context, child) {
+            final app = MenuEdgeSwipe(child: child!);
+            return FinanceBackground(
+              child: requireDeviceSecurity ? SecurityGate(child: app) : app,
+            );
+          },
           // 1.21: welcome screens on the very first launch.
           home: p.onboarded ? const HomeShell() : const OnboardingScreen(),
         );
@@ -228,6 +234,7 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
+    MenuEdgeSwipe.openMenu = _openMenu;
     _shareSubscription = _receiptShares.imageAvailable.listen((_) {
       _shareNeedsDrain = true;
       unawaited(_takeSharedImage());
@@ -320,6 +327,7 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
 
   @override
   void dispose() {
+    if (MenuEdgeSwipe.openMenu == _openMenu) MenuEdgeSwipe.openMenu = null;
     WidgetsBinding.instance.removeObserver(this);
     _paymentsTimer?.cancel();
     unawaited(_actionSubscription?.cancel());
@@ -446,6 +454,11 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
 
   final _scaffold = GlobalKey<ScaffoldState>();
   Offset? _downAt;
+
+  void _openMenu() {
+    Haptics.light();
+    _scaffold.currentState?.openDrawer();
+  }
 
   /// The menu button that opens the side panel.
   Widget _menuButton({Color? color}) => IconButton(
