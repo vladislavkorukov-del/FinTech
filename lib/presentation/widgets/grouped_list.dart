@@ -315,7 +315,7 @@ class GroupedRow extends StatelessWidget {
                       Icon(
                         iosIcon(icon),
                         size: 22,
-                        color: destructive ? scheme.error : scheme.onSurface,
+                        color: destructive ? scheme.error : scheme.primary,
                       ),
                 ),
                 const SizedBox(width: 12),

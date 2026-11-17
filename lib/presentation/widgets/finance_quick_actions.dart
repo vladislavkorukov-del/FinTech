@@ -3,6 +3,7 @@ import 'package:flutter/material.dart' hide InputDecoration, Text;
 import '../../domain/models.dart';
 import '../screens/entry_editor.dart';
 import '../l10n_widgets.dart';
+import 'glass.dart';
 
 class FinanceQuickActions extends StatelessWidget {
   const FinanceQuickActions({super.key});
@@ -32,9 +33,10 @@ class FinanceQuickActions extends StatelessWidget {
               style: FilledButton.styleFrom(
                 minimumSize: const Size(0, 48),
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
-                backgroundColor: scheme.surface.withValues(
-                  alpha: dark ? .55 : 1,
-                ),
+                // Neutral panels; the style's colour is in the symbols.
+                backgroundColor: dark
+                    ? GlassSurface.darkPanel(Theme.of(context))
+                    : scheme.surface,
                 foregroundColor: scheme.onSurface,
                 shape: const RoundedSuperellipseBorder(
                   borderRadius: BorderRadius.all(Radius.circular(12)),

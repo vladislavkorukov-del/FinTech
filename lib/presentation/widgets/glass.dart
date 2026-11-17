@@ -29,9 +29,15 @@ class GlassSurface extends StatelessWidget {
   final VoidCallback? onTap;
 
   /// The panel colour: solid (matte), with a faint wash of [tint].
+  /// The neutral dark panel colour.
+  static Color darkPanel(ThemeData theme) =>
+      Color.lerp(const Color(0xFF17191C), theme.colorScheme.surface, .1)!;
+
   static Color pane(ThemeData theme, Color? base, Color? tint, double k) {
     final dark = theme.brightness == Brightness.dark;
-    var c = base ?? theme.colorScheme.surface;
+    // Release: dark panels are neutral graphite (a breath of the style),
+    // the style's colour lives in the glow, icons and accents.
+    var c = base ?? (dark ? darkPanel(theme) : theme.colorScheme.surface);
     if (tint != null) {
       c = Color.alphaBlend(tint.withValues(alpha: (dark ? .08 : .06) * k), c);
     }

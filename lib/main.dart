@@ -535,13 +535,13 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
             // Release: the bar is made of the theme — the card colour
             // mixed into the foot of the backdrop, a faint matte gradient
             // and soft top corners, so it reads as part of the screen.
-            final backdrop = FinanceBackdrop.of(context);
             final dark = scheme.brightness == Brightness.dark;
+            // Dark: neutral graphite between the page and the panels.
             final fill = Color.lerp(
-              backdrop.bottom,
-              scheme.surface,
-              dark ? .6 : .85,
-            )!.withValues(alpha: 1);
+              FinanceBackdropLayer.darkPage(Theme.of(context)),
+              GlassSurface.darkPanel(Theme.of(context)),
+              .7,
+            )!;
             // Its own layer: the bar is not repainted with the screen.
             return RepaintBoundary(
               child: DecoratedBox(

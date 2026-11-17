@@ -48,6 +48,35 @@ class ServiceBadge extends StatefulWidget {
 
   @override
   State<ServiceBadge> createState() => _ServiceBadgeState();
+
+  /// The duotone filter used for brand marks (see [_duotone]).
+  static ColorFilter duotone(Color accent, {required bool dark}) =>
+      _duotone(accent, dark: dark);
+}
+
+/// A colour filter that maps each pixel's brightness onto a ramp from a
+/// deep to a light tone of [accent] (alpha kept): marks stay readable —
+/// light letters on a darker plate stay light on darker — in the style's
+/// colour.
+ColorFilter _duotone(Color accent, {required bool dark}) {
+  final deep = Color.lerp(accent, Colors.black, dark ? .55 : .45)!;
+  final light = Color.lerp(accent, Colors.white, dark ? .82 : .9)!;
+  double ch(Color c, int i) =>
+      (i == 0
+          ? c.r
+          : i == 1
+          ? c.g
+          : c.b) *
+      255;
+  const w = [.2126, .7152, .0722];
+  final m = <double>[];
+  for (var i = 0; i < 3; i++) {
+    final d = ch(deep, i), l = ch(light, i);
+    final span = (l - d) / 255;
+    m.addAll([span * w[0], span * w[1], span * w[2], 0, d]);
+  }
+  m.addAll([0, 0, 0, 1, 0]);
+  return ColorFilter.matrix(m);
 }
 
 class _ServiceBadgeState extends State<ServiceBadge> {
@@ -124,48 +153,60 @@ class _ServiceBadgeState extends State<ServiceBadge> {
     final fill = !uploaded && asset != null
         ? Color(service!.background)
         : scheme.surfaceContainerHighest;
+    // Release: the mark keeps its shape and its letters but takes the
+    // style's colour — a duotone from a deep to a light tone of the accent.
+    final tinted = !uploaded && image != null;
+    final plate = Container(
+      key: ValueKey('service-badge-${service?.id ?? 'custom'}'),
+      width: size,
+      height: size,
+      padding: EdgeInsets.all(size * inset),
+      // A round copy is already transparent outside the mark; clipping it
+      // would cut what sticks out of the circle (Пятёрочка's leaf).
+      clipBehavior: round ? Clip.none : Clip.antiAlias,
+      decoration: BoxDecoration(
+        color: fill,
+        shape: round ? BoxShape.circle : BoxShape.rectangle,
+        borderRadius: round ? null : radius,
+      ),
+      foregroundDecoration: round
+          ? null
+          : BoxDecoration(
+              borderRadius: radius,
+              border: Border.all(
+                color: scheme.outlineVariant.withValues(alpha: .2),
+              ),
+            ),
+      child: image != null
+          ? Image(
+              image: image,
+              fit: BoxFit.contain,
+              isAntiAlias: true,
+              filterQuality: FilterQuality.high,
+              color: !uploaded && service?.preserveColors == false
+                  ? Color(service!.color)
+                  : null,
+              colorBlendMode: BlendMode.srcIn,
+              excludeFromSemantics: true,
+              errorBuilder: (_, _, _) {
+                if (uploaded) _customFailed(customIconPath!);
+                return fallback;
+              },
+            )
+          : fallback,
+    );
     return Semantics(
       label: name ?? service?.name ?? 'Сервис',
       image: true,
-      child: Container(
-        key: ValueKey('service-badge-${service?.id ?? 'custom'}'),
-        width: size,
-        height: size,
-        padding: EdgeInsets.all(size * inset),
-        // A round copy is already transparent outside the mark; clipping it
-        // would cut what sticks out of the circle (Пятёрочка's leaf).
-        clipBehavior: round ? Clip.none : Clip.antiAlias,
-        decoration: BoxDecoration(
-          color: fill,
-          shape: round ? BoxShape.circle : BoxShape.rectangle,
-          borderRadius: round ? null : radius,
-        ),
-        foregroundDecoration: round
-            ? null
-            : BoxDecoration(
-                borderRadius: radius,
-                border: Border.all(
-                  color: scheme.outlineVariant.withValues(alpha: .2),
-                ),
+      child: tinted
+          ? ColorFiltered(
+              colorFilter: ServiceBadge.duotone(
+                scheme.primary,
+                dark: Theme.of(context).brightness == Brightness.dark,
               ),
-        child: image != null
-            ? Image(
-                image: image,
-                fit: BoxFit.contain,
-                isAntiAlias: true,
-                filterQuality: FilterQuality.high,
-                color: !uploaded && service?.preserveColors == false
-                    ? Color(service!.color)
-                    : null,
-                colorBlendMode: BlendMode.srcIn,
-                excludeFromSemantics: true,
-                errorBuilder: (_, _, _) {
-                  if (uploaded) _customFailed(customIconPath!);
-                  return fallback;
-                },
-              )
-            : fallback,
-      ),
+              child: plate,
+            )
+          : plate,
     );
   }
 }

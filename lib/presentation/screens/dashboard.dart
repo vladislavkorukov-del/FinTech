@@ -589,7 +589,7 @@ class _AccountRow extends StatelessWidget {
                 // iOS-strict: the line symbol alone.
                 child: Icon(
                   categoryIcon(account.icon),
-                  color: Theme.of(context).colorScheme.onSurface,
+                  color: Theme.of(context).colorScheme.primary,
                   size: 24,
                 ),
               ),

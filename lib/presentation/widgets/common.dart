@@ -184,7 +184,8 @@ class CategoryBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // iOS-strict: just the line symbol, no tile behind it.
-    final c = color ?? Theme.of(context).colorScheme.onSurface;
+    // Release: the style's colour lives in the symbols.
+    final c = color ?? Theme.of(context).colorScheme.primary;
     return SizedBox(
       width: size,
       height: size,

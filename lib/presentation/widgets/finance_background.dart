@@ -39,6 +39,24 @@ class FinanceBackdropLayer extends StatelessWidget {
     .75,
   )!;
 
+  /// The dark page: neutral near-black under the style's own glow.
+  static Color darkPage(ThemeData theme) => Color.lerp(
+    const Color(0xFF0A0B0D),
+    theme.colorScheme.surfaceContainerLowest,
+    .08,
+  )!;
+
+  static FinanceBackdrop night(ThemeData theme, FinanceBackdrop b) {
+    final page = darkPage(theme);
+    return FinanceBackdrop(
+      top: page,
+      middle: page,
+      bottom: page,
+      glowA: b.glowA,
+      glowB: b.glowB,
+    );
+  }
+
   static FinanceBackdrop flat(ThemeData theme) {
     final page = lightPage(theme);
     return FinanceBackdrop(
@@ -62,7 +80,9 @@ class FinanceBackdropLayer extends StatelessWidget {
         child: CustomPaint(
           key: const ValueKey('finance-backdrop'),
           painter: _BackdropPainter(
-            strict ? FinanceBackdropLayer.flat(theme) : b,
+            strict
+                ? FinanceBackdropLayer.flat(theme)
+                : FinanceBackdropLayer.night(theme, b),
           ),
           child: const SizedBox.expand(),
         ),
