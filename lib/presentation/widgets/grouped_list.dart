@@ -96,6 +96,7 @@ final _ios = <IconData, IconData>{
   Icons.vibration_rounded: CupertinoIcons.waveform,
   Icons.volume_off_rounded: CupertinoIcons.speaker_slash,
   Icons.widgets_rounded: CupertinoIcons.square_grid_2x2,
+  Icons.auto_awesome_rounded: CupertinoIcons.sparkles,
 };
 
 /// The reset symbol (Release): a ring arrow wound around a small bin —

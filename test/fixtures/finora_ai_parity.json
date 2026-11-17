@@ -1,0 +1,110 @@
+[
+ {
+  "merchant": "Пятёрочка",
+  "amount_minor": 45000,
+  "kind": "expense",
+  "account_type": "card",
+  "date": "2026-05-13",
+  "class": "groceries",
+  "p": 0.9006
+ },
+ {
+  "merchant": "MAGNIT MM KOSTROMA",
+  "amount_minor": 123400,
+  "kind": "expense",
+  "account_type": "card",
+  "date": "2026-05-13",
+  "class": "groceries",
+  "p": 0.8952
+ },
+ {
+  "merchant": "Яндекс Go",
+  "amount_minor": 38900,
+  "kind": "expense",
+  "account_type": "card",
+  "date": "2026-05-13",
+  "class": "transport",
+  "p": 0.3319
+ },
+ {
+  "merchant": "Шоколадница",
+  "amount_minor": 65000,
+  "kind": "expense",
+  "account_type": "card",
+  "date": "2026-05-13",
+  "class": "cafe",
+  "p": 0.8712
+ },
+ {
+  "merchant": "Spotify",
+  "amount_minor": 16900,
+  "kind": "expense",
+  "account_type": "card",
+  "date": "2026-05-13",
+  "class": "subscriptions",
+  "p": 0.8513
+ },
+ {
+  "merchant": "Лукойл АЗС",
+  "amount_minor": 250000,
+  "kind": "expense",
+  "account_type": "card",
+  "date": "2026-05-13",
+  "class": "car",
+  "p": 0.9813
+ },
+ {
+  "merchant": "Аптека Ригла",
+  "amount_minor": 54000,
+  "kind": "expense",
+  "account_type": "card",
+  "date": "2026-05-13",
+  "class": "pharmacy",
+  "p": 0.9976
+ },
+ {
+  "merchant": "Wildberries",
+  "amount_minor": 189000,
+  "kind": "expense",
+  "account_type": "card",
+  "date": "2026-05-13",
+  "class": "shopping",
+  "p": 0.9191
+ },
+ {
+  "merchant": "Четыре лапы",
+  "amount_minor": 99000,
+  "kind": "expense",
+  "account_type": "card",
+  "date": "2026-05-13",
+  "class": "pets",
+  "p": 0.9645
+ },
+ {
+  "merchant": "Зарплата",
+  "amount_minor": 9000000,
+  "kind": "income",
+  "account_type": "card",
+  "date": "2026-05-13",
+  "class": "salary",
+  "p": 0.992
+ },
+ {
+  "merchant": "Проценты по вкладу",
+  "amount_minor": 120000,
+  "kind": "income",
+  "account_type": "card",
+  "date": "2026-05-13",
+  "class": "interest",
+  "p": 0.9928
+ },
+ {
+  "merchant": "ЖКХ оплата",
+  "amount_minor": 420000,
+  "kind": "expense",
+  "account_type": "card",
+  "date": "2026-05-13",
+  "class": "utilities",
+  "p": 0.9553
+ }
+]

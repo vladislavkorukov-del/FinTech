@@ -76,6 +76,15 @@ class MoreScreen extends StatelessWidget {
         GroupedSection(
           title: tr('Планирование'),
           children: [
+            // Finora AI: forecast, insights and suggestions from the data.
+            row(
+              'ai',
+              Icons.auto_awesome_rounded,
+              TileColors.purple,
+              tr('Финора · Анализ'),
+              tr('Прогноз, инсайты и подсказки'),
+              const FinoraAiScreen(),
+            ),
             row(
               'budgets',
               Icons.pie_chart_rounded,

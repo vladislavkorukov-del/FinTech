@@ -15,6 +15,7 @@ import '../widgets/bank_picker.dart';
 import '../widgets/savings_pace.dart';
 import '../widgets/service_badge.dart';
 import '../widgets/success_burst.dart';
+import '../../features/finora_ai/ui/finora_ai_screen.dart';
 import '../../domain/finance_engine.dart';
 import '../controller.dart';
 import '../haptics.dart';

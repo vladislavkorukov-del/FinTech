@@ -1,0 +1,180 @@
+{
+ "version": "1.0.0",
+ "created": "2026-11-17T17:51:48Z",
+ "train": 13080,
+ "validation": 1726,
+ "validation_split": "held-out merchants (15% of names)",
+ "accuracy": 0.6593,
+ "top3_accuracy": 0.7769,
+ "macro_f1": 0.5988,
+ "per_class": {
+  "groceries": {
+   "precision": 0.7713,
+   "recall": 0.7967,
+   "f1": 0.7838,
+   "support": 182
+  },
+  "cafe": {
+   "precision": 0.9211,
+   "recall": 0.8333,
+   "f1": 0.875,
+   "support": 42
+  },
+  "transport": {
+   "precision": 0.9036,
+   "recall": 0.9494,
+   "f1": 0.9259,
+   "support": 79
+  },
+  "car": {
+   "precision": 1.0,
+   "recall": 0.3438,
+   "f1": 0.5116,
+   "support": 64
+  },
+  "housing": {
+   "precision": 0.0,
+   "recall": 0.0,
+   "f1": 0.0,
+   "support": 52
+  },
+  "utilities": {
+   "precision": 0.8333,
+   "recall": 0.7937,
+   "f1": 0.813,
+   "support": 126
+  },
+  "health": {
+   "precision": 0.0,
+   "recall": 0.0,
+   "f1": 0.0,
+   "support": 0
+  },
+  "pharmacy": {
+   "precision": 0.9038,
+   "recall": 0.9592,
+   "f1": 0.9307,
+   "support": 49
+  },
+  "entertainment": {
+   "precision": 0.8592,
+   "recall": 0.7262,
+   "f1": 0.7871,
+   "support": 84
+  },
+  "subscriptions": {
+   "precision": 0.594,
+   "recall": 0.966,
+   "f1": 0.7357,
+   "support": 206
+  },
+  "shopping": {
+   "precision": 0.2843,
+   "recall": 0.6905,
+   "f1": 0.4028,
+   "support": 84
+  },
+  "clothes": {
+   "precision": 0.9474,
+   "recall": 0.5,
+   "f1": 0.6545,
+   "support": 36
+  },
+  "gifts": {
+   "precision": 0.0,
+   "recall": 0.0,
+   "f1": 0.0,
+   "support": 85
+  },
+  "travel": {
+   "precision": 0.9149,
+   "recall": 0.7414,
+   "f1": 0.819,
+   "support": 116
+  },
+  "education": {
+   "precision": 0.8519,
+   "recall": 0.5476,
+   "f1": 0.6667,
+   "support": 84
+  },
+  "kids": {
+   "precision": 0.8989,
+   "recall": 1.0,
+   "f1": 0.9467,
+   "support": 80
+  },
+  "pets": {
+   "precision": 0.0,
+   "recall": 0.0,
+   "f1": 0.0,
+   "support": 0
+  },
+  "taxes": {
+   "precision": 0.0,
+   "recall": 0.0,
+   "f1": 0.0,
+   "support": 0
+  },
+  "loans": {
+   "precision": 0.0,
+   "recall": 0.0,
+   "f1": 0.0,
+   "support": 0
+  },
+  "other": {
+   "precision": 0.0,
+   "recall": 0.0,
+   "f1": 0.0,
+   "support": 0
+  },
+  "salary": {
+   "precision": 0.8182,
+   "recall": 1.0,
+   "f1": 0.9,
+   "support": 72
+  },
+  "side_job": {
+   "precision": 0.0,
+   "recall": 0.0,
+   "f1": 0.0,
+   "support": 78
+  },
+  "business": {
+   "precision": 0.0,
+   "recall": 0.0,
+   "f1": 0.0,
+   "support": 0
+  },
+  "interest": {
+   "precision": 0.0,
+   "recall": 0.0,
+   "f1": 0.0,
+   "support": 0
+  },
+  "investments": {
+   "precision": 0.0,
+   "recall": 0.0,
+   "f1": 0.0,
+   "support": 0
+  },
+  "refunds": {
+   "precision": 0.4541,
+   "recall": 1.0,
+   "f1": 0.6246,
+   "support": 94
+  },
+  "gifts_in": {
+   "precision": 0.0,
+   "recall": 0.0,
+   "f1": 0.0,
+   "support": 0
+  },
+  "other_in": {
+   "precision": 0.0,
+   "recall": 0.0,
+   "f1": 0.0,
+   "support": 113
+  }
+ }
+}

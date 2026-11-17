@@ -16,6 +16,7 @@ import 'services/receipt_share_service.dart';
 import 'presentation/controller.dart';
 import 'presentation/theme/app_theme.dart';
 import 'presentation/widgets/nav_glyph.dart';
+import 'features/finora_ai/services/finora_ai.dart';
 import 'presentation/screens/dashboard.dart';
 import 'presentation/screens/transactions.dart';
 import 'presentation/screens/analytics.dart';
@@ -49,6 +50,8 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // 1.37: month and day names in every app language.
   await initializeDateFormatting();
+  // Finora AI: her memory and the local model load in the background.
+  unawaited(FinoraAi.instance.ready());
   LicenseRegistry.addLicense(() async* {
     final text = await rootBundle.loadString(
       'assets/ocr/THIRD_PARTY_NOTICES.txt',

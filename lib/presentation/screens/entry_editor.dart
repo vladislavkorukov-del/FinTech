@@ -7,6 +7,7 @@ import 'package:flutter/material.dart' hide InputDecoration, Text;
 import '../../domain/category_hints.dart';
 import '../../domain/service_catalog.dart';
 import '../../domain/service_recognizer.dart';
+import '../../features/finora_ai/services/finora_ai.dart';
 import '../../domain/voice_entry_parser.dart';
 import '../../services/voice_input_service.dart';
 import 'package:flutter/services.dart';
@@ -589,6 +590,24 @@ class _EntryEditorState extends State<EntryEditor> {
         selection: TextSelection.collapsed(offset: exact.name.length),
       );
       Haptics.light();
+    }
+    // Finora AI: an unknown place still gets a category when she is sure
+    // enough (memory of the person's choices, history, the local model).
+    if (service == null &&
+        (_category == null || _categoryFromPayee) &&
+        text.trim().length >= 3) {
+      final best = FinoraAi.instance
+          .classify(c.data, merchant: text, kind: _kind)
+          .best;
+      if (best != null &&
+          best.confidence >= .6 &&
+          best.categoryId != _category) {
+        setState(() {
+          _category = best.categoryId;
+          _subcategory = null;
+          _categoryFromPayee = true;
+        });
+      }
     }
     if (service?.id == _typedService) return;
     setState(() {

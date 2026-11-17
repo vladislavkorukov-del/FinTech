@@ -10,6 +10,7 @@ import '../domain/models.dart';
 import '../domain/payment_plan.dart';
 import '../domain/finance_engine.dart';
 import '../domain/scan_import.dart';
+import '../features/finora_ai/services/finora_ai.dart';
 import '../services/notification_service.dart';
 
 const notificationSyncWarning =
@@ -219,12 +220,23 @@ class FinanceController extends ChangeNotifier {
 
   Future<void> preferences(AppPreferences value) =>
       mutate((d) => d.copyWith(preferences: value));
-  Future<void> saveEntry(FinanceEntry entry) => mutate((d) {
-    FinanceEngine.validateEntry(entry, d);
-    return d.copyWith(
-      entries: [...d.entries.where((e) => e.id != entry.id), entry],
+  Future<void> saveEntry(FinanceEntry entry) async {
+    final before = data.entries.where((e) => e.id == entry.id).firstOrNull;
+    await mutate((d) {
+      FinanceEngine.validateEntry(entry, d);
+      return d.copyWith(
+        entries: [...d.entries.where((e) => e.id != entry.id), entry],
+      );
+    });
+    // Finora AI learns the person's categories (a changed category is a
+    // correction); her memory lives apart from the ledger.
+    unawaited(
+      FinoraAi.instance.ready().then(
+        (_) => FinoraAi.instance.observeSave(entry, before: before),
+      ),
     );
-  });
+  }
+
   Future<void> deleteEntry(String id) => mutate(
     (d) => d.copyWith(entries: d.entries.where((e) => e.id != id).toList()),
   );
@@ -338,8 +350,10 @@ class FinanceController extends ChangeNotifier {
       _replace((merge) => repository.clearDemo(transform: merge));
 
   /// Erases all the person's data (see [FinanceRepository.resetAll]).
-  Future<void> resetAll() =>
-      _replace((merge) => repository.resetAll(transform: merge));
+  Future<void> resetAll() async {
+    await _replace((merge) => repository.resetAll(transform: merge));
+    await FinoraAi.instance.memoryRepository.clear();
+  }
 
   /// The demo ledger into an empty app (see [FinanceRepository.loadDemo]).
   Future<void> loadDemo() =>
