@@ -93,4 +93,25 @@ void main() {
       expect(button.bottom, lessThanOrEqualTo(860 - inset));
     });
   }
+
+  testWidgets('a swipe right from the left fifth opens the panel', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(400, 860);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      FinoraApp(controller: controller, requireDeviceSecurity: false),
+    );
+    await tester.pumpAndSettle();
+    final drawer = find.byKey(const ValueKey('app-drawer'));
+    // From the middle of the screen: nothing opens.
+    await tester.dragFrom(const Offset(200, 500), const Offset(260, 0));
+    await tester.pumpAndSettle();
+    expect(drawer, findsNothing);
+    // From the left fifth (x < 80): the panel opens.
+    await tester.dragFrom(const Offset(40, 500), const Offset(300, 0));
+    await tester.pumpAndSettle();
+    expect(drawer, findsOneWidget);
+  });
 }

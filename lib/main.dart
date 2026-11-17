@@ -496,7 +496,8 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
         // Release: navigation is a side panel (menu button or a swipe from
         // the left edge), like a chat app.
         drawer: FinoraDrawer(current: _tab, onSelect: _select, onVoice: _voice),
-        drawerEdgeDragWidth: 32,
+        // A swipe to the right from the left fifth of the screen opens it.
+        drawerEdgeDragWidth: MediaQuery.sizeOf(context).width * .2,
         // The AI window has a text field; the main screens have none (a
         // keyboard closing late after the welcome screens must not squeeze
         // them, 1.22.1).

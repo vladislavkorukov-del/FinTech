@@ -53,8 +53,14 @@ class FinoraDrawer extends StatelessWidget {
       onSelect(place);
     }
 
-    Widget item(int place, IconData icon, String label) {
-      final on = place == current;
+    // One row style for the places and the tools alike.
+    Widget row({
+      required Key key,
+      required IconData icon,
+      required String label,
+      required VoidCallback onTap,
+      bool on = false,
+    }) {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
         child: Material(
@@ -65,11 +71,11 @@ class FinoraDrawer extends StatelessWidget {
             borderRadius: BorderRadius.circular(16),
           ),
           child: InkWell(
-            key: ValueKey('drawer-$place'),
+            key: key,
             customBorder: RoundedSuperellipseBorder(
               borderRadius: BorderRadius.circular(16),
             ),
-            onTap: () => go(place),
+            onTap: onTap,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               child: Row(
@@ -82,7 +88,9 @@ class FinoraDrawer extends StatelessWidget {
                   const SizedBox(width: 18),
                   Expanded(
                     child: Text(
-                      tr(label),
+                      label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         fontSize: 17,
                         fontWeight: on ? FontWeight.w600 : FontWeight.w400,
@@ -143,7 +151,13 @@ class FinoraDrawer extends StatelessWidget {
                 padding: EdgeInsets.zero,
                 children: [
                   for (final (place, icon, label) in places)
-                    item(place, icon, label),
+                    row(
+                      key: ValueKey('drawer-$place'),
+                      icon: icon,
+                      label: tr(label),
+                      on: place == current,
+                      onTap: () => go(place),
+                    ),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(28, 14, 28, 10),
                     child: Divider(
@@ -221,7 +235,7 @@ class FinoraDrawer extends StatelessWidget {
                           ),
                         ),
                       ])
-                    _Tool(
+                    row(
                       key: ValueKey('drawer-$key'),
                       icon: icon,
                       label: tr(label),
@@ -285,43 +299,6 @@ class FinoraDrawer extends StatelessWidget {
                     ),
                   ),
                 ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _Tool extends StatelessWidget {
-  const _Tool({
-    super.key,
-    required this.icon,
-    required this.label,
-    required this.onTap,
-  });
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return InkWell(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 12),
-        child: Row(
-          children: [
-            Icon(icon, size: 21, color: scheme.primary),
-            const SizedBox(width: 18),
-            Expanded(
-              child: Text(
-                label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(fontSize: 16, color: scheme.onSurface),
               ),
             ),
           ],
