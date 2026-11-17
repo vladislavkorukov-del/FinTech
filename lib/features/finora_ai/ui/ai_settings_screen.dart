@@ -142,6 +142,16 @@ class AiSettingsScreen extends StatelessWidget {
                 enabled: on,
               ),
               toggle(
+                'notifications',
+                Icons.notifications_none_rounded,
+                TileColors.orange,
+                'Умные уведомления',
+                'Не больше одного в день и только по делу',
+                ai.smartNotifications,
+                (v) => ai.copyWith(smartNotifications: v),
+                enabled: on,
+              ),
+              toggle(
                 'insights',
                 Icons.visibility_outlined,
                 TileColors.blue,

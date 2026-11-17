@@ -1,4 +1,5 @@
 import '../../../presentation/widgets/common.dart' show money;
+import '../../../domain/models.dart' show EntryKind;
 import '../models/ai_models.dart';
 import '../services/finora_ai_snapshot.dart';
 
@@ -62,8 +63,11 @@ abstract final class ResponseLayer {
         final name = r.budget.categoryId == null
             ? '«${r.budget.name}»'
             : _cat(s, r.budget.categoryId);
+        final safe = r.safeDaily > 0
+            ? ' Чтобы уложиться, тратить не больше ${_m(s, r.safeDaily)} в день.'
+            : '';
         return 'Если текущий темп сохранится, бюджет $name будет превышен '
-            'примерно на ${_m(s, r.overrun)} (вероятность ${_pct(r.probability * 100)}).';
+            'примерно на ${_m(s, r.overrun)} (вероятность ${_pct(r.probability * 100)}).$safe';
       case InsightKind.growth:
         if (i.subject == 'usual') {
           return 'Ты тратишь на ${s.ctx.categoryName(i.categoryId).toLowerCase()} '
@@ -132,10 +136,53 @@ abstract final class ResponseLayer {
         return 'В этом месяце уже ${i.amount} трат — обычно к этому дню их '
             'около ${i.secondAmount}.';
       case InsightKind.goal:
-        return 'Чтобы успеть с мечтой «${i.subject}», откладывай около '
-            '${_m(s, i.amount!)} в месяц.';
+        final g = s.goalForecasts
+            .where((g) => g.goal.name == i.subject)
+            .firstOrNull;
+        if (g == null || g.monthlyNeed == null) {
+          final when = g?.expectedDate;
+          return when == null
+              ? 'Мечта «${i.subject}» пока без регулярных пополнений.'
+              : 'В текущем темпе (${_m(s, g!.monthlyPace)} в месяц) мечта '
+                    '«${i.subject}» исполнится примерно к ${_monthYear(when)}.';
+        }
+        final need =
+            'Чтобы успеть с мечтой «${i.subject}», откладывай около '
+            '${_m(s, g.monthlyNeed!)} в месяц (~${_m(s, g.weeklyNeed!)} в '
+            'неделю).';
+        final d = g.deviation!;
+        if (g.monthlyPace == 0) return need;
+        return d >= 0
+            ? '$need Сейчас ты откладываешь ${_m(s, g.monthlyPace)} — успеваешь.'
+            : '$need Сейчас ${_m(s, g.monthlyPace)} в месяц — не хватает '
+                  '${_m(s, -d)}; можно сдвинуть срок или увеличить взнос.';
+      case InsightKind.priceChange:
+        final more = i.amount! > i.secondAmount!;
+        return 'Подписка «${i.subject}» стала ${more ? 'дороже' : 'дешевле'}: '
+            '${_m(s, i.amount!)} вместо обычных ${_m(s, i.secondAmount!)}.';
+      case InsightKind.cushion:
+        return 'Накоплений на отдельных счетах — ${_m(s, i.amount!)}: это '
+            'меньше месяца обычных трат (${_m(s, i.secondAmount!)}).';
     }
   }
+
+  static const _months = [
+    '',
+    'январю',
+    'февралю',
+    'марту',
+    'апрелю',
+    'маю',
+    'июню',
+    'июлю',
+    'августу',
+    'сентябрю',
+    'октябрю',
+    'ноябрю',
+    'декабрю',
+  ];
+
+  static String _monthYear(DateTime d) => '${_months[d.month]} ${d.year}';
 
   /// How often a regular payment repeats, in words.
   static String cadenceText(Cadence c) => switch (c) {
@@ -292,4 +339,78 @@ abstract final class ResponseLayer {
 
   static String _signed(FinoraAiSnapshot s, int minor) =>
       '${minor < 0 ? '−' : '+'}${_m(s, minor.abs())}';
+
+  /// Subscriptions' cost and changes, from [SubscriptionAnalytics].
+  static String subscriptionSummary(FinoraAiSnapshot s) {
+    final a = s.subscriptionStats;
+    final lines = <String>[
+      if (a.count > 0)
+        'Подписки: ${a.count} шт., около ${_m(s, a.monthly)} в месяц — '
+            '${_m(s, a.yearly)} в год.',
+      for (final c in a.priceChanged.take(2))
+        '«${c.displayName}» теперь ${_m(s, c.lastAmount)} вместо '
+            '${_m(s, c.typicalAmount)}.',
+      for (final c in a.added.take(2))
+        'Новая: «${c.displayName}», ${_m(s, c.typicalAmount)} '
+            '${cadenceText(c.cadence)}.',
+      for (final c in a.stopped.take(2))
+        '«${c.displayName}» больше не списывается — похоже, отключена.',
+    ];
+    return lines.join('\n');
+  }
+
+  /// How long the savings would last.
+  static String cushion(FinoraAiSnapshot s) {
+    final c = s.cushion;
+    final months = c?.months;
+    if (c == null || months == null) {
+      return 'Накоплений на отдельных счетах (накопительный, вклад) я не вижу '
+          '— или пока мало истории трат, чтобы посчитать.';
+    }
+    String m(double v) => v.toStringAsFixed(1).replaceAll('.', ',');
+    final mandatory = c.mandatoryMonths;
+    return 'Накоплений ${_m(s, c.savings)}: при обычных тратах '
+        '(${_m(s, c.monthlyExpenses)} в месяц) этого хватит примерно на '
+        '${m(months)} мес.'
+        '${mandatory == null ? '' : ' Только на обязательные платежи — на ${m(mandatory)} мес.'}';
+  }
+
+  /// The stability index with every reason.
+  static String stability(FinoraAiSnapshot s) {
+    final st = s.stability;
+    if (st == null) {
+      return 'Для индекса стабильности нужно хотя бы два полных месяца.';
+    }
+    final parts = [
+      for (final f in st.factors)
+        '• ${f.name}: ${f.points}/${f.max} — ${f.reason}',
+    ];
+    return 'Индекс стабильности Финоры — ${st.score} из ${st.max}. Это не '
+        'кредитный рейтинг, а то, насколько ровно идут деньги:\n'
+        '${parts.join('\n')}';
+  }
+
+  /// Payments coming up this period, the found ones with their likelihood.
+  static String upcoming(FinoraAiSnapshot s) {
+    final t = s.timeline;
+    final ahead = t.events.where((e) => e.kind == EntryKind.expense).toList();
+    if (ahead.isEmpty && t.late.isEmpty) {
+      return 'До конца месяца регулярных платежей я не вижу.';
+    }
+    String day(DateTime d) =>
+        '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}';
+    final lines = [
+      for (final e in ahead.take(6))
+        '${day(e.date)} — «${e.title}», ${_m(s, e.amount)}'
+            '${e.detected ? ' (вероятно, ${_pct(e.confidence * 100)})' : ''}',
+      for (final e in t.late.where((e) => e.detected).take(2))
+        'Обычно «${e.title}» к этому времени уже проходил.',
+    ];
+    final low = t.lowest;
+    final warn = low != null && low.$2 < 0
+        ? '\nК ${day(low.$1)} на счетах может не хватить около '
+              '${_m(s, -low.$2)}.'
+        : '';
+    return 'Ближайшие платежи:\n${lines.join('\n')}$warn';
+  }
 }

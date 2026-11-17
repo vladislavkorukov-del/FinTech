@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart' hide InputDecoration, Text;
 
@@ -21,8 +23,8 @@ abstract final class AiLook {
       end: Alignment.bottomCenter,
       stops: [0, .32, .62, 1],
       colors: [
-        Color(0xFF3A1406),
-        Color(0xFF1A0A05),
+        Color(0xFF4D1404),
+        Color(0xFF220904),
         Color(0xFF0B0807),
         Color(0xFF070708),
       ],
@@ -39,67 +41,110 @@ abstract final class AiLook {
   );
 }
 
-/// The Finora AI backdrop: deep ember below, a large amber glow coming
-/// from above, a softer rose-gold light at the right and a thin warm haze
-/// along the top — layered, so it reads as light, not as a flat fill.
-class AiBackdrop extends StatelessWidget {
+/// The Finora AI backdrop: a fiery orange glow over deep ember, its light
+/// drifting slowly like water — three soft pools of flame, amber and gold
+/// moving on their own slow paths and breathing in size. Still when the
+/// system asks for less motion.
+class AiBackdrop extends StatefulWidget {
   const AiBackdrop({super.key, required this.child});
   final Widget child;
+
+  @override
+  State<AiBackdrop> createState() => _AiBackdropState();
+}
+
+class _AiBackdropState extends State<AiBackdrop>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _flow = AnimationController(
+    vsync: this,
+    duration: const Duration(seconds: 18),
+  );
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final still = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+    if (still) {
+      _flow.stop();
+    } else if (!_flow.isAnimating) {
+      _flow.repeat();
+    }
+  }
+
+  @override
+  void dispose() {
+    _flow.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) => DecoratedBox(
     decoration: AiLook.background(),
     child: Stack(
       children: [
-        const Positioned.fill(
+        Positioned.fill(
           child: IgnorePointer(
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: RadialGradient(
-                  center: Alignment(-.35, -1.2),
-                  radius: 1.15,
-                  colors: [
-                    Color(0xF2FF9A3C),
-                    Color(0xB3F2611D),
-                    Color(0x4D8A2A0B),
-                    Color(0x00000000),
-                  ],
-                  stops: [0, .32, .62, 1],
-                ),
+            child: RepaintBoundary(
+              child: AnimatedBuilder(
+                animation: _flow,
+                builder: (context, _) =>
+                    CustomPaint(painter: _FlamePainter(_flow.value)),
               ),
             ),
           ),
         ),
-        const Positioned.fill(
-          child: IgnorePointer(
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: RadialGradient(
-                  center: Alignment(1.1, -.75),
-                  radius: .85,
-                  colors: [Color(0x66FFB98A), Color(0x00FFB98A)],
-                ),
-              ),
-            ),
-          ),
-        ),
-        const Positioned.fill(
-          child: IgnorePointer(
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment(0, -.55),
-                  colors: [Color(0x40FFE2C2), Color(0x00FFE2C2)],
-                ),
-              ),
-            ),
-          ),
-        ),
-        Positioned.fill(child: child),
+        Positioned.fill(child: widget.child),
       ],
     ),
   );
+}
+
+/// Pools of light on slow, never-repeating-looking paths (sums of sines
+/// with different periods within one loop).
+class _FlamePainter extends CustomPainter {
+  _FlamePainter(this.t);
+  final double t;
+
+  static const _pools = [
+    // colour, base x, base y, radius, x speed, y speed, phase
+    (Color(0xF2FF5A1F), .25, .02, 1.05, 1, 2, 0.0),
+    (Color(0xCCFF8A00), .85, .12, .8, 2, 1, 1.7),
+    (Color(0x99FFB627), .5, .3, .65, 1, 3, 3.1),
+    (Color(0x80E8380D), .1, .45, .6, 3, 2, 4.4),
+  ];
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final a = t * 2 * math.pi;
+    for (final (color, x, y, r, sx, sy, phase) in _pools) {
+      final cx = (x + .14 * math.sin(a * sx + phase)) * size.width;
+      final cy = (y + .07 * math.cos(a * sy + phase * .7)) * size.height;
+      final radius = r * size.width * (1 + .12 * math.sin(a * 2 + phase)) * 1.1;
+      final center = Offset(cx, cy);
+      canvas.drawCircle(
+        center,
+        radius,
+        Paint()
+          ..shader = RadialGradient(
+            colors: [color, color.withValues(alpha: 0)],
+            stops: const [0, 1],
+          ).createShader(Rect.fromCircle(center: center, radius: radius)),
+      );
+    }
+    // A warm haze along the top edge.
+    canvas.drawRect(
+      Offset.zero & Size(size.width, size.height * .3),
+      Paint()
+        ..shader = const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Color(0x40FFD9A8), Color(0x00FFD9A8)],
+        ).createShader(Offset.zero & Size(size.width, size.height * .3)),
+    );
+  }
+
+  @override
+  bool shouldRepaint(_FlamePainter old) => old.t != t;
 }
 
 /// A small translucent pill («× Закрыть чат»).
@@ -183,34 +228,23 @@ class SuggestionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Material(
     color: AiLook.panel(.26),
-    shape: RoundedSuperellipseBorder(borderRadius: BorderRadius.circular(18)),
+    shape: const StadiumBorder(),
     child: InkWell(
       onTap: onTap,
-      customBorder: RoundedSuperellipseBorder(
-        borderRadius: BorderRadius.circular(18),
-      ),
-      child: SizedBox(
-        width: 148,
-        height: 108,
-        child: Padding(
-          padding: const EdgeInsets.all(14),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(CupertinoIcons.sparkles, size: 18, color: accent),
-              const Spacer(),
-              Text(
-                text,
-                maxLines: 3,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  color: AiLook.ink,
-                  fontSize: 13,
-                  height: 1.25,
-                ),
-              ),
-            ],
-          ),
+      customBorder: const StadiumBorder(),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(12, 9, 14, 9),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(CupertinoIcons.sparkles, size: 15, color: accent),
+            const SizedBox(width: 7),
+            Text(
+              text,
+              maxLines: 1,
+              style: const TextStyle(color: AiLook.ink, fontSize: 13.5),
+            ),
+          ],
         ),
       ),
     ),

@@ -21,6 +21,8 @@ class InsightTile extends StatelessWidget {
     InsightKind.anomaly => CupertinoIcons.exclamationmark_circle,
     InsightKind.latePayment => CupertinoIcons.clock,
     InsightKind.frequency => CupertinoIcons.waveform_path_ecg,
+    InsightKind.priceChange => CupertinoIcons.tag,
+    InsightKind.cushion => CupertinoIcons.shield,
     InsightKind.budgetRisk => CupertinoIcons.gauge,
     InsightKind.trend => CupertinoIcons.chart_bar_alt_fill,
     InsightKind.incomeStability => CupertinoIcons.waveform_path_ecg,

@@ -1,6 +1,7 @@
 import '../../../domain/finance_engine.dart';
 import '../../../domain/models.dart';
 import '../classification/merchant_intelligence.dart';
+import '../detectors/refund_detector.dart';
 
 /// The data every engine works from, prepared once: posted operations in
 /// the base currency, the current period and per-month slices.
@@ -8,9 +9,13 @@ import '../classification/merchant_intelligence.dart';
 /// Operations in other currencies are left out of the analysis (amounts in
 /// different currencies cannot be added honestly without a rate).
 class AiContext {
-  AiContext(this.data, {DateTime? now, DateTime? periodStart})
-    : now = now ?? DateTime.now(),
-      currency = data.preferences.baseCurrency {
+  AiContext(
+    this.data, {
+    DateTime? now,
+    DateTime? periodStart,
+    this.excludedMonths = const {},
+  }) : now = now ?? DateTime.now(),
+       currency = data.preferences.baseCurrency {
     final start = periodStart ?? _periodStart(data, this.now);
     this.periodStart = start;
     periodEnd = DateTime(start.year, start.month + 1, start.day);
@@ -20,14 +25,30 @@ class AiContext {
             .toList()
           ..sort((a, b) => a.date.compareTo(b.date));
     expenses = posted.where((e) => e.kind == EntryKind.expense).toList();
-    incomes = posted.where((e) => e.kind == EntryKind.income).toList();
+    // Money that came back is not income (see [RefundDetector]).
+    final allIncome = posted.where((e) => e.kind == EntryKind.income);
+    refunds = [
+      for (final e in allIncome)
+        if (RefundDetector.isRefund(e, posted)) e,
+    ];
+    final refundIds = {for (final e in refunds) e.id};
+    incomes = [
+      for (final e in allIncome)
+        if (!refundIds.contains(e.id)) e,
+    ];
   }
+
+  /// Periods the person asked not to count in forecasts (`yyyy-m`, the
+  /// month the period starts in): an unusual month — a move, a repair.
+  final Set<String> excludedMonths;
+
+  static String monthKey(DateTime start) => '${start.year}-${start.month}';
 
   final FinanceData data;
   final DateTime now;
   final String currency;
   late final DateTime periodStart, periodEnd;
-  late final List<FinanceEntry> posted, expenses, incomes;
+  late final List<FinanceEntry> posted, expenses, incomes, refunds;
 
   static DateTime _periodStart(FinanceData data, DateTime now) {
     final day = data.preferences.monthStart.clamp(1, 28);
@@ -73,10 +94,13 @@ class AiContext {
   int get periodDays => periodEnd.difference(periodStart).inDays;
   int get daysLeft => (periodDays - daysPassed).clamp(0, periodDays);
 
-  /// Full periods back with at least one expense (most recent first).
-  List<int> get fullPeriodsWithData => [
+  /// Full periods back with at least one expense (most recent first),
+  /// without the ones excluded from forecasts.
+  late final List<int> fullPeriodsWithData = [
     for (var back = 1; back <= 12; back++)
-      if (expensesIn(period(back).$1, period(back).$2).isNotEmpty) back,
+      if (!excludedMonths.contains(monthKey(period(back).$1)) &&
+          expensesIn(period(back).$1, period(back).$2).isNotEmpty)
+        back,
   ];
 
   /// Total of the accounts that count in the balance, base currency.

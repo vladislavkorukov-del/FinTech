@@ -1,4 +1,5 @@
 import '../../../domain/models.dart';
+import 'ai_models.dart' show RecurringCandidate;
 
 /// Phase 1 structured results: traceability of insights, comparisons of
 /// any two periods, the cash-flow timeline and frequency anomalies. Like the
@@ -154,4 +155,105 @@ class CashflowTimeline {
 class FrequencyAnomaly {
   const FrequencyAnomaly({required this.count, required this.typical});
   final int count, typical;
+}
+
+/// What a regular payment is. Only [subscription] counts as a subscription;
+/// rent, loans, utilities and transfers repeat too but are obligations.
+enum PaymentNature { subscription, rent, loan, utilities, transfer, other }
+
+/// A dream's outlook at the current saving pace.
+class GoalForecast {
+  const GoalForecast({
+    required this.goal,
+    required this.saved,
+    required this.left,
+    required this.monthlyPace,
+    this.monthlyNeed,
+    this.expectedDate,
+  });
+  final Goal goal;
+  final int saved, left;
+
+  /// Average monthly saving into it over the last three months.
+  final int monthlyPace;
+
+  /// What is needed a month to make the deadline (null without one).
+  final int? monthlyNeed;
+
+  /// When it is reached at the current pace (null: no pace yet).
+  final DateTime? expectedDate;
+
+  /// About a week's share of the monthly need.
+  int? get weeklyNeed =>
+      monthlyNeed == null ? null : (monthlyNeed! * 12 / 52 / 100).ceil() * 100;
+
+  /// Ahead (positive) or behind (negative) the needed monthly saving.
+  int? get deviation => monthlyNeed == null ? null : monthlyPace - monthlyNeed!;
+
+  bool get done => left <= 0;
+}
+
+/// Subscriptions at a glance: what they cost, what is new, what changed and
+/// what stopped.
+class SubscriptionAnalytics {
+  const SubscriptionAnalytics({
+    required this.monthly,
+    required this.count,
+    required this.added,
+    required this.priceChanged,
+    required this.stopped,
+  });
+
+  /// Cost of all subscriptions a month (tracked ones and confirmed found
+  /// ones), in minor units.
+  final int monthly;
+  final int count;
+  int get yearly => monthly * 12;
+
+  /// First seen within the last 45 days.
+  final List<RecurringCandidate> added;
+
+  /// The latest payment differs from the usual.
+  final List<RecurringCandidate> priceChanged;
+
+  /// Used to repeat, silent now.
+  final List<RecurringCandidate> stopped;
+}
+
+/// How many months the savings would cover.
+class Cushion {
+  const Cushion({
+    required this.savings,
+    required this.monthlyExpenses,
+    required this.monthlyMandatory,
+  });
+
+  /// Savings and deposit accounts, base currency.
+  final int savings;
+
+  /// Typical monthly spending (median of recent full months).
+  final int monthlyExpenses;
+
+  /// Regular obligations a month.
+  final int monthlyMandatory;
+
+  double? get months => monthlyExpenses <= 0 ? null : savings / monthlyExpenses;
+  double? get mandatoryMonths =>
+      monthlyMandatory <= 0 ? null : savings / monthlyMandatory;
+}
+
+/// One part of the stability index and why it scored so.
+class StabilityFactor {
+  const StabilityFactor(this.name, this.points, this.max, this.reason);
+  final String name, reason;
+  final int points, max;
+}
+
+/// Finora's stability index (0–100) — not a credit score: how steady the
+/// money is, with the reasons, so a change can be understood.
+class StabilityScore {
+  const StabilityScore(this.factors);
+  final List<StabilityFactor> factors;
+  int get score => factors.fold(0, (a, f) => a + f.points);
+  int get max => factors.fold(0, (a, f) => a + f.max);
 }

@@ -4,6 +4,7 @@ import '../detectors/recurring_detector.dart';
 import '../forecasting/cashflow_engine.dart';
 import '../forecasting/forecast_engine.dart';
 import '../insights/budget_risk_engine.dart';
+import '../insights/financial_health_engine.dart';
 import '../insights/financial_pattern_engine.dart';
 import '../insights/insight_engine.dart';
 import '../insights/month_comparison_engine.dart';
@@ -31,6 +32,10 @@ class FinoraAiSnapshot {
     required this.regularIncome,
     required this.timeline,
     required this.frequency,
+    required this.goalForecasts,
+    required this.subscriptionStats,
+    required this.cushion,
+    required this.stability,
     this.memory,
   });
 
@@ -40,7 +45,14 @@ class FinoraAiSnapshot {
     DateTime? now,
     DateTime? periodStart,
   }) {
-    final ctx = AiContext(data, now: now, periodStart: periodStart);
+    final ctx = AiContext(
+      data,
+      now: now,
+      periodStart: periodStart,
+      excludedMonths: memory?.excludedMonths ?? const {},
+    );
+    final patterns = FinancialPatternEngine.compute(ctx);
+    final cushion = FinancialHealthEngine.cushion(ctx);
     final anomalies = AnomalyDetector.detect(ctx);
     final recurring = RecurringDetector.detect(ctx, memory: memory);
     final regularIncome = RecurringDetector.detect(
@@ -57,6 +69,17 @@ class FinoraAiSnapshot {
         found: [...recurring, ...regularIncome],
       ),
       frequency: AnomalyDetector.frequency(ctx),
+      goalForecasts: FinancialHealthEngine.goals(ctx),
+      subscriptionStats: FinancialHealthEngine.subscriptions(
+        ctx,
+        memory: memory,
+      ),
+      cushion: cushion,
+      stability: FinancialHealthEngine.stability(
+        ctx,
+        income: patterns.incomeStability,
+        cushion: cushion,
+      ),
       ctx: ctx,
       comparison: MonthComparisonEngine.compute(ctx),
       aboveUsual: MonthComparisonEngine.aboveUsual(ctx),
@@ -66,7 +89,7 @@ class FinoraAiSnapshot {
       recurring: recurring,
       subscriptions: RecurringDetector.subscriptions(ctx, memory: memory),
       risks: BudgetRiskEngine.compute(ctx, anomalies: anomalies),
-      patterns: FinancialPatternEngine.compute(ctx),
+      patterns: patterns,
       budgetSuggestions: RecommendationEngine.budgets(ctx, memory: memory),
       goalNeeds: RecommendationEngine.goalNeeds(ctx),
     );
@@ -90,6 +113,13 @@ class FinoraAiSnapshot {
   /// The rest of the period day by day, with late regular payments.
   final CashflowTimeline timeline;
   final FrequencyAnomaly? frequency;
+
+  /// Each dream at the current pace; subscriptions' costs and changes; how
+  /// long savings would last; the stability index with its reasons.
+  final List<GoalForecast> goalForecasts;
+  final SubscriptionAnalytics subscriptionStats;
+  final Cushion? cushion;
+  final StabilityScore? stability;
 
   /// The person's memory (snoozed insights, rejections), when known.
   final PersonalMemory? memory;

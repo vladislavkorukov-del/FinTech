@@ -107,6 +107,20 @@ class FinoraAi {
     memoryRepository.saveSoon();
   }
 
+  /// «Не учитывать этот месяц в прогнозах» — an unusual month (a move, a
+  /// repair) stops weighing on the everyday pace.
+  void excludeMonth(String month) {
+    memory.excludedMonths.add(month);
+    memory.reject('unusual:$month');
+    memoryRepository.saveSoon();
+  }
+
+  /// «Учитывать как обычный» — the question is not asked again.
+  void keepMonth(String month) {
+    memory.reject('unusual:$month');
+    memoryRepository.saveSoon();
+  }
+
   void rejectBudget(String categoryId) {
     Feedback.rejectBudget(memory, categoryId);
     memoryRepository.saveSoon();
@@ -152,14 +166,22 @@ class FinoraAi {
         );
       case AiIntent.subscriptions:
         final subs = of(InsightKind.subscription);
+        final summary = ResponseLayer.subscriptionSummary(s);
+        final found = join(subs, '');
+        final text = [summary, found].where((t) => t.isNotEmpty).join('\n');
         return AiAnswer(
           q,
-          join(
-            subs,
-            'Новых регулярных платежей, похожих на подписки, я не нашла.',
-          ),
+          text.isEmpty
+              ? 'Подписок и похожих на них регулярных платежей я не нашла.'
+              : text,
           insights: subs,
         );
+      case AiIntent.cushion:
+        return AiAnswer(q, ResponseLayer.cushion(s));
+      case AiIntent.stability:
+        return AiAnswer(q, ResponseLayer.stability(s));
+      case AiIntent.payments:
+        return AiAnswer(q, ResponseLayer.upcoming(s));
       case AiIntent.anomalies:
         final list = of(InsightKind.anomaly);
         return AiAnswer(

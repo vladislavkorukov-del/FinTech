@@ -182,6 +182,9 @@ class RecurringCandidate {
     this.serviceId,
     this.kind = EntryKind.expense,
     int? lastAmount,
+    this.nature = PaymentNature.other,
+    this.silentDays = 0,
+    this.firstDate,
   }) : lastAmount = lastAmount ?? typicalAmount;
   final String merchantKey, displayName;
   final Cadence cadence;
@@ -201,6 +204,24 @@ class RecurringCandidate {
 
   /// The latest payment's amount.
   final int lastAmount;
+
+  /// Subscription, rent, loan, utilities, transfer or other.
+  final PaymentNature nature;
+
+  /// Days since the last payment, and when the rhythm began.
+  final int silentDays;
+  final DateTime? firstDate;
+
+  /// Used to repeat but has been silent for well over two rhythms.
+  bool get stopped => silentDays > _typicalDays * 2.5 + 10;
+
+  int get _typicalDays => switch (cadence) {
+    Cadence.weekly => 7,
+    Cadence.biweekly => 14,
+    Cadence.monthly => 30,
+    Cadence.quarterly => 91,
+    Cadence.yearly => 365,
+  };
 
   /// The latest payment differs from the usual one (by 5% and 10 ₽): a
   /// subscription going from 169 to 199 ₽ counts.
@@ -305,13 +326,27 @@ class BudgetRisk {
     required this.spent,
     required this.projected,
     required this.probability,
+    this.due = 0,
+    this.daysLeft = 0,
   });
   final Budget budget;
   final int spent, projected;
 
+  /// Regular payments of the budget's categories still due this period.
+  final int due;
+  final int daysLeft;
+
   /// 0–1: chance the budget is exceeded by the end of the period.
   final double probability;
   int get overrun => projected - budget.limitMinor;
+
+  /// What can still be spent a day to stay within the limit (after the
+  /// payments due); 0 when nothing is left. Whole rubles.
+  int get safeDaily {
+    final left = budget.limitMinor - spent - due;
+    if (left <= 0 || daysLeft <= 0) return 0;
+    return (left / daysLeft / 100).floor() * 100;
+  }
 }
 
 enum Trend { rising, falling }
@@ -393,6 +428,12 @@ enum InsightKind {
 
   /// Many more operations than usual by this day of the period.
   frequency,
+
+  /// A subscription's latest payment differs from its usual sum.
+  priceChange,
+
+  /// Savings cover less than a month of usual spending.
+  cushion,
   notEnoughData,
 }
 
@@ -443,6 +484,8 @@ class Insight {
         InsightKind.growth ||
         InsightKind.subscription ||
         InsightKind.frequency ||
+        InsightKind.priceChange ||
+        InsightKind.cushion ||
         InsightKind.unusualMonth => InsightSeverity.notice,
         InsightKind.decrease => InsightSeverity.positive,
         InsightKind.freeMoney when (amount ?? 0) < 0 => InsightSeverity.warning,

@@ -10,7 +10,6 @@ import '../../../presentation/widgets/common.dart' show showError;
 import '../../../presentation/widgets/finora_orb.dart';
 import '../../../presentation/widgets/profile_avatar.dart';
 import '../../../services/voice_input_service.dart';
-import '../responses/response_layer.dart';
 import '../services/finora_ai.dart';
 import '../services/finora_ai_snapshot.dart';
 import '../widgets/ai_chat_widgets.dart';
@@ -250,53 +249,33 @@ class _FinoraAiScreenState extends State<FinoraAiScreen> {
   }
 
   Widget _welcome(FinoraAiSnapshot s, Color accent) {
-    final first = s.ctx.data.preferences.ai.insights
-        ? s.top.firstOrNull ?? s.insights.firstOrNull
-        : null;
     return Column(
       key: const ValueKey('ai-welcome'),
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _header(s, chat: false),
+        // Just a quiet question in the middle.
         Expanded(
-          child: ListView(
-            padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
-            children: [
-              SizedBox(height: MediaQuery.sizeOf(context).height * .12),
-              const Text(
-                'Чем займёмся\nсегодня?',
-                style: TextStyle(
-                  color: AiLook.ink,
-                  fontSize: 36,
-                  height: 1.08,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: -.8,
-                ),
+          child: Center(
+            child: Text(
+              'Чем могу помочь?',
+              key: const ValueKey('finora-ai-headline'),
+              style: TextStyle(
+                color: AiLook.soft(.92),
+                fontSize: 17,
+                fontWeight: FontWeight.w500,
+                letterSpacing: -.2,
               ),
-              const SizedBox(height: 12),
-              Text(
-                !s.ctx.data.preferences.ai.insights
-                    ? 'Спроси о деньгах — посчитаю по твоим операциям.'
-                    : first == null
-                    ? ResponseLayer.notEnough
-                    : ResponseLayer.insight(s, first),
-                key: const ValueKey('finora-ai-headline'),
-                style: TextStyle(
-                  color: AiLook.soft(.72),
-                  fontSize: 14.5,
-                  height: 1.35,
-                ),
-              ),
-            ],
+            ),
           ),
         ),
         SizedBox(
-          height: 108,
+          height: 40,
           child: ListView.separated(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             scrollDirection: Axis.horizontal,
             itemCount: suggestions.length,
-            separatorBuilder: (_, _) => const SizedBox(width: 10),
+            separatorBuilder: (_, _) => const SizedBox(width: 8),
             itemBuilder: (context, i) => SuggestionCard(
               text: suggestions[i],
               accent: accent,
@@ -309,6 +288,76 @@ class _FinoraAiScreenState extends State<FinoraAiScreen> {
       ],
     );
   }
+
+  /// The model picker, as in chat apps: FinAI 1.0 is the one model, local
+  /// and offline; cloud models are not connected.
+  Future<void> _models() => showModalBottomSheet<void>(
+    context: context,
+    backgroundColor: const Color(0xFF1A0E0A),
+    showDragHandle: true,
+    builder: (context) => SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Padding(
+              padding: EdgeInsets.fromLTRB(8, 0, 8, 10),
+              child: Text(
+                'Модель',
+                style: TextStyle(
+                  color: AiLook.ink,
+                  fontSize: 17,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            ListTile(
+              key: const ValueKey('finora-ai-model-finai'),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              tileColor: AiLook.orange.withValues(alpha: .14),
+              leading: const Icon(
+                CupertinoIcons.sparkles,
+                color: AiLook.orange,
+              ),
+              title: const Text(
+                'FinAI 1.0',
+                style: TextStyle(
+                  color: AiLook.ink,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              subtitle: Text(
+                'На устройстве · без интернета · считает по вашим операциям',
+                style: TextStyle(color: AiLook.soft(.6), fontSize: 12.5),
+              ),
+              trailing: const Icon(
+                CupertinoIcons.checkmark_alt,
+                color: AiLook.orange,
+              ),
+              onTap: () => Navigator.pop(context),
+            ),
+            const SizedBox(height: 8),
+            ListTile(
+              enabled: false,
+              leading: Icon(CupertinoIcons.cloud, color: AiLook.soft(.35)),
+              title: Text(
+                'Облачные модели',
+                style: TextStyle(color: AiLook.soft(.45)),
+              ),
+              subtitle: Text(
+                'Не подключены — данные остаются на телефоне',
+                style: TextStyle(color: AiLook.soft(.35), fontSize: 12.5),
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
 
   Widget _composer(Color accent, {required bool big}) => Padding(
     padding: const EdgeInsets.fromLTRB(14, 0, 14, 12),
@@ -353,39 +402,50 @@ class _FinoraAiScreenState extends State<FinoraAiScreen> {
             const SizedBox(height: 8),
             Row(
               children: [
+                // The active model, tappable like a model picker.
                 Expanded(
                   child: Align(
                     alignment: Alignment.centerLeft,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 7,
+                    child: Material(
+                      color: accent.withValues(alpha: .18),
+                      shape: StadiumBorder(
+                        side: BorderSide(color: accent.withValues(alpha: .55)),
                       ),
-                      decoration: ShapeDecoration(
-                        color: AiLook.soft(.08),
-                        shape: const StadiumBorder(),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            CupertinoIcons.lock_shield,
-                            size: 14,
-                            color: AiLook.soft(.6),
-                          ),
-                          const SizedBox(width: 6),
-                          Flexible(
-                            child: Text(
-                              'Финора · на устройстве',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                color: AiLook.soft(.7),
-                                fontSize: 12.5,
+                      child: InkWell(
+                        key: const ValueKey('finora-ai-model'),
+                        customBorder: const StadiumBorder(),
+                        onTap: () {
+                          Haptics.light();
+                          _models();
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(10, 7, 8, 7),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                CupertinoIcons.sparkles,
+                                size: 14,
+                                color: accent,
                               ),
-                            ),
+                              const SizedBox(width: 6),
+                              const Text(
+                                'FinAI 1.0',
+                                style: TextStyle(
+                                  color: AiLook.ink,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              const SizedBox(width: 2),
+                              Icon(
+                                CupertinoIcons.chevron_down,
+                                size: 12,
+                                color: AiLook.soft(.75),
+                              ),
+                            ],
                           ),
-                        ],
+                        ),
                       ),
                     ),
                   ),

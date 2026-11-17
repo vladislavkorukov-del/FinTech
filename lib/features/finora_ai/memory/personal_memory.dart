@@ -12,15 +12,17 @@ class PersonalMemory {
     Set<String>? confirmedSubscriptions,
     Set<String>? confirmedRecurring,
     Map<String, DateTime>? snoozed,
+    Set<String>? excludedMonths,
   }) : snoozed = snoozed ?? {},
+       excludedMonths = excludedMonths ?? {},
        merchants = merchants ?? {},
        corrections = corrections ?? [],
        rejected = rejected ?? {},
        confirmedSubscriptions = confirmedSubscriptions ?? {},
        confirmedRecurring = confirmedRecurring ?? {};
 
-  /// 2: snoozed insights.
-  static const version = 2;
+  /// 2: snoozed insights; 3: months excluded from forecasts.
+  static const version = 3;
   static const _maxCorrections = 300;
 
   /// merchant key → category id → votes.
@@ -37,6 +39,9 @@ class PersonalMemory {
   /// Insights the person put aside: dedup key → shown again after this
   /// moment (a cooldown, so the same fact is not repeated every day).
   final Map<String, DateTime> snoozed;
+
+  /// Unusual months the person asked not to count in forecasts (`yyyy-m`).
+  final Set<String> excludedMonths;
 
   /// Hides insights with [dedupKey] for [days].
   void snooze(String dedupKey, {int days = 7, DateTime? now}) =>
@@ -143,6 +148,7 @@ class PersonalMemory {
     'rejected': rejected.toList(),
     'subscriptions': confirmedSubscriptions.toList(),
     'recurring': confirmedRecurring.toList(),
+    'excludedMonths': excludedMonths.toList(),
     'snoozed': {
       for (final e in snoozed.entries) e.key: e.value.toIso8601String(),
     },
@@ -166,6 +172,9 @@ class PersonalMemory {
     },
     confirmedRecurring: {
       ...(json['recurring'] as List? ?? const []).cast<String>(),
+    },
+    excludedMonths: {
+      ...(json['excludedMonths'] as List? ?? const []).cast<String>(),
     },
     snoozed: {
       for (final e in (json['snoozed'] as Map? ?? const {}).entries)

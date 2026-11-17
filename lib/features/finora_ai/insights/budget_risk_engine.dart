@@ -62,6 +62,8 @@ abstract final class BudgetRiskEngine {
           spent: spent,
           projected: projected,
           probability: probability,
+          due: due,
+          daysLeft: ctx.daysLeft,
         ),
       );
     }

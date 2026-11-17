@@ -19,6 +19,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:intl/intl.dart';
 
 import '../../domain/models.dart';
+import '../../domain/duplicate_detector.dart';
 import '../../domain/finance_engine.dart';
 import '../../domain/bank_statement_parser.dart';
 import '../../domain/scan_document.dart';
@@ -29,6 +30,7 @@ import '../haptics.dart';
 import '../finora_reactions.dart';
 import '../widgets/amount_format.dart';
 import '../widgets/common.dart';
+import '../widgets/grouped_list.dart' show confirmWithFinora;
 import '../widgets/amount_pad.dart';
 import '../widgets/service_badge.dart';
 import 'management.dart';
@@ -500,6 +502,29 @@ class _EntryEditorState extends State<EntryEditor> {
             ? null
             : widget.entry?.serviceIconPath,
       );
+      // A new operation that looks like one already saved: ask, never
+      // drop it silently.
+      if (widget.entry == null) {
+        final twins = DuplicateDetector.find(entry, c.data.entries);
+        if (twins.isNotEmpty) {
+          final twin = twins.first;
+          final keep = await confirmWithFinora(
+            context,
+            title: 'Похоже, такая операция уже есть',
+            message:
+                '${twin.payee.isEmpty ? (c.category(twin.categoryId)?.name ?? 'Операция') : twin.payee}'
+                ' · ${money(twin.amountMinor, twin.currency)} · '
+                '${DateFormat('d MMMM, HH:mm', AppLanguage.intl).format(twin.date)}. '
+                'Сохранить ещё одну?',
+            action: 'Сохранить',
+            cancel: 'Не сохранять',
+          );
+          if (!keep) {
+            if (mounted) setState(() => _busy = false);
+            return;
+          }
+        }
+      }
       await c.mutate((data) {
         FinanceEngine.validateEntry(entry, data);
         final original = data.entries

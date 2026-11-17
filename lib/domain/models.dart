@@ -1015,6 +1015,7 @@ class AiSettings {
     this.insights = true,
     this.personalization = true,
     this.automation = AiAutomation.smart,
+    this.smartNotifications = true,
   });
 
   /// Off: no suggestions or automatic choices anywhere (the chat stays).
@@ -1033,6 +1034,10 @@ class AiSettings {
   final bool personalization;
   final AiAutomation automation;
 
+  /// At most one useful notification a day: money may run short, an
+  /// unusual expense, a late payment, a dearer subscription.
+  final bool smartNotifications;
+
   AiSettings copyWith({
     bool? enabled,
     bool? autoCategorize,
@@ -1040,6 +1045,7 @@ class AiSettings {
     bool? insights,
     bool? personalization,
     AiAutomation? automation,
+    bool? smartNotifications,
   }) => AiSettings(
     enabled: enabled ?? this.enabled,
     autoCategorize: autoCategorize ?? this.autoCategorize,
@@ -1047,6 +1053,7 @@ class AiSettings {
     insights: insights ?? this.insights,
     personalization: personalization ?? this.personalization,
     automation: automation ?? this.automation,
+    smartNotifications: smartNotifications ?? this.smartNotifications,
   );
 
   Map<String, Object?> toJson() => {
@@ -1056,6 +1063,7 @@ class AiSettings {
     'insights': insights,
     'personalization': personalization,
     'automation': automation.name,
+    'smartNotifications': smartNotifications,
   };
 
   factory AiSettings.fromJson(Object? value) {
@@ -1066,6 +1074,7 @@ class AiSettings {
       suggestCategories: json['suggestCategories'] as bool? ?? true,
       insights: json['insights'] as bool? ?? true,
       personalization: json['personalization'] as bool? ?? true,
+      smartNotifications: json['smartNotifications'] as bool? ?? true,
       automation:
           AiAutomation.values
               .where((a) => a.name == json['automation'])

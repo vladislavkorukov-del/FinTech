@@ -2,6 +2,9 @@ import 'dart:convert';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+
+import '../features/finora_ai/services/finora_ai.dart';
+import '../features/finora_ai/services/smart_notifications.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:timezone/data/latest.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
@@ -245,6 +248,24 @@ class NotificationService {
         );
       }
     }
+    // Finora AI's smart notifications: at most one a day, never the same
+    // fact twice, the most important first. A failing engine never stops
+    // the regular reminders.
+    try {
+      final notice = SmartNotifications.pick(
+        SmartNotifications.candidates(
+          data,
+          now: now,
+          memory: FinoraAi.instance.memory,
+        ),
+        seen,
+        now,
+      );
+      if (notice != null) {
+        seen.add(SmartNotifications.dayKey(now));
+        await showOnce(notice.key, notice.title, notice.body);
+      }
+    } catch (_) {}
     final dates = data.entries.map((entry) => entry.date).toList()..sort();
     if (dates.isNotEmpty) {
       final inactiveSince = dates.last.add(const Duration(days: 7));

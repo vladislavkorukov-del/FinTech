@@ -31,10 +31,38 @@ abstract final class RecurringDetector {
       ? Cadence.yearly
       : null;
 
+  static final _rent = RegExp(r'аренд|квартплат|найм|rent');
+  static final _loan = RegExp(
+    r'кредит|ипотек|заем|займ|рассрочк|долг|loan|mortgage|микрофин',
+  );
+  static final _utilities = RegExp(
+    r'жкх|жку|коммунал|электроэнерг|(^|\s)(свет|газ|вода)|водоканал|отоплен|'
+    r'мосэнерго|энергосбыт|управляющ|тсж|интернет|связь|телефон|ростелеком',
+  );
+  static final _transfer = RegExp(r'перевод|сбп|transfer|себе|маме|папе');
+
+  /// What a regular payment is, from its name, category and service:
+  /// rent, a loan, utilities and transfers are obligations, not
+  /// subscriptions, even when they repeat at the same sum.
+  static PaymentNature natureOf(
+    String name, {
+    String category = '',
+    bool knownService = false,
+  }) {
+    final t = '$name $category'.toLowerCase().replaceAll('ё', 'е');
+    if (_loan.hasMatch(t)) return PaymentNature.loan;
+    if (_rent.hasMatch(t)) return PaymentNature.rent;
+    if (knownService) return PaymentNature.subscription;
+    if (_utilities.hasMatch(t)) return PaymentNature.utilities;
+    if (_transfer.hasMatch(t)) return PaymentNature.transfer;
+    return PaymentNature.other;
+  }
+
   static List<RecurringCandidate> detect(
     AiContext ctx, {
     PersonalMemory? memory,
     EntryKind kind = EntryKind.expense,
+    bool includeStopped = false,
   }) {
     final income = kind == EntryKind.income;
     final groups = <String, List<FinanceEntry>>{};
@@ -60,7 +88,7 @@ abstract final class RecurringDetector {
       if (cadence == null) continue;
       // Silent for well over two rhythms: no longer an active payment.
       final silence = ctx.now.difference(list.last.date).inDays;
-      if (silence > typical * 2.5 + 10) continue;
+      if (!includeStopped && silence > typical * 2.5 + 10) continue;
       final regular =
           gaps.where((d) => (d - typical).abs() <= typical * .25).length /
           gaps.length;
@@ -81,8 +109,21 @@ abstract final class RecurringDetector {
           service != null &&
           !service.id.startsWith('store_') &&
           service.group != 'banks';
+      final nature = income
+          ? PaymentNature.other
+          : natureOf(
+              name,
+              category: ctx.categoryName(last.categoryId),
+              knownService: knownService,
+            );
+      // A steady sum is a subscription only when nothing says it is rent, a
+      // loan, utilities or a transfer.
       final subscription =
-          !income && (knownService || (cadence == Cadence.monthly && cv < .08));
+          !income &&
+          (nature == PaymentNature.subscription ||
+              (nature == PaymentNature.other &&
+                  cadence == Cadence.monthly &&
+                  cv < .08));
       final tracked = ctx.data.recurring.any(
         (r) =>
             AiContext.merchantKey(r.name) == g.key ||
@@ -122,6 +163,9 @@ abstract final class RecurringDetector {
           serviceId: knownService ? service.id : null,
           kind: kind,
           lastAmount: last.amountMinor,
+          nature: subscription ? PaymentNature.subscription : nature,
+          silentDays: silence,
+          firstDate: list.first.date,
         ),
       );
     }

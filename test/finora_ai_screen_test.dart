@@ -64,8 +64,21 @@ void main() {
       await tester.pump(const Duration(milliseconds: 50));
     }
     expect(find.byKey(const ValueKey('finora-ai-headline')), findsOneWidget);
-    expect(find.text('Чем займёмся\nсегодня?'), findsOneWidget);
+    expect(find.text('Чем могу помочь?'), findsOneWidget);
+    // The active model opens the model picker.
+    await tester.tap(find.byKey(const ValueKey('finora-ai-model')));
+    // The backdrop flows forever: step the clock instead of settling.
+    for (var i = 0; i < 8; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    expect(find.byKey(const ValueKey('finora-ai-model-finai')), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('finora-ai-model-finai')));
+    for (var i = 0; i < 8; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
     // A suggestion asks; the answer arrives after a short «thinking» beat.
+    await tester.ensureVisible(find.text('Почему трачу больше?'));
+    await tester.pump(const Duration(milliseconds: 300));
     await tester.tap(find.text('Почему трачу больше?'));
     await tester.pump();
     expect(find.text('Финора считает…'), findsOneWidget);

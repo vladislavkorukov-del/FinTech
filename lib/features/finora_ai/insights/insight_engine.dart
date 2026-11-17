@@ -1,5 +1,6 @@
 import '../memory/personal_memory.dart';
 import '../models/ai_models.dart';
+import '../services/ai_context.dart';
 import '../services/finora_ai_snapshot.dart';
 
 /// Turns the engines' results into a ranked list of insights. It does no
@@ -236,7 +237,16 @@ abstract final class InsightEngine {
         ),
       );
     }
-    for (final m in s.patterns.unusualMonths.reversed.take(1)) {
+    for (final m
+        in s.patterns.unusualMonths.reversed
+            .where(
+              (m) =>
+                  !(s.memory?.isRejected(
+                        'unusual:${AiContext.monthKey(m.month)}',
+                      ) ??
+                      false),
+            )
+            .take(1)) {
       out.add(
         Insight(
           kind: InsightKind.unusualMonth,
@@ -274,16 +284,52 @@ abstract final class InsightEngine {
         ),
       );
     }
-    for (final (goal, month) in s.goalNeeds.take(2)) {
+    // Dreams: what the deadline needs, and whether the pace keeps up.
+    for (final g in s.goalForecasts.where((g) => !g.done).take(2)) {
+      final need = g.monthlyNeed;
+      if (need == null && g.expectedDate == null) continue;
       out.add(
         Insight(
           kind: InsightKind.goal,
-          priority: 42,
-          subject: goal.name,
-          amount: month,
-          secondAmount: s.cashflow.afterAll,
-          confidence: .8,
-          trace: trace('RecommendationEngine', 'deadline-need'),
+          priority: need != null && (g.deviation ?? 0) < 0 ? 57 : 42,
+          subject: g.goal.name,
+          amount: need ?? g.monthlyPace,
+          secondAmount: g.monthlyPace,
+          severity: need != null && (g.deviation ?? 0) < 0
+              ? InsightSeverity.notice
+              : null,
+          confidence: g.monthlyPace > 0 ? .8 : .7,
+          trace: trace('FinancialHealthEngine', 'goal-pace-3-months'),
+        ),
+      );
+    }
+    // A subscription got dearer.
+    for (final c in s.subscriptionStats.priceChanged.take(1)) {
+      out.add(
+        Insight(
+          kind: InsightKind.priceChange,
+          priority: 54,
+          recurring: c,
+          subject: c.displayName,
+          amount: c.lastAmount,
+          secondAmount: c.typicalAmount,
+          confidence: c.confidence,
+          trace: trace('RecurringDetector', 'last-vs-median'),
+        ),
+      );
+    }
+    // Savings for less than a month of usual spending.
+    final cushion = s.cushion;
+    if (cushion?.months case final months? when months < 1) {
+      out.add(
+        Insight(
+          kind: InsightKind.cushion,
+          priority: 46,
+          amount: cushion!.savings,
+          secondAmount: cushion.monthlyExpenses,
+          percent: months * 100,
+          confidence: .75,
+          trace: trace('FinancialHealthEngine', 'savings-vs-median-month'),
         ),
       );
     }

@@ -18,6 +18,15 @@ enum AiIntent {
   goals,
   categorize,
   summary,
+
+  /// How long savings would last.
+  cushion,
+
+  /// The stability index and its reasons.
+  stability,
+
+  /// Payments coming up (the cash-flow timeline).
+  payments,
   unknown,
 }
 
@@ -41,6 +50,25 @@ abstract final class IntentParser {
         r'что (ты )?(умеешь|можешь|знаешь)|твои возможности|чем (ты )?'
         r'(можешь )?помо|что (у тебя )?(можно )?спросить|как (с )?тобой '
         r'польз|^помощь$|^help$',
+      ),
+    ),
+    (
+      AiIntent.payments,
+      RegExp(
+        r'ближайш\S* (платеж|списан|оплат)|какие платежи (скоро|впереди|ждут)|'
+        r'календар\S* платеж|когда (мне )?(платить|оплачивать)|'
+        r'что (нужно|надо) (оплатить|заплатить)',
+      ),
+    ),
+    (
+      AiIntent.cushion,
+      RegExp(r'подушк|на сколько (месяцев |времени )?хватит|финансов\S* запас'),
+    ),
+    (
+      AiIntent.stability,
+      RegExp(
+        r'индекс|финансов\S* стабильн|стабильн\S* (у меня )?финанс|'
+        r'насколько (я |у меня )?стабил|оцен\S* (мои |моих )?финанс',
       ),
     ),
     (

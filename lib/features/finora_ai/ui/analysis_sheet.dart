@@ -4,6 +4,7 @@ import '../../../presentation/l10n_widgets.dart';
 import '../../../presentation/widgets/common.dart';
 import '../models/ai_models.dart';
 import '../responses/response_layer.dart';
+import '../services/ai_context.dart';
 import '../services/finora_ai.dart';
 import '../services/finora_ai_snapshot.dart';
 import '../widgets/ai_chat_widgets.dart';
@@ -180,6 +181,108 @@ class _AnalysisState extends State<_Analysis> {
                 ),
               ),
             ),
+        ],
+        // Phase 3: payments ahead, subscriptions, savings and stability,
+        // dreams — each only when there is something to show.
+        if (s.timeline.events.isNotEmpty || s.timeline.late.isNotEmpty) ...[
+          title('Ближайшие платежи'),
+          SurfaceCard(
+            key: const ValueKey('finora-ai-upcoming'),
+            child: Text(ResponseLayer.upcoming(s)),
+          ),
+        ],
+        if (ResponseLayer.subscriptionSummary(s).isNotEmpty) ...[
+          title('Подписки'),
+          SurfaceCard(
+            key: const ValueKey('finora-ai-subscriptions'),
+            child: Text(ResponseLayer.subscriptionSummary(s)),
+          ),
+        ],
+        if (s.cushion != null || s.stability != null) ...[
+          title('Подушка и стабильность'),
+          SurfaceCard(
+            key: const ValueKey('finora-ai-health'),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (s.cushion != null) Text(ResponseLayer.cushion(s)),
+                if (s.cushion != null && s.stability != null)
+                  const SizedBox(height: 10),
+                if (s.stability != null) Text(ResponseLayer.stability(s)),
+              ],
+            ),
+          ),
+        ],
+        if (s.goalForecasts.any((g) => !g.done)) ...[
+          title('Мечты'),
+          SurfaceCard(
+            key: const ValueKey('finora-ai-goals'),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                for (final g in s.goalForecasts.where((g) => !g.done))
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: Text(
+                      ResponseLayer.insight(
+                        s,
+                        Insight(
+                          kind: InsightKind.goal,
+                          priority: 0,
+                          subject: g.goal.name,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ],
+        // An unusual month: should forecasts count it?
+        for (final i in s.insights.where(
+          (i) =>
+              i.kind == InsightKind.unusualMonth &&
+              !_answered.contains('month:${i.subject}'),
+        )) ...[
+          title('Необычный месяц'),
+          SurfaceCard(
+            key: const ValueKey('finora-ai-unusual'),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(ResponseLayer.insight(s, i)),
+                const SizedBox(height: 6),
+                const Text('Учитывать его в будущих прогнозах как обычный?'),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      key: const ValueKey('ai-month-exclude'),
+                      onPressed: () {
+                        FinoraAi.instance.excludeMonth(
+                          AiContext.monthKey(DateTime.parse(i.subject!)),
+                        );
+                        setState(() => _answered.add('month:${i.subject}'));
+                        widget.onChanged();
+                      },
+                      child: const Text('Нет'),
+                    ),
+                    TextButton(
+                      key: const ValueKey('ai-month-keep'),
+                      onPressed: () {
+                        FinoraAi.instance.keepMonth(
+                          AiContext.monthKey(DateTime.parse(i.subject!)),
+                        );
+                        setState(() => _answered.add('month:${i.subject}'));
+                        widget.onChanged();
+                      },
+                      child: const Text('Да, обычный'),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
         ],
         const SizedBox(height: 14),
         Text(
