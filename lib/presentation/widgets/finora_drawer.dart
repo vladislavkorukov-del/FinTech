@@ -1,29 +1,33 @@
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart' hide InputDecoration, Text;
 
-import '../../domain/models.dart';
-import '../controller.dart';
 import '../haptics.dart';
 import '../i18n.dart';
 import '../l10n_widgets.dart';
+import '../screens/achievements_screen.dart';
 import '../screens/entry_editor.dart';
+import '../screens/management.dart';
 import '../screens/settings.dart';
-import 'common.dart';
 import 'profile_avatar.dart';
 
 /// The app's navigation (Release), after a chat app's side panel: the name
-/// and search at the top, the main places with thin symbols, recent
-/// operations, and at the bottom the profile and «Новая операция».
+/// and search at the top, the main places with thin symbols, handy tools
+/// that already live in the app, and at the bottom the profile and
+/// «Новая операция».
 class FinoraDrawer extends StatelessWidget {
   const FinoraDrawer({
     super.key,
     required this.current,
     required this.onSelect,
+    this.onVoice,
   });
 
   /// The open place: 0 home, 1 operations, 3 analytics, 4 more, 5 Finora AI.
   final int current;
   final ValueChanged<int> onSelect;
+
+  /// Starts voice input (Finora's voice assistant, unchanged).
+  final VoidCallback? onVoice;
 
   static const places = <(int, IconData, String)>[
     (0, CupertinoIcons.house, 'Главная'),
@@ -42,10 +46,7 @@ class FinoraDrawer extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    final c = FinanceScope.of(context);
     final width = (MediaQuery.sizeOf(context).width * .86).clamp(280.0, 360.0);
-    final recent = [...c.data.entries.where((e) => e.status == 'posted')]
-      ..sort((a, b) => b.date.compareTo(a.date));
     void go(int place) {
       Haptics.light();
       Navigator.pop(context);
@@ -153,7 +154,7 @@ class FinoraDrawer extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(28, 10, 28, 6),
                     child: Text(
-                      tr('Недавние'),
+                      tr('Полезное'),
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
@@ -161,43 +162,74 @@ class FinoraDrawer extends StatelessWidget {
                       ),
                     ),
                   ),
-                  for (final e in recent.take(6))
-                    _Recent(
-                      entry: e,
+                  // Release: handy tools that already live in the app.
+                  for (final (key, icon, label, open)
+                      in <(String, IconData, String, VoidCallback)>[
+                        if (onVoice != null)
+                          (
+                            'voice',
+                            CupertinoIcons.mic,
+                            'Голосовой ввод',
+                            onVoice!,
+                          ),
+                        (
+                          'scan',
+                          CupertinoIcons.doc_text_viewfinder,
+                          'Скриншот из банка',
+                          () => showEntryEditor(context, startScan: true),
+                        ),
+                        (
+                          'shopping',
+                          CupertinoIcons.cart,
+                          'Список покупок',
+                          () =>
+                              openFinancePage(context, const ShoppingScreen()),
+                        ),
+                        (
+                          'recurring',
+                          CupertinoIcons.arrow_2_circlepath,
+                          'Платежи и подписки',
+                          () =>
+                              openFinancePage(context, const RecurringScreen()),
+                        ),
+                        (
+                          'calendar',
+                          CupertinoIcons.calendar,
+                          'Календарь',
+                          () =>
+                              openFinancePage(context, const CalendarScreen()),
+                        ),
+                        (
+                          'budgets',
+                          CupertinoIcons.chart_pie,
+                          'Бюджеты',
+                          () => openFinancePage(context, const BudgetsScreen()),
+                        ),
+                        (
+                          'goals',
+                          CupertinoIcons.star,
+                          'Мечты',
+                          () => openFinancePage(context, const GoalsScreen()),
+                        ),
+                        (
+                          'achievements',
+                          CupertinoIcons.rosette,
+                          'Достижения',
+                          () => openFinancePage(
+                            context,
+                            const AchievementsScreen(),
+                          ),
+                        ),
+                      ])
+                    _Tool(
+                      key: ValueKey('drawer-$key'),
+                      icon: icon,
+                      label: tr(label),
                       onTap: () {
+                        Haptics.light();
                         Navigator.pop(context);
-                        showEntryEditor(context, entry: e);
+                        open();
                       },
-                    ),
-                  if (recent.isEmpty)
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(28, 6, 28, 6),
-                      child: Text(
-                        'Операций пока нет',
-                        style: TextStyle(color: scheme.onSurfaceVariant),
-                      ),
-                    ),
-                  if (recent.length > 6)
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
-                      child: TextButton(
-                        style: TextButton.styleFrom(
-                          foregroundColor: scheme.onSurfaceVariant,
-                          alignment: Alignment.centerLeft,
-                        ),
-                        onPressed: () => go(1),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              tr('Показать все'),
-                              style: const TextStyle(fontSize: 16),
-                            ),
-                            const SizedBox(width: 4),
-                            const Icon(CupertinoIcons.chevron_right, size: 16),
-                          ],
-                        ),
-                      ),
                     ),
                 ],
               ),
@@ -262,54 +294,34 @@ class FinoraDrawer extends StatelessWidget {
   }
 }
 
-class _Recent extends StatelessWidget {
-  const _Recent({required this.entry, required this.onTap});
-  final FinanceEntry entry;
+class _Tool extends StatelessWidget {
+  const _Tool({
+    super.key,
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+  final IconData icon;
+  final String label;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final c = FinanceScope.of(context);
     final scheme = Theme.of(context).colorScheme;
-    final cat = c.category(entry.categoryId);
-    final name = entry.payee.trim().isNotEmpty
-        ? entry.payee.trim()
-        : entry.kind == EntryKind.transfer
-        ? tr('Перевод')
-        : cat?.name ?? '';
     return InkWell(
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 11),
+        padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 12),
         child: Row(
           children: [
-            Icon(
-              entry.kind == EntryKind.transfer
-                  ? CupertinoIcons.arrow_right_arrow_left
-                  : categoryIcon(cat?.icon ?? 26),
-              size: 20,
-              color: scheme.onSurfaceVariant,
-            ),
-            const SizedBox(width: 16),
+            Icon(icon, size: 21, color: scheme.primary),
+            const SizedBox(width: 18),
             Expanded(
               child: Text(
-                name,
+                label,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(fontSize: 16, color: scheme.onSurface),
-              ),
-            ),
-            Text(
-              '${entry.kind == EntryKind.income
-                  ? '+'
-                  : entry.kind == EntryKind.expense
-                  ? '−'
-                  : ''}'
-              '${money(entry.amountMinor, entry.currency)}',
-              style: TextStyle(
-                fontSize: 13.5,
-                color: scheme.onSurfaceVariant,
-                fontFeatures: const [FontFeature.tabularFigures()],
               ),
             ),
           ],

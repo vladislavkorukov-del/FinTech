@@ -217,11 +217,8 @@ void main() {
         final summary = find.byKey(const ValueKey('dashboard-month-summary'));
         final actions = find.byKey(const ValueKey('dashboard-actions'));
         expect(find.byKey(const ValueKey('dashboard-balance')), findsNothing);
-        // Release: a quiet caption over the balance, in the header only.
-        expect(
-          find.descendant(of: header, matching: find.text('Общий баланс')),
-          findsOneWidget,
-        );
+        // Release: the balance sits in the header row, without a caption.
+        expect(find.text('Общий баланс'), findsNothing);
         // The total is shown once, in the header; account rows keep their
         // own balances.
         expect(
@@ -231,7 +228,7 @@ void main() {
           ),
           findsOneWidget,
         );
-        expect(find.textContaining('Общий баланс'), findsOneWidget);
+        expect(find.textContaining('Общий баланс'), findsNothing);
         expect(find.bySemanticsLabel(RegExp('^Общий баланс')), findsOneWidget);
         expect(top(header), lessThan(top(summary)));
         expect(top(summary), lessThan(top(actions)));

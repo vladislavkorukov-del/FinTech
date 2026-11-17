@@ -18,3 +18,15 @@ Future<void> openPlace(WidgetTester tester, String label) async {
     await tester.pump(const Duration(milliseconds: 80));
   }
 }
+
+/// Starts voice input from the side panel («Полезное» → «Голосовой ввод»).
+Future<void> startVoice(WidgetTester tester) async {
+  await tester.tap(find.byKey(const ValueKey('nav-menu')).first);
+  for (var i = 0; i < 6; i++) {
+    await tester.pump(const Duration(milliseconds: 80));
+  }
+  await tester.tap(find.byKey(const ValueKey('drawer-voice')));
+  for (var i = 0; i < 6; i++) {
+    await tester.pump(const Duration(milliseconds: 80));
+  }
+}

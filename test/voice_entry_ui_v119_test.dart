@@ -14,6 +14,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
+import 'support/nav.dart';
+
 class _Quiet extends NotificationService {
   @override
   Future<void> sync(FinanceData data) async {}
@@ -91,7 +93,7 @@ void main() {
       FinoraApp(controller: controller, requireDeviceSecurity: false),
     );
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const ValueKey('nav-voice')));
+    await startVoice(tester);
     await flush(
       tester,
       () => find.byKey(const ValueKey('voice-heard')).evaluate().isNotEmpty,
@@ -153,17 +155,15 @@ void main() {
       FinoraApp(controller: controller, requireDeviceSecurity: false),
     );
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const ValueKey('nav-voice')));
+    await startVoice(tester);
     await flush(tester, () => calls > 0);
     await tester.pumpAndSettle();
     // 1.23: the orb listens before opening anything.
     expect(find.byType(EntryEditor), findsNothing);
     expect(controller.data.entries, isEmpty);
     // A long press adds by hand; the editor's own button listens again.
-    // 1.37: a long press opens the wheel of actions.
-    await tester.longPress(find.byKey(const ValueKey('nav-voice')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const ValueKey('wheel-income')));
+    // Release: «Доход» on the main screen opens the income form.
+    await tester.tap(find.byKey(const ValueKey('quick-action-income')));
     await tester.pumpAndSettle();
     expect(find.byType(EntryEditor), findsOneWidget);
     heard = ['зарплата 90 тысяч'];

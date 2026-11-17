@@ -18,6 +18,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
+import 'support/nav.dart';
+
 class _Quiet extends NotificationService {
   @override
   Future<void> sync(FinanceData data) async {}
@@ -110,7 +112,7 @@ void main() {
   Future<void> say(WidgetTester tester, List<String> phrase) async {
     heard = phrase;
     final before = calls;
-    await tester.tap(find.byKey(const ValueKey('nav-voice')));
+    await startVoice(tester);
     await flush(tester, () => calls > before);
     await tester.runAsync(
       () => Future<void>.delayed(const Duration(milliseconds: 50)),
@@ -237,9 +239,7 @@ void main() {
     tester,
   ) async {
     await start(tester);
-    await tester.longPress(find.byKey(const ValueKey('nav-voice')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const ValueKey('wheel-expense')));
+    await tester.tap(find.byKey(const ValueKey('quick-action-expense')));
     await tester.pumpAndSettle();
     for (final digit in ['2', '0', '0', '0']) {
       await tester.tap(

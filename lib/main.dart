@@ -15,6 +15,7 @@ import 'services/receipt_share_service.dart';
 import 'presentation/controller.dart';
 import 'presentation/theme/app_theme.dart';
 import 'presentation/widgets/finora_drawer.dart';
+import 'presentation/widgets/finora_says.dart';
 import 'features/finora_ai/ui/finora_ai_screen.dart';
 import 'features/finora_ai/services/finora_ai.dart';
 import 'presentation/screens/dashboard.dart';
@@ -33,7 +34,6 @@ import 'presentation/payment_prompt.dart';
 import 'presentation/page_transitions.dart';
 import 'presentation/release_celebration.dart';
 import 'presentation/whats_new.dart';
-import 'presentation/widgets/finora_wheel.dart';
 import 'presentation/finora_outside.dart';
 import 'presentation/widgets/finora_orb.dart';
 import 'services/finora_system.dart';
@@ -332,39 +332,6 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
     super.dispose();
   }
 
-  FinoraWheel? _openWheel;
-
-  void _wheel() {
-    _openWheel?.close();
-    _openWheel = FinoraWheel.show(
-      context,
-      actions: [
-        WheelAction(
-          'expense',
-          Icons.remove_circle_outline_rounded,
-          tr('Расход'),
-        ),
-        WheelAction('income', Icons.add_circle_outline_rounded, tr('Доход')),
-        WheelAction('transfer', Icons.swap_horiz_rounded, tr('Перевод')),
-        WheelAction('scan', Icons.document_scanner_outlined, tr('Скриншот')),
-        WheelAction('payments', Icons.event_repeat_rounded, tr('Платежи')),
-        WheelAction('voice', Icons.mic_none_rounded, tr('Голос')),
-        WheelAction('shopping', Icons.shopping_basket_outlined, tr('Покупки')),
-      ],
-      onSelected: (id) {
-        _openWheel = null;
-        Haptics.success();
-        if (id == 'transfer') {
-          unawaited(showEntryEditor(context, kind: EntryKind.transfer));
-        } else if (id == 'shopping') {
-          openFinancePage(context, const ShoppingScreen());
-        } else {
-          unawaited(_action(id));
-        }
-      },
-    );
-  }
-
   StreamSubscription<String>? _actionSubscription;
   FinanceController? _watched;
 
@@ -500,7 +467,6 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
     final ai = _tab == 5;
     final page = switch (_tab) {
       0 => Dashboard(
@@ -529,22 +495,8 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
         key: _scaffold,
         // Release: navigation is a side panel (menu button or a swipe from
         // the left edge), like a chat app.
-        drawer: FinoraDrawer(current: _tab, onSelect: _select),
+        drawer: FinoraDrawer(current: _tab, onSelect: _select, onVoice: _voice),
         drawerEdgeDragWidth: 32,
-        // 1.20: the living voice orb floats at the bottom; a long press
-        // opens the ring of actions (1.37). As the floating button, it keeps
-        // snack bars above itself.
-        floatingActionButton: ai
-            ? null
-            : VoiceOrb(
-                key: const ValueKey('bottom-orb'),
-                size: 60,
-                onTap: _voice,
-                onLongPress: _wheel,
-                onLongPressMove: (p) => _openWheel?.move(p),
-                onLongPressEnd: (p) => _openWheel?.release(p),
-              ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
         // The AI window has a text field; the main screens have none (a
         // keyboard closing late after the welcome screens must not squeeze
         // them, 1.22.1).
@@ -573,6 +525,18 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
                   key: ValueKey(_tab),
                   child: ai
                       ? page
+                      : _tab == 0
+                      // Home: the menu sits in the header row, beside the
+                      // balance.
+                      ? SafeArea(
+                          bottom: false,
+                          child: Stack(
+                            children: [
+                              Positioned.fill(child: page),
+                              Positioned(top: 2, left: 8, child: _menuButton()),
+                            ],
+                          ),
+                        )
                       : SafeArea(
                           bottom: false,
                           child: Column(
@@ -588,29 +552,17 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
                 ),
               ),
             ),
-            if (!ai) ...[
-              // Content fades out under the orb.
-              Positioned(
-                left: 0,
-                right: 0,
-                bottom: 0,
-                height: 96 + MediaQuery.paddingOf(context).bottom,
-                child: IgnorePointer(
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          scheme.surfaceContainerLowest.withValues(alpha: 0),
-                          scheme.surfaceContainerLowest.withValues(alpha: .85),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
+            // Finora's short lines, while the orb has no place on screen.
+            const Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: SafeArea(
+                top: false,
+                minimum: EdgeInsets.only(bottom: 18),
+                child: Center(heightFactor: 1, child: FinoraSays()),
               ),
-            ],
+            ),
           ],
         ),
       ),
