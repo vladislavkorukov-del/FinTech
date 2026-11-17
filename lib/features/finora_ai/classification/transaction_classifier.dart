@@ -1,4 +1,5 @@
 import '../../../domain/models.dart';
+import '../../../domain/payee_summary.dart';
 import '../../../domain/receipt_parser.dart';
 import '../inference/features.dart';
 import '../inference/linear_model.dart';
@@ -10,16 +11,26 @@ import 'category_mapper.dart';
 /// Picks the category of an operation, hybrid and in order of trust:
 ///
 /// 1. personal memory — what the person chose or corrected for this
-///    merchant;
-/// 2. history — what this merchant was filed under before;
-/// 3. the store and service catalog — Пятёрочка → «Продукты» (the existing
-///    [ReceiptParser.suggestCategory] rules);
-/// 4. the local model — text, amount and date features.
+///    merchant (personal_memory);
+/// 2. an exact rule — the payee is the name of one of the person's own
+///    categories («Такси» → «Такси») (exact_rule);
+/// 3. history — what this merchant was filed under before
+///    (statistical_rule);
+/// 4. the store and service catalog — Пятёрочка → «Продукты» (the existing
+///    [ReceiptParser.suggestCategory] rules) (merchant_rule);
+/// 5. the local model — text, amount and date features (ml_model);
+/// 6. a fallback — the person's most used category of the kind, weak, only
+///    so that three choices can be shown (fallback).
 ///
 /// Scores from several sources are merged per category; below
-/// [minConfidence] the answer is «not sure» rather than a guess.
+/// [minConfidence] the answer is «not sure» rather than a guess. Merchants
+/// are matched by their canonical key, so «PYATEROCHKA #123» learns from
+/// «Пятёрочка».
 class TransactionClassifier {
-  const TransactionClassifier({this.model, this.minConfidence = .45});
+  const TransactionClassifier({
+    this.model,
+    this.minConfidence = AiConfig.minConfidence,
+  });
 
   final LinearModel? model;
   final double minConfidence;
@@ -48,31 +59,50 @@ class TransactionClassifier {
     };
     final key = AiContext.merchantKey(merchant);
     final scores = <String, CategoryScore>{};
-    void offer(String? id, double confidence, ClassificationSource source) {
+    void offer(
+      String? id,
+      double confidence,
+      ClassificationSource source, {
+      int evidence = 0,
+    }) {
       if (id == null || !active.contains(id) || confidence <= 0) return;
       final old = scores[id];
       if (old == null) {
-        scores[id] = CategoryScore(id, confidence, source);
+        scores[id] = CategoryScore(id, confidence, source, evidence: evidence);
       } else {
         // Two sources agreeing raise each other (noisy-or), the more
         // trusted source is kept as the reason.
         final merged = 1 - (1 - old.confidence) * (1 - confidence);
+        final keepOld = old.source.index <= source.index;
         scores[id] = CategoryScore(
           id,
           merged.clamp(0, .99),
-          old.source.index <= source.index ? old.source : source,
+          keepOld ? old.source : source,
+          evidence: keepOld ? old.evidence : evidence,
         );
       }
     }
 
-    // 1. Memory.
-    final remembered = memory?.categoryFor(key);
+    // 1. Memory (an older memory may hold the name's plain key).
+    final remembered =
+        memory?.categoryFor(key) ??
+        memory?.categoryFor(PayeeSummary.key(merchant));
     if (remembered != null) {
       offer(
         remembered.categoryId,
         remembered.confidence,
         ClassificationSource.memory,
+        evidence: remembered.weight,
       );
+    }
+    // 2. Exact rule: the payee is one of the person's category names.
+    final plain = PayeeSummary.key(merchant);
+    if (plain.isNotEmpty) {
+      for (final c in data.categories) {
+        if (active.contains(c.id) && PayeeSummary.key(c.name) == plain) {
+          offer(c.id, .9, ClassificationSource.exact);
+        }
+      }
     }
     // 2. History: the share of this merchant's past operations per category.
     if (key.isNotEmpty) {
@@ -97,6 +127,7 @@ class TransactionClassifier {
             c.key,
             (.5 + .45 * strength) * share,
             ClassificationSource.history,
+            evidence: c.value,
           );
         }
       }
@@ -132,6 +163,23 @@ class TransactionClassifier {
           p * .9,
           ClassificationSource.model,
         );
+      }
+    }
+    // 6. Fallback: the most used categories of the kind, weakly — only to
+    // fill the three choices, never enough to be applied.
+    if (scores.length < 3) {
+      final counts = <String, int>{};
+      for (final e in data.entries) {
+        if (e.kind == kind && e.categoryId != null) {
+          counts[e.categoryId!] = (counts[e.categoryId!] ?? 0) + 1;
+        }
+      }
+      final frequent = counts.entries.toList()
+        ..sort((a, b) => b.value.compareTo(a.value));
+      for (final f in frequent) {
+        if (scores.length >= 3) break;
+        if (scores.containsKey(f.key)) continue;
+        offer(f.key, .2, ClassificationSource.fallback, evidence: f.value);
       }
     }
     final ranked = scores.values.toList()

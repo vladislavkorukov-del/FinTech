@@ -176,7 +176,8 @@ class PaymentPlan {
       loan: LoanSummary(
         debtMinor: debtNow,
         startDebtMinor: rule.principalMinor!,
-        interestAheadMinor: repayable ? ahead.round() : 0,
+        // Estimates ahead: whole rubles.
+        interestAheadMinor: repayable ? (ahead / 100).round() * 100 : 0,
         interestPaidMinor: paidInterest.round(),
         payoffDate: repayable && upcoming.isNotEmpty
             ? upcoming.last.date

@@ -30,16 +30,80 @@ enum InsufficientReason {
   lowConfidence,
 }
 
-/// Where a classification came from, most trusted first.
-enum ClassificationSource { memory, history, catalog, model, none }
+/// Where a classification came from, most trusted first:
+/// personal_memory, exact_rule, statistical_rule (the merchant's history),
+/// merchant_rule (the store and service catalog), ml_model, fallback.
+enum ClassificationSource {
+  memory,
+  exact,
+  history,
+  catalog,
+  model,
+  fallback,
+  none,
+}
+
+extension ClassificationSourceName on ClassificationSource {
+  /// The name used in traces and explanations.
+  String get label => switch (this) {
+    ClassificationSource.memory => 'personal_memory',
+    ClassificationSource.exact => 'exact_rule',
+    ClassificationSource.history => 'statistical_rule',
+    ClassificationSource.catalog => 'merchant_rule',
+    ClassificationSource.model => 'ml_model',
+    ClassificationSource.fallback => 'fallback',
+    ClassificationSource.none => 'none',
+  };
+}
 
 class CategoryScore {
-  const CategoryScore(this.categoryId, this.confidence, this.source);
+  const CategoryScore(
+    this.categoryId,
+    this.confidence,
+    this.source, {
+    this.evidence = 0,
+  });
   final String categoryId;
 
   /// 0–1.
   final double confidence;
   final ClassificationSource source;
+
+  /// How many past operations or choices it rests on (for explanations).
+  final int evidence;
+}
+
+/// What to do with a classification, by the thresholds in [AiConfig] and
+/// the person's automation level.
+enum CategoryDecision { apply, suggest, choose, none }
+
+/// Thresholds of the AI, in one place.
+abstract final class AiConfig {
+  /// At or above: may be applied without asking (when allowed).
+  static const autoApply = .7;
+
+  /// At or above: offered as the suggestion; below: top three to choose.
+  static const suggest = .5;
+
+  /// Below this the classifier says «not sure».
+  static const minConfidence = .45;
+
+  static CategoryDecision decide(ClassificationResult r, AiAutomation level) {
+    if (r.top.isEmpty) return CategoryDecision.none;
+    final c = r.top.first.confidence;
+    return switch (level) {
+      AiAutomation.suggestOnly =>
+        c >= suggest ? CategoryDecision.suggest : CategoryDecision.choose,
+      AiAutomation.smart =>
+        c >= autoApply
+            ? CategoryDecision.apply
+            : c >= suggest
+            ? CategoryDecision.suggest
+            : CategoryDecision.choose,
+      AiAutomation.automatic =>
+        c >= suggest ? CategoryDecision.apply : CategoryDecision.choose,
+    };
+  }
 }
 
 class ClassificationResult {

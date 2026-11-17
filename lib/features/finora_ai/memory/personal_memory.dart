@@ -19,7 +19,8 @@ class PersonalMemory {
        confirmedSubscriptions = confirmedSubscriptions ?? {},
        confirmedRecurring = confirmedRecurring ?? {};
 
-  static const version = 1;
+  /// 2: snoozed insights.
+  static const version = 2;
   static const _maxCorrections = 300;
 
   /// merchant key → category id → votes.
@@ -83,7 +84,9 @@ class PersonalMemory {
 
   /// The person's choice for [merchant]: the category with most weight,
   /// with a confidence that grows with agreement and with use.
-  ({String categoryId, double confidence})? categoryFor(String merchant) {
+  ({String categoryId, double confidence, int weight})? categoryFor(
+    String merchant,
+  ) {
     final votes = merchants[merchant];
     if (votes == null || votes.isEmpty) return null;
     final ranked = votes.entries.where((e) => e.value.weight > 0).toList()
@@ -97,7 +100,11 @@ class PersonalMemory {
     // One save: .72; agreement and repetition lift it towards .99.
     final strength = 1 - 1 / (1 + ranked.first.value.weight);
     final confidence = (.55 + .44 * strength) * share;
-    return (categoryId: ranked.first.key, confidence: confidence);
+    return (
+      categoryId: ranked.first.key,
+      confidence: confidence,
+      weight: ranked.first.value.weight,
+    );
   }
 
   bool isRejected(String key) =>

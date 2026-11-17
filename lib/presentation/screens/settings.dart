@@ -21,6 +21,8 @@ import 'foreign_import_screen.dart';
 import 'tutorial.dart';
 import 'voice_help.dart';
 import '../../features/finora_ai/ui/ai_help_screen.dart';
+import '../../features/finora_ai/ui/ai_settings_screen.dart';
+import '../../features/finora_ai/services/finora_ai.dart';
 import '../../services/finora_ear.dart';
 import '../../services/finora_system.dart';
 import '../finora_outside.dart';
@@ -194,7 +196,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
       final content = switch (type) {
         'csv' => await c.repository.exportCsv(),
         'base' => await c.repository.exportFullCsv(),
-        _ => await c.repository.exportJson(),
+        // Finora AI's memory travels with the full copy.
+        _ => await c.repository.exportJson(
+          extra: {'aiMemory': FinoraAi.instance.memoryForBackup()},
+        ),
       };
       await File(path).writeAsString(content, flush: true);
     }
@@ -248,7 +253,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
         throw const FormatException('Не удалось получить доступ к файлу.');
       }
       final bytes = await File(path).readAsBytes();
-      await c.importJson(utf8.decode(bytes));
+      final content = utf8.decode(bytes);
+      await c.importJson(content);
+      // A copy with Finora AI's memory brings back what she learned.
+      final decoded = jsonDecode(content);
+      if (decoded is Map && decoded['aiMemory'] is Map) {
+        await FinoraAi.instance.restoreMemory(
+          Map<String, dynamic>.from(decoded['aiMemory'] as Map),
+        );
+      }
     } else if (type == 'base') {
       final path = file.path;
       if (path == null) {
@@ -923,6 +936,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         context,
                         MaterialPageRoute<void>(
                           builder: (_) => const AiHelpScreen(),
+                        ),
+                      ),
+                    ),
+                    // What Finora AI may do by herself.
+                    GroupedRow(
+                      key: const ValueKey('settings-ai-settings'),
+                      icon: Icons.tune_rounded,
+                      color: TileColors.orange,
+                      title: 'Настройки Finora AI',
+                      subtitle: 'Автоматизация, обучение, сброс',
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute<void>(
+                          builder: (_) => const AiSettingsScreen(),
                         ),
                       ),
                     ),

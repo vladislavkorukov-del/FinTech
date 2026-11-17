@@ -72,9 +72,23 @@ class FinoraAi {
     amountMinor: amountMinor,
     kind: kind,
     data: data,
-    memory: memory,
+    // Without personalization the person's memory is not used.
+    memory: data.preferences.ai.personalization ? memory : null,
     date: date,
   );
+
+  /// «Сбросить персонализацию»: forgets what Finora learned — merchant
+  /// choices, corrections, answers to suggestions, snoozes. The person's
+  /// operations are not touched.
+  Future<void> resetPersonalization() =>
+      memoryRepository.replace(PersonalMemory());
+
+  /// Restores the memory saved in a backup (see [memoryForBackup]).
+  Future<void> restoreMemory(Map<String, dynamic> json) =>
+      memoryRepository.replace(PersonalMemory.fromJson(json));
+
+  /// The memory as it goes into a full backup.
+  Map<String, dynamic> memoryForBackup() => memory.toJson();
 
   /// Learns from a saved operation (called by the controller).
   void observeSave(FinanceEntry entry, {FinanceEntry? before}) {

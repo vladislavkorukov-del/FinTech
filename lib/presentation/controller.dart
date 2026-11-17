@@ -229,12 +229,15 @@ class FinanceController extends ChangeNotifier {
       );
     });
     // Finora AI learns the person's categories (a changed category is a
-    // correction); her memory lives apart from the ledger.
-    unawaited(
-      FinoraAi.instance.ready().then(
-        (_) => FinoraAi.instance.observeSave(entry, before: before),
-      ),
-    );
+    // correction); her memory lives apart from the ledger. Not with
+    // personalization turned off.
+    if (data.preferences.ai.personalization) {
+      unawaited(
+        FinoraAi.instance.ready().then(
+          (_) => FinoraAi.instance.observeSave(entry, before: before),
+        ),
+      );
+    }
   }
 
   Future<void> deleteEntry(String id) => mutate(

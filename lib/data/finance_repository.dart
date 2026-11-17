@@ -283,7 +283,9 @@ class FinanceRepository {
     );
   }
 
-  Future<String> exportJson() async {
+  /// The full copy as JSON; [extra] adds sections kept outside the ledger
+  /// (Finora AI's memory), read back by whoever wrote them.
+  Future<String> exportJson({Map<String, Object?> extra = const {}}) async {
     final data = await load();
     var totalBytes = 0;
     Future<String> encodeMedia(String path) async {
@@ -346,6 +348,7 @@ class FinanceRepository {
       'attachments': attachments,
       'serviceIcons': serviceIcons,
       if (goalPhotos.isNotEmpty) 'goalPhotos': goalPhotos,
+      ...extra,
     });
     if (utf8.encode(result).length > maxBackupBytes) {
       throw const FormatException('Резервная копия превышает 50 МБ');

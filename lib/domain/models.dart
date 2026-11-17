@@ -773,6 +773,9 @@ class AppPreferences {
   /// Shopping lists besides the main one («Дом», «Аптека»…), in order.
   final List<String> shoppingLists;
 
+  /// What Finora AI may do on its own (Settings → «Настройки Finora AI»).
+  final AiSettings ai;
+
   /// What was bought and how often (lower-case name → times), for quick
   /// suggestions; the most frequent 150 are kept.
   final Map<String, int> shoppingHistory;
@@ -809,6 +812,7 @@ class AppPreferences {
     this.finoraFace = true,
     this.releaseCelebrated = false,
     this.shoppingLists = const [],
+    this.ai = const AiSettings(),
     this.shoppingHistory = const {},
   });
 
@@ -844,6 +848,7 @@ class AppPreferences {
     bool? finoraFace,
     bool? releaseCelebrated,
     List<String>? shoppingLists,
+    AiSettings? ai,
     Map<String, int>? shoppingHistory,
   }) => AppPreferences(
     theme: theme ?? this.theme,
@@ -883,6 +888,7 @@ class AppPreferences {
     finoraFace: finoraFace ?? this.finoraFace,
     releaseCelebrated: releaseCelebrated ?? this.releaseCelebrated,
     shoppingLists: shoppingLists ?? this.shoppingLists,
+    ai: ai ?? this.ai,
     shoppingHistory: shoppingHistory ?? this.shoppingHistory,
   );
 
@@ -918,6 +924,7 @@ class AppPreferences {
     'finoraFace': finoraFace,
     'releaseCelebrated': releaseCelebrated,
     'shoppingLists': shoppingLists,
+    'ai': ai.toJson(),
     'shoppingHistory': shoppingHistory,
   };
 
@@ -961,6 +968,7 @@ class AppPreferences {
     finoraFace: json['finoraFace'] as bool? ?? true,
     releaseCelebrated: json['releaseCelebrated'] as bool? ?? false,
     shoppingLists: _ids(json['shoppingLists']),
+    ai: AiSettings.fromJson(json['ai']),
     shoppingHistory: {
       for (final e in (json['shoppingHistory'] as Map? ?? const {}).entries)
         if (e.value is num) '${e.key}': (e.value as num).toInt(),
@@ -982,6 +990,88 @@ class AppPreferences {
       return ra.compareTo(rb);
     });
     return [for (final item in indexed) item.$2];
+  }
+}
+
+/// How much Finora AI does by itself.
+enum AiAutomation {
+  /// Only suggests; nothing is filled in without a tap.
+  suggestOnly,
+
+  /// Fills in what it is very sure of; suggests the rest.
+  smart,
+
+  /// Fills in whatever it is fairly sure of. Risky actions still ask.
+  automatic,
+}
+
+/// The person's Finora AI settings. Everything works offline; these only
+/// say how much Finora may decide on her own and whether she learns.
+class AiSettings {
+  const AiSettings({
+    this.enabled = true,
+    this.autoCategorize = true,
+    this.suggestCategories = true,
+    this.insights = true,
+    this.personalization = true,
+    this.automation = AiAutomation.smart,
+  });
+
+  /// Off: no suggestions or automatic choices anywhere (the chat stays).
+  final bool enabled;
+
+  /// May fill in the category by itself (by [automation]).
+  final bool autoCategorize;
+
+  /// Offers categories to pick while typing.
+  final bool suggestCategories;
+
+  /// Shows «Что я заметила» observations.
+  final bool insights;
+
+  /// Learns from the person's choices and corrections.
+  final bool personalization;
+  final AiAutomation automation;
+
+  AiSettings copyWith({
+    bool? enabled,
+    bool? autoCategorize,
+    bool? suggestCategories,
+    bool? insights,
+    bool? personalization,
+    AiAutomation? automation,
+  }) => AiSettings(
+    enabled: enabled ?? this.enabled,
+    autoCategorize: autoCategorize ?? this.autoCategorize,
+    suggestCategories: suggestCategories ?? this.suggestCategories,
+    insights: insights ?? this.insights,
+    personalization: personalization ?? this.personalization,
+    automation: automation ?? this.automation,
+  );
+
+  Map<String, Object?> toJson() => {
+    'enabled': enabled,
+    'autoCategorize': autoCategorize,
+    'suggestCategories': suggestCategories,
+    'insights': insights,
+    'personalization': personalization,
+    'automation': automation.name,
+  };
+
+  factory AiSettings.fromJson(Object? value) {
+    final json = value is Map ? value : const {};
+    return AiSettings(
+      enabled: json['enabled'] as bool? ?? true,
+      autoCategorize: json['autoCategorize'] as bool? ?? true,
+      suggestCategories: json['suggestCategories'] as bool? ?? true,
+      insights: json['insights'] as bool? ?? true,
+      personalization: json['personalization'] as bool? ?? true,
+      automation:
+          AiAutomation.values
+              .where((a) => a.name == json['automation'])
+              .firstOrNull ??
+          AiAutomation.smart,
+    );
   }
 }
 

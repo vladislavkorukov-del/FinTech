@@ -250,7 +250,9 @@ class _FinoraAiScreenState extends State<FinoraAiScreen> {
   }
 
   Widget _welcome(FinoraAiSnapshot s, Color accent) {
-    final first = s.insights.firstOrNull;
+    final first = s.ctx.data.preferences.ai.insights
+        ? s.top.firstOrNull ?? s.insights.firstOrNull
+        : null;
     return Column(
       key: const ValueKey('ai-welcome'),
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -273,7 +275,9 @@ class _FinoraAiScreenState extends State<FinoraAiScreen> {
               ),
               const SizedBox(height: 12),
               Text(
-                first == null
+                !s.ctx.data.preferences.ai.insights
+                    ? 'Спроси о деньгах — посчитаю по твоим операциям.'
+                    : first == null
                     ? ResponseLayer.notEnough
                     : ResponseLayer.insight(s, first),
                 key: const ValueKey('finora-ai-headline'),

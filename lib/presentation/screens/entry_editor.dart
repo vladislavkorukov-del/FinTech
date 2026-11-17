@@ -7,6 +7,8 @@ import 'package:flutter/material.dart' hide InputDecoration, Text;
 import '../../domain/category_hints.dart';
 import '../../domain/service_catalog.dart';
 import '../../domain/service_recognizer.dart';
+import '../../features/finora_ai/classification/merchant_intelligence.dart';
+import '../../features/finora_ai/models/ai_models.dart';
 import '../../features/finora_ai/services/finora_ai.dart';
 import '../../domain/voice_entry_parser.dart';
 import '../../services/voice_input_service.dart';
@@ -23,6 +25,7 @@ import '../../domain/scan_document.dart';
 import '../../services/receipt_image_store.dart';
 import '../../services/receipt_ocr_service.dart';
 import '../controller.dart';
+import '../haptics.dart';
 import '../finora_reactions.dart';
 import '../widgets/amount_format.dart';
 import '../widgets/common.dart';
@@ -569,6 +572,12 @@ class _EntryEditorState extends State<EntryEditor> {
   String? _typedService;
   bool _categoryFromPayee = false;
 
+  /// Places seen before that match what is typed (offered, never filled in
+  /// by themselves), and categories Finora suggests when she is not sure
+  /// enough to choose.
+  List<MerchantProfile> _merchantHits = const [];
+  List<CategoryScore> _aiChoices = const [];
+
   /// «чат гпт», «нетфликс», «вуш»: the service, its logo and category.
   void _payeeTyped(String text) {
     if (_kind == EntryKind.transfer) return;
@@ -587,24 +596,44 @@ class _EntryEditorState extends State<EntryEditor> {
         : found;
     // The typed text is never replaced while typing: the proper name
     // («чат гпт» → «ChatGPT») is written when the operation is saved.
+    final ai = c.data.preferences.ai;
+    final hits = ai.enabled
+        ? MerchantIntelligence.suggest(c.data, text, kind: _kind)
+        : const <MerchantProfile>[];
+    var choices = const <CategoryScore>[];
     // Finora AI: an unknown place still gets a category when she is sure
-    // enough (memory of the person's choices, history, the local model).
-    if (service == null &&
+    // enough (memory of the person's choices, history, the local model);
+    // how sure is «enough» depends on the automation level. Otherwise she
+    // offers up to three to pick.
+    if (ai.enabled &&
+        service == null &&
         (_category == null || _categoryFromPayee) &&
-        text.trim().length >= 3) {
-      final best = FinoraAi.instance
-          .classify(c.data, merchant: text, kind: _kind)
-          .best;
-      if (best != null &&
-          best.confidence >= .6 &&
-          best.categoryId != _category) {
-        setState(() {
-          _category = best.categoryId;
-          _subcategory = null;
-          _categoryFromPayee = true;
-        });
+        letters.length >= 3) {
+      final result = FinoraAi.instance.classify(
+        c.data,
+        merchant: text,
+        kind: _kind,
+      );
+      final decision = AiConfig.decide(result, ai.automation);
+      final best = result.best;
+      if (decision == CategoryDecision.apply &&
+          ai.autoCategorize &&
+          best != null) {
+        if (best.categoryId != _category) {
+          setState(() {
+            _category = best.categoryId;
+            _subcategory = null;
+            _categoryFromPayee = true;
+          });
+        }
+      } else if (ai.suggestCategories) {
+        choices = result.top;
       }
     }
+    setState(() {
+      _merchantHits = hits;
+      _aiChoices = choices;
+    });
     if (service?.id == _typedService) return;
     setState(() {
       _typedService = service?.id;
@@ -628,6 +657,39 @@ class _EntryEditorState extends State<EntryEditor> {
           _categoryFromPayee = true;
         }
       }
+    });
+  }
+
+  /// A place picked from the suggestions: its name, usual category, usual
+  /// sum (when none is typed yet) and the account used last time.
+  void _useMerchant(MerchantProfile p) {
+    final c = FinanceScope.of(context);
+    Haptics.light();
+    setState(() {
+      _payee.value = TextEditingValue(
+        text: p.name,
+        selection: TextSelection.collapsed(offset: p.name.length),
+      );
+      final category = c.data.categories
+          .where((k) => k.id == p.usualCategoryId && !k.archived)
+          .firstOrNull;
+      if (category != null && (_category == null || _categoryFromPayee)) {
+        _category = category.id;
+        _subcategory = null;
+        _categoryFromPayee = true;
+      }
+      if (_amount.text.trim().isEmpty) {
+        _amount.text = groupAmount(decimalMinor(p.typicalAmount));
+      }
+      final account = c.data.accounts
+          .where((a) => a.id == p.lastAccountId && !a.archived)
+          .firstOrNull;
+      if (account != null && widget.entry == null) _account = account.id;
+    });
+    _payeeTyped(p.name);
+    setState(() {
+      _merchantHits = const [];
+      _aiChoices = const [];
     });
   }
 
@@ -1358,6 +1420,68 @@ class _EntryEditorState extends State<EntryEditor> {
                             '${ServiceCatalog.byId(_typedService)!.name}',
                 ),
               ),
+              // Places seen before: one tap fills the name, the usual
+              // category, sum and account.
+              if (_merchantHits.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Wrap(
+                    key: const ValueKey('entry-merchant-suggestions'),
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: [
+                      for (final p in _merchantHits)
+                        ActionChip(
+                          key: ValueKey('entry-merchant-${p.key}'),
+                          avatar: const Icon(Icons.history_rounded, size: 16),
+                          label: Text(
+                            '${p.name} · ~${money(p.typicalAmount, c.currency)}',
+                          ),
+                          onPressed: () => _useMerchant(p),
+                        ),
+                    ],
+                  ),
+                ),
+              // Not sure enough to choose: up to three to pick.
+              if (_aiChoices.isNotEmpty &&
+                  (_category == null || _categoryFromPayee))
+                Padding(
+                  padding: const EdgeInsets.only(top: 10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Финора предлагает категорию',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: scheme.onSurfaceVariant,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Wrap(
+                        key: const ValueKey('entry-ai-choices'),
+                        spacing: 6,
+                        runSpacing: 6,
+                        children: [
+                          for (final choice in _aiChoices)
+                            if (c.category(choice.categoryId) case final k?)
+                              ChoiceChip(
+                                key: ValueKey('entry-ai-${k.id}'),
+                                label: Text(k.name),
+                                selected: _category == k.id,
+                                onSelected: (_) => setState(() {
+                                  Haptics.light();
+                                  _category = k.id;
+                                  _subcategory = null;
+                                  _categoryFromPayee = false;
+                                  _aiChoices = const [];
+                                }),
+                              ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
               const SizedBox(height: 12),
               SurfaceCard(
                 padding: const EdgeInsets.symmetric(

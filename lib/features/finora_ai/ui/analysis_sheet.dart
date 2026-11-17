@@ -119,17 +119,20 @@ class _AnalysisState extends State<_Analysis> {
             ],
           ),
         ),
-        title('Что я заметила'),
-        SurfaceCard(
-          key: const ValueKey('finora-ai-insights'),
-          padding: const EdgeInsets.fromLTRB(16, 6, 16, 6),
-          child: Column(
-            children: [
-              for (final i in s.insights.take(12))
-                InsightTile(kind: i.kind, text: ResponseLayer.insight(s, i)),
-            ],
+        // «Умные наблюдения» can be turned off in the AI settings.
+        if (s.ctx.data.preferences.ai.insights) ...[
+          title('Что я заметила'),
+          SurfaceCard(
+            key: const ValueKey('finora-ai-insights'),
+            padding: const EdgeInsets.fromLTRB(16, 6, 16, 6),
+            child: Column(
+              children: [
+                for (final i in s.insights.take(12))
+                  InsightTile(kind: i.kind, text: ResponseLayer.insight(s, i)),
+              ],
+            ),
           ),
-        ),
+        ],
         if (subs.isNotEmpty) ...[
           title('Похоже на подписки'),
           for (final sub in subs)

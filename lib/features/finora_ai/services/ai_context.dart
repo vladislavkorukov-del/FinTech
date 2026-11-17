@@ -1,6 +1,6 @@
 import '../../../domain/finance_engine.dart';
 import '../../../domain/models.dart';
-import '../../../domain/payee_summary.dart';
+import '../classification/merchant_intelligence.dart';
 
 /// The data every engine works from, prepared once: posted operations in
 /// the base currency, the current period and per-month slices.
@@ -86,7 +86,10 @@ class AiContext {
   String categoryName(String? id) =>
       data.categories.where((c) => c.id == id).firstOrNull?.name ?? 'Прочее';
 
-  static String merchantKey(String payee) => PayeeSummary.key(payee);
+  /// One key for the many spellings of a place (see
+  /// [MerchantIntelligence.canonicalKey]).
+  static String merchantKey(String payee) =>
+      MerchantIntelligence.canonicalKey(payee);
 }
 
 /// Median of a non-empty list.

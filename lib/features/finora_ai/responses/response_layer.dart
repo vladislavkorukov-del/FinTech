@@ -154,8 +154,37 @@ abstract final class ResponseLayer {
   ) {
     final best = r.best;
     if (best == null) return unsureCategory;
+    final why = explain(s, merchant, best);
     return 'Эту операцию я бы отнесла к категории ${_cat(s, best.categoryId)} '
-        'с уверенностью ${_pct(best.confidence * 100)}.';
+        'с уверенностью ${_pct(best.confidence * 100)}.'
+        '${why.isEmpty ? '' : ' $why'}';
+  }
+
+  /// Why a category was chosen, from its source and evidence.
+  static String explain(FinoraAiSnapshot s, String merchant, CategoryScore b) {
+    final cat = _cat(s, b.categoryId);
+    final n = b.evidence;
+    return switch (b.source) {
+      ClassificationSource.memory =>
+        'Ты сам${n > 1 ? ' $n ${_times(n)}' : ''} выбирал $cat для этого места.',
+      ClassificationSource.exact => 'Так называется твоя категория.',
+      ClassificationSource.history =>
+        n > 1
+            ? 'Последние $n покупок в этом месте были отнесены к $cat.'
+            : 'Прошлая покупка здесь была в категории $cat.',
+      ClassificationSource.catalog => 'Это известное место категории $cat.',
+      ClassificationSource.model =>
+        'Так подсказывает локальная модель по названию и сумме.',
+      ClassificationSource.fallback || ClassificationSource.none => '',
+    };
+  }
+
+  static String _times(int n) {
+    final last = n % 10, lastTwo = n % 100;
+    if (last >= 2 && last <= 4 && (lastTwo < 12 || lastTwo > 14)) {
+      return 'раза';
+    }
+    return 'раз';
   }
 
   /// Why spending changed, from the month comparison.

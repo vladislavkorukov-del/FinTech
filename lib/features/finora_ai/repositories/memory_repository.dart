@@ -65,6 +65,15 @@ class MemoryRepository {
     } catch (_) {}
   }
 
+  /// Replaces the memory (a backup restored; or an empty one — a reset)
+  /// and writes it at once.
+  Future<void> replace(PersonalMemory memory) async {
+    await load();
+    _memory = memory;
+    _save?.cancel();
+    await save();
+  }
+
   /// Forgets everything (used with «Сбросить все данные»).
   Future<void> clear() async {
     _memory = PersonalMemory();
