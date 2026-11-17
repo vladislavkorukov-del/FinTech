@@ -33,7 +33,7 @@ class FinanceQuickActions extends StatelessWidget {
                 minimumSize: const Size(0, 48),
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
                 backgroundColor: scheme.surface.withValues(
-                  alpha: dark ? .55 : .7,
+                  alpha: dark ? .55 : 1,
                 ),
                 foregroundColor: scheme.onSurface,
                 shape: const RoundedSuperellipseBorder(

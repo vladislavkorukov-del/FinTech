@@ -100,13 +100,10 @@ class GlassPanePainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final rect = Offset.zero & size;
     final body = RSuperellipse.fromRectAndRadius(rect, Radius.circular(radius));
+    // Light: a flat white panel, nothing else (strict, iOS grouped).
     if (!dark) {
-      canvas.drawRSuperellipse(
-        body.shift(const Offset(0, 6)),
-        Paint()
-          ..color = const Color(0x0D1A2A20)
-          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 16),
-      );
+      canvas.drawRSuperellipse(body, Paint()..color = color);
+      return;
     }
     canvas.drawRSuperellipse(
       body,

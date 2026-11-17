@@ -35,6 +35,8 @@ class GradientProgress extends StatelessWidget {
     final radius = borderRadius ?? BorderRadius.circular(minHeight / 2);
     final target = (value ?? 0).clamp(0.0, 1.0);
     final still = MediaQuery.disableAnimationsOf(context);
+    // The light theme is strict: a solid fill, no glow.
+    final flat = Theme.of(context).brightness == Brightness.light;
     return Semantics(
       value: '${(target * 100).round()}%',
       child: SizedBox(
@@ -63,13 +65,18 @@ class GradientProgress extends StatelessWidget {
                     child: DecoratedBox(
                       decoration: BoxDecoration(
                         borderRadius: radius,
-                        gradient: LinearGradient(colors: [lightEnd(c), c]),
-                        boxShadow: [
-                          BoxShadow(
-                            color: c.withValues(alpha: .35),
-                            blurRadius: minHeight * 1.2,
-                          ),
-                        ],
+                        color: flat ? c : null,
+                        gradient: flat
+                            ? null
+                            : LinearGradient(colors: [lightEnd(c), c]),
+                        boxShadow: flat
+                            ? null
+                            : [
+                                BoxShadow(
+                                  color: c.withValues(alpha: .35),
+                                  blurRadius: minHeight * 1.2,
+                                ),
+                              ],
                       ),
                     ),
                   ),

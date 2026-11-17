@@ -546,27 +546,35 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
             return RepaintBoundary(
               child: DecoratedBox(
                 key: const ValueKey('bottom-nav'),
-                decoration: BoxDecoration(
-                  color: fill,
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Color.lerp(fill, Colors.white, dark ? .04 : .5)!,
-                      fill,
-                    ],
-                  ),
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(26),
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: dark ? .25 : .06),
-                      blurRadius: 24,
-                      offset: const Offset(0, -4),
-                    ),
-                  ],
-                ),
+                // Light: a strict white bar with a hairline on top (iOS).
+                decoration: dark
+                    ? BoxDecoration(
+                        color: fill,
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [Color.lerp(fill, Colors.white, .04)!, fill],
+                        ),
+                        borderRadius: const BorderRadius.vertical(
+                          top: Radius.circular(26),
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: .25),
+                            blurRadius: 24,
+                            offset: const Offset(0, -4),
+                          ),
+                        ],
+                      )
+                    : BoxDecoration(
+                        color: scheme.surface.withValues(alpha: 1),
+                        border: Border(
+                          top: BorderSide(
+                            color: Colors.black.withValues(alpha: .08),
+                            width: .5,
+                          ),
+                        ),
+                      ),
                 child: SafeArea(
                   top: false,
                   minimum: const EdgeInsets.only(bottom: 8),

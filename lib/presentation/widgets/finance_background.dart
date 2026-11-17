@@ -32,14 +32,38 @@ class FinanceBackground extends StatelessWidget {
 class FinanceBackdropLayer extends StatelessWidget {
   const FinanceBackdropLayer({super.key});
 
+  /// The light theme's page colour: iOS grouped grey, tinted a touch.
+  static Color lightPage(ThemeData theme) => Color.lerp(
+    theme.colorScheme.surfaceContainerLowest,
+    const Color(0xFFF2F2F5),
+    .75,
+  )!;
+
+  static FinanceBackdrop flat(ThemeData theme) {
+    final page = lightPage(theme);
+    return FinanceBackdrop(
+      top: page,
+      middle: page,
+      bottom: page,
+      glowA: page.withValues(alpha: 0),
+      glowB: page.withValues(alpha: 0),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final b = FinanceBackdrop.of(context);
+    // Release: the light theme is strict — one flat, nearly neutral grey
+    // with a whisper of the style's tint; no gradient, no glow.
+    final strict = theme.brightness == Brightness.light;
     return IgnorePointer(
       child: RepaintBoundary(
         child: CustomPaint(
           key: const ValueKey('finance-backdrop'),
-          painter: _BackdropPainter(b),
+          painter: _BackdropPainter(
+            strict ? FinanceBackdropLayer.flat(theme) : b,
+          ),
           child: const SizedBox.expand(),
         ),
       ),
