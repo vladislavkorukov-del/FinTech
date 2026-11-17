@@ -9,6 +9,7 @@ import 'widgets/common.dart';
 import 'widgets/finora_orb.dart';
 import 'widgets/service_badge.dart';
 import 'l10n_widgets.dart';
+import 'widgets/success_burst.dart';
 
 /// Finora asks about the day's payments (1.27): a subscription or a
 /// required payment reaches the expenses only after «Оплачено».
@@ -59,6 +60,13 @@ abstract final class PaymentPrompt {
               FinoraMood.done,
               text: 'Записала: ${rule.name} −${money(sum, rule.currency)}',
             );
+            if (context.mounted) {
+              SuccessBurst.show(
+                context,
+                'Оплачено',
+                subtitle: '${rule.name} −${money(sum, rule.currency)}',
+              );
+            }
           case 'skip':
             await c.skipPayment(rule.id);
             Finora.react(FinoraMood.calm, text: 'Хорошо, в этот раз без него.');

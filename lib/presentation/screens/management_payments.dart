@@ -84,6 +84,13 @@ Future<void> payEarly(BuildContext context, RecurringRule rule) async {
   field.dispose();
   if (sum == null || !context.mounted) return;
   await c.payEarly(rule.id, amountMinor: sum);
+  if (context.mounted) {
+    SuccessBurst.show(
+      context,
+      'Оплачено досрочно',
+      subtitle: '${rule.name} −${money(sum, rule.currency)}',
+    );
+  }
   await Haptics.success();
   Finora.react(
     FinoraMood.done,

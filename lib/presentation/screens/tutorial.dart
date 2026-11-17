@@ -7,6 +7,7 @@ import '../widgets/voice_orb.dart';
 import 'onboarding.dart';
 import '../i18n.dart';
 import '../l10n_widgets.dart';
+import '../widgets/category_orbit_chart.dart';
 import '../widgets/common.dart' show showError;
 
 /// A short tour of the whole app (Finance 1.25), offered at the end of the
@@ -171,6 +172,10 @@ final _pages = <_Page>[
         '«подписка Яндекс Плюс 399 в месяц».',
     tips: [
       (Icons.auto_awesome_outlined, 'Мечты: «хочу машину за 2 миллиона»'),
+      (
+        Icons.swap_horiz_rounded,
+        'Перевод: «переведи 5000 с карты на накопительный»',
+      ),
       (Icons.palette_outlined, 'Тема: «поменяй тему на зелёную»'),
       (
         Icons.list_alt_rounded,
@@ -249,6 +254,24 @@ final _pages = <_Page>[
       ),
     ],
     picture: (context, dark) => const _MorePicture(),
+  ),
+  _Page(
+    icon: Icons.emoji_events_rounded,
+    color: AppleUi.orange,
+    eyebrow: 'Достижения и стиль',
+    title: 'Награды и ваш вид',
+    text:
+        'За порядок в деньгах Финора дарит достижения. Внешний вид — '
+        'под настроение: 14 цветовых стилей, тёмная и светлая тема.',
+    tips: [
+      (Icons.emoji_events_outlined, 'Достижения — во вкладке «Ещё»'),
+      (Icons.palette_outlined, 'Стиль и тема — Настройки → Внешний вид'),
+      (
+        Icons.face_retouching_natural_outlined,
+        'Финора с эмоциями или сферой света — по желанию',
+      ),
+    ],
+    picture: (context, dark) => const _AwardsPicture(),
   ),
   _Page(
     icon: Icons.lock_rounded,
@@ -934,100 +957,95 @@ class _ScanPicture extends StatelessWidget {
 
 class _AnalyticsPicture extends StatelessWidget {
   const _AnalyticsPicture();
+  // Release: the same capsule ring as in the app.
+  @override
+  Widget build(BuildContext context) => const SizedBox(
+    width: 230,
+    child: CategoryOrbitChart(
+      diameter: 200,
+      currency: 'RUB',
+      title: 'Ноябрь',
+      slices: [
+        CategorySlice(
+          id: 'food',
+          name: 'Продукты',
+          icon: Icons.shopping_basket_outlined,
+          color: Color(0xFFE9C46A),
+          amount: 1610000,
+        ),
+        CategorySlice(
+          id: 'transport',
+          name: 'Транспорт',
+          icon: Icons.directions_bus_outlined,
+          color: Color(0xFF7FB3D5),
+          amount: 1017000,
+        ),
+        CategorySlice(
+          id: 'cafe',
+          name: 'Кафе',
+          icon: Icons.restaurant_outlined,
+          color: Color(0xFFE3A986),
+          amount: 848000,
+        ),
+        CategorySlice(
+          id: 'shop',
+          name: 'Покупки',
+          icon: Icons.shopping_bag_outlined,
+          color: Color(0xFF8FA3E0),
+          amount: 763000,
+        ),
+      ],
+    ),
+  );
+}
+
+class _AwardsPicture extends StatelessWidget {
+  const _AwardsPicture();
   @override
   Widget build(BuildContext context) {
     final dark = Theme.of(context).brightness == Brightness.dark;
-    final parts = [
-      (.38, AppleUi.green(dark), 'Продукты'),
-      (.24, AppleUi.blue(dark), 'Транспорт'),
-      (.2, AppleUi.orange(dark), 'Кафе'),
-      (.18, AppleUi.purple(dark), 'Другое'),
+    final items = [
+      (Icons.emoji_events_rounded, 'Первый бюджет', const Color(0xFFF4C152)),
+      (Icons.savings_rounded, 'Копилка', const Color(0xFF7DD3A6)),
+      (Icons.local_fire_department_rounded, '7 дней', const Color(0xFFF08A6C)),
     ];
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        SizedBox.square(
-          dimension: 130,
-          child: CustomPaint(
-            painter: _Donut([for (final p in parts) (p.$1, p.$2)]),
-            child: Center(
+        for (final (icon, label, color) in items)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 6),
+            child: _Card(
+              width: 92,
+              padding: const EdgeInsets.symmetric(vertical: 14),
               child: Column(
-                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text('Ноябрь', style: _small(dark)),
-                  Text('42 380 ₽', style: _strong(dark, 15)),
+                  Container(
+                    width: 46,
+                    height: 46,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: RadialGradient(
+                        colors: [color, color.withValues(alpha: .55)],
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: color.withValues(alpha: .45),
+                          blurRadius: 14,
+                        ),
+                      ],
+                    ),
+                    child: Icon(icon, color: Colors.white, size: 24),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(label, style: _small(dark)),
                 ],
               ),
             ),
           ),
-        ),
-        const SizedBox(width: 20),
-        Flexible(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              for (final (share, color, name) in parts)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 10,
-                        height: 10,
-                        decoration: BoxDecoration(
-                          color: color,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Flexible(
-                        child: Text(
-                          '$name  ${(share * 100).round()}%',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: AppleUi.label(dark),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-            ],
-          ),
-        ),
       ],
     );
   }
-}
-
-class _Donut extends CustomPainter {
-  const _Donut(this.parts);
-  final List<(double, Color)> parts;
-  @override
-  void paint(Canvas canvas, Size size) {
-    final rect = Offset.zero & size;
-    const stroke = 16.0;
-    var start = -1.5708;
-    for (final (share, color) in parts) {
-      final sweep = share * 6.2832;
-      canvas.drawArc(
-        rect.deflate(stroke / 2),
-        start + .04,
-        sweep - .08,
-        false,
-        Paint()
-          ..color = color
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = stroke
-          ..strokeCap = StrokeCap.round,
-      );
-      start += sweep;
-    }
-  }
-
-  @override
-  bool shouldRepaint(_Donut old) => false;
 }
 
 class _MorePicture extends StatelessWidget {

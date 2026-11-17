@@ -14,6 +14,7 @@ import '../../domain/voice_entry_parser.dart';
 import '../widgets/bank_picker.dart';
 import '../widgets/savings_pace.dart';
 import '../widgets/service_badge.dart';
+import '../widgets/success_burst.dart';
 import '../../domain/finance_engine.dart';
 import '../controller.dart';
 import '../haptics.dart';

@@ -24,6 +24,7 @@ import '../../services/finora_ear.dart';
 import '../../services/finora_system.dart';
 import '../finora_outside.dart';
 import '../widgets/grouped_list.dart';
+import '../widgets/motion.dart';
 import '../widgets/finora_orb.dart';
 import '../widgets/profile_avatar.dart';
 import '../l10n_widgets.dart';
@@ -1091,6 +1092,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     GroupedRow(
                       key: const ValueKey('reset-all'),
                       icon: Icons.restart_alt_rounded,
+                      leading: const ResetGlyph(),
                       color: TileColors.red,
                       title: tr('Сбросить все данные'),
                       destructive: true,
@@ -1511,6 +1513,62 @@ class _StyleGalleryState extends State<_StyleGallery> {
 /// typed, so it cannot happen by a stray tap.
 /// The reset sheet (1.26): what goes, a backup first if wanted, and a
 /// swipe to confirm like the iPhone's «slide to power off».
+/// The reset sheet's symbol: the ring arrow turning slowly in a soft red
+/// glow.
+class _ResetHalo extends StatefulWidget {
+  const _ResetHalo();
+  @override
+  State<_ResetHalo> createState() => _ResetHaloState();
+}
+
+class _ResetHaloState extends State<_ResetHalo>
+    with SingleTickerProviderStateMixin {
+  late final _turn = AnimationController(
+    vsync: this,
+    duration: const Duration(seconds: 6),
+  );
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (Motion.ambient(context)) {
+      if (!_turn.isAnimating) _turn.repeat();
+    } else {
+      _turn.stop();
+    }
+  }
+
+  @override
+  void dispose() {
+    _turn.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final error = Theme.of(context).colorScheme.error;
+    return Container(
+      width: 76,
+      height: 76,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: RadialGradient(
+          colors: [error.withValues(alpha: .26), error.withValues(alpha: .06)],
+        ),
+        boxShadow: [
+          BoxShadow(color: error.withValues(alpha: .25), blurRadius: 24),
+        ],
+      ),
+      alignment: Alignment.center,
+      child: AnimatedBuilder(
+        animation: _turn,
+        builder: (context, _) =>
+            ResetGlyph(size: 40, stroke: 1.5, color: error, spin: -_turn.value),
+      ),
+    );
+  }
+}
+
 class _ResetSheet extends StatelessWidget {
   const _ResetSheet({required this.onBackup});
   final VoidCallback onBackup;
@@ -1535,17 +1593,7 @@ class _ResetSheet extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Center(
-              child: Container(
-                width: 56,
-                height: 56,
-                decoration: BoxDecoration(
-                  color: scheme.error.withValues(alpha: .14),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(Icons.restart_alt_rounded, color: scheme.error),
-              ),
-            ),
+            const Center(child: _ResetHalo()),
             const SizedBox(height: 14),
             Text(
               'Начать с чистого листа?',

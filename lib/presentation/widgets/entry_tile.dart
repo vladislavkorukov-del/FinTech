@@ -17,6 +17,7 @@ class EntryTile extends StatelessWidget {
     this.swipe = true,
     this.onTap,
     this.showDate = true,
+    this.ring = false,
   });
   final FinanceEntry entry;
   final bool swipe;
@@ -24,9 +25,31 @@ class EntryTile extends StatelessWidget {
   /// False where the date is already written above (a day's group).
   final bool showDate;
 
+  /// A hairline ring around the symbol (rows lying on the backdrop).
+  final bool ring;
+
   /// Overrides the default «open editor» tap (the dashboard opens a payee
   /// summary instead).
   final VoidCallback? onTap;
+  Widget _ringed(BuildContext context, Widget badge) =>
+      !ring || badge is! CategoryBadge
+      ? badge
+      : Container(
+          width: 44,
+          height: 44,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: .14),
+              width: .8,
+            ),
+          ),
+          child: SizedBox.square(dimension: 40, child: FittedBox(child: badge)),
+        );
+
   @override
   Widget build(BuildContext context) {
     final c = FinanceScope.of(context);
@@ -41,28 +64,34 @@ class EntryTile extends StatelessWidget {
             rule.customIconPath != null ||
             rule.serviceId != null);
     final tile = ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 5),
-      leading: ruleIcon
-          ? ServiceBadge(
-              serviceId: rule.serviceId,
-              customIconPath: rule.customIconPath,
-              name: rule.name,
-              icon: rule.icon,
-              iconColor: rule.color,
-            )
-          : !transfer &&
-                (entry.serviceId != null ||
-                    entry.serviceIconPath != null ||
-                    ServiceCatalog.byName(entry.payee) != null)
-          ? ServiceBadge(
-              serviceId: entry.serviceId,
-              customIconPath: entry.serviceIconPath,
-              name: entry.payee,
-            )
-          : CategoryBadge(
-              category: cat,
-              icon: transfer ? Icons.swap_horiz_rounded : null,
-            ),
+      contentPadding: EdgeInsets.symmetric(
+        horizontal: ring ? 0 : 4,
+        vertical: 5,
+      ),
+      leading: _ringed(
+        context,
+        ruleIcon
+            ? ServiceBadge(
+                serviceId: rule.serviceId,
+                customIconPath: rule.customIconPath,
+                name: rule.name,
+                icon: rule.icon,
+                iconColor: rule.color,
+              )
+            : !transfer &&
+                  (entry.serviceId != null ||
+                      entry.serviceIconPath != null ||
+                      ServiceCatalog.byName(entry.payee) != null)
+            ? ServiceBadge(
+                serviceId: entry.serviceId,
+                customIconPath: entry.serviceIconPath,
+                name: entry.payee,
+              )
+            : CategoryBadge(
+                category: cat,
+                icon: transfer ? Icons.swap_horiz_rounded : null,
+              ),
+      ),
       title: Text(
         entry.payee.isEmpty ? (cat?.name ?? 'Перевод') : entry.payee,
         maxLines: 1,

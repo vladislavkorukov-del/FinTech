@@ -4,8 +4,10 @@ import '../domain/models.dart';
 import '../domain/voice_command_parser.dart';
 import 'widgets/common.dart';
 import 'widgets/finora_orb.dart';
+import 'widgets/success_burst.dart';
 import 'controller.dart';
 import 'screens/account_import_screen.dart';
+import 'screens/entry_editor.dart';
 import 'screens/management.dart';
 import 'screens/settings.dart';
 import 'screens/transactions.dart';
@@ -90,6 +92,57 @@ abstract final class VoiceCommands {
           case VoiceScreen.importAccounts:
             await push(const AccountImportScreen());
         }
+      case TransferCommand():
+        // «Переведи 5000 с карты на накопительный»: recorded at once when
+        // everything was heard, otherwise the editor opens filled in.
+        final from = c.account(command.fromAccountId ?? '');
+        final to = c.account(command.toAccountId ?? '');
+        final amount = command.amountMinor;
+        if (from != null &&
+            to != null &&
+            amount != null &&
+            amount > 0 &&
+            from.currency == to.currency) {
+          final entry = FinanceEntry(
+            id: c.id(),
+            kind: EntryKind.transfer,
+            amountMinor: amount,
+            currency: from.currency,
+            accountId: from.id,
+            toAccountId: to.id,
+            date: DateTime.now(),
+          );
+          await c.saveEntry(entry);
+          if (!context.mounted) return;
+          SuccessBurst.show(
+            context,
+            'Перевод выполнен',
+            subtitle:
+                '${from.name} → ${to.name} · ${money(amount, from.currency)}',
+          );
+          added(
+            context,
+            'Перевела ${money(amount, from.currency)}: '
+            '${from.name} → ${to.name}.',
+            () => c.deleteEntry(entry.id),
+          );
+          return;
+        }
+        final first = c.data.accounts.where((a) => !a.archived).firstOrNull;
+        if (first == null) return;
+        await showEntryEditor(
+          context,
+          kind: EntryKind.transfer,
+          entry: FinanceEntry(
+            id: c.id(),
+            kind: EntryKind.transfer,
+            amountMinor: amount ?? 0,
+            currency: (from ?? first).currency,
+            accountId: (from ?? first).id,
+            toAccountId: to?.id,
+            date: DateTime.now(),
+          ),
+        );
       case CreateGoalCommand():
         final target = command.targetMinor;
         if (target == null || target <= 0) {

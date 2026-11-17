@@ -142,28 +142,50 @@ class Dashboard extends StatelessWidget {
               icon: Icons.add_card_outlined,
             ),
           ),
-        _Reorderable(
-          listKey: 'dashboard-accounts',
-          ids: prefs.accountOrder,
-          onSave: save((p, ids) => p.copyWith(accountOrder: ids)),
-          items: {
-            for (final account in accounts)
-              // 1.28: swipe left to delete.
-              account.id: SwipeToDelete(
-                key: ValueKey('swipe-dash-account-${account.id}'),
-                margin: const EdgeInsets.only(bottom: 6),
-                title: 'Удалить счёт «${account.name}»?',
-                message:
-                    'Счёт с операциями удалить нельзя — его можно '
-                    'отправить в архив в редакторе счёта.',
-                onDelete: () => c.deleteAccount(account.id),
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 6),
-                  child: _AccountRow(account: account),
-                ),
+        // Release: all accounts on one card, divided by hairlines; a long
+        // press still drags a row to a new place.
+        if (accounts.isNotEmpty)
+          GlassSurface(
+            radius: 16,
+            child: _Reorderable(
+              listKey: 'dashboard-accounts',
+              ids: prefs.accountOrder,
+              onSave: save((p, ids) => p.copyWith(accountOrder: ids)),
+              proxy: _liftedRow,
+              wrap: (i, child) => Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (i > 0)
+                    Padding(
+                      padding: const EdgeInsets.only(left: 56),
+                      child: Divider(
+                        height: .5,
+                        thickness: .5,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.outlineVariant.withValues(alpha: .6),
+                      ),
+                    ),
+                  child,
+                ],
               ),
-          },
-        ),
+              items: {
+                for (final account in accounts)
+                  // 1.28: swipe left to delete.
+                  account.id: SwipeToDelete(
+                    key: ValueKey('swipe-dash-account-${account.id}'),
+                    margin: EdgeInsets.zero,
+                    title: 'Удалить счёт «${account.name}»?',
+                    message:
+                        'Счёт с операциями удалить нельзя — его можно '
+                        'отправить в архив в редакторе счёта.',
+                    onDelete: () => c.deleteAccount(account.id),
+                    child: _AccountRow(account: account),
+                  ),
+              },
+            ),
+          ),
+        if (archived.isNotEmpty) const SizedBox(height: 8),
         if (archived.isNotEmpty)
           SurfaceCard(
             padding: EdgeInsets.zero,
@@ -405,6 +427,40 @@ Widget _lifted(Widget child, int index, Animation<double> animation) =>
       },
     );
 
+/// A dragged row of a grouped card: it lifts out on a card of its own.
+Widget _liftedRow(Widget child, int index, Animation<double> animation) =>
+    AnimatedBuilder(
+      animation: animation,
+      child: child,
+      builder: (context, child) {
+        final t = Curves.easeOut.transform(animation.value);
+        return Transform.scale(
+          scale: 1 + .03 * t,
+          child: Material(
+            color: Theme.of(context).colorScheme.surface,
+            elevation: 0,
+            shape: RoundedSuperellipseBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            shadowColor: Colors.transparent,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: .3 * t),
+                    blurRadius: 24,
+                    offset: const Offset(0, 10),
+                  ),
+                ],
+              ),
+              child: child,
+            ),
+          ),
+        );
+      },
+    );
+
 /// A list whose items are dragged into a new order with a long press. The
 /// new order shows at once and is then saved through [onSave]; [ids] is the
 /// saved order (unknown ids ignored, new items last). A nested list (accounts,
@@ -419,6 +475,7 @@ class _Reorderable extends StatefulWidget {
     this.header,
     this.footer,
     this.wrap,
+    this.proxy,
   });
   final String listKey;
   final List<String> ids;
@@ -427,6 +484,9 @@ class _Reorderable extends StatefulWidget {
   final bool nested;
   final Widget? header, footer;
   final Widget Function(int index, Widget child)? wrap;
+
+  /// How a dragged item looks (default [_lifted]).
+  final ReorderItemProxyDecorator? proxy;
   @override
   State<_Reorderable> createState() => _ReorderableState();
 }
@@ -466,7 +526,7 @@ class _ReorderableState extends State<_Reorderable> {
           ? EdgeInsets.zero
           : const EdgeInsets.fromLTRB(16, 4, 16, 20),
       buildDefaultDragHandles: false,
-      proxyDecorator: _lifted,
+      proxyDecorator: widget.proxy ?? _lifted,
       header: widget.header,
       footer: widget.footer,
       onReorderItem: reorder,
@@ -484,6 +544,26 @@ class _ReorderableState extends State<_Reorderable> {
   }
 }
 
+/// A tappable row inside a grouped card.
+class _RowTap extends StatelessWidget {
+  const _RowTap({
+    required this.child,
+    required this.onTap,
+    this.padding = EdgeInsets.zero,
+  });
+  final Widget child;
+  final VoidCallback onTap;
+  final EdgeInsets padding;
+  @override
+  Widget build(BuildContext context) => Material(
+    type: MaterialType.transparency,
+    child: InkWell(
+      onTap: onTap,
+      child: Padding(padding: padding, child: child),
+    ),
+  );
+}
+
 class _AccountRow extends StatelessWidget {
   const _AccountRow({required this.account});
   final Account account;
@@ -491,9 +571,9 @@ class _AccountRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = FinanceScope.of(context);
     final scheme = Theme.of(context).colorScheme;
-    return SurfaceCard(
-      // 1.57: a compact row — one line of name and one of details.
-      padding: const EdgeInsets.fromLTRB(12, 7, 2, 7),
+    // Release: a row of the accounts card (no card of its own).
+    return _RowTap(
+      padding: const EdgeInsets.fromLTRB(14, 10, 4, 10),
       onTap: () => Navigator.push(
         context,
         MaterialPageRoute<void>(

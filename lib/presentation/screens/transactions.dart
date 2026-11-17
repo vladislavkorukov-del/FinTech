@@ -444,9 +444,6 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                         }
                       }
                       final scheme = Theme.of(context).colorScheme;
-                      final dark =
-                          Theme.of(context).brightness == Brightness.dark;
-                      const r = Radius.circular(16);
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -483,30 +480,16 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                                 ],
                               ),
                             ),
-                          // Release: each day is one matte card, its
-                          // operations divided by hairlines (iOS grouped).
+                          // Release: no cards — the rows lie on the
+                          // backdrop, divided by quiet hairlines.
                           Material(
-                            clipBehavior: Clip.antiAlias,
-                            color: dark
-                                ? Color.lerp(scheme.surface, Colors.white, .015)
-                                : scheme.surface,
-                            shape: RoundedSuperellipseBorder(
-                              borderRadius: BorderRadius.vertical(
-                                top: heading ? r : Radius.zero,
-                                bottom: last ? r : Radius.zero,
-                              ),
-                            ),
+                            type: MaterialType.transparency,
                             child: Column(
                               children: [
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 10,
-                                  ),
-                                  child: EntryTile(e, showDate: false),
-                                ),
+                                EntryTile(e, showDate: false, ring: true),
                                 if (!last)
                                   Padding(
-                                    padding: const EdgeInsets.only(left: 68),
+                                    padding: const EdgeInsets.only(left: 60),
                                     child: Divider(
                                       height: .5,
                                       thickness: .5,

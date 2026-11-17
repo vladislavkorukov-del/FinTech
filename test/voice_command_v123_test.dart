@@ -24,6 +24,22 @@ void main() {
       parse(phrase)! as ShowEntriesCommand;
   String category(String? id) => categories.firstWhere((c) => c.id == id).name;
 
+  test('a transfer between own accounts (Release)', () {
+    final t = parse('переведи 5000 с тинькофф на наличные')! as TransferCommand;
+    expect(t.amountMinor, 500000);
+    expect(t.fromAccountId, 'tb');
+    expect(t.toAccountId, 'cash');
+    final u =
+        parse('перекинь 2 тысячи с наличных на тинькофф')! as TransferCommand;
+    expect(u.amountMinor, 200000);
+    expect(u.fromAccountId, 'cash');
+    expect(u.toAccountId, 'tb');
+    // An unknown account: the editor opens to ask.
+    final v = parse('переведи 300 с копилки на наличные')! as TransferCommand;
+    expect(v.fromAccountId, isNull);
+    expect(v.toAccountId, 'cash');
+  });
+
   test('operations stay operations', () {
     for (final phrase in [
       'пятерочка 450 рублей',

@@ -2,11 +2,10 @@ import 'dart:math' as math;
 import 'presentation/i18n.dart';
 import 'dart:async';
 
-import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart' hide InputDecoration, Text;
 import 'package:flutter/foundation.dart'
     show LicenseRegistry, LicenseEntryWithLineBreaks;
-import 'package:flutter/services.dart' show rootBundle;
+import 'package:flutter/services.dart' show HapticFeedback, rootBundle;
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
@@ -16,6 +15,7 @@ import 'services/security_service.dart';
 import 'services/receipt_share_service.dart';
 import 'presentation/controller.dart';
 import 'presentation/theme/app_theme.dart';
+import 'presentation/widgets/nav_glyph.dart';
 import 'presentation/screens/dashboard.dart';
 import 'presentation/screens/transactions.dart';
 import 'presentation/screens/analytics.dart';
@@ -545,28 +545,57 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
                 minimum: const EdgeInsets.only(bottom: 8),
                 child: Padding(
                   padding: const EdgeInsets.only(top: 8, left: 6, right: 6),
-                  child: Row(
-                    children: [
-                      _nav(0, CupertinoIcons.house, tr('Главная')),
-                      _nav(1, CupertinoIcons.doc_text, tr('Операции')),
-                      // 1.20: the living voice orb replaces «+»; a long press
-                      // still adds an operation by hand.
-                      Expanded(
-                        child: Center(
-                          heightFactor: 1,
-                          child: VoiceOrb(
-                            size: 54,
-                            onTap: _voice,
-                            // 1.37: a ring of actions around Finora.
-                            onLongPress: _wheel,
-                            onLongPressMove: (p) => _openWheel?.move(p),
-                            onLongPressEnd: (p) => _openWheel?.release(p),
+                  // Release: a soft capsule glides under the chosen tab
+                  // (with a touch of spring); the symbols morph in place.
+                  child: LayoutBuilder(
+                    builder: (context, box) {
+                      final slot = box.maxWidth / 5;
+                      return Stack(
+                        children: [
+                          AnimatedPositioned(
+                            duration: MediaQuery.disableAnimationsOf(context)
+                                ? Duration.zero
+                                : const Duration(milliseconds: 460),
+                            curve: const Cubic(.3, 1.3, .5, 1),
+                            left: slot * _tab + (slot - 56) / 2,
+                            top: 3,
+                            width: 56,
+                            height: 32,
+                            child: DecoratedBox(
+                              key: const ValueKey('nav-capsule'),
+                              decoration: ShapeDecoration(
+                                color: scheme.primary.withValues(alpha: .16),
+                                shape: const StadiumBorder(),
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
-                      _nav(3, CupertinoIcons.chart_bar, tr('Аналитика')),
-                      _nav(4, CupertinoIcons.square_grid_2x2, tr('Ещё')),
-                    ],
+                          Row(
+                            children: [
+                              _nav(0, NavGlyphKind.home, tr('Главная')),
+                              _nav(1, NavGlyphKind.operations, tr('Операции')),
+                              // 1.20: the living voice orb replaces «+»; a long press
+                              // still adds an operation by hand.
+                              Expanded(
+                                child: Center(
+                                  heightFactor: 1,
+                                  child: VoiceOrb(
+                                    size: 54,
+                                    onTap: _voice,
+                                    // 1.37: a ring of actions around Finora.
+                                    onLongPress: _wheel,
+                                    onLongPressMove: (p) => _openWheel?.move(p),
+                                    onLongPressEnd: (p) =>
+                                        _openWheel?.release(p),
+                                  ),
+                                ),
+                              ),
+                              _nav(3, NavGlyphKind.analytics, tr('Аналитика')),
+                              _nav(4, NavGlyphKind.more, tr('Ещё')),
+                            ],
+                          ),
+                        ],
+                      );
+                    },
                   ),
                 ),
               ),
@@ -577,18 +606,11 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
     );
   }
 
-  static final _filled = <IconData, IconData>{
-    CupertinoIcons.house: CupertinoIcons.house_fill,
-    CupertinoIcons.doc_text: CupertinoIcons.doc_text_fill,
-    CupertinoIcons.chart_bar: CupertinoIcons.chart_bar_fill,
-    CupertinoIcons.square_grid_2x2: CupertinoIcons.square_grid_2x2_fill,
-  };
-
-  Widget _nav(int index, IconData icon, String label) {
+  Widget _nav(int index, NavGlyphKind glyph, String label) {
     final scheme = Theme.of(context).colorScheme;
     final active = _tab == index;
-    // Apple polish: like an iOS tab bar — no pill; the chosen tab takes the
-    // tint color (or the text color where the tint would be too faint).
+    // The chosen tab takes the tint colour (or the text colour where the
+    // tint would be too faint).
     double luminance(Color c) => c.computeLuminance() + .05;
     final ratio =
         math.max(luminance(scheme.primary), luminance(scheme.surface)) /
@@ -602,40 +624,38 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
         label: label,
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
-          onTap: () => setState(() => _tab = index),
+          onTap: () {
+            if (_tab != index) HapticFeedback.selectionClick();
+            setState(() => _tab = index);
+          },
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 4),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // The chosen tab: a filled symbol on a soft capsule of the
-                // accent, like the iOS tab bar.
-                AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  curve: Curves.easeOutCubic,
-                  width: 54,
+                SizedBox(
                   height: 30,
-                  decoration: ShapeDecoration(
-                    color: active
-                        ? scheme.primary.withValues(alpha: .16)
-                        : Colors.transparent,
-                    shape: const StadiumBorder(),
-                  ),
-                  child: Icon(
-                    active ? _filled[icon] ?? icon : icon,
-                    color: color,
-                    size: 23,
+                  child: Center(
+                    child: NavGlyph(
+                      kind: glyph,
+                      active: active,
+                      activeColor: tint,
+                      color: scheme.onSurfaceVariant,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 3),
-                Text(
-                  label,
-                  maxLines: 1,
+                AnimatedDefaultTextStyle(
+                  duration: const Duration(milliseconds: 250),
                   style: TextStyle(
                     fontSize: 10.5,
                     fontWeight: active ? FontWeight.w600 : FontWeight.w500,
                     color: color,
+                    fontFamily: Theme.of(
+                      context,
+                    ).textTheme.bodySmall?.fontFamily,
                   ),
+                  child: Text(label, maxLines: 1),
                 ),
               ],
             ),

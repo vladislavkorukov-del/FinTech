@@ -164,6 +164,19 @@ class CreateRecurringCommand extends VoiceCommand {
   final DateTime nextDate;
 }
 
+/// «Переведи 5000 с основной карты на накопительный». Either account may
+/// be missing when it was not recognised; the app then asks.
+class TransferCommand extends VoiceCommand {
+  const TransferCommand(
+    super.heard, {
+    this.amountMinor,
+    this.fromAccountId,
+    this.toAccountId,
+  });
+  final int? amountMinor;
+  final String? fromAccountId, toAccountId;
+}
+
 abstract final class VoiceCommandParser {
   /// The first hypothesis that is a command; null when the phrase is an
   /// operation to record.
@@ -245,11 +258,49 @@ abstract final class VoiceCommandParser {
                 (_modeWord.hasMatch(t) || _colorWord.hasMatch(t)))) {
       return _theme(heard, t);
     }
+    final transfer = _transfer(heard, t, accounts);
+    if (transfer != null) return transfer;
     final create = _create(heard, t, categories, accounts, today);
     if (create != null) return create;
     final verb = _showVerb.hasMatch(t);
     if (!verb && !(_listStart.hasMatch(t) && !_amount(t))) return null;
     return _show(heard, t, categories, accounts, today, weekStart);
+  }
+
+  /// A transfer between own accounts: a «переведи / перекинь» verb with
+  /// «с … на …», or «перевод с … на …».
+  static final _transferVerb = RegExp(
+    r'(?:^| )(?:переведи|перевести|переведите|перекинь|перекинуть|'
+    r'перебрось|перебросить|переложи|переложить|перевод|скинь)(?: |$)',
+  );
+
+  static TransferCommand? _transfer(
+    String heard,
+    String t,
+    List<Account> accounts,
+  ) {
+    if (!_transferVerb.hasMatch(t)) return null;
+    final from = RegExp(r'(?:^| )(?:с|со|из) (.+?)(?= на |$)').firstMatch(t);
+    final to = RegExp(r'(?:^| )на (.+)$').firstMatch(t);
+    // «Перевод на накопительный 5000» stays an operation; a command needs
+    // the account it comes from.
+    if (from == null || to == null) return null;
+    final active = accounts
+        .where((a) => !a.archived)
+        .map((a) => (a.id, a.name))
+        .toList();
+    String? pick(RegExpMatch? m) =>
+        m == null ? null : _match(m.group(1)!.split(' '), active);
+    final fromId = pick(from);
+    var toId = pick(to);
+    if (toId == fromId) toId = null;
+    final money = VoiceEntryParser.amountIn(heard);
+    return TransferCommand(
+      heard,
+      amountMinor: money?.minor,
+      fromAccountId: fromId,
+      toAccountId: toId,
+    );
   }
 
   /// Digits that are a sum, not a year («за 2025 год») or a count

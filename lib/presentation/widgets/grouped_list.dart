@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart' hide InputDecoration, Text;
 import 'package:flutter/services.dart';
@@ -95,6 +97,103 @@ final _ios = <IconData, IconData>{
   Icons.widgets_rounded: CupertinoIcons.square_grid_2x2,
 };
 
+/// The reset symbol (Release): a ring arrow wound around a small bin —
+/// «start over». [spin] turns the arrow (0–1 per turn).
+class ResetGlyph extends StatelessWidget {
+  const ResetGlyph({
+    super.key,
+    this.size = 22,
+    this.color,
+    this.spin = 0,
+    this.stroke = 1.6,
+  });
+  final double size, spin, stroke;
+  final Color? color;
+
+  @override
+  Widget build(BuildContext context) => CustomPaint(
+    size: Size.square(size),
+    painter: _ResetPainter(
+      color: color ?? Theme.of(context).colorScheme.error,
+      spin: spin,
+      stroke: stroke,
+    ),
+  );
+}
+
+class _ResetPainter extends CustomPainter {
+  const _ResetPainter({
+    required this.color,
+    required this.spin,
+    required this.stroke,
+  });
+  final Color color;
+  final double spin, stroke;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final s = size.shortestSide;
+    final c = size.center(Offset.zero);
+    final line = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = stroke * s / 22
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round
+      ..color = color;
+    // The ring arrow, open at the top-right, with its head.
+    final r = s * .44;
+    final start = -math.pi / 2 + .55 + spin * math.pi * 2;
+    const sweep = math.pi * 2 - 1.0;
+    canvas.drawArc(
+      Rect.fromCircle(center: c, radius: r),
+      start,
+      sweep,
+      false,
+      line,
+    );
+    final end = start + sweep;
+    final tip = c + Offset(math.cos(end), math.sin(end)) * r;
+    final along = Offset(-math.sin(end), math.cos(end));
+    final out = Offset(math.cos(end), math.sin(end));
+    final h = s * .17;
+    canvas.drawPath(
+      Path()
+        ..moveTo(
+          tip.dx - along.dx * h + out.dx * h * .7,
+          tip.dy - along.dy * h + out.dy * h * .7,
+        )
+        ..lineTo(tip.dx, tip.dy)
+        ..lineTo(
+          tip.dx - along.dx * h - out.dx * h * .7,
+          tip.dy - along.dy * h - out.dy * h * .7,
+        ),
+      line,
+    );
+    // The bin inside.
+    final w = s * .3, bh = s * .3;
+    final top = c.dy - bh * .38;
+    canvas
+      ..drawLine(Offset(c.dx - w * .62, top), Offset(c.dx + w * .62, top), line)
+      ..drawLine(
+        Offset(c.dx - w * .2, top - s * .06),
+        Offset(c.dx + w * .2, top - s * .06),
+        line,
+      )
+      ..drawPath(
+        Path()
+          ..moveTo(c.dx - w * .45, top)
+          ..lineTo(c.dx - w * .36, top + bh)
+          ..lineTo(c.dx + w * .36, top + bh)
+          ..lineTo(c.dx + w * .45, top),
+        line,
+      );
+  }
+
+  @override
+  bool shouldRepaint(_ResetPainter old) =>
+      old.color != color || old.spin != spin || old.stroke != stroke;
+}
+
 /// A titled group of rows on one card, with thin dividers between them.
 class GroupedSection extends StatelessWidget {
   const GroupedSection({
@@ -176,8 +275,12 @@ class GroupedRow extends StatelessWidget {
     this.onTap,
     this.trailing,
     this.destructive = false,
+    this.leading,
   });
   final IconData icon;
+
+  /// A drawn symbol in place of [icon] (e.g. [ResetGlyph]).
+  final Widget? leading;
   final Color color;
   final String title;
   final String? subtitle, value;
@@ -206,11 +309,13 @@ class GroupedRow extends StatelessWidget {
                 // iOS-strict: a thin line symbol, no tile behind it.
                 SizedBox(
                   width: 28,
-                  child: Icon(
-                    iosIcon(icon),
-                    size: 22,
-                    color: destructive ? scheme.error : scheme.onSurface,
-                  ),
+                  child:
+                      leading ??
+                      Icon(
+                        iosIcon(icon),
+                        size: 22,
+                        color: destructive ? scheme.error : scheme.onSurface,
+                      ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
