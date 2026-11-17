@@ -5,6 +5,7 @@ import '../haptics.dart';
 import '../i18n.dart';
 import '../l10n_widgets.dart';
 import '../screens/achievements_screen.dart';
+import '../screens/app_search.dart';
 import '../screens/entry_editor.dart';
 import '../screens/management.dart';
 import '../screens/settings.dart';
@@ -34,7 +35,7 @@ class FinoraDrawer extends StatelessWidget {
     (1, CupertinoIcons.doc_text, 'Операции'),
     (3, CupertinoIcons.chart_bar, 'Аналитика'),
     (5, CupertinoIcons.sparkles, 'Finora AI'),
-    (4, CupertinoIcons.square_grid_2x2, 'Ещё'),
+    (4, CupertinoIcons.ellipsis_circle, 'Ещё'),
   ];
 
   /// The panel colour: near-black at night, white by day.
@@ -136,7 +137,16 @@ class FinoraDrawer extends StatelessWidget {
                   IconButton(
                     key: const ValueKey('drawer-search'),
                     tooltip: tr('Поиск'),
-                    onPressed: () => go(1),
+                    onPressed: () {
+                      Haptics.light();
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute<void>(
+                          builder: (_) => AppSearchScreen(onPlace: onSelect),
+                        ),
+                      );
+                    },
                     icon: Icon(
                       CupertinoIcons.search,
                       size: 23,
@@ -168,7 +178,7 @@ class FinoraDrawer extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(24, 8, 24, 4),
                     child: Text(
-                      tr('Полезное'),
+                      tr('Функции'),
                       style: TextStyle(
                         fontSize: 13.5,
                         fontWeight: FontWeight.w600,
@@ -176,7 +186,7 @@ class FinoraDrawer extends StatelessWidget {
                       ),
                     ),
                   ),
-                  // Release: handy tools that already live in the app.
+                  // «Функции»: tools that already live in the app.
                   for (final (key, icon, label, open)
                       in <(String, IconData, String, VoidCallback)>[
                         if (onVoice != null)

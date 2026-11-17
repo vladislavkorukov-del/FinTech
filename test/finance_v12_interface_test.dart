@@ -155,7 +155,7 @@ void main() {
   }
 
   testWidgets(
-    'header shows centered total balance and currency instead of the F logo',
+    'the total balance is the first row of the accounts card, not a header',
     (tester) async {
       for (final width in [320.0, 412.0]) {
         for (final scale in [1.0, 1.6]) {
@@ -164,34 +164,39 @@ void main() {
             const Scaffold(
               body: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 18),
-                child: FinanceHeader(),
+                child: AccountsTotal(),
               ),
             ),
             size: Size(width, 700),
             scale: scale,
           );
-          final balance = find.byKey(const ValueKey('header-balance'));
-          expect(tester.getCenter(balance).dx, closeTo(width / 2, .01));
+          final total = find.byKey(const ValueKey('accounts-total'));
+          expect(total, findsOneWidget);
           expect(
             find.text(money(controller.balance, controller.currency)),
             findsOneWidget,
           );
-          // The caption is «Общий баланс» alone, no currency in it.
+          // A short caption on the left, the sum on the right.
+          expect(find.text('Всего'), findsOneWidget);
           expect(
-            find.text('Общий баланс · ${controller.currency}'),
-            findsNothing,
+            tester.getCenter(find.text('Всего')).dx,
+            lessThan(
+              tester
+                  .getCenter(
+                    find.text(money(controller.balance, controller.currency)),
+                  )
+                  .dx,
+            ),
           );
           expect(find.byType(FinanceBrand), findsNothing);
-          expect(find.byType(Image), findsNothing);
-          expect(find.byIcon(Icons.visibility_outlined), findsNothing);
+          expect(
+            find.bySemanticsLabel(RegExp('^Общий баланс')),
+            findsOneWidget,
+          );
           expect(tester.takeException(), isNull);
         }
       }
-      // 1.57: the header shows only the balance; settings and the family
-      // profile are reached from «Ещё».
-      expect(find.byTooltip('Моя семья'), findsNothing);
-      expect(find.byTooltip('Настройки'), findsNothing);
-      await tester.tap(find.byKey(const ValueKey('header-balance')));
+      await tester.tap(find.byKey(const ValueKey('accounts-total')));
       await tester.pumpAndSettle();
       expect(find.byType(AccountsScreen), findsOneWidget);
     },
@@ -213,24 +218,13 @@ void main() {
           scale: scale,
         );
         double top(Finder f) => tester.getTopLeft(f).dy;
-        final header = find.byKey(const ValueKey('header-balance'));
         final summary = find.byKey(const ValueKey('dashboard-month-summary'));
         final actions = find.byKey(const ValueKey('dashboard-actions'));
         expect(find.byKey(const ValueKey('dashboard-balance')), findsNothing);
-        // Release: the balance sits in the header row, without a caption.
-        expect(find.text('Общий баланс'), findsNothing);
-        // The total is shown once, in the header; account rows keep their
-        // own balances.
-        expect(
-          find.descendant(
-            of: header,
-            matching: find.text(money(controller.balance, controller.currency)),
-          ),
-          findsOneWidget,
-        );
+        // No balance in a header any more: it is the accounts card's
+        // first row, once.
+        expect(find.byKey(const ValueKey('header-balance')), findsNothing);
         expect(find.textContaining('Общий баланс'), findsNothing);
-        expect(find.bySemanticsLabel(RegExp('^Общий баланс')), findsOneWidget);
-        expect(top(header), lessThan(top(summary)));
         expect(top(summary), lessThan(top(actions)));
         // Actions sit directly below the month income/expense cards.
         expect(
@@ -243,6 +237,17 @@ void main() {
           scrollable: find.byType(Scrollable).first,
         );
         expect(top(actions), lessThan(top(find.text('Все счета'))));
+        final total = find.byKey(const ValueKey('accounts-total'));
+        await tester.ensureVisible(total);
+        await tester.pumpAndSettle();
+        expect(
+          find.descendant(
+            of: total,
+            matching: find.text(money(controller.balance, controller.currency)),
+          ),
+          findsOneWidget,
+        );
+        expect(top(find.text('Все счета')), lessThan(top(total)));
         final keys = [
           'quick-action-income',
           'quick-action-expense',

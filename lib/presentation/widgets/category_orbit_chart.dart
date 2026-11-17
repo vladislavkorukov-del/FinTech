@@ -32,6 +32,7 @@ class CategoryOrbitChart extends StatefulWidget {
     required this.currency,
     this.kind = EntryKind.expense,
     this.onDetails,
+    this.onOpen,
     this.title,
     this.diameter = 200,
   });
@@ -39,6 +40,10 @@ class CategoryOrbitChart extends StatefulWidget {
   final String currency;
   final EntryKind kind;
   final ValueChanged<String>? onDetails;
+
+  /// A tap in the middle (nothing selected) or beside the ring: open the
+  /// full view (the main screen's month overview opens the analytics).
+  final VoidCallback? onOpen;
 
   /// The period in the middle («Ноябрь»); by default «Расходы»/«Доходы».
   final String? title;
@@ -149,11 +154,18 @@ class _CategoryOrbitChartState extends State<CategoryOrbitChart>
                           onTapUp: (details) {
                             final p = details.localPosition - center;
                             if (p.distance < ringR - stroke / 2) {
-                              // The middle lets go.
-                              if (_selected != null) _select(null);
+                              // The middle lets go, or opens the full view.
+                              if (_selected != null) {
+                                _select(null);
+                              } else {
+                                widget.onOpen?.call();
+                              }
                               return;
                             }
-                            if (p.distance > ringR + stroke / 2 + 14) return;
+                            if (p.distance > ringR + stroke / 2 + 14) {
+                              widget.onOpen?.call();
+                              return;
+                            }
                             var a = math.atan2(p.dy, p.dx) + math.pi / 2;
                             if (a < 0) a += math.pi * 2;
                             var cursor = 0.0;

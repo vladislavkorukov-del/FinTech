@@ -22,7 +22,7 @@ class FinanceRepository {
   final DatabaseFactory _factory;
   final String _path;
   final DateTime Function() _clock;
-  static const schemaVersion = 6;
+  static const schemaVersion = 7;
   static const maxBackupBytes = 50 * 1024 * 1024;
 
   static Future<FinanceRepository> open({
@@ -118,6 +118,21 @@ class FinanceRepository {
             final columns = await db.rawQuery('PRAGMA table_info(goals)');
             if (!columns.any((c) => c['name'] == 'photoPath')) {
               await db.execute('ALTER TABLE goals ADD COLUMN photoPath TEXT');
+            }
+          }
+          if (oldVersion < 7) {
+            // Loans and mortgages: rate and debt for a full schedule.
+            final columns = await db.rawQuery('PRAGMA table_info(recurring)');
+            for (final (name, type) in const [
+              ('interestRate', 'REAL'),
+              ('principalMinor', 'INTEGER'),
+              ('principalDate', 'TEXT'),
+            ]) {
+              if (!columns.any((c) => c['name'] == name)) {
+                await db.execute(
+                  'ALTER TABLE recurring ADD COLUMN $name $type',
+                );
+              }
             }
           }
         },
@@ -793,7 +808,9 @@ class FinanceRepository {
     for (final s in data.shopping) {
       if (s.name.trim().isEmpty ||
           s.name.length > 200 ||
-          s.quantity.length > 50) {
+          s.quantity.length > 50 ||
+          s.list.length > 40 ||
+          s.section.length > 40) {
         throw const FormatException('Некорректная строка списка покупок');
       }
       if (s.priceMinor != null &&
@@ -881,6 +898,11 @@ class FinanceRepository {
       currency(r.currency);
       amount(r.amountMinor, positive: true);
       if (r.totalMinor != null) amount(r.totalMinor!, positive: true);
+      if (r.principalMinor != null) amount(r.principalMinor!, positive: true);
+      final rate = r.interestRate;
+      if (rate != null && !(rate >= 0 && rate <= 100)) {
+        throw const FormatException('Ставка должна быть от 0 до 100 %');
+      }
       date(r.nextDate);
       service(r.serviceId);
       if (![0, 1, 3, 7].contains(r.reminderDaysBefore) ||
@@ -1151,7 +1173,7 @@ class FinanceRepository {
     'CREATE TABLE attachments(entryId TEXT PRIMARY KEY REFERENCES entries(id), path TEXT NOT NULL)',
     'CREATE TABLE budgets(id TEXT PRIMARY KEY, name TEXT NOT NULL, currency TEXT NOT NULL REFERENCES currencies(code), categoryId TEXT REFERENCES categories(id), limitMinor INTEGER NOT NULL CHECK(limitMinor > 0))',
     'CREATE TABLE goals(id TEXT PRIMARY KEY, name TEXT NOT NULL, currency TEXT NOT NULL REFERENCES currencies(code), targetMinor INTEGER NOT NULL CHECK(targetMinor > 0), savedMinor INTEGER NOT NULL CHECK(savedMinor >= 0), color INTEGER NOT NULL, icon INTEGER NOT NULL, deadline TEXT, photoPath TEXT)',
-    'CREATE TABLE recurring(id TEXT PRIMARY KEY, name TEXT NOT NULL, accountId TEXT NOT NULL REFERENCES accounts(id), currency TEXT NOT NULL REFERENCES currencies(code), categoryId TEXT REFERENCES categories(id), kind TEXT NOT NULL, amountMinor INTEGER NOT NULL CHECK(amountMinor > 0), interval INTEGER NOT NULL, anchorDay INTEGER NOT NULL, frequency TEXT NOT NULL, nextDate TEXT NOT NULL, automatic INTEGER NOT NULL, enabled INTEGER NOT NULL, paymentType TEXT NOT NULL DEFAULT \'mandatory\', serviceId TEXT, customIconPath TEXT, reminderEnabled INTEGER NOT NULL DEFAULT 0, reminderDaysBefore INTEGER NOT NULL DEFAULT 1, reminderHour INTEGER NOT NULL DEFAULT 10, reminderMinute INTEGER NOT NULL DEFAULT 0, icon INTEGER, color INTEGER, totalMinor INTEGER)',
+    'CREATE TABLE recurring(id TEXT PRIMARY KEY, name TEXT NOT NULL, accountId TEXT NOT NULL REFERENCES accounts(id), currency TEXT NOT NULL REFERENCES currencies(code), categoryId TEXT REFERENCES categories(id), kind TEXT NOT NULL, amountMinor INTEGER NOT NULL CHECK(amountMinor > 0), interval INTEGER NOT NULL, anchorDay INTEGER NOT NULL, frequency TEXT NOT NULL, nextDate TEXT NOT NULL, automatic INTEGER NOT NULL, enabled INTEGER NOT NULL, paymentType TEXT NOT NULL DEFAULT \'mandatory\', serviceId TEXT, customIconPath TEXT, reminderEnabled INTEGER NOT NULL DEFAULT 0, reminderDaysBefore INTEGER NOT NULL DEFAULT 1, reminderHour INTEGER NOT NULL DEFAULT 10, reminderMinute INTEGER NOT NULL DEFAULT 0, icon INTEGER, color INTEGER, totalMinor INTEGER, interestRate REAL, principalMinor INTEGER, principalDate TEXT)',
     'CREATE TABLE settings(key TEXT PRIMARY KEY, value TEXT NOT NULL)',
   ];
 }

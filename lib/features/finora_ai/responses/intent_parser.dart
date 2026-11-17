@@ -56,7 +56,9 @@ abstract final class IntentParser {
     (AiIntent.budgetRisk, RegExp(r'бюджет|лимит|превыш|уложусь|уложиться')),
     (
       AiIntent.freeMoney,
-      RegExp(r'остан|свободн|после обязательн|сколько (я )?(могу|можно) потратить'),
+      RegExp(
+        r'остан|свободн|после обязательн|сколько (я )?(могу|можно) потратить',
+      ),
     ),
     (
       AiIntent.forecast,

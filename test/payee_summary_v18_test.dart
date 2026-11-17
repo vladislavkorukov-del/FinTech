@@ -9,6 +9,7 @@ import 'package:finora/presentation/screens/entry_editor.dart';
 import 'package:finora/presentation/screens/payee_summary_screen.dart';
 import 'package:finora/presentation/theme/app_theme.dart';
 import 'package:finora/presentation/widgets/common.dart';
+import 'package:finora/presentation/widgets/entry_tile.dart';
 import 'package:finora/services/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -206,8 +207,26 @@ void main() {
       );
       await tester.drag(find.byType(Scrollable).first, const Offset(0, -200));
       await tester.pumpAndSettle();
-      final tile = find.text('Whoosh').first;
+      // The recent operations scroll inside their card.
+      // A RUB ride (the list now also holds the Whoosh income).
+      final tile = find
+          .descendant(
+            of: find.byKey(const ValueKey('dashboard-recent-list')),
+            matching: find.byWidgetPredicate(
+              (w) =>
+                  w is EntryTile &&
+                  w.entry.payee == 'Whoosh' &&
+                  w.entry.kind == EntryKind.expense &&
+                  w.entry.currency == 'RUB',
+            ),
+          )
+          .first;
       await tester.ensureVisible(tile);
+      await tester.pumpAndSettle();
+      // Then the card itself fully on screen.
+      await tester.ensureVisible(
+        find.byKey(const ValueKey('dashboard-recent-list')),
+      );
       await tester.pumpAndSettle();
       await tester.tap(tile);
       await tester.pumpAndSettle();

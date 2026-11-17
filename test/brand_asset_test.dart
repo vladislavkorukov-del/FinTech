@@ -150,7 +150,7 @@ void main() {
       'lib/presentation/widgets/finance_header.dart',
     ).readAsString();
     final header = source.substring(
-      source.indexOf('class FinanceHeader extends'),
+      source.indexOf('class AccountsTotal extends'),
     );
     expect(header, isNot(contains('FinanceBrand(')));
     expect(header, contains('c.balance'));

@@ -51,6 +51,7 @@ abstract final class PaymentPrompt {
         switch (answer?.action) {
           case 'paid':
             final sum = answer!.amountMinor ?? rule.amountMinor;
+            final overlay = SuccessBurst.overlayOf(context);
             await c.confirmPayment(
               rule.id,
               amountMinor: sum,
@@ -60,13 +61,12 @@ abstract final class PaymentPrompt {
               FinoraMood.done,
               text: 'Записала: ${rule.name} −${money(sum, rule.currency)}',
             );
-            if (context.mounted) {
-              SuccessBurst.show(
-                context,
-                'Оплачено',
-                subtitle: '${rule.name} −${money(sum, rule.currency)}',
-              );
-            }
+            SuccessBurst.show(
+              null,
+              'Оплачено',
+              subtitle: '${rule.name} −${money(sum, rule.currency)}',
+              overlay: overlay,
+            );
           case 'skip':
             await c.skipPayment(rule.id);
             Finora.react(FinoraMood.calm, text: 'Хорошо, в этот раз без него.');

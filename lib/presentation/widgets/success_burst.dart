@@ -5,23 +5,39 @@ import 'package:flutter/material.dart' hide InputDecoration, Text;
 import '../l10n_widgets.dart';
 import 'motion.dart';
 
-/// A short, quiet celebration over the screen when something is done —
-/// a payment confirmed, paid early, a transfer made: a disc blooms, a check
-/// draws itself, a ring spreads out, a caption fades in; then it all fades
-/// away by itself (about 1.4 s). It never blocks touches.
+/// Confirmation of a payment, in the manner of a phone wallet: a sheet
+/// rises from the bottom with a small card and the payment, a ring spins
+/// while it «goes through», closes into a full circle and a check draws
+/// itself, «Оплачено» appears — then the sheet slides away by itself
+/// (about 2 s). It never blocks touches.
+///
+/// Get the overlay with [overlayOf] *before* awaiting the payment and pass
+/// it to [show]: the widget that started the payment may be rebuilt away
+/// by then (a paid row moves to its next date).
 abstract final class SuccessBurst {
   static OverlayEntry? _entry;
 
-  static void show(BuildContext context, String title, {String? subtitle}) {
-    final overlay = Overlay.maybeOf(context, rootOverlay: true);
-    if (overlay == null) return;
+  static OverlayState? overlayOf(BuildContext context) =>
+      Overlay.maybeOf(context, rootOverlay: true);
+
+  static void show(
+    BuildContext? context,
+    String title, {
+    String? subtitle,
+    OverlayState? overlay,
+  }) {
+    final target = overlay ?? (context == null ? null : overlayOf(context));
+    if (target == null || !target.mounted) return;
+    final reduced = context != null && context.mounted
+        ? Motion.reduced(context)
+        : MediaQuery.maybeDisableAnimationsOf(target.context) ?? false;
     _entry?.remove();
     late final OverlayEntry entry;
     entry = OverlayEntry(
-      builder: (_) => _Burst(
+      builder: (_) => _PaySheet(
         title: title,
         subtitle: subtitle,
-        reduced: Motion.reduced(context),
+        reduced: reduced,
         onDone: () {
           if (_entry == entry) _entry = null;
           if (entry.mounted) entry.remove();
@@ -29,12 +45,12 @@ abstract final class SuccessBurst {
       ),
     );
     _entry = entry;
-    overlay.insert(entry);
+    target.insert(entry);
   }
 }
 
-class _Burst extends StatefulWidget {
-  const _Burst({
+class _PaySheet extends StatefulWidget {
+  const _PaySheet({
     required this.title,
     required this.subtitle,
     required this.reduced,
@@ -46,13 +62,14 @@ class _Burst extends StatefulWidget {
   final VoidCallback onDone;
 
   @override
-  State<_Burst> createState() => _BurstState();
+  State<_PaySheet> createState() => _PaySheetState();
 }
 
-class _BurstState extends State<_Burst> with SingleTickerProviderStateMixin {
+class _PaySheetState extends State<_PaySheet>
+    with SingleTickerProviderStateMixin {
   late final _c = AnimationController(
     vsync: this,
-    duration: Duration(milliseconds: widget.reduced ? 900 : 1500),
+    duration: Duration(milliseconds: widget.reduced ? 1100 : 2100),
   );
 
   @override
@@ -72,6 +89,8 @@ class _BurstState extends State<_Burst> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    final sheet = dark ? const Color(0xFF1C1C1E) : Colors.white;
     return IgnorePointer(
       child: AnimatedBuilder(
         animation: _c,
@@ -79,83 +98,123 @@ class _BurstState extends State<_Burst> with SingleTickerProviderStateMixin {
           final t = _c.value;
           double seg(double a, double b, [Curve curve = Curves.easeOutCubic]) =>
               curve.transform(((t - a) / (b - a)).clamp(0.0, 1.0));
-          // In: 0–.25 bloom, .2–.5 check, .15–.6 ring; out: .8–1.
-          final bloom = widget.reduced ? 1.0 : seg(0, .25, Curves.easeOutBack);
-          final check = widget.reduced ? 1.0 : seg(.2, .5);
-          final ring = seg(.15, .65);
-          final out = 1 - seg(.8, 1, Curves.easeIn);
-          final caption = seg(.3, .55) * out;
-          return Opacity(
-            opacity: out,
-            child: Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  SizedBox.square(
-                    dimension: 150,
-                    child: CustomPaint(
-                      painter: _BurstPainter(
-                        color: scheme.primary,
-                        ink: scheme.onPrimary,
-                        bloom: bloom,
-                        check: check,
-                        ring: widget.reduced ? 0 : ring,
-                      ),
+          // In .0–.16 · spin .1–.42 · close .42–.52 · check .5–.66 ·
+          // caption .56–.7 · out .86–1.
+          final rise = widget.reduced ? 1.0 : seg(0, .16, Curves.easeOutQuart);
+          final out = seg(.86, 1, Curves.easeInCubic);
+          final close = widget.reduced ? 1.0 : seg(.42, .52);
+          final check = widget.reduced ? 1.0 : seg(.5, .66);
+          final caption = widget.reduced ? 1.0 : seg(.56, .7);
+          final spin = t * math.pi * 5;
+          return Stack(
+            children: [
+              // A light veil behind the sheet.
+              Positioned.fill(
+                child: ColoredBox(
+                  color: Colors.black.withValues(alpha: .28 * rise * (1 - out)),
+                ),
+              ),
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: FractionalTranslation(
+                  translation: Offset(0, (1 - rise) + out),
+                  child: Container(
+                    key: const ValueKey('pay-sheet'),
+                    width: double.infinity,
+                    padding: EdgeInsets.fromLTRB(
+                      22,
+                      14,
+                      22,
+                      22 + MediaQuery.paddingOf(context).bottom,
                     ),
-                  ),
-                  const SizedBox(height: 6),
-                  Opacity(
-                    opacity: caption,
-                    child: Transform.translate(
-                      offset: Offset(0, 8 * (1 - caption)),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 10,
+                    decoration: BoxDecoration(
+                      color: sheet,
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(28),
+                      ),
+                      boxShadow: const [
+                        BoxShadow(color: Color(0x40000000), blurRadius: 30),
+                      ],
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 36,
+                          height: 4,
+                          decoration: BoxDecoration(
+                            color: scheme.onSurface.withValues(alpha: .18),
+                            borderRadius: BorderRadius.circular(2),
+                          ),
                         ),
-                        constraints: const BoxConstraints(maxWidth: 300),
-                        decoration: ShapeDecoration(
-                          color: scheme.surface,
-                          shape: const StadiumBorder(),
-                          shadows: const [
-                            BoxShadow(
-                              color: Color(0x33000000),
-                              blurRadius: 20,
-                              offset: Offset(0, 6),
+                        const SizedBox(height: 18),
+                        Row(
+                          children: [
+                            _MiniCard(color: scheme.primary),
+                            const SizedBox(width: 14),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    widget.subtitle ?? widget.title,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                      color: scheme.onSurface,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    'Finora',
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: scheme.onSurfaceVariant,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ],
                         ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
+                        const SizedBox(height: 22),
+                        SizedBox.square(
+                          dimension: 78,
+                          child: CustomPaint(
+                            painter: _RingPainter(
+                              color: scheme.primary,
+                              track: scheme.onSurface.withValues(alpha: .1),
+                              spin: spin,
+                              close: close,
+                              check: check,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Opacity(
+                          opacity: caption,
+                          child: Transform.translate(
+                            offset: Offset(0, 6 * (1 - caption)),
+                            child: Text(
                               widget.title,
+                              key: const ValueKey('pay-sheet-title'),
                               textAlign: TextAlign.center,
                               style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w700,
+                                fontSize: 17,
+                                fontWeight: FontWeight.w600,
                                 color: scheme.onSurface,
                               ),
                             ),
-                            if (widget.subtitle != null)
-                              Text(
-                                widget.subtitle!,
-                                textAlign: TextAlign.center,
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: scheme.onSurfaceVariant,
-                                ),
-                              ),
-                          ],
+                          ),
                         ),
-                      ),
+                      ],
                     ),
                   ),
-                ],
+                ),
               ),
-            ),
+            ],
           );
         },
       ),
@@ -163,57 +222,99 @@ class _BurstState extends State<_Burst> with SingleTickerProviderStateMixin {
   }
 }
 
-class _BurstPainter extends CustomPainter {
-  const _BurstPainter({
+/// A small bank card: the theme colour with a soft sheen, a chip and two
+/// lines of digits — a drawing, no real card data.
+class _MiniCard extends StatelessWidget {
+  const _MiniCard({required this.color});
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    width: 62,
+    height: 40,
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(7),
+      gradient: LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          Color.lerp(color, Colors.white, .22)!,
+          color,
+          Color.lerp(color, Colors.black, .35)!,
+        ],
+      ),
+      boxShadow: [
+        BoxShadow(
+          color: color.withValues(alpha: .35),
+          blurRadius: 10,
+          offset: const Offset(0, 3),
+        ),
+      ],
+    ),
+    child: Padding(
+      padding: const EdgeInsets.fromLTRB(7, 8, 7, 6),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 11,
+            height: 8,
+            decoration: BoxDecoration(
+              color: const Color(0xFFE8C77A),
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          const Spacer(),
+          Container(
+            width: 30,
+            height: 2.5,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: .75),
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+/// The processing ring: an arc spins, then closes into a full circle and
+/// a check is drawn inside it.
+class _RingPainter extends CustomPainter {
+  const _RingPainter({
     required this.color,
-    required this.ink,
-    required this.bloom,
+    required this.track,
+    required this.spin,
+    required this.close,
     required this.check,
-    required this.ring,
   });
-  final Color color, ink;
-  final double bloom, check, ring;
+  final Color color, track;
+  final double spin, close, check;
 
   @override
   void paint(Canvas canvas, Size size) {
     final c = size.center(Offset.zero);
-    final r = size.shortestSide * .3;
-    // The spreading ring.
-    if (ring > 0 && ring < 1) {
-      canvas.drawCircle(
-        c,
-        r * (1 + ring * .9),
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 3 * (1 - ring) + .5
-          ..color = color.withValues(alpha: .5 * (1 - ring)),
-      );
-    }
-    // The disc, with a soft glow.
-    final disc = r * bloom;
-    if (disc <= 0) return;
-    canvas
-      ..drawCircle(
-        c,
-        disc * 1.15,
-        Paint()
-          ..color = color.withValues(alpha: .35)
-          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 18),
-      )
-      ..drawCircle(
-        c,
-        disc,
-        Paint()
-          ..shader = RadialGradient(
-            center: const Alignment(-.3, -.4),
-            colors: [Color.lerp(color, Colors.white, .25)!, color],
-          ).createShader(Rect.fromCircle(center: c, radius: disc)),
-      );
-    // The check, drawn stroke by stroke.
+    final r = size.shortestSide / 2 - 3;
+    final stroke = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 4
+      ..strokeCap = StrokeCap.round;
+    canvas.drawCircle(c, r, stroke..color = track);
+    // The arc grows from a quarter to the full circle as it closes.
+    final sweep = math.pi * (.5 + 1.5 * close);
+    final start = close >= 1 ? -math.pi / 2 : spin - math.pi / 2;
+    canvas.drawArc(
+      Rect.fromCircle(center: c, radius: r),
+      start,
+      sweep,
+      false,
+      stroke..color = color,
+    );
     if (check <= 0) return;
-    final a = c + Offset(-r * .42, r * .02);
-    final b = c + Offset(-r * .12, r * .32);
-    final e = c + Offset(r * .46, -r * .3);
+    final a = c + Offset(-r * .4, r * .02);
+    final b = c + Offset(-r * .1, r * .3);
+    final e = c + Offset(r * .44, -r * .3);
     final first = (b - a).distance, second = (e - b).distance;
     final len = (first + second) * check;
     final path = Path()..moveTo(a.dx, a.dy);
@@ -229,17 +330,17 @@ class _BurstPainter extends CustomPainter {
       path,
       Paint()
         ..style = PaintingStyle.stroke
-        ..strokeWidth = r * .16
+        ..strokeWidth = 5
         ..strokeCap = StrokeCap.round
         ..strokeJoin = StrokeJoin.round
-        ..color = ink,
+        ..color = color,
     );
   }
 
   @override
-  bool shouldRepaint(_BurstPainter old) =>
-      old.bloom != bloom ||
+  bool shouldRepaint(_RingPainter old) =>
+      old.spin != spin ||
+      old.close != close ||
       old.check != check ||
-      old.ring != ring ||
       old.color != color;
 }

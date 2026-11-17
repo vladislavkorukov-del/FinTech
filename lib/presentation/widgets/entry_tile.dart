@@ -93,11 +93,47 @@ class EntryTile extends StatelessWidget {
                 icon: transfer ? Icons.swap_horiz_rounded : null,
               ),
       ),
-      title: Text(
-        entry.payee.isEmpty ? (cat?.name ?? 'Перевод') : entry.payee,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: Theme.of(context).textTheme.titleMedium,
+      // The amount sits on the name's line, not floating between lines.
+      title: Row(
+        crossAxisAlignment: CrossAxisAlignment.baseline,
+        textBaseline: TextBaseline.alphabetic,
+        children: [
+          Expanded(
+            child: Text(
+              entry.payee.isEmpty ? (cat?.name ?? 'Перевод') : entry.payee,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+          ),
+          const SizedBox(width: 10),
+          ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: MediaQuery.sizeOf(context).width * .39,
+            ),
+            child: Text(
+              '${income
+                  ? '+'
+                  : transfer
+                  ? ''
+                  : '−'}${money(entry.amountMinor, entry.currency)}',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.right,
+              // Apple polish: spending reads in the normal text color, like
+              // Wallet; only money coming in is marked with the accent.
+              style: TextStyle(
+                fontSize: 15.5,
+                fontWeight: FontWeight.w600,
+                letterSpacing: -.2,
+                fontFeatures: const [FontFeature.tabularFigures()],
+                color: income
+                    ? FinanceColors.of(context).income
+                    : Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
+          ),
+        ],
       ),
       subtitle: Text(
         '${transfer ? '${tr(c.account(entry.accountId)?.name ?? '')} → ${tr(c.destinationName(entry))}' : tr(cat?.name ?? '')}${showDate ? ' · ${DateFormat('d MMM', AppLanguage.intl).format(entry.date)}' : ''}${entry.status == 'posted'
@@ -110,32 +146,6 @@ class EntryTile extends StatelessWidget {
         style: TextStyle(
           fontSize: 12,
           color: Theme.of(context).colorScheme.onSurfaceVariant,
-        ),
-      ),
-      trailing: ConstrainedBox(
-        constraints: BoxConstraints(
-          maxWidth: MediaQuery.sizeOf(context).width * .39,
-        ),
-        child: Text(
-          '${income
-              ? '+'
-              : transfer
-              ? ''
-              : '−'}${money(entry.amountMinor, entry.currency)}',
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-          textAlign: TextAlign.right,
-          // Apple polish: spending reads in the normal text color, like
-          // Wallet; only money coming in is marked with the accent.
-          style: TextStyle(
-            fontSize: 15.5,
-            fontWeight: FontWeight.w600,
-            letterSpacing: -.2,
-            fontFeatures: const [FontFeature.tabularFigures()],
-            color: income
-                ? FinanceColors.of(context).income
-                : Theme.of(context).colorScheme.onSurface,
-          ),
         ),
       ),
       onTap: onTap ?? () => showEntryEditor(context, entry: entry),

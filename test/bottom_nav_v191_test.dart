@@ -115,30 +115,36 @@ void main() {
     expect(drawer, findsOneWidget);
   });
 
-  testWidgets('the edge swipe opens the panel from an inner page too', (
-    tester,
-  ) async {
-    tester.view.physicalSize = const Size(400, 860);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.reset);
-    await tester.pumpWidget(
-      FinoraApp(controller: controller, requireDeviceSecurity: false),
-    );
-    await tester.pumpAndSettle();
-    // An inner page from «Полезное»: the shopping list.
-    await tester.tap(find.byKey(const ValueKey('nav-menu')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const ValueKey('drawer-shopping')));
-    await tester.pumpAndSettle();
-    final drawer = find.byKey(const ValueKey('app-drawer'));
-    expect(drawer, findsNothing);
-    // From the middle: the page stays.
-    await tester.dragFrom(const Offset(200, 500), const Offset(260, 0));
-    await tester.pumpAndSettle();
-    expect(drawer, findsNothing);
-    // From the left fifth: the page closes and the panel opens.
-    await tester.dragFrom(const Offset(30, 500), const Offset(300, 0));
-    await tester.pumpAndSettle();
-    expect(drawer, findsOneWidget);
-  });
+  testWidgets(
+    'on an inner page the edge swipe goes back, then opens the panel',
+    (tester) async {
+      tester.view.physicalSize = const Size(400, 860);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(
+        FinoraApp(controller: controller, requireDeviceSecurity: false),
+      );
+      await tester.pumpAndSettle();
+      // An inner page from «Функции»: the shopping list.
+      await tester.tap(find.byKey(const ValueKey('nav-menu')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('drawer-shopping')));
+      await tester.pumpAndSettle();
+      final drawer = find.byKey(const ValueKey('app-drawer'));
+      expect(drawer, findsNothing);
+      // From the middle: the page stays.
+      await tester.dragFrom(const Offset(200, 500), const Offset(260, 0));
+      await tester.pumpAndSettle();
+      expect(drawer, findsNothing);
+      // From the left fifth: one page back, to the main screen.
+      await tester.dragFrom(const Offset(30, 500), const Offset(300, 0));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const ValueKey('shopping-input')), findsNothing);
+      expect(drawer, findsNothing);
+      // There the same swipe opens the panel.
+      await tester.dragFrom(const Offset(30, 500), const Offset(300, 0));
+      await tester.pumpAndSettle();
+      expect(drawer, findsOneWidget);
+    },
+  );
 }

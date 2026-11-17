@@ -1096,7 +1096,10 @@ Future<FinanceData> _createLegacyV1(
           ..remove('reminderMinute')
           ..remove('icon')
           ..remove('color')
-          ..remove('totalMinor'),
+          ..remove('totalMinor')
+          ..remove('interestRate')
+          ..remove('principalMinor')
+          ..remove('principalDate'),
       );
       if (version == 2) {
         row['paymentType'] = r.paymentType;

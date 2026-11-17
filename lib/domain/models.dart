@@ -477,6 +477,16 @@ class RecurringRule {
   /// 1.36: the whole sum to pay (a loan, an instalment plan); what is left
   /// is this minus the payments recorded for the rule. Null — no end.
   final int? totalMinor;
+
+  /// A loan or mortgage with interest: the annual rate in percent, the debt
+  /// left on [principalDate] — the schedule is then calculated as the bank
+  /// does (daily interest, the payment covers interest first).
+  final double? interestRate;
+  final int? principalMinor;
+  final DateTime? principalDate;
+
+  bool get isLoan =>
+      interestRate != null && principalMinor != null && principalMinor! > 0;
   final EntryKind kind;
   final int amountMinor;
   final int interval;
@@ -504,6 +514,9 @@ class RecurringRule {
     this.icon,
     this.color,
     this.totalMinor,
+    this.interestRate,
+    this.principalMinor,
+    this.principalDate,
     this.kind = EntryKind.expense,
     required this.amountMinor,
     this.interval = 1,
@@ -530,6 +543,9 @@ class RecurringRule {
     Object? icon = _absent,
     Object? color = _absent,
     Object? totalMinor = _absent,
+    Object? interestRate = _absent,
+    Object? principalMinor = _absent,
+    Object? principalDate = _absent,
     EntryKind? kind,
     int? amountMinor,
     int? interval,
@@ -556,6 +572,15 @@ class RecurringRule {
     totalMinor: identical(totalMinor, _absent)
         ? this.totalMinor
         : totalMinor as int?,
+    interestRate: identical(interestRate, _absent)
+        ? this.interestRate
+        : interestRate as double?,
+    principalMinor: identical(principalMinor, _absent)
+        ? this.principalMinor
+        : principalMinor as int?,
+    principalDate: identical(principalDate, _absent)
+        ? this.principalDate
+        : principalDate as DateTime?,
     name: name ?? this.name,
     accountId: accountId ?? this.accountId,
     currency: currency ?? this.currency,
@@ -588,6 +613,9 @@ class RecurringRule {
     'icon': icon,
     'color': color,
     'totalMinor': totalMinor,
+    'interestRate': interestRate,
+    'principalMinor': principalMinor,
+    'principalDate': principalDate?.toIso8601String(),
     'kind': kind.name,
     'amountMinor': amountMinor,
     'interval': interval,
@@ -628,6 +656,11 @@ class RecurringRule {
     icon: (json['icon'] as num?)?.toInt(),
     color: (json['color'] as num?)?.toInt(),
     totalMinor: (json['totalMinor'] as num?)?.toInt(),
+    interestRate: (json['interestRate'] as num?)?.toDouble(),
+    principalMinor: (json['principalMinor'] as num?)?.toInt(),
+    principalDate: json['principalDate'] == null
+        ? null
+        : DateTime.tryParse(json['principalDate'] as String),
     kind: EntryKind.values.byName(
       json['kind'] as String? ?? EntryKind.expense.name,
     ),
@@ -737,6 +770,13 @@ class AppPreferences {
   /// Finora Release: the celebration of the release was shown.
   final bool releaseCelebrated;
 
+  /// Shopping lists besides the main one («Дом», «Аптека»…), in order.
+  final List<String> shoppingLists;
+
+  /// What was bought and how often (lower-case name → times), for quick
+  /// suggestions; the most frequent 150 are kept.
+  final Map<String, int> shoppingHistory;
+
   const AppPreferences({
     this.theme = 'dark',
     this.accent = 'tropic',
@@ -768,6 +808,8 @@ class AppPreferences {
     this.finoraThemed = true,
     this.finoraFace = true,
     this.releaseCelebrated = false,
+    this.shoppingLists = const [],
+    this.shoppingHistory = const {},
   });
 
   AppPreferences copyWith({
@@ -801,6 +843,8 @@ class AppPreferences {
     bool? finoraThemed,
     bool? finoraFace,
     bool? releaseCelebrated,
+    List<String>? shoppingLists,
+    Map<String, int>? shoppingHistory,
   }) => AppPreferences(
     theme: theme ?? this.theme,
     accent: accent ?? this.accent,
@@ -838,6 +882,8 @@ class AppPreferences {
     finoraThemed: finoraThemed ?? this.finoraThemed,
     finoraFace: finoraFace ?? this.finoraFace,
     releaseCelebrated: releaseCelebrated ?? this.releaseCelebrated,
+    shoppingLists: shoppingLists ?? this.shoppingLists,
+    shoppingHistory: shoppingHistory ?? this.shoppingHistory,
   );
 
   Map<String, Object?> toJson() => {
@@ -871,6 +917,8 @@ class AppPreferences {
     'finoraThemed': finoraThemed,
     'finoraFace': finoraFace,
     'releaseCelebrated': releaseCelebrated,
+    'shoppingLists': shoppingLists,
+    'shoppingHistory': shoppingHistory,
   };
 
   static List<String> _ids(Object? value) =>
@@ -912,6 +960,11 @@ class AppPreferences {
     finoraThemed: json['finoraThemed'] as bool? ?? true,
     finoraFace: json['finoraFace'] as bool? ?? true,
     releaseCelebrated: json['releaseCelebrated'] as bool? ?? false,
+    shoppingLists: _ids(json['shoppingLists']),
+    shoppingHistory: {
+      for (final e in (json['shoppingHistory'] as Map? ?? const {}).entries)
+        if (e.value is num) '${e.key}': (e.value as num).toInt(),
+    },
   );
 
   /// [items] in the person's [order] (by [id]); unknown items keep their
@@ -944,12 +997,21 @@ class ShoppingItem {
   final int? priceMinor;
   final bool done;
 
+  /// Which list it is on; '' — the main one.
+  final String list;
+
+  /// The shop's department («Молочное», «Овощи и фрукты»…); '' — found
+  /// from the name.
+  final String section;
+
   const ShoppingItem({
     required this.id,
     required this.name,
     this.quantity = '',
     this.priceMinor,
     this.done = false,
+    this.list = '',
+    this.section = '',
   });
 
   ShoppingItem copyWith({
@@ -957,6 +1019,8 @@ class ShoppingItem {
     String? quantity,
     Object? priceMinor = _absent,
     bool? done,
+    String? list,
+    String? section,
   }) => ShoppingItem(
     id: id,
     name: name ?? this.name,
@@ -965,6 +1029,8 @@ class ShoppingItem {
         ? this.priceMinor
         : priceMinor as int?,
     done: done ?? this.done,
+    list: list ?? this.list,
+    section: section ?? this.section,
   );
 
   Map<String, Object?> toJson() => {
@@ -973,6 +1039,8 @@ class ShoppingItem {
     'quantity': quantity,
     'priceMinor': priceMinor,
     'done': done,
+    'list': list,
+    'section': section,
   };
 
   factory ShoppingItem.fromJson(Map<String, dynamic> json) => ShoppingItem(
@@ -981,6 +1049,8 @@ class ShoppingItem {
     quantity: json['quantity'] as String? ?? '',
     priceMinor: (json['priceMinor'] as num?)?.toInt(),
     done: json['done'] as bool? ?? false,
+    list: json['list'] as String? ?? '',
+    section: json['section'] as String? ?? '',
   );
 }
 

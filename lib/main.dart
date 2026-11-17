@@ -1,6 +1,7 @@
 import 'presentation/i18n.dart';
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart' hide InputDecoration, Text;
 import 'package:flutter/foundation.dart'
     show LicenseRegistry, LicenseEntryWithLineBreaks;
@@ -474,9 +475,38 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
     ),
   );
 
+  /// The tabs visited before the current one (most recent last), so «back»
+  /// returns to where the person came from.
+  final _history = <int>[];
+
   void _select(int tab) {
-    if (tab != _tab) setState(() => _tab = tab);
+    if (tab == _tab) return;
+    setState(() {
+      _history
+        ..remove(tab)
+        ..add(_tab);
+      if (_history.length > 8) _history.removeAt(0);
+      _tab = tab;
+    });
   }
+
+  /// Back to the previous tab (home when there is none).
+  void _back() {
+    Haptics.light();
+    setState(() {
+      _tab = _history.isEmpty ? 0 : _history.removeLast();
+    });
+  }
+
+  /// The back button of a main tab: the same neat glyph as inner pages.
+  Widget _backButton({Color? color}) => IconButton(
+    key: const ValueKey('nav-back'),
+    tooltip: tr('Назад'),
+    onPressed: _back,
+    icon: color == null
+        ? const FinoraBackGlyph()
+        : Icon(CupertinoIcons.chevron_back, color: color),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -490,10 +520,28 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
       3 => const AnalyticsScreen(),
       5 => FinoraAiScreen(
         embedded: true,
-        leading: _menuButton(color: Colors.white),
+        leading: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _backButton(color: Colors.white),
+            _menuButton(color: Colors.white),
+          ],
+        ),
       ),
       _ => const MoreScreen(),
     };
+    // The system back on a main tab goes to the previous tab, not out of
+    // the app; on the home tab it leaves as usual.
+    return PopScope(
+      canPop: _tab == 0,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) _back();
+      },
+      child: _shell(page, ai),
+    );
+  }
+
+  Widget _shell(Widget page, bool ai) {
     // Any tap (not a scroll) wakes the voice orb's animation.
     return Listener(
       onPointerDown: (e) => _downAt = e.position,
@@ -557,7 +605,9 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
                             children: [
                               Padding(
                                 padding: const EdgeInsets.fromLTRB(8, 2, 8, 0),
-                                child: Row(children: [_menuButton()]),
+                                child: Row(
+                                  children: [_backButton(), _menuButton()],
+                                ),
                               ),
                               Expanded(child: page),
                             ],

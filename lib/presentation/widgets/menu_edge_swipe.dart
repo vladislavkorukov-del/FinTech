@@ -1,13 +1,14 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show HapticFeedback;
 
-/// The side panel from any page: a swipe to the right that starts in the
-/// left fifth of the screen leaves the open pages and opens the menu.
+/// Finger navigation: a swipe to the right that starts in the left fifth of
+/// the screen goes back one page, like a phone's back gesture; on the main
+/// tabs the same swipe opens the side panel (the shell's own drawer swipe).
 ///
-/// On the main screen the shell's own drawer swipe handles it; this one
-/// works only while a page lies above it. Sheets and dialogs are left
-/// alone, and so are full-screen forms, so an unfinished entry is never
-/// thrown away by a swipe.
+/// This one works only while a page lies above the main shell. Sheets and
+/// dialogs are left alone, and so are full-screen forms, so an unfinished
+/// entry is never thrown away by a swipe.
 class MenuEdgeSwipe extends StatefulWidget {
   const MenuEdgeSwipe({super.key, required this.child});
   final Widget child;
@@ -49,13 +50,14 @@ class _MenuEdgeSwipeState extends State<MenuEdgeSwipe> {
     return top is PageRoute && !top.isFirst && !top.fullscreenDialog;
   }
 
+  /// One page back.
   void _open() {
     if (_done) return;
     _done = true;
     final nav = MenuEdgeSwipe.navigatorKey.currentState;
-    if (nav == null) return;
-    nav.popUntil((route) => route.isFirst);
-    MenuEdgeSwipe.openMenu?.call();
+    if (nav == null || !nav.canPop()) return;
+    HapticFeedback.selectionClick();
+    nav.maybePop();
   }
 
   @override

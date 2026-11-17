@@ -152,7 +152,9 @@ void main() {
       tester,
     ) async {
       await start(tester);
-      await tester.tap(find.byKey(const ValueKey('header-balance')));
+      await tester.ensureVisible(find.byKey(const ValueKey('accounts-total')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('accounts-total')));
       await tester.pumpAndSettle();
       expect(find.byType(AccountsScreen), findsOneWidget);
       expect(find.byKey(const ValueKey('currency-sheet')), findsNothing);

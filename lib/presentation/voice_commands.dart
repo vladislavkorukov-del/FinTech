@@ -112,14 +112,16 @@ abstract final class VoiceCommands {
             toAccountId: to.id,
             date: DateTime.now(),
           );
+          final overlay = SuccessBurst.overlayOf(context);
           await c.saveEntry(entry);
-          if (!context.mounted) return;
           SuccessBurst.show(
-            context,
+            null,
             'Перевод выполнен',
+            overlay: overlay,
             subtitle:
                 '${from.name} → ${to.name} · ${money(amount, from.currency)}',
           );
+          if (!context.mounted) return;
           added(
             context,
             'Перевела ${money(amount, from.currency)}: '

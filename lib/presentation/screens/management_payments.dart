@@ -83,14 +83,16 @@ Future<void> payEarly(BuildContext context, RecurringRule rule) async {
   );
   field.dispose();
   if (sum == null || !context.mounted) return;
+  // Taken before paying: the row that started this moves to its next date
+  // and may be gone when the payment is saved.
+  final overlay = SuccessBurst.overlayOf(context);
   await c.payEarly(rule.id, amountMinor: sum);
-  if (context.mounted) {
-    SuccessBurst.show(
-      context,
-      'Оплачено досрочно',
-      subtitle: '${rule.name} −${money(sum, rule.currency)}',
-    );
-  }
+  SuccessBurst.show(
+    null,
+    'Оплачено досрочно',
+    subtitle: '${rule.name} −${money(sum, rule.currency)}',
+    overlay: overlay,
+  );
   await Haptics.success();
   Finora.react(
     FinoraMood.done,
@@ -162,15 +164,20 @@ class PaymentPlanScreen extends StatelessWidget {
                   Text(
                     plan.done
                         ? 'Погашено полностью'
+                        : plan.loan != null
+                        ? 'Долг ${money(plan.leftMinor, rule.currency)}'
                         : 'Осталось ${money(plan.leftMinor, rule.currency)}',
                     key: const ValueKey('plan-left'),
                     style: theme.textTheme.headlineSmall,
                   ),
-                  Text(
-                    'из ${money(rule.totalMinor!, rule.currency)} · '
-                    'оплачено ${money(plan.paidMinor, rule.currency)}',
-                    style: TextStyle(color: scheme.onSurfaceVariant),
-                  ),
+                  if (plan.loan case final loan?)
+                    _LoanFacts(rule: rule, loan: loan)
+                  else
+                    Text(
+                      'из ${money(rule.totalMinor!, rule.currency)} · '
+                      'оплачено ${money(plan.paidMinor, rule.currency)}',
+                      style: TextStyle(color: scheme.onSurfaceVariant),
+                    ),
                   const SizedBox(height: 10),
                   ClipRRect(
                     borderRadius: BorderRadius.circular(8),
@@ -227,6 +234,12 @@ class _PlanRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final red = payment.overdue ? scheme.error : null;
+    final interest = payment.interestMinor;
+    final status = payment.overdue
+        ? 'просрочен'
+        : showOf && payment.of > 0
+        ? 'платёж ${payment.number} из ${payment.of}'
+        : 'платёж ${payment.number}';
     return Container(
       key: ValueKey('plan-row-${payment.number}'),
       padding: const EdgeInsets.symmetric(vertical: 12),
@@ -239,23 +252,25 @@ class _PlanRow extends StatelessWidget {
       ),
       child: Row(
         children: [
+          // Day, month and year: a schedule runs for years.
           SizedBox(
-            width: 52,
+            width: 58,
             child: Column(
               children: [
                 Text(
                   '${payment.date.day}',
                   style: Theme.of(
                     context,
-                  ).textTheme.titleLarge?.copyWith(color: red),
+                  ).textTheme.titleLarge?.copyWith(color: red, height: 1.1),
                 ),
                 Text(
                   DateFormat(
-                    'MMM',
+                    'MMM yyyy',
                     AppLanguage.intl,
                   ).format(payment.date).replaceAll('.', ''),
+                  key: ValueKey('plan-row-date-${payment.number}'),
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 11,
                     color: red ?? scheme.onSurfaceVariant,
                   ),
                 ),
@@ -276,20 +291,42 @@ class _PlanRow extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  rule.name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleMedium?.copyWith(color: red),
+                // The sum on the name's line.
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                  textBaseline: TextBaseline.alphabetic,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        rule.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(
+                          context,
+                        ).textTheme.titleMedium?.copyWith(color: red),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Text(
+                      money(payment.amountMinor, rule.currency),
+                      key: ValueKey('plan-row-amount-${payment.number}'),
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        fontFeatures: const [FontFeature.tabularFigures()],
+                        color: red,
+                      ),
+                    ),
+                  ],
                 ),
+                const SizedBox(height: 2),
                 Text(
-                  payment.overdue
-                      ? 'просрочен'
-                      : showOf
-                      ? 'платёж ${payment.number} из ${payment.of}'
-                      : 'платёж ${payment.number}',
+                  interest == null
+                      ? status
+                      : '$status · проценты ${money(interest, rule.currency)}'
+                            ' · долг ${money(payment.principalMinor!, rule.currency)}',
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 12,
                     color: red ?? scheme.onSurfaceVariant,
@@ -298,12 +335,51 @@ class _PlanRow extends StatelessWidget {
               ],
             ),
           ),
-          Text(
-            money(payment.amountMinor, rule.currency),
-            style: TextStyle(fontWeight: FontWeight.w600, color: red),
-          ),
         ],
       ),
+    );
+  }
+}
+
+/// The loan's key numbers under the debt: rate, interest still ahead,
+/// everything left to pay and the last payment's date.
+class _LoanFacts extends StatelessWidget {
+  const _LoanFacts({required this.rule, required this.loan});
+  final RecurringRule rule;
+  final LoanSummary loan;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final rate = rule.interestRate!.toString().replaceAll('.', ',');
+    String m(int v) => money(v, rule.currency);
+    final lines = [
+      'Ставка $rate% · уже выплачено процентов ${m(loan.interestPaidMinor)}',
+      if (loan.repayable) ...[
+        'Проценты впереди ${m(loan.interestAheadMinor)} · '
+            'всего к оплате ${m(loan.leftToPayMinor)}',
+        if (loan.payoffDate case final d?)
+          'Последний платёж — '
+              '${DateFormat('d MMMM yyyy', AppLanguage.intl).format(d)}',
+      ] else
+        'Платёж не покрывает проценты — долг не уменьшается. '
+            'Увеличьте сумму платежа.',
+    ];
+    return Column(
+      key: const ValueKey('plan-loan-facts'),
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        for (final l in lines)
+          Padding(
+            padding: const EdgeInsets.only(top: 2),
+            child: Text(
+              l,
+              style: TextStyle(
+                color: loan.repayable ? scheme.onSurfaceVariant : scheme.error,
+              ),
+            ),
+          ),
+      ],
     );
   }
 }

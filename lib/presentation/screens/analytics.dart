@@ -258,6 +258,28 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
               onDetails: open,
             ),
           ),
+          // Every category beside the ring: icon, share, sum.
+          if (cats.isNotEmpty) ...[
+            const SizedBox(height: 10),
+            SurfaceCard(
+              key: const ValueKey('analytics-categories'),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+              child: Column(
+                children: [
+                  for (final item in cats)
+                    _CategoryLine(
+                      key: ValueKey('analytics-category-${item.key}'),
+                      category: c.category(item.key),
+                      id: item.key,
+                      amount: item.value,
+                      share: item.value / cats.fold(0, (a, e) => a + e.value),
+                      currency: currency,
+                      onTap: () => open(item.key),
+                    ),
+                ],
+              ),
+            ),
+          ],
           const SectionTitle('Доходы и расходы'),
           SurfaceCard(
             child: Column(
@@ -440,6 +462,115 @@ class _Comparison extends StatelessWidget {
           borderRadius: BorderRadius.circular(7),
         ),
       ],
+    );
+  }
+}
+
+/// One category in the analytics list: its icon on a soft tile, the name
+/// with a thin bar of its share, and the sum on the name's line.
+class _CategoryLine extends StatelessWidget {
+  const _CategoryLine({
+    super.key,
+    required this.category,
+    required this.id,
+    required this.amount,
+    required this.share,
+    required this.currency,
+    required this.onTap,
+  });
+  final Category? category;
+  final String id;
+  final int amount;
+  final double share;
+  final String currency;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final color = TileColors.vivid(
+      Color(
+        category?.color ??
+            categoryColors[id.hashCode.abs() % categoryColors.length],
+      ),
+    );
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 9),
+        child: Row(
+          children: [
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: .14),
+                borderRadius: BorderRadius.circular(11),
+              ),
+              child: Icon(
+                categoryIcon(category?.icon ?? 19),
+                size: 19,
+                color: color,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.baseline,
+                    textBaseline: TextBaseline.alphabetic,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          category?.name ?? 'Прочее',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                      Text(
+                        '${(share * 100).round()}%',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: scheme.onSurfaceVariant,
+                          fontFeatures: const [FontFeature.tabularFigures()],
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Text(
+                        money(amount, currency),
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          fontFeatures: [FontFeature.tabularFigures()],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(3),
+                    child: LinearProgressIndicator(
+                      value: share.clamp(0, 1),
+                      minHeight: 4,
+                      color: color,
+                      backgroundColor: scheme.outlineVariant.withValues(
+                        alpha: .18,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

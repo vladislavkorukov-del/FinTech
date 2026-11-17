@@ -371,6 +371,10 @@ class _RecurringScreenState extends State<RecurringScreen> {
               Text(
                 plan.done
                     ? 'Погашено полностью'
+                    : plan.loan != null
+                    ? 'Долг ${money(plan.leftMinor, r.currency)} · '
+                          '${r.interestRate.toString().replaceAll('.', ',')}% · '
+                          'платежей: ${plan.upcoming.length}'
                     : 'Осталось ${money(plan.leftMinor, r.currency)} из '
                           '${money(r.totalMinor!, r.currency)} · '
                           'платежей: ${plan.upcoming.length}',
@@ -419,6 +423,16 @@ Future<void> showRecurringEditor(
   final total = _text(
     rule?.totalMinor == null ? '' : _amount(rule!.totalMinor!),
   );
+  // A loan or mortgage with interest: rate, debt left, months left.
+  final rate = _text(
+    rule?.interestRate == null
+        ? ''
+        : rule!.interestRate!.toString().replaceAll('.', ','),
+  );
+  final debt = _text(
+    rule?.principalMinor == null ? '' : _amount(rule!.principalMinor!),
+  );
+  final months = _text('');
   var serviceId = rule?.serviceId;
   var customIconPath = rule?.customIconPath;
   // 1.34: or an icon from the app's standard set.
@@ -458,7 +472,7 @@ Future<void> showRecurringEditor(
               ? 'Новая подписка'
               : 'Новая регулярная операция'
         : 'Регулярная операция',
-    controllers: [name, amount, interval, total],
+    controllers: [name, amount, interval, total, rate, debt, months],
     fields: (set) => [
       if (kind == EntryKind.expense)
         Builder(
@@ -607,12 +621,69 @@ Future<void> showRecurringEditor(
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             inputFormatters: const [AmountGroupingFormatter()],
             decoration: const InputDecoration(
-              labelText: 'Полная сумма (кредит, рассрочка)',
+              labelText: 'Полная сумма (рассрочка без процентов)',
               hintText: 'Например: 46 000 — можно оставить пустым',
               helperText:
                   'Финора посчитает, сколько осталось и сколько платежей',
               helperMaxLines: 2,
             ),
+          ),
+        ),
+      // Loans and mortgages: with a rate and the debt, the schedule is
+      // calculated as the bank does — interest, debt, the last payment.
+      if (kind == EntryKind.expense && selectedPaymentType == 'mandatory')
+        Padding(
+          padding: const EdgeInsets.only(bottom: 14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      key: const ValueKey('recurring-rate'),
+                      controller: rate,
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
+                      decoration: const InputDecoration(
+                        labelText: 'Ставка, % годовых',
+                        hintText: '18,5',
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: TextFormField(
+                      key: const ValueKey('recurring-debt'),
+                      controller: debt,
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
+                      inputFormatters: const [AmountGroupingFormatter()],
+                      decoration: const InputDecoration(
+                        labelText: 'Остаток долга',
+                        hintText: '1 200 000',
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              TextFormField(
+                key: const ValueKey('recurring-months'),
+                controller: months,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  labelText: 'Осталось месяцев (необязательно)',
+                  helperText:
+                      'Кредит или ипотека: со ставкой и остатком Финора '
+                      'посчитает проценты, переплату и дату последнего '
+                      'платежа. Без суммы платежа — рассчитает его по сроку.',
+                  helperMaxLines: 4,
+                ),
+              ),
+            ],
           ),
         ),
       _select('Счёт', account, {
@@ -793,6 +864,29 @@ Future<void> showRecurringEditor(
         }
       }
       final n = int.tryParse(interval.text);
+      final loanMode =
+          kind == EntryKind.expense &&
+          selectedPaymentType == 'mandatory' &&
+          rate.text.trim().isNotEmpty &&
+          debt.text.trim().isNotEmpty;
+      final loanRate = loanMode
+          ? double.tryParse(rate.text.trim().replaceAll(',', '.'))
+          : null;
+      final loanDebt = loanMode ? FinanceEngine.parseMinor(debt.text) : null;
+      if (loanMode &&
+          (loanRate == null ||
+              loanRate < 0 ||
+              loanRate > 100 ||
+              loanDebt! <= 0)) {
+        throw const FormatException(
+          'Ставка — от 0 до 100 %, остаток долга больше нуля.',
+        );
+      }
+      // No payment given: the annuity payment for the months left.
+      final term = int.tryParse(months.text.trim());
+      if (loanMode && amount.text.trim().isEmpty && term != null && term > 0) {
+        amount.text = _amount(PaymentPlan.annuity(loanDebt!, loanRate!, term));
+      }
       final m = FinanceEngine.parseMinor(amount.text);
       if (category.isEmpty) {
         throw const FormatException(
@@ -805,6 +899,7 @@ Future<void> showRecurringEditor(
       final whole =
           kind == EntryKind.expense &&
               selectedPaymentType == 'mandatory' &&
+              !loanMode &&
               total.text.trim().isNotEmpty
           ? FinanceEngine.parseMinor(total.text)
           : null;
@@ -822,6 +917,14 @@ Future<void> showRecurringEditor(
           icon: kind == EntryKind.expense ? icon : null,
           color: kind == EntryKind.expense ? iconColor : null,
           totalMinor: whole,
+          interestRate: loanRate,
+          principalMinor: loanDebt,
+          // The debt is as of today, unless it did not change.
+          principalDate: !loanMode
+              ? null
+              : loanDebt == rule?.principalMinor && rule?.principalDate != null
+              ? rule!.principalDate
+              : DateTime.now(),
           reminderEnabled: reminderEnabled,
           reminderDaysBefore: reminderDaysBefore,
           reminderHour: reminderTime.hour,

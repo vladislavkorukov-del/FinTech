@@ -8,6 +8,8 @@ import 'package:intl/intl.dart';
 
 import '../../domain/models.dart';
 import '../../domain/payment_plan.dart';
+import '../../domain/shopping.dart';
+import 'package:share_plus/share_plus.dart';
 import '../../domain/service_catalog.dart';
 import '../../domain/service_recognizer.dart';
 import '../../domain/voice_entry_parser.dart';

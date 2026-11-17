@@ -147,42 +147,57 @@ class Dashboard extends StatelessWidget {
         if (accounts.isNotEmpty)
           GlassSurface(
             radius: 16,
-            child: _Reorderable(
-              listKey: 'dashboard-accounts',
-              ids: prefs.accountOrder,
-              onSave: save((p, ids) => p.copyWith(accountOrder: ids)),
-              proxy: _liftedRow,
-              wrap: (i, child) => Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (i > 0)
-                    Padding(
-                      padding: const EdgeInsets.only(left: 56),
-                      child: Divider(
-                        height: .5,
-                        thickness: .5,
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.outlineVariant.withValues(alpha: .6),
-                      ),
-                    ),
-                  child,
-                ],
-              ),
-              items: {
-                for (final account in accounts)
-                  // 1.28: swipe left to delete.
-                  account.id: SwipeToDelete(
-                    key: ValueKey('swipe-dash-account-${account.id}'),
-                    margin: EdgeInsets.zero,
-                    title: 'Удалить счёт «${account.name}»?',
-                    message:
-                        'Счёт с операциями удалить нельзя — его можно '
-                        'отправить в архив в редакторе счёта.',
-                    onDelete: () => c.deleteAccount(account.id),
-                    child: _AccountRow(account: account),
+            // The total balance opens the card, above the accounts.
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const AccountsTotal(),
+                Divider(
+                  height: .5,
+                  thickness: .5,
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.outlineVariant.withValues(alpha: .6),
+                ),
+                _Reorderable(
+                  listKey: 'dashboard-accounts',
+                  ids: prefs.accountOrder,
+                  onSave: save((p, ids) => p.copyWith(accountOrder: ids)),
+                  proxy: _liftedRow,
+                  wrap: (i, child) => Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (i > 0)
+                        Padding(
+                          padding: const EdgeInsets.only(left: 56),
+                          child: Divider(
+                            height: .5,
+                            thickness: .5,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.outlineVariant.withValues(alpha: .6),
+                          ),
+                        ),
+                      child,
+                    ],
                   ),
-              },
+                  items: {
+                    for (final account in accounts)
+                      // 1.28: swipe left to delete.
+                      account.id: SwipeToDelete(
+                        key: ValueKey('swipe-dash-account-${account.id}'),
+                        margin: EdgeInsets.zero,
+                        title: 'Удалить счёт «${account.name}»?',
+                        message:
+                            'Счёт с операциями удалить нельзя — его можно '
+                            'отправить в архив в редакторе счёта.',
+                        onDelete: () => c.deleteAccount(account.id),
+                        child: _AccountRow(account: account),
+                      ),
+                  },
+                ),
+              ],
             ),
           ),
         if (archived.isNotEmpty) const SizedBox(height: 8),
@@ -282,25 +297,34 @@ class Dashboard extends StatelessWidget {
                   'Операций нет',
                   'Добавьте доход, расход или перевод.',
                 )
-              : Column(
-                  children: recent
-                      .take(5)
-                      .map(
-                        (e) => EntryTile(
-                          e,
-                          // Payee summary with a period choice; transfers and
-                          // operations without a payee open the editor.
-                          onTap:
-                              e.kind == EntryKind.transfer ||
-                                  e.payee.trim().isEmpty
-                              ? null
-                              : () => _open(
-                                  context,
-                                  PayeeSummaryScreen(entry: e),
-                                ),
-                        ),
-                      )
-                      .toList(),
+              // About five rows are visible; the rest scroll inside the
+              // card, without opening the whole list.
+              : ConstrainedBox(
+                  constraints: const BoxConstraints(maxHeight: 5 * 64.0),
+                  child: ListView(
+                    key: const ValueKey('dashboard-recent-list'),
+                    shrinkWrap: true,
+                    padding: EdgeInsets.zero,
+                    physics: const ClampingScrollPhysics(),
+                    children: recent
+                        .take(30)
+                        .map(
+                          (e) => EntryTile(
+                            e,
+                            // Payee summary with a period choice; transfers and
+                            // operations without a payee open the editor.
+                            onTap:
+                                e.kind == EntryKind.transfer ||
+                                    e.payee.trim().isEmpty
+                                ? null
+                                : () => _open(
+                                    context,
+                                    PayeeSummaryScreen(entry: e),
+                                  ),
+                          ),
+                        )
+                        .toList(),
+                  ),
                 ),
         ),
       ]),
@@ -387,7 +411,9 @@ class Dashboard extends StatelessWidget {
         ),
       ),
       nested: false,
-      header: const Reveal(index: 0, child: FinanceHeader()),
+      // Room for the menu button; the total balance lives in the accounts
+      // card now.
+      header: const SizedBox(height: 50),
       // 1.26: no hint here any more — the tour explains dragging.
       footer: const SizedBox(height: 18),
 
@@ -829,7 +855,7 @@ class _PaymentSection extends StatelessWidget {
                     onSwipeRight: () => payEarly(context, r),
                     rightLabel: 'Оплачено',
                     child: ListTile(
-                      onTap: r.totalMinor != null
+                      onTap: r.totalMinor != null || r.isLoan
                           ? () => openPaymentPlan(context, r.id)
                           : () => showRecurringEditor(context, rule: r),
                       contentPadding: const EdgeInsets.symmetric(vertical: 2),
@@ -1060,9 +1086,12 @@ class _ExpenseOverview extends StatelessWidget {
     final month = DateFormat('LLLL', AppLanguage.intl).format(DateTime.now());
     final scheme = Theme.of(context).colorScheme;
     // 1.26: one compact ring, the month in the middle.
+    // A tap on the card opens the analytics; a tap on a slice of the ring
+    // still shows that category.
     return SurfaceCard(
       key: const ValueKey('expense-overview'),
-      padding: const EdgeInsets.fromLTRB(12, 14, 12, 6),
+      onTap: onAnalytics,
+      padding: const EdgeInsets.fromLTRB(12, 14, 12, 12),
       child: Column(
         children: [
           CategoryOrbitChart(
@@ -1086,26 +1115,17 @@ class _ExpenseOverview extends StatelessWidget {
             }).toList(),
             currency: c.currency,
             onDetails: onCategory,
+            onOpen: onAnalytics,
           ),
-          Row(
-            children: [
-              Expanded(
-                child: difference == null
-                    ? const SizedBox.shrink()
-                    : Padding(
-                        padding: const EdgeInsets.only(left: 6),
-                        child: Text(
-                          'На ${difference!.abs().round()}% ${difference! <= 0 ? 'меньше' : 'больше'}, чем в прошлом месяце',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: scheme.onSurfaceVariant,
-                          ),
-                        ),
-                      ),
+          if (difference != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Text(
+                'На ${difference!.abs().round()}% ${difference! <= 0 ? 'меньше' : 'больше'}, чем в прошлом месяце',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant),
               ),
-              TextButton(onPressed: onAnalytics, child: Text(tr('Аналитика'))),
-            ],
-          ),
+            ),
         ],
       ),
     );

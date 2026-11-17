@@ -102,7 +102,8 @@ class VoiceHelpScreen extends StatelessWidget {
               const SizedBox(width: 14),
               Expanded(
                 child: Text(
-                  'Нажмите на Финору внизу и скажите — как здесь. Суммы можно '
+                  'Откройте меню → «Голосовой ввод» и скажите — как здесь. '
+                  'Суммы можно '
                   'словами или цифрами, «тысяч», «миллиона», «рублей» и '
                   '«копеек» она понимает.',
                   style: TextStyle(color: scheme.onSurfaceVariant),
@@ -128,8 +129,8 @@ class VoiceHelpScreen extends StatelessWidget {
               GroupedRow(
                 icon: Icons.touch_app_rounded,
                 color: TileColors.blue,
-                title: 'Нажмите на кругляш внизу',
-                subtitle: 'Удержание — ручной ввод',
+                title: 'Меню → «Голосовой ввод»',
+                subtitle: 'Свайп вправо от левого края открывает меню',
               ),
               GroupedRow(
                 icon: Icons.record_voice_over_rounded,

@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 
 import 'widgets/finance_background.dart';
@@ -88,6 +89,10 @@ class FinoraPageTransitionsBuilder extends PageTransitionsBuilder {
 
 /// [theme] with Finora's page transitions on every platform.
 ThemeData withFinoraTransitions(ThemeData theme) => theme.copyWith(
+  // One neat back button everywhere: a thin chevron in a soft circle.
+  actionIconTheme: ActionIconThemeData(
+    backButtonIconBuilder: (context) => const FinoraBackGlyph(),
+  ),
   pageTransitionsTheme: const PageTransitionsTheme(
     builders: {
       TargetPlatform.android: FinoraPageTransitionsBuilder(),
@@ -99,3 +104,27 @@ ThemeData withFinoraTransitions(ThemeData theme) => theme.copyWith(
     },
   ),
 );
+
+/// The app's back symbol: a thin chevron on a soft round tile, the same on
+/// every inner page (and on the main tabs, back to the previous one).
+class FinoraBackGlyph extends StatelessWidget {
+  const FinoraBackGlyph({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Container(
+      width: 34,
+      height: 34,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: scheme.onSurface.withValues(alpha: .07),
+      ),
+      child: Icon(
+        CupertinoIcons.chevron_back,
+        size: 19,
+        color: scheme.onSurface,
+      ),
+    );
+  }
+}

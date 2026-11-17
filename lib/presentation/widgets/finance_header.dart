@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart' hide InputDecoration, Text;
 import '../controller.dart';
+import '../i18n.dart';
+import '../l10n_widgets.dart';
 import '../screens/management.dart';
 import 'common.dart' show money;
 import 'motion.dart';
@@ -90,52 +92,62 @@ class _FinanceBrandState extends State<FinanceBrand>
   );
 }
 
-/// Top bar of the dashboard: settings, the total balance in the selected
-/// currency (from [FinanceController.balance]) and the family profile.
-/// The app mark is kept for the launch screen; the header no longer repeats it.
-class FinanceHeader extends StatelessWidget {
-  const FinanceHeader({super.key});
+/// The total balance (from [FinanceController.balance], in the selected
+/// currency) as the first row of the main screen's accounts card: a small
+/// caption on the left, the sum on the right. Tapping it opens the
+/// accounts.
+class AccountsTotal extends StatelessWidget {
+  const AccountsTotal({super.key});
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final c = FinanceScope.of(context);
-    void open(Widget page) =>
-        Navigator.push(context, MaterialPageRoute<void>(builder: (_) => page));
-    // 1.57: only the balance — settings and the family profile live under
-    // «Ещё», so the top of the main screen stays clean.
-    // 1.58: just the number — no caption, a slim row.
     return Semantics(
       button: true,
       label: 'Общий баланс ${money(c.balance, c.currency)}',
       excludeSemantics: true,
       child: InkWell(
-        key: const ValueKey('header-balance'),
-        borderRadius: BorderRadius.circular(14),
-        onTap: () => open(const AccountsScreen()),
+        key: const ValueKey('accounts-total'),
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute<void>(builder: (_) => const AccountsScreen()),
+        ),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-          // Release: the balance lives in the header row, beside the menu
-          // button — small, without a caption.
-          child: SizedBox(
-            width: double.infinity,
-            height: 44,
-            child: Center(
-              child: FittedBox(
-                fit: BoxFit.scaleDown,
-                child: AnimatedMoney(
-                  c.balance,
-                  currency: c.currency,
-                  textKey: const ValueKey('header-balance-amount'),
-                  style: TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: -.3,
-                    color: scheme.onSurface,
-                    fontFeatures: const [FontFeature.tabularFigures()],
+          padding: const EdgeInsets.fromLTRB(16, 13, 16, 11),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
+            children: [
+              Text(
+                tr('Всего'),
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  color: scheme.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: AnimatedMoney(
+                      c.balance,
+                      currency: c.currency,
+                      textKey: const ValueKey('accounts-total-amount'),
+                      style: TextStyle(
+                        fontSize: 19,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: -.4,
+                        color: scheme.onSurface,
+                        fontFeatures: const [FontFeature.tabularFigures()],
+                      ),
+                    ),
                   ),
                 ),
               ),
-            ),
+            ],
           ),
         ),
       ),

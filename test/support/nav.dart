@@ -19,7 +19,7 @@ Future<void> openPlace(WidgetTester tester, String label) async {
   }
 }
 
-/// Starts voice input from the side panel («Полезное» → «Голосовой ввод»).
+/// Starts voice input from the side panel («Функции» → «Голосовой ввод»).
 Future<void> startVoice(WidgetTester tester) async {
   await tester.tap(find.byKey(const ValueKey('nav-menu')).first);
   for (var i = 0; i < 6; i++) {
