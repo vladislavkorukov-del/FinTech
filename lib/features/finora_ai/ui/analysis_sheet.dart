@@ -6,6 +6,7 @@ import '../models/ai_models.dart';
 import '../responses/response_layer.dart';
 import '../services/finora_ai.dart';
 import '../services/finora_ai_snapshot.dart';
+import '../widgets/ai_chat_widgets.dart';
 import '../widgets/insight_card.dart';
 
 /// «Анализ»: the forecast, what Finora noticed and possible subscriptions —
@@ -23,8 +24,15 @@ Future<void> showAnalysisSheet(
     expand: false,
     initialChildSize: .85,
     maxChildSize: .95,
-    builder: (context, scroll) =>
-        _Analysis(snapshot: s, scroll: scroll, onChanged: onChanged),
+    // Finora AI's buttons stay orange whatever the app theme.
+    builder: (context, scroll) => Theme(
+      data: Theme.of(context).copyWith(
+        colorScheme: Theme.of(
+          context,
+        ).colorScheme.copyWith(primary: AiLook.orange, onPrimary: Colors.white),
+      ),
+      child: _Analysis(snapshot: s, scroll: scroll, onChanged: onChanged),
+    ),
   ),
 );
 

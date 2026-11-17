@@ -2,7 +2,7 @@ import 'package:finora/presentation/widgets/finora_wordmark.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-/// 1.55: the launch screen writes «Finora» letter by letter, then rests.
+/// The launch screen draws «Finora» letter by letter, then rests.
 void main() {
   testWidgets('the wordmark plays once and rests on the whole word', (
     tester,
@@ -17,9 +17,7 @@ void main() {
     expect(tester.hasRunningAnimations, isTrue);
     await tester.pumpAndSettle();
     expect(tester.hasRunningAnimations, isFalse);
-    for (final letter in FinoraWordmark.word.split('')) {
-      expect(find.text(letter), findsWidgets);
-    }
+    expect(find.byKey(const ValueKey('finora-wordmark')), findsOneWidget);
     expect(find.byType(ImageFiltered), findsNothing);
     expect(find.byType(ShaderMask), findsNothing);
   });

@@ -11,34 +11,94 @@ abstract final class AiLook {
   static Color soft(double a) => Colors.white.withValues(alpha: a);
   static Color panel([double a = .28]) => Colors.black.withValues(alpha: a);
 
-  /// The window's background: the accent at the top, deepening into black.
-  static Decoration background(Color accent) {
-    final hsl = HSLColor.fromColor(accent);
-    final bright = hsl
-        .withSaturation((hsl.saturation * 1.05).clamp(.45, .95))
-        .withLightness(.46)
-        .toColor();
-    final deep = hsl.withLightness(.18).toColor();
-    return BoxDecoration(
-      gradient: LinearGradient(
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-        stops: const [0, .34, .7, 1],
-        colors: [
-          bright,
-          deep,
-          const Color(0xFF0A0A0B),
-          const Color(0xFF070708),
-        ],
-      ),
-    );
-  }
+  /// Finora AI is its own block: always orange, whatever the app theme.
+  static const orange = Color(0xFFFF7A1F);
 
-  /// The person's bubble and the mic: a soft gradient of the accent.
-  static Gradient accent(Color c) => LinearGradient(
+  /// The window's background, drawn by [AiBackdrop].
+  static Decoration background([Color accent = orange]) => const BoxDecoration(
+    gradient: LinearGradient(
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+      stops: [0, .32, .62, 1],
+      colors: [
+        Color(0xFF3A1406),
+        Color(0xFF1A0A05),
+        Color(0xFF0B0807),
+        Color(0xFF070708),
+      ],
+    ),
+  );
+
+  /// The person's bubble, the mic and the send button: warm amber into
+  /// deep orange, lit from the top left.
+  static Gradient accent([Color c = orange]) => const LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [Color.lerp(c, Colors.white, .12)!, c],
+    colors: [Color(0xFFFFB25C), Color(0xFFFF7A1F), Color(0xFFE2501A)],
+    stops: [0, .55, 1],
+  );
+}
+
+/// The Finora AI backdrop: deep ember below, a large amber glow coming
+/// from above, a softer rose-gold light at the right and a thin warm haze
+/// along the top — layered, so it reads as light, not as a flat fill.
+class AiBackdrop extends StatelessWidget {
+  const AiBackdrop({super.key, required this.child});
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => DecoratedBox(
+    decoration: AiLook.background(),
+    child: Stack(
+      children: [
+        const Positioned.fill(
+          child: IgnorePointer(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: RadialGradient(
+                  center: Alignment(-.35, -1.2),
+                  radius: 1.15,
+                  colors: [
+                    Color(0xF2FF9A3C),
+                    Color(0xB3F2611D),
+                    Color(0x4D8A2A0B),
+                    Color(0x00000000),
+                  ],
+                  stops: [0, .32, .62, 1],
+                ),
+              ),
+            ),
+          ),
+        ),
+        const Positioned.fill(
+          child: IgnorePointer(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: RadialGradient(
+                  center: Alignment(1.1, -.75),
+                  radius: .85,
+                  colors: [Color(0x66FFB98A), Color(0x00FFB98A)],
+                ),
+              ),
+            ),
+          ),
+        ),
+        const Positioned.fill(
+          child: IgnorePointer(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment(0, -.55),
+                  colors: [Color(0x40FFE2C2), Color(0x00FFE2C2)],
+                ),
+              ),
+            ),
+          ),
+        ),
+        Positioned.fill(child: child),
+      ],
+    ),
   );
 }
 

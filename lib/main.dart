@@ -88,7 +88,7 @@ class _BootstrapState extends State<Bootstrap> {
     setState(() => _error = null);
     // 1.55: the «Finora» wordmark gets its moment, however fast the data
     // opens.
-    final hello = Future<void>.delayed(const Duration(milliseconds: 1600));
+    final hello = Future<void>.delayed(const Duration(milliseconds: 2500));
     FinanceRepository? repository;
     try {
       repository = await FinanceRepository.open();

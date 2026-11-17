@@ -136,7 +136,8 @@ class _FinoraAiScreenState extends State<FinoraAiScreen> {
   @override
   Widget build(BuildContext context) {
     final c = FinanceScope.of(context);
-    final accent = Theme.of(context).colorScheme.primary;
+    // Its own block: orange in every theme.
+    const accent = AiLook.orange;
     final body = FutureBuilder<void>(
       future: _ready,
       builder: (context, done) {
@@ -160,11 +161,7 @@ class _FinoraAiScreenState extends State<FinoraAiScreen> {
     return Scaffold(
       backgroundColor: Colors.transparent,
       resizeToAvoidBottomInset: true,
-      body: DecoratedBox(
-        key: const ValueKey('finora-ai'),
-        decoration: AiLook.background(accent),
-        child: body,
-      ),
+      body: AiBackdrop(key: const ValueKey('finora-ai'), child: body),
     );
   }
 
@@ -382,11 +379,19 @@ class _FinoraAiScreenState extends State<FinoraAiScreen> {
             accent: accent,
             onTap: _listen,
           )
-        : IconButton.filled(
-            key: const ValueKey('finora-ai-send'),
-            style: IconButton.styleFrom(backgroundColor: accent),
-            onPressed: () => _ask(_input.text),
-            icon: const Icon(CupertinoIcons.arrow_up, color: Colors.white),
+        : DecoratedBox(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: AiLook.accent(),
+              boxShadow: [
+                BoxShadow(color: accent.withValues(alpha: .45), blurRadius: 18),
+              ],
+            ),
+            child: IconButton(
+              key: const ValueKey('finora-ai-send'),
+              onPressed: () => _ask(_input.text),
+              icon: const Icon(CupertinoIcons.arrow_up, color: Colors.white),
+            ),
           ),
   );
 

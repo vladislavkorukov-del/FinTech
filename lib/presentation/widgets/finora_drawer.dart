@@ -33,7 +33,7 @@ class FinoraDrawer extends StatelessWidget {
     (0, CupertinoIcons.house, 'Главная'),
     (1, CupertinoIcons.doc_text, 'Операции'),
     (3, CupertinoIcons.chart_bar, 'Аналитика'),
-    (5, CupertinoIcons.sparkles, 'Финора AI'),
+    (5, CupertinoIcons.sparkles, 'Finora AI'),
     (4, CupertinoIcons.square_grid_2x2, 'Ещё'),
   ];
 
@@ -62,37 +62,37 @@ class FinoraDrawer extends StatelessWidget {
       bool on = false,
     }) {
       return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 1),
         child: Material(
           color: on
               ? scheme.onSurface.withValues(alpha: .1)
               : Colors.transparent,
           shape: RoundedSuperellipseBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(14),
           ),
           child: InkWell(
             key: key,
             customBorder: RoundedSuperellipseBorder(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(14),
             ),
             onTap: onTap,
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               child: Row(
                 children: [
                   Icon(
                     icon,
-                    size: 24,
+                    size: 21,
                     color: on ? scheme.primary : scheme.onSurfaceVariant,
                   ),
-                  const SizedBox(width: 18),
+                  const SizedBox(width: 14),
                   Expanded(
                     child: Text(
                       label,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        fontSize: 17,
+                        fontSize: 15.5,
                         fontWeight: on ? FontWeight.w600 : FontWeight.w400,
                         color: scheme.onSurface,
                       ),
@@ -118,7 +118,7 @@ class FinoraDrawer extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(28, 22, 16, 18),
+              padding: const EdgeInsets.fromLTRB(24, 16, 12, 12),
               child: Row(
                 children: [
                   Expanded(
@@ -126,7 +126,7 @@ class FinoraDrawer extends StatelessWidget {
                       'Finora',
                       style: TextStyle(
                         fontFamily: 'serif',
-                        fontSize: 38,
+                        fontSize: 34,
                         fontWeight: FontWeight.w500,
                         letterSpacing: -.5,
                         color: scheme.onSurface,
@@ -139,7 +139,7 @@ class FinoraDrawer extends StatelessWidget {
                     onPressed: () => go(1),
                     icon: Icon(
                       CupertinoIcons.search,
-                      size: 26,
+                      size: 23,
                       color: scheme.onSurface,
                     ),
                   ),
@@ -159,18 +159,18 @@ class FinoraDrawer extends StatelessWidget {
                       onTap: () => go(place),
                     ),
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(28, 14, 28, 10),
+                    padding: const EdgeInsets.fromLTRB(24, 10, 24, 6),
                     child: Divider(
                       height: 1,
                       color: scheme.outlineVariant.withValues(alpha: .5),
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(28, 10, 28, 6),
+                    padding: const EdgeInsets.fromLTRB(24, 8, 24, 4),
                     child: Text(
                       tr('Полезное'),
                       style: TextStyle(
-                        fontSize: 15,
+                        fontSize: 13.5,
                         fontWeight: FontWeight.w600,
                         color: scheme.onSurfaceVariant,
                       ),
@@ -249,7 +249,7 @@ class FinoraDrawer extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 10, 20, 16),
+              padding: const EdgeInsets.fromLTRB(18, 8, 18, 12),
               child: Row(
                 children: [
                   InkWell(
@@ -264,20 +264,22 @@ class FinoraDrawer extends StatelessWidget {
                         ),
                       );
                     },
-                    child: const ProfileAvatar(size: 52),
+                    child: const ProfileAvatar(size: 38),
                   ),
-                  const SizedBox(width: 16),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: Align(
                       alignment: Alignment.centerRight,
                       child: FilledButton.icon(
                         key: const ValueKey('drawer-new-entry'),
                         style: FilledButton.styleFrom(
+                          minimumSize: const Size(0, 38),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                           backgroundColor: scheme.onSurface,
                           foregroundColor: scheme.surface,
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 18,
-                            vertical: 16,
+                            horizontal: 14,
+                            vertical: 10,
                           ),
                           shape: const StadiumBorder(),
                         ),
@@ -285,13 +287,13 @@ class FinoraDrawer extends StatelessWidget {
                           Navigator.pop(context);
                           showEntryEditor(context);
                         },
-                        icon: const Icon(CupertinoIcons.plus, size: 20),
+                        icon: const Icon(CupertinoIcons.plus, size: 17),
                         label: Text(
                           tr('Новая операция'),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
-                            fontSize: 16,
+                            fontSize: 14,
                             fontWeight: FontWeight.w600,
                           ),
                         ),

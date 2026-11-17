@@ -113,7 +113,7 @@ void main() {
             )
             .data,
     ];
-    expect(labels, ['Главная', 'Операции', 'Аналитика', 'Финора AI', 'Ещё']);
+    expect(labels, ['Главная', 'Операции', 'Аналитика', 'Finora AI', 'Ещё']);
     await tester.tapAt(const Offset(390, 400)); // close the panel
     await tester.pumpAndSettle();
     for (final tab in ['Главная', 'Операции', 'Аналитика', 'Ещё']) {
