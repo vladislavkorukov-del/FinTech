@@ -1,4 +1,7 @@
 import '../../../domain/models.dart';
+import 'ai_results.dart';
+
+export 'ai_results.dart';
 
 /// Structured results of the Finora AI engines. Every number here is
 /// computed from the person's own data by an engine; the response layer only
@@ -96,7 +99,7 @@ class MonthComparison {
   double? get percent => previous == 0 ? null : difference / previous * 100;
 }
 
-enum Cadence { weekly, monthly, yearly }
+enum Cadence { weekly, biweekly, monthly, quarterly, yearly }
 
 /// A payment that repeats at a steady rhythm.
 class RecurringCandidate {
@@ -113,7 +116,9 @@ class RecurringCandidate {
     required this.tracked,
     this.categoryId,
     this.serviceId,
-  });
+    this.kind = EntryKind.expense,
+    int? lastAmount,
+  }) : lastAmount = lastAmount ?? typicalAmount;
   final String merchantKey, displayName;
   final Cadence cadence;
   final int typicalAmount, occurrences;
@@ -126,7 +131,35 @@ class RecurringCandidate {
   /// Already a regular payment in the app.
   final bool tracked;
   final String? categoryId, serviceId;
+
+  /// An expense, or a regular income (salary, rent received).
+  final EntryKind kind;
+
+  /// The latest payment's amount.
+  final int lastAmount;
+
+  /// The latest payment differs from the usual one (by 5% and 10 ₽): a
+  /// subscription going from 169 to 199 ₽ counts.
+  bool get amountChanged =>
+      (lastAmount - typicalAmount).abs() >= 1000 &&
+      (lastAmount - typicalAmount).abs() >= typicalAmount * .05;
+
+  /// Days of slack before a payment counts as «usually already happened».
+  int get graceDays => switch (cadence) {
+    Cadence.weekly => 2,
+    Cadence.biweekly => 3,
+    Cadence.monthly => 5,
+    Cadence.quarterly => 10,
+    Cadence.yearly => 20,
+  };
+
+  /// It usually would have happened by [now] and has not.
+  bool isLate(DateTime now) =>
+      now.isAfter(nextExpected.add(Duration(days: graceDays)));
 }
+
+/// What an unusual expense was compared with.
+enum AnomalyBasis { category, merchant }
 
 /// An unusually large expense.
 class Anomaly {
@@ -135,6 +168,8 @@ class Anomaly {
     required this.typical,
     required this.ratio,
     required this.firstAtMerchant,
+    this.basis = AnomalyBasis.category,
+    this.history = 0,
   });
   final FinanceEntry entry;
 
@@ -142,6 +177,12 @@ class Anomaly {
   final int typical;
   final double ratio;
   final bool firstAtMerchant;
+
+  /// Compared with the same place's past payments, or the category's.
+  final AnomalyBasis basis;
+
+  /// How many past expenses the norm rests on.
+  final int history;
 }
 
 /// Spending forecast for the current period.
@@ -156,10 +197,15 @@ class Forecast {
     required this.upcomingMandatory,
     required this.daysLeft,
     this.insufficient,
+    this.confidence = 0,
   });
   final int spentSoFar, projectedExpense, incomeSoFar, projectedIncome;
   final int currentBalance, projectedBalance, upcomingMandatory, daysLeft;
   final Insufficient? insufficient;
+
+  /// 0–1: how far the forecast can be trusted (history and progress of the
+  /// period); 0 when there is no forecast.
+  final double confidence;
 }
 
 /// What is left after obligations.
@@ -277,10 +323,17 @@ enum InsightKind {
   unusualMonth,
   suggestion,
   goal,
+
+  /// A regular payment that usually would have happened by now.
+  latePayment,
+
+  /// Many more operations than usual by this day of the period.
+  frequency,
   notEnoughData,
 }
 
-/// One fact worth telling, with the numbers it rests on.
+/// One fact worth telling, with the numbers it rests on, how sure Finora
+/// is and where it came from.
 class Insight {
   const Insight({
     required this.kind,
@@ -294,10 +347,13 @@ class Insight {
     this.anomaly,
     this.risk,
     this.trend,
-  });
+    this.confidence = 1,
+    InsightSeverity? severity,
+    this.trace,
+  }) : _severity = severity;
   final InsightKind kind;
 
-  /// Higher shows first.
+  /// Higher shows first (before confidence is taken into account).
   final int priority;
   final String? categoryId, subject;
   final int? amount, secondAmount;
@@ -306,4 +362,44 @@ class Insight {
   final Anomaly? anomaly;
   final BudgetRisk? risk;
   final CategoryTrend? trend;
+
+  /// 0–1.
+  final double confidence;
+  final InsightSeverity? _severity;
+
+  /// Source, reason, input period and related operations.
+  final InsightTrace? trace;
+
+  InsightSeverity get severity =>
+      _severity ??
+      switch (kind) {
+        InsightKind.budgetRisk ||
+        InsightKind.anomaly ||
+        InsightKind.latePayment => InsightSeverity.warning,
+        InsightKind.growth ||
+        InsightKind.subscription ||
+        InsightKind.frequency ||
+        InsightKind.unusualMonth => InsightSeverity.notice,
+        InsightKind.decrease => InsightSeverity.positive,
+        InsightKind.freeMoney when (amount ?? 0) < 0 => InsightSeverity.warning,
+        _ => InsightSeverity.info,
+      };
+
+  /// The same fact about the same thing: shown once, snoozed together.
+  String get dedupKey =>
+      '${kind.name}:${categoryId ?? recurring?.merchantKey ?? subject ?? ''}';
+
+  /// A stable id within the period of the data it rests on.
+  String get id {
+    final start = trace?.periodStart;
+    return start == null
+        ? dedupKey
+        : '$dedupKey@${start.year}-${start.month}-${start.day}';
+  }
+
+  /// Ranking score: priority weighed by confidence, warnings first among
+  /// equals.
+  double get relevance =>
+      priority * (.5 + .5 * confidence) +
+      (severity == InsightSeverity.warning ? 4 : 0);
 }

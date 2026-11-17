@@ -11,7 +11,9 @@ class PersonalMemory {
     Set<String>? rejected,
     Set<String>? confirmedSubscriptions,
     Set<String>? confirmedRecurring,
-  }) : merchants = merchants ?? {},
+    Map<String, DateTime>? snoozed,
+  }) : snoozed = snoozed ?? {},
+       merchants = merchants ?? {},
        corrections = corrections ?? [],
        rejected = rejected ?? {},
        confirmedSubscriptions = confirmedSubscriptions ?? {},
@@ -30,6 +32,24 @@ class PersonalMemory {
   /// `recurring:merchant`, `budget:category` (optionally `@evidence`).
   final Set<String> rejected;
   final Set<String> confirmedSubscriptions, confirmedRecurring;
+
+  /// Insights the person put aside: dedup key → shown again after this
+  /// moment (a cooldown, so the same fact is not repeated every day).
+  final Map<String, DateTime> snoozed;
+
+  /// Hides insights with [dedupKey] for [days].
+  void snooze(String dedupKey, {int days = 7, DateTime? now}) =>
+      snoozed[dedupKey] = (now ?? DateTime.now()).add(Duration(days: days));
+
+  bool isSnoozed(String dedupKey, DateTime now) {
+    final until = snoozed[dedupKey];
+    if (until == null) return false;
+    if (now.isAfter(until)) {
+      snoozed.remove(dedupKey);
+      return false;
+    }
+    return true;
+  }
 
   /// The person saved [merchant] under [categoryId]. A correction (they
   /// changed it from [previous]) weighs three times a plain save.
@@ -116,6 +136,9 @@ class PersonalMemory {
     'rejected': rejected.toList(),
     'subscriptions': confirmedSubscriptions.toList(),
     'recurring': confirmedRecurring.toList(),
+    'snoozed': {
+      for (final e in snoozed.entries) e.key: e.value.toIso8601String(),
+    },
   };
 
   factory PersonalMemory.fromJson(Map<String, dynamic> json) => PersonalMemory(
@@ -136,6 +159,10 @@ class PersonalMemory {
     },
     confirmedRecurring: {
       ...(json['recurring'] as List? ?? const []).cast<String>(),
+    },
+    snoozed: {
+      for (final e in (json['snoozed'] as Map? ?? const {}).entries)
+        e.key as String: ?DateTime.tryParse('${e.value}'),
     },
   );
 }

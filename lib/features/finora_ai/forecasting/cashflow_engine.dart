@@ -7,6 +7,8 @@ import '../services/ai_context.dart';
 /// Money flows for the rest of the period: regular payments and incomes
 /// still due (from the app's own regular payments), and the everyday
 /// spending pace (without one-off purchases and regular payments).
+/// [timeline] lays them out day by day, together with regular payments
+/// Finora found in the history but the app does not track yet.
 abstract final class CashflowEngine {
   /// Occurrences of enabled regular payments of [kind] due before the end
   /// of the period (overdue ones that were not confirmed count too).
@@ -99,5 +101,83 @@ abstract final class CashflowEngine {
       expectedIncome: upcomingTotal(ctx, EntryKind.income),
       payments: [for (final d in due) d.$1],
     );
+  }
+
+  /// The rest of the period as dated events and a projected balance per
+  /// day. Found regular payments are added only when the app has no rule
+  /// for them, with the detector's confidence; ones that usually would have
+  /// happened by now are listed as [CashflowTimeline.late].
+  static CashflowTimeline timeline(
+    AiContext ctx, {
+    List<Anomaly>? anomalies,
+    List<RecurringCandidate> found = const [],
+  }) {
+    final today = DateTime(ctx.now.year, ctx.now.month, ctx.now.day);
+    final events = <CashflowEvent>[];
+    final late = <CashflowEvent>[];
+    for (final kind in [EntryKind.expense, EntryKind.income]) {
+      for (final (rule, date) in upcoming(ctx, kind)) {
+        final overdue = date.isBefore(today);
+        final event = CashflowEvent(
+          date: overdue ? today : date,
+          amount: rule.amountMinor,
+          kind: kind,
+          type: kind == EntryKind.income
+              ? CashflowEventType.income
+              : rule.paymentType == 'subscription'
+              ? CashflowEventType.subscription
+              : CashflowEventType.mandatory,
+          title: rule.name,
+          confidence: 1,
+          detected: false,
+          categoryId: rule.categoryId,
+          late: overdue,
+        );
+        events.add(event);
+        if (overdue) late.add(event);
+      }
+    }
+    for (final c in found) {
+      if (c.tracked || c.confidence < .5) continue;
+      final event = CashflowEvent(
+        date: c.nextExpected.isBefore(today) ? today : c.nextExpected,
+        amount: c.typicalAmount,
+        kind: c.kind,
+        type: c.kind == EntryKind.income
+            ? CashflowEventType.income
+            : c.subscriptionLikely
+            ? CashflowEventType.subscription
+            : CashflowEventType.recurring,
+        title: c.displayName,
+        confidence: c.confidence,
+        detected: true,
+        categoryId: c.categoryId,
+        late: c.isLate(ctx.now),
+      );
+      if (event.late) {
+        late.add(event);
+      } else if (!c.nextExpected.isBefore(today) &&
+          c.nextExpected.isBefore(ctx.periodEnd)) {
+        events.add(event);
+      }
+    }
+    events.sort((a, b) => a.date.compareTo(b.date));
+    final pace = dailyPace(ctx, anomalies ?? AnomalyDetector.detect(ctx));
+    final balances = <(DateTime, int)>[];
+    if (pace != null) {
+      var balance = ctx.balance.toDouble();
+      for (
+        var day = today;
+        day.isBefore(ctx.periodEnd);
+        day = DateTime(day.year, day.month, day.day + 1)
+      ) {
+        for (final e in events) {
+          if (e.date == day) balance += e.signed;
+        }
+        balance -= pace;
+        balances.add((day, (balance / 100).round() * 100));
+      }
+    }
+    return CashflowTimeline(events: events, balances: balances, late: late);
   }
 }

@@ -1,13 +1,46 @@
+import '../memory/personal_memory.dart';
 import '../models/ai_models.dart';
 import '../services/finora_ai_snapshot.dart';
 
 /// Turns the engines' results into a ranked list of insights. It does no
 /// arithmetic of its own: every number comes from a snapshot field, and an
 /// insight is only made when its engine had enough data.
+///
+/// Each insight carries its confidence and a trace (engine, reason, input
+/// period, related operations). The list is deduplicated (one insight per
+/// fact and subject), insights the person snoozed are left out until their
+/// cooldown ends, and the rest is ranked by relevance — priority weighed by
+/// confidence. [top] keeps only the few worth showing first.
 abstract final class InsightEngine {
+  /// How many insights to show at first.
+  static const topCount = 3;
+
+  /// Below this confidence an insight is not shown at all.
+  static const minConfidence = .4;
+
+  static List<Insight> top(List<Insight> all) => [
+    for (final i in all)
+      if (i.kind != InsightKind.summary) i,
+  ].take(topCount).toList();
+
   static List<Insight> build(FinoraAiSnapshot s) {
     final out = <Insight>[];
     final c = s.comparison;
+    final ctx = s.ctx;
+    InsightTrace trace(
+      String engine,
+      String reason, {
+      Iterable<String> related = const [],
+      DateTime? from,
+      DateTime? to,
+    }) => InsightTrace(
+      sourceEngine: engine,
+      reason: reason,
+      periodStart: from ?? ctx.periodStart,
+      periodEnd: to ?? ctx.periodEnd,
+      relatedEntryIds: related.toList(),
+      generatedAt: ctx.now,
+    );
     if (s.ctx.expenses.length < 5) {
       return const [Insight(kind: InsightKind.notEnoughData, priority: 100)];
     }
@@ -20,6 +53,7 @@ abstract final class InsightEngine {
         secondAmount: c.insufficient == null ? c.previous : null,
         percent: c.insufficient == null ? c.percent : null,
         categoryId: c.drivers.isEmpty ? null : c.drivers.first.categoryId,
+        trace: trace('MonthComparisonEngine', 'same-days:${c.comparableDays}'),
       ),
     );
     // Forecast and free money.
@@ -31,6 +65,8 @@ abstract final class InsightEngine {
           priority: 80,
           amount: f.projectedExpense,
           secondAmount: f.projectedBalance,
+          confidence: f.confidence,
+          trace: trace('ForecastEngine', 'pace-blend'),
         ),
       );
     }
@@ -41,6 +77,11 @@ abstract final class InsightEngine {
           priority: 78,
           amount: s.cashflow.afterMandatory,
           secondAmount: f.insufficient == null ? s.cashflow.afterAll : null,
+          confidence: f.insufficient == null ? f.confidence : .9,
+          trace: trace(
+            'CashflowEngine',
+            'balance-minus-due:${s.cashflow.payments.length}',
+          ),
         ),
       );
     }
@@ -55,6 +96,8 @@ abstract final class InsightEngine {
           categoryId: r.budget.categoryId,
           amount: r.overrun,
           percent: r.probability * 100,
+          confidence: r.probability,
+          trace: trace('BudgetRiskEngine', 'pace-vs-limit'),
         ),
       );
     }
@@ -69,6 +112,8 @@ abstract final class InsightEngine {
             categoryId: d.categoryId,
             amount: d.difference,
             percent: d.percent,
+            confidence: .9,
+            trace: trace('MonthComparisonEngine', 'category-driver'),
           ),
         );
       }
@@ -80,6 +125,8 @@ abstract final class InsightEngine {
             categoryId: d.categoryId,
             amount: -d.difference,
             percent: d.percent?.abs(),
+            confidence: .9,
+            trace: trace('MonthComparisonEngine', 'category-decrease'),
           ),
         );
       }
@@ -93,6 +140,8 @@ abstract final class InsightEngine {
           categoryId: u.categoryId,
           amount: u.difference,
           subject: 'usual',
+          confidence: .8,
+          trace: trace('MonthComparisonEngine', 'above-median-3'),
         ),
       );
     }
@@ -105,6 +154,12 @@ abstract final class InsightEngine {
           recurring: sub,
           amount: sub.typicalAmount,
           subject: sub.displayName,
+          confidence: sub.confidence,
+          trace: trace(
+            'RecurringDetector',
+            'cadence:${sub.cadence.name}:${sub.occurrences}',
+            from: sub.lastDate,
+          ),
         ),
       );
     }
@@ -118,6 +173,41 @@ abstract final class InsightEngine {
           secondAmount: a.typical,
           categoryId: a.entry.categoryId,
           subject: a.entry.payee,
+          // A norm resting on more payments is firmer.
+          confidence: (.55 + a.history / 30).clamp(.55, .95),
+          trace: trace(
+            'AnomalyDetector',
+            '${a.basis.name}-median:${a.history}',
+            related: [a.entry.id],
+          ),
+        ),
+      );
+    }
+    final freq = s.frequency;
+    if (freq != null) {
+      out.add(
+        Insight(
+          kind: InsightKind.frequency,
+          priority: 52,
+          amount: freq.count,
+          secondAmount: freq.typical,
+          confidence: .7,
+          trace: trace('AnomalyDetector', 'count-vs-median-periods'),
+        ),
+      );
+    }
+    // Regular payments that usually would have happened by now (detected
+    // ones; the app's own overdue payments are shown on the home screen).
+    for (final e in s.timeline.late.where((e) => e.detected).take(2)) {
+      out.add(
+        Insight(
+          kind: InsightKind.latePayment,
+          priority: 60,
+          subject: e.title,
+          amount: e.amount,
+          categoryId: e.categoryId,
+          confidence: e.confidence * .85,
+          trace: trace('CashflowEngine', 'late-vs-rhythm'),
         ),
       );
     }
@@ -129,6 +219,8 @@ abstract final class InsightEngine {
           priority: t.trend == Trend.rising ? 58 : 45,
           trend: t,
           categoryId: t.categoryId,
+          confidence: .7,
+          trace: trace('FinancialPatternEngine', 'trend-3-months'),
         ),
       );
     }
@@ -139,6 +231,8 @@ abstract final class InsightEngine {
           kind: InsightKind.incomeStability,
           priority: stability == IncomeStability.volatile ? 55 : 30,
           subject: stability.name,
+          confidence: .7,
+          trace: trace('FinancialPatternEngine', 'income-variation'),
         ),
       );
     }
@@ -150,6 +244,8 @@ abstract final class InsightEngine {
           amount: m.total,
           secondAmount: m.average,
           subject: m.month.toIso8601String(),
+          confidence: .6,
+          trace: trace('FinancialPatternEngine', 'month-vs-average'),
         ),
       );
     }
@@ -161,6 +257,8 @@ abstract final class InsightEngine {
           priority: 28,
           subject: '${h.busiestWeekday}',
           percent: h.weekdayShare * 100,
+          confidence: .55,
+          trace: trace('FinancialPatternEngine', 'weekday-share'),
         ),
       );
     }
@@ -171,6 +269,8 @@ abstract final class InsightEngine {
           priority: 40,
           categoryId: b.categoryId,
           amount: b.limit,
+          confidence: .65,
+          trace: trace('RecommendationEngine', 'median-${b.basedOnMonths}'),
         ),
       );
     }
@@ -182,10 +282,29 @@ abstract final class InsightEngine {
           subject: goal.name,
           amount: month,
           secondAmount: s.cashflow.afterAll,
+          confidence: .8,
+          trace: trace('RecommendationEngine', 'deadline-need'),
         ),
       );
     }
-    out.sort((a, b) => b.priority.compareTo(a.priority));
-    return out;
+    return rank(out, memory: s.memory, now: ctx.now);
+  }
+
+  /// Drops weak and snoozed insights, keeps the strongest of each fact
+  /// about the same subject, and sorts by relevance.
+  static List<Insight> rank(
+    List<Insight> all, {
+    PersonalMemory? memory,
+    required DateTime now,
+  }) {
+    final best = <String, Insight>{};
+    for (final i in all) {
+      if (i.confidence < minConfidence) continue;
+      if (memory?.isSnoozed(i.dedupKey, now) ?? false) continue;
+      final seen = best[i.dedupKey];
+      if (seen == null || i.relevance > seen.relevance) best[i.dedupKey] = i;
+    }
+    return best.values.toList()
+      ..sort((a, b) => b.relevance.compareTo(a.relevance));
   }
 }

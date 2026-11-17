@@ -62,6 +62,16 @@ abstract final class ForecastEngine {
       ),
       upcomingMandatory: mandatory,
       daysLeft: ctx.daysLeft,
+      confidence: confidence(ctx),
     );
+  }
+
+  /// How far a forecast can be trusted: more full periods of history and
+  /// more of the current period behind make it firmer. Never above 0.95.
+  static double confidence(AiContext ctx) {
+    final history = ctx.fullPeriodsWithData.take(3).length;
+    final base = const [.35, .5, .62, .72][history];
+    final progress = ctx.daysPassed / ctx.periodDays;
+    return (base + .23 * progress).clamp(0.0, .95);
   }
 }

@@ -21,13 +21,21 @@ import 'analysis_sheet.dart';
 /// engines' facts (see [FinoraAi.answer]); the analysis sheet shows the same
 /// facts without words.
 class FinoraAiScreen extends StatefulWidget {
-  const FinoraAiScreen({super.key, this.leading, this.embedded = false});
+  const FinoraAiScreen({
+    super.key,
+    this.leading,
+    this.embedded = false,
+    this.initialQuestion,
+  });
 
   /// Shown at the start of the header (the app menu when embedded).
   final Widget? leading;
 
   /// Part of the main shell (no back button of its own).
   final bool embedded;
+
+  /// Asked as soon as the window is ready (from Settings → «Finora AI»).
+  final String? initialQuestion;
 
   @override
   State<FinoraAiScreen> createState() => _FinoraAiScreenState();
@@ -48,6 +56,7 @@ class _FinoraAiScreenState extends State<FinoraAiScreen> {
   FinoraAiSnapshot? _snapshot;
 
   static const suggestions = [
+    'Что ты умеешь?',
     'Почему трачу больше?',
     'Прогноз до конца месяца',
     'Сколько останется?',
@@ -55,6 +64,22 @@ class _FinoraAiScreenState extends State<FinoraAiScreen> {
     'Уложусь в бюджеты?',
     'Предложи бюджет',
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    final q = widget.initialQuestion;
+    if (q != null) {
+      // After the first frame: the window is built and can show the chat.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        unawaited(
+          _ready.then((_) {
+            if (mounted) unawaited(_ask(q));
+          }),
+        );
+      });
+    }
+  }
 
   @override
   void dispose() {

@@ -1,6 +1,10 @@
+import '../models/ai_models.dart';
+
 /// What the person asks Finora AI about (typed in the AI screen; the voice
 /// assistant has its own parser and is not involved).
 enum AiIntent {
+  /// «Что ты умеешь?» — the list of capabilities.
+  capabilities,
   whySpendingMore,
   compare,
   forecast,
@@ -18,16 +22,27 @@ enum AiIntent {
 }
 
 class ParsedQuery {
-  const ParsedQuery(this.intent, {this.subject});
+  const ParsedQuery(this.intent, {this.subject, this.period});
   final AiIntent intent;
 
   /// For [AiIntent.categorize]: the merchant or description to classify.
   final String? subject;
+
+  /// For [AiIntent.compare]: the period named («эту неделю с прошлой»).
+  final PeriodUnit? period;
 }
 
 /// Keyword rules, most specific first. Deterministic and offline.
 abstract final class IntentParser {
   static final _rules = <(AiIntent, RegExp)>[
+    (
+      AiIntent.capabilities,
+      RegExp(
+        r'что (ты )?(умеешь|можешь|знаешь)|твои возможности|чем (ты )?'
+        r'(можешь )?помо|что (у тебя )?(можно )?спросить|как (с )?тобой '
+        r'польз|^помощь$|^help$',
+      ),
+    ),
     (
       AiIntent.whySpendingMore,
       RegExp(
@@ -41,7 +56,7 @@ abstract final class IntentParser {
     (AiIntent.budgetRisk, RegExp(r'бюджет|лимит|превыш|уложусь|уложиться')),
     (
       AiIntent.freeMoney,
-      RegExp(r'остан|свободн|после обязательн|сколько (могу|можно) потратить'),
+      RegExp(r'остан|свободн|после обязательн|сколько (я )?(могу|можно) потратить'),
     ),
     (
       AiIntent.forecast,
@@ -58,7 +73,12 @@ abstract final class IntentParser {
       AiIntent.habits,
       RegExp(r'привычк|куда уход|на что .*(трачу|уходит)|в какой день'),
     ),
-    (AiIntent.compare, RegExp(r'сравни|прошл\S* месяц|чем в прошлом')),
+    (
+      AiIntent.compare,
+      RegExp(
+        r'сравни|прошл\S* (месяц|недел|квартал|год)|чем в прошлом|чем вчера',
+      ),
+    ),
     (
       AiIntent.summary,
       RegExp(r'итог|сводк|как (у меня )?дела|как месяц|summary|обзор'),
@@ -68,6 +88,18 @@ abstract final class IntentParser {
   static final _categorize = RegExp(
     r'(?:к какой категории|какая категория|категори[яю] (?:для|у))\s*(.*)$',
   );
+
+  /// The period a comparison names; null means the month. (Word edges are
+  /// spelled out: `\b` does not see Cyrillic letters.)
+  static PeriodUnit? periodOf(String t) => RegExp(r'недел').hasMatch(t)
+      ? PeriodUnit.week
+      : RegExp(r'квартал').hasMatch(t)
+      ? PeriodUnit.quarter
+      : RegExp(r'(^|\s)год(а|у|ом)?($|[\s?.!,])').hasMatch(t)
+      ? PeriodUnit.year
+      : RegExp(r'сегодн|вчера|(^|\s)(день|дня|дне)($|[\s?.!,])').hasMatch(t)
+      ? PeriodUnit.day
+      : null;
 
   static ParsedQuery parse(String text) {
     final t = text.toLowerCase().replaceAll('ё', 'е').trim();
@@ -82,7 +114,11 @@ abstract final class IntentParser {
       );
     }
     for (final (intent, re) in _rules) {
-      if (re.hasMatch(t)) return ParsedQuery(intent);
+      if (!re.hasMatch(t)) continue;
+      return ParsedQuery(
+        intent,
+        period: intent == AiIntent.compare ? periodOf(t) : null,
+      );
     }
     return const ParsedQuery(AiIntent.unknown);
   }

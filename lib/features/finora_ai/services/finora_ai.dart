@@ -9,6 +9,7 @@ import '../memory/personal_memory.dart';
 import '../models/ai_models.dart';
 import '../personalization/feedback.dart';
 import '../repositories/memory_repository.dart';
+import '../responses/capabilities.dart';
 import '../responses/intent_parser.dart';
 import '../responses/response_layer.dart';
 import 'finora_ai_snapshot.dart';
@@ -106,8 +107,18 @@ class FinoraAi {
         ? empty
         : list.map((i) => ResponseLayer.insight(s, i)).join('\n');
     switch (q.intent) {
-      case AiIntent.whySpendingMore:
+      case AiIntent.capabilities:
+        return AiAnswer(q, AiCapabilities.answer());
       case AiIntent.compare:
+        return AiAnswer(
+          q,
+          ResponseLayer.periodComparison(
+            s,
+            s.compare(q.period ?? PeriodUnit.month),
+          ),
+          insights: [...of(InsightKind.growth), ...of(InsightKind.decrease)],
+        );
+      case AiIntent.whySpendingMore:
         return AiAnswer(
           q,
           ResponseLayer.whySpendingMore(s),
@@ -202,14 +213,17 @@ class FinoraAi {
         final r = classify(s.ctx.data, merchant: subject);
         return AiAnswer(q, ResponseLayer.classification(s, subject, r));
       case AiIntent.summary:
-        final top = s.insights.take(3).toList();
+        // The month in one line, then the most useful observations.
+        final top = [
+          ...of(InsightKind.summary).take(1),
+          ...s.top,
+        ].take(3).toList();
         return AiAnswer(q, join(top, ResponseLayer.notEnough), insights: top);
       case AiIntent.unknown:
         return AiAnswer(
           q,
-          'Я могу рассказать, почему растут расходы, дать прогноз до конца '
-          'месяца, посчитать свободный остаток, найти подписки и крупные '
-          'траты или подсказать бюджет.',
+          'Такого я пока не умею. Спроси «что ты умеешь?» — покажу, с чем '
+          'могу помочь.',
         );
     }
   }

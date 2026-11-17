@@ -81,11 +81,7 @@ abstract final class ResponseLayer {
             '(−${_m(s, i.amount!)}).';
       case InsightKind.subscription:
         final c = i.recurring!;
-        final when = switch (c.cadence) {
-          Cadence.weekly => 'примерно раз в неделю',
-          Cadence.monthly => 'примерно раз в месяц',
-          Cadence.yearly => 'примерно раз в год',
-        };
+        final when = cadenceText(c.cadence);
         return 'Я заметила платёж ${_m(s, c.typicalAmount)} «${c.displayName}» '
             '$when. Возможно, это подписка.';
       case InsightKind.recurring:
@@ -95,10 +91,13 @@ abstract final class ResponseLayer {
         final first = a.firstAtMerchant
             ? ' Похоже на незапланированную покупку.'
             : '';
+        final times = a.ratio.toStringAsFixed(1).replaceAll('.', ',');
+        final norm = a.basis == AnomalyBasis.merchant
+            ? 'твоей обычной покупки здесь (${_m(s, a.typical)})'
+            : 'обычного для категории ${_cat(s, a.entry.categoryId)}';
         return 'Крупная трата: ${_m(s, a.entry.amountMinor)} '
             '${a.entry.payee.isEmpty ? '' : '«${a.entry.payee}» '}— примерно '
-            'в ${a.ratio.toStringAsFixed(1).replaceAll('.', ',')} раза больше '
-            'обычного для категории ${_cat(s, a.entry.categoryId)}.$first';
+            'в $times раза больше $norm.$first';
       case InsightKind.trend:
         final t = i.trend!;
         return t.trend == Trend.rising
@@ -126,11 +125,26 @@ abstract final class ResponseLayer {
       case InsightKind.suggestion:
         return 'Для категории ${_cat(s, i.categoryId)} подойдёт бюджет около '
             '${_m(s, i.amount!)} в месяц — так ты обычно и тратишь.';
+      case InsightKind.latePayment:
+        return 'Обычно платёж «${i.subject}» (${_m(s, i.amount!)}) к этому '
+            'времени уже проходил.';
+      case InsightKind.frequency:
+        return 'В этом месяце уже ${i.amount} трат — обычно к этому дню их '
+            'около ${i.secondAmount}.';
       case InsightKind.goal:
         return 'Чтобы успеть с мечтой «${i.subject}», откладывай около '
             '${_m(s, i.amount!)} в месяц.';
     }
   }
+
+  /// How often a regular payment repeats, in words.
+  static String cadenceText(Cadence c) => switch (c) {
+    Cadence.weekly => 'примерно раз в неделю',
+    Cadence.biweekly => 'примерно раз в две недели',
+    Cadence.monthly => 'примерно раз в месяц',
+    Cadence.quarterly => 'примерно раз в квартал',
+    Cadence.yearly => 'примерно раз в год',
+  };
 
   /// A classification as a sentence.
   static String classification(
@@ -192,4 +206,61 @@ abstract final class ResponseLayer {
           : null,
     ),
   );
+
+  /// Two periods compared, from [MonthComparisonEngine.comparePeriods]:
+  /// spending, the categories behind the change, income and cash flow.
+  static String periodComparison(FinoraAiSnapshot s, PeriodComparison c) {
+    final (now, before) = switch (c.unit) {
+      PeriodUnit.day => ('Сегодня', 'вчера'),
+      PeriodUnit.week => ('На этой неделе', 'за те же дни прошлой недели'),
+      PeriodUnit.quarter => (
+        'В этом квартале',
+        'за те же дни прошлого квартала',
+      ),
+      PeriodUnit.year => ('В этом году', 'за те же дни прошлого года'),
+      _ => ('В этом месяце', 'за те же дни прошлого месяца'),
+    };
+    switch (c.insufficient) {
+      case InsufficientData.noPreviousData:
+        return 'Сравнить пока не с чем: $before операций нет.';
+      case InsufficientData.tooFewEntries:
+        return notEnough;
+      case null:
+        break;
+    }
+    final p = c.expensePercent;
+    final more = c.expenseDifference >= 0;
+    final lines = [
+      p == null
+          ? '$now расходы — ${_m(s, c.expense)}, а $before — '
+                '${_m(s, c.previousExpense)}.'
+          : '$now расходы — ${_m(s, c.expense)}: на ${_pct(p)} '
+                '${more ? 'больше' : 'меньше'}, чем $before '
+                '(${_m(s, c.previousExpense)}).',
+    ];
+    String names(List<CategoryDelta> list, String sign) => list
+        .take(2)
+        .map(
+          (d) =>
+              '${s.ctx.categoryName(d.categoryId).toLowerCase()} '
+              '($sign${_m(s, d.difference.abs())})',
+        )
+        .join(', ');
+    if (more && c.increases.isNotEmpty) {
+      lines.add('Больше всего выросли: ${names(c.increases, '+')}.');
+    } else if (!more && c.decreases.isNotEmpty) {
+      lines.add('Меньше всего стало: ${names(c.decreases, '−')}.');
+    }
+    if (c.income > 0 || c.previousIncome > 0) {
+      lines.add(
+        'Доходы — ${_m(s, c.income)} против ${_m(s, c.previousIncome)}; '
+        'разница доходов и расходов ${_signed(s, c.cashflow)} '
+        '(было ${_signed(s, c.previousCashflow)}).',
+      );
+    }
+    return lines.join(' ');
+  }
+
+  static String _signed(FinoraAiSnapshot s, int minor) =>
+      '${minor < 0 ? '−' : '+'}${_m(s, minor.abs())}';
 }

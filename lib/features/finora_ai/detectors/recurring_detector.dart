@@ -7,21 +7,40 @@ import '../memory/personal_memory.dart';
 import '../models/ai_models.dart';
 import '../services/ai_context.dart';
 
-/// Finds payments that repeat at a steady rhythm — weekly, monthly, yearly —
-/// from the operations alone, and marks the ones that look like
-/// subscriptions (a known service, or a steady monthly amount).
+/// Finds payments that repeat at a steady rhythm — weekly, every two weeks,
+/// monthly, quarterly, yearly — from the operations alone, and marks the
+/// ones that look like subscriptions (a known service, or a steady monthly
+/// amount). The amount may drift: the norm is the median, and a changed
+/// latest amount is reported. With [EntryKind.income] it finds regular
+/// incomes (a salary paid on about the same day).
 ///
 /// A merchant needs at least three payments, and most gaps between them must
 /// be close to the typical gap. Suggestions the person rejected stay hidden
 /// until a new payment arrives after the rejection.
 abstract final class RecurringDetector {
+  /// Cadence by the typical gap in days, or null for no steady rhythm.
+  static Cadence? cadenceOf(double days) => days >= 5 && days <= 9
+      ? Cadence.weekly
+      : days >= 12 && days <= 17
+      ? Cadence.biweekly
+      : days >= 25 && days <= 36
+      ? Cadence.monthly
+      : days >= 80 && days <= 100
+      ? Cadence.quarterly
+      : days >= 340 && days <= 390
+      ? Cadence.yearly
+      : null;
+
   static List<RecurringCandidate> detect(
     AiContext ctx, {
     PersonalMemory? memory,
+    EntryKind kind = EntryKind.expense,
   }) {
+    final income = kind == EntryKind.income;
     final groups = <String, List<FinanceEntry>>{};
-    final since = DateTime(ctx.now.year - 1, ctx.now.month - 1, ctx.now.day);
-    for (final e in ctx.expenses) {
+    // Two years back, so yearly and quarterly rhythms have enough points.
+    final since = DateTime(ctx.now.year - 2, ctx.now.month, ctx.now.day);
+    for (final e in income ? ctx.incomes : ctx.expenses) {
       if (e.date.isBefore(since)) continue;
       final key = AiContext.merchantKey(e.payee);
       if (key.isEmpty) continue;
@@ -37,14 +56,11 @@ abstract final class RecurringDetector {
       ].where((d) => d > 0).toList();
       if (gaps.length < 2) continue;
       final typical = median(gaps);
-      final cadence = typical >= 5 && typical <= 9
-          ? Cadence.weekly
-          : typical >= 25 && typical <= 36
-          ? Cadence.monthly
-          : typical >= 340 && typical <= 390
-          ? Cadence.yearly
-          : null;
+      final cadence = cadenceOf(typical);
       if (cadence == null) continue;
+      // Silent for well over two rhythms: no longer an active payment.
+      final silence = ctx.now.difference(list.last.date).inDays;
+      if (silence > typical * 2.5 + 10) continue;
       final regular =
           gaps.where((d) => (d - typical).abs() <= typical * .25).length /
           gaps.length;
@@ -66,7 +82,7 @@ abstract final class RecurringDetector {
           !service.id.startsWith('store_') &&
           service.group != 'banks';
       final subscription =
-          knownService || (cadence == Cadence.monthly && cv < .08);
+          !income && (knownService || (cadence == Cadence.monthly && cv < .08));
       final tracked = ctx.data.recurring.any(
         (r) =>
             AiContext.merchantKey(r.name) == g.key ||
@@ -82,14 +98,14 @@ abstract final class RecurringDetector {
                   (1 - cv.clamp(0, 1)) * .25 +
                   math.min(list.length, 8) / 8 * .15)
               .clamp(0.0, .99);
-      final step = switch (cadence) {
-        Cadence.weekly => const Duration(days: 7),
-        Cadence.monthly => Duration(days: typical.round()),
-        Cadence.yearly => Duration(days: typical.round()),
+      final d = last.date;
+      final next = switch (cadence) {
+        Cadence.weekly => d.add(const Duration(days: 7)),
+        Cadence.biweekly => d.add(const Duration(days: 14)),
+        Cadence.monthly => DateTime(d.year, d.month + 1, d.day),
+        Cadence.quarterly => DateTime(d.year, d.month + 3, d.day),
+        Cadence.yearly => DateTime(d.year + 1, d.month, d.day),
       };
-      final next = cadence == Cadence.monthly
-          ? DateTime(last.date.year, last.date.month + 1, last.date.day)
-          : last.date.add(step);
       out.add(
         RecurringCandidate(
           merchantKey: g.key,
@@ -104,6 +120,8 @@ abstract final class RecurringDetector {
           tracked: tracked,
           categoryId: last.categoryId,
           serviceId: knownService ? service.id : null,
+          kind: kind,
+          lastAmount: last.amountMinor,
         ),
       );
     }

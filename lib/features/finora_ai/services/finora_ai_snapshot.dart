@@ -28,6 +28,10 @@ class FinoraAiSnapshot {
     required this.patterns,
     required this.budgetSuggestions,
     required this.goalNeeds,
+    required this.regularIncome,
+    required this.timeline,
+    required this.frequency,
+    this.memory,
   });
 
   factory FinoraAiSnapshot.compute(
@@ -39,7 +43,20 @@ class FinoraAiSnapshot {
     final ctx = AiContext(data, now: now, periodStart: periodStart);
     final anomalies = AnomalyDetector.detect(ctx);
     final recurring = RecurringDetector.detect(ctx, memory: memory);
+    final regularIncome = RecurringDetector.detect(
+      ctx,
+      memory: memory,
+      kind: EntryKind.income,
+    );
     return FinoraAiSnapshot._(
+      memory: memory,
+      regularIncome: regularIncome,
+      timeline: CashflowEngine.timeline(
+        ctx,
+        anomalies: anomalies,
+        found: [...recurring, ...regularIncome],
+      ),
+      frequency: AnomalyDetector.frequency(ctx),
       ctx: ctx,
       comparison: MonthComparisonEngine.compute(ctx),
       aboveUsual: MonthComparisonEngine.aboveUsual(ctx),
@@ -67,5 +84,25 @@ class FinoraAiSnapshot {
   final List<BudgetSuggestion> budgetSuggestions;
   final List<(Goal, int)> goalNeeds;
 
+  /// Incomes that come at a steady rhythm (salary and the like).
+  final List<RecurringCandidate> regularIncome;
+
+  /// The rest of the period day by day, with late regular payments.
+  final CashflowTimeline timeline;
+  final FrequencyAnomaly? frequency;
+
+  /// The person's memory (snoozed insights, rejections), when known.
+  final PersonalMemory? memory;
+
+  /// Every insight, deduplicated, without snoozed ones, most relevant first.
   late final List<Insight> insights = InsightEngine.build(this);
+
+  /// The few insights worth showing first: better three useful ones than
+  /// twenty small ones.
+  List<Insight> get top => InsightEngine.top(insights);
+
+  /// Any period against the previous one (see
+  /// [MonthComparisonEngine.comparePeriods]).
+  PeriodComparison compare(PeriodUnit unit) =>
+      MonthComparisonEngine.comparePeriods(ctx, unit: unit);
 }

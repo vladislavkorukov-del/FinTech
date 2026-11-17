@@ -20,6 +20,7 @@ import 'account_import_screen.dart';
 import 'foreign_import_screen.dart';
 import 'tutorial.dart';
 import 'voice_help.dart';
+import '../../features/finora_ai/ui/ai_help_screen.dart';
 import '../../services/finora_ear.dart';
 import '../../services/finora_system.dart';
 import '../finora_outside.dart';
@@ -908,6 +909,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         context,
                         MaterialPageRoute<void>(
                           builder: (_) => const VoiceHelpScreen(),
+                        ),
+                      ),
+                    ),
+                    // What Finora AI can do, with questions to try.
+                    GroupedRow(
+                      key: const ValueKey('settings-ai-help'),
+                      icon: Icons.auto_awesome_outlined,
+                      color: TileColors.orange,
+                      title: 'Finora AI',
+                      subtitle: 'Что умеет и о чём спросить',
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute<void>(
+                          builder: (_) => const AiHelpScreen(),
                         ),
                       ),
                     ),
