@@ -52,9 +52,22 @@ class FinanceBackdropLayer extends StatelessWidget {
       top: page,
       middle: page,
       bottom: page,
-      glowA: b.glowA,
-      glowB: b.glowB,
+      // Release: a clear glow of the style's accent, solid enough to read
+      // on any phone screen (the palettes' own glows were made for tinted
+      // pages and faded out on neutral black).
+      glowA: darkGlow(theme),
+      glowB: b.glowB.withValues(alpha: 0),
     );
+  }
+
+  /// The dark page's top glow: the accent, deepened, mixed into the page.
+  static Color darkGlow(ThemeData theme) {
+    final accent = HSLColor.fromColor(theme.colorScheme.primary);
+    final deep = accent
+        .withLightness((accent.lightness * .6).clamp(.22, .42))
+        .withSaturation((accent.saturation * .85).clamp(.3, .75))
+        .toColor();
+    return Color.lerp(darkPage(theme), deep, .62)!;
   }
 
   static FinanceBackdrop flat(ThemeData theme) {
