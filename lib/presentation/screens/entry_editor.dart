@@ -24,7 +24,6 @@ import '../../services/receipt_image_store.dart';
 import '../../services/receipt_ocr_service.dart';
 import '../controller.dart';
 import '../finora_reactions.dart';
-import '../haptics.dart';
 import '../widgets/amount_format.dart';
 import '../widgets/common.dart';
 import '../widgets/amount_pad.dart';
@@ -574,23 +573,20 @@ class _EntryEditorState extends State<EntryEditor> {
   void _payeeTyped(String text) {
     if (_kind == EntryKind.transfer) return;
     final c = FinanceScope.of(context);
-    final found = ServiceRecognizer.find(text) ?? ServiceCatalog.byName(text);
+    // Nothing is guessed from the first letters: «Пя» sounds like «PIA»,
+    // yet the person is typing «Пятёрочка».
+    final letters = text.replaceAll(
+      RegExp(r'[^\p{L}\p{N}]', unicode: true),
+      '',
+    );
+    final found = letters.length < 3
+        ? null
+        : ServiceRecognizer.find(text) ?? ServiceCatalog.byName(text);
     final service = found == null || ServiceCatalog.banks.contains(found)
         ? null
         : found;
-    // 1.27: a name written in Cyrillic becomes the proper one («чат гпт» →
-    // «ChatGPT») as soon as it is complete.
-    final exact = ServiceRecognizer.find(text, whole: true);
-    if (exact != null &&
-        exact.id == service?.id &&
-        text.trim() != exact.name &&
-        !ServiceCatalog.banks.contains(exact)) {
-      _payee.value = TextEditingValue(
-        text: exact.name,
-        selection: TextSelection.collapsed(offset: exact.name.length),
-      );
-      Haptics.light();
-    }
+    // The typed text is never replaced while typing: the proper name
+    // («чат гпт» → «ChatGPT») is written when the operation is saved.
     // Finora AI: an unknown place still gets a category when she is sure
     // enough (memory of the person's choices, history, the local model).
     if (service == null &&

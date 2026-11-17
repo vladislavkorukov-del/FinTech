@@ -235,6 +235,45 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('typing «Пятёрочка» letter by letter is never replaced', (
+    tester,
+  ) async {
+    await start(tester);
+    await tester.tap(find.byKey(const ValueKey('quick-action-expense')));
+    await tester.pumpAndSettle();
+    final field = find.byKey(const ValueKey('entry-payee'));
+    await tester.scrollUntilVisible(
+      field,
+      300,
+      scrollable: find
+          .descendant(
+            of: find.byType(EntryEditor),
+            matching: find.byType(Scrollable),
+          )
+          .first,
+    );
+    await tester.pumpAndSettle();
+    const word = 'Пятёрочка';
+    for (var i = 1; i <= word.length; i++) {
+      final typed = word.substring(0, i);
+      await tester.enterText(field, typed);
+      await tester.pump();
+      // «Пя» sounds like «PIA»: the field keeps exactly what was typed.
+      expect(
+        tester
+            .widget<EditableText>(
+              find.descendant(of: field, matching: find.byType(EditableText)),
+            )
+            .controller
+            .text,
+        typed,
+      );
+      expect(find.textContaining('Private Internet Access'), findsNothing);
+    }
+    await tester.pumpAndSettle();
+    expect(find.text('Финора узнала: Пятёрочка'), findsOneWidget);
+  });
+
   testWidgets('1.26: typed «чат гпт» becomes ChatGPT with logo and category', (
     tester,
   ) async {
