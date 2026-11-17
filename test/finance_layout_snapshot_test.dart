@@ -15,6 +15,9 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'support/screenshot_fonts.dart';
 
+import 'package:finora/presentation/widgets/finora_drawer.dart';
+import 'support/nav.dart';
+
 class _Quiet extends NotificationService {
   @override
   Future<void> sync(FinanceData data) async {}
@@ -94,21 +97,27 @@ void main() {
     );
     await tester.pumpAndSettle();
     await tester.pump(const Duration(seconds: 2));
-    final nav = find.byKey(const ValueKey('bottom-nav'));
-    expect(nav, findsOneWidget);
-    final navText = tester
-        .widgetList<Text>(
-          find.descendant(
-            of: nav,
-            matching: find.byWidgetPredicate((w) => w is Text),
-          ),
-        )
-        .map((w) => w.data)
-        .whereType<String>()
-        .toList();
-    expect(navText, ['Главная', 'Операции', 'Аналитика', 'Ещё']);
+    // Release: the places live in the side panel, in this order.
+    await tester.tap(find.byKey(const ValueKey('nav-menu')));
+    await tester.pumpAndSettle();
+    final drawer = find.byKey(const ValueKey('app-drawer'));
+    expect(drawer, findsOneWidget);
+    final labels = [
+      for (final (place, _, _) in FinoraDrawer.places)
+        tester
+            .widget<Text>(
+              find.descendant(
+                of: find.byKey(ValueKey('drawer-$place')),
+                matching: find.byWidgetPredicate((w) => w is Text),
+              ),
+            )
+            .data,
+    ];
+    expect(labels, ['Главная', 'Операции', 'Аналитика', 'Финора AI', 'Ещё']);
+    await tester.tapAt(const Offset(390, 400)); // close the panel
+    await tester.pumpAndSettle();
     for (final tab in ['Главная', 'Операции', 'Аналитика', 'Ещё']) {
-      await tester.tap(find.descendant(of: nav, matching: find.text(tab)));
+      await openPlace(tester, tab);
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull, reason: tab);
       final output = Platform.environment['FINORA_CAPTURE_DIR'];

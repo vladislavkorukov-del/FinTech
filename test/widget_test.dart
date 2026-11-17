@@ -12,6 +12,8 @@ import 'package:finora/presentation/screens/entry_editor.dart';
 import 'package:finora/presentation/screens/management.dart';
 import 'package:finora/services/notification_service.dart';
 
+import 'support/nav.dart';
+
 class SilentNotifications extends NotificationService {
   @override
   Future<void> sync(FinanceData data) async {}
@@ -91,7 +93,7 @@ void main() {
       FinoraApp(controller: controller, requireDeviceSecurity: false),
     );
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Операции').last);
+    await openPlace(tester, 'Операции');
     await tester.pumpAndSettle();
     expect(find.byTooltip('Фильтры'), findsOneWidget);
     await tester.tap(find.byTooltip('Добавить операцию'));
@@ -111,7 +113,7 @@ void main() {
     expect(tester.takeException(), isNull);
     await tester.tap(find.byType(CloseButton));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Ещё'));
+    await openPlace(tester, 'Ещё');
     await tester.pumpAndSettle();
     await tester.ensureVisible(find.text('Категории'));
     await tester.pumpAndSettle();

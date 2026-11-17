@@ -12,6 +12,8 @@ import 'package:finora/presentation/controller.dart';
 import 'package:finora/services/security_service.dart';
 import 'package:finora/services/notification_service.dart';
 
+import 'support/nav.dart';
+
 class QuietNotifications extends NotificationService {
   @override
   Future<void> sync(FinanceData data) async {}
@@ -47,7 +49,7 @@ void main() {
       });
       await tester.pumpWidget(FinoraApp(controller: controller));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Операции').last);
+      await openPlace(tester, 'Операции');
       await tester.pumpAndSettle();
       await tester.tap(find.byTooltip('Добавить операцию'));
       await tester.pumpAndSettle();

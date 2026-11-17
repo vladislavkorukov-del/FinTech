@@ -52,28 +52,48 @@ void main() {
   });
 
   for (final inset in [0.0, 24.0, 48.0]) {
-    testWidgets('bottom menu touches the screen bottom (inset $inset)', (
-      tester,
-    ) async {
-      tester.view.physicalSize = const Size(400, 860);
-      tester.view.devicePixelRatio = 1;
-      tester.view.padding = FakeViewPadding(top: 24, bottom: inset);
-      tester.view.viewPadding = FakeViewPadding(top: 24, bottom: inset);
-      addTearDown(tester.view.reset);
-      await tester.pumpWidget(
-        FinoraApp(controller: controller, requireDeviceSecurity: false),
-      );
-      await tester.pumpAndSettle();
-      final bar = find.byKey(const ValueKey('bottom-nav'));
-      final rect = tester.getRect(bar);
-      expect(rect.bottom, 860, reason: 'no gap under the menu');
-      final box = tester.widget<DecoratedBox>(bar);
-      final color = (box.decoration as BoxDecoration).color!;
-      // Release: a matte, opaque bar; the backdrop does not show through.
-      expect(color.a, 1);
-      // The buttons stay above the system navigation area.
-      final label = tester.getRect(find.text('Главная'));
-      expect(label.bottom, lessThanOrEqualTo(860 - inset));
-    });
+    testWidgets(
+      'the orb floats above the system bar; the panel opens (inset $inset)',
+      (tester) async {
+        tester.view.physicalSize = const Size(400, 860);
+        tester.view.devicePixelRatio = 1;
+        tester.view.padding = FakeViewPadding(top: 24, bottom: inset);
+        tester.view.viewPadding = FakeViewPadding(top: 24, bottom: inset);
+        addTearDown(tester.view.reset);
+        await tester.pumpWidget(
+          FinoraApp(controller: controller, requireDeviceSecurity: false),
+        );
+        await tester.pumpAndSettle();
+        // Release: no bottom bar; the voice orb floats above the system
+        // navigation area.
+        expect(find.byKey(const ValueKey('bottom-nav')), findsNothing);
+        final orb = tester.getRect(find.byKey(const ValueKey('bottom-orb')));
+        expect(orb.bottom, lessThanOrEqualTo(860 - inset));
+        // The menu button opens the side panel with every place.
+        await tester.tap(find.byKey(const ValueKey('nav-menu')));
+        await tester.pumpAndSettle();
+        for (final label in [
+          'Главная',
+          'Операции',
+          'Аналитика',
+          'Финора AI',
+          'Ещё',
+        ]) {
+          expect(
+            find.descendant(
+              of: find.byKey(const ValueKey('app-drawer')),
+              matching: find.text(label),
+            ),
+            findsOneWidget,
+          );
+        }
+        expect(find.byKey(const ValueKey('drawer-new-entry')), findsOneWidget);
+        // The new-operation button stays above the system navigation area.
+        final button = tester.getRect(
+          find.byKey(const ValueKey('drawer-new-entry')),
+        );
+        expect(button.bottom, lessThanOrEqualTo(860 - inset));
+      },
+    );
   }
 }

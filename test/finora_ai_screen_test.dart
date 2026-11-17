@@ -44,7 +44,7 @@ void main() {
     );
     final data = await tester.runAsync(repo!.load);
     final c = FinanceController(repo, _Quiet(), data!);
-    tester.view.physicalSize = const Size(400, 1800);
+    tester.view.physicalSize = const Size(400, 860);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
     await tester.pumpWidget(
@@ -63,12 +63,30 @@ void main() {
       );
       await tester.pump(const Duration(milliseconds: 50));
     }
-    expect(find.byKey(const ValueKey('finora-ai-forecast')), findsOneWidget);
     expect(find.byKey(const ValueKey('finora-ai-headline')), findsOneWidget);
-    await tester.tap(find.text('Сколько останется?'));
+    expect(find.text('Чем займёмся\nсегодня?'), findsOneWidget);
+    // A suggestion asks; the answer arrives after a short «thinking» beat.
+    await tester.tap(find.text('Почему трачу больше?'));
     await tester.pump();
+    expect(find.text('Финора считает…'), findsOneWidget);
+    await tester.pump(const Duration(milliseconds: 500));
     expect(find.byKey(const ValueKey('finora-ai-answer-0')), findsOneWidget);
+    // A typed question in the chat.
+    await tester.enterText(
+      find.byKey(const ValueKey('finora-ai-question')),
+      'Сколько останется после обязательных платежей?',
+    );
+    await tester.pump();
+    await tester.tap(find.byKey(const ValueKey('finora-ai-send')));
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.byKey(const ValueKey('finora-ai-answer-1')), findsOneWidget);
     expect(find.textContaining('После обязательных платежей'), findsWidgets);
+    // The analysis sheet shows the forecast without words.
+    await tester.tap(find.byKey(const ValueKey('finora-ai-analysis')));
+    for (var i = 0; i < 6; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    expect(find.byKey(const ValueKey('finora-ai-forecast')), findsOneWidget);
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox.shrink());
     c.dispose();

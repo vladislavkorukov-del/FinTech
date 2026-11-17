@@ -13,6 +13,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
+import 'support/nav.dart';
+
 class _QuietNotifications extends NotificationService {
   @override
   Future<void> sync(FinanceData data) async {}
@@ -114,7 +116,7 @@ void main() {
         FinoraApp(controller: controller, requireDeviceSecurity: false),
       );
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Ещё'));
+      await openPlace(tester, 'Ещё');
       await tester.pumpAndSettle();
       await tester.ensureVisible(find.byKey(const ValueKey('more-settings')));
       await tester.pumpAndSettle();

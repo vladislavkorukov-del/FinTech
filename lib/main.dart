@@ -1,11 +1,10 @@
-import 'dart:math' as math;
 import 'presentation/i18n.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart' hide InputDecoration, Text;
 import 'package:flutter/foundation.dart'
     show LicenseRegistry, LicenseEntryWithLineBreaks;
-import 'package:flutter/services.dart' show HapticFeedback, rootBundle;
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
@@ -15,7 +14,8 @@ import 'services/security_service.dart';
 import 'services/receipt_share_service.dart';
 import 'presentation/controller.dart';
 import 'presentation/theme/app_theme.dart';
-import 'presentation/widgets/nav_glyph.dart';
+import 'presentation/widgets/finora_drawer.dart';
+import 'features/finora_ai/ui/finora_ai_screen.dart';
 import 'features/finora_ai/services/finora_ai.dart';
 import 'presentation/screens/dashboard.dart';
 import 'presentation/screens/transactions.dart';
@@ -477,13 +477,46 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
     }
   }
 
+  final _scaffold = GlobalKey<ScaffoldState>();
+  Offset? _downAt;
+
+  /// The menu button that opens the side panel.
+  Widget _menuButton({Color? color}) => IconButton(
+    key: const ValueKey('nav-menu'),
+    tooltip: tr('Меню'),
+    onPressed: () {
+      Haptics.light();
+      _scaffold.currentState?.openDrawer();
+    },
+    icon: CustomPaint(
+      size: const Size(24, 24),
+      painter: _MenuGlyph(color ?? Theme.of(context).colorScheme.onSurface),
+    ),
+  );
+
+  void _select(int tab) {
+    if (tab != _tab) setState(() => _tab = tab);
+  }
+
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    // Any touch wakes the voice orb's animation (it rests when idle).
+    final ai = _tab == 5;
+    final page = switch (_tab) {
+      0 => Dashboard(
+        onTransactions: () => _select(1),
+        onAnalytics: () => _select(3),
+      ),
+      1 => const TransactionsScreen(),
+      3 => const AnalyticsScreen(),
+      5 => FinoraAiScreen(
+        embedded: true,
+        leading: _menuButton(color: Colors.white),
+      ),
+      _ => const MoreScreen(),
+    };
+    // Any tap (not a scroll) wakes the voice orb's animation.
     return Listener(
-      // Release: only a tap wakes her, not a scroll — her animation would
-      // otherwise compete with the scrolling for every frame.
       onPointerDown: (e) => _downAt = e.position,
       onPointerUp: (e) {
         final from = _downAt;
@@ -493,227 +526,125 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
         _downAt = null;
       },
       child: Scaffold(
-        // 1.22.1: the main screens have no text fields; a keyboard closing
-        // late (after the welcome screens) must not squeeze them.
-        resizeToAvoidBottomInset: false,
-        body: SafeArea(
-          bottom: false,
-          // Release: the new tab rises softly into place.
-          child: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 260),
-            switchInCurve: Curves.easeOutCubic,
-            switchOutCurve: Curves.easeInCubic,
-            transitionBuilder: (child, animation) => FadeTransition(
-              opacity: animation,
-              child: SlideTransition(
-                position: Tween(
-                  begin: const Offset(0, .015),
-                  end: Offset.zero,
-                ).animate(animation),
-                child: ScaleTransition(
-                  scale: Tween(begin: .985, end: 1.0).animate(animation),
-                  child: child,
-                ),
+        key: _scaffold,
+        // Release: navigation is a side panel (menu button or a swipe from
+        // the left edge), like a chat app.
+        drawer: FinoraDrawer(current: _tab, onSelect: _select),
+        drawerEdgeDragWidth: 32,
+        // 1.20: the living voice orb floats at the bottom; a long press
+        // opens the ring of actions (1.37). As the floating button, it keeps
+        // snack bars above itself.
+        floatingActionButton: ai
+            ? null
+            : VoiceOrb(
+                key: const ValueKey('bottom-orb'),
+                size: 60,
+                onTap: _voice,
+                onLongPress: _wheel,
+                onLongPressMove: (p) => _openWheel?.move(p),
+                onLongPressEnd: (p) => _openWheel?.release(p),
               ),
-            ),
-            child: KeyedSubtree(
-              key: ValueKey(_tab),
-              child: switch (_tab) {
-                0 => Dashboard(
-                  onTransactions: () => setState(() => _tab = 1),
-                  onAnalytics: () => setState(() => _tab = 3),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+        // The AI window has a text field; the main screens have none (a
+        // keyboard closing late after the welcome screens must not squeeze
+        // them, 1.22.1).
+        resizeToAvoidBottomInset: ai,
+        body: Stack(
+          children: [
+            Positioned.fill(
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 260),
+                switchInCurve: Curves.easeOutCubic,
+                switchOutCurve: Curves.easeInCubic,
+                transitionBuilder: (child, animation) => FadeTransition(
+                  opacity: animation,
+                  child: SlideTransition(
+                    position: Tween(
+                      begin: const Offset(0, .015),
+                      end: Offset.zero,
+                    ).animate(animation),
+                    child: ScaleTransition(
+                      scale: Tween(begin: .985, end: 1.0).animate(animation),
+                      child: child,
+                    ),
+                  ),
                 ),
-                1 => const TransactionsScreen(),
-                3 => const AnalyticsScreen(),
-                _ => const MoreScreen(),
-              },
-            ),
-          ),
-        ),
-        // The bar's color runs under the system navigation area (Android 15+
-        // draws apps edge to edge), so no strip of backdrop shows below it.
-        // Release: a matte bar in the card colour, no outline.
-        bottomNavigationBar: Builder(
-          builder: (context) {
-            // Release: the bar is made of the theme — the card colour
-            // mixed into the foot of the backdrop, a faint matte gradient
-            // and soft top corners, so it reads as part of the screen.
-            final dark = scheme.brightness == Brightness.dark;
-            // Dark: neutral graphite between the page and the panels.
-            final fill = Color.lerp(
-              FinanceBackdropLayer.darkPage(Theme.of(context)),
-              GlassSurface.darkPanel(Theme.of(context)),
-              .7,
-            )!;
-            // Its own layer: the bar is not repainted with the screen.
-            return RepaintBoundary(
-              child: DecoratedBox(
-                key: const ValueKey('bottom-nav'),
-                // Light: a strict white bar with a hairline on top (iOS).
-                decoration: dark
-                    ? BoxDecoration(
-                        color: fill,
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [Color.lerp(fill, Colors.white, .04)!, fill],
-                        ),
-                        borderRadius: const BorderRadius.vertical(
-                          top: Radius.circular(26),
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: .25),
-                            blurRadius: 24,
-                            offset: const Offset(0, -4),
-                          ),
-                        ],
-                      )
-                    : BoxDecoration(
-                        color: scheme.surface.withValues(alpha: 1),
-                        border: Border(
-                          top: BorderSide(
-                            color: Colors.black.withValues(alpha: .08),
-                            width: .5,
-                          ),
-                        ),
-                      ),
-                child: SafeArea(
-                  top: false,
-                  minimum: const EdgeInsets.only(bottom: 8),
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 8, left: 6, right: 6),
-                    // Release: a soft capsule glides under the chosen tab
-                    // (with a touch of spring); the symbols morph in place.
-                    child: LayoutBuilder(
-                      builder: (context, box) {
-                        final slot = box.maxWidth / 5;
-                        return Stack(
-                          children: [
-                            AnimatedPositioned(
-                              duration: MediaQuery.disableAnimationsOf(context)
-                                  ? Duration.zero
-                                  : const Duration(milliseconds: 460),
-                              curve: const Cubic(.3, 1.3, .5, 1),
-                              left: slot * _tab + (slot - 56) / 2,
-                              top: 3,
-                              width: 56,
-                              height: 32,
-                              child: DecoratedBox(
-                                key: const ValueKey('nav-capsule'),
-                                decoration: ShapeDecoration(
-                                  color: scheme.primary.withValues(alpha: .16),
-                                  shape: const StadiumBorder(),
-                                ),
+                child: KeyedSubtree(
+                  key: ValueKey(_tab),
+                  child: ai
+                      ? page
+                      : SafeArea(
+                          bottom: false,
+                          child: Column(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(8, 2, 8, 0),
+                                child: Row(children: [_menuButton()]),
                               ),
-                            ),
-                            Row(
-                              children: [
-                                _nav(0, NavGlyphKind.home, tr('Главная')),
-                                _nav(
-                                  1,
-                                  NavGlyphKind.operations,
-                                  tr('Операции'),
-                                ),
-                                // 1.20: the living voice orb replaces «+»; a long press
-                                // still adds an operation by hand.
-                                Expanded(
-                                  child: Center(
-                                    heightFactor: 1,
-                                    child: VoiceOrb(
-                                      size: 54,
-                                      onTap: _voice,
-                                      // 1.37: a ring of actions around Finora.
-                                      onLongPress: _wheel,
-                                      onLongPressMove: (p) =>
-                                          _openWheel?.move(p),
-                                      onLongPressEnd: (p) =>
-                                          _openWheel?.release(p),
-                                    ),
-                                  ),
-                                ),
-                                _nav(
-                                  3,
-                                  NavGlyphKind.analytics,
-                                  tr('Аналитика'),
-                                ),
-                                _nav(4, NavGlyphKind.more, tr('Ещё')),
-                              ],
-                            ),
-                          ],
-                        );
-                      },
+                              Expanded(child: page),
+                            ],
+                          ),
+                        ),
+                ),
+              ),
+            ),
+            if (!ai) ...[
+              // Content fades out under the orb.
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                height: 96 + MediaQuery.paddingOf(context).bottom,
+                child: IgnorePointer(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          scheme.surfaceContainerLowest.withValues(alpha: 0),
+                          scheme.surfaceContainerLowest.withValues(alpha: .85),
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
-            );
-          },
+            ],
+          ],
         ),
       ),
     );
   }
+}
 
-  Offset? _downAt;
+/// Two lines, the lower one shorter — the menu symbol.
+class _MenuGlyph extends CustomPainter {
+  const _MenuGlyph(this.color);
+  final Color color;
 
-  Widget _nav(int index, NavGlyphKind glyph, String label) {
-    final scheme = Theme.of(context).colorScheme;
-    final active = _tab == index;
-    // The chosen tab takes the tint colour (or the text colour where the
-    // tint would be too faint).
-    double luminance(Color c) => c.computeLuminance() + .05;
-    final ratio =
-        math.max(luminance(scheme.primary), luminance(scheme.surface)) /
-        math.min(luminance(scheme.primary), luminance(scheme.surface));
-    final tint = ratio >= 3 ? scheme.primary : scheme.onSurface;
-    final color = active ? tint : scheme.onSurfaceVariant;
-    return Expanded(
-      child: Semantics(
-        selected: active,
-        button: true,
-        label: label,
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: () {
-            if (_tab != index) HapticFeedback.selectionClick();
-            setState(() => _tab = index);
-          },
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SizedBox(
-                  height: 30,
-                  child: Center(
-                    child: NavGlyph(
-                      kind: glyph,
-                      active: active,
-                      activeColor: tint,
-                      color: scheme.onSurfaceVariant,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 3),
-                AnimatedDefaultTextStyle(
-                  duration: const Duration(milliseconds: 250),
-                  style: TextStyle(
-                    fontSize: 10.5,
-                    fontWeight: active ? FontWeight.w600 : FontWeight.w500,
-                    color: color,
-                    fontFamily: Theme.of(
-                      context,
-                    ).textTheme.bodySmall?.fontFamily,
-                  ),
-                  child: Text(label, maxLines: 1),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
+  @override
+  void paint(Canvas canvas, Size size) {
+    final p = Paint()
+      ..color = color
+      ..strokeWidth = 2
+      ..strokeCap = StrokeCap.round;
+    final w = size.width;
+    canvas
+      ..drawLine(
+        Offset(w * .14, size.height * .38),
+        Offset(w * .86, size.height * .38),
+        p,
+      )
+      ..drawLine(
+        Offset(w * .14, size.height * .62),
+        Offset(w * .6, size.height * .62),
+        p,
+      );
   }
+
+  @override
+  bool shouldRepaint(_MenuGlyph old) => old.color != color;
 }
 
 class SecurityGate extends StatefulWidget {

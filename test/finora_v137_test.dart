@@ -16,6 +16,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
+import 'support/nav.dart';
+
 class _Quiet extends NotificationService {
   @override
   Future<void> sync(FinanceData data) async {}
@@ -185,7 +187,7 @@ void main() {
       await settle();
       collect();
       for (final tab in ['Transactions', 'Analytics', 'More']) {
-        await tester.tap(find.text(tab).last);
+        await openPlace(tester, tab);
         await settle();
         collect();
       }

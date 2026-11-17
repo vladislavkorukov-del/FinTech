@@ -191,6 +191,9 @@ void main() {
         ),
       );
       await start(tester);
+      // The side panel lists the places in English.
+      await tester.tap(find.byKey(const ValueKey('nav-menu')));
+      await tester.pumpAndSettle();
       expect(find.text('Home'), findsWidgets);
       expect(find.text('More'), findsOneWidget);
       AppLanguage.code = 'ru';

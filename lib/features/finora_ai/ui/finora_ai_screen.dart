@@ -1,33 +1,53 @@
+import 'dart:async';
+
+import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart' hide InputDecoration, Text;
 
 import '../../../presentation/controller.dart';
+import '../../../presentation/haptics.dart';
 import '../../../presentation/l10n_widgets.dart';
-import '../../../presentation/widgets/common.dart';
+import '../../../presentation/widgets/common.dart' show showError;
 import '../../../presentation/widgets/finora_orb.dart';
-import '../models/ai_models.dart';
+import '../../../presentation/widgets/profile_avatar.dart';
+import '../../../services/voice_input_service.dart';
 import '../responses/response_layer.dart';
 import '../services/finora_ai.dart';
 import '../services/finora_ai_snapshot.dart';
-import '../widgets/insight_card.dart';
+import '../widgets/ai_chat_widgets.dart';
+import 'analysis_sheet.dart';
 
-/// Finora AI: the forecast, insights and suggestions computed by the
-/// engines, and a place to ask. Everything shown is calculated from the
-/// person's own data; the words are templates over those numbers.
+/// The Finora AI window: a welcome with suggestions and a big input, a
+/// listening view with her orb, and a chat. Every answer is built from the
+/// engines' facts (see [FinoraAi.answer]); the analysis sheet shows the same
+/// facts without words.
 class FinoraAiScreen extends StatefulWidget {
-  const FinoraAiScreen({super.key});
+  const FinoraAiScreen({super.key, this.leading, this.embedded = false});
+
+  /// Shown at the start of the header (the app menu when embedded).
+  final Widget? leading;
+
+  /// Part of the main shell (no back button of its own).
+  final bool embedded;
+
   @override
   State<FinoraAiScreen> createState() => _FinoraAiScreenState();
 }
 
+enum _Mode { welcome, listening, chat }
+
 class _FinoraAiScreenState extends State<FinoraAiScreen> {
   final _ai = FinoraAi.instance;
-  final _question = TextEditingController();
-  final _answers = <AiAnswer>[];
+  final _input = TextEditingController();
+  final _scroll = ScrollController();
+  final _messages = <(String, bool)>[];
   late final Future<void> _ready = _ai.ready();
+  _Mode _mode = _Mode.welcome;
+  bool _thinking = false;
+  String _heard = '';
   Object? _dataSeen;
   FinoraAiSnapshot? _snapshot;
 
-  static const _quick = [
+  static const suggestions = [
     'Почему трачу больше?',
     'Прогноз до конца месяца',
     'Сколько останется?',
@@ -38,7 +58,8 @@ class _FinoraAiScreenState extends State<FinoraAiScreen> {
 
   @override
   void dispose() {
-    _question.dispose();
+    _input.dispose();
+    _scroll.dispose();
     super.dispose();
   }
 
@@ -50,270 +71,421 @@ class _FinoraAiScreenState extends State<FinoraAiScreen> {
     return _snapshot!;
   }
 
-  void _ask(String q, FinoraAiSnapshot s) {
+  Future<void> _ask(String q) async {
     final text = q.trim();
-    if (text.isEmpty) return;
+    if (text.isEmpty || _thinking) return;
+    final s = _snap(FinanceScope.of(context));
+    Haptics.light();
     setState(() {
-      _answers.insert(0, _ai.answer(text, s));
-      _question.clear();
+      _messages.add((text, true));
+      _input.clear();
+      _mode = _Mode.chat;
+      _thinking = true;
+    });
+    // The facts are ready at once; a short beat reads as «thinking».
+    await Future<void>.delayed(const Duration(milliseconds: 420));
+    if (!mounted) return;
+    setState(() {
+      _messages.add((_ai.answer(text, s).text, false));
+      _thinking = false;
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scroll.hasClients) {
+        unawaited(
+          _scroll.animateTo(
+            _scroll.position.maxScrollExtent,
+            duration: const Duration(milliseconds: 320),
+            curve: Curves.easeOutCubic,
+          ),
+        );
+      }
     });
   }
+
+  Future<void> _listen() async {
+    final back = _mode;
+    setState(() {
+      _mode = _Mode.listening;
+      _heard = '';
+    });
+    try {
+      final heard = await const VoiceInputService().listen(
+        prompt: 'Спросите Финору о деньгах',
+      );
+      if (!mounted) return;
+      if (heard.isEmpty) {
+        setState(() => _mode = back);
+        return;
+      }
+      setState(() => _heard = heard.first);
+      await Future<void>.delayed(const Duration(milliseconds: 650));
+      if (mounted) await _ask(_heard);
+    } on FormatException catch (e) {
+      if (!mounted) return;
+      setState(() => _mode = back);
+      showError(context, e);
+    }
+  }
+
+  void _close() => setState(() {
+    _messages.clear();
+    _mode = _Mode.welcome;
+    _thinking = false;
+  });
 
   @override
   Widget build(BuildContext context) {
     final c = FinanceScope.of(context);
+    final accent = Theme.of(context).colorScheme.primary;
+    final body = FutureBuilder<void>(
+      future: _ready,
+      builder: (context, done) {
+        if (done.connectionState != ConnectionState.done) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        final s = _snap(c);
+        return SafeArea(
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 280),
+            switchInCurve: Curves.easeOutCubic,
+            child: switch (_mode) {
+              _Mode.welcome => _welcome(s, accent),
+              _Mode.listening => _listening(accent),
+              _Mode.chat => _chat(accent),
+            },
+          ),
+        );
+      },
+    );
     return Scaffold(
-      appBar: AppBar(title: const Text('Финора · Анализ')),
-      body: FutureBuilder<void>(
-        future: _ready,
-        builder: (context, done) {
-          if (done.connectionState != ConnectionState.done) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          final s = _snap(c);
-          return ListView(
-            key: const ValueKey('finora-ai'),
-            padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
-            children: [
-              _head(s),
-              const SizedBox(height: 16),
-              _forecast(s),
-              const SizedBox(height: 22),
-              _askBox(s),
-              for (final a in _answers) _answer(a, s),
-              const SizedBox(height: 22),
-              _insights(s),
-              if (s.subscriptions.isNotEmpty) ...[
-                const SizedBox(height: 22),
-                _subscriptions(s),
-              ],
-              const SizedBox(height: 18),
-              Text(
-                'Все цифры посчитаны по вашим операциям прямо на телефоне — '
-                'ничего не отправляется в интернет.',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-              ),
-            ],
-          );
-        },
+      backgroundColor: Colors.transparent,
+      resizeToAvoidBottomInset: true,
+      body: DecoratedBox(
+        key: const ValueKey('finora-ai'),
+        decoration: AiLook.background(accent),
+        child: body,
       ),
     );
   }
 
-  Widget _head(FinoraAiSnapshot s) {
+  Widget _header(FinoraAiSnapshot s, {required bool chat}) {
+    final name = FinanceScope.of(context).data.preferences.userName.trim();
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 6, 16, 0),
+      child: Row(
+        children: [
+          if (!widget.embedded)
+            IconButton(
+              tooltip: 'Назад',
+              onPressed: () => Navigator.maybePop(context),
+              icon: const Icon(CupertinoIcons.back, color: Colors.white),
+            )
+          else if (widget.leading != null)
+            widget.leading!,
+          if (!chat) ...[
+            const SizedBox(width: 4),
+            const ProfileAvatar(size: 38),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    name.isEmpty ? 'Финора' : name,
+                    style: TextStyle(color: AiLook.soft(.6), fontSize: 12.5),
+                  ),
+                  const Text(
+                    'С возвращением',
+                    style: TextStyle(color: AiLook.ink, fontSize: 15),
+                  ),
+                ],
+              ),
+            ),
+          ] else
+            Expanded(
+              child: Center(
+                child: GlassPill(
+                  key: const ValueKey('finora-ai-close'),
+                  label: 'Закрыть чат',
+                  icon: CupertinoIcons.xmark,
+                  onTap: _close,
+                ),
+              ),
+            ),
+          GlassIconButton(
+            key: const ValueKey('finora-ai-analysis'),
+            icon: CupertinoIcons.chart_bar_square,
+            tooltip: 'Анализ',
+            onTap: () => showAnalysisSheet(
+              context,
+              s,
+              onChanged: () => setState(() => _snapshot = null),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _welcome(FinoraAiSnapshot s, Color accent) {
     final first = s.insights.firstOrNull;
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
+    return Column(
+      key: const ValueKey('ai-welcome'),
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const FinoraCharacter(size: 56, moods: [FinoraMood.happy]),
-        const SizedBox(width: 14),
+        _header(s, chat: false),
         Expanded(
-          child: Text(
-            first == null
-                ? ResponseLayer.notEnough
-                : ResponseLayer.insight(s, first),
-            key: const ValueKey('finora-ai-headline'),
-            style: const TextStyle(
-              fontSize: 16,
-              height: 1.3,
-              fontWeight: FontWeight.w500,
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+            children: [
+              SizedBox(height: MediaQuery.sizeOf(context).height * .12),
+              const Text(
+                'Чем займёмся\nсегодня?',
+                style: TextStyle(
+                  color: AiLook.ink,
+                  fontSize: 36,
+                  height: 1.08,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: -.8,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                first == null
+                    ? ResponseLayer.notEnough
+                    : ResponseLayer.insight(s, first),
+                key: const ValueKey('finora-ai-headline'),
+                style: TextStyle(
+                  color: AiLook.soft(.72),
+                  fontSize: 14.5,
+                  height: 1.35,
+                ),
+              ),
+            ],
+          ),
+        ),
+        SizedBox(
+          height: 108,
+          child: ListView.separated(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            scrollDirection: Axis.horizontal,
+            itemCount: suggestions.length,
+            separatorBuilder: (_, _) => const SizedBox(width: 10),
+            itemBuilder: (context, i) => SuggestionCard(
+              text: suggestions[i],
+              accent: accent,
+              onTap: () => _ask(suggestions[i]),
             ),
           ),
         ),
+        const SizedBox(height: 12),
+        _composer(accent, big: true),
       ],
     );
   }
 
-  Widget _forecast(FinoraAiSnapshot s) {
-    final f = s.forecast;
-    final scheme = Theme.of(context).colorScheme;
-    Widget line(String label, int value, {bool strong = false}) => Padding(
-      padding: const EdgeInsets.symmetric(vertical: 5),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              label,
-              style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 14),
-            ),
-          ),
-          Text(
-            money(value, s.ctx.currency),
-            style: TextStyle(
-              fontSize: strong ? 17 : 15,
-              fontWeight: strong ? FontWeight.w700 : FontWeight.w600,
-              fontFeatures: const [FontFeature.tabularFigures()],
-            ),
-          ),
-        ],
-      ),
-    );
-    return SurfaceCard(
-      key: const ValueKey('finora-ai-forecast'),
-      padding: const EdgeInsets.fromLTRB(18, 14, 18, 14),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Прогноз на месяц',
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          const SizedBox(height: 6),
-          if (f.insufficient != null)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 4),
-              child: Text(
-                ResponseLayer.needHistory,
-                style: TextStyle(color: scheme.onSurfaceVariant),
-              ),
-            )
-          else ...[
-            line('Расходы к концу месяца', f.projectedExpense, strong: true),
-            line('Доходы за месяц', f.projectedIncome),
-            line('На счетах к концу месяца', f.projectedBalance),
-          ],
-          line('Обязательные платежи впереди', s.cashflow.mandatory),
-          line(
-            'Останется после обязательных',
-            s.cashflow.afterMandatory,
-            strong: true,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _askBox(FinoraAiSnapshot s) => Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Text('Спросить Финору', style: Theme.of(context).textTheme.titleMedium),
-      const SizedBox(height: 10),
-      TextField(
-        key: const ValueKey('finora-ai-question'),
-        controller: _question,
-        textInputAction: TextInputAction.send,
-        onSubmitted: (q) => _ask(q, s),
-        decoration: InputDecoration(
-          hintText: 'Например: почему я трачу больше?',
-          suffixIcon: IconButton(
-            key: const ValueKey('finora-ai-send'),
-            icon: const Icon(Icons.arrow_upward_rounded),
-            onPressed: () => _ask(_question.text, s),
-          ),
+  Widget _composer(Color accent, {required bool big}) => Padding(
+    padding: const EdgeInsets.fromLTRB(14, 0, 14, 12),
+    child: Container(
+      padding: EdgeInsets.fromLTRB(18, big ? 14 : 6, 10, big ? 10 : 6),
+      decoration: ShapeDecoration(
+        color: AiLook.panel(.34),
+        shape: RoundedSuperellipseBorder(
+          borderRadius: BorderRadius.circular(big ? 26 : 22),
+          side: BorderSide(color: AiLook.soft(.08)),
         ),
       ),
-      const SizedBox(height: 10),
-      Wrap(
-        spacing: 8,
-        runSpacing: 8,
+      child: Column(
         children: [
-          for (final q in _quick)
-            ActionChip(label: Text(q), onPressed: () => _ask(q, s)),
-        ],
-      ),
-    ],
-  );
-
-  Widget _answer(AiAnswer a, FinoraAiSnapshot s) => Padding(
-    padding: const EdgeInsets.only(top: 12),
-    child: SurfaceCard(
-      key: ValueKey('finora-ai-answer-${_answers.indexOf(a)}'),
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const FinoraCharacter(size: 30, moods: [FinoraMood.happy]),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              a.text,
-              style: const TextStyle(fontSize: 15, height: 1.32),
-            ),
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  key: const ValueKey('finora-ai-question'),
+                  controller: _input,
+                  minLines: big ? 2 : 1,
+                  maxLines: 4,
+                  textInputAction: TextInputAction.send,
+                  onSubmitted: _ask,
+                  style: const TextStyle(color: AiLook.ink, fontSize: 15.5),
+                  cursorColor: accent,
+                  decoration: InputDecoration(
+                    border: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    filled: false,
+                    isDense: true,
+                    hintText: 'Спросите Финору о деньгах',
+                    hintStyle: TextStyle(color: AiLook.soft(.42)),
+                  ),
+                ),
+              ),
+              if (!big) ...[const SizedBox(width: 6), _sendOrMic(accent)],
+            ],
           ),
+          if (big) ...[
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 7,
+                      ),
+                      decoration: ShapeDecoration(
+                        color: AiLook.soft(.08),
+                        shape: const StadiumBorder(),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            CupertinoIcons.lock_shield,
+                            size: 14,
+                            color: AiLook.soft(.6),
+                          ),
+                          const SizedBox(width: 6),
+                          Flexible(
+                            child: Text(
+                              'Финора · на устройстве',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                color: AiLook.soft(.7),
+                                fontSize: 12.5,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                _sendOrMic(accent),
+              ],
+            ),
+          ],
         ],
       ),
     ),
   );
 
-  Widget _insights(FinoraAiSnapshot s) => Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _sendOrMic(Color accent) => ValueListenableBuilder<TextEditingValue>(
+    valueListenable: _input,
+    builder: (context, v, _) => v.text.trim().isEmpty
+        ? MicButton(
+            key: const ValueKey('finora-ai-mic'),
+            accent: accent,
+            onTap: _listen,
+          )
+        : IconButton.filled(
+            key: const ValueKey('finora-ai-send'),
+            style: IconButton.styleFrom(backgroundColor: accent),
+            onPressed: () => _ask(_input.text),
+            icon: const Icon(CupertinoIcons.arrow_up, color: Colors.white),
+          ),
+  );
+
+  Widget _listening(Color accent) => Column(
+    key: const ValueKey('ai-listening'),
     children: [
-      Text('Что я заметила', style: Theme.of(context).textTheme.titleMedium),
-      const SizedBox(height: 6),
-      SurfaceCard(
-        key: const ValueKey('finora-ai-insights'),
-        padding: const EdgeInsets.fromLTRB(16, 6, 16, 6),
-        child: Column(
+      const SizedBox(height: 10),
+      GlassPill(
+        label: 'Закрыть',
+        icon: CupertinoIcons.xmark,
+        onTap: () => setState(
+          () => _mode = _messages.isEmpty ? _Mode.welcome : _Mode.chat,
+        ),
+      ),
+      const Spacer(),
+      const FinoraCharacter(
+        size: 190,
+        moods: [FinoraMood.attention, FinoraMood.happy],
+      ),
+      const SizedBox(height: 16),
+      Text(
+        'Финора слушает…',
+        style: TextStyle(color: AiLook.soft(.5), fontSize: 12.5),
+      ),
+      const SizedBox(height: 22),
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 28),
+        child: ShaderMask(
+          shaderCallback: (r) => LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Colors.white, Colors.white.withValues(alpha: .35)],
+          ).createShader(r),
+          child: Text(
+            _heard.isEmpty
+                ? 'Спросите, например: «сколько останется?»'
+                : _heard,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 24,
+              height: 1.25,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+      ),
+      const Spacer(),
+      Padding(
+        padding: const EdgeInsets.only(bottom: 26),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            for (final i in s.insights.skip(1).take(10))
-              InsightTile(kind: i.kind, text: ResponseLayer.insight(s, i)),
-            if (s.insights.length <= 1)
-              const InsightTile(
-                kind: InsightKind.notEnoughData,
-                text:
-                    'Пока больше нечего рассказать — добавьте операции, и '
-                    'я начну находить закономерности.',
-              ),
+            Icon(CupertinoIcons.pause_circle, color: AiLook.soft(.5)),
+            const SizedBox(width: 40),
+            MicButton(accent: accent, onTap: () {}, size: 62, ring: true),
+            const SizedBox(width: 40),
+            Icon(CupertinoIcons.paperplane, color: AiLook.soft(.5)),
           ],
         ),
       ),
     ],
   );
 
-  Widget _subscriptions(FinoraAiSnapshot s) => Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Text(
-        'Похоже на подписки',
-        style: Theme.of(context).textTheme.titleMedium,
-      ),
-      const SizedBox(height: 6),
-      for (final sub in s.subscriptions)
-        Padding(
-          padding: const EdgeInsets.only(bottom: 8),
-          child: SurfaceCard(
-            padding: const EdgeInsets.fromLTRB(16, 12, 12, 8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  ResponseLayer.insight(
-                    s,
-                    Insight(
-                      kind: InsightKind.subscription,
-                      priority: 0,
-                      recurring: sub,
-                    ),
+  Widget _chat(Color accent) {
+    final s = _snap(FinanceScope.of(context));
+    return Column(
+      key: const ValueKey('ai-chat'),
+      children: [
+        _header(s, chat: true),
+        Expanded(
+          child: ListView(
+            controller: _scroll,
+            padding: const EdgeInsets.fromLTRB(18, 18, 18, 12),
+            children: [
+              for (var i = 0; i < _messages.length; i++)
+                ChatMessage(
+                  key: ValueKey(
+                    _messages[i].$2
+                        ? 'finora-ai-question-$i'
+                        : 'finora-ai-answer-${i ~/ 2}',
+                  ),
+                  text: _messages[i].$1,
+                  mine: _messages[i].$2,
+                  accent: accent,
+                ),
+              if (_thinking)
+                Padding(
+                  padding: const EdgeInsets.only(left: 34),
+                  child: Text(
+                    'Финора считает…',
+                    style: TextStyle(color: AiLook.soft(.45), fontSize: 13),
                   ),
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    TextButton(
-                      key: ValueKey('ai-sub-no-${sub.merchantKey}'),
-                      onPressed: () => setState(() {
-                        _ai.rejectSubscription(sub);
-                        _snapshot = null;
-                      }),
-                      child: const Text('Нет'),
-                    ),
-                    TextButton(
-                      key: ValueKey('ai-sub-yes-${sub.merchantKey}'),
-                      onPressed: () => setState(() {
-                        _ai.confirmSubscription(sub);
-                        _snapshot = null;
-                      }),
-                      child: const Text('Да, подписка'),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+            ],
           ),
         ),
-    ],
-  );
+        _composer(accent, big: false),
+      ],
+    );
+  }
 }
