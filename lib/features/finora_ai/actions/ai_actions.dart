@@ -1229,9 +1229,11 @@ Only IDs in objects are allowed. Missing/ambiguous account or category must be c
   static String _withoutAccounts(String text, FinanceData d) {
     final stems = <String>{
       for (final a in d.accounts)
-        for (final w in a.name.toLowerCase().replaceAll('ё', 'е').split(
-          RegExp(r'[^\p{L}\p{N}]+', unicode: true),
-        ))
+        for (final w
+            in a.name
+                .toLowerCase()
+                .replaceAll('ё', 'е')
+                .split(RegExp(r'[^\p{L}\p{N}]+', unicode: true)))
           if (w.length >= 4) w.substring(0, 4),
     };
     final verb = RegExp(

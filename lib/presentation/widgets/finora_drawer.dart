@@ -11,6 +11,7 @@ import '../screens/entry_editor.dart';
 import '../screens/management.dart';
 import '../screens/settings.dart';
 import '../screens/developer_screen.dart';
+import '../screens/debts_screen.dart';
 import '../controller.dart';
 import '../../features/finora_ai/ui/ai_settings_screen.dart';
 import 'profile_avatar.dart';
@@ -232,6 +233,12 @@ class FinoraDrawer extends StatelessWidget {
                           'Список покупок',
                           () =>
                               openFinancePage(context, const ShoppingScreen()),
+                        ),
+                        (
+                          'debts',
+                          CupertinoIcons.creditcard,
+                          'Долги',
+                          () => openFinancePage(context, const DebtsScreen()),
                         ),
                         (
                           'recurring',

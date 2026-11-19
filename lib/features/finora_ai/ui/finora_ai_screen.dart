@@ -14,6 +14,7 @@ import '../../../services/voice_input_service.dart';
 import '../services/finora_ai.dart';
 import '../memory/personal_memory.dart';
 import '../personalization/payee_aliases.dart';
+import '../insights/debt_advice.dart';
 import '../actions/ai_actions.dart';
 import '../actions/ai_action_executor.dart';
 import '../local_model/assistant_history.dart';
@@ -260,7 +261,8 @@ class _FinoraAiScreenState extends State<FinoraAiScreen> {
       final taught = c.data.preferences.ai.personalization
           ? PayeeAliases.parseTeaching(text)
           : null;
-      final deterministic = preferFacts || taught != null
+      final debtAdvice = DebtAdvice.matches(text);
+      final deterministic = preferFacts || taught != null || debtAdvice
           ? null
           : _actions.resolveDeterministic(
               text,
@@ -275,6 +277,9 @@ class _FinoraAiScreenState extends State<FinoraAiScreen> {
             ? 'Не поняла, что запомнить. Скажите так: «кб — это Красное и Белое».'
             : 'Запомнила: «${taught.$1}» — это $name. Теперь «расход ${taught.$1} 500» '
                   'запишется на $name. Забыть можно в «Памяти ассистента».';
+      } else if (debtAdvice) {
+        _actions.cancel();
+        answer = DebtAdvice.answer(c.data, currency: c.currency);
       } else if (saveScenario && !AiActionSession.prohibitsAction(text)) {
         answer = await _saveLastScenario();
       } else if (AiActionSession.prohibitsAction(text)) {

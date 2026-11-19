@@ -5,6 +5,7 @@ import 'package:flutter/services.dart' show rootBundle;
 import '../../../domain/models.dart';
 import '../classification/transaction_classifier.dart';
 import '../inference/linear_model.dart';
+import '../insights/debt_advice.dart';
 import '../memory/personal_memory.dart';
 import '../models/ai_models.dart';
 import '../personalization/feedback.dart';
@@ -179,6 +180,13 @@ class FinoraAi {
   /// Answers a typed question from the facts of [s].
   AiAnswer answer(String question, FinoraAiSnapshot s) {
     final q = IntentParser.parse(question);
+    // «Как мне погасить долги?» — the payoff plan from the person's data.
+    if (DebtAdvice.matches(question)) {
+      return AiAnswer(
+        q,
+        DebtAdvice.answer(s.ctx.data, currency: s.ctx.currency, now: s.ctx.now),
+      );
+    }
     List<Insight> of(InsightKind k) =>
         s.insights.where((i) => i.kind == k).toList();
     String join(List<Insight> list, String empty) => list.isEmpty
