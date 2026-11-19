@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:isolate';
 import 'dart:math' as math;
 import 'dart:typed_data';
 
@@ -11,6 +12,8 @@ import 'features.dart';
 class LinearModel {
   LinearModel._({
     required this.version,
+    required this.schemaVersion,
+    required this.preprocessingVersion,
     required this.buckets,
     required this.classes,
     required Int8List weights,
@@ -22,7 +25,13 @@ class LinearModel {
 
   static const format = 'finora-linear-v1';
 
+  /// Model file layouts this app reads (1 — before versions were recorded).
+  static const supportedSchemas = {1, 2};
+
+  /// The model's own version («1.1.0»), the file layout and the feature
+  /// pipeline it was trained with.
   final String version;
+  final int schemaVersion, preprocessingVersion;
   final int buckets;
 
   /// Canonical class ids («groceries», «cafe», …).
@@ -34,6 +43,17 @@ class LinearModel {
     if (json['format'] != format) {
       throw FormatException('Unknown model format ${json['format']}');
     }
+    // Files written before the versions were recorded are schema 1 with
+    // features 1.
+    final schema = (json['schema_version'] as num?)?.toInt() ?? 1;
+    final preprocessing = (json['preprocessing_version'] as num?)?.toInt() ?? 1;
+    if (!supportedSchemas.contains(schema)) {
+      throw FormatException('Unsupported model schema $schema');
+    }
+    if (!Features.supported.contains(preprocessing)) {
+      // Features this app cannot compute: the model would answer nonsense.
+      throw FormatException('Unsupported preprocessing $preprocessing');
+    }
     final classes = (json['classes'] as List).cast<String>();
     final buckets = (json['buckets'] as num).toInt();
     final raw = base64.decode(json['weights_b64'] as String);
@@ -42,6 +62,8 @@ class LinearModel {
     }
     return LinearModel._(
       version: json['version'] as String,
+      schemaVersion: schema,
+      preprocessingVersion: preprocessing,
       buckets: buckets,
       classes: classes,
       weights: Int8List.view(raw.buffer, raw.offsetInBytes, raw.length),
@@ -59,7 +81,11 @@ class LinearModel {
 
   /// Probabilities for every class, in [classes] order.
   List<double> probabilities(TransactionInput t) {
-    final (idx, value) = Features.vector(t, buckets);
+    final (idx, value) = Features.vector(
+      t,
+      buckets,
+      version: preprocessingVersion,
+    );
     final n = classes.length;
     final logits = List<double>.generate(n, (c) => _bias[c]);
     final acc = List<double>.filled(n, 0);
@@ -77,6 +103,19 @@ class LinearModel {
     final sum = exps.fold<double>(0, (a, b) => a + b);
     return [for (final e in exps) e / sum];
   }
+
+  /// Parses [source] on a background isolate: the 300 KB file is decoded
+  /// off the UI thread.
+  static Future<LinearModel> parseInBackground(String source) =>
+      Isolate.run(() => LinearModel.parse(source));
+
+  /// Top [k] classes for many operations at once, on a background isolate
+  /// (imports, bulk re-classification). A single prediction is fast enough
+  /// for the UI thread (see the timing test); a batch is not.
+  Future<List<List<(String, double)>>> predictMany(
+    List<TransactionInput> inputs, {
+    int k = 3,
+  }) => Isolate.run(() => [for (final t in inputs) predict(t, k: k)]);
 
   /// The [k] most likely classes.
   List<(String, double)> predict(TransactionInput t, {int k = 3}) {

@@ -47,9 +47,18 @@ class FinoraAi {
     await memoryRepository.load();
     if (model != null) return;
     try {
-      model = LinearModel.parse(await rootBundle.loadString(modelAsset));
+      final source = await rootBundle.loadString(modelAsset);
+      try {
+        // The 300 KB model is decoded off the UI thread.
+        model = await LinearModel.parseInBackground(source);
+      } on UnsupportedError {
+        // No isolates on this platform: decode here.
+        model = LinearModel.parse(source);
+      }
     } catch (_) {
-      // No model: the classifier falls back to memory, history, catalog.
+      // No model, or one this app cannot read (an unknown file schema or
+      // feature version): the classifier falls back to memory, history and
+      // the catalog.
       model = null;
     }
   }

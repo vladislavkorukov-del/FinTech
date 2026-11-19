@@ -22,6 +22,15 @@ class TransactionInput {
 }
 
 abstract final class Features {
+  /// Version of the feature pipeline (same as `PREPROCESSING_VERSION` in
+  /// features.py). 1 — merchant 3-grams, words, kind, amount bucket,
+  /// weekday, month, account type; 2 — plus amount bucket × kind. A model
+  /// is used with the version it was trained with.
+  static const preprocessingVersion = 2;
+
+  /// The versions this app can compute.
+  static const supported = {1, 2};
+
   /// Lower case, ё → е, anything but Latin/Cyrillic letters and digits
   /// becomes a space, spaces collapsed.
   static String normalize(String s) => s
@@ -41,7 +50,10 @@ abstract final class Features {
   }
 
   /// The feature strings of [t] (before hashing).
-  static List<String> tokens(TransactionInput t) {
+  static List<String> tokens(
+    TransactionInput t, {
+    int version = preprocessingVersion,
+  }) {
     final merchant = normalize(t.merchant);
     final text = normalize('${t.merchant} ${t.description}');
     final out = <String>[];
@@ -59,6 +71,7 @@ abstract final class Features {
       ..add('d:${t.date.weekday}')
       ..add('m:${t.date.month}')
       ..add('t:${t.accountType}');
+    if (version >= 2) out.add('ak:${t.kind}:${amountBucket(t.amountMinor)}');
     return out;
   }
 
@@ -71,8 +84,14 @@ abstract final class Features {
   }
 
   /// Hashed, de-duplicated feature indices with equal weight 1/√n.
-  static (List<int>, double) vector(TransactionInput t, int buckets) {
-    final idx = {for (final s in tokens(t)) fnv1a(s) % buckets}.toList();
+  static (List<int>, double) vector(
+    TransactionInput t,
+    int buckets, {
+    int version = preprocessingVersion,
+  }) {
+    final idx = {
+      for (final s in tokens(t, version: version)) fnv1a(s) % buckets,
+    }.toList();
     return (idx, idx.isEmpty ? 0 : 1 / math.sqrt(idx.length));
   }
 }

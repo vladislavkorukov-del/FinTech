@@ -6,7 +6,8 @@
   "account_type": "card",
   "date": "2026-05-13",
   "class": "groceries",
-  "p": 0.9006
+  "p": 0.8977,
+  "preprocessing_version": 2
  },
  {
   "merchant": "MAGNIT MM KOSTROMA",
@@ -15,7 +16,8 @@
   "account_type": "card",
   "date": "2026-05-13",
   "class": "groceries",
-  "p": 0.8952
+  "p": 0.8972,
+  "preprocessing_version": 2
  },
  {
   "merchant": "Яндекс Go",
@@ -24,7 +26,8 @@
   "account_type": "card",
   "date": "2026-05-13",
   "class": "transport",
-  "p": 0.3319
+  "p": 0.3373,
+  "preprocessing_version": 2
  },
  {
   "merchant": "Шоколадница",
@@ -33,7 +36,8 @@
   "account_type": "card",
   "date": "2026-05-13",
   "class": "cafe",
-  "p": 0.8712
+  "p": 0.8626,
+  "preprocessing_version": 2
  },
  {
   "merchant": "Spotify",
@@ -42,7 +46,8 @@
   "account_type": "card",
   "date": "2026-05-13",
   "class": "subscriptions",
-  "p": 0.8513
+  "p": 0.8659,
+  "preprocessing_version": 2
  },
  {
   "merchant": "Лукойл АЗС",
@@ -51,7 +56,8 @@
   "account_type": "card",
   "date": "2026-05-13",
   "class": "car",
-  "p": 0.9813
+  "p": 0.9817,
+  "preprocessing_version": 2
  },
  {
   "merchant": "Аптека Ригла",
@@ -60,7 +66,8 @@
   "account_type": "card",
   "date": "2026-05-13",
   "class": "pharmacy",
-  "p": 0.9976
+  "p": 0.9976,
+  "preprocessing_version": 2
  },
  {
   "merchant": "Wildberries",
@@ -69,7 +76,8 @@
   "account_type": "card",
   "date": "2026-05-13",
   "class": "shopping",
-  "p": 0.9191
+  "p": 0.9221,
+  "preprocessing_version": 2
  },
  {
   "merchant": "Четыре лапы",
@@ -78,7 +86,8 @@
   "account_type": "card",
   "date": "2026-05-13",
   "class": "pets",
-  "p": 0.9645
+  "p": 0.9617,
+  "preprocessing_version": 2
  },
  {
   "merchant": "Зарплата",
@@ -87,7 +96,8 @@
   "account_type": "card",
   "date": "2026-05-13",
   "class": "salary",
-  "p": 0.992
+  "p": 0.994,
+  "preprocessing_version": 2
  },
  {
   "merchant": "Проценты по вкладу",
@@ -96,7 +106,8 @@
   "account_type": "card",
   "date": "2026-05-13",
   "class": "interest",
-  "p": 0.9928
+  "p": 0.9936,
+  "preprocessing_version": 2
  },
  {
   "merchant": "ЖКХ оплата",
@@ -105,6 +116,7 @@
   "account_type": "card",
   "date": "2026-05-13",
   "class": "utilities",
-  "p": 0.9553
+  "p": 0.9568,
+  "preprocessing_version": 2
  }
 ]

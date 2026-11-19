@@ -1,17 +1,29 @@
 {
- "version": "1.0.0",
- "created": "2026-11-17T17:51:48Z",
+ "version": "1.1.0",
+ "created": "2026-11-19T20:03:12Z",
+ "schema_version": 2,
+ "preprocessing_version": 2,
  "train": 13080,
  "validation": 1726,
- "validation_split": "held-out merchants (15% of names)",
- "accuracy": 0.6593,
- "top3_accuracy": 0.7769,
- "macro_f1": 0.5988,
+ "validation_split": "held-out merchants (15% of names), seed 3",
+ "data": "synthetic catalog set",
+ "cross_split": {
+  "splits": 6,
+  "accuracy_mean": 0.6371,
+  "top3_accuracy_mean": 0.7578,
+  "macro_f1_mean": 0.6361,
+  "accuracy_std": 0.0521,
+  "top3_accuracy_std": 0.06,
+  "macro_f1_std": 0.0373
+ },
+ "accuracy": 0.6611,
+ "top3_accuracy": 0.7932,
+ "macro_f1": 0.5989,
  "per_class": {
   "groceries": {
-   "precision": 0.7713,
+   "precision": 0.7552,
    "recall": 0.7967,
-   "f1": 0.7838,
+   "f1": 0.7754,
    "support": 182
   },
   "cafe": {
@@ -21,15 +33,15 @@
    "support": 42
   },
   "transport": {
-   "precision": 0.9036,
+   "precision": 0.9375,
    "recall": 0.9494,
-   "f1": 0.9259,
+   "f1": 0.9434,
    "support": 79
   },
   "car": {
-   "precision": 1.0,
+   "precision": 0.8462,
    "recall": 0.3438,
-   "f1": 0.5116,
+   "f1": 0.4889,
    "support": 64
   },
   "housing": {
@@ -39,9 +51,9 @@
    "support": 52
   },
   "utilities": {
-   "precision": 0.8333,
-   "recall": 0.7937,
-   "f1": 0.813,
+   "precision": 0.811,
+   "recall": 0.8175,
+   "f1": 0.8142,
    "support": 126
   },
   "health": {
@@ -51,33 +63,33 @@
    "support": 0
   },
   "pharmacy": {
-   "precision": 0.9038,
+   "precision": 0.8545,
    "recall": 0.9592,
-   "f1": 0.9307,
+   "f1": 0.9038,
    "support": 49
   },
   "entertainment": {
-   "precision": 0.8592,
+   "precision": 0.8133,
    "recall": 0.7262,
-   "f1": 0.7871,
+   "f1": 0.7673,
    "support": 84
   },
   "subscriptions": {
-   "precision": 0.594,
-   "recall": 0.966,
-   "f1": 0.7357,
+   "precision": 0.6757,
+   "recall": 0.9709,
+   "f1": 0.7968,
    "support": 206
   },
   "shopping": {
-   "precision": 0.2843,
-   "recall": 0.6905,
-   "f1": 0.4028,
+   "precision": 0.2772,
+   "recall": 0.6667,
+   "f1": 0.3916,
    "support": 84
   },
   "clothes": {
-   "precision": 0.9474,
+   "precision": 0.9,
    "recall": 0.5,
-   "f1": 0.6545,
+   "f1": 0.6429,
    "support": 36
   },
   "gifts": {
@@ -87,21 +99,21 @@
    "support": 85
   },
   "travel": {
-   "precision": 0.9149,
-   "recall": 0.7414,
-   "f1": 0.819,
+   "precision": 0.7798,
+   "recall": 0.7328,
+   "f1": 0.7556,
    "support": 116
   },
   "education": {
-   "precision": 0.8519,
+   "precision": 0.8214,
    "recall": 0.5476,
-   "f1": 0.6667,
+   "f1": 0.6571,
    "support": 84
   },
   "kids": {
-   "precision": 0.8989,
-   "recall": 1.0,
-   "f1": 0.9467,
+   "precision": 0.908,
+   "recall": 0.9875,
+   "f1": 0.9461,
    "support": 80
   },
   "pets": {
@@ -129,15 +141,15 @@
    "support": 0
   },
   "salary": {
-   "precision": 0.8182,
+   "precision": 0.8571,
    "recall": 1.0,
-   "f1": 0.9,
+   "f1": 0.9231,
    "support": 72
   },
   "side_job": {
-   "precision": 0.0,
-   "recall": 0.0,
-   "f1": 0.0,
+   "precision": 1.0,
+   "recall": 0.0385,
+   "f1": 0.0741,
    "support": 78
   },
   "business": {

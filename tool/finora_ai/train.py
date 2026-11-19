@@ -23,10 +23,15 @@ import numpy as np
 
 sys.path.insert(0, str(Path(__file__).parent))
 from dataset import CLASSES, ROOT, load_csv, synthetic  # noqa: E402
-from features import TransactionInput, vector  # noqa: E402
+from features import PREPROCESSING_VERSION, TransactionInput, vector  # noqa: E402
 
 BUCKETS = 1 << 13
 FORMAT = "finora-linear-v1"
+# Version of the model file layout (fields below); the app accepts 1–2.
+SCHEMA_VERSION = 2
+# Held-out-merchant splits for the reported mean ± spread (the shipped model
+# is trained on the first split).
+SPLIT_SEEDS = (3, 11, 29, 41, 53, 67)
 
 
 def balance(rows, cap=1100, floor=450, seed=5):
@@ -63,7 +68,7 @@ def softmax(z):
     return e / e.sum(axis=1, keepdims=True)
 
 
-def train(feats, y, epochs=18, lr=0.05, l2=1e-5, batch=512, seed=1):
+def train(feats, y, epochs=18, lr=0.05, l2=1e-5, batch=512, seed=1, verbose=True):
     rng = np.random.default_rng(seed)
     n, c = len(feats), len(CLASSES)
     w = np.zeros((BUCKETS, c), dtype=np.float32)
@@ -90,7 +95,8 @@ def train(feats, y, epochs=18, lr=0.05, l2=1e-5, batch=512, seed=1):
                 v *= 0.999; v += 0.001 * grad * grad
                 mh = m / (1 - 0.9 ** t); vh = v / (1 - 0.999 ** t)
                 param -= lr * mh / (np.sqrt(vh) + 1e-8)
-        print(f"epoch {epoch + 1:2d}  loss {loss / n:.4f}")
+        if verbose:
+            print(f"epoch {epoch + 1:2d}  loss {loss / n:.4f}")
     return w, b
 
 
@@ -141,23 +147,52 @@ FIXTURES = [
 ]
 
 
+def split(rows, seed):
+    """Validation holds out whole merchants: the model never saw them, so the
+    score shows how it handles new places, not memorised names."""
+    names = sorted({r[2] for r in rows})
+    random.Random(seed).shuffle(names)
+    held = set(names[: int(len(names) * 0.15)])
+    train_rows = [r for r in rows if r[2] not in held]
+    val_rows = [r for r in rows if r[2] in held]
+    random.Random(seed).shuffle(train_rows)
+    return train_rows, val_rows
+
+
+def cross_split(rows):
+    """Mean and spread over several held-out-merchant splits: one split's
+    luck is about ±7 pp, larger than most feature changes."""
+    scores = []
+    for seed in SPLIT_SEEDS:
+        tr, va = split(rows, seed)
+        y_tr = np.array([CLASSES.index(r[1]) for r in tr])
+        y_va = np.array([CLASSES.index(r[1]) for r in va])
+        w, b = train(featurize(tr), y_tr, verbose=False)
+        q, scale = quantize(w)
+        m = metrics(predict(featurize(va), q.astype(np.float32) * scale, b), y_va)
+        scores.append([m["accuracy"], m["top3_accuracy"], m["macro_f1"]])
+    a = np.array(scores)
+    return {
+        "splits": len(SPLIT_SEEDS),
+        **{f"{k}_mean": round(float(a[:, i].mean()), 4)
+           for i, k in enumerate(("accuracy", "top3_accuracy", "macro_f1"))},
+        **{f"{k}_std": round(float(a[:, i].std()), 4)
+           for i, k in enumerate(("accuracy", "top3_accuracy", "macro_f1"))},
+    }
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--extra", type=Path, action="append", default=[])
-    ap.add_argument("--version", default="1.0.0")
+    ap.add_argument("--version", default="1.1.0")
+    ap.add_argument("--quick", action="store_true",
+                    help="skip the cross-split evaluation")
     args = ap.parse_args()
 
     rows = balance(synthetic())
     for p in args.extra:
         rows += load_csv(p)
-    # Validation holds out whole merchants: the model never saw them, so the
-    # score shows how it handles new places, not memorised names.
-    names = sorted({r[2] for r in rows})
-    random.Random(3).shuffle(names)
-    held = set(names[: int(len(names) * 0.15)])
-    train_rows = [r for r in rows if r[2] not in held]
-    val_rows = [r for r in rows if r[2] in held]
-    random.Random(3).shuffle(train_rows)
+    train_rows, val_rows = split(rows, SPLIT_SEEDS[0])
     print(f"train {len(train_rows)}  validation {len(val_rows)}")
     y_train = np.array([CLASSES.index(r[1]) for r in train_rows])
     y_val = np.array([CLASSES.index(r[1]) for r in val_rows])
@@ -168,10 +203,17 @@ def main():
     report = metrics(predict(featurize(val_rows), wq, b), y_val)
     print(f"validation accuracy {report['accuracy']}  top-3 "
           f"{report['top3_accuracy']}  macro-F1 {report['macro_f1']}")
+    cross = None if args.quick else cross_split(rows)
+    if cross:
+        print(f"{cross['splits']} splits: accuracy {cross['accuracy_mean']}"
+              f"±{cross['accuracy_std']}  top-3 {cross['top3_accuracy_mean']}"
+              f"  macro-F1 {cross['macro_f1_mean']}")
 
     created = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     model = {
         "format": FORMAT,
+        "schema_version": SCHEMA_VERSION,
+        "preprocessing_version": PREPROCESSING_VERSION,
         "version": args.version,
         "created": created,
         "buckets": BUCKETS,
@@ -186,8 +228,15 @@ def main():
     out.write_text(json.dumps(model, ensure_ascii=False), encoding="utf-8")
     (ROOT / "tool/finora_ai/metrics.json").write_text(
         json.dumps({"version": args.version, "created": created,
+                    "schema_version": SCHEMA_VERSION,
+                    "preprocessing_version": PREPROCESSING_VERSION,
                     "train": len(train_rows), "validation": len(val_rows),
-                    "validation_split": "held-out merchants (15% of names)",
+                    "validation_split": "held-out merchants (15% of names), "
+                                        f"seed {SPLIT_SEEDS[0]}",
+                    "data": "synthetic catalog set"
+                            + (" + " + ", ".join(p.name for p in args.extra)
+                               if args.extra else ""),
+                    **({"cross_split": cross} if cross else {}),
                     **report}, ensure_ascii=False, indent=1),
         encoding="utf-8")
 
@@ -200,7 +249,8 @@ def main():
         fixtures.append({"merchant": merchant, "amount_minor": amount,
                          "kind": kind, "account_type": "card",
                          "date": "2026-05-13", "class": CLASSES[best],
-                         "p": round(float(p[best]), 4)})
+                         "p": round(float(p[best]), 4),
+                         "preprocessing_version": PREPROCESSING_VERSION})
     (ROOT / "test/fixtures").mkdir(parents=True, exist_ok=True)
     (ROOT / "test/fixtures/finora_ai_parity.json").write_text(
         json.dumps(fixtures, ensure_ascii=False, indent=1), encoding="utf-8")
