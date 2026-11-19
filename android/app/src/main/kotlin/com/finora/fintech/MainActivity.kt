@@ -7,8 +7,10 @@ import android.view.WindowManager
 import android.content.Intent
 import android.os.Bundle
 import java.util.TimeZone
+import com.finora.fintech.local_llm.LocalLlmBridge
 
 class MainActivity : FlutterFragmentActivity() {
+    private var localLlm: LocalLlmBridge? = null
     private var receiptOcr: ReceiptOcrBridge? = null
     private var receiptShare: ReceiptShareBridge? = null
     private var voiceInput: VoiceInputBridge? = null
@@ -32,6 +34,8 @@ class MainActivity : FlutterFragmentActivity() {
         super.configureFlutterEngine(flutterEngine)
         // Screenshots are explicitly allowed by the user. The app PIN still guards entry.
         window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        localLlm?.close()
+        localLlm = LocalLlmBridge(this, flutterEngine.dartExecutor.binaryMessenger)
         receiptOcr?.close()
         receiptOcr = ReceiptOcrBridge(this, flutterEngine.dartExecutor.binaryMessenger)
         receiptShare?.close()
@@ -81,10 +85,13 @@ class MainActivity : FlutterFragmentActivity() {
     override fun onPause() {
         // 1.31: Finora never listens while the app is in the background.
         ear?.stop()
+        localLlm?.releaseInBackground()
         super.onPause()
     }
 
     override fun onDestroy() {
+        localLlm?.close()
+        localLlm = null
         ear?.close()
         ear = null
         finora?.close()

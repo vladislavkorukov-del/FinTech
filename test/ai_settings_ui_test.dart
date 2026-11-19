@@ -77,8 +77,8 @@ void main() {
   }
 
   /// Lets the database write finish.
-  Future<void> settle(WidgetTester tester) async {
-    for (var i = 0; i < 5; i++) {
+  Future<void> settle(WidgetTester tester, bool Function() saved) async {
+    for (var i = 0; i < 150 && !saved(); i++) {
       await tester.runAsync(
         () => Future<void>.delayed(const Duration(milliseconds: 40)),
       );
@@ -105,20 +105,26 @@ void main() {
         matching: find.byType(Switch),
       ),
     );
-    await settle(tester);
+    await settle(tester, () => !c.data.preferences.ai.personalization);
     expect(c.data.preferences.ai.personalization, isFalse);
-    await tester.ensureVisible(
+    await tester.scrollUntilVisible(
       find.byKey(const ValueKey('ai-level-suggestOnly')),
+      -200,
     );
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('ai-level-suggestOnly')));
-    await settle(tester);
+    await settle(
+      tester,
+      () => c.data.preferences.ai.automation == AiAutomation.suggestOnly,
+    );
     expect(c.data.preferences.ai.automation, AiAutomation.suggestOnly);
     // Reset asks first.
     await tester.scrollUntilVisible(
       find.byKey(const ValueKey('ai-reset')),
       200,
     );
+    await tester.ensureVisible(find.byKey(const ValueKey('ai-reset')));
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('ai-reset')));
     await tester.pumpAndSettle();
     expect(find.text('Сбросить персонализацию?'), findsOneWidget);

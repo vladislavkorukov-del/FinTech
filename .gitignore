@@ -34,3 +34,7 @@ __pycache__/
 .claude-flow/mods/session.json
 .claude-flow/policy/state.json
 .claude-flow/policy/ledger-anchors.json
+
+# Pinned native dependency sources and local model probes (not app assets).
+/.native/
+android/app/.cxx/

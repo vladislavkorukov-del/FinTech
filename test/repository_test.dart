@@ -1062,6 +1062,9 @@ Future<FinanceData> _createLegacyV1(
     }
     await tx.insert('goals', data.goals.single.toJson());
     final row = data.entries.single.toJson()
+      ..remove('recurringRuleId')
+      ..remove('planningBatchId')
+      ..remove('plannedDueDate')
       ..remove('toGoalId')
       ..remove('serviceId')
       ..remove('serviceIconPath')

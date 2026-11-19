@@ -22,7 +22,7 @@ class FinanceRepository {
   final DatabaseFactory _factory;
   final String _path;
   final DateTime Function() _clock;
-  static const schemaVersion = 7;
+  static const schemaVersion = 8;
   static const maxBackupBytes = 50 * 1024 * 1024;
 
   static Future<FinanceRepository> open({
@@ -132,6 +132,18 @@ class FinanceRepository {
                 await db.execute(
                   'ALTER TABLE recurring ADD COLUMN $name $type',
                 );
+              }
+            }
+          }
+          if (oldVersion < 8) {
+            final columns = await db.rawQuery('PRAGMA table_info(entries)');
+            for (final name in const [
+              'recurringRuleId',
+              'planningBatchId',
+              'plannedDueDate',
+            ]) {
+              if (!columns.any((c) => c['name'] == name)) {
+                await db.execute('ALTER TABLE entries ADD COLUMN $name TEXT');
               }
             }
           }
@@ -1166,7 +1178,7 @@ class FinanceRepository {
     'CREATE TABLE accounts(id TEXT PRIMARY KEY, name TEXT NOT NULL, type TEXT NOT NULL, currency TEXT NOT NULL REFERENCES currencies(code), bank TEXT NOT NULL, lastFour TEXT NOT NULL, openingMinor INTEGER NOT NULL, creditLimitMinor INTEGER NOT NULL, excluded INTEGER NOT NULL, archived INTEGER NOT NULL, color INTEGER NOT NULL, icon INTEGER NOT NULL)',
     'CREATE TABLE categories(id TEXT PRIMARY KEY, name TEXT NOT NULL, kind TEXT NOT NULL, color INTEGER NOT NULL, background INTEGER NOT NULL, icon INTEGER NOT NULL, "order" INTEGER NOT NULL, archived INTEGER NOT NULL DEFAULT 0)',
     'CREATE TABLE subcategories(categoryId TEXT NOT NULL REFERENCES categories(id), name TEXT NOT NULL, position INTEGER NOT NULL, PRIMARY KEY(categoryId,name))',
-    'CREATE TABLE entries(id TEXT PRIMARY KEY, kind TEXT NOT NULL, amountMinor INTEGER NOT NULL CHECK(amountMinor > 0), currency TEXT NOT NULL REFERENCES currencies(code), accountId TEXT NOT NULL REFERENCES accounts(id), toAccountId TEXT REFERENCES accounts(id), toGoalId TEXT REFERENCES goals(id), categoryId TEXT REFERENCES categories(id), subcategory TEXT, destinationMinor INTEGER, date TEXT NOT NULL, note TEXT NOT NULL, payee TEXT NOT NULL, status TEXT NOT NULL, recurrence TEXT NOT NULL, memberId TEXT NOT NULL REFERENCES members(id), serviceId TEXT, serviceIconPath TEXT, latitude REAL, longitude REAL)',
+    'CREATE TABLE entries(id TEXT PRIMARY KEY, kind TEXT NOT NULL, amountMinor INTEGER NOT NULL CHECK(amountMinor > 0), currency TEXT NOT NULL REFERENCES currencies(code), accountId TEXT NOT NULL REFERENCES accounts(id), toAccountId TEXT REFERENCES accounts(id), toGoalId TEXT REFERENCES goals(id), categoryId TEXT REFERENCES categories(id), subcategory TEXT, destinationMinor INTEGER, date TEXT NOT NULL, note TEXT NOT NULL, payee TEXT NOT NULL, status TEXT NOT NULL, recurrence TEXT NOT NULL, memberId TEXT NOT NULL REFERENCES members(id), serviceId TEXT, serviceIconPath TEXT, latitude REAL, longitude REAL, recurringRuleId TEXT, planningBatchId TEXT, plannedDueDate TEXT)',
     'CREATE INDEX entries_date ON entries(date)',
     'CREATE INDEX entries_account ON entries(accountId)',
     'CREATE INDEX entries_category ON entries(categoryId)',

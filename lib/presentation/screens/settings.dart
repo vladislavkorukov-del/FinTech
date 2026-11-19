@@ -23,6 +23,9 @@ import 'voice_help.dart';
 import '../../features/finora_ai/ui/ai_help_screen.dart';
 import '../../features/finora_ai/ui/ai_settings_screen.dart';
 import '../../features/finora_ai/services/finora_ai.dart';
+import '../../features/finora_ai/memory/personal_memory.dart';
+import '../../features/finora_ai/local_model/assistant_diagnostics.dart';
+import '../../features/finora_ai/ui/local_model_diagnostics_screen.dart';
 import '../../services/finora_ear.dart';
 import '../../services/finora_system.dart';
 import '../finora_outside.dart';
@@ -44,6 +47,7 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   final security = SecurityService();
+  final _developerUnlock = DeveloperUnlock();
   bool hasPin = false, biometric = false, securityLoaded = false, busy = false;
   @override
   void initState() {
@@ -254,9 +258,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
       }
       final bytes = await File(path).readAsBytes();
       final content = utf8.decode(bytes);
-      await c.importJson(content);
-      // A copy with Finora AI's memory brings back what she learned.
       final decoded = jsonDecode(content);
+      // Validate optional memory before replacing any financial data.
+      if (decoded is Map && decoded['aiMemory'] is Map) {
+        PersonalMemory.fromJson(
+          Map<String, dynamic>.from(decoded['aiMemory'] as Map),
+        );
+      }
+      await c.importJson(content);
+      // A copy with Finora AI's memory brings back confirmed preferences too.
       if (decoded is Map && decoded['aiMemory'] is Map) {
         await FinoraAi.instance.restoreMemory(
           Map<String, dynamic>.from(decoded['aiMemory'] as Map),
@@ -732,19 +742,34 @@ class _SettingsScreenState extends State<SettingsScreen> {
             style: Theme.of(context).textTheme.headlineSmall,
           ),
           const SizedBox(height: 4),
-          Text(
-            'Версия $version · ваш финансовый ассистент',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 13,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
+          Listener(
+            key: const ValueKey('assistant-developer-unlock'),
+            onPointerDown: (_) => _developerUnlock.down(DateTime.now()),
+            onPointerCancel: (_) => _developerUnlock.cancel(),
+            onPointerUp: (_) {
+              if (_developerUnlock.up(DateTime.now())) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute<void>(
+                    builder: (_) => const LocalModelDiagnosticsScreen(),
+                  ),
+                );
+              }
+            },
+            child: Text(
+              'Версия $version · ваш финансовый ассистент',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 13,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
           ),
           const SizedBox(height: 24),
           GroupedSection(
             footer:
-                'Данные хранятся только на этом телефоне. Приложение не '
-                'обращается к интернету.',
+                'Данные хранятся на телефоне. Интернет используется только '
+                'по вашему запросу для скачивания необязательной модели.',
             children: [
               GroupedRow(
                 icon: Icons.article_rounded,

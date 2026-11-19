@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io' show Platform;
 
 import 'package:flutter/material.dart';
@@ -224,8 +225,52 @@ class FinanceController extends ChangeNotifier {
     final before = data.entries.where((e) => e.id == entry.id).firstOrNull;
     await mutate((d) {
       FinanceEngine.validateEntry(entry, d);
+      final existing = d.entries.where((e) => e.id == entry.id).firstOrNull;
+      final entries = [...d.entries.where((e) => e.id != entry.id), entry];
+      if (entry.recurringRuleId != null &&
+          entry.status == 'posted' &&
+          existing?.status != 'posted') {
+        final rule = d.recurring
+            .where((r) => r.id == entry.recurringRuleId)
+            .firstOrNull;
+        if (rule == null) {
+          throw const FormatException(
+            'Исходный долг удалён. Создайте обычную операцию вместо плановой выплаты.',
+          );
+        }
+        if (PaymentPlan.requiredForOccurrence(
+              rule,
+              d.entries,
+              entry.plannedDueDate!,
+              now: achievementClock(),
+            ) <=
+            0) {
+          throw const FormatException(
+            'Этот платёж уже выполнен или график изменился. Пересчитайте план.',
+          );
+        }
+      }
+      final affected = {
+        entry.recurringRuleId,
+        existing?.recurringRuleId,
+        for (final r in d.recurring)
+          if (PaymentPlan.belongs(entry, r) ||
+              existing != null && PaymentPlan.belongs(existing, r))
+            r.id,
+      }..remove(null);
       return d.copyWith(
-        entries: [...d.entries.where((e) => e.id != entry.id), entry],
+        entries: entries,
+        recurring: [
+          for (final r in d.recurring)
+            affected.contains(r.id)
+                ? PaymentPlan.reconcile(
+                    r,
+                    d.entries,
+                    entries,
+                    now: achievementClock(),
+                  )
+                : r,
+        ],
       );
     });
     // Finora AI learns the person's categories (a changed category is a
@@ -240,9 +285,25 @@ class FinanceController extends ChangeNotifier {
     }
   }
 
-  Future<void> deleteEntry(String id) => mutate(
-    (d) => d.copyWith(entries: d.entries.where((e) => e.id != id).toList()),
-  );
+  Future<void> deleteEntry(String id) => mutate((d) {
+    final old = d.entries.where((e) => e.id == id).firstOrNull;
+    final entries = d.entries.where((e) => e.id != id).toList();
+    return d.copyWith(
+      entries: entries,
+      recurring: [
+        for (final r in d.recurring)
+          old != null && PaymentPlan.belongs(old, r)
+              ? PaymentPlan.reconcile(
+                  r,
+                  d.entries,
+                  entries,
+                  now: achievementClock(),
+                )
+              : r,
+      ],
+    );
+  });
+
   Future<void> saveAccount(Account value) => mutate(
     (d) => d.copyWith(
       accounts: [...d.accounts.where((a) => a.id != value.id), value],
@@ -388,6 +449,12 @@ class FinanceController extends ChangeNotifier {
   /// 1.36: the payment an operation came from (its id is
   /// `recurring:<rule>:…`), or one with the same name — for its icon.
   RecurringRule? ruleOf(FinanceEntry e) {
+    if (e.recurringRuleId != null) {
+      final linked = data.recurring
+          .where((r) => r.id == e.recurringRuleId)
+          .firstOrNull;
+      if (linked != null) return linked;
+    }
     if (e.id.startsWith('recurring:')) {
       final id = e.id.split(':')[1];
       final rule = data.recurring.where((r) => r.id == id).firstOrNull;
@@ -413,7 +480,19 @@ class FinanceController extends ChangeNotifier {
     String ruleId, {
     int? amountMinor,
     bool remember = false,
-  }) => _pay(ruleId, amountMinor: amountMinor, remember: remember);
+    DateTime? expectedDueDate,
+    String? confirmationId,
+    RecurringRule? expectedRule,
+    FinanceEntry? expectedPlannedEntry,
+  }) => _pay(
+    ruleId,
+    amountMinor: amountMinor,
+    remember: remember,
+    expectedDueDate: expectedDueDate,
+    confirmationId: confirmationId,
+    expectedRule: expectedRule,
+    expectedPlannedEntry: expectedPlannedEntry,
+  );
 
   /// 1.36: paid ahead of time (a swipe to the right): the operation is
   /// recorded today. A full payment moves the date on; a smaller one only
@@ -429,12 +508,62 @@ class FinanceController extends ChangeNotifier {
     int? amountMinor,
     bool remember = false,
     DateTime? early,
+    DateTime? expectedDueDate,
+    String? confirmationId,
+    RecurringRule? expectedRule,
+    FinanceEntry? expectedPlannedEntry,
   }) async {
     FinanceEntry? posted;
     PaymentMark? mark;
     await _mutate((d) {
       final r = d.recurring.where((x) => x.id == ruleId).firstOrNull;
-      if (r == null) return d;
+      if (r == null) {
+        if (expectedRule != null ||
+            expectedDueDate != null ||
+            expectedPlannedEntry != null) {
+          throw const FormatException(
+            'Платёж удалён. Подтверждение больше не действует.',
+          );
+        }
+        return d;
+      }
+      final confirmedId = confirmationId == null
+          ? null
+          : 'recurring:${r.id}:confirmation:$confirmationId';
+      if (confirmedId != null) {
+        final prior = d.entries
+            .where((e) => e.id == confirmedId && e.status == 'posted')
+            .firstOrNull;
+        if (prior != null) {
+          posted = prior;
+          return d;
+        }
+      }
+      if (expectedRule != null &&
+          jsonEncode(expectedRule.toJson()) != jsonEncode(r.toJson())) {
+        throw const FormatException(
+          'Условия платежа изменились. Проверьте счёт, сумму и дату заново.',
+        );
+      }
+      if (expectedPlannedEntry != null) {
+        final current = d.entries
+            .where((e) => e.id == expectedPlannedEntry.id)
+            .firstOrNull;
+        if (current == null ||
+            current.status != 'pending' ||
+            jsonEncode(current.toJson()) !=
+                jsonEncode(expectedPlannedEntry.toJson())) {
+          throw const FormatException(
+            'Плановая выплата изменилась. Откройте подтверждение заново.',
+          );
+        }
+      }
+      if (expectedDueDate != null &&
+          !PaymentPlan.sameDay(r.nextDate, expectedDueDate)) {
+        throw const FormatException(
+          'Дата платежа изменилась. Откройте подтверждение заново.',
+        );
+      }
       if (r.kind == EntryKind.expense) {
         mark = PaymentMark(
           ruleId: r.id,
@@ -442,18 +571,31 @@ class FinanceController extends ChangeNotifier {
           paid: early ?? achievementClock(),
         );
       }
-      final sum = amountMinor ?? r.amountMinor;
+      final remaining = early == null
+          ? PaymentPlan.requiredForOccurrence(
+              r,
+              d.entries,
+              r.nextDate,
+              now: achievementClock(),
+            )
+          : r.amountMinor;
+      final sum = amountMinor ?? remaining;
+      if (early == null && remaining == 0) {
+        throw const FormatException('Этот платёж уже учтён. Обновите список.');
+      }
       if (sum <= 0) {
         throw const FormatException('Введите сумму больше нуля');
       }
       final entry = FinanceEntry(
-        id: early == null
-            ? 'recurring:${r.id}:${r.nextDate.toIso8601String()}'
-            : 'recurring:${r.id}:early:${early.microsecondsSinceEpoch}',
+        id:
+            confirmedId ??
+            (early == null
+                ? 'recurring:${r.id}:${r.nextDate.toIso8601String()}${PaymentPlan.confirmedForOccurrence(r, d.entries, r.nextDate) == 0 ? '' : ':part:${PaymentPlan.confirmedForOccurrence(r, d.entries, r.nextDate)}'}'
+                : 'recurring:${r.id}:early:${early.microsecondsSinceEpoch}'),
         kind: r.kind,
         amountMinor: sum,
         currency: r.currency,
-        accountId: r.accountId,
+        accountId: expectedPlannedEntry?.accountId ?? r.accountId,
         categoryId: r.categoryId,
         date: early ?? r.nextDate,
         payee: r.name,
@@ -461,22 +603,67 @@ class FinanceController extends ChangeNotifier {
         recurrence: r.frequency,
         serviceId: r.serviceId,
         serviceIconPath: r.customIconPath,
+        recurringRuleId: early == null ? r.id : null,
+        planningBatchId: early == null ? 'confirmed-payment' : null,
+        plannedDueDate: early == null ? r.nextDate : null,
         memberId: d.members.any((m) => m.id == 'me')
             ? 'me'
             : d.members.first.id,
       );
       FinanceEngine.validateEntry(entry, d);
+      if (d.accounts
+          .where((a) => a.id == entry.accountId && !a.archived)
+          .isEmpty) {
+        throw const FormatException(
+          'Счёт платежа архивирован. Выберите действующий счёт.',
+        );
+      }
       posted = entry;
       final entries = [...d.entries.where((e) => e.id != entry.id), entry];
-      var next = r;
-      if (early == null || sum >= r.amountMinor) {
-        next = next.copyWith(nextDate: FinanceEngine.nextOccurrence(r));
+      var next = remember && sum != r.amountMinor
+          ? r.copyWith(amountMinor: sum)
+          : r;
+      final afterRemaining = PaymentPlan.requiredForOccurrence(
+        next,
+        entries,
+        r.nextDate,
+        now: achievementClock(),
+      );
+      // Replace fulfilled scheduled placeholders, never a user's posted row.
+      entries.removeWhere(
+        (e) =>
+            e.status == 'pending' &&
+            e.recurringRuleId == r.id &&
+            e.plannedDueDate != null &&
+            PaymentPlan.sameDay(e.plannedDueDate!, r.nextDate) &&
+            afterRemaining == 0,
+      );
+      if (afterRemaining > 0) {
+        for (var i = 0; i < entries.length; i++) {
+          final e = entries[i];
+          if (e.status == 'pending' &&
+              e.recurringRuleId == r.id &&
+              e.plannedDueDate != null &&
+              PaymentPlan.sameDay(e.plannedDueDate!, r.nextDate) &&
+              e.amountMinor > afterRemaining) {
+            entries[i] = e.copyWith(amountMinor: afterRemaining);
+          }
+        }
       }
-      if (remember && sum != r.amountMinor) {
-        next = next.copyWith(amountMinor: sum);
-      }
-      if (PaymentPlan.of(next, entries).done) {
-        next = next.copyWith(enabled: false);
+      if (early == null) {
+        next = PaymentPlan.reconcile(
+          next,
+          d.entries,
+          entries,
+          now: achievementClock(),
+        );
+      } else {
+        if (sum >= r.amountMinor) {
+          next = next.copyWith(nextDate: FinanceEngine.nextOccurrence(next));
+        }
+        if (PaymentPlan.of(next, entries).done) {
+          next = next.copyWith(enabled: false);
+        }
       }
       return d.copyWith(
         entries: entries,

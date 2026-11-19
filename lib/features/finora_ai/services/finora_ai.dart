@@ -80,8 +80,12 @@ class FinoraAi {
   /// «Сбросить персонализацию»: forgets what Finora learned — merchant
   /// choices, corrections, answers to suggestions, snoozes. The person's
   /// operations are not touched.
-  Future<void> resetPersonalization() =>
-      memoryRepository.replace(PersonalMemory());
+  Future<void> resetPersonalization() => memoryRepository.replace(
+    PersonalMemory(
+      preferences: memory.preferences,
+      scenarios: List.of(memory.scenarios),
+    ),
+  );
 
   /// Restores the memory saved in a backup (see [memoryForBackup]).
   Future<void> restoreMemory(Map<String, dynamic> json) =>

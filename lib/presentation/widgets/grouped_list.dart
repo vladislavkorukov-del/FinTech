@@ -805,47 +805,49 @@ Future<bool> confirmWithFinora(
     builder: (ctx) => Dialog(
       key: const ValueKey('finora-confirm'),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(22, 22, 22, 12),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Center(
-              child: FinoraMark(
-                size: 72,
-                mood: destructive ? FinoraMood.doubt : FinoraMood.thinking,
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(22, 22, 22, 12),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Center(
+                child: FinoraMark(
+                  size: 72,
+                  mood: destructive ? FinoraMood.doubt : FinoraMood.thinking,
+                ),
               ),
-            ),
-            const SizedBox(height: 14),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: Theme.of(ctx).textTheme.titleLarge,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: TextStyle(color: scheme.onSurfaceVariant),
-            ),
-            const SizedBox(height: 18),
-            FilledButton(
-              key: const ValueKey('finora-confirm-yes'),
-              style: destructive
-                  ? FilledButton.styleFrom(
-                      backgroundColor: scheme.error,
-                      foregroundColor: scheme.onError,
-                    )
-                  : null,
-              onPressed: () => Navigator.pop(ctx, true),
-              child: Text(action),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: Text(cancel),
-            ),
-          ],
+              const SizedBox(height: 14),
+              Text(
+                title,
+                textAlign: TextAlign.center,
+                style: Theme.of(ctx).textTheme.titleLarge,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                message,
+                textAlign: TextAlign.center,
+                style: TextStyle(color: scheme.onSurfaceVariant),
+              ),
+              const SizedBox(height: 18),
+              FilledButton(
+                key: const ValueKey('finora-confirm-yes'),
+                style: destructive
+                    ? FilledButton.styleFrom(
+                        backgroundColor: scheme.error,
+                        foregroundColor: scheme.onError,
+                      )
+                    : null,
+                onPressed: () => Navigator.pop(ctx, true),
+                child: Text(action),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: Text(cancel),
+              ),
+            ],
+          ),
         ),
       ),
     ),

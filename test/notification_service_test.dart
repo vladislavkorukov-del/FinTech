@@ -130,6 +130,33 @@ void main() {
   DateTime instant(Map<String, Object?> entry) =>
       DateTime.parse(entry['scheduledDateTimeISO8601'] as String);
 
+  test(
+    'partial payment reminder uses the unpaid remainder of current occurrence',
+    () async {
+      final r = rule(amount: 30000);
+      final service = NotificationService(now: () => now);
+      await service.sync(
+        enabledData([r]).copyWith(
+          entries: [
+            FinanceEntry(
+              id: 'part',
+              currency: 'RUB',
+              kind: EntryKind.expense,
+              amountMinor: 10000,
+              accountId: 'cash',
+              date: r.nextDate,
+              recurringRuleId: r.id,
+              planningBatchId: 'confirmed-payment',
+              plannedDueDate: r.nextDate,
+            ),
+          ],
+        ),
+      );
+      expect(reminders().first['body'], contains('200,00 RUB'));
+      expect(reminders()[1]['body'], contains('300,00 RUB'));
+    },
+  );
+
   test('new profiles default to no notification opt-in', () {
     expect(const AppPreferences().notifications, isFalse);
     expect(rule(reminder: false).reminderEnabled, isFalse);

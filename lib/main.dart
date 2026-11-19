@@ -520,6 +520,7 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
       3 => const AnalyticsScreen(),
       5 => FinoraAiScreen(
         embedded: true,
+        onTab: _select,
         leading: Row(
           mainAxisSize: MainAxisSize.min,
           children: [

@@ -258,6 +258,32 @@ abstract final class FinanceEngine {
         throw const FormatException('Подкатегория не найдена');
       }
     }
+    final links = [
+      entry.recurringRuleId != null,
+      entry.planningBatchId != null,
+      entry.plannedDueDate != null,
+    ];
+    if (links.any((v) => v) && !links.every((v) => v)) {
+      throw const FormatException('Неполная связь с планом платежей');
+    }
+    if (entry.recurringRuleId != null) {
+      final rule = data.recurring
+          .where((r) => r.id == entry.recurringRuleId)
+          .firstOrNull;
+      // Historical links remain readable if the user removes an obligation.
+      if (rule != null &&
+          (entry.kind != rule.kind || entry.currency != rule.currency)) {
+        throw const FormatException(
+          'Тип и валюта выплаты должны совпадать с обязательством',
+        );
+      }
+      if (entry.kind == EntryKind.transfer ||
+          entry.recurringRuleId!.isEmpty ||
+          entry.planningBatchId!.isEmpty ||
+          entry.planningBatchId!.length > 200) {
+        throw const FormatException('Некорректная связь с планом платежей');
+      }
+    }
     if ((entry.latitude == null) != (entry.longitude == null) ||
         (entry.latitude != null &&
             (!entry.latitude!.isFinite || entry.latitude!.abs() > 90)) ||

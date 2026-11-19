@@ -211,8 +211,120 @@ class PaymentPlan {
   }
 
   /// Operations recorded for [rule]: `recurring:<id>:…`.
+  static bool sameDay(DateTime a, DateTime b) =>
+      a.year == b.year && a.month == b.month && a.day == b.day;
+
+  static bool belongsToOccurrence(
+    FinanceEntry entry,
+    RecurringRule rule,
+    DateTime due,
+  ) {
+    if (!belongs(entry, rule)) return false;
+    if (entry.plannedDueDate != null) {
+      return sameDay(entry.plannedDueDate!, due);
+    }
+    if (entry.id.contains(':early:')) return false;
+    return entry.id.startsWith('recurring:${rule.id}:') &&
+        sameDay(entry.date, due);
+  }
+
+  static int confirmedForOccurrence(
+    RecurringRule rule,
+    List<FinanceEntry> entries,
+    DateTime due,
+  ) {
+    final paid = entries
+        .where((e) => belongsToOccurrence(e, rule, due))
+        .fold<BigInt>(
+          BigInt.zero,
+          (sum, e) => sum + BigInt.from(e.amountMinor),
+        );
+    if (paid > BigInt.from(FinanceEngine.maxMinor)) {
+      throw const FormatException(
+        'Сумма платежей превышает допустимый диапазон',
+      );
+    }
+    return paid.toInt();
+  }
+
+  /// Restore this occurrence's original required payment from the existing
+  /// engine, then subtract actual confirmed parts. Plans never count as paid.
+  static int requiredForOccurrence(
+    RecurringRule rule,
+    List<FinanceEntry> entries,
+    DateTime due, {
+    DateTime? now,
+  }) {
+    final withoutThis = entries
+        .where((e) => !belongsToOccurrence(e, rule, due))
+        .toList();
+    final original = of(
+      rule,
+      withoutThis,
+      now: now,
+    ).upcoming.where((p) => sameDay(p.date, due)).firstOrNull;
+    if (original == null) return 0;
+    return (original.amountMinor - confirmedForOccurrence(rule, entries, due))
+        .clamp(0, FinanceEngine.maxMinor);
+  }
+
+  /// Reconcile only dates whose actual payments changed. Editing, undoing or
+  /// deleting a paid row must not hide an unpaid contractual occurrence.
+  static RecurringRule reconcile(
+    RecurringRule rule,
+    List<FinanceEntry> before,
+    List<FinanceEntry> after, {
+    DateTime? now,
+  }) {
+    final dates = <DateTime>{};
+    for (final e in [...before, ...after]) {
+      if (e.status != 'posted' || !belongs(e, rule) || e.id.contains(':early:')) {
+        continue;
+      }
+      final d = e.plannedDueDate ?? e.date;
+      dates.add(DateTime(d.year, d.month, d.day));
+    }
+    var next = rule;
+    final changed =
+        dates
+            .where(
+              (d) =>
+                  confirmedForOccurrence(rule, before, d) !=
+                  confirmedForOccurrence(rule, after, d),
+            )
+            .toList()
+          ..sort();
+    for (final due in changed) {
+      if (due.isAfter(
+        DateTime(next.nextDate.year, next.nextDate.month, next.nextDate.day),
+      )) {
+        continue;
+      }
+      final candidate = next.copyWith(nextDate: due);
+      if (requiredForOccurrence(candidate, after, due, now: now) > 0) {
+        next = candidate;
+      }
+    }
+    for (var i = 0; i < 600; i++) {
+      if (confirmedForOccurrence(next, after, next.nextDate) == 0 ||
+          requiredForOccurrence(next, after, next.nextDate, now: now) > 0) {
+        break;
+      }
+      final date = FinanceEngine.nextOccurrence(next);
+      if (!date.isAfter(next.nextDate)) break;
+      next = next.copyWith(nextDate: date);
+    }
+    final wasDone = of(rule, before, now: now).done;
+    final isDone = of(next, after, now: now).done;
+    if (isDone) return next.copyWith(enabled: false);
+    if (wasDone) return next.copyWith(enabled: true);
+    return next;
+  }
+
   static bool belongs(FinanceEntry e, RecurringRule rule) =>
-      e.id.startsWith('recurring:${rule.id}:') && e.status != 'cancelled';
+      e.status == 'posted' &&
+      (e.id.startsWith('recurring:${rule.id}:') ||
+          e.recurringRuleId == rule.id);
 
   static PaymentPlan of(
     RecurringRule rule,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart' hide InputDecoration, Text;
 import 'package:intl/intl.dart';
 
 import '../../domain/models.dart';
+import '../../services/user_error.dart';
 import '../theme/icon_catalog.dart';
 import '../theme/app_theme.dart';
 export '../theme/app_theme.dart' show FinanceColors;
@@ -256,13 +257,7 @@ Future<bool> confirm(
     ) ??
     false;
 void showError(BuildContext context, Object error) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      content: Text(
-        error is FormatException
-            ? error.message
-            : 'Не удалось выполнить действие. $error',
-      ),
-    ),
-  );
+  ScaffoldMessenger.of(context)
+    ..hideCurrentSnackBar()
+    ..showSnackBar(SnackBar(content: Text(userErrorMessage(error))));
 }

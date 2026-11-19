@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 1,
+  "models": [
+    {
+      "id": "qwen35-08b",
+      "label": "Облегчённая · Qwen 0.8B",
+      "source": "taobao-mnn/Qwen3.5-0.8B-MNN",
+      "revision": "3208b55b2e3c948016c9d380a697be881a1f12f8",
+      "format": "MNN-LLM",
+      "quantization": "4-bit HQQ (block 64)",
+      "license": "Apache-2.0",
+      "runtime": "MNN 3.6.2",
+      "runtimeRevision": "b0239771b07b317a258fbc384683bbd540741406",
+      "files": [
+        {
+          "name": "config.json",
+          "size": 652,
+          "sha256": "92853033efe602f95efca3e1c05cd8b108f973c8beed417843a9671f8147ed8d",
+          "url": "https://huggingface.co/taobao-mnn/Qwen3.5-0.8B-MNN/resolve/3208b55b2e3c948016c9d380a697be881a1f12f8/config.json"
+        },
+        {
+          "name": "llm_config.json",
+          "size": 8691,
+          "sha256": "33f2c15bda1911ed666418437f45900e78185b57b883545e5d02c14f92a0907b",
+          "url": "https://huggingface.co/taobao-mnn/Qwen3.5-0.8B-MNN/resolve/3208b55b2e3c948016c9d380a697be881a1f12f8/llm_config.json"
+        },
+        {
+          "name": "llm.mnn",
+          "size": 2148136,
+          "sha256": "94e0459e10584487a3bda77dc3c3322c0c01cfc9d223a7284e8d07345bf877d5",
+          "url": "https://huggingface.co/taobao-mnn/Qwen3.5-0.8B-MNN/resolve/3208b55b2e3c948016c9d380a697be881a1f12f8/llm.mnn"
+        },
+        {
+          "name": "llm.mnn.weight",
+          "size": 470382614,
+          "sha256": "4e25ef4cbfb49a33013d17300c2f68cd9c9ce8f2e3f7b947fd2c574ec297ca5e",
+          "url": "https://huggingface.co/taobao-mnn/Qwen3.5-0.8B-MNN/resolve/3208b55b2e3c948016c9d380a697be881a1f12f8/llm.mnn.weight"
+        },
+        {
+          "name": "tokenizer.txt",
+          "size": 6465727,
+          "sha256": "7e75de1f279a10b65bd9dc1a5207205cb8993823861c4c42bbbd74e48e1c23a4",
+          "url": "https://huggingface.co/taobao-mnn/Qwen3.5-0.8B-MNN/resolve/3208b55b2e3c948016c9d380a697be881a1f12f8/tokenizer.txt"
+        }
+      ]
+    },
+    {
+      "id": "qwen35-2b",
+      "label": "Стандартная · Qwen 2B",
+      "source": "taobao-mnn/Qwen3.5-2B-MNN",
+      "revision": "77cc78a9ec864f0a7067a4458c181a9c7c0f0378",
+      "format": "MNN-LLM",
+      "quantization": "4-bit HQQ (block 64)",
+      "license": "Apache-2.0",
+      "runtime": "MNN 3.6.2",
+      "runtimeRevision": "b0239771b07b317a258fbc384683bbd540741406",
+      "files": [
+        {
+          "name": "config.json",
+          "size": 706,
+          "sha256": "ab7bbc21166d66e4d9d4eb8731dd8518ac3afbfa96d23a032c9386a3024d53e2",
+          "url": "https://huggingface.co/taobao-mnn/Qwen3.5-2B-MNN/resolve/77cc78a9ec864f0a7067a4458c181a9c7c0f0378/config.json"
+        },
+        {
+          "name": "llm_config.json",
+          "size": 9385,
+          "sha256": "bdc74925f2fdd675257d1c16f37a8fdb921da838badb31263266b20c107b6e1c",
+          "url": "https://huggingface.co/taobao-mnn/Qwen3.5-2B-MNN/resolve/77cc78a9ec864f0a7067a4458c181a9c7c0f0378/llm_config.json"
+        },
+        {
+          "name": "llm.mnn",
+          "size": 2603920,
+          "sha256": "537118e2cd5228c87d05f7e32774625f4087e2cd4b14fc338f960951d695cfcd",
+          "url": "https://huggingface.co/taobao-mnn/Qwen3.5-2B-MNN/resolve/77cc78a9ec864f0a7067a4458c181a9c7c0f0378/llm.mnn"
+        },
+        {
+          "name": "llm.mnn.weight",
+          "size": 1059043482,
+          "sha256": "74ae67e396eb5ca2620e64e8cd0060adf3cf2ebfc694dd89e97a2110b77c4e6e",
+          "url": "https://huggingface.co/taobao-mnn/Qwen3.5-2B-MNN/resolve/77cc78a9ec864f0a7067a4458c181a9c7c0f0378/llm.mnn.weight"
+        },
+        {
+          "name": "tokenizer.mtok",
+          "size": 7342238,
+          "sha256": "1c4f07daae481c0cd4118495f97ea9a9dd78fdef7867d4e56af76499150ef50b",
+          "url": "https://huggingface.co/taobao-mnn/Qwen3.5-2B-MNN/resolve/77cc78a9ec864f0a7067a4458c181a9c7c0f0378/tokenizer.mtok"
+        }
+      ]
+    }
+  ]
+}

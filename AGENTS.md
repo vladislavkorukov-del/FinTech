@@ -8,7 +8,7 @@ ruflo/claude-flow, к этому Flutter-проекту он не относит
 
 Finora — личная и семейная бухгалтерия для Android на Flutter
 (пакет `com.finora.fintech`). Версия: `pubspec.yaml` → `version:`
-(сейчас 1.0.0+140; в настройках показывается «Finora Release 1.0.0»).
+(сейчас 1.0.0+142; в настройках показывается «Finora Release 1.0.0»).
 Пользователь общается по-русски; отчёты и тексты интерфейса — на русском.
 
 ## Сборка и проверки
@@ -16,7 +16,7 @@ Finora — личная и семейная бухгалтерия для Androi
 ```bash
 export PATH=/opt/fl/flutter/bin:$PATH FLUTTER_ROOT=/opt/fl/flutter  # путь в облачной среде
 flutter analyze                         # должно быть «No issues found»
-flutter test                            # все тесты (~750, ~3 мин)
+flutter test                            # все тесты (>900, ~3 мин)
 flutter test test/finora_ai_test.dart   # точечно
 flutter build apk --release             # arm64-v8a
 ```
@@ -96,48 +96,49 @@ tool/finora_ai/             Python-пайплайн обучения класс�
   merchant intelligence и автодополнение; настройки AI и сброс
   персонализации; подписки, подушка, индекс стабильности, мечты, возвраты,
   дубли, умные уведомления.
-- **Следующая — Phase 4: общая система действий** для чата и голоса:
-  `AppAction` / `ActionRegistry` / `ActionExecutor` с уровнями риска,
-  подтверждением и Undo. Строится на существующих `VoiceCommand` и
-  `VoiceCommands.run`, парсер голоса не переписывать. Навигация — через
-  существующие `onTab` / `Navigator.push`, без второго роутера.
+- **Phase 4:** восемь typed actions с рисками, whitelist, уточнениями одного
+  черновика, TTL5min, отменой и сохранением consumed IDs; штатная форма операций.
+  Недельный план долгов — `domain/weekly_debt_plan.dart`, pending FinanceEntry
+  со связью с RecurringRule, schema8. Только posted уменьшает баланс и долг.
+  Изменение/удаление проведённой выплаты согласует договорную дату заново.
+  Подтверждённые предпочтения и typed сценарии — schema4 PersonalMemory,
+  старые merchants/коррекции сохраняются. Сценарии используют текущую БД,
+  автоматически по расписанию не запускаются. Описание/проверки:
+  `docs/PHASE4.md` и `docs/PHASE4_VERIFICATION.md`.
 - Дальше — фазы 5–8 по плану в аудите.
 
-## Необязательная задача: локальная Qwen (не начата, ничего не внедрено)
+## Необязательная локальная Qwen (эксперимент, build 141)
 
-Пользователь просил разговорного ассистента на Qwen на телефоне
-(Samsung Galaxy A56, 8 ГБ), затем отменил. Если вернётся к ней, вот что
-проверено 2026-11-18:
+Реализация и воспроизведение — `docs/LOCAL_QWEN.md`, результаты проверок —
+`docs/LOCAL_QWEN_VERIFICATION.md`. Перед изменением runtime прочитайте оба.
 
-- Runtime: MNN-LLM. Карточка 2B-модели указывает проверенный коммит MNN
-  `b0239771b07b317a258fbc384683bbd540741406` (MNN 3.6.2). API:
-  `transformers/llm/engine/include/llm/llm.hpp` (`Llm::createLLM`,
-  `load`, `set_config`, `response(ChatMessages, os, "<eop>", 0)`,
-  `generate(1)`, `stoped()`, `getContext()` с `prefill_us`/`decode_us`).
-  Пошаговый цикл со стоп-флагом — как в
-  `apps/Android/MnnLlmChat/app/src/main/cpp/llm_session.cpp`.
-- Модели (Apache-2.0):
-  - `taobao-mnn/Qwen3.5-2B-MNN`, ревизия
-    `77cc78a9ec864f0a7067a4458c181a9c7c0f0378`: `llm.mnn.weight`
-    1 059 043 482 Б, `tokenizer.mtok`. Всего с визуальной частью
-    1 271 744 435 Б.
-  - `taobao-mnn/Qwen3.5-0.8B-MNN`, ревизия
-    `3208b55b2e3c948016c9d380a697be881a1f12f8`: `llm.mnn.weight`
-    470 382 614 Б, `tokenizer.txt`. Всего 547 648 308 Б.
-  - Размеры и SHA-256 LFS-файлов берутся из
-    `https://huggingface.co/api/models/<repo>/tree/<rev>?recursive=true`.
-    Для небольших не-LFS файлов SHA-256 нужно посчитать самим.
-- Конфиг: thinking выключается через
-  `{"jinja":{"context":{"enable_thinking":false}}}`. MNN выбирает
-  мультимодальный класс по `is_visual` из `llm_config.json`.
-  **Не проверено**, работает ли текст без визуальных файлов, если
-  подставить свой `llm_config` с `is_visual:false` (у Qwen3.5 mrope) —
-  проверить настоящим запуском.
-- В проекте: `minSdk 24`, ABI `arm64-v8a`, NDK 28.2. Нативных LLM-библиотек
-  нет. GitHub-страницы через прокси отдают 403, но `git fetch` и
-  `raw.githubusercontent.com` работают.
-- Требования пользователя: модель выключена по умолчанию, скачивается
-  только по кнопке, с manifest и SHA-256, хранится отдельно от БД и
-  памяти. Факты — только из движков Finora. Действия — только из реестра,
-  с подтверждением. Честно разделять «проверено моделью» и «проверено
-  тестами».
+- MNN CPU 3.6.2 закреплён на `b0239771b07b317a258fbc384683bbd540741406`;
+  build-time source: `bash tool/local_llm/prepare_mnn.sh`, `.native/` игнорируется.
+- Две Qwen3.5 MNN 4-bit ревизии, размеры и SHA находятся в
+  `assets/ai/local_models.json`. Веса не включать в git/APK.
+- Установка опциональна, выключена по умолчанию. Отдельные файлы
+  настроек/весов/истории; финансовая БД и память не зависят от модели.
+- `local_model` — доставка, runtime bridge, протокол, история и диагностика;
+  Android `local_llm` — один worker, реальный MNN, stop и queued unload.
+- Настоящие text-only host probes обеих моделей выполнены. Greedy,
+  enable_thinking=false, 2048 токенов вместе с резервом 256 на ответ.
+  A56 не проверен; не называть скорость/память host измерениями телефона.
+- Legacy 0.8B tokenizer воспроизводимо падает на очень длинном слове
+  в std::regex. Сохранять pre-tokenizer input guard в Session::tokenize;
+  `lifecycle_probe.cpp` проверяет guard, overflow, stop/reuse/release.
+- Факты и числа — только существующие движки, команды — только whitelist,
+  полная проверка, подтверждение и штатная форма. Никакого SQL/кода от модели.
+- При изменении протокола прогнать `local_assistant_protocol_test.dart`,
+  `ai_actions_test.dart`, `local_model_download_test.dart` и реальный probe.
+  Тестовый адаптер не доказывает инференс. Проверить APK/подпись/16 KiB.
+- Старт диагностики: О приложении → версия, три отдельных удержания
+  >=1.5 с за 12 с. По умолчанию метаданные без текстов; экспорт без весов.
+
+## Доставка моделей после Phase 4 (build 142)
+
+`ModelDownloader` использует канонический resolve, bounded retry и `.part`
+metadata/validators. `phase4_downloader_http_test.dart` — настоящий loopback HTTP,
+не подменённый транспорт. Прерывание в фоне — пауза; системный background worker
+не добавлен. Все signed URL/Authorization очищать в diagnostics и user_error;
+сырой exception не показывать. Установлено/включено/runtime loaded — разные состояния.
+Ревизии и runtime не менять без отдельных проверок и реального inference.

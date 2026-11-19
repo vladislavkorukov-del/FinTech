@@ -2,6 +2,7 @@ import 'package:flutter/material.dart' hide InputDecoration, Text;
 
 import '../domain/finance_engine.dart';
 import '../domain/models.dart';
+import '../domain/payment_plan.dart';
 import 'controller.dart';
 import 'haptics.dart';
 import 'widgets/amount_format.dart';
@@ -39,12 +40,31 @@ abstract final class PaymentPrompt {
             .inDays;
         Finora.react(late > 0 ? FinoraMood.angry : FinoraMood.attention);
         if (!context.mounted) break;
+        final confirmationId = c.id();
+        final remaining = PaymentPlan.requiredForOccurrence(
+          rule,
+          c.data.entries,
+          rule.nextDate,
+        );
+        final planned = c.data.entries
+            .where(
+              (e) =>
+                  e.status == 'pending' &&
+                  e.recurringRuleId == rule.id &&
+                  e.plannedDueDate != null &&
+                  PaymentPlan.sameDay(e.plannedDueDate!, rule.nextDate),
+            )
+            .firstOrNull;
+        final displayRule = rule.copyWith(
+          accountId: planned?.accountId ?? rule.accountId,
+          amountMinor: remaining > 0 ? remaining : rule.amountMinor,
+        );
         final answer = await showDialog<_Answer>(
           context: context,
           barrierDismissible: false,
           builder: (_) => FinanceScope(
             controller: c,
-            child: _PaymentDialog(rule: rule, late: late),
+            child: _PaymentDialog(rule: displayRule, late: late),
           ),
         );
         if (!context.mounted) break;
@@ -54,6 +74,10 @@ abstract final class PaymentPrompt {
             final overlay = SuccessBurst.overlayOf(context);
             await c.confirmPayment(
               rule.id,
+              expectedDueDate: rule.nextDate,
+              confirmationId: confirmationId,
+              expectedRule: rule,
+              expectedPlannedEntry: planned,
               amountMinor: sum,
               remember: answer.remember,
             );

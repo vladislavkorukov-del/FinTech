@@ -451,6 +451,9 @@ class _EntryEditorState extends State<EntryEditor> {
       final value = FinanceEngine.parseMinor(_amount.text);
       final entry = FinanceEntry(
         id: widget.entry?.id ?? c.id(),
+        recurringRuleId: widget.entry?.recurringRuleId,
+        planningBatchId: widget.entry?.planningBatchId,
+        plannedDueDate: widget.entry?.plannedDueDate,
         kind: _kind,
         amountMinor: value,
         currency: a.currency,

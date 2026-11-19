@@ -76,12 +76,12 @@ void main() {
     for (var i = 0; i < 8; i++) {
       await tester.pump(const Duration(milliseconds: 100));
     }
-    // A suggestion asks; the answer arrives after a short «thinking» beat.
+    // Deterministic facts arrive immediately, without simulated inference.
     await tester.ensureVisible(find.text('Почему трачу больше?'));
     await tester.pump(const Duration(milliseconds: 300));
     await tester.tap(find.text('Почему трачу больше?'));
     await tester.pump();
-    expect(find.text('Финора считает…'), findsOneWidget);
+    expect(find.byKey(const ValueKey('finora-ai-answer-0')), findsOneWidget);
     await tester.pump(const Duration(milliseconds: 500));
     expect(find.byKey(const ValueKey('finora-ai-answer-0')), findsOneWidget);
     // A typed question in the chat.

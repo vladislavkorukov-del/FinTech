@@ -1,3 +1,5 @@
+import 'assistant_preferences.dart';
+
 /// Finora's personal memory: what the person has taught her, kept small and
 /// structured so engines can calculate with it. It holds only the person's
 /// own signals — confirmations, corrections, rejected and confirmed
@@ -13,7 +15,11 @@ class PersonalMemory {
     Set<String>? confirmedRecurring,
     Map<String, DateTime>? snoozed,
     Set<String>? excludedMonths,
-  }) : snoozed = snoozed ?? {},
+    AssistantPreferences? preferences,
+    List<SavedAssistantScenario>? scenarios,
+  }) : preferences = preferences ?? AssistantPreferences(),
+       scenarios = scenarios ?? [],
+       snoozed = snoozed ?? {},
        excludedMonths = excludedMonths ?? {},
        merchants = merchants ?? {},
        corrections = corrections ?? [],
@@ -21,8 +27,11 @@ class PersonalMemory {
        confirmedSubscriptions = confirmedSubscriptions ?? {},
        confirmedRecurring = confirmedRecurring ?? {};
 
-  /// 2: snoozed insights; 3: months excluded from forecasts.
-  static const version = 3;
+  /// 4: explicitly confirmed assistant preferences and typed scenarios.
+  static const version = 4;
+
+  AssistantPreferences preferences;
+  final List<SavedAssistantScenario> scenarios;
   static const _maxCorrections = 300;
 
   /// merchant key → category id → votes.
@@ -140,6 +149,8 @@ class PersonalMemory {
 
   Map<String, dynamic> toJson() => {
     'version': version,
+    'preferences': preferences.toJson(),
+    'scenarios': [for (final s in scenarios) s.toJson()],
     'merchants': {
       for (final m in merchants.entries)
         m.key: {for (final c in m.value.entries) c.key: c.value.toJson()},
@@ -154,33 +165,58 @@ class PersonalMemory {
     },
   };
 
-  factory PersonalMemory.fromJson(Map<String, dynamic> json) => PersonalMemory(
-    merchants: {
-      for (final m in (json['merchants'] as Map? ?? {}).entries)
-        m.key as String: {
-          for (final c in (m.value as Map).entries)
-            c.key as String: MerchantVote.fromJson(c.value as Map),
-        },
-    },
-    corrections: [
-      for (final c in json['corrections'] as List? ?? const [])
-        Correction.fromJson(c as Map),
-    ],
-    rejected: {...(json['rejected'] as List? ?? const []).cast<String>()},
-    confirmedSubscriptions: {
-      ...(json['subscriptions'] as List? ?? const []).cast<String>(),
-    },
-    confirmedRecurring: {
-      ...(json['recurring'] as List? ?? const []).cast<String>(),
-    },
-    excludedMonths: {
-      ...(json['excludedMonths'] as List? ?? const []).cast<String>(),
-    },
-    snoozed: {
-      for (final e in (json['snoozed'] as Map? ?? const {}).entries)
-        e.key as String: ?DateTime.tryParse('${e.value}'),
-    },
-  );
+  factory PersonalMemory.fromJson(Map<String, dynamic> json) {
+    final schema = json['version'] ?? 1;
+    if (schema is! int || schema < 1 || schema > version) {
+      throw const FormatException(
+        'Версия персональной памяти не поддерживается',
+      );
+    }
+    final rawPreferences = json['preferences'];
+    if (rawPreferences != null && rawPreferences is! Map ||
+        json['scenarios'] != null && json['scenarios'] is! List) {
+      throw const FormatException('Некорректная память предпочтений');
+    }
+    return PersonalMemory(
+      preferences: rawPreferences == null
+          ? null
+          : AssistantPreferences.fromJson(
+              Map<String, dynamic>.from(rawPreferences as Map),
+            ),
+      scenarios: [
+        for (final s in json['scenarios'] as List? ?? [])
+          if (s is Map)
+            SavedAssistantScenario.fromJson(Map<String, dynamic>.from(s))
+          else
+            throw const FormatException('Некорректный сохранённый сценарий'),
+      ],
+      merchants: {
+        for (final m in (json['merchants'] as Map? ?? {}).entries)
+          m.key as String: {
+            for (final c in (m.value as Map).entries)
+              c.key as String: MerchantVote.fromJson(c.value as Map),
+          },
+      },
+      corrections: [
+        for (final c in json['corrections'] as List? ?? const [])
+          Correction.fromJson(c as Map),
+      ],
+      rejected: {...(json['rejected'] as List? ?? const []).cast<String>()},
+      confirmedSubscriptions: {
+        ...(json['subscriptions'] as List? ?? const []).cast<String>(),
+      },
+      confirmedRecurring: {
+        ...(json['recurring'] as List? ?? const []).cast<String>(),
+      },
+      excludedMonths: {
+        ...(json['excludedMonths'] as List? ?? const []).cast<String>(),
+      },
+      snoozed: {
+        for (final e in (json['snoozed'] as Map? ?? const {}).entries)
+          e.key as String: ?DateTime.tryParse('${e.value}'),
+      },
+    );
+  }
 }
 
 class MerchantVote {

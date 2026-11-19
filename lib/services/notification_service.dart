@@ -11,6 +11,7 @@ import 'package:timezone/timezone.dart' as tz;
 
 import '../domain/finance_engine.dart';
 import '../domain/models.dart';
+import '../domain/payment_plan.dart';
 
 /// Notifications use inexact Android alarms: no invasive exact-alarm permission.
 /// The OS may defer delivery under battery restrictions or Doze.
@@ -164,12 +165,21 @@ class NotificationService {
     }
 
     for (final reminder in planned) {
+      final remaining =
+          PaymentPlan.sameDay(reminder.due, reminder.rule.nextDate)
+          ? PaymentPlan.requiredForOccurrence(
+              reminder.rule,
+              data.entries,
+              reminder.due,
+              now: now,
+            )
+          : reminder.rule.amountMinor;
       await _schedule(
         identifier(reminder.key),
         reminder.rule.paymentType == 'subscription'
             ? 'Скоро оплата подписки'
             : 'Скоро обязательный платёж',
-        '${reminder.rule.name} · ${_formatAmount(reminder.rule.amountMinor)} ${reminder.rule.currency}\n'
+        '${reminder.rule.name} · ${_formatAmount(remaining)} ${reminder.rule.currency}\n'
         'Оплата ${_formatDate(reminder.due)}',
         reminder.date,
       );
@@ -186,6 +196,13 @@ class NotificationService {
         rule.nextDate.day,
       );
       if (!due.isBefore(today)) continue;
+      final remaining = PaymentPlan.requiredForOccurrence(
+        rule,
+        data.entries,
+        due,
+        now: now,
+      );
+      if (remaining == 0) continue;
       for (var k = 0; k < 3; k++) {
         final at = tz.TZDateTime(
           tz.local,
@@ -199,7 +216,7 @@ class NotificationService {
         await _schedule(
           identifier('overdue:${rule.id}:${_formatDate(due)}:$k'),
           'Просрочен платёж',
-          '${rule.name} · ${_formatAmount(rule.amountMinor)} ${rule.currency}\n'
+          '${rule.name} · ${_formatAmount(remaining)} ${rule.currency}\n'
               'Нужно было оплатить ${_formatDate(due)}',
           at,
         );

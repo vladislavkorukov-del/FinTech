@@ -6,6 +6,10 @@ import '../../../presentation/haptics.dart';
 import '../../../presentation/l10n_widgets.dart';
 import '../../../presentation/widgets/grouped_list.dart';
 import '../services/finora_ai.dart';
+import 'local_model_screen.dart';
+import 'assistant_memory_screen.dart';
+import 'scenario_run_screen.dart';
+import 'debt_planning_screen.dart';
 
 /// Settings → «Настройки Finora AI»: what she may do by herself. Everything
 /// stays on the phone; these switches only decide how much Finora fills in
@@ -160,6 +164,62 @@ class AiSettingsScreen extends StatelessWidget {
                 ai.insights,
                 (v) => ai.copyWith(insights: v),
                 enabled: on,
+              ),
+            ],
+          ),
+          GroupedSection(
+            children: [
+              GroupedRow(
+                key: const ValueKey('ai-local-model'),
+                icon: Icons.memory_outlined,
+                color: TileColors.orange,
+                title: 'Локальная модель',
+                subtitle: 'Необязательная Qwen на телефоне',
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute<void>(
+                    builder: (_) => const LocalModelScreen(),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          GroupedSection(
+            title: 'Память и планирование',
+            children: [
+              GroupedRow(
+                icon: Icons.psychology_outlined,
+                color: TileColors.purple,
+                title: 'Предпочтения и сценарии',
+                subtitle: 'Только подтверждённые настройки',
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute<void>(
+                    builder: (_) => AssistantMemoryScreen(
+                      onRun: (scenario) async {
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute<void>(
+                            builder: (_) =>
+                                ScenarioRunScreen(scenario: scenario),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ),
+              GroupedRow(
+                icon: Icons.event_note_outlined,
+                color: TileColors.blue,
+                title: 'План погашения',
+                subtitle: 'Черновик выплат по неделям',
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute<void>(
+                    builder: (_) => const DebtPlanningScreen(),
+                  ),
+                ),
               ),
             ],
           ),

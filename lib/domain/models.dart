@@ -167,6 +167,12 @@ class Category {
 
 class FinanceEntry {
   final String id;
+
+  /// Link scheduled rows to an existing obligation without counting a plan
+  /// as a completed payment. Null for legacy/manual operations.
+  final String? recurringRuleId;
+  final String? planningBatchId;
+  final DateTime? plannedDueDate;
   final EntryKind kind;
   final int amountMinor;
   final String currency;
@@ -191,6 +197,9 @@ class FinanceEntry {
 
   const FinanceEntry({
     required this.id,
+    this.recurringRuleId,
+    this.planningBatchId,
+    this.plannedDueDate,
     required this.kind,
     required this.amountMinor,
     required this.currency,
@@ -216,6 +225,9 @@ class FinanceEntry {
 
   FinanceEntry copyWith({
     String? id,
+    Object? recurringRuleId = _absent,
+    Object? planningBatchId = _absent,
+    Object? plannedDueDate = _absent,
     EntryKind? kind,
     int? amountMinor,
     String? currency,
@@ -239,6 +251,15 @@ class FinanceEntry {
     Object? longitude = _absent,
   }) => FinanceEntry(
     id: id ?? this.id,
+    recurringRuleId: identical(recurringRuleId, _absent)
+        ? this.recurringRuleId
+        : recurringRuleId as String?,
+    planningBatchId: identical(planningBatchId, _absent)
+        ? this.planningBatchId
+        : planningBatchId as String?,
+    plannedDueDate: identical(plannedDueDate, _absent)
+        ? this.plannedDueDate
+        : plannedDueDate as DateTime?,
     serviceIconPath: identical(serviceIconPath, _absent)
         ? this.serviceIconPath
         : serviceIconPath as String?,
@@ -284,6 +305,9 @@ class FinanceEntry {
 
   Map<String, Object?> toJson() => {
     'id': id,
+    'recurringRuleId': recurringRuleId,
+    'planningBatchId': planningBatchId,
+    'plannedDueDate': plannedDueDate?.toIso8601String(),
     'kind': kind.name,
     'amountMinor': amountMinor,
     'currency': currency,
@@ -309,6 +333,11 @@ class FinanceEntry {
 
   factory FinanceEntry.fromJson(Map<String, dynamic> json) => FinanceEntry(
     id: json['id'] as String,
+    recurringRuleId: json['recurringRuleId'] as String?,
+    planningBatchId: json['planningBatchId'] as String?,
+    plannedDueDate: json['plannedDueDate'] == null
+        ? null
+        : DateTime.parse(json['plannedDueDate'] as String),
     kind: EntryKind.values.byName(json['kind'] as String),
     amountMinor: json['amountMinor'] as int,
     currency: json['currency'] as String,
