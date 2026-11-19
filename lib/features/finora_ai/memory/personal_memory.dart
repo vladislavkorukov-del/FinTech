@@ -17,7 +17,9 @@ class PersonalMemory {
     Set<String>? excludedMonths,
     AssistantPreferences? preferences,
     List<SavedAssistantScenario>? scenarios,
-  }) : preferences = preferences ?? AssistantPreferences(),
+    Map<String, String>? aliases,
+  }) : aliases = aliases ?? {},
+       preferences = preferences ?? AssistantPreferences(),
        scenarios = scenarios ?? [],
        snoozed = snoozed ?? {},
        excludedMonths = excludedMonths ?? {},
@@ -28,7 +30,15 @@ class PersonalMemory {
        confirmedRecurring = confirmedRecurring ?? {};
 
   /// 4: explicitly confirmed assistant preferences and typed scenarios.
-  static const version = 4;
+  /// 5: the person's own short names for places («кб» → «Красное&Белое»).
+  static const version = 5;
+
+  /// The person's short names for places: the short name's merchant key
+  /// («кб») → the full name to write («Красное&Белое»). Taught in the chat
+  /// («кб — это Красное и Белое») or learned when the person corrects a
+  /// heard «кб» to the full name in the form.
+  final Map<String, String> aliases;
+  static const maxAliases = 200;
 
   AssistantPreferences preferences;
   final List<SavedAssistantScenario> scenarios;
@@ -156,6 +166,7 @@ class PersonalMemory {
         m.key: {for (final c in m.value.entries) c.key: c.value.toJson()},
     },
     'corrections': [for (final c in corrections) c.toJson()],
+    'aliases': aliases,
     'rejected': rejected.toList(),
     'subscriptions': confirmedSubscriptions.toList(),
     'recurring': confirmedRecurring.toList(),
@@ -201,6 +212,11 @@ class PersonalMemory {
         for (final c in json['corrections'] as List? ?? const [])
           Correction.fromJson(c as Map),
       ],
+      aliases: {
+        for (final e in (json['aliases'] as Map? ?? const {}).entries)
+          if (e.key is String && e.value is String)
+            e.key as String: e.value as String,
+      },
       rejected: {...(json['rejected'] as List? ?? const []).cast<String>()},
       confirmedSubscriptions: {
         ...(json['subscriptions'] as List? ?? const []).cast<String>(),

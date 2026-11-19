@@ -9,6 +9,7 @@ import '../../domain/service_catalog.dart';
 import '../../domain/service_recognizer.dart';
 import '../../features/finora_ai/classification/merchant_intelligence.dart';
 import '../../features/finora_ai/models/ai_models.dart';
+import '../../features/finora_ai/personalization/payee_aliases.dart';
 import '../../features/finora_ai/services/finora_ai.dart';
 import '../../domain/voice_entry_parser.dart';
 import '../../services/voice_input_service.dart';
@@ -123,6 +124,14 @@ class _EntryEditorState extends State<EntryEditor> {
 
   /// Store or service of the payee (logo), and the last phrase heard.
   String? _serviceId, _heard;
+
+  /// The payee as it came into the form (heard, drafted by the chat, or
+  /// the saved one): when the person replaces a short «Кб» with the full
+  /// «Красное&Белое», Finora remembers the short name.
+  String _givenPayee = '';
+
+  /// The short name the payee was written in full from (shown under it).
+  String? _aliasFrom;
   final _speech = const VoiceInputService();
   final _ocr = ReceiptOcrService();
   final _images = ReceiptImageStore();
@@ -147,6 +156,7 @@ class _EntryEditorState extends State<EntryEditor> {
           : groupAmount(decimalMinor(e!.destinationMinor!)),
     );
     _payee = TextEditingController(text: e?.payee ?? '');
+    _givenPayee = e?.payee ?? '';
     _note = TextEditingController(text: e?.note ?? '');
     _tags = TextEditingController(text: e?.tags.join(', ') ?? '');
     _date = e?.date.toLocal() ?? DateTime.now();
@@ -475,7 +485,7 @@ class _EntryEditorState extends State<EntryEditor> {
         // 1.26: «чат гпт» is saved as «ChatGPT».
         payee: _typedService != null && _typedService == _serviceId
             ? ServiceCatalog.byId(_typedService)!.name
-            : _payee.text.trim(),
+            : FinoraAi.instance.resolvePayee(c.data, _payee.text.trim()),
         note: _note.text.trim(),
         tags: _tags.text
             .split(',')
@@ -579,6 +589,31 @@ class _EntryEditorState extends State<EntryEditor> {
           preferences: c.rememberCategory(data, entry),
         );
       });
+      // Finora AI learns from the form too: the category chosen for the
+      // place, and a short name the person wrote in full.
+      if (c.data.preferences.ai.personalization) {
+        final ai = FinoraAi.instance;
+        await ai.ready();
+        ai.observeSave(entry, before: widget.entry);
+        final given = _givenPayee.trim();
+        if (given.isNotEmpty &&
+            entry.payee.isNotEmpty &&
+            PayeeAliases.looksLikeShortFor(given, entry.payee)) {
+          final name = ai.learnAlias(given, entry.payee);
+          if (name != null && mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                key: const ValueKey('alias-learned'),
+                content: Text('Запомнила: «$given» — это $name'),
+                action: SnackBarAction(
+                  label: 'Не надо',
+                  onPressed: () => ai.forgetAlias(given),
+                ),
+              ),
+            );
+          }
+        }
+      }
       // 1.27: Finora reacts in the bottom bar.
       FinoraReactions.afterEntry(c, entry);
       if (mounted) {
@@ -607,9 +642,13 @@ class _EntryEditorState extends State<EntryEditor> {
   List<CategoryScore> _aiChoices = const [];
 
   /// «чат гпт», «нетфликс», «вуш»: the service, its logo and category.
-  void _payeeTyped(String text) {
+  void _payeeTyped(String typed) {
     if (_kind == EntryKind.transfer) return;
     final c = FinanceScope.of(context);
+    // «кб» typed by hand: Finora reads it as the full name she was taught.
+    final text = FinoraAi.instance.resolvePayee(c.data, typed);
+    final alias = text == typed ? null : typed;
+    if (alias != _aliasFrom) setState(() => _aliasFrom = alias);
     // Nothing is guessed from the first letters: «Пя» sounds like «PIA»,
     // yet the person is typing «Пятёрочка».
     final letters = text.replaceAll(
@@ -729,15 +768,35 @@ class _EntryEditorState extends State<EntryEditor> {
       categories: c.data.categories,
       history: c.data.entries,
     );
+    // A short name the person taught («кб») is written in full, and the
+    // full name brings its logo and usual category.
+    final full = d.payee.isEmpty
+        ? d.payee
+        : FinoraAi.instance.resolvePayee(c.data, d.payee);
+    final aliased = full != d.payee;
+    String? category = d.categoryId;
+    String? service = d.serviceId;
+    if (aliased) {
+      final known = ServiceRecognizer.find(full) ?? ServiceCatalog.byName(full);
+      service = known?.id;
+      category =
+          FinoraAi.instance.rememberedCategory(c.data, full, d.kind) ??
+          VoiceEntryParser.categoryFor(full, d.kind, c.data.categories) ??
+          category;
+    }
     setState(() {
       _heard = d.heard;
       _kind = d.kind;
       if (d.amountMinor != null) {
         _amount.text = groupAmount(decimalMinor(d.amountMinor!));
       }
-      if (d.payee.isNotEmpty) _payee.text = d.payee;
-      _serviceId = d.serviceId;
-      _category = d.categoryId;
+      if (d.payee.isNotEmpty) {
+        _payee.text = full;
+        _givenPayee = d.payee;
+      }
+      _aliasFrom = aliased ? d.payee : null;
+      _serviceId = service;
+      _category = category;
       _subcategory = null;
       if (d.date != null) _date = d.date!;
     });
@@ -1092,7 +1151,7 @@ class _EntryEditorState extends State<EntryEditor> {
                         suffixIcon: IconButton(
                           tooltip: _customPad
                               ? 'Системная клавиатура'
-                              : 'Цифровая панель',
+                              : 'Калькулятор',
                           onPressed: () {
                             FocusManager.instance.primaryFocus?.unfocus();
                             setState(() => _customPad = !_customPad);
@@ -1100,7 +1159,7 @@ class _EntryEditorState extends State<EntryEditor> {
                           icon: Icon(
                             _customPad
                                 ? Icons.keyboard_outlined
-                                : Icons.dialpad_rounded,
+                                : Icons.calculate_outlined,
                           ),
                         ),
                       ),
@@ -1405,22 +1464,61 @@ class _EntryEditorState extends State<EntryEditor> {
                       ])
                       .toList(),
                 ),
-                if (sub.isNotEmpty)
+                // Subcategories of the chosen category as chips, and a «+»
+                // that adds one right here.
+                if (_category != null && c.category(_category) != null)
                   Padding(
-                    padding: const EdgeInsets.only(top: 16),
-                    child: DropdownButtonFormField<String>(
-                      initialValue: sub.contains(_subcategory)
-                          ? _subcategory
-                          : null,
-                      decoration: const InputDecoration(
-                        labelText: 'Подкатегория',
-                      ),
-                      items: sub
-                          .map(
-                            (s) => DropdownMenuItem(value: s, child: Text(s)),
-                          )
-                          .toList(),
-                      onChanged: (v) => setState(() => _subcategory = v),
+                    padding: const EdgeInsets.only(top: 14),
+                    child: Wrap(
+                      key: const ValueKey('entry-subcategories'),
+                      spacing: 6,
+                      runSpacing: 6,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        Text(
+                          tr('Подкатегория'),
+                          style: Theme.of(context).textTheme.labelMedium
+                              ?.copyWith(color: scheme.onSurfaceVariant),
+                        ),
+                        for (final name in sub)
+                          ChoiceChip(
+                            key: ValueKey('entry-sub-$name'),
+                            label: Text(name),
+                            showCheckmark: false,
+                            visualDensity: VisualDensity.compact,
+                            selected: _subcategory == name,
+                            onSelected: (on) =>
+                                setState(() => _subcategory = on ? name : null),
+                          ),
+                        ActionChip(
+                          key: const ValueKey('entry-new-subcategory'),
+                          avatar: const Icon(Icons.add_rounded, size: 16),
+                          label: Text(
+                            sub.isEmpty ? tr('Добавить') : tr('Новая'),
+                          ),
+                          visualDensity: VisualDensity.compact,
+                          onPressed: () async {
+                            final category = c.category(_category);
+                            if (category == null) return;
+                            final name = await askSubcategoryName(
+                              context,
+                              category,
+                            );
+                            if (name == null || !mounted) return;
+                            await c.addSubcategory(category.id, name);
+                            final stored = c
+                                .category(category.id)
+                                ?.subcategories
+                                .firstWhere(
+                                  (s) => s.toLowerCase() == name.toLowerCase(),
+                                  orElse: () => name,
+                                );
+                            if (mounted) {
+                              setState(() => _subcategory = stored ?? name);
+                            }
+                          },
+                        ),
+                      ],
                     ),
                   ),
               ],
@@ -1442,7 +1540,10 @@ class _EntryEditorState extends State<EntryEditor> {
                             size: 26,
                           ),
                         ),
-                  helperText: _typedService == null
+                  helperText: _aliasFrom != null
+                      ? '«$_aliasFrom» — так вы называете '
+                            '${FinoraAi.instance.resolvePayee(c.data, _aliasFrom!)}'
+                      : _typedService == null
                       ? null
                       : 'Финора узнала: '
                             '${ServiceCatalog.byId(_typedService)!.name}',
@@ -1768,4 +1869,61 @@ class _EditorLabel extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Asks for a new subcategory name of [category]. Null when cancelled,
+/// empty or already there (then the existing one is returned).
+Future<String?> askSubcategoryName(
+  BuildContext context,
+  Category category,
+) async {
+  final field = TextEditingController();
+  String? error;
+  final name = await showDialog<String>(
+    context: context,
+    builder: (context) => StatefulBuilder(
+      builder: (context, set) {
+        void submit() {
+          final v = field.text.trim().replaceAll(RegExp(r'\s+'), ' ');
+          if (v.isEmpty) {
+            set(() => error = 'Введите название');
+            return;
+          }
+          if (v.length > 40) {
+            set(() => error = 'Не длиннее 40 символов');
+            return;
+          }
+          Navigator.pop(context, v);
+        }
+
+        return AlertDialog(
+          title: Text('Подкатегория в «${category.name}»'),
+          content: TextField(
+            key: const ValueKey('subcategory-name'),
+            controller: field,
+            autofocus: true,
+            textCapitalization: TextCapitalization.sentences,
+            onSubmitted: (_) => submit(),
+            decoration: InputDecoration(
+              hintText: 'Например: Кофе, Такси до работы',
+              errorText: error,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Отмена'),
+            ),
+            FilledButton(
+              key: const ValueKey('subcategory-save'),
+              onPressed: submit,
+              child: const Text('Добавить'),
+            ),
+          ],
+        );
+      },
+    ),
+  );
+  field.dispose();
+  return name;
 }

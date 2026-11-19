@@ -13,6 +13,7 @@ import '../../../presentation/widgets/profile_avatar.dart';
 import '../../../services/voice_input_service.dart';
 import '../services/finora_ai.dart';
 import '../memory/personal_memory.dart';
+import '../personalization/payee_aliases.dart';
 import '../actions/ai_actions.dart';
 import '../actions/ai_action_executor.dart';
 import '../local_model/assistant_history.dart';
@@ -78,7 +79,18 @@ class _FinoraAiScreenState extends State<FinoraAiScreen> {
   bool _historyWritable = true;
   List<ScenarioStep> _lastScenarioSteps = [];
 
+  /// The person's short names and settled categories, for chat drafts.
+  void _wireMemory() {
+    _actions.payeeResolver = (payee) => mounted
+        ? _ai.resolvePayee(FinanceScope.of(context).data, payee)
+        : payee;
+    _actions.rememberedCategory = (payee, kind) => mounted
+        ? _ai.rememberedCategory(FinanceScope.of(context).data, payee, kind)
+        : null;
+  }
+
   Future<void> _prepare() async {
+    _wireMemory();
     await _ai.ready();
     await _local.ready();
     try {
@@ -244,14 +256,26 @@ class _FinoraAiScreenState extends State<FinoraAiScreen> {
       ).hasMatch(text);
       final preferFacts = QwenChat.preferFacts(text) && !phase4Command;
       if (!saveScenario) _lastScenarioSteps = [];
-      final deterministic = preferFacts
+      // «кб — это Красное и Белое»: a short name the person teaches.
+      final taught = c.data.preferences.ai.personalization
+          ? PayeeAliases.parseTeaching(text)
+          : null;
+      final deterministic = preferFacts || taught != null
           ? null
           : _actions.resolveDeterministic(
               text,
               data: c.data,
               requestId: requestId,
             );
-      if (saveScenario && !AiActionSession.prohibitsAction(text)) {
+      if (taught != null && !AiActionSession.prohibitsAction(text)) {
+        _actions.cancel();
+        await _ai.ready();
+        final name = _ai.learnAlias(taught.$1, taught.$2);
+        answer = name == null
+            ? 'Не поняла, что запомнить. Скажите так: «кб — это Красное и Белое».'
+            : 'Запомнила: «${taught.$1}» — это $name. Теперь «расход ${taught.$1} 500» '
+                  'запишется на $name. Забыть можно в «Памяти ассистента».';
+      } else if (saveScenario && !AiActionSession.prohibitsAction(text)) {
         answer = await _saveLastScenario();
       } else if (AiActionSession.prohibitsAction(text)) {
         _actions.cancel();

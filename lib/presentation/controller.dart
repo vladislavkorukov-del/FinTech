@@ -323,6 +323,21 @@ class FinanceController extends ChangeNotifier {
       categories: [...d.categories.where((a) => a.id != value.id), value],
     ),
   );
+
+  /// Adds subcategory [name] to category [id] (keeps the category's place
+  /// in the list). A name already there, ignoring case, is not repeated.
+  Future<void> addSubcategory(String id, String name) => mutate(
+    (d) => d.copyWith(
+      categories: [
+        for (final c in d.categories)
+          if (c.id != id ||
+              c.subcategories.any((s) => s.toLowerCase() == name.toLowerCase()))
+            c
+          else
+            c.copyWith(subcategories: [...c.subcategories, name]),
+      ],
+    ),
+  );
   Future<void> deleteCategory(String id) => mutate((d) {
     final linked =
         d.entries.any((e) => e.categoryId == id) ||

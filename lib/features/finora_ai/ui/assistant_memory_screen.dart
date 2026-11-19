@@ -733,6 +733,39 @@ class _AssistantMemoryScreenState extends State<AssistantMemoryScreen> {
               ),
             if (widget.onRun == null && repo.memory.scenarios.isNotEmpty)
               const Text('Запуск сценария доступен из диалога с Финорой.'),
+            const SizedBox(height: 24),
+            const Text(
+              'Мои сокращения',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+            ),
+            const Padding(
+              padding: EdgeInsets.only(top: 4, bottom: 4),
+              child: Text(
+                'Как вы называете места. Научить: «кб — это Красное и Белое» '
+                'в чате, или исправьте «Кб» на полное название в форме.',
+              ),
+            ),
+            if (repo.memory.aliases.isEmpty)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 8),
+                child: Text('Пока нет.'),
+              ),
+            for (final alias in repo.memory.aliases.entries)
+              ListTile(
+                key: ValueKey('alias-${alias.key}'),
+                contentPadding: EdgeInsets.zero,
+                title: Text('«${alias.key}» → ${alias.value}'),
+                trailing: IconButton(
+                  tooltip: 'Забыть',
+                  icon: const Icon(Icons.close_rounded),
+                  onPressed: busy
+                      ? null
+                      : () => _run(() async {
+                          repo.memory.aliases.remove(alias.key);
+                          await repo.save();
+                        }),
+                ),
+              ),
             const SizedBox(height: 12),
             const Text(
               'Это локальная память подтверждённых настроек, а не обучение весов Qwen. Удаление модели не удаляет память.',

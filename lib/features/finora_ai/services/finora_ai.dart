@@ -8,10 +8,12 @@ import '../inference/linear_model.dart';
 import '../memory/personal_memory.dart';
 import '../models/ai_models.dart';
 import '../personalization/feedback.dart';
+import '../personalization/payee_aliases.dart';
 import '../repositories/memory_repository.dart';
 import '../responses/capabilities.dart';
 import '../responses/intent_parser.dart';
 import '../responses/response_layer.dart';
+import 'ai_context.dart';
 import 'finora_ai_snapshot.dart';
 
 /// A question answered: the text and the structured facts behind it (the UI
@@ -76,7 +78,7 @@ class FinoraAi {
     EntryKind kind = EntryKind.expense,
     DateTime? date,
   }) => classifier.classify(
-    merchant: merchant,
+    merchant: resolvePayee(data, merchant),
     description: description,
     amountMinor: amountMinor,
     kind: kind,
@@ -102,6 +104,41 @@ class FinoraAi {
 
   /// The memory as it goes into a full backup.
   Map<String, dynamic> memoryForBackup() => memory.toJson();
+
+  /// [payee] written in full when the person taught Finora a short name
+  /// for it («Кб» → «Красное&Белое»); otherwise [payee] itself. Not used
+  /// with personalization turned off.
+  String resolvePayee(FinanceData data, String payee) {
+    if (!data.preferences.ai.personalization) return payee;
+    return PayeeAliases.resolve(memory, payee) ?? payee;
+  }
+
+  /// Remembers that [short] means [full]; returns the stored full name or
+  /// null when there was nothing to learn.
+  String? learnAlias(String short, String full) {
+    final name = PayeeAliases.learn(memory, short, full);
+    if (name != null) memoryRepository.saveSoon();
+    return name;
+  }
+
+  void forgetAlias(String short) {
+    if (PayeeAliases.forget(memory, short)) memoryRepository.saveSoon();
+  }
+
+  /// The category the person's own memory gives the place [payee] (after
+  /// its short name is resolved): only a strong, settled choice, never a
+  /// guess of the model.
+  String? rememberedCategory(FinanceData data, String payee, EntryKind kind) {
+    if (!data.preferences.ai.personalization) return null;
+    final key = AiContext.merchantKey(resolvePayee(data, payee));
+    if (key.isEmpty) return null;
+    final vote = memory.categoryFor(key);
+    if (vote == null || vote.confidence < .8) return null;
+    final category = data.categories
+        .where((c) => c.id == vote.categoryId && !c.archived && c.kind == kind)
+        .firstOrNull;
+    return category?.id;
+  }
 
   /// Learns from a saved operation (called by the controller).
   void observeSave(FinanceEntry entry, {FinanceEntry? before}) {

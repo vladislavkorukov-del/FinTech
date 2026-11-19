@@ -175,6 +175,14 @@ Only IDs in objects are allowed. Missing/ambiguous account or category must be c
 
   /// Set only from the person's confirmed preference, not a model argument.
   String? primaryAccountId;
+
+  /// The person's short names for places, written in full («Кб» →
+  /// «Красное&Белое»); set by the chat from Finora's memory.
+  String Function(String payee)? payeeResolver;
+
+  /// The category the person's memory settled for a place (strong votes
+  /// only); fills a draft whose category was not named.
+  String? Function(String payee, EntryKind kind)? rememberedCategory;
   int _sequence = 0;
   bool _confirmationInFlight = false;
 
@@ -299,12 +307,30 @@ Only IDs in objects are allowed. Missing/ambiguous account or category must be c
         history: data.entries,
         now: clock,
       );
+      // The place is read without the account words: «с основной карты»
+      // is not a shop.
+      final place = VoiceEntryParser.parse(
+        _withoutAccounts(userText, data),
+        categories: data.categories,
+        history: data.entries,
+        now: clock,
+      );
+      // The place as heard («Кб»); written in full when the draft is built.
+      final payee = place.payee.trim();
+      final payeeHeard =
+          payee.isNotEmpty && _normal(userText).contains(_normal(payee));
+      final remembered = namedCategories.length == 1 || !payeeHeard
+          ? null
+          : rememberedCategory?.call(payee, draft.kind);
       return {
         'kind': draft.kind.name,
         'amountMinor': amount!,
         if (namedAccounts.length == 1) 'accountId': namedAccounts.single,
         if (namedCategories.length == 1)
-          'categoryId': namedCategories.single.id,
+          'categoryId': namedCategories.single.id
+        else
+          'categoryId': ?remembered,
+        if (payeeHeard) 'payee': payee,
         'date': _dateInTurn(text) ?? 'today',
       };
     }
@@ -635,12 +661,17 @@ Only IDs in objects are allowed. Missing/ambiguous account or category must be c
           }
         }
         final date = _date(rawDate, dateClock, user);
-        final payee = _string(args, 'payee') ?? '';
-        if (payee.isNotEmpty && !_normal(user).contains(_normal(payee))) {
+        final heardPayee = _string(args, 'payee') ?? '';
+        if (heardPayee.isNotEmpty &&
+            !_normal(user).contains(_normal(heardPayee))) {
           throw const AiActionException(
             'Получатель не найден в вашем сообщении.',
           );
         }
+        // A short name the person taught is written in full.
+        final payee = heardPayee.isEmpty
+            ? heardPayee
+            : (payeeResolver?.call(heardPayee) ?? heardPayee);
         entry = FinanceEntry(
           id: '',
           kind: entryKind,
@@ -654,6 +685,7 @@ Only IDs in objects are allowed. Missing/ambiguous account or category must be c
         kind = AiActionKind.createEntry;
         summary =
             '${entryKind == EntryKind.expense ? 'Расход' : 'Доход'}: ${_amount(rawAmount)} ${account.currency}\n'
+            '${payee.isEmpty ? '' : '$payee${payee != heardPayee ? ' («$heardPayee»)' : ''}\n'}'
             '${category.name} · ${account.name}\n${_formatDate(date)}\n'
             'Открыть заполненную форму? Сохранение — только вашей кнопкой.';
       case 'edit_last_category':
@@ -1189,6 +1221,37 @@ Only IDs in objects are allowed. Missing/ambiguous account or category must be c
       return 'today';
     }
     return null;
+  }
+
+  /// [text] without the words of account names (and the «с»/«со»/«из»
+  /// before them) and the request verbs («добавь», «запиши»), for reading
+  /// the place of an operation.
+  static String _withoutAccounts(String text, FinanceData d) {
+    final stems = <String>{
+      for (final a in d.accounts)
+        for (final w in a.name.toLowerCase().replaceAll('ё', 'е').split(
+          RegExp(r'[^\p{L}\p{N}]+', unicode: true),
+        ))
+          if (w.length >= 4) w.substring(0, 4),
+    };
+    final verb = RegExp(
+      r'^(?:добав|запиш|запис|потрат|оплат|спиш|спис)[а-я]*[,.!]?$',
+    );
+    final words = text.split(RegExp(r'\s+'));
+    final out = <String>[];
+    for (final w in words) {
+      final k = w.toLowerCase().replaceAll('ё', 'е');
+      if (verb.hasMatch(k)) continue;
+      if (k.length >= 4 && stems.contains(k.substring(0, 4))) {
+        if (out.isNotEmpty &&
+            const {'с', 'со', 'из', 'на'}.contains(out.last.toLowerCase())) {
+          out.removeLast();
+        }
+        continue;
+      }
+      out.add(w);
+    }
+    return out.join(' ');
   }
 
   static Category? _category(

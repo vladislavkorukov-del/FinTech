@@ -145,7 +145,10 @@ class LavaPainter extends CustomPainter {
         Paint()
           ..maskFilter = MaskFilter.blur(BlurStyle.normal, radius * .45)
           ..shader = RadialGradient(
-            colors: [color, color.withValues(alpha: color.a * .55)],
+            colors: [
+              color,
+              color.withValues(alpha: color.a * .55),
+            ],
           ).createShader(rect),
       );
     }
@@ -426,12 +429,13 @@ class TypewriterText extends StatefulWidget {
 
 class _TypewriterTextState extends State<TypewriterText>
     with SingleTickerProviderStateMixin {
-  late final AnimationController _c = AnimationController(
-    vsync: this,
-    duration: TypewriterText.durationFor(widget.text.length),
-  )..addStatusListener((s) {
-      if (s == AnimationStatus.completed) widget.onDone?.call();
-    });
+  late final AnimationController _c =
+      AnimationController(
+        vsync: this,
+        duration: TypewriterText.durationFor(widget.text.length),
+      )..addStatusListener((s) {
+        if (s == AnimationStatus.completed) widget.onDone?.call();
+      });
 
   @override
   void didChangeDependencies() {
