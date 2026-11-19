@@ -17,6 +17,7 @@ import '../controller.dart';
 import '../theme/app_theme.dart';
 import '../widgets/common.dart';
 import 'account_import_screen.dart';
+import 'developer_screen.dart';
 import 'foreign_import_screen.dart';
 import 'tutorial.dart';
 import 'voice_help.dart';
@@ -25,7 +26,6 @@ import '../../features/finora_ai/ui/ai_settings_screen.dart';
 import '../../features/finora_ai/services/finora_ai.dart';
 import '../../features/finora_ai/memory/personal_memory.dart';
 import '../../features/finora_ai/local_model/assistant_diagnostics.dart';
-import '../../features/finora_ai/ui/local_model_diagnostics_screen.dart';
 import '../../services/finora_ear.dart';
 import '../../services/finora_system.dart';
 import '../finora_outside.dart';
@@ -748,12 +748,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             onPointerCancel: (_) => _developerUnlock.cancel(),
             onPointerUp: (_) {
               if (_developerUnlock.up(DateTime.now())) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute<void>(
-                    builder: (_) => const LocalModelDiagnosticsScreen(),
-                  ),
-                );
+                openDeveloperMode(context);
               }
             },
             child: Text(
@@ -1140,6 +1135,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ),
                       ),
                     ),
+                    if (p.developer.enabled)
+                      GroupedRow(
+                        key: const ValueKey('settings-developer'),
+                        icon: Icons.developer_mode_rounded,
+                        color: TileColors.indigo,
+                        title: 'Для разработчика',
+                        subtitle: 'Платные функции, диагностика',
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute<void>(
+                            builder: (_) => const DeveloperScreen(),
+                          ),
+                        ),
+                      ),
                     GroupedRow(
                       key: const ValueKey('settings-about'),
                       icon: Icons.info_rounded,

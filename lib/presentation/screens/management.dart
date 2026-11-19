@@ -31,7 +31,9 @@ import '../widgets/dream_photo.dart';
 import '../../services/goal_photo_store.dart';
 import 'account_import_screen.dart';
 import 'achievements_screen.dart';
+import 'developer_screen.dart';
 import 'entry_editor.dart';
+import '../../domain/monetization.dart';
 import 'settings.dart';
 import '../l10n_widgets.dart';
 

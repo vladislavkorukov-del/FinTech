@@ -1,3 +1,5 @@
+import '../../domain/monetization.dart';
+import 'developer_screen.dart';
 import 'package:flutter/material.dart' hide InputDecoration, Text;
 import 'package:intl/intl.dart';
 
@@ -256,7 +258,12 @@ class _BatchEntriesScreenState extends State<BatchEntriesScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => FeatureGate(
+    featureId: PaidFeature.batchEntries,
+    child: Builder(builder: _content),
+  );
+
+  Widget _content(BuildContext context) {
     final c = FinanceScope.of(context);
     final scheme = Theme.of(context).colorScheme;
     final accounts = c.data.accounts.where((a) => !a.archived).toList();

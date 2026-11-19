@@ -1,6 +1,8 @@
 // Domain models contain no Flutter or persistence dependencies.
 // Amounts are minor currency units (kopecks/cents), never floating point.
 import 'achievements.dart' show AchievementState;
+import 'monetization.dart' show DeveloperSettings;
+export 'monetization.dart' show DeveloperSettings;
 
 enum EntryKind { expense, income, transfer }
 
@@ -805,6 +807,9 @@ class AppPreferences {
   /// What Finora AI may do on its own (Settings → «Настройки Finora AI»).
   final AiSettings ai;
 
+  /// Developer mode and the paid-features switches.
+  final DeveloperSettings developer;
+
   /// What was bought and how often (lower-case name → times), for quick
   /// suggestions; the most frequent 150 are kept.
   final Map<String, int> shoppingHistory;
@@ -842,6 +847,7 @@ class AppPreferences {
     this.releaseCelebrated = false,
     this.shoppingLists = const [],
     this.ai = const AiSettings(),
+    this.developer = const DeveloperSettings(),
     this.shoppingHistory = const {},
   });
 
@@ -878,6 +884,7 @@ class AppPreferences {
     bool? releaseCelebrated,
     List<String>? shoppingLists,
     AiSettings? ai,
+    DeveloperSettings? developer,
     Map<String, int>? shoppingHistory,
   }) => AppPreferences(
     theme: theme ?? this.theme,
@@ -918,6 +925,7 @@ class AppPreferences {
     releaseCelebrated: releaseCelebrated ?? this.releaseCelebrated,
     shoppingLists: shoppingLists ?? this.shoppingLists,
     ai: ai ?? this.ai,
+    developer: developer ?? this.developer,
     shoppingHistory: shoppingHistory ?? this.shoppingHistory,
   );
 
@@ -954,6 +962,7 @@ class AppPreferences {
     'releaseCelebrated': releaseCelebrated,
     'shoppingLists': shoppingLists,
     'ai': ai.toJson(),
+    'developer': developer.toJson(),
     'shoppingHistory': shoppingHistory,
   };
 
@@ -998,6 +1007,7 @@ class AppPreferences {
     releaseCelebrated: json['releaseCelebrated'] as bool? ?? false,
     shoppingLists: _ids(json['shoppingLists']),
     ai: AiSettings.fromJson(json['ai']),
+    developer: DeveloperSettings.fromJson(json['developer']),
     shoppingHistory: {
       for (final e in (json['shoppingHistory'] as Map? ?? const {}).entries)
         if (e.value is num) '${e.key}': (e.value as num).toInt(),

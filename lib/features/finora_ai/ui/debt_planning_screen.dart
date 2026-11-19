@@ -1,3 +1,5 @@
+import '../../../presentation/screens/developer_screen.dart';
+import '../../../domain/monetization.dart';
 import 'package:flutter/material.dart' hide InputDecoration, Text;
 
 import '../../../domain/finance_engine.dart';
@@ -269,7 +271,12 @@ class _DebtPlanningScreenState extends State<DebtPlanningScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => FeatureGate(
+    featureId: PaidFeature.debtPlanner,
+    child: Builder(builder: _content),
+  );
+
+  Widget _content(BuildContext context) {
     final data = FinanceScope.of(context).data;
     final accounts = data.accounts.where((a) => !a.archived).toList();
     final plan = _plan;

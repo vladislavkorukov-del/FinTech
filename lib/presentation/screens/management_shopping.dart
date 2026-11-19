@@ -305,7 +305,12 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => FeatureGate(
+    featureId: PaidFeature.shopping,
+    child: Builder(builder: _content),
+  );
+
+  Widget _content(BuildContext context) {
     final c = FinanceScope.of(context);
     final scheme = Theme.of(context).colorScheme;
     final prefs = c.data.preferences;

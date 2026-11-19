@@ -36,6 +36,8 @@ import '../widgets/amount_pad.dart';
 import '../widgets/service_badge.dart';
 import 'management.dart';
 import 'batch_entries_screen.dart';
+import 'developer_screen.dart';
+import '../../domain/monetization.dart';
 import 'scan_import_screen.dart';
 import '../l10n_widgets.dart';
 
@@ -246,6 +248,9 @@ class _EntryEditorState extends State<EntryEditor> {
   }
 
   Future<void> _scan({String? initialPath}) async {
+    if (!await ensureFeature(context, PaidFeature.scanImport) || !mounted) {
+      return;
+    }
     if (_scanning || _busy) return;
     // Screenshots from a bank app only; paper-receipt recognition was removed.
     const ImageSource source = ImageSource.gallery;

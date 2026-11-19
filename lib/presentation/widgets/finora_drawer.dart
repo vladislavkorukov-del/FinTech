@@ -10,6 +10,9 @@ import '../screens/batch_entries_screen.dart';
 import '../screens/entry_editor.dart';
 import '../screens/management.dart';
 import '../screens/settings.dart';
+import '../screens/developer_screen.dart';
+import '../controller.dart';
+import '../../features/finora_ai/ui/ai_settings_screen.dart';
 import 'profile_avatar.dart';
 
 /// The app's navigation (Release), after a chat app's side panel: the name
@@ -108,6 +111,33 @@ class FinoraDrawer extends StatelessWidget {
       );
     }
 
+    Widget divider() => Padding(
+      padding: const EdgeInsets.fromLTRB(24, 10, 24, 6),
+      child: Divider(
+        height: 1,
+        color: scheme.outlineVariant.withValues(alpha: .5),
+      ),
+    );
+    Widget heading(String text) => Padding(
+      padding: const EdgeInsets.fromLTRB(24, 8, 24, 4),
+      child: Text(
+        text,
+        style: TextStyle(
+          fontSize: 13.5,
+          fontWeight: FontWeight.w600,
+          color: scheme.onSurfaceVariant,
+        ),
+      ),
+    );
+    void page(Widget screen) => Navigator.push(
+      context,
+      MaterialPageRoute<void>(builder: (_) => screen),
+    );
+    void settings(String section) => page(SettingsScreen(section: section));
+    final developer =
+        FinanceScope.maybeOf(context)?.data.preferences.developer.enabled ??
+        false;
+
     return Drawer(
       key: const ValueKey('app-drawer'),
       width: width,
@@ -169,24 +199,8 @@ class FinoraDrawer extends StatelessWidget {
                       on: place == current,
                       onTap: () => go(place),
                     ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(24, 10, 24, 6),
-                    child: Divider(
-                      height: 1,
-                      color: scheme.outlineVariant.withValues(alpha: .5),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(24, 8, 24, 4),
-                    child: Text(
-                      tr('Функции'),
-                      style: TextStyle(
-                        fontSize: 13.5,
-                        fontWeight: FontWeight.w600,
-                        color: scheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ),
+                  divider(),
+                  heading(tr('Функции')),
                   // «Функции»: tools that already live in the app.
                   for (final (key, icon, label, open)
                       in <(String, IconData, String, VoidCallback)>[
@@ -257,6 +271,72 @@ class FinoraDrawer extends StatelessWidget {
                       ])
                     row(
                       key: ValueKey('drawer-$key'),
+                      icon: icon,
+                      label: tr(label),
+                      onTap: () {
+                        Haptics.light();
+                        Navigator.pop(context);
+                        open();
+                      },
+                    ),
+                  // Settings right here: the pages people open most, and
+                  // the whole list.
+                  divider(),
+                  heading(tr('Настройки')),
+                  for (final (key, icon, label, open)
+                      in <(String, IconData, String, VoidCallback)>[
+                        (
+                          'appearance',
+                          CupertinoIcons.paintbrush,
+                          'Внешний вид',
+                          () => settings('appearance'),
+                        ),
+                        (
+                          'general',
+                          CupertinoIcons.money_rubl_circle,
+                          'Валюта и форматы',
+                          () => settings('general'),
+                        ),
+                        (
+                          'notifications',
+                          CupertinoIcons.bell,
+                          'Уведомления',
+                          () => settings('notifications'),
+                        ),
+                        (
+                          'security',
+                          CupertinoIcons.lock,
+                          'Защита',
+                          () => settings('security'),
+                        ),
+                        (
+                          'backups',
+                          CupertinoIcons.cloud_upload,
+                          'Резервные копии',
+                          () => settings('backups'),
+                        ),
+                        (
+                          'ai-settings',
+                          CupertinoIcons.slider_horizontal_3,
+                          'Настройки Finora AI',
+                          () => page(const AiSettingsScreen()),
+                        ),
+                        if (developer)
+                          (
+                            'developer',
+                            CupertinoIcons.hammer,
+                            'Для разработчика',
+                            () => page(const DeveloperScreen()),
+                          ),
+                        (
+                          'settings',
+                          CupertinoIcons.gear,
+                          'Все настройки',
+                          () => page(const SettingsScreen()),
+                        ),
+                      ])
+                    row(
+                      key: ValueKey('drawer-settings-$key'),
                       icon: icon,
                       label: tr(label),
                       onTap: () {

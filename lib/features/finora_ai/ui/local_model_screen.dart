@@ -1,3 +1,5 @@
+import '../../../presentation/screens/developer_screen.dart';
+import '../../../domain/monetization.dart';
 import 'package:flutter/material.dart' hide InputDecoration, Text;
 
 import '../../../presentation/l10n_widgets.dart';
@@ -59,7 +61,12 @@ class _LocalModelScreenState extends State<LocalModelScreen> {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
+  Widget build(BuildContext context) => FeatureGate(
+    featureId: PaidFeature.localAi,
+    child: Builder(builder: _content),
+  );
+
+  Widget _content(BuildContext context) => Scaffold(
     appBar: AppBar(title: const Text('Локальная модель')),
     body: ListenableBuilder(
       listenable: assistant,
