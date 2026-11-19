@@ -2,8 +2,6 @@ import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart' hide InputDecoration, Text;
 import '../controller.dart';
-import '../i18n.dart';
-import '../l10n_widgets.dart';
 import '../screens/management.dart';
 import 'common.dart' show money;
 import 'motion.dart';
@@ -93,9 +91,8 @@ class _FinanceBrandState extends State<FinanceBrand>
 }
 
 /// The total balance (from [FinanceController.balance], in the selected
-/// currency) as the first row of the main screen's accounts card: a small
-/// caption on the left, the sum on the right. Tapping it opens the
-/// accounts.
+/// currency), shown in the middle of the main screen's «Все счета» header,
+/// without a caption. Tapping it opens the accounts.
 class AccountsTotal extends StatelessWidget {
   const AccountsTotal({super.key});
   @override
@@ -108,46 +105,27 @@ class AccountsTotal extends StatelessWidget {
       excludeSemantics: true,
       child: InkWell(
         key: const ValueKey('accounts-total'),
+        borderRadius: BorderRadius.circular(10),
         onTap: () => Navigator.push(
           context,
           MaterialPageRoute<void>(builder: (_) => const AccountsScreen()),
         ),
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 13, 16, 11),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
-            children: [
-              Text(
-                tr('Всего'),
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  color: scheme.onSurfaceVariant,
-                ),
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: AnimatedMoney(
+              c.balance,
+              currency: c.currency,
+              textKey: const ValueKey('accounts-total-amount'),
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                letterSpacing: -.4,
+                color: scheme.onSurface,
+                fontFeatures: const [FontFeature.tabularFigures()],
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Align(
-                  alignment: Alignment.centerRight,
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: AnimatedMoney(
-                      c.balance,
-                      currency: c.currency,
-                      textKey: const ValueKey('accounts-total-amount'),
-                      style: TextStyle(
-                        fontSize: 19,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: -.4,
-                        color: scheme.onSurface,
-                        fontFeatures: const [FontFeature.tabularFigures()],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
         ),
       ),

@@ -63,6 +63,9 @@ class _FinoraAiScreenState extends State<FinoraAiScreen> {
   final _input = TextEditingController();
   final _scroll = ScrollController();
   final _messages = <(String, bool)>[];
+
+  /// The answer being typed out (index in [_messages]); -1 — none.
+  int _typing = -1;
   final _history = AssistantHistory();
   final _local = LocalAssistant.instance;
   final _actions = AiActionSession();
@@ -336,6 +339,9 @@ class _FinoraAiScreenState extends State<FinoraAiScreen> {
     if (!current()) return;
     setState(() {
       _messages.add((answer, false));
+      // A streamed model answer was already shown as it came; the rest
+      // are typed out.
+      _typing = _streamed.isEmpty ? _messages.length - 1 : -1;
       _streamed = '';
       _status = '';
       _thinking = false;
@@ -382,14 +388,15 @@ class _FinoraAiScreenState extends State<FinoraAiScreen> {
         ];
       }
       if (!mounted) return;
-      setState(
-        () => _messages.add((
+      setState(() {
+        _messages.add((
           generation == _generation
               ? result
               : 'Результат ранее подтверждённого действия: $result',
           false,
-        )),
-      );
+        ));
+        _typing = _messages.length - 1;
+      });
       AssistantDiagnostics.instance.record(
         'action_result',
         values: {'action': action.kind.name},
@@ -902,6 +909,7 @@ class _FinoraAiScreenState extends State<FinoraAiScreen> {
                   text: _messages[i].$1,
                   mine: _messages[i].$2,
                   accent: accent,
+                  typing: i == _typing,
                 ),
               if (_streamed.isNotEmpty)
                 ChatMessage(text: _streamed, mine: false, accent: accent),

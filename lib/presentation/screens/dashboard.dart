@@ -128,10 +128,41 @@ class Dashboard extends StatelessWidget {
       ),
       'quick': const FinanceQuickActions(),
       'accounts': block([
-        SectionTitle(
-          'Все счета',
-          action: '+ Счёт',
-          onTap: () => showAccountEditor(context),
+        // The header: title on the left, the total balance in the
+        // middle, «+ Счёт» on the right.
+        Padding(
+          padding: const EdgeInsets.only(top: 18, bottom: 8),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  tr('Все счета'),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+              ),
+              if (active.isNotEmpty)
+                const Flexible(flex: 2, child: AccountsTotal()),
+              Expanded(
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    key: const ValueKey('accounts-add'),
+                    onPressed: () => showAccountEditor(context),
+                    style: TextButton.styleFrom(
+                      foregroundColor: Theme.of(
+                        context,
+                      ).colorScheme.onSurfaceVariant,
+                      textStyle: Theme.of(context).textTheme.labelLarge
+                          ?.copyWith(fontWeight: FontWeight.w500),
+                    ),
+                    child: Text(tr('+ Счёт'), maxLines: 1),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
         if (active.isEmpty)
           SurfaceCard(
@@ -147,19 +178,10 @@ class Dashboard extends StatelessWidget {
         if (accounts.isNotEmpty)
           GlassSurface(
             radius: 16,
-            // The total balance opens the card, above the accounts.
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const AccountsTotal(),
-                Divider(
-                  height: .5,
-                  thickness: .5,
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.outlineVariant.withValues(alpha: .6),
-                ),
                 _Reorderable(
                   listKey: 'dashboard-accounts',
                   ids: prefs.accountOrder,

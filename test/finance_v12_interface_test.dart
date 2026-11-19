@@ -176,18 +176,8 @@ void main() {
             find.text(money(controller.balance, controller.currency)),
             findsOneWidget,
           );
-          // A short caption on the left, the sum on the right.
-          expect(find.text('Всего'), findsOneWidget);
-          expect(
-            tester.getCenter(find.text('Всего')).dx,
-            lessThan(
-              tester
-                  .getCenter(
-                    find.text(money(controller.balance, controller.currency)),
-                  )
-                  .dx,
-            ),
-          );
+          // Just the sum, no caption: it sits in the accounts header.
+          expect(find.text('Всего'), findsNothing);
           expect(find.byType(FinanceBrand), findsNothing);
           expect(
             find.bySemanticsLabel(RegExp('^Общий баланс')),
@@ -247,7 +237,17 @@ void main() {
           ),
           findsOneWidget,
         );
-        expect(top(find.text('Все счета')), lessThan(top(total)));
+        // The sum sits in the middle of the «Все счета» header row.
+        final title = tester.getCenter(find.text('Все счета'));
+        final sum = tester.getCenter(total);
+        expect((title.dy - sum.dy).abs(), lessThan(14));
+        expect(sum.dx, greaterThan(title.dx));
+        final add = find.byKey(const ValueKey('accounts-add'));
+        final middle =
+            (tester.getTopLeft(find.text('Все счета')).dx +
+                tester.getTopRight(add).dx) /
+            2;
+        expect((sum.dx - middle).abs(), lessThan(4));
         final keys = [
           'quick-action-income',
           'quick-action-expense',

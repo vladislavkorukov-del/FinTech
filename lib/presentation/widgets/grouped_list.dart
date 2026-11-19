@@ -678,12 +678,14 @@ class _BinPainter extends CustomPainter {
     canvas
       ..drawLine(Offset(s * .43, s * .48), Offset(s * .44, s * .74), line)
       ..drawLine(Offset(s * .57, s * .48), Offset(s * .56, s * .74), line);
-    // The lid, hinged at its right end.
+    // The lid, hinged at its right end. In canvas coordinates y grows
+    // downwards, so a positive angle swings the free (left) end up.
     final hinge = Offset(s * .84, s * .24);
     canvas
       ..save()
+      ..translate(0, -s * .05 * lid)
       ..translate(hinge.dx, hinge.dy)
-      ..rotate(-.55 * lid)
+      ..rotate(.5 * lid)
       ..translate(-hinge.dx, -hinge.dy)
       ..drawLine(Offset(s * .16, s * .24), hinge, line)
       ..drawLine(Offset(s * .4, s * .24), Offset(s * .42, s * .13), line)

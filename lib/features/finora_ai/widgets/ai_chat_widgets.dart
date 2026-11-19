@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart' hide InputDecoration, Text;
+import 'package:flutter/material.dart' as m show Text;
 
 import '../../../presentation/l10n_widgets.dart';
 import '../../../presentation/widgets/finora_orb.dart';
@@ -23,8 +24,8 @@ abstract final class AiLook {
       end: Alignment.bottomCenter,
       stops: [0, .32, .62, 1],
       colors: [
-        Color(0xFF4D1404),
-        Color(0xFF220904),
+        Color(0xFF341307),
+        Color(0xFF1B0B06),
         Color(0xFF0B0807),
         Color(0xFF070708),
       ],
@@ -36,15 +37,14 @@ abstract final class AiLook {
   static Gradient accent([Color c = orange]) => const LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [Color(0xFFFFB25C), Color(0xFFFF7A1F), Color(0xFFE2501A)],
+    colors: [Color(0xFFF2A766), Color(0xFFE8803A), Color(0xFFC9572A)],
     stops: [0, .55, 1],
   );
 }
 
-/// The Finora AI backdrop: a fiery orange glow over deep ember, its light
-/// drifting slowly like water — three soft pools of flame, amber and gold
-/// moving on their own slow paths and breathing in size. Still when the
-/// system asks for less motion.
+/// The Finora AI backdrop: a muted ember glow with a lava lamp inside —
+/// soft blobs of warm wax that slowly rise, stretch, sink and run into one
+/// another. Still when the system asks for less motion.
 class AiBackdrop extends StatefulWidget {
   const AiBackdrop({super.key, required this.child});
   final Widget child;
@@ -57,7 +57,7 @@ class _AiBackdropState extends State<AiBackdrop>
     with SingleTickerProviderStateMixin {
   late final AnimationController _flow = AnimationController(
     vsync: this,
-    duration: const Duration(seconds: 18),
+    duration: const Duration(seconds: 40),
   );
 
   @override
@@ -88,7 +88,7 @@ class _AiBackdropState extends State<AiBackdrop>
               child: AnimatedBuilder(
                 animation: _flow,
                 builder: (context, _) =>
-                    CustomPaint(painter: _FlamePainter(_flow.value)),
+                    CustomPaint(painter: LavaPainter(_flow.value)),
               ),
             ),
           ),
@@ -99,52 +99,71 @@ class _AiBackdropState extends State<AiBackdrop>
   );
 }
 
-/// Pools of light on slow, never-repeating-looking paths (sums of sines
-/// with different periods within one loop).
-class _FlamePainter extends CustomPainter {
-  _FlamePainter(this.t);
+/// Lava-lamp blobs. Each one travels up and down the whole window on its
+/// own slow cycle (whole numbers of trips per loop, so the loop is
+/// seamless), stretches along its motion and squashes at the turns. The
+/// blobs are blurred so that two of them meeting melt into one shape.
+class LavaPainter extends CustomPainter {
+  LavaPainter(this.t);
   final double t;
 
-  static const _pools = [
-    // colour, base x, base y, radius, x speed, y speed, phase
-    (Color(0xF2FF5A1F), .25, .02, 1.05, 1, 2, 0.0),
-    (Color(0xCCFF8A00), .85, .12, .8, 2, 1, 1.7),
-    (Color(0x99FFB627), .5, .3, .65, 1, 3, 3.1),
-    (Color(0x80E8380D), .1, .45, .6, 3, 2, 4.4),
+  static const blobs = [
+    // colour, x, radius (of width), trips per loop, phase, sway
+    (Color(0x99D9561F), .28, .34, 1, 0.0, .10),
+    (Color(0x80E07A2E), .72, .28, 2, 1.9, .08),
+    (Color(0x66C9461A), .5, .22, 1, 3.4, .14),
+    (Color(0x59EBA05A), .18, .16, 3, 4.6, .06),
+    (Color(0x52B23E17), .82, .2, 2, 5.5, .09),
   ];
+
+  /// Where blob [i] is at loop position [t]: centre (as fractions of the
+  /// window) and its stretch (1 is round).
+  static (double, double, double) place(int i, double t) {
+    final (_, x, _, trips, phase, sway) = blobs[i];
+    final a = t * 2 * math.pi * trips + phase;
+    // Wax lingers at the bottom and top: an eased vertical cycle.
+    final y = .55 - .5 * math.sin(a);
+    final speed = math.cos(a).abs();
+    final cx = x + sway * math.sin(t * 2 * math.pi + phase * 1.3);
+    return (cx, y, 1 + .35 * speed);
+  }
 
   @override
   void paint(Canvas canvas, Size size) {
-    final a = t * 2 * math.pi;
-    for (final (color, x, y, r, sx, sy, phase) in _pools) {
-      final cx = (x + .14 * math.sin(a * sx + phase)) * size.width;
-      final cy = (y + .07 * math.cos(a * sy + phase * .7)) * size.height;
-      final radius = r * size.width * (1 + .12 * math.sin(a * 2 + phase)) * 1.1;
-      final center = Offset(cx, cy);
-      canvas.drawCircle(
-        center,
-        radius,
+    final w = size.width;
+    for (var i = 0; i < blobs.length; i++) {
+      final (color, _, r, _, _, _) = blobs[i];
+      final (cx, cy, stretch) = place(i, t);
+      final radius = r * w;
+      final rect = Rect.fromCenter(
+        center: Offset(cx * w, cy * size.height),
+        width: radius * 2 / math.sqrt(stretch),
+        height: radius * 2 * stretch,
+      );
+      canvas.drawOval(
+        rect,
         Paint()
+          ..maskFilter = MaskFilter.blur(BlurStyle.normal, radius * .45)
           ..shader = RadialGradient(
-            colors: [color, color.withValues(alpha: 0)],
-            stops: const [0, 1],
-          ).createShader(Rect.fromCircle(center: center, radius: radius)),
+            colors: [color, color.withValues(alpha: color.a * .55)],
+          ).createShader(rect),
       );
     }
-    // A warm haze along the top edge.
+    // A faint warm haze along the top edge.
+    final top = Offset.zero & Size(w, size.height * .25);
     canvas.drawRect(
-      Offset.zero & Size(size.width, size.height * .3),
+      top,
       Paint()
         ..shader = const LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [Color(0x40FFD9A8), Color(0x00FFD9A8)],
-        ).createShader(Offset.zero & Size(size.width, size.height * .3)),
+          colors: [Color(0x26FFD9A8), Color(0x00FFD9A8)],
+        ).createShader(top),
     );
   }
 
   @override
-  bool shouldRepaint(_FlamePainter old) => old.t != t;
+  bool shouldRepaint(LavaPainter old) => old.t != t;
 }
 
 /// A small translucent pill («× Закрыть чат»).
@@ -310,10 +329,18 @@ class ChatMessage extends StatelessWidget {
     required this.text,
     required this.mine,
     required this.accent,
+    this.typing = false,
+    this.onTyped,
   });
   final String text;
   final bool mine;
   final Color accent;
+
+  /// Finora's newest answer is typed out letter by letter.
+  final bool typing;
+
+  /// Called once the typing has finished (or was skipped).
+  final VoidCallback? onTyped;
 
   @override
   Widget build(BuildContext context) {
@@ -353,8 +380,10 @@ class ChatMessage extends StatelessWidget {
           ),
           const SizedBox(width: 10),
           Expanded(
-            child: Text(
+            child: TypewriterText(
               text,
+              typing: typing,
+              onDone: onTyped,
               style: const TextStyle(
                 color: AiLook.ink,
                 fontSize: 15,
@@ -366,4 +395,93 @@ class ChatMessage extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Text that appears as if being typed: the letters show up one after
+/// another, a little faster for long answers. The whole text is laid out
+/// from the start (the rest is transparent), so the bubble never jumps
+/// and screen readers get the full answer at once. A tap shows it all.
+/// Shown whole when [typing] is off or the system asks for less motion.
+class TypewriterText extends StatefulWidget {
+  const TypewriterText(
+    this.text, {
+    super.key,
+    required this.style,
+    this.typing = true,
+    this.onDone,
+  });
+  final String text;
+  final TextStyle style;
+  final bool typing;
+  final VoidCallback? onDone;
+
+  /// How long typing [length] characters takes: ~22 ms a letter at first,
+  /// never longer than 2.4 s.
+  static Duration durationFor(int length) =>
+      Duration(milliseconds: math.min(2400, 120 + length * 22));
+
+  @override
+  State<TypewriterText> createState() => _TypewriterTextState();
+}
+
+class _TypewriterTextState extends State<TypewriterText>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _c = AnimationController(
+    vsync: this,
+    duration: TypewriterText.durationFor(widget.text.length),
+  )..addStatusListener((s) {
+      if (s == AnimationStatus.completed) widget.onDone?.call();
+    });
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final still = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+    if (!widget.typing || still) {
+      if (_c.value < 1) _c.value = 1;
+    } else if (_c.value == 0 && !_c.isAnimating) {
+      _c.forward();
+    }
+  }
+
+  @override
+  void didUpdateWidget(TypewriterText old) {
+    super.didUpdateWidget(old);
+    if (!widget.typing && _c.value < 1) _c.value = 1;
+  }
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => GestureDetector(
+    behavior: HitTestBehavior.translucent,
+    onTap: _c.value < 1 ? () => _c.value = 1 : null,
+    child: AnimatedBuilder(
+      animation: _c,
+      builder: (context, _) {
+        final text = widget.text;
+        final shown = (Curves.easeOut.transform(_c.value) * text.length)
+            .round()
+            .clamp(0, text.length);
+        return m.Text.rich(
+          TextSpan(
+            children: [
+              TextSpan(text: text.substring(0, shown)),
+              if (shown < text.length)
+                TextSpan(
+                  text: text.substring(shown),
+                  style: const TextStyle(color: Colors.transparent),
+                ),
+            ],
+          ),
+          semanticsLabel: text,
+          style: widget.style,
+        );
+      },
+    ),
+  );
 }
