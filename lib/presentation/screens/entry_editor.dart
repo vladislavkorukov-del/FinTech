@@ -596,28 +596,29 @@ class _EntryEditorState extends State<EntryEditor> {
         );
       });
       // Finora AI learns from the form too: the category chosen for the
-      // place, and a short name the person wrote in full.
-      if (c.data.preferences.ai.personalization) {
-        final ai = FinoraAi.instance;
-        await ai.ready();
+      // place, and a short name the person wrote in full. Her memory is
+      // loaded at launch; the form never waits for it.
+      final ai = FinoraAi.instance;
+      if (c.data.preferences.ai.personalization && ai.loaded) {
         ai.observeSave(entry, before: widget.entry);
         final given = _givenPayee.trim();
-        if (given.isNotEmpty &&
-            entry.payee.isNotEmpty &&
-            PayeeAliases.looksLikeShortFor(given, entry.payee)) {
-          final name = ai.learnAlias(given, entry.payee);
-          if (name != null && mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                key: const ValueKey('alias-learned'),
-                content: Text('Запомнила: «$given» — это $name'),
-                action: SnackBarAction(
-                  label: 'Не надо',
-                  onPressed: () => ai.forgetAlias(given),
-                ),
+        final name =
+            given.isEmpty ||
+                entry.payee.isEmpty ||
+                !PayeeAliases.looksLikeShortFor(given, entry.payee)
+            ? null
+            : ai.learnAlias(given, entry.payee);
+        if (name != null && mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              key: const ValueKey('alias-learned'),
+              content: Text('Запомнила: «$given» — это $name'),
+              action: SnackBarAction(
+                label: 'Не надо',
+                onPressed: () => ai.forgetAlias(given),
               ),
-            );
-          }
+            ),
+          );
         }
       }
       // 1.27: Finora reacts in the bottom bar.

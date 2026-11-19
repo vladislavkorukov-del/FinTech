@@ -1,5 +1,6 @@
 import '../domain/finance_engine.dart';
 import '../domain/models.dart';
+import '../domain/payment_plan.dart';
 import 'controller.dart';
 import 'widgets/common.dart';
 import 'widgets/finora_orb.dart';
@@ -16,6 +17,7 @@ import 'widgets/finora_orb.dart';
 /// | Пополнение мечты | Поддержка; мечта накоплена — Восторг |
 /// | Платёж сегодня | Внимание; просрочен — Злость |
 /// | Платёж подтверждён | Готово; пропущен — Спокойствие |
+/// | Последний платёж закрыл долг | Восторг |
 /// | Вызов голосом | Восторг, пока слушает — Обработка |
 /// | Команда выполнена | Готово; новая мечта — Удовольствие |
 /// | Команда не понята | Сомнение; ошибка — Ошибка |
@@ -62,6 +64,18 @@ abstract final class FinoraReactions {
               : 'Доход: +${sum(entry.amountMinor)}',
         );
       case EntryKind.expense:
+        // Phase 6: the payment that closed a debt.
+        if (entry.status == 'posted') {
+          for (final rule in data.recurring) {
+            if ((rule.totalMinor == null && !rule.isLoan) ||
+                !PaymentPlan.belongs(entry, rule)) {
+              continue;
+            }
+            if (PaymentPlan.of(rule, data.entries).done) {
+              return (FinoraMood.delight, 'Долг «${rule.name}» закрыт!');
+            }
+          }
+        }
         for (final budget in data.budgets) {
           if (budget.currency != entry.currency) continue;
           if (budget.categoryId != null &&

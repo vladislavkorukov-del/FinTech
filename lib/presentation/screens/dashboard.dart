@@ -1,3 +1,4 @@
+import '../../features/finora_ai/widgets/important_insight.dart';
 import '../i18n.dart';
 import 'package:flutter/material.dart' hide InputDecoration, Text;
 import 'package:flutter/foundation.dart' show listEquals;
@@ -434,8 +435,11 @@ class Dashboard extends StatelessWidget {
       ),
       nested: false,
       // Room for the menu button; the total balance lives in the accounts
-      // card now.
-      header: const SizedBox(height: 50),
+      // card now. Phase 6: what needs attention now comes first.
+      header: const Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [SizedBox(height: 50), ImportantInsightCard()],
+      ),
       // 1.26: no hint here any more — the tour explains dragging.
       footer: const SizedBox(height: 18),
 

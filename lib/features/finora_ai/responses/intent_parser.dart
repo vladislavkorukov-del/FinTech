@@ -27,18 +27,34 @@ enum AiIntent {
 
   /// Payments coming up (the cash-flow timeline).
   payments,
+
+  /// «Сколько я потратил на продукты?» — one category's spending.
+  categorySpend,
   unknown,
 }
 
 class ParsedQuery {
-  const ParsedQuery(this.intent, {this.subject, this.period});
+  const ParsedQuery(
+    this.intent, {
+    this.subject,
+    this.period,
+    this.previous = false,
+    this.detailed = false,
+  });
   final AiIntent intent;
 
-  /// For [AiIntent.categorize]: the merchant or description to classify.
+  /// For [AiIntent.categorize]: the merchant or description to classify;
+  /// for [AiIntent.categorySpend]: the category (its words, then its id).
   final String? subject;
 
   /// For [AiIntent.compare]: the period named («эту неделю с прошлой»).
   final PeriodUnit? period;
+
+  /// The previous period («в прошлом месяце»), for [AiIntent.categorySpend].
+  final bool previous;
+
+  /// «Подробнее»: all the observations, not only the top ones.
+  final bool detailed;
 }
 
 /// Keyword rules, most specific first. Deterministic and offline.
@@ -131,8 +147,22 @@ abstract final class IntentParser {
       ? PeriodUnit.day
       : null;
 
+  static final _categorySpend = RegExp(
+    r'сколько (я |мы |у меня )?(потратил\S*|ушло|уходит|трачу|тратил\S*|потрачено) (на|в|за) (.+)$',
+  );
+
   static ParsedQuery parse(String text) {
     final t = text.toLowerCase().replaceAll('ё', 'е').trim();
+    final spend = _categorySpend.firstMatch(t);
+    if (spend != null) {
+      final rest = spend.group(4)!.replaceAll(RegExp(r'[?.!]+$'), '');
+      return ParsedQuery(
+        AiIntent.categorySpend,
+        subject: rest,
+        period: periodOf(rest),
+        previous: RegExp(r'прошл').hasMatch(rest),
+      );
+    }
     final c = _categorize.firstMatch(t);
     if (c != null) {
       final subject = text

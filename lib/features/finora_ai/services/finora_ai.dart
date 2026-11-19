@@ -5,7 +5,9 @@ import 'package:flutter/services.dart' show rootBundle;
 import '../../../domain/models.dart';
 import '../classification/transaction_classifier.dart';
 import '../inference/linear_model.dart';
+import '../conversation/conversation_context.dart';
 import '../insights/debt_advice.dart';
+import '../responses/category_spend.dart';
 import '../memory/personal_memory.dart';
 import '../models/ai_models.dart';
 import '../personalization/feedback.dart';
@@ -46,8 +48,13 @@ class FinoraAi {
   /// Loads the memory and the model once.
   Future<void> ready() => _ready ??= _load();
 
+  /// The memory is loaded (the app starts loading it at launch).
+  bool get loaded => _loaded;
+  bool _loaded = false;
+
   Future<void> _load() async {
     await memoryRepository.load();
+    _loaded = true;
     if (model != null) return;
     try {
       final source = await rootBundle.loadString(modelAsset);
@@ -178,8 +185,16 @@ class FinoraAi {
   }
 
   /// Answers a typed question from the facts of [s].
+  /// The conversation so far (Phase 6): short follow-ups are understood.
+  final conversation = ConversationContext();
+
   AiAnswer answer(String question, FinoraAiSnapshot s) {
-    final q = IntentParser.parse(question);
+    final q = conversation.resolve(
+      question,
+      IntentParser.parse(question),
+      s.ctx.data,
+      now: s.ctx.now,
+    );
     // «Как мне погасить долги?» — the payoff plan from the person's data.
     if (DebtAdvice.matches(question)) {
       return AiAnswer(
@@ -306,12 +321,25 @@ class FinoraAi {
         }
         final r = classify(s.ctx.data, merchant: subject);
         return AiAnswer(q, ResponseLayer.classification(s, subject, r));
+      case AiIntent.categorySpend:
+        return AiAnswer(
+          q,
+          CategorySpend.answer(
+            s.ctx.data,
+            categoryId: q.subject,
+            period: q.period,
+            previous: q.previous,
+            now: s.ctx.now,
+          ),
+        );
       case AiIntent.summary:
-        // The month in one line, then the most useful observations.
-        final top = [
+        // The month in one line, then the most useful observations
+        // («Подробнее»: up to eight).
+        final top = <Insight>{
           ...of(InsightKind.summary).take(1),
           ...s.top,
-        ].take(3).toList();
+          if (q.detailed) ...s.insights,
+        }.take(q.detailed ? 8 : 3).toList();
         return AiAnswer(q, join(top, ResponseLayer.notEnough), insights: top);
       case AiIntent.unknown:
         return AiAnswer(

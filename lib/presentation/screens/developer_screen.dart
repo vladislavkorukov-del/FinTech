@@ -18,8 +18,9 @@ PurchaseProvider purchases = const NoPurchaseProvider();
 /// Whether [featureId] may be used; otherwise shows the Finora Plus sheet
 /// and returns false.
 Future<bool> ensureFeature(BuildContext context, String featureId) async {
-  final c = FinanceScope.of(context);
-  if (Entitlements.allows(c.data.preferences.developer, featureId)) {
+  final c = FinanceScope.maybeOf(context);
+  if (c == null ||
+      Entitlements.allows(c.data.preferences.developer, featureId)) {
     return true;
   }
   await showPaywall(context, featureId);
@@ -121,8 +122,11 @@ class FeatureGate extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = FinanceScope.of(context);
-    if (Entitlements.allows(c.data.preferences.developer, featureId)) {
+    // Without the ledger (a screen shown on its own) there is nothing to
+    // check: the feature is open.
+    final c = FinanceScope.maybeOf(context);
+    if (c == null ||
+        Entitlements.allows(c.data.preferences.developer, featureId)) {
       return child;
     }
     final feature = PaidFeature.byId(featureId);

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart' hide InputDecoration, Text;
 
 import '../domain/models.dart';
 import '../domain/voice_command_parser.dart';
+import '../features/finora_ai/conversation/voice_questions.dart';
 import 'widgets/common.dart';
 import 'widgets/finora_orb.dart';
 import 'widgets/success_burst.dart';
@@ -314,6 +315,16 @@ abstract final class VoiceCommands {
         );
         await push(const RecurringScreen());
       case UnknownCommand():
+        // Phase 6: a question Finora AI knows is answered by her engines.
+        final reply = VoiceQuestions.answer(command.heard, c.data);
+        if (reply != null) {
+          Finora.react(
+            FinoraMood.happy,
+            text: reply,
+            hold: const Duration(seconds: 8),
+          );
+          return;
+        }
         // 1.27: Finora herself says she did not get it.
         Finora.react(
           FinoraMood.doubt,

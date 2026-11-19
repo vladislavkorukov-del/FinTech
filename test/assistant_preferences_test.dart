@@ -74,7 +74,10 @@ void main() {
       await reopened.load();
       expect(reopened.memory.preferences.primaryAccountId, 'cash');
       expect(reopened.memory.corrections.single.from, 'other');
-      expect(jsonDecode(await file.readAsString())['version'], 4);
+      expect(
+        jsonDecode(await file.readAsString())['version'],
+        PersonalMemory.version,
+      );
     },
   );
 
@@ -305,7 +308,10 @@ void main() {
       // Explicit reset/restore is the only operation allowed to replace it.
       await repo.replace(PersonalMemory());
       expect(repo.readError, isNull);
-      expect(jsonDecode(await file.readAsString())['version'], 4);
+      expect(
+        jsonDecode(await file.readAsString())['version'],
+        PersonalMemory.version,
+      );
     },
   );
 
