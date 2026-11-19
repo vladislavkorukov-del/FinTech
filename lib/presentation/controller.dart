@@ -285,6 +285,35 @@ class FinanceController extends ChangeNotifier {
     }
   }
 
+  /// New operations saved together («Несколько операций»): all or none.
+  /// Each is checked like a single one; Finora AI learns their categories.
+  Future<void> saveEntries(List<FinanceEntry> entries) async {
+    if (entries.isEmpty) return;
+    await mutate((d) {
+      var preferences = d.preferences;
+      for (final e in entries) {
+        if (d.entries.any((x) => x.id == e.id)) {
+          throw const FormatException('Операция уже сохранена');
+        }
+        FinanceEngine.validateEntry(e, d);
+        preferences = rememberCategory(d.copyWith(preferences: preferences), e);
+      }
+      return d.copyWith(
+        entries: [...d.entries, ...entries],
+        preferences: preferences,
+      );
+    });
+    if (data.preferences.ai.personalization) {
+      unawaited(
+        FinoraAi.instance.ready().then((_) {
+          for (final e in entries) {
+            FinoraAi.instance.observeSave(e);
+          }
+        }),
+      );
+    }
+  }
+
   Future<void> deleteEntry(String id) => mutate((d) {
     final old = d.entries.where((e) => e.id == id).firstOrNull;
     final entries = d.entries.where((e) => e.id != id).toList();

@@ -6,6 +6,7 @@ import '../i18n.dart';
 import '../l10n_widgets.dart';
 import '../screens/achievements_screen.dart';
 import '../screens/app_search.dart';
+import '../screens/batch_entries_screen.dart';
 import '../screens/entry_editor.dart';
 import '../screens/management.dart';
 import '../screens/settings.dart';
@@ -196,6 +197,15 @@ class FinoraDrawer extends StatelessWidget {
                             'Голосовой ввод',
                             onVoice!,
                           ),
+                        (
+                          'batch',
+                          CupertinoIcons.square_list,
+                          'Несколько операций',
+                          () => openFinancePage(
+                            context,
+                            const BatchEntriesScreen(),
+                          ),
+                        ),
                         (
                           'scan',
                           CupertinoIcons.doc_text_viewfinder,

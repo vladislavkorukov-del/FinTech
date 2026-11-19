@@ -35,6 +35,7 @@ import '../widgets/grouped_list.dart' show confirmWithFinora;
 import '../widgets/amount_pad.dart';
 import '../widgets/service_badge.dart';
 import 'management.dart';
+import 'batch_entries_screen.dart';
 import 'scan_import_screen.dart';
 import '../l10n_widgets.dart';
 
@@ -905,6 +906,20 @@ class _EntryEditorState extends State<EntryEditor> {
         actions: [
           // 1.37: a screenshot or the voice — two compact buttons.
           if (widget.entry == null) ...[
+            IconButton.filledTonal(
+              key: const ValueKey('entry-batch'),
+              tooltip: 'Несколько операций',
+              onPressed: _busy
+                  ? null
+                  : () => Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute<void>(
+                        builder: (_) => const BatchEntriesScreen(),
+                      ),
+                    ),
+              icon: const Icon(Icons.playlist_add_rounded),
+            ),
+            const SizedBox(width: 6),
             IconButton.filledTonal(
               key: const ValueKey('scan-receipt'),
               tooltip: 'Распознать скриншот из банка',
