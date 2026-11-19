@@ -119,17 +119,6 @@ class FinoraDrawer extends StatelessWidget {
         color: scheme.outlineVariant.withValues(alpha: .5),
       ),
     );
-    Widget heading(String text) => Padding(
-      padding: const EdgeInsets.fromLTRB(24, 8, 24, 4),
-      child: Text(
-        text,
-        style: TextStyle(
-          fontSize: 13.5,
-          fontWeight: FontWeight.w600,
-          color: scheme.onSurfaceVariant,
-        ),
-      ),
-    );
     void page(Widget screen) => Navigator.push(
       context,
       MaterialPageRoute<void>(builder: (_) => screen),
@@ -201,157 +190,181 @@ class FinoraDrawer extends StatelessWidget {
                       onTap: () => go(place),
                     ),
                   divider(),
-                  heading(tr('Функции')),
-                  // «Функции»: tools that already live in the app.
-                  for (final (key, icon, label, open)
-                      in <(String, IconData, String, VoidCallback)>[
-                        if (onVoice != null)
-                          (
-                            'voice',
-                            CupertinoIcons.mic,
-                            'Голосовой ввод',
-                            onVoice!,
-                          ),
-                        (
-                          'batch',
-                          CupertinoIcons.square_list,
-                          'Несколько операций',
-                          () => openFinancePage(
-                            context,
-                            const BatchEntriesScreen(),
-                          ),
+                  _DrawerSection(
+                    key: const ValueKey('drawer-section-functions'),
+                    title: tr('Функции'),
+                    storageKey: 'drawer-functions',
+                    initiallyOpen: true,
+                    children: [
+                      // «Функции»: tools that already live in the app.
+                      for (final (key, icon, label, open)
+                          in <(String, IconData, String, VoidCallback)>[
+                            if (onVoice != null)
+                              (
+                                'voice',
+                                CupertinoIcons.mic,
+                                'Голосовой ввод',
+                                onVoice!,
+                              ),
+                            (
+                              'batch',
+                              CupertinoIcons.square_list,
+                              'Несколько операций',
+                              () => openFinancePage(
+                                context,
+                                const BatchEntriesScreen(),
+                              ),
+                            ),
+                            (
+                              'scan',
+                              CupertinoIcons.doc_text_viewfinder,
+                              'Скриншот из банка',
+                              () => showEntryEditor(context, startScan: true),
+                            ),
+                            (
+                              'shopping',
+                              CupertinoIcons.cart,
+                              'Список покупок',
+                              () => openFinancePage(
+                                context,
+                                const ShoppingScreen(),
+                              ),
+                            ),
+                            (
+                              'debts',
+                              CupertinoIcons.creditcard,
+                              'Долги',
+                              () =>
+                                  openFinancePage(context, const DebtsScreen()),
+                            ),
+                            (
+                              'recurring',
+                              CupertinoIcons.arrow_2_circlepath,
+                              'Платежи и подписки',
+                              () => openFinancePage(
+                                context,
+                                const RecurringScreen(),
+                              ),
+                            ),
+                            (
+                              'calendar',
+                              CupertinoIcons.calendar,
+                              'Календарь',
+                              () => openFinancePage(
+                                context,
+                                const CalendarScreen(),
+                              ),
+                            ),
+                            (
+                              'budgets',
+                              CupertinoIcons.chart_pie,
+                              'Бюджеты',
+                              () => openFinancePage(
+                                context,
+                                const BudgetsScreen(),
+                              ),
+                            ),
+                            (
+                              'goals',
+                              CupertinoIcons.star,
+                              'Мечты',
+                              () =>
+                                  openFinancePage(context, const GoalsScreen()),
+                            ),
+                            (
+                              'achievements',
+                              CupertinoIcons.rosette,
+                              'Достижения',
+                              () => openFinancePage(
+                                context,
+                                const AchievementsScreen(),
+                              ),
+                            ),
+                          ])
+                        row(
+                          key: ValueKey('drawer-$key'),
+                          icon: icon,
+                          label: tr(label),
+                          onTap: () {
+                            Haptics.light();
+                            Navigator.pop(context);
+                            open();
+                          },
                         ),
-                        (
-                          'scan',
-                          CupertinoIcons.doc_text_viewfinder,
-                          'Скриншот из банка',
-                          () => showEntryEditor(context, startScan: true),
-                        ),
-                        (
-                          'shopping',
-                          CupertinoIcons.cart,
-                          'Список покупок',
-                          () =>
-                              openFinancePage(context, const ShoppingScreen()),
-                        ),
-                        (
-                          'debts',
-                          CupertinoIcons.creditcard,
-                          'Долги',
-                          () => openFinancePage(context, const DebtsScreen()),
-                        ),
-                        (
-                          'recurring',
-                          CupertinoIcons.arrow_2_circlepath,
-                          'Платежи и подписки',
-                          () =>
-                              openFinancePage(context, const RecurringScreen()),
-                        ),
-                        (
-                          'calendar',
-                          CupertinoIcons.calendar,
-                          'Календарь',
-                          () =>
-                              openFinancePage(context, const CalendarScreen()),
-                        ),
-                        (
-                          'budgets',
-                          CupertinoIcons.chart_pie,
-                          'Бюджеты',
-                          () => openFinancePage(context, const BudgetsScreen()),
-                        ),
-                        (
-                          'goals',
-                          CupertinoIcons.star,
-                          'Мечты',
-                          () => openFinancePage(context, const GoalsScreen()),
-                        ),
-                        (
-                          'achievements',
-                          CupertinoIcons.rosette,
-                          'Достижения',
-                          () => openFinancePage(
-                            context,
-                            const AchievementsScreen(),
-                          ),
-                        ),
-                      ])
-                    row(
-                      key: ValueKey('drawer-$key'),
-                      icon: icon,
-                      label: tr(label),
-                      onTap: () {
-                        Haptics.light();
-                        Navigator.pop(context);
-                        open();
-                      },
-                    ),
-                  // Settings right here: the pages people open most, and
-                  // the whole list.
+                      // Settings right here: the pages people open most, and
+                      // the whole list.
+                    ],
+                  ),
                   divider(),
-                  heading(tr('Настройки')),
-                  for (final (key, icon, label, open)
-                      in <(String, IconData, String, VoidCallback)>[
-                        (
-                          'appearance',
-                          CupertinoIcons.paintbrush,
-                          'Внешний вид',
-                          () => settings('appearance'),
+                  _DrawerSection(
+                    key: const ValueKey('drawer-section-settings'),
+                    title: tr('Настройки'),
+                    storageKey: 'drawer-settings',
+                    children: [
+                      for (final (key, icon, label, open)
+                          in <(String, IconData, String, VoidCallback)>[
+                            (
+                              'appearance',
+                              CupertinoIcons.paintbrush,
+                              'Внешний вид',
+                              () => settings('appearance'),
+                            ),
+                            (
+                              'general',
+                              CupertinoIcons.money_rubl_circle,
+                              'Валюта и форматы',
+                              () => settings('general'),
+                            ),
+                            (
+                              'notifications',
+                              CupertinoIcons.bell,
+                              'Уведомления',
+                              () => settings('notifications'),
+                            ),
+                            (
+                              'security',
+                              CupertinoIcons.lock,
+                              'Защита',
+                              () => settings('security'),
+                            ),
+                            (
+                              'backups',
+                              CupertinoIcons.cloud_upload,
+                              'Резервные копии',
+                              () => settings('backups'),
+                            ),
+                            (
+                              'ai-settings',
+                              CupertinoIcons.slider_horizontal_3,
+                              'Настройки Finora AI',
+                              () => page(const AiSettingsScreen()),
+                            ),
+                            if (developer)
+                              (
+                                'developer',
+                                CupertinoIcons.hammer,
+                                'Для разработчика',
+                                () => page(const DeveloperScreen()),
+                              ),
+                            (
+                              'settings',
+                              CupertinoIcons.gear,
+                              'Все настройки',
+                              () => page(const SettingsScreen()),
+                            ),
+                          ])
+                        row(
+                          key: ValueKey('drawer-settings-$key'),
+                          icon: icon,
+                          label: tr(label),
+                          onTap: () {
+                            Haptics.light();
+                            Navigator.pop(context);
+                            open();
+                          },
                         ),
-                        (
-                          'general',
-                          CupertinoIcons.money_rubl_circle,
-                          'Валюта и форматы',
-                          () => settings('general'),
-                        ),
-                        (
-                          'notifications',
-                          CupertinoIcons.bell,
-                          'Уведомления',
-                          () => settings('notifications'),
-                        ),
-                        (
-                          'security',
-                          CupertinoIcons.lock,
-                          'Защита',
-                          () => settings('security'),
-                        ),
-                        (
-                          'backups',
-                          CupertinoIcons.cloud_upload,
-                          'Резервные копии',
-                          () => settings('backups'),
-                        ),
-                        (
-                          'ai-settings',
-                          CupertinoIcons.slider_horizontal_3,
-                          'Настройки Finora AI',
-                          () => page(const AiSettingsScreen()),
-                        ),
-                        if (developer)
-                          (
-                            'developer',
-                            CupertinoIcons.hammer,
-                            'Для разработчика',
-                            () => page(const DeveloperScreen()),
-                          ),
-                        (
-                          'settings',
-                          CupertinoIcons.gear,
-                          'Все настройки',
-                          () => page(const SettingsScreen()),
-                        ),
-                      ])
-                    row(
-                      key: ValueKey('drawer-settings-$key'),
-                      icon: icon,
-                      label: tr(label),
-                      onTap: () {
-                        Haptics.light();
-                        Navigator.pop(context);
-                        open();
-                      },
-                    ),
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -413,6 +426,87 @@ class FinoraDrawer extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// A group of the side panel («Функции», «Настройки») that folds: a tap on
+/// its title opens or closes it. Remembered while the app runs.
+class _DrawerSection extends StatefulWidget {
+  const _DrawerSection({
+    super.key,
+    required this.title,
+    required this.storageKey,
+    required this.children,
+    this.initiallyOpen = false,
+  });
+  final String title, storageKey;
+  final List<Widget> children;
+  final bool initiallyOpen;
+
+  /// Open or closed, by [storageKey], for this run of the app.
+  static final _open = <String, bool>{};
+
+  @override
+  State<_DrawerSection> createState() => _DrawerSectionState();
+}
+
+class _DrawerSectionState extends State<_DrawerSection> {
+  late bool _open =
+      _DrawerSection._open[widget.storageKey] ?? widget.initiallyOpen;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        InkWell(
+          key: ValueKey('${widget.storageKey}-toggle'),
+          onTap: () {
+            Haptics.light();
+            setState(() => _open = !_open);
+            _DrawerSection._open[widget.storageKey] = _open;
+          },
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(24, 10, 18, 6),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    widget.title,
+                    style: TextStyle(
+                      fontSize: 13.5,
+                      fontWeight: FontWeight.w600,
+                      color: scheme.onSurfaceVariant,
+                    ),
+                  ),
+                ),
+                AnimatedRotation(
+                  turns: _open ? .5 : 0,
+                  duration: const Duration(milliseconds: 200),
+                  child: Icon(
+                    CupertinoIcons.chevron_down,
+                    size: 15,
+                    color: scheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        AnimatedSize(
+          duration: const Duration(milliseconds: 220),
+          curve: Curves.easeOutCubic,
+          alignment: Alignment.topCenter,
+          child: _open
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: widget.children,
+                )
+              : const SizedBox(width: double.infinity),
+        ),
+      ],
     );
   }
 }

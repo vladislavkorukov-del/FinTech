@@ -10,6 +10,7 @@ import '../i18n.dart';
 import '../l10n_widgets.dart';
 import '../widgets/common.dart';
 import 'debt_editor.dart';
+import 'debts_help.dart';
 import 'management.dart';
 
 /// «Долги»: everything owed in one place — loans, instalments, personal
@@ -91,6 +92,12 @@ class _DebtsScreenState extends State<DebtsScreen> {
         title: Text(tr('Долги')),
         actions: [
           IconButton(
+            key: const ValueKey('debts-help-button'),
+            tooltip: 'Как пользоваться',
+            onPressed: () => showDebtsHelp(context),
+            icon: const Icon(Icons.help_outline_rounded),
+          ),
+          IconButton(
             key: const ValueKey('debts-add'),
             tooltip: 'Добавить долг',
             onPressed: () => showDebtEditor(context),
@@ -133,6 +140,16 @@ class _DebtsScreenState extends State<DebtsScreen> {
                       'посчитает, как закрыть их быстрее и дешевле.',
                   icon: Icons.handshake_outlined,
                 ),
+              ),
+            ),
+          if (payable.isEmpty && receivable.isEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: OutlinedButton.icon(
+                key: const ValueKey('debts-help-empty'),
+                onPressed: () => showDebtsHelp(context),
+                icon: const Icon(Icons.lightbulb_outline_rounded),
+                label: const Text('Как это работает — с примерами'),
               ),
             ),
           if (payable.isNotEmpty) ...[

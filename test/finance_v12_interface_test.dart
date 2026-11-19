@@ -16,6 +16,7 @@ import 'package:finora/presentation/widgets/amount_pad.dart';
 import 'package:finora/presentation/widgets/service_badge.dart';
 import 'package:finora/services/notification_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart' show RenderParagraph;
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -237,17 +238,27 @@ void main() {
           ),
           findsOneWidget,
         );
-        // The sum sits in the middle of the «Все счета» header row.
-        final title = tester.getCenter(find.text('Все счета'));
-        final sum = tester.getCenter(total);
-        expect((title.dy - sum.dy).abs(), lessThan(14));
-        expect(sum.dx, greaterThan(title.dx));
-        final add = find.byKey(const ValueKey('accounts-add'));
-        final middle =
-            (tester.getTopLeft(find.text('Все счета')).dx +
-                tester.getTopRight(add).dx) /
-            2;
-        expect((sum.dx - middle).abs(), lessThan(4));
+        // The sum is centred under or in the «Все счета» header, which
+        // keeps its own layout: «+ Счёт» at the right edge.
+        final header = find.ancestor(
+          of: find.text('Все счета'),
+          matching: find.byType(SectionTitle),
+        );
+        final sumBox = tester.getRect(total);
+        expect(
+          (sumBox.center.dx - tester.getCenter(header).dx).abs(),
+          lessThan(2),
+        );
+        final add = tester.getRect(find.text('+ Счёт'));
+        expect(sumBox.overlaps(add), isFalse);
+        expect(tester.getRect(header).right - add.right, lessThan(24));
+        final paragraph = tester.renderObject<RenderParagraph>(
+          find.text('Все счета'),
+        );
+        final titleRight =
+            tester.getTopLeft(find.text('Все счета')).dx +
+            paragraph.getMaxIntrinsicWidth(double.infinity);
+        expect(sumBox.left > titleRight || sumBox.top >= add.bottom, isTrue);
         final keys = [
           'quick-action-income',
           'quick-action-expense',

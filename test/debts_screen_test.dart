@@ -54,6 +54,13 @@ void main() {
     );
     await tester.pumpAndSettle();
     expect(find.text('Долгов нет'), findsOneWidget);
+    // The help explains with examples.
+    await tester.tap(find.byKey(const ValueKey('debts-help-empty')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('debts-help')), findsOneWidget);
+    expect(find.textContaining('Например: Сбербанк'), findsOneWidget);
+    await tester.tapAt(const Offset(200, 20));
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('debts-add')));
     await tester.pumpAndSettle();
     await tester.enterText(find.byKey(const ValueKey('debt-name')), 'Кредитка');

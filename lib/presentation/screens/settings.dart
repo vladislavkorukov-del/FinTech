@@ -48,6 +48,7 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   final security = SecurityService();
   final _developerUnlock = DeveloperUnlock();
+  List<DateTime> _finoraTaps = [];
   bool hasPin = false, biometric = false, securityLoaded = false, busy = false;
   @override
   void initState() {
@@ -733,13 +734,36 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ]);
       case 'about':
         return _page(tr('О приложении'), [
-          const SizedBox(height: 12),
-          const Center(child: FinoraMark(size: 72)),
-          const SizedBox(height: 12),
-          Text(
-            appName,
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.headlineSmall,
+          // Three quick taps on Finora (her mark or name) open developer
+          // mode.
+          GestureDetector(
+            key: const ValueKey('about-finora-taps'),
+            behavior: HitTestBehavior.opaque,
+            onTap: () {
+              final now = DateTime.now();
+              _finoraTaps = [
+                ..._finoraTaps.where(
+                  (t) => now.difference(t) < const Duration(milliseconds: 1500),
+                ),
+                now,
+              ];
+              if (_finoraTaps.length >= 3) {
+                _finoraTaps = [];
+                openDeveloperMode(context);
+              }
+            },
+            child: Column(
+              children: [
+                const SizedBox(height: 12),
+                const Center(child: FinoraMark(size: 72)),
+                const SizedBox(height: 12),
+                Text(
+                  appName,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.headlineSmall,
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 4),
           Listener(

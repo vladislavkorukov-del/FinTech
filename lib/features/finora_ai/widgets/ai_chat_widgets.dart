@@ -42,9 +42,10 @@ abstract final class AiLook {
   );
 }
 
-/// The Finora AI backdrop: a muted ember glow with a lava lamp inside —
-/// soft blobs of warm wax that slowly rise, stretch, sink and run into one
-/// another. Still when the system asks for less motion.
+/// The Finora AI backdrop: a fiery orange glow over deep ember, its light
+/// drifting slowly like water (muted so it does not glare) — three soft pools of flame, amber and gold
+/// moving on their own slow paths and breathing in size. Still when the
+/// system asks for less motion.
 class AiBackdrop extends StatefulWidget {
   const AiBackdrop({super.key, required this.child});
   final Widget child;
@@ -57,7 +58,7 @@ class _AiBackdropState extends State<AiBackdrop>
     with SingleTickerProviderStateMixin {
   late final AnimationController _flow = AnimationController(
     vsync: this,
-    duration: const Duration(seconds: 40),
+    duration: const Duration(seconds: 18),
   );
 
   @override
@@ -88,7 +89,7 @@ class _AiBackdropState extends State<AiBackdrop>
               child: AnimatedBuilder(
                 animation: _flow,
                 builder: (context, _) =>
-                    CustomPaint(painter: LavaPainter(_flow.value)),
+                    CustomPaint(painter: _FlamePainter(_flow.value)),
               ),
             ),
           ),
@@ -99,74 +100,52 @@ class _AiBackdropState extends State<AiBackdrop>
   );
 }
 
-/// Lava-lamp blobs. Each one travels up and down the whole window on its
-/// own slow cycle (whole numbers of trips per loop, so the loop is
-/// seamless), stretches along its motion and squashes at the turns. The
-/// blobs are blurred so that two of them meeting melt into one shape.
-class LavaPainter extends CustomPainter {
-  LavaPainter(this.t);
+/// Pools of light on slow, never-repeating-looking paths (sums of sines
+/// with different periods within one loop).
+class _FlamePainter extends CustomPainter {
+  _FlamePainter(this.t);
   final double t;
 
-  static const blobs = [
-    // colour, x, radius (of width), trips per loop, phase, sway
-    (Color(0x99D9561F), .28, .34, 1, 0.0, .10),
-    (Color(0x80E07A2E), .72, .28, 2, 1.9, .08),
-    (Color(0x66C9461A), .5, .22, 1, 3.4, .14),
-    (Color(0x59EBA05A), .18, .16, 3, 4.6, .06),
-    (Color(0x52B23E17), .82, .2, 2, 5.5, .09),
+  static const _pools = [
+    // colour, base x, base y, radius, x speed, y speed, phase
+    (Color(0x9EE8561F), .25, .02, 1.05, 1, 2, 0.0),
+    (Color(0x85E8840F), .85, .12, .8, 2, 1, 1.7),
+    (Color(0x5CE8A63A), .5, .3, .65, 1, 3, 3.1),
+    (Color(0x4DCC3A12), .1, .45, .6, 3, 2, 4.4),
   ];
-
-  /// Where blob [i] is at loop position [t]: centre (as fractions of the
-  /// window) and its stretch (1 is round).
-  static (double, double, double) place(int i, double t) {
-    final (_, x, _, trips, phase, sway) = blobs[i];
-    final a = t * 2 * math.pi * trips + phase;
-    // Wax lingers at the bottom and top: an eased vertical cycle.
-    final y = .55 - .5 * math.sin(a);
-    final speed = math.cos(a).abs();
-    final cx = x + sway * math.sin(t * 2 * math.pi + phase * 1.3);
-    return (cx, y, 1 + .35 * speed);
-  }
 
   @override
   void paint(Canvas canvas, Size size) {
-    final w = size.width;
-    for (var i = 0; i < blobs.length; i++) {
-      final (color, _, r, _, _, _) = blobs[i];
-      final (cx, cy, stretch) = place(i, t);
-      final radius = r * w;
-      final rect = Rect.fromCenter(
-        center: Offset(cx * w, cy * size.height),
-        width: radius * 2 / math.sqrt(stretch),
-        height: radius * 2 * stretch,
-      );
-      canvas.drawOval(
-        rect,
+    final a = t * 2 * math.pi;
+    for (final (color, x, y, r, sx, sy, phase) in _pools) {
+      final cx = (x + .14 * math.sin(a * sx + phase)) * size.width;
+      final cy = (y + .07 * math.cos(a * sy + phase * .7)) * size.height;
+      final radius = r * size.width * (1 + .12 * math.sin(a * 2 + phase)) * 1.1;
+      final center = Offset(cx, cy);
+      canvas.drawCircle(
+        center,
+        radius,
         Paint()
-          ..maskFilter = MaskFilter.blur(BlurStyle.normal, radius * .45)
           ..shader = RadialGradient(
-            colors: [
-              color,
-              color.withValues(alpha: color.a * .55),
-            ],
-          ).createShader(rect),
+            colors: [color, color.withValues(alpha: 0)],
+            stops: const [0, 1],
+          ).createShader(Rect.fromCircle(center: center, radius: radius)),
       );
     }
-    // A faint warm haze along the top edge.
-    final top = Offset.zero & Size(w, size.height * .25);
+    // A warm haze along the top edge.
     canvas.drawRect(
-      top,
+      Offset.zero & Size(size.width, size.height * .3),
       Paint()
         ..shader = const LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [Color(0x26FFD9A8), Color(0x00FFD9A8)],
-        ).createShader(top),
+          colors: [Color(0x22FFD9A8), Color(0x00FFD9A8)],
+        ).createShader(Offset.zero & Size(size.width, size.height * .3)),
     );
   }
 
   @override
-  bool shouldRepaint(LavaPainter old) => old.t != t;
+  bool shouldRepaint(_FlamePainter old) => old.t != t;
 }
 
 /// A small translucent pill («× Закрыть чат»).

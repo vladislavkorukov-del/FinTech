@@ -9,6 +9,7 @@ import 'package:finora/presentation/screens/batch_entries_screen.dart';
 import 'package:finora/presentation/screens/developer_screen.dart';
 import 'package:finora/presentation/screens/settings.dart';
 import 'package:finora/presentation/theme/app_theme.dart';
+import 'package:finora/presentation/widgets/finora_drawer.dart';
 import 'package:finora/services/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -113,6 +114,20 @@ void main() {
     await tester.runAsync(repo.close);
   }
 
+  testWidgets('three taps on Finora in «О приложении» open developer mode', (
+    tester,
+  ) async {
+    await start(tester, const SettingsScreen(section: 'about'));
+    final finora = find.byKey(const ValueKey('about-finora-taps'));
+    for (var i = 0; i < 3; i++) {
+      await tester.tap(finora);
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    await settle(tester, () => c.data.preferences.developer.enabled);
+    expect(find.byType(DeveloperScreen), findsOneWidget);
+    await stop(tester);
+  });
+
   testWidgets('three long presses on the version open developer mode', (
     tester,
   ) async {
@@ -182,6 +197,35 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('paywall-test-plus')));
     await settle(tester, () => c.data.preferences.developer.simulatedPlus);
     expect(find.byKey(const ValueKey('batch-save')), findsOneWidget);
+    await stop(tester);
+  });
+
+  testWidgets('the side panel: functions open, settings folded', (
+    tester,
+  ) async {
+    await start(
+      tester,
+      Scaffold(body: FinoraDrawer(current: 0, onSelect: (_) {})),
+    );
+    expect(find.byKey(const ValueKey('drawer-shopping')), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('drawer-settings-appearance')),
+      findsNothing,
+    );
+    await tester.tap(find.byKey(const ValueKey('drawer-settings-toggle')));
+    await tester.pumpAndSettle();
+    expect(
+      find.byKey(const ValueKey('drawer-settings-appearance')),
+      findsOneWidget,
+    );
+    await tester.tap(find.byKey(const ValueKey('drawer-functions-toggle')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('drawer-shopping')), findsNothing);
+    // Back as it was, for the other tests of this run.
+    await tester.tap(find.byKey(const ValueKey('drawer-functions-toggle')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('drawer-settings-toggle')));
+    await tester.pumpAndSettle();
     await stop(tester);
   });
 }

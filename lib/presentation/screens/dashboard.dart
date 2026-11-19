@@ -129,41 +129,9 @@ class Dashboard extends StatelessWidget {
       ),
       'quick': const FinanceQuickActions(),
       'accounts': block([
-        // The header: title on the left, the total balance in the
-        // middle, «+ Счёт» on the right.
-        Padding(
-          padding: const EdgeInsets.only(top: 18, bottom: 8),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  tr('Все счета'),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-              ),
-              if (active.isNotEmpty)
-                const Flexible(flex: 2, child: AccountsTotal()),
-              Expanded(
-                child: Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    key: const ValueKey('accounts-add'),
-                    onPressed: () => showAccountEditor(context),
-                    style: TextButton.styleFrom(
-                      foregroundColor: Theme.of(
-                        context,
-                      ).colorScheme.onSurfaceVariant,
-                      textStyle: Theme.of(context).textTheme.labelLarge
-                          ?.copyWith(fontWeight: FontWeight.w500),
-                    ),
-                    child: Text(tr('+ Счёт'), maxLines: 1),
-                  ),
-                ),
-              ),
-            ],
-          ),
+        _AccountsHeader(
+          showTotal: active.isNotEmpty,
+          onAdd: () => showAccountEditor(context),
         ),
         if (active.isEmpty)
           SurfaceCard(
@@ -1172,4 +1140,70 @@ int _monthly(List<RecurringRule> rules, String currency) {
     total += r.amountMinor * per;
   }
   return total.round();
+}
+
+/// The usual «Все счета» · «+ Счёт» header with the total balance laid over
+/// its middle — nothing else moves. When the middle has no room (a narrow
+/// screen, large text), the total sits centred just below instead.
+class _AccountsHeader extends StatelessWidget {
+  const _AccountsHeader({required this.showTotal, required this.onAdd});
+  final bool showTotal;
+  final VoidCallback onAdd;
+
+  @override
+  Widget build(BuildContext context) {
+    final title = SectionTitle('Все счета', action: '+ Счёт', onTap: onAdd);
+    if (!showTotal) return title;
+    final c = FinanceScope.of(context);
+    final theme = Theme.of(context);
+    final scaler = MediaQuery.textScalerOf(context);
+    double width(String text, TextStyle? style) => (TextPainter(
+      text: TextSpan(text: text, style: style),
+      textDirection: Directionality.of(context),
+      textScaler: scaler,
+      maxLines: 1,
+    )..layout()).width;
+    return LayoutBuilder(
+      builder: (context, box) {
+        final w = box.maxWidth;
+        final titleW = width(tr('Все счета'), theme.textTheme.titleLarge);
+        final addW =
+            width(
+              tr('+ Счёт'),
+              theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w500),
+            ) +
+            24;
+        final sumW =
+            width(
+              money(c.balance, c.currency),
+              const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+            ) +
+            12;
+        final fits =
+            w / 2 - sumW / 2 > titleW + 10 && w / 2 + sumW / 2 < w - addW - 10;
+        if (!fits) {
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              title,
+              const Padding(
+                padding: EdgeInsets.only(bottom: 6),
+                child: Center(child: AccountsTotal()),
+              ),
+            ],
+          );
+        }
+        return Stack(
+          children: [
+            title,
+            const Positioned.fill(
+              top: 18,
+              bottom: 8,
+              child: Center(child: AccountsTotal()),
+            ),
+          ],
+        );
+      },
+    );
+  }
 }
