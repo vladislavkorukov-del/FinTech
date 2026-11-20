@@ -128,20 +128,14 @@ void main() {
     await stop(tester);
   });
 
-  testWidgets('three long presses on the version open developer mode', (
+  testWidgets('developer mode: mark a feature paid and enforce', (
     tester,
   ) async {
     await start(tester, const SettingsScreen(section: 'about'));
-    final version = find.byKey(const ValueKey('assistant-developer-unlock'));
-    await tester.ensureVisible(version);
+    final finora = find.byKey(const ValueKey('about-finora-taps'));
     for (var i = 0; i < 3; i++) {
-      final gesture = await tester.startGesture(tester.getCenter(version));
-      // The unlock reads the wall clock: a real long press.
-      await tester.runAsync(
-        () => Future<void>.delayed(const Duration(milliseconds: 1600)),
-      );
-      await gesture.up();
-      await tester.pump();
+      await tester.tap(finora);
+      await tester.pump(const Duration(milliseconds: 100));
     }
     await settle(tester, () => c.data.preferences.developer.enabled);
     expect(c.data.preferences.developer.enabled, isTrue);
@@ -200,14 +194,24 @@ void main() {
     await stop(tester);
   });
 
-  testWidgets('the side panel: functions open, settings folded', (
+  testWidgets('the side panel: both groups folded; a tap opens', (
     tester,
   ) async {
     await start(
       tester,
       Scaffold(body: FinoraDrawer(current: 0, onSelect: (_) {})),
     );
+    // No developer entry anywhere in the panel.
+    expect(
+      find.byKey(const ValueKey('drawer-settings-developer')),
+      findsNothing,
+    );
+    expect(find.byKey(const ValueKey('drawer-shopping')), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('drawer-functions-toggle')));
+    await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('drawer-shopping')), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('drawer-functions-toggle')));
+    await tester.pumpAndSettle();
     expect(
       find.byKey(const ValueKey('drawer-settings-appearance')),
       findsNothing,
@@ -218,12 +222,7 @@ void main() {
       find.byKey(const ValueKey('drawer-settings-appearance')),
       findsOneWidget,
     );
-    await tester.tap(find.byKey(const ValueKey('drawer-functions-toggle')));
-    await tester.pumpAndSettle();
-    expect(find.byKey(const ValueKey('drawer-shopping')), findsNothing);
     // Back as it was, for the other tests of this run.
-    await tester.tap(find.byKey(const ValueKey('drawer-functions-toggle')));
-    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('drawer-settings-toggle')));
     await tester.pumpAndSettle();
     await stop(tester);

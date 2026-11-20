@@ -26,7 +26,6 @@ import '../../features/finora_ai/ui/ai_help_screen.dart';
 import '../../features/finora_ai/ui/ai_settings_screen.dart';
 import '../../features/finora_ai/services/finora_ai.dart';
 import '../../features/finora_ai/memory/personal_memory.dart';
-import '../../features/finora_ai/local_model/assistant_diagnostics.dart';
 import '../../services/finora_ear.dart';
 import '../../services/finora_system.dart';
 import '../finora_outside.dart';
@@ -48,7 +47,6 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   final security = SecurityService();
-  final _developerUnlock = DeveloperUnlock();
   List<DateTime> _finoraTaps = [];
   bool hasPin = false, biometric = false, securityLoaded = false, busy = false;
   @override
@@ -773,22 +771,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ),
           const SizedBox(height: 4),
-          Listener(
-            key: const ValueKey('assistant-developer-unlock'),
-            onPointerDown: (_) => _developerUnlock.down(DateTime.now()),
-            onPointerCancel: (_) => _developerUnlock.cancel(),
-            onPointerUp: (_) {
-              if (_developerUnlock.up(DateTime.now())) {
-                openDeveloperMode(context);
-              }
-            },
-            child: Text(
-              'Версия $version · ваш финансовый ассистент',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 13,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
+          Text(
+            'Версия $version · ваш финансовый ассистент',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 13,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
           const SizedBox(height: 24),
@@ -1166,20 +1154,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ),
                       ),
                     ),
-                    if (p.developer.enabled)
-                      GroupedRow(
-                        key: const ValueKey('settings-developer'),
-                        icon: Icons.developer_mode_rounded,
-                        color: TileColors.indigo,
-                        title: 'Для разработчика',
-                        subtitle: 'Платные функции, диагностика',
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute<void>(
-                            builder: (_) => const DeveloperScreen(),
-                          ),
-                        ),
-                      ),
                     GroupedRow(
                       key: const ValueKey('settings-about'),
                       icon: Icons.info_rounded,

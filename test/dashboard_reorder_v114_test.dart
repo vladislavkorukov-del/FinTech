@@ -91,8 +91,11 @@ void main() {
     await tester.pumpAndSettle();
   }
 
+  Finder at(String text) => text == 'Все счета'
+      ? find.byKey(const ValueKey('accounts-header'))
+      : find.text(text);
   double top(WidgetTester tester, String text) =>
-      tester.getTopLeft(find.text(text)).dy;
+      tester.getTopLeft(at(text)).dy;
 
   testWidgets('a block is dragged above another and stays there', (
     tester,
@@ -102,7 +105,7 @@ void main() {
       top(tester, 'Все счета'),
       lessThan(top(tester, 'Мечты и накопления')),
     );
-    await drag(tester, find.text('Мечты и накопления'), find.text('Все счета'));
+    await drag(tester, find.text('Мечты и накопления'), at('Все счета'));
     expect(
       top(tester, 'Мечты и накопления'),
       lessThan(top(tester, 'Все счета')),
@@ -128,7 +131,9 @@ void main() {
     expect(saved.preferences.accountOrder, ['c', 'a', 'b']);
     expect(saved.preferences.goalOrder, ['g2', 'g1']);
     // A short tap still opens things as before (no drag on a tap).
-    await tester.tap(find.text('Все счета'));
+    await tester.tapAt(
+      tester.getTopLeft(at('Все счета')) + const Offset(12, 30),
+    );
     await tester.pumpAndSettle();
     expect(controller.data.preferences.dashboardOrder, isEmpty);
     expect(tester.takeException(), isNull);

@@ -10,9 +10,7 @@ import '../screens/batch_entries_screen.dart';
 import '../screens/entry_editor.dart';
 import '../screens/management.dart';
 import '../screens/settings.dart';
-import '../screens/developer_screen.dart';
 import '../screens/debts_screen.dart';
-import '../controller.dart';
 import '../../features/finora_ai/ui/ai_settings_screen.dart';
 import '../../features/finora_ai/ui/report_screen.dart';
 import 'profile_avatar.dart';
@@ -125,9 +123,6 @@ class FinoraDrawer extends StatelessWidget {
       MaterialPageRoute<void>(builder: (_) => screen),
     );
     void settings(String section) => page(SettingsScreen(section: section));
-    final developer =
-        FinanceScope.maybeOf(context)?.data.preferences.developer.enabled ??
-        false;
 
     return Drawer(
       key: const ValueKey('app-drawer'),
@@ -195,7 +190,6 @@ class FinoraDrawer extends StatelessWidget {
                     key: const ValueKey('drawer-section-functions'),
                     title: tr('Функции'),
                     storageKey: 'drawer-functions',
-                    initiallyOpen: true,
                     children: [
                       // «Функции»: tools that already live in the app.
                       for (final (key, icon, label, open)
@@ -349,13 +343,6 @@ class FinoraDrawer extends StatelessWidget {
                               'Настройки Finora AI',
                               () => page(const AiSettingsScreen()),
                             ),
-                            if (developer)
-                              (
-                                'developer',
-                                CupertinoIcons.hammer,
-                                'Для разработчика',
-                                () => page(const DeveloperScreen()),
-                              ),
                             (
                               'settings',
                               CupertinoIcons.gear,
@@ -448,11 +435,9 @@ class _DrawerSection extends StatefulWidget {
     required this.title,
     required this.storageKey,
     required this.children,
-    this.initiallyOpen = false,
   });
   final String title, storageKey;
   final List<Widget> children;
-  final bool initiallyOpen;
 
   /// Open or closed, by [storageKey], for this run of the app.
   static final _open = <String, bool>{};
@@ -462,8 +447,8 @@ class _DrawerSection extends StatefulWidget {
 }
 
 class _DrawerSectionState extends State<_DrawerSection> {
-  late bool _open =
-      _DrawerSection._open[widget.storageKey] ?? widget.initiallyOpen;
+  /// Folded by default; opened groups stay open while the app runs.
+  late bool _open = _DrawerSection._open[widget.storageKey] ?? false;
 
   @override
   Widget build(BuildContext context) {

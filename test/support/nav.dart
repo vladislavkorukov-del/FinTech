@@ -25,6 +25,13 @@ Future<void> startVoice(WidgetTester tester) async {
   for (var i = 0; i < 6; i++) {
     await tester.pump(const Duration(milliseconds: 80));
   }
+  // «Функции» are folded by default.
+  if (find.byKey(const ValueKey('drawer-voice')).evaluate().isEmpty) {
+    await tester.tap(find.byKey(const ValueKey('drawer-functions-toggle')));
+    for (var i = 0; i < 6; i++) {
+      await tester.pump(const Duration(milliseconds: 80));
+    }
+  }
   await tester.tap(find.byKey(const ValueKey('drawer-voice')));
   for (var i = 0; i < 6; i++) {
     await tester.pump(const Duration(milliseconds: 80));

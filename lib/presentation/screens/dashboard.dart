@@ -1142,9 +1142,8 @@ int _monthly(List<RecurringRule> rules, String currency) {
   return total.round();
 }
 
-/// The usual «Все счета» · «+ Счёт» header with the total balance laid over
-/// its middle — nothing else moves. When the middle has no room (a narrow
-/// screen, large text), the total sits centred just below instead.
+/// The accounts block header: no title, the total balance in the middle and
+/// «+ Счёт» on the right, exactly where they always were.
 class _AccountsHeader extends StatelessWidget {
   const _AccountsHeader({required this.showTotal, required this.onAdd});
   final bool showTotal;
@@ -1152,58 +1151,54 @@ class _AccountsHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final title = SectionTitle('Все счета', action: '+ Счёт', onTap: onAdd);
-    if (!showTotal) return title;
-    final c = FinanceScope.of(context);
-    final theme = Theme.of(context);
-    final scaler = MediaQuery.textScalerOf(context);
-    double width(String text, TextStyle? style) => (TextPainter(
-      text: TextSpan(text: text, style: style),
-      textDirection: Directionality.of(context),
-      textScaler: scaler,
-      maxLines: 1,
-    )..layout()).width;
-    return LayoutBuilder(
-      builder: (context, box) {
-        final w = box.maxWidth;
-        final titleW = width(tr('Все счета'), theme.textTheme.titleLarge);
-        final addW =
-            width(
-              tr('+ Счёт'),
-              theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w500),
-            ) +
-            24;
-        final sumW =
-            width(
-              money(c.balance, c.currency),
-              const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
-            ) +
-            12;
-        final fits =
-            w / 2 - sumW / 2 > titleW + 10 && w / 2 + sumW / 2 < w - addW - 10;
-        if (!fits) {
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              title,
-              const Padding(
-                padding: EdgeInsets.only(bottom: 6),
-                child: Center(child: AccountsTotal()),
-              ),
-            ],
-          );
-        }
-        return Stack(
-          children: [
-            title,
-            const Positioned.fill(
-              top: 18,
-              bottom: 8,
-              child: Center(child: AccountsTotal()),
+    final row = SectionTitle('', action: '+ Счёт', onTap: onAdd);
+    return KeyedSubtree(
+      key: const ValueKey('accounts-header'),
+      child: !showTotal
+          ? row
+          : Stack(
+              children: [
+                row,
+                Positioned.fill(
+                  top: 18,
+                  bottom: 8,
+                  child: LayoutBuilder(
+                    // The sum keeps clear of «+ Счёт» on both sides (it
+                    // shrinks to fit rather than move).
+                    builder: (context, box) {
+                      final theme = Theme.of(context);
+                      final add =
+                          (TextPainter(
+                            text: TextSpan(
+                              text: tr('+ Счёт'),
+                              style: theme.textTheme.labelLarge?.copyWith(
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            textDirection: Directionality.of(context),
+                            textScaler: MediaQuery.textScalerOf(context),
+                            maxLines: 1,
+                          )..layout()).width +
+                          32;
+                      final middle = box.maxWidth - 2 * add;
+                      // Centred over the row; on a very narrow screen with
+                      // large text — centred in the room left of «+ Счёт».
+                      return middle >= 110
+                          ? Center(
+                              child: ConstrainedBox(
+                                constraints: BoxConstraints(maxWidth: middle),
+                                child: const AccountsTotal(),
+                              ),
+                            )
+                          : Padding(
+                              padding: EdgeInsets.only(right: add),
+                              child: const Center(child: AccountsTotal()),
+                            );
+                    },
+                  ),
+                ),
+              ],
             ),
-          ],
-        );
-      },
     );
   }
 }

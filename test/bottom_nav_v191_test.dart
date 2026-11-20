@@ -128,6 +128,10 @@ void main() {
       // An inner page from «Функции»: the shopping list.
       await tester.tap(find.byKey(const ValueKey('nav-menu')));
       await tester.pumpAndSettle();
+      if (find.byKey(const ValueKey('drawer-shopping')).evaluate().isEmpty) {
+        await tester.tap(find.byKey(const ValueKey('drawer-functions-toggle')));
+        await tester.pumpAndSettle();
+      }
       await tester.tap(find.byKey(const ValueKey('drawer-shopping')));
       await tester.pumpAndSettle();
       final drawer = find.byKey(const ValueKey('app-drawer'));
