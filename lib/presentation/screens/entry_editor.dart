@@ -11,6 +11,7 @@ import '../../features/finora_ai/classification/merchant_intelligence.dart';
 import '../../features/finora_ai/models/ai_models.dart';
 import '../../features/finora_ai/personalization/payee_aliases.dart';
 import '../../features/finora_ai/services/finora_ai.dart';
+import '../../features/finora_ai/tags/tag_suggester.dart';
 import '../../domain/voice_entry_parser.dart';
 import '../../services/voice_input_service.dart';
 import 'package:flutter/services.dart';
@@ -1701,10 +1702,67 @@ class _EntryEditorState extends State<EntryEditor> {
                           const SizedBox(height: 12),
                           TextFormField(
                             controller: _tags,
+                            onChanged: (_) => setState(() {}),
                             decoration: const InputDecoration(
                               labelText: 'Теги через запятую',
                               hintText: 'Например: отпуск, дача',
                             ),
+                          ),
+                          // Phase 7: tags Finora suggests; a tap adds one.
+                          Builder(
+                            builder: (context) {
+                              if (!c.data.preferences.ai.enabled) {
+                                return const SizedBox.shrink();
+                              }
+                              int amount;
+                              try {
+                                amount = FinanceEngine.parseMinor(_amount.text);
+                              } catch (_) {
+                                amount = 0;
+                              }
+                              final tags = TagSuggester.suggest(
+                                c.data,
+                                kind: _kind,
+                                amountMinor: amount,
+                                payee: _payee.text,
+                                date: _date,
+                                categoryId: _category,
+                                existing: _tags.text.split(','),
+                              );
+                              if (tags.isEmpty) return const SizedBox.shrink();
+                              return Padding(
+                                padding: const EdgeInsets.only(top: 8),
+                                child: Wrap(
+                                  key: const ValueKey('entry-ai-tags'),
+                                  spacing: 6,
+                                  runSpacing: 6,
+                                  crossAxisAlignment: WrapCrossAlignment.center,
+                                  children: [
+                                    Text(
+                                      'Финора предлагает:',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .labelMedium
+                                          ?.copyWith(
+                                            color: scheme.onSurfaceVariant,
+                                          ),
+                                    ),
+                                    for (final tag in tags)
+                                      ActionChip(
+                                        key: ValueKey('entry-ai-tag-$tag'),
+                                        label: Text('#$tag'),
+                                        visualDensity: VisualDensity.compact,
+                                        onPressed: () => setState(() {
+                                          final now = _tags.text.trim();
+                                          _tags.text = now.isEmpty
+                                              ? tag
+                                              : '$now, $tag';
+                                        }),
+                                      ),
+                                  ],
+                                ),
+                              );
+                            },
                           ),
                           const SizedBox(height: 12),
                           DropdownButtonFormField<String>(

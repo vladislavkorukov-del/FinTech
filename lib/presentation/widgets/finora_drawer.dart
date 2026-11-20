@@ -14,6 +14,7 @@ import '../screens/developer_screen.dart';
 import '../screens/debts_screen.dart';
 import '../controller.dart';
 import '../../features/finora_ai/ui/ai_settings_screen.dart';
+import '../../features/finora_ai/ui/report_screen.dart';
 import 'profile_avatar.dart';
 
 /// The app's navigation (Release), after a chat app's side panel: the name
@@ -228,6 +229,15 @@ class FinoraDrawer extends StatelessWidget {
                               () => openFinancePage(
                                 context,
                                 const ShoppingScreen(),
+                              ),
+                            ),
+                            (
+                              'report',
+                              CupertinoIcons.doc_chart,
+                              'Отчёт',
+                              () => openFinancePage(
+                                context,
+                                const ReportScreen(),
                               ),
                             ),
                             (

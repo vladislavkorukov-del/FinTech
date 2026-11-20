@@ -7,6 +7,9 @@ import '../classification/transaction_classifier.dart';
 import '../inference/linear_model.dart';
 import '../conversation/conversation_context.dart';
 import '../insights/debt_advice.dart';
+import '../insights/what_if.dart';
+import '../reports/report_builder.dart';
+import '../search/smart_search.dart';
 import '../responses/category_spend.dart';
 import '../memory/personal_memory.dart';
 import '../models/ai_models.dart';
@@ -195,6 +198,32 @@ class FinoraAi {
       s.ctx.data,
       now: s.ctx.now,
     );
+    // Phase 7: a report, a «что если», a search in words (also by voice).
+    final report = ReportBuilder.parseRequest(question);
+    if (report != null) {
+      return AiAnswer(
+        q,
+        ReportBuilder.text(
+          ReportBuilder.build(
+            s.ctx.data,
+            period: report.$1,
+            previous: report.$2,
+            now: s.ctx.now,
+          ),
+        ),
+      );
+    }
+    final whatIf = WhatIf.answer(s.ctx.data, question, now: s.ctx.now);
+    if (whatIf != null) return AiAnswer(q, whatIf);
+    final search = q.intent == AiIntent.unknown
+        ? SmartSearch.parse(question, s.ctx.data, now: s.ctx.now)
+        : null;
+    if (search != null) {
+      return AiAnswer(
+        q,
+        SmartSearch.answer(SmartSearch.run(search, s.ctx.data), s.ctx.data),
+      );
+    }
     // «Как мне погасить долги?» — the payoff plan from the person's data.
     if (DebtAdvice.matches(question)) {
       return AiAnswer(

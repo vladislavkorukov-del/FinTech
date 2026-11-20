@@ -10,6 +10,7 @@ import 'package:share_plus/share_plus.dart';
 
 import '../../domain/app_version.dart';
 import '../../domain/foreign_csv.dart';
+import '../../domain/xlsx_reader.dart';
 import '../../domain/models.dart';
 import '../../services/security_service.dart';
 import '../../services/user_files.dart';
@@ -312,7 +313,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (file.size > ForeignCsv.maxBytes) {
       throw const FormatException('Файл превышает 20 МБ.');
     }
-    final text = ForeignCsv.decode(await File(path).readAsBytes());
+    final bytes = await File(path).readAsBytes();
+    // Phase 7: an Excel export goes through the same CSV import.
+    final text =
+        file.name.toLowerCase().endsWith('.xlsx') ||
+            XlsxReader.looksLikeXlsx(bytes)
+        ? XlsxReader.toCsv(bytes)
+        : ForeignCsv.decode(bytes);
     ForeignCsv.read(text); // an unreadable file stops here, with a reason
     if (!mounted) {
       return;
@@ -695,10 +702,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 key: const ValueKey('import-foreign-csv'),
                 icon: Icons.move_down_rounded,
                 color: TileColors.purple,
-                title: 'Операции из CSV',
+                title: 'Операции из CSV или Excel',
                 subtitle:
                     'Дзен-мани, CoinKeeper, Money Manager, Monefy, Wallet, '
-                    'Toshl, выписки банков и любые таблицы',
+                    'Toshl, выписки банков (.csv, .xlsx) и любые таблицы',
                 onTap: () => _run(_importForeign),
               ),
             ],

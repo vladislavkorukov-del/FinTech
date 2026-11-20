@@ -1,5 +1,7 @@
 import '../../../domain/models.dart';
 import '../insights/debt_advice.dart';
+import '../insights/what_if.dart';
+import '../reports/report_builder.dart';
 import '../responses/intent_parser.dart';
 import '../services/finora_ai.dart';
 
@@ -17,7 +19,9 @@ abstract final class VoiceQuestions {
     if (text.isEmpty) return null;
     final known =
         IntentParser.parse(text).intent != AiIntent.unknown ||
-        DebtAdvice.matches(text);
+        DebtAdvice.matches(text) ||
+        ReportBuilder.parseRequest(text) != null ||
+        WhatIf.matches(text);
     if (!known) return null;
     final ai = FinoraAi.instance;
     final reply = ai.answer(text, ai.snapshot(data, now: now)).text.trim();

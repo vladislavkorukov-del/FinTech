@@ -21,8 +21,15 @@ class TransactionsScreen extends StatefulWidget {
     this.goalId,
     this.initialKind,
     this.title,
+    this.initialSearch,
+    this.initialMinMinor,
+    this.initialMaxMinor,
   });
   final String? categoryId, accountId, goalId;
+
+  /// Phase 7: a search from Finora AI — words and a range of sums.
+  final String? initialSearch;
+  final int? initialMinMinor, initialMaxMinor;
 
   /// Heading for a list opened by voice («Расходы · июнь 2026», 1.23).
   final String? title;
@@ -46,6 +53,16 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
     _account = widget.accountId;
     _kind = widget.initialKind;
     _range = widget.initialRange;
+    _search.text = widget.initialSearch ?? '';
+    String plain(int minor) => minor % 100 == 0
+        ? '${minor ~/ 100}'
+        : '${minor ~/ 100},${(minor % 100).toString().padLeft(2, '0')}';
+    if (widget.initialMinMinor != null) {
+      _min.text = plain(widget.initialMinMinor!);
+    }
+    if (widget.initialMaxMinor != null) {
+      _max.text = plain(widget.initialMaxMinor!);
+    }
   }
 
   @override
@@ -277,7 +294,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
   @override
   Widget build(BuildContext context) {
     final c = FinanceScope.of(context);
-    final query = _search.text.toLowerCase().trim();
+    final query = _search.text.toLowerCase().replaceAll('ё', 'е').trim();
     int? safeParse(String s) {
       try {
         return s.isEmpty ? null : FinanceEngine.parseMinor(s);
@@ -314,7 +331,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                 c.category(e.categoryId)?.name ?? '',
                 c.account(e.accountId)?.name ?? '',
                 c.destinationName(e),
-              ].join(' ').toLowerCase().contains(query));
+              ].join(' ').toLowerCase().replaceAll('ё', 'е').contains(query));
     }).toList()..sort((a, b) => b.date.compareTo(a.date));
     // 1.36: the list is never squeezed by the keyboard (on some phones its
     // height stayed after it closed and cut the list in half); it scrolls

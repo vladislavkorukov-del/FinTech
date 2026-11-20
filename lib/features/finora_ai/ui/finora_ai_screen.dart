@@ -15,6 +15,11 @@ import '../services/finora_ai.dart';
 import '../memory/personal_memory.dart';
 import '../personalization/payee_aliases.dart';
 import '../insights/debt_advice.dart';
+import '../insights/what_if.dart';
+import '../reports/report_builder.dart';
+import '../search/smart_search.dart';
+import '../../../presentation/screens/transactions.dart';
+import 'package:share_plus/share_plus.dart';
 import '../actions/ai_actions.dart';
 import '../actions/ai_action_executor.dart';
 import '../local_model/assistant_history.dart';
@@ -68,6 +73,10 @@ class _FinoraAiScreenState extends State<FinoraAiScreen> {
 
   /// The answer being typed out (index in [_messages]); -1 — none.
   int _typing = -1;
+
+  /// Phase 7: the last search (to open as a list) and a report to share.
+  SmartQuery? _search;
+  String? _share;
   final _history = AssistantHistory();
   final _local = LocalAssistant.instance;
   final _actions = AiActionSession();
@@ -240,6 +249,8 @@ class _FinoraAiScreenState extends State<FinoraAiScreen> {
       _mode = _Mode.chat;
       _thinking = true;
       _pendingAction = null;
+      _search = null;
+      _share = null;
       _streamed = '';
       _status = '';
     });
@@ -262,7 +273,15 @@ class _FinoraAiScreenState extends State<FinoraAiScreen> {
           ? PayeeAliases.parseTeaching(text)
           : null;
       final debtAdvice = DebtAdvice.matches(text);
-      final deterministic = preferFacts || taught != null || debtAdvice
+      // Phase 7: a report, a «что если», a search in words.
+      final report = ReportBuilder.parseRequest(text);
+      final whatIf = WhatIf.matches(text);
+      final search = report == null && !whatIf && !debtAdvice
+          ? SmartSearch.parse(text, c.data)
+          : null;
+      final phase7 = report != null || whatIf || search != null;
+      final deterministic =
+          preferFacts || taught != null || debtAdvice || phase7
           ? null
           : _actions.resolveDeterministic(
               text,
@@ -277,6 +296,20 @@ class _FinoraAiScreenState extends State<FinoraAiScreen> {
             ? 'Не поняла, что запомнить. Скажите так: «кб — это Красное и Белое».'
             : 'Запомнила: «${taught.$1}» — это $name. Теперь «расход ${taught.$1} 500» '
                   'запишется на $name. Забыть можно в «Памяти ассистента».';
+      } else if (report != null) {
+        _actions.cancel();
+        answer = ReportBuilder.text(
+          ReportBuilder.build(c.data, period: report.$1, previous: report.$2),
+        );
+        _share = answer;
+      } else if (whatIf) {
+        _actions.cancel();
+        answer = WhatIf.answer(c.data, text)!;
+      } else if (search != null) {
+        _actions.cancel();
+        final result = SmartSearch.run(search, c.data);
+        answer = SmartSearch.answer(result, c.data);
+        if (result.entries.isNotEmpty) _search = search;
       } else if (debtAdvice) {
         _actions.cancel();
         answer = DebtAdvice.answer(c.data, currency: c.currency);
@@ -946,6 +979,56 @@ class _FinoraAiScreenState extends State<FinoraAiScreen> {
                 FilledButton.tonal(
                   onPressed: _executePending,
                   child: const Text('Проверить действие'),
+                ),
+              if (_search != null && !_thinking)
+                Padding(
+                  padding: const EdgeInsets.only(left: 34, bottom: 12),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: GlassPill(
+                      key: const ValueKey('ai-open-search'),
+                      icon: CupertinoIcons.list_bullet,
+                      label: 'Открыть список',
+                      onTap: () {
+                        final q = _search!;
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute<void>(
+                            builder: (_) => TransactionsScreen(
+                              initialKind: q.kind,
+                              categoryId: q.categoryId,
+                              initialRange: q.start == null
+                                  ? null
+                                  : DateTimeRange(
+                                      start: q.start!,
+                                      end: q.end!.subtract(
+                                        const Duration(days: 1),
+                                      ),
+                                    ),
+                              initialSearch: q.text,
+                              initialMinMinor: q.minMinor,
+                              initialMaxMinor: q.maxMinor,
+                              title: 'Поиск Финоры',
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              if (_share != null && !_thinking)
+                Padding(
+                  padding: const EdgeInsets.only(left: 34, bottom: 12),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: GlassPill(
+                      key: const ValueKey('ai-share-report'),
+                      icon: CupertinoIcons.share,
+                      label: 'Поделиться отчётом',
+                      onTap: () =>
+                          SharePlus.instance.share(ShareParams(text: _share!)),
+                    ),
+                  ),
                 ),
               if (_thinking || _status.isNotEmpty)
                 Padding(
