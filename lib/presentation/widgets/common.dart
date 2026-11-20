@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart' hide InputDecoration, Text;
+import 'grouped_list.dart' show confirmWithFinora;
 import 'package:intl/intl.dart';
 
 import '../../domain/models.dart';
@@ -233,29 +234,19 @@ class EmptyState extends StatelessWidget {
   );
 }
 
-Future<bool> confirm(
-  BuildContext context,
-  String title,
-  String message,
-) async =>
-    await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(title),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Отмена'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Продолжить'),
-          ),
-        ],
-      ),
-    ) ??
-    false;
+/// A plain «Продолжить?» question, in the same premium dialog as
+/// [confirmWithFinora]; destructive wording turns it red.
+Future<bool> confirm(BuildContext context, String title, String message) =>
+    confirmWithFinora(
+      context,
+      title: title,
+      message: message,
+      action: 'Продолжить',
+      destructive: RegExp(
+        r'удал|сброс|очист|забыть',
+        caseSensitive: false,
+      ).hasMatch(title),
+    );
 void showError(BuildContext context, Object error) {
   ScaffoldMessenger.of(context)
     ..hideCurrentSnackBar()

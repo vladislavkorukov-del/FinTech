@@ -6,7 +6,6 @@ import 'package:flutter/foundation.dart' show ValueListenable;
 import 'package:flutter/services.dart';
 
 import 'common.dart';
-import 'finora_orb.dart';
 import '../i18n.dart';
 import '../l10n_widgets.dart';
 
@@ -792,7 +791,9 @@ class SwipeToDelete extends StatelessWidget {
   }
 }
 
-/// A question from Finora (1.28): her face, a title, a line and two buttons.
+/// A question before an action (Release): a strict, premium dialog in the
+/// theme's own colours — a thin accent line, a quiet symbol, the title, the
+/// consequence, and two full-width buttons; a destructive action is red.
 Future<bool> confirmWithFinora(
   BuildContext context, {
   required String title,
@@ -801,58 +802,162 @@ Future<bool> confirmWithFinora(
   String cancel = 'Отмена',
   bool destructive = false,
 }) async {
-  final scheme = Theme.of(context).colorScheme;
-  final ok = await showDialog<bool>(
+  final ok = await showGeneralDialog<bool>(
     context: context,
-    builder: (ctx) => Dialog(
-      key: const ValueKey('finora-confirm'),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(22, 22, 22, 12),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Center(
-                child: FinoraMark(
-                  size: 72,
-                  mood: destructive ? FinoraMood.doubt : FinoraMood.thinking,
-                ),
+    barrierDismissible: true,
+    barrierLabel: cancel,
+    barrierColor: Colors.black.withValues(alpha: .45),
+    transitionDuration: const Duration(milliseconds: 220),
+    pageBuilder: (ctx, _, _) => PremiumConfirm(
+      title: title,
+      message: message,
+      action: action,
+      cancel: cancel,
+      destructive: destructive,
+    ),
+    transitionBuilder: (ctx, a, _, child) {
+      final t = Curves.easeOutCubic.transform(a.value);
+      return Opacity(
+        opacity: a.value,
+        child: Transform.scale(scale: .96 + .04 * t, child: child),
+      );
+    },
+  );
+  return ok == true;
+}
+
+/// The dialog of [confirmWithFinora] and [confirm].
+class PremiumConfirm extends StatelessWidget {
+  const PremiumConfirm({
+    super.key,
+    required this.title,
+    required this.message,
+    this.action = 'Да',
+    this.cancel = 'Отмена',
+    this.destructive = false,
+  });
+  final String title, message, action, cancel;
+  final bool destructive;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final tone = destructive ? scheme.error : scheme.primary;
+    final dark = theme.brightness == Brightness.dark;
+    final surface = Color.alphaBlend(
+      tone.withValues(alpha: dark ? .06 : .03),
+      dark ? const Color(0xFF17181A) : Colors.white,
+    );
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 28),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 380),
+          child: Material(
+            key: const ValueKey('finora-confirm'),
+            color: surface,
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(22),
+              side: BorderSide(
+                color: scheme.outlineVariant.withValues(alpha: .35),
+                width: .7,
               ),
-              const SizedBox(height: 14),
-              Text(
-                title,
-                textAlign: TextAlign.center,
-                style: Theme.of(ctx).textTheme.titleLarge,
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Container(height: 3, color: tone),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(24, 22, 24, 18),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: tone.withValues(alpha: .12),
+                            ),
+                            child: Icon(
+                              destructive
+                                  ? Icons.delete_outline_rounded
+                                  : Icons.help_outline_rounded,
+                              size: 21,
+                              color: tone,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          title,
+                          style: theme.textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: -.3,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          message,
+                          style: TextStyle(
+                            color: scheme.onSurfaceVariant,
+                            height: 1.4,
+                          ),
+                        ),
+                        const SizedBox(height: 22),
+                        FilledButton(
+                          key: const ValueKey('finora-confirm-yes'),
+                          style: FilledButton.styleFrom(
+                            backgroundColor: tone,
+                            foregroundColor: destructive
+                                ? scheme.onError
+                                : scheme.onPrimary,
+                            minimumSize: const Size.fromHeight(48),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                            textStyle: const TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 15,
+                            ),
+                          ),
+                          onPressed: () => Navigator.pop(context, true),
+                          child: Text(action),
+                        ),
+                        const SizedBox(height: 8),
+                        OutlinedButton(
+                          key: const ValueKey('finora-confirm-no'),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: scheme.onSurface,
+                            minimumSize: const Size.fromHeight(46),
+                            side: BorderSide(
+                              color: scheme.outlineVariant.withValues(
+                                alpha: .6,
+                              ),
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                          ),
+                          onPressed: () => Navigator.pop(context, false),
+                          child: Text(cancel),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 8),
-              Text(
-                message,
-                textAlign: TextAlign.center,
-                style: TextStyle(color: scheme.onSurfaceVariant),
-              ),
-              const SizedBox(height: 18),
-              FilledButton(
-                key: const ValueKey('finora-confirm-yes'),
-                style: destructive
-                    ? FilledButton.styleFrom(
-                        backgroundColor: scheme.error,
-                        foregroundColor: scheme.onError,
-                      )
-                    : null,
-                onPressed: () => Navigator.pop(ctx, true),
-                child: Text(action),
-              ),
-              TextButton(
-                onPressed: () => Navigator.pop(ctx, false),
-                child: Text(cancel),
-              ),
-            ],
+            ),
           ),
         ),
       ),
-    ),
-  );
-  return ok == true;
+    );
+  }
 }

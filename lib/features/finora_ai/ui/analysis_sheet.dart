@@ -11,7 +11,8 @@ import '../widgets/ai_chat_widgets.dart';
 import '../widgets/insight_card.dart';
 
 /// «Анализ»: the forecast, what Finora noticed and possible subscriptions —
-/// the engines' results as a plain list, readable without the chat.
+/// the engines' results as a plain list, readable without the chat. Drawn
+/// in Finora AI's own look: deep ember, glass panels, orange accents.
 Future<void> showAnalysisSheet(
   BuildContext context,
   FinoraAiSnapshot s, {
@@ -20,22 +21,98 @@ Future<void> showAnalysisSheet(
   context: context,
   isScrollControlled: true,
   useSafeArea: true,
-  showDragHandle: true,
-  builder: (context) => DraggableScrollableSheet(
-    expand: false,
-    initialChildSize: .85,
-    maxChildSize: .95,
-    // Finora AI's buttons stay orange whatever the app theme.
-    builder: (context, scroll) => Theme(
-      data: Theme.of(context).copyWith(
-        colorScheme: Theme.of(
-          context,
-        ).colorScheme.copyWith(primary: AiLook.orange, onPrimary: Colors.white),
+  backgroundColor: Colors.transparent,
+  builder: (context) {
+    final base = ThemeData(brightness: Brightness.dark, useMaterial3: true);
+    final theme = base.copyWith(
+      colorScheme: base.colorScheme.copyWith(
+        primary: AiLook.orange,
+        onPrimary: Colors.white,
+        surface: const Color(0xFF140C08),
+        onSurface: Colors.white,
+        onSurfaceVariant: AiLook.soft(.62),
+        outlineVariant: AiLook.soft(.14),
       ),
-      child: _Analysis(snapshot: s, scroll: scroll, onChanged: onChanged),
-    ),
-  ),
+      textTheme: Theme.of(context).textTheme.apply(
+        bodyColor: Colors.white,
+        displayColor: Colors.white,
+        fontFamily: Theme.of(context).textTheme.bodyMedium?.fontFamily,
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(foregroundColor: AiLook.orange),
+      ),
+      dividerColor: AiLook.soft(.1),
+    );
+    return DraggableScrollableSheet(
+      expand: false,
+      initialChildSize: .88,
+      maxChildSize: .95,
+      builder: (context, scroll) => Theme(
+        data: theme,
+        child: ClipRRect(
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+          child: DecoratedBox(
+            key: const ValueKey('finora-ai-analysis'),
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                stops: [0, .35, 1],
+                colors: [
+                  Color(0xFF3A1508),
+                  Color(0xFF1A0C07),
+                  Color(0xFF0B0807),
+                ],
+              ),
+            ),
+            child: Column(
+              children: [
+                const SizedBox(height: 10),
+                Container(
+                  width: 38,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: AiLook.soft(.25),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                Expanded(
+                  child: _Analysis(
+                    snapshot: s,
+                    scroll: scroll,
+                    onChanged: onChanged,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  },
 );
+
+/// A glass panel of the analysis (in place of the app's light cards).
+class _Panel extends StatelessWidget {
+  const _Panel({super.key, required this.child, this.padding});
+  final Widget child;
+  final EdgeInsets? padding;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    width: double.infinity,
+    padding: padding ?? const EdgeInsets.all(16),
+    decoration: BoxDecoration(
+      color: AiLook.soft(.06),
+      borderRadius: BorderRadius.circular(18),
+      border: Border.all(color: AiLook.soft(.1), width: .8),
+    ),
+    child: DefaultTextStyle.merge(
+      style: const TextStyle(color: Colors.white, height: 1.38),
+      child: child,
+    ),
+  );
+}
 
 class _Analysis extends StatefulWidget {
   const _Analysis({
@@ -59,8 +136,28 @@ class _AnalysisState extends State<_Analysis> {
     final scheme = Theme.of(context).colorScheme;
     final f = s.forecast;
     Widget title(String t) => Padding(
-      padding: const EdgeInsets.fromLTRB(4, 18, 4, 8),
-      child: Text(t, style: Theme.of(context).textTheme.titleMedium),
+      padding: const EdgeInsets.fromLTRB(4, 20, 4, 8),
+      child: Row(
+        children: [
+          Container(
+            width: 4,
+            height: 16,
+            decoration: BoxDecoration(
+              gradient: AiLook.accent(),
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            t,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Colors.white,
+            ),
+          ),
+        ],
+      ),
     );
     Widget line(String label, int value, {bool strong = false}) => Padding(
       padding: const EdgeInsets.symmetric(vertical: 5),
@@ -90,9 +187,38 @@ class _AnalysisState extends State<_Analysis> {
       controller: widget.scroll,
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 28),
       children: [
-        Text('Анализ', style: Theme.of(context).textTheme.headlineSmall),
+        Padding(
+          padding: const EdgeInsets.only(top: 14),
+          child: Row(
+            children: [
+              Container(
+                width: 34,
+                height: 34,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: AiLook.accent(),
+                ),
+                child: const Icon(
+                  Icons.insights_rounded,
+                  size: 18,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(width: 12),
+              const Text(
+                'Анализ',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                  letterSpacing: -.3,
+                ),
+              ),
+            ],
+          ),
+        ),
         title('Прогноз на месяц'),
-        SurfaceCard(
+        _Panel(
           key: const ValueKey('finora-ai-forecast'),
           padding: const EdgeInsets.fromLTRB(18, 12, 18, 12),
           child: Column(
@@ -123,7 +249,7 @@ class _AnalysisState extends State<_Analysis> {
         // «Умные наблюдения» can be turned off in the AI settings.
         if (s.ctx.data.preferences.ai.insights) ...[
           title('Что я заметила'),
-          SurfaceCard(
+          _Panel(
             key: const ValueKey('finora-ai-insights'),
             padding: const EdgeInsets.fromLTRB(16, 6, 16, 6),
             child: Column(
@@ -139,7 +265,7 @@ class _AnalysisState extends State<_Analysis> {
           for (final sub in subs)
             Padding(
               padding: const EdgeInsets.only(bottom: 8),
-              child: SurfaceCard(
+              child: _Panel(
                 padding: const EdgeInsets.fromLTRB(16, 12, 12, 6),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -186,21 +312,21 @@ class _AnalysisState extends State<_Analysis> {
         // dreams — each only when there is something to show.
         if (s.timeline.events.isNotEmpty || s.timeline.late.isNotEmpty) ...[
           title('Ближайшие платежи'),
-          SurfaceCard(
+          _Panel(
             key: const ValueKey('finora-ai-upcoming'),
             child: Text(ResponseLayer.upcoming(s)),
           ),
         ],
         if (ResponseLayer.subscriptionSummary(s).isNotEmpty) ...[
           title('Подписки'),
-          SurfaceCard(
+          _Panel(
             key: const ValueKey('finora-ai-subscriptions'),
             child: Text(ResponseLayer.subscriptionSummary(s)),
           ),
         ],
         if (s.cushion != null || s.stability != null) ...[
           title('Подушка и стабильность'),
-          SurfaceCard(
+          _Panel(
             key: const ValueKey('finora-ai-health'),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -215,7 +341,7 @@ class _AnalysisState extends State<_Analysis> {
         ],
         if (s.goalForecasts.any((g) => !g.done)) ...[
           title('Мечты'),
-          SurfaceCard(
+          _Panel(
             key: const ValueKey('finora-ai-goals'),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -245,7 +371,7 @@ class _AnalysisState extends State<_Analysis> {
               !_answered.contains('month:${i.subject}'),
         )) ...[
           title('Необычный месяц'),
-          SurfaceCard(
+          _Panel(
             key: const ValueKey('finora-ai-unusual'),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
