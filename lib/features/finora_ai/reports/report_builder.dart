@@ -2,6 +2,7 @@ import 'package:intl/intl.dart';
 
 import '../../../domain/models.dart';
 import '../../../domain/payment_plan.dart';
+import '../../../domain/planning/bill_split.dart';
 import '../../../presentation/widgets/common.dart' show money;
 
 enum ReportPeriod { week, month }
@@ -37,7 +38,15 @@ class FinanceReport {
     required this.debtPaidMinor,
     required this.debtLeftMinor,
     required this.savedToGoalsMinor,
+    this.splitOutflowMinor = 0,
+    this.splitPersonalMinor = 0,
+    this.splitReturnedMinor = 0,
+    this.splitOwedMinor = 0,
   });
+
+  /// Split bills of the period: money out, own spending, returned, owed.
+  final int splitOutflowMinor, splitPersonalMinor, splitReturnedMinor;
+  final int splitOwedMinor;
   final ReportPeriod period;
   final DateTime start, end;
   final String currency;
@@ -133,7 +142,20 @@ abstract final class ReportBuilder {
       }
       debtLeft += PaymentPlan.of(r, data.entries, now: clock).leftMinor;
     }
+    var sOut = 0, sOwn = 0, sBack = 0, sOwed = 0;
+    for (final split in data.extras.splits) {
+      final st = BillSplits.status(data, split);
+      if (st == null || !inside(st.entry, start, end)) continue;
+      sOut += st.outflowMinor;
+      sOwn += st.personalMinor;
+      sBack += st.returnedMinor;
+      sOwed += st.stillOwedMinor;
+    }
     return FinanceReport(
+      splitOutflowMinor: sOut,
+      splitPersonalMinor: sOwn,
+      splitReturnedMinor: sBack,
+      splitOwedMinor: sOwed,
       period: period,
       start: start,
       end: end,
@@ -198,6 +220,13 @@ abstract final class ReportBuilder {
     }
     if (r.savedToGoalsMinor > 0) {
       lines.add('Отложено в мечты: ${m(r.savedToGoalsMinor)}.');
+    }
+    if (r.splitOutflowMinor > 0) {
+      lines.add(
+        'Разделённые счета: со счёта ${m(r.splitOutflowMinor)}, личный расход '
+        '${m(r.splitPersonalMinor)}, вернули ${m(r.splitReturnedMinor)}, ещё к '
+        'возврату ${m(r.splitOwedMinor)} (возвраты — не доход).',
+      );
     }
     if (r.debtPaidMinor > 0 || r.debtLeftMinor > 0) {
       lines.add(

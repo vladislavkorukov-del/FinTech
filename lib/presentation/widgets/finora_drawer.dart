@@ -11,6 +11,13 @@ import '../screens/entry_editor.dart';
 import '../screens/management.dart';
 import '../screens/settings.dart';
 import '../screens/debts_screen.dart';
+import '../screens/phase8/data_health_screen.dart';
+import '../screens/phase8/goal_funding_screen.dart';
+import '../screens/phase8/income_plan_screen.dart';
+import '../screens/phase8/prices_screen.dart';
+import '../screens/phase8/purchases_screen.dart';
+import '../screens/phase8/rules_screen.dart';
+import '../screens/phase8/time_machine_screen.dart';
 import '../../features/finora_ai/ui/ai_settings_screen.dart';
 import '../../features/finora_ai/ui/report_screen.dart';
 import 'profile_avatar.dart';
@@ -297,6 +304,70 @@ class FinoraDrawer extends StatelessWidget {
                         ),
                       // Settings right here: the pages people open most, and
                       // the whole list.
+                    ],
+                  ),
+                  divider(),
+                  // Phase 8: planning tools.
+                  _DrawerSection(
+                    key: const ValueKey('drawer-section-planning'),
+                    title: tr('Планирование'),
+                    storageKey: 'drawer-planning',
+                    children: [
+                      for (final (key, icon, label, screen)
+                          in <(String, IconData, String, Widget)>[
+                            (
+                              'income-plan',
+                              CupertinoIcons.calendar_today,
+                              'Доход и лимиты',
+                              const IncomePlanScreen(),
+                            ),
+                            (
+                              'goal-funding',
+                              CupertinoIcons.flag,
+                              'Цели и приоритеты',
+                              const GoalFundingScreen(),
+                            ),
+                            (
+                              'time-machine',
+                              CupertinoIcons.clock,
+                              'Машина времени',
+                              const TimeMachineScreen(),
+                            ),
+                            (
+                              'data-health',
+                              CupertinoIcons.checkmark_shield,
+                              'Проверка данных',
+                              const DataHealthScreen(),
+                            ),
+                            (
+                              'purchases',
+                              CupertinoIcons.cube_box,
+                              'Покупки',
+                              const PurchasesScreen(),
+                            ),
+                            (
+                              'prices',
+                              CupertinoIcons.tag,
+                              'Цены',
+                              const PricesScreen(),
+                            ),
+                            (
+                              'rules',
+                              CupertinoIcons.arrow_branch,
+                              'Правила',
+                              const RulesScreen(),
+                            ),
+                          ])
+                        row(
+                          key: ValueKey('drawer-$key'),
+                          icon: icon,
+                          label: tr(label),
+                          onTap: () {
+                            Haptics.light();
+                            Navigator.pop(context);
+                            page(screen);
+                          },
+                        ),
                     ],
                   ),
                   divider(),

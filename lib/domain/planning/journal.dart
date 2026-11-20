@@ -29,6 +29,8 @@ abstract final class Journal {
 
   static bool _same(FinanceEntry? a, FinanceEntry b) {
     if (a == null) return false;
+    // Unchanged operations keep the same object: no work for 100 000 rows.
+    if (identical(a, b)) return true;
     final x = a.toJson()..remove('recordedAt');
     final y = b.toJson()..remove('recordedAt');
     return jsonEncode(x) == jsonEncode(y);
@@ -64,6 +66,7 @@ abstract final class Journal {
           jsonEncode(json(x)..removeWhere((k, _) => ignore.contains(k)));
       for (final e in right.entries) {
         final was = left[e.key];
+        if (identical(was, e.value)) continue;
         if (was == null) {
           add(kind, {'action': 'add', 'id': e.key, 'after': json(e.value)});
         } else if (key(was) != key(e.value)) {

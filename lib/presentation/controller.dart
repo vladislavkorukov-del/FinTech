@@ -1,3 +1,6 @@
+import '../domain/planning/journal.dart';
+import '../domain/planning/rules_engine.dart';
+import '../domain/planning/time_machine.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io' show Platform;
@@ -202,9 +205,22 @@ class FinanceController extends ChangeNotifier {
   }) {
     final result = _tail.then((_) async {
       final before = data;
+      final now = DateTime.now();
+      var changed = FinanceRepository.normalizeCategoryPreferences(
+        transform(before),
+      );
+      // Phase 8: when each operation became known (time machine), and the
+      // personal rules on what happened — once per event, in the same save.
+      changed = Journal.stamp(before, changed, now);
+      if (changed.extras.rules.any((r) => r.enabled)) {
+        final events = RulesEngine.events(before, changed, now: now);
+        if (events.isNotEmpty) {
+          changed = RulesEngine.process(changed, events, now: now).$1;
+        }
+      }
       final next = _withAchievements(
         before,
-        FinanceRepository.normalizeCategoryPreferences(transform(before)),
+        changed,
         activity: activity,
         payments: payments?.call() ?? const [],
       );
@@ -214,9 +230,55 @@ class FinanceController extends ChangeNotifier {
       // reminder editors can wait for this same result and surface failures.
       if (synchronizeNotifications) _queueNotificationSync(data);
       notifyListeners();
+      // The time machine's journal after the screen is up to date.
+      await _journal(before, next, now);
     });
     _tail = result.catchError((Object _) {});
     return result;
+  }
+
+  /// The time machine's journal for a saved change, and the day's plan
+  /// state (once a day, and after a plan or a reconciliation changes). A
+  /// failure here never undoes the save.
+  Future<void> _journal(FinanceData before, FinanceData next, DateTime now) async {
+    try {
+      final events = Journal.diff(before, next, now);
+      await repository.appendHistory(events);
+      final planChanged = events.any(
+        (e) => e.kind == 'goalFunding' || e.kind == 'reconciliation',
+      );
+      await ensureSnapshot(now: now, force: planChanged);
+    } on Object {
+      // The journal is a record; the ledger is already saved.
+    }
+  }
+
+  DateTime? _lastSnapshot;
+
+  /// Saves today's plan state unless one is saved already (or [force]).
+  Future<void> ensureSnapshot({DateTime? now, bool force = false}) async {
+    final clock = now ?? DateTime.now();
+    _lastSnapshot ??= (await repository.history(kinds: {'snapshot'}))
+        .lastOrNull
+        ?.at;
+    final last = _lastSnapshot;
+    if (!force &&
+        last != null &&
+        last.year == clock.year &&
+        last.month == clock.month &&
+        last.day == clock.day) {
+      return;
+    }
+    final snapshot = PlanSnapshot.compute(data, clock);
+    await repository.appendHistory([
+      HistoryEvent(
+        id: 'snapshot-${clock.microsecondsSinceEpoch}',
+        at: clock,
+        kind: 'snapshot',
+        payload: snapshot.json,
+      ),
+    ]);
+    _lastSnapshot = clock;
   }
 
   Future<void> preferences(AppPreferences value) =>

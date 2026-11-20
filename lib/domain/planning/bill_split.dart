@@ -98,6 +98,27 @@ abstract final class BillSplits {
     }
     checkAmounts(entry.amountMinor, own, parts);
     final clock = now ?? DateTime.now();
+    // A debt rule needs an income category: «Возврат долга» (made once).
+    var categories = data.categories;
+    var category = categories
+        .where(
+          (k) =>
+              !k.archived &&
+              k.kind == EntryKind.income &&
+              RegExp(r'возврат|долг', caseSensitive: false).hasMatch(k.name),
+        )
+        .firstOrNull;
+    if (category == null) {
+      category = Category(
+        id: newId(),
+        name: 'Возврат долга',
+        kind: EntryKind.income,
+        color: 0xff7ed6a5,
+        icon: 0,
+        order: categories.length,
+      );
+      categories = [...categories, category];
+    }
     final rules = <RecurringRule>[];
     final shares = <SplitShare>[];
     for (var i = 0; i < names.length; i++) {
@@ -107,6 +128,7 @@ abstract final class BillSplits {
             '${names[i].trim()} · ${entry.payee.isEmpty ? 'общий счёт' : entry.payee}',
         accountId: entry.accountId,
         currency: entry.currency,
+        categoryId: category.id,
         kind: EntryKind.income,
         amountMinor: parts[i],
         totalMinor: parts[i],
@@ -131,6 +153,7 @@ abstract final class BillSplits {
       method: method,
     );
     return data.copyWith(
+      categories: categories,
       recurring: [...data.recurring, ...rules],
       extras: data.extras.copyWith(splits: [...data.extras.splits, split]),
     );

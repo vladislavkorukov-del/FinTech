@@ -80,7 +80,10 @@ class BudgetCard extends StatelessWidget {
       c.periodStart,
       c.periodEnd,
     );
-    final ratio = budget.limitMinor > 0 ? spent / budget.limitMinor : 0.0;
+    // Phase 8: the limit plus what rules (or the person) returned to it
+    // this period.
+    final limit = RulesEngine.effectiveLimit(c.data, budget, c.periodStart);
+    final ratio = limit > 0 ? spent / limit : 0.0;
     final elapsed = math.max(
       1,
       DateTime.now().difference(c.periodStart).inDays + 1,
@@ -93,7 +96,7 @@ class BudgetCard extends StatelessWidget {
         ? const Color(0xFFD8AC65)
         : Theme.of(context).colorScheme.primary;
     final scheme = Theme.of(context).colorScheme;
-    final over = spent > budget.limitMinor;
+    final over = spent > limit;
     // Release: a compact card — name and share on one line, a thin bar,
     // spent of limit on the left and what is left on the right.
     return SurfaceCard(
@@ -151,7 +154,7 @@ class BudgetCard extends StatelessWidget {
                     ),
                     Flexible(
                       child: Text(
-                        ' из ${money(budget.limitMinor, budget.currency)}',
+                        ' из ${money(limit, budget.currency)}',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
@@ -164,7 +167,7 @@ class BudgetCard extends StatelessWidget {
                 ),
               ),
               Text(
-                '${over ? 'Превышение' : 'Осталось'} ${money((budget.limitMinor - spent).abs(), budget.currency)}',
+                '${over ? 'Превышение' : 'Осталось'} ${money((limit - spent).abs(), budget.currency)}',
                 style: TextStyle(
                   color: over ? scheme.error : scheme.onSurfaceVariant,
                   fontSize: 13,

@@ -34,6 +34,7 @@ import 'achievements_screen.dart';
 import 'developer_screen.dart';
 import 'entry_editor.dart';
 import '../../domain/monetization.dart';
+import '../../domain/planning/rules_engine.dart';
 import 'settings.dart';
 import '../l10n_widgets.dart';
 

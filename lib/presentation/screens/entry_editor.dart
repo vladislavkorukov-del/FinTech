@@ -37,6 +37,9 @@ import '../widgets/amount_pad.dart';
 import '../widgets/service_badge.dart';
 import 'management.dart';
 import 'batch_entries_screen.dart';
+import 'phase8/prices_screen.dart';
+import 'phase8/purchases_screen.dart';
+import 'phase8/split_screen.dart';
 import 'developer_screen.dart';
 import '../../domain/monetization.dart';
 import 'scan_import_screen.dart';
@@ -942,6 +945,49 @@ class _EntryEditorState extends State<EntryEditor> {
             ),
             const SizedBox(width: 10),
           ],
+          // Phase 8: a saved expense can be split, get a purchase card or
+          // give a product price (no expense is made twice).
+          if (editingHistory && widget.entry!.kind == EntryKind.expense)
+            PopupMenuButton<String>(
+              key: const ValueKey('entry-more'),
+              tooltip: 'Ещё',
+              onSelected: (v) {
+                final e = widget.entry!;
+                final page = switch (v) {
+                  'split' => SplitScreen(entryId: e.id) as Widget,
+                  'price' => PricesScreen(fromEntry: e),
+                  _ => null,
+                };
+                if (v == 'purchase') {
+                  final card = c.data.extras.purchases
+                      .where((p) => p.entryId == e.id)
+                      .firstOrNull;
+                  showPurchaseEditor(context, purchase: card, entry: e);
+                } else if (page != null) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute<void>(builder: (_) => page),
+                  );
+                }
+              },
+              itemBuilder: (_) => [
+                PopupMenuItem(
+                  value: 'split',
+                  child: Text(
+                    c.data.extras.splits.any(
+                          (s) => s.entryId == widget.entry!.id,
+                        )
+                        ? 'Разделённый счёт'
+                        : 'Я заплатил за всех',
+                  ),
+                ),
+                const PopupMenuItem(
+                  value: 'purchase',
+                  child: Text('Карточка покупки'),
+                ),
+                const PopupMenuItem(value: 'price', child: Text('Цена товара')),
+              ],
+            ),
           if (widget.entry != null)
             IconButton(
               tooltip: 'Дублировать',

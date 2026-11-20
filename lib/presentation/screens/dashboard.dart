@@ -1,3 +1,5 @@
+import '../../domain/planning/rules_engine.dart';
+import 'phase8/rules_screen.dart' show RuleNoticesCard;
 import '../../features/finora_ai/widgets/important_insight.dart';
 import '../i18n.dart';
 import 'package:flutter/material.dart' hide InputDecoration, Text;
@@ -353,6 +355,11 @@ class Dashboard extends StatelessWidget {
                       c.periodStart,
                       c.periodEnd,
                     );
+                    final limit = RulesEngine.effectiveLimit(
+                      c.data,
+                      budget,
+                      c.periodStart,
+                    );
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -362,8 +369,8 @@ class Dashboard extends StatelessWidget {
                         ),
                         const SizedBox(height: 12),
                         GradientProgress(
-                          value: (spent / budget.limitMinor).clamp(0, 1),
-                          color: spent > budget.limitMinor
+                          value: (spent / limit).clamp(0, 1),
+                          color: spent > limit
                               ? colors.expense
                               : scheme.primary,
                           minHeight: 6,
@@ -371,7 +378,7 @@ class Dashboard extends StatelessWidget {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          '${money(spent, budget.currency)} из ${money(budget.limitMinor, budget.currency)}',
+                          '${money(spent, budget.currency)} из ${money(limit, budget.currency)}',
                           style: const TextStyle(fontSize: 12),
                         ),
                       ],
@@ -406,7 +413,11 @@ class Dashboard extends StatelessWidget {
       // card now. Phase 6: what needs attention now comes first.
       header: const Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [SizedBox(height: 50), ImportantInsightCard()],
+        children: [
+          SizedBox(height: 50),
+          RuleNoticesCard(),
+          ImportantInsightCard(),
+        ],
       ),
       // 1.26: no hint here any more — the tour explains dragging.
       footer: const SizedBox(height: 18),
