@@ -1,7 +1,9 @@
 // Domain models contain no Flutter or persistence dependencies.
 // Amounts are minor currency units (kopecks/cents), never floating point.
 import 'achievements.dart' show AchievementState;
+import 'extras.dart';
 import 'monetization.dart' show DeveloperSettings;
+export 'extras.dart';
 export 'monetization.dart' show DeveloperSettings;
 
 enum EntryKind { expense, income, transfer }
@@ -197,6 +199,23 @@ class FinanceEntry {
   final double? latitude;
   final double? longitude;
 
+  /// What the money movement is besides income or expense (Phase 8):
+  /// null — ordinary; `reimbursement` — a debt paid back to the person (the
+  /// balance grows, but it is not earned income); `adjustment` — an explicit
+  /// balance correction after a reconciliation (not spending or income).
+  final String? purpose;
+
+  /// When the app learned of this operation (added or last changed); null
+  /// for operations from before it was recorded. The time machine uses it
+  /// to tell what was known on a past day.
+  final DateTime? recordedAt;
+
+  static const reimbursement = 'reimbursement', adjustment = 'adjustment';
+
+  /// Counts as earned income or real spending (not a debt returned or a
+  /// balance correction).
+  bool get isOrdinary => purpose == null;
+
   const FinanceEntry({
     required this.id,
     this.recurringRuleId,
@@ -223,6 +242,8 @@ class FinanceEntry {
     this.tags = const [],
     this.latitude,
     this.longitude,
+    this.purpose,
+    this.recordedAt,
   });
 
   FinanceEntry copyWith({
@@ -251,6 +272,8 @@ class FinanceEntry {
     List<String>? tags,
     Object? latitude = _absent,
     Object? longitude = _absent,
+    Object? purpose = _absent,
+    Object? recordedAt = _absent,
   }) => FinanceEntry(
     id: id ?? this.id,
     recurringRuleId: identical(recurringRuleId, _absent)
@@ -303,6 +326,10 @@ class FinanceEntry {
     longitude: identical(longitude, _absent)
         ? this.longitude
         : longitude as double?,
+    purpose: identical(purpose, _absent) ? this.purpose : purpose as String?,
+    recordedAt: identical(recordedAt, _absent)
+        ? this.recordedAt
+        : recordedAt as DateTime?,
   );
 
   Map<String, Object?> toJson() => {
@@ -331,6 +358,8 @@ class FinanceEntry {
     'tags': tags,
     'latitude': latitude,
     'longitude': longitude,
+    'purpose': purpose,
+    'recordedAt': recordedAt?.toIso8601String(),
   };
 
   factory FinanceEntry.fromJson(Map<String, dynamic> json) => FinanceEntry(
@@ -361,6 +390,10 @@ class FinanceEntry {
     tags: (json['tags'] as List<dynamic>? ?? const []).cast<String>(),
     latitude: (json['latitude'] as num?)?.toDouble(),
     longitude: (json['longitude'] as num?)?.toDouble(),
+    purpose: json['purpose'] as String?,
+    recordedAt: json['recordedAt'] == null
+        ? null
+        : DateTime.tryParse(json['recordedAt'] as String),
   );
 }
 
@@ -1209,6 +1242,10 @@ class FinanceData {
   /// 1.44: what was received and what the ledger alone cannot tell again.
   final AchievementState achievements;
 
+  /// Phase 8: reconciliations, splits, goal funding, rules, purchases,
+  /// prices.
+  final FinanceExtras extras;
+
   // 2.2: Finora's world, games and wardrobe were removed; old backups that
   // still carry 'wardrobe' and 'world' load with those keys ignored.
 
@@ -1224,6 +1261,7 @@ class FinanceData {
     this.demo = false,
     this.shopping = const [],
     this.achievements = const AchievementState(),
+    this.extras = const FinanceExtras(),
   });
 
   factory FinanceData.empty() => const FinanceData();
@@ -1240,6 +1278,7 @@ class FinanceData {
     bool? demo,
     List<ShoppingItem>? shopping,
     AchievementState? achievements,
+    FinanceExtras? extras,
   }) => FinanceData(
     accounts: accounts ?? this.accounts,
     categories: categories ?? this.categories,
@@ -1252,6 +1291,7 @@ class FinanceData {
     demo: demo ?? this.demo,
     shopping: shopping ?? this.shopping,
     achievements: achievements ?? this.achievements,
+    extras: extras ?? this.extras,
   );
 
   Map<String, Object?> toJson() => {
@@ -1266,6 +1306,7 @@ class FinanceData {
     'demo': demo,
     'shopping': shopping.map((item) => item.toJson()).toList(),
     'achievements': achievements.toJson(),
+    'extras': extras.toJson(),
   };
 
   factory FinanceData.fromJson(Map<String, dynamic> json) => FinanceData(
@@ -1315,5 +1356,6 @@ class FinanceData {
             Map<String, dynamic>.from(json['achievements'] as Map),
           )
         : const AchievementState(),
+    extras: FinanceExtras.fromJson(json['extras']),
   );
 }

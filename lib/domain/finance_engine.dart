@@ -101,6 +101,9 @@ abstract final class FinanceEngine {
       if (entry.currency != currency || !_inPeriod(entry, start, end)) {
         continue;
       }
+      // A debt paid back or a balance correction moves money but is not
+      // earned income or spending (Phase 8).
+      if (!entry.isOrdinary) continue;
       switch (entry.kind) {
         case EntryKind.income:
           income = _add(income, entry.amountMinor);
@@ -122,6 +125,7 @@ abstract final class FinanceEngine {
       .where(
         (entry) =>
             entry.kind == EntryKind.expense &&
+            entry.isOrdinary &&
             entry.currency == budget.currency &&
             (budget.categoryId == null ||
                 entry.categoryId == budget.categoryId) &&
@@ -142,6 +146,7 @@ abstract final class FinanceEngine {
     final result = <String, int>{};
     for (final entry in entries) {
       if (entry.kind != kind ||
+          !entry.isOrdinary ||
           entry.currency != currency ||
           !_inPeriod(entry, start, end)) {
         continue;
@@ -250,11 +255,14 @@ abstract final class FinanceEngine {
         );
       }
       final matches = data.categories.where((c) => c.id == entry.categoryId);
-      if (matches.isEmpty || matches.first.kind != entry.kind) {
+      // A debt paid back or a balance correction may have no category.
+      final optional = !entry.isOrdinary && entry.categoryId == null;
+      if (!optional && (matches.isEmpty || matches.first.kind != entry.kind)) {
         throw const FormatException('Выберите категорию подходящего типа');
       }
       if (entry.subcategory != null &&
-          !matches.first.subcategories.contains(entry.subcategory)) {
+          (matches.isEmpty ||
+              !matches.first.subcategories.contains(entry.subcategory))) {
         throw const FormatException('Подкатегория не найдена');
       }
     }

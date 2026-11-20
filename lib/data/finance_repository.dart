@@ -22,7 +22,7 @@ class FinanceRepository {
   final DatabaseFactory _factory;
   final String _path;
   final DateTime Function() _clock;
-  static const schemaVersion = 8;
+  static const schemaVersion = 9;
   static const maxBackupBytes = 50 * 1024 * 1024;
 
   static Future<FinanceRepository> open({
@@ -147,6 +147,17 @@ class FinanceRepository {
               }
             }
           }
+          if (oldVersion < 9) {
+            // Phase 8: what an operation is besides income/expense, when
+            // the app learned of it, and the journal of the time machine.
+            final columns = await db.rawQuery('PRAGMA table_info(entries)');
+            for (final name in const ['purpose', 'recordedAt']) {
+              if (!columns.any((c) => c['name'] == name)) {
+                await db.execute('ALTER TABLE entries ADD COLUMN $name TEXT');
+              }
+            }
+            await db.execute(_historyTable);
+          }
         },
       ),
     );
@@ -186,6 +197,52 @@ class FinanceRepository {
   }
 
   Future<void> close() => _db.close();
+
+  /// Backups and database copies of any version up to this one.
+  static bool _supported(Object? version) =>
+      version is int && version >= 1 && version <= schemaVersion;
+
+  /// Appends [events] to the time machine's journal (kept apart from the
+  /// ledger: a save never rewrites it).
+  Future<void> appendHistory(List<HistoryEvent> events) async {
+    if (events.isEmpty) return;
+    await _db.execute(_historyTable);
+    final batch = _db.batch();
+    for (final e in events) {
+      batch.insert('history', {
+        'id': e.id,
+        'at': e.at.toIso8601String(),
+        'kind': e.kind,
+        'payload': jsonEncode(e.payload),
+      }, conflictAlgorithm: ConflictAlgorithm.ignore);
+    }
+    await batch.commit(noResult: true);
+  }
+
+  /// The journal, oldest first; [kinds] narrows it.
+  Future<List<HistoryEvent>> history({Set<String>? kinds}) async {
+    await _db.execute(_historyTable);
+    final rows = await _db.query('history', orderBy: 'at, id');
+    return [
+      for (final r in rows)
+        if (kinds == null || kinds.contains(r['kind']))
+          HistoryEvent(
+            id: r['id'] as String,
+            at: DateTime.parse(r['at'] as String),
+            kind: r['kind'] as String,
+            payload: Map<String, Object?>.from(
+              jsonDecode(r['payload'] as String) as Map,
+            ),
+          ),
+    ];
+  }
+
+  /// Replaces the journal (a backup being restored).
+  Future<void> replaceHistory(List<HistoryEvent> events) async {
+    await _db.execute(_historyTable);
+    await _db.delete('history');
+    await appendHistory(events);
+  }
 
   /// Remove seeded records only. Personal records created while exploring the
   /// demo survive; referenced sample accounts remain with zero opening balance.
@@ -360,6 +417,7 @@ class FinanceRepository {
       'attachments': attachments,
       'serviceIcons': serviceIcons,
       if (goalPhotos.isNotEmpty) 'goalPhotos': goalPhotos,
+      'history': [for (final e in await history()) e.toJson()],
       ...extra,
     });
     if (utf8.encode(result).length > maxBackupBytes) {
@@ -452,6 +510,13 @@ class FinanceRepository {
         ],
       );
       await save(data, transform: transform);
+      final journal = envelope['history'];
+      if (journal is List) {
+        await replaceHistory([
+          for (final e in journal)
+            if (e is Map) HistoryEvent.fromJson(Map<String, dynamic>.from(e)),
+        ]);
+      }
     } on Object {
       for (final directory in staged) {
         if (await directory.exists()) {
@@ -501,7 +566,7 @@ class FinanceRepository {
     try {
       final envelope = jsonDecode(content);
       if (envelope is! Map<String, dynamic> ||
-          ![1, 2, 3, 4, schemaVersion].contains(envelope['schemaVersion']) ||
+          !_supported(envelope['schemaVersion']) ||
           envelope['data'] is! Map<String, dynamic>) {
         throw const FormatException('Неподдерживаемый формат резервной копии');
       }
@@ -699,7 +764,7 @@ class FinanceRepository {
         options: OpenDatabaseOptions(readOnly: true, singleInstance: false),
       );
       final version = await backup.getVersion();
-      if (![1, 2, 3, 4, schemaVersion].contains(version)) {
+      if (!_supported(version)) {
         throw const FormatException('Неподдерживаемая версия базы');
       }
       final check = await backup.rawQuery('PRAGMA integrity_check');
@@ -1053,10 +1118,20 @@ class FinanceRepository {
         ],
         // 1.44: achievements live in settings too.
         achievements: _achievements(settings['achievements']),
+        extras: _extras(settings['extras']),
         // 2.2: 'wardrobe' and 'finora_world' rows of older versions are
         // ignored (Finora's world and wardrobe were removed).
       ),
     );
+  }
+
+  static FinanceExtras _extras(String? raw) {
+    if (raw == null) return const FinanceExtras();
+    try {
+      return FinanceExtras.fromJson(jsonDecode(raw));
+    } on Object {
+      return const FinanceExtras();
+    }
   }
 
   static AchievementState _achievements(String? raw) {
@@ -1170,7 +1245,17 @@ class FinanceRepository {
       'key': 'achievements',
       'value': jsonEncode(data.achievements.toJson()),
     });
+    // Phase 8: the money mechanics live in settings too.
+    await db.insert('settings', {
+      'key': 'extras',
+      'value': jsonEncode(data.extras.toJson()),
+    });
   }
+
+  /// The time machine's journal: changes and saved plan states, appended
+  /// and never rewritten by a save of the ledger.
+  static const _historyTable =
+      'CREATE TABLE IF NOT EXISTS history(id TEXT PRIMARY KEY, at TEXT NOT NULL, kind TEXT NOT NULL, payload TEXT NOT NULL)';
 
   static const _schema = [
     'CREATE TABLE currencies(code TEXT PRIMARY KEY, minorDigits INTEGER NOT NULL)',
@@ -1178,7 +1263,8 @@ class FinanceRepository {
     'CREATE TABLE accounts(id TEXT PRIMARY KEY, name TEXT NOT NULL, type TEXT NOT NULL, currency TEXT NOT NULL REFERENCES currencies(code), bank TEXT NOT NULL, lastFour TEXT NOT NULL, openingMinor INTEGER NOT NULL, creditLimitMinor INTEGER NOT NULL, excluded INTEGER NOT NULL, archived INTEGER NOT NULL, color INTEGER NOT NULL, icon INTEGER NOT NULL)',
     'CREATE TABLE categories(id TEXT PRIMARY KEY, name TEXT NOT NULL, kind TEXT NOT NULL, color INTEGER NOT NULL, background INTEGER NOT NULL, icon INTEGER NOT NULL, "order" INTEGER NOT NULL, archived INTEGER NOT NULL DEFAULT 0)',
     'CREATE TABLE subcategories(categoryId TEXT NOT NULL REFERENCES categories(id), name TEXT NOT NULL, position INTEGER NOT NULL, PRIMARY KEY(categoryId,name))',
-    'CREATE TABLE entries(id TEXT PRIMARY KEY, kind TEXT NOT NULL, amountMinor INTEGER NOT NULL CHECK(amountMinor > 0), currency TEXT NOT NULL REFERENCES currencies(code), accountId TEXT NOT NULL REFERENCES accounts(id), toAccountId TEXT REFERENCES accounts(id), toGoalId TEXT REFERENCES goals(id), categoryId TEXT REFERENCES categories(id), subcategory TEXT, destinationMinor INTEGER, date TEXT NOT NULL, note TEXT NOT NULL, payee TEXT NOT NULL, status TEXT NOT NULL, recurrence TEXT NOT NULL, memberId TEXT NOT NULL REFERENCES members(id), serviceId TEXT, serviceIconPath TEXT, latitude REAL, longitude REAL, recurringRuleId TEXT, planningBatchId TEXT, plannedDueDate TEXT)',
+    'CREATE TABLE entries(id TEXT PRIMARY KEY, kind TEXT NOT NULL, amountMinor INTEGER NOT NULL CHECK(amountMinor > 0), currency TEXT NOT NULL REFERENCES currencies(code), accountId TEXT NOT NULL REFERENCES accounts(id), toAccountId TEXT REFERENCES accounts(id), toGoalId TEXT REFERENCES goals(id), categoryId TEXT REFERENCES categories(id), subcategory TEXT, destinationMinor INTEGER, date TEXT NOT NULL, note TEXT NOT NULL, payee TEXT NOT NULL, status TEXT NOT NULL, recurrence TEXT NOT NULL, memberId TEXT NOT NULL REFERENCES members(id), serviceId TEXT, serviceIconPath TEXT, latitude REAL, longitude REAL, recurringRuleId TEXT, planningBatchId TEXT, plannedDueDate TEXT, purpose TEXT, recordedAt TEXT)',
+    _historyTable,
     'CREATE INDEX entries_date ON entries(date)',
     'CREATE INDEX entries_account ON entries(accountId)',
     'CREATE INDEX entries_category ON entries(categoryId)',
