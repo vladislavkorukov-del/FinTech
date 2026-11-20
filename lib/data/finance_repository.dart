@@ -182,18 +182,55 @@ class FinanceRepository {
     return repository;
   }
 
-  Future<FinanceData> load() => _read(_db);
+  /// What the database holds now (after the last load or save), so that a
+  /// save writes only the operations that changed (Phase 8: 100 000+ rows).
+  FinanceData? _saved;
 
+  /// When the last daily plan state was saved (read on load).
+  DateTime? lastSnapshotAt;
+
+  Future<FinanceData> load() async {
+    final data = await _read(_db);
+    _saved = data;
+    try {
+      await _db.execute(_historyTable);
+      final rows = await _db.rawQuery(
+        "SELECT MAX(at) AS at FROM history WHERE kind = 'snapshot'",
+      );
+      final at = rows.firstOrNull?['at'];
+      lastSnapshotAt = at is String ? DateTime.tryParse(at) : null;
+    } on Object {
+      lastSnapshotAt = null;
+    }
+    return data;
+  }
+
+  /// Saves [data]; [history] (time machine journal) is written in the same
+  /// transaction, so the journal never waits on, or holds up, another save.
   Future<void> save(
     FinanceData data, {
     FinanceSnapshotTransform? transform,
+    List<HistoryEvent> history = const [],
   }) async {
     var normalized = normalizeCategoryPreferences(data);
     if (transform != null) {
       normalized = normalizeCategoryPreferences(transform(normalized));
     }
     validateData(normalized);
-    await _db.transaction((txn) => _write(txn, normalized));
+    final previous = _saved;
+    _saved = null;
+    await _db.transaction((txn) async {
+      if (previous == null) {
+        await _write(txn, normalized);
+      } else {
+        await _writeChanged(txn, previous, normalized);
+      }
+      if (history.isNotEmpty) await _insertHistory(txn, history);
+    });
+    _saved = normalized;
+    for (final e in history) {
+      if (e.kind == 'snapshot') lastSnapshotAt = e.at;
+    }
   }
 
   Future<void> close() => _db.close();
@@ -207,7 +244,14 @@ class FinanceRepository {
   Future<void> appendHistory(List<HistoryEvent> events) async {
     if (events.isEmpty) return;
     await _db.execute(_historyTable);
-    final batch = _db.batch();
+    await _insertHistory(_db, events);
+  }
+
+  static Future<void> _insertHistory(
+    DatabaseExecutor db,
+    List<HistoryEvent> events,
+  ) async {
+    final batch = db.batch();
     for (final e in events) {
       batch.insert('history', {
         'id': e.id,
@@ -1044,9 +1088,14 @@ class FinanceRepository {
         row['key'] as String: row['value'] as String,
     };
     final subcategories = await db.query('subcategories', orderBy: 'position');
-    final tags = await db.rawQuery(
+    // Tags grouped by operation once (not searched per operation: with
+    // 100 000 rows that was quadratic).
+    final tags = <Object?, List<Object?>>{};
+    for (final t in await db.rawQuery(
       'SELECT et.entryId, t.name FROM entry_tags et JOIN tags t ON t.id = et.tagId ORDER BY et.position',
-    );
+    )) {
+      (tags[t['entryId']] ??= []).add(t['name']);
+    }
     final attachmentPaths = {
       for (final a in await db.query('attachments')) a['entryId']: a['path'],
     };
@@ -1072,10 +1121,7 @@ class FinanceRepository {
             .map(
               (r) => FinanceEntry.fromJson({
                 ...r,
-                'tags': tags
-                    .where((t) => t['entryId'] == r['id'])
-                    .map((t) => t['name'])
-                    .toList(),
+                'tags': tags[r['id']] ?? const [],
                 'attachmentPath': attachmentPaths[r['id']],
               }),
             )
@@ -1146,11 +1192,99 @@ class FinanceRepository {
     }
   }
 
-  static Future<void> _write(DatabaseExecutor db, FinanceData data) async {
+  /// A save that rewrites the small tables and only the operations that
+  /// differ from [before] (added, changed, removed). Foreign keys are
+  /// checked at commit, so parents can be rewritten under existing rows.
+  static Future<void> _writeChanged(
+    Transaction db,
+    FinanceData before,
+    FinanceData after,
+  ) async {
+    await db.execute('PRAGMA defer_foreign_keys = ON');
+    final old = {for (final e in before.entries) e.id: e};
+    final now = {for (final e in after.entries) e.id: e};
+    final removed = [
+      for (final id in old.keys)
+        if (!now.containsKey(id)) id,
+    ];
+    final changed = <FinanceEntry>[
+      for (final e in after.entries)
+        if (!identical(old[e.id], e) &&
+            (old[e.id] == null ||
+                jsonEncode(old[e.id]!.toJson()) != jsonEncode(e.toJson())))
+          e,
+    ];
+    // Everything except the operations: small, written whole.
+    final rest = after.copyWith(entries: const []);
+    await _write(db, rest, keepEntries: true);
+    final batch = db.batch();
+    for (final id in [...removed, ...changed.map((e) => e.id)]) {
+      batch.delete('entry_tags', where: 'entryId = ?', whereArgs: [id]);
+      batch.delete('attachments', where: 'entryId = ?', whereArgs: [id]);
+      batch.delete('entries', where: 'id = ?', whereArgs: [id]);
+    }
+    await batch.commit(noResult: true);
+    await _insertEntries(db, changed);
+  }
+
+  /// Inserts [entries] with their tags and receipts in one batch (tag ids
+  /// first: a tag is a row of its own).
+  static Future<void> _insertEntries(
+    DatabaseExecutor db,
+    List<FinanceEntry> entries,
+  ) async {
+    if (entries.isEmpty) return;
+    final tagIds = <String, int>{
+      for (final r in await db.query('tags'))
+        r['name'] as String: r['id'] as int,
+    };
+    for (final e in entries) {
+      for (final tag in e.tags) {
+        if (!tagIds.containsKey(tag)) {
+          tagIds[tag] = await db.insert('tags', {'name': tag});
+        }
+      }
+    }
+    var batch = db.batch();
+    var pending = 0;
+    for (final e in entries) {
+      final row = e.toJson()
+        ..remove('tags')
+        ..remove('attachmentPath');
+      batch.insert('entries', row);
+      var position = 0;
+      for (final tag in e.tags.toSet()) {
+        batch.insert('entry_tags', {
+          'entryId': e.id,
+          'tagId': tagIds[tag],
+          'position': position++,
+        });
+      }
+      if (e.attachmentPath != null) {
+        batch.insert('attachments', {
+          'entryId': e.id,
+          'path': e.attachmentPath,
+        });
+      }
+      if (++pending >= 2000) {
+        await batch.commit(noResult: true);
+        batch = db.batch();
+        pending = 0;
+      }
+    }
+    await batch.commit(noResult: true);
+  }
+
+  static Future<void> _write(
+    DatabaseExecutor db,
+    FinanceData data, {
+    bool keepEntries = false,
+  }) async {
+    // One batch for the small tables (a round trip per row was the slow
+    // part of a save); the operations go in their own batches.
+    final batch = db.batch();
     for (final table in [
-      'entry_tags',
-      'attachments',
-      'entries',
+      if (!keepEntries) ...['entry_tags', 'attachments', 'entries'],
       'recurring',
       'budgets',
       'subcategories',
@@ -1158,11 +1292,11 @@ class FinanceRepository {
       'goals',
       'accounts',
       'members',
-      'tags',
+      if (!keepEntries) 'tags',
       'currencies',
       'settings',
     ]) {
-      await db.delete(table);
+      batch.delete(table);
     }
     final currencies = <String>{
       'RUB',
@@ -1177,22 +1311,22 @@ class FinanceRepository {
       ...data.goals.map((g) => g.currency),
     };
     for (final c in currencies) {
-      await db.insert('currencies', {'code': c, 'minorDigits': 2});
+      batch.insert('currencies', {'code': c, 'minorDigits': 2});
     }
     Map<String, Object?> scalar(Map<String, Object?> input) => input.map(
       (key, value) => MapEntry(key, value is bool ? (value ? 1 : 0) : value),
     );
     for (final a in data.accounts) {
-      await db.insert('accounts', scalar(a.toJson()));
+      batch.insert('accounts', scalar(a.toJson()));
     }
     for (final m in data.members) {
-      await db.insert('members', m.toJson());
+      batch.insert('members', m.toJson());
     }
     for (final c in data.categories) {
       final row = c.toJson()..remove('subcategories');
-      await db.insert('categories', scalar(row));
+      batch.insert('categories', scalar(row));
       for (var i = 0; i < c.subcategories.length; i++) {
-        await db.insert('subcategories', {
+        batch.insert('subcategories', {
           'categoryId': c.id,
           'name': c.subcategories[i],
           'position': i,
@@ -1200,56 +1334,35 @@ class FinanceRepository {
       }
     }
     for (final g in data.goals) {
-      await db.insert('goals', g.toJson());
-    }
-    final tagIds = <String, int>{};
-    for (final e in data.entries) {
-      final row = e.toJson()
-        ..remove('tags')
-        ..remove('attachmentPath');
-      await db.insert('entries', row);
-      var position = 0;
-      for (final tag in e.tags.toSet()) {
-        final id = tagIds[tag] ?? await db.insert('tags', {'name': tag});
-        tagIds[tag] = id;
-        await db.insert('entry_tags', {
-          'entryId': e.id,
-          'tagId': id,
-          'position': position++,
-        });
-      }
-      if (e.attachmentPath != null) {
-        await db.insert('attachments', {
-          'entryId': e.id,
-          'path': e.attachmentPath,
-        });
-      }
+      batch.insert('goals', g.toJson());
     }
     for (final b in data.budgets) {
-      await db.insert('budgets', b.toJson());
+      batch.insert('budgets', b.toJson());
     }
     for (final r in data.recurring) {
-      await db.insert('recurring', scalar(r.toJson()));
+      batch.insert('recurring', scalar(r.toJson()));
     }
-    await db.insert('settings', {'key': 'initialized', 'value': 'true'});
-    await db.insert('settings', {'key': 'demo', 'value': data.demo.toString()});
-    await db.insert('settings', {
+    batch.insert('settings', {'key': 'initialized', 'value': 'true'});
+    batch.insert('settings', {'key': 'demo', 'value': data.demo.toString()});
+    batch.insert('settings', {
       'key': 'preferences',
       'value': jsonEncode(data.preferences.toJson()),
     });
-    await db.insert('settings', {
+    batch.insert('settings', {
       'key': 'shopping',
       'value': jsonEncode([for (final s in data.shopping) s.toJson()]),
     });
-    await db.insert('settings', {
+    batch.insert('settings', {
       'key': 'achievements',
       'value': jsonEncode(data.achievements.toJson()),
     });
     // Phase 8: the money mechanics live in settings too.
-    await db.insert('settings', {
+    batch.insert('settings', {
       'key': 'extras',
       'value': jsonEncode(data.extras.toJson()),
     });
+    await batch.commit(noResult: true);
+    await _insertEntries(db, data.entries);
   }
 
   /// The time machine's journal: changes and saved plan states, appended

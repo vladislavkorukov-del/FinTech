@@ -224,61 +224,83 @@ class FinanceController extends ChangeNotifier {
         activity: activity,
         payments: payments?.call() ?? const [],
       );
-      await repository.save(next);
+      await _rootSave(next, _journal(before, next, now));
       data = next;
       // Commit first. Ordinary ledger actions stay nonblocking, while explicit
       // reminder editors can wait for this same result and surface failures.
       if (synchronizeNotifications) _queueNotificationSync(data);
       notifyListeners();
-      // The time machine's journal after the screen is up to date.
-      await _journal(before, next, now);
     });
     _tail = result.catchError((Object _) {});
     return result;
   }
 
-  /// The time machine's journal for a saved change, and the day's plan
-  /// state (once a day, and after a plan or a reconciliation changes). A
-  /// failure here never undoes the save.
-  Future<void> _journal(FinanceData before, FinanceData next, DateTime now) async {
+  /// Runs the save in the root zone: the database's own steps then never
+  /// wait on a caller's zone (a test's fake clock), and the result — or the
+  /// error — comes back through a completer of the caller's zone.
+  Future<void> _rootSave(FinanceData next, List<HistoryEvent> history) {
+    final done = Completer<void>.sync();
+    Zone.root.run(
+      () => repository
+          .save(next, history: history)
+          .then((_) => done.complete(), onError: done.completeError),
+    );
+    return done.future;
+  }
+
+  /// The time machine's journal for a change, and the day's plan state
+  /// (once a day, and after a plan or a reconciliation changes). Written in
+  /// the same transaction as the change; a failure to build it never stops
+  /// the save.
+  List<HistoryEvent> _journal(
+    FinanceData before,
+    FinanceData next,
+    DateTime now,
+  ) {
     try {
       final events = Journal.diff(before, next, now);
-      await repository.appendHistory(events);
       final planChanged = events.any(
         (e) => e.kind == 'goalFunding' || e.kind == 'reconciliation',
       );
-      await ensureSnapshot(now: now, force: planChanged);
+      final snapshot = _snapshotEvent(next, now, force: planChanged);
+      return [...events, ?snapshot];
     } on Object {
-      // The journal is a record; the ledger is already saved.
+      return const [];
     }
   }
 
-  DateTime? _lastSnapshot;
-
-  /// Saves today's plan state unless one is saved already (or [force]).
-  Future<void> ensureSnapshot({DateTime? now, bool force = false}) async {
-    final clock = now ?? DateTime.now();
-    _lastSnapshot ??= (await repository.history(kinds: {'snapshot'}))
-        .lastOrNull
-        ?.at;
-    final last = _lastSnapshot;
+  HistoryEvent? _snapshotEvent(
+    FinanceData d,
+    DateTime clock, {
+    bool force = false,
+  }) {
+    final last = repository.lastSnapshotAt;
     if (!force &&
         last != null &&
         last.year == clock.year &&
         last.month == clock.month &&
         last.day == clock.day) {
-      return;
+      return null;
     }
-    final snapshot = PlanSnapshot.compute(data, clock);
-    await repository.appendHistory([
-      HistoryEvent(
-        id: 'snapshot-${clock.microsecondsSinceEpoch}',
-        at: clock,
-        kind: 'snapshot',
-        payload: snapshot.json,
-      ),
-    ]);
-    _lastSnapshot = clock;
+    return HistoryEvent(
+      id: 'snapshot-${clock.microsecondsSinceEpoch}',
+      at: clock,
+      kind: 'snapshot',
+      payload: PlanSnapshot.compute(d, clock).json,
+    );
+  }
+
+  /// Kept for callers that wait for the journal: it is written with each
+  /// save now, so there is nothing left to wait for.
+  Future<void> journalSettled() => Future.value();
+
+  /// Saves today's plan state unless one is saved already (or [force]).
+  Future<void> ensureSnapshot({DateTime? now, bool force = false}) async {
+    final clock = now ?? DateTime.now();
+    final event = _snapshotEvent(data, clock, force: force);
+    if (event == null) return;
+    await repository.appendHistory([event]);
+    repository.lastSnapshotAt = clock;
   }
 
   Future<void> preferences(AppPreferences value) =>

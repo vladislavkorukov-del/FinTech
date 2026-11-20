@@ -26,6 +26,7 @@ class _TimeMachineScreenState extends State<TimeMachineScreen> {
 
   Future<void> _load() async {
     final c = FinanceScope.of(context);
+    await c.journalSettled();
     await c.ensureSnapshot();
     final h = await c.repository.history();
     if (mounted) setState(() => _history = h);

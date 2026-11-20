@@ -140,6 +140,8 @@ void main() {
         }
         await Future<void>.delayed(const Duration(milliseconds: 10));
       }
+      // The form closes after the save, in the same real-time turn.
+      await Future<void>.delayed(const Duration(milliseconds: 50));
     });
     await tester.pumpAndSettle();
   }

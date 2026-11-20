@@ -1069,7 +1069,9 @@ Future<FinanceData> _createLegacyV1(
       ..remove('serviceId')
       ..remove('serviceIconPath')
       ..remove('attachmentPath')
-      ..remove('tags');
+      ..remove('tags')
+      ..remove('purpose')
+      ..remove('recordedAt');
     if (version == 2) {
       row['toGoalId'] = null;
     }

@@ -17,8 +17,19 @@ int _add(int a, int b) {
   return result.toInt();
 }
 
-String _hash(Object value) =>
-    sha256.convert(utf8.encode(jsonEncode(value))).toString();
+/// A row's fingerprint. When the app learned of a row (`recordedAt`, the
+/// time machine's stamp) is bookkeeping, not a change to the plan.
+String _hash(Object value) => sha256
+    .convert(
+      utf8.encode(
+        jsonEncode(
+          value is Map<String, Object?>
+              ? (Map<String, Object?>.of(value)..remove('recordedAt'))
+              : value,
+        ),
+      ),
+    )
+    .toString();
 
 class WeeklyDebtPlanRequest {
   WeeklyDebtPlanRequest({

@@ -378,11 +378,11 @@ void main() {
   group('Машина времени', () {
     test('a correction later does not rewrite the saved past', () {
       const goal = Goal(id: 'trip', name: 'Отпуск', targetMinor: 6000000);
-      var data = FinanceData(
+      var data = const FinanceData(
         accounts: accounts,
         categories: categories,
-        goals: const [goal],
-        extras: const FinanceExtras(
+        goals: [goal],
+        extras: FinanceExtras(
           goalFunding: GoalFunding(
             plans: [GoalPlan(goalId: 'trip', monthlyMinor: 500000)],
           ),
@@ -574,9 +574,9 @@ void main() {
       categories: categories,
       goals: [goal],
       budgets: [budget],
-      extras: FinanceExtras(
+      extras: const FinanceExtras(
         rules: [
-          const PersonalRule(
+          PersonalRule(
             id: 'r1',
             name: 'Проект — 20 % в резерв',
             trigger: 'income',
@@ -590,7 +590,7 @@ void main() {
               },
             ],
           ),
-          const PersonalRule(
+          PersonalRule(
             id: 'r2',
             name: 'Возврат — в бюджет',
             trigger: 'refund',
@@ -598,7 +598,7 @@ void main() {
               {'type': 'restoreBudget', 'auto': true},
             ],
           ),
-          const PersonalRule(
+          PersonalRule(
             id: 'r3',
             name: 'Возврат — ещё раз в бюджет',
             trigger: 'refund',
